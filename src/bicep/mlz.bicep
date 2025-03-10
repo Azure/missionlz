@@ -8,6 +8,7 @@ targetScope = 'subscription'
 @description('The CIDR Subnet Address Prefix for the Azure Gateway Subnet. It must be in the Hub Virtual Network space. It must be /26.')
 param azureGatewaySubnetAddressPrefix string = '10.0.129.192/26'
 
+@description('An array of Bastion Diagnostic Logs categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/bastion/monitor-bastion#collect-data-with-azure-monitor.')
 param bastionDiagnosticsLogs array = [
   {
     category: 'BastionAuditLogs'
@@ -31,7 +32,7 @@ param defenderSkuTier string = 'Free'
 @description('When set to "true", provisions Azure Gateway Subnet only. It defaults to "false".')
 param deployAzureGatewaySubnet bool = false
 
-@description('When set to "true", provisions Azure Bastion Host only. It defaults to "false".')
+@description('When set to "true", provisions Azure Bastion Host using the Standard SKU. It defaults to "false".')
 param deployBastion bool = false
 
 @description('When set to "true", enables Microsoft Defender for Cloud for the subscriptions used in the deployment. It defaults to "false".')
@@ -57,7 +58,7 @@ param deployDefender bool = true
   'StorageAccounts'
   'VirtualMachine*/
   
-@description('Paid Workload Protection plans for Defender for Cloud')
+@description('The Paid Workload Protection plans for Defender for Cloud. It defaults to "VirtualMachines". See the following URL for valid settings: https://learn.microsoft.com/rest/api/defenderforcloud-composite/pricings/update?view=rest-defenderforcloud-composite-latest&tabs=HTTP.')
 param deployDefenderPlans array = ['VirtualMachines']
 
 @description('Choose to deploy the identity resources. The identity resoures are not required if you plan to use cloud identities.')
@@ -84,10 +85,10 @@ param deployWindowsVirtualMachine bool = false
 @description('''['168.63.129.16'] The Azure Firewall DNS Proxy will forward all DNS traffic. When this value is set to true, you must provide a value for "servers". This should be a comma separated list of IP addresses to forward DNS traffic''')
 param dnsServers array = ['168.63.129.16']
 
-@description('Email address of the contact, in the form of john@doe.com')
+@description('The email address for Defender for Cloud alert notifications, in the form of john@contoso.com.')
 param emailSecurityContact string = ''
 
-@description('[true/false] The Azure Firewall DNS Proxy will forward all DNS traffic. When this value is set to true, you must provide a value for "dnsServers"')
+@description('[true/false] The Azure Firewall DNS Proxy will forward all DNS traffic. It defaults to "true".')
 param enableProxy bool = true
 
 @allowed([
@@ -194,7 +195,7 @@ param hubVirtualNetworkDiagnosticsLogs array = []
 @description('An array of Network Diagnostic Metrics to enable for the Hub Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics.')
 param hubVirtualNetworkDiagnosticsMetrics array = []
 
-@description('The hybrid use benefit provides a discount on virtual machines when a customer has an on-premises Windows Server license with Software Assurance.')
+@description('The hybrid use benefit provides a discount on virtual machines when a customer has an on-premises Windows Server license with Software Assurance. It defaults to "false".')
 param hybridUseBenefit bool = false
 
 @description('An array of Network Security Group diagnostic logs to apply to the Identity Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-network/virtual-network-nsg-manage-log#log-categories.')
@@ -297,14 +298,11 @@ param linuxVmSize string = 'Standard_D2s_v3'
 @description('The region to deploy resources into. It defaults to the deployment location.')
 param location string = deployment().location
 
-@description('The number of days to retain logs in Sentinel-linked Workspace. It defaults to "90".')
-param logAnalyticsSentinelWorkspaceRetentionInDays int = 90
-
 @description('The daily quota for Log Analytics Workspace logs in Gigabytes. It defaults to "-1" for no quota.')
 param logAnalyticsWorkspaceCappingDailyQuotaGb int = -1
 
 @description('The number of days to retain Log Analytics Workspace logs without Sentinel. It defaults to "30".')
-param logAnalyticsWorkspaceNoSentinelRetentionInDays int = 30
+param logAnalyticsWorkspaceRetentionInDays int = 30
 
 @allowed([
   'Free'
@@ -327,7 +325,7 @@ param networkWatcherFlowLogsRetentionDays int = 30
   'NetworkSecurityGroup'
   'VirtualNetwork'
 ])
-@description('When set to "true", enables Virtual Network Flow Logs. It defaults to "true" as its required by MCSB.')
+@description('The type of network watcher flow logs to enable. It defaults to "VirtualNetwork" since they provide more data and NSG flow logs will be deprecated in June 2025.')
 param networkWatcherFlowLogsType string = 'VirtualNetwork'
 
 @description('The resource ID for an existing network watcher for the desired deployment location. Only one network watcher per location can exist in a subscription. The value can be left empty to create a new network watcher resource.')
@@ -437,7 +435,7 @@ param sharedServicesVirtualNetworkDiagnosticsLogs array = []
 @description('An array of Network Diagnostic Metrics to enable for the SharedServices Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics.')
 param sharedServicesVirtualNetworkDiagnosticsMetrics array = []
 
-@description('Supported Azure Clouds array. It defaults to the Public cloud and the Azure US Government cloud.')
+@description('The Azure clouds that support specific service features. It defaults to the Azure Cloud and Azure US Government.')
 param supportedClouds array = [
   'AzureCloud'
   'AzureUSGovernment'
@@ -488,10 +486,6 @@ param windowsVmVersion string = 'latest'
 
 var firewallClientPrivateIpAddress = firewallClientUsableIpAddresses[3]
 var firewallClientUsableIpAddresses = [for i in range(0, 4): cidrHost(firewallClientSubnetAddressPrefix, i)]
-
-var logAnalyticsWorkspaceRetentionInDays = deploySentinel
-  ? logAnalyticsSentinelWorkspaceRetentionInDays
-  : logAnalyticsWorkspaceNoSentinelRetentionInDays
 
 var networks = union([
   {
