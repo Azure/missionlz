@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.33.93.31351",
-      "templateHash": "16316601219124211366"
+      "templateHash": "15321276675168249852"
     }
   },
   "parameters": {
@@ -83,10 +83,11 @@
         "description": "Choose whether to deploy Defender for Cloud."
       }
     },
-    "deployNetworkWatcher": {
+    "deployNetworkWatcherTrafficAnalytics": {
       "type": "bool",
+      "defaultValue": false,
       "metadata": {
-        "description": "Choose whether to deploy Network Watcher for the AVD session hosts location. This is necessary when the control plane and session hosts are in different locations."
+        "description": "When set to true, deploys Network Watcher Traffic Analytics. It defaults to \"false\"."
       }
     },
     "deployPolicy": {
@@ -322,6 +323,22 @@
         "description": "The resource ID for the Compute Gallery Image Version. Do not set this value if using a marketplace image."
       }
     },
+    "keyVaultDiagnosticsLogs": {
+      "type": "array",
+      "defaultValue": [
+        {
+          "category": "AuditEvent",
+          "enabled": true
+        },
+        {
+          "category": "AzurePolicyEvaluationDetails",
+          "enabled": true
+        }
+      ],
+      "metadata": {
+        "description": "An array of Key Vault Diagnostic Logs categories to collect. See \"https://learn.microsoft.com/en-us/azure/key-vault/general/logging?tabs=Vault\" for valid values."
+      }
+    },
     "locationVirtualMachines": {
       "type": "string",
       "defaultValue": "[deployment().location]",
@@ -352,6 +369,61 @@
       ],
       "metadata": {
         "description": "The SKU for the Log Analytics Workspace to setup the AVD monitoring solution"
+      }
+    },
+    "networkSecurityGroupDiagnosticsLogs": {
+      "type": "array",
+      "defaultValue": [
+        {
+          "category": "NetworkSecurityGroupEvent",
+          "enabled": true
+        },
+        {
+          "category": "NetworkSecurityGroupRuleCounter",
+          "enabled": true
+        }
+      ],
+      "metadata": {
+        "description": "An array of Network Security Group diagnostic logs to apply to the workload Virtual Network. See https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-nsg-manage-log#log-categories for valid settings."
+      }
+    },
+    "networkSecurityGroupDiagnosticsMetrics": {
+      "type": "array",
+      "defaultValue": [],
+      "metadata": {
+        "description": "The metrics to monitor for the Network Security Group."
+      }
+    },
+    "networkSecurityGroupRules": {
+      "type": "array",
+      "defaultValue": [],
+      "metadata": {
+        "description": "The rules to apply to the Network Security Group."
+      }
+    },
+    "networkWatcherFlowLogsRetentionDays": {
+      "type": "int",
+      "defaultValue": 30,
+      "metadata": {
+        "description": "The number of days to retain Network Watcher Flow Logs. It defaults to \"30\"."
+      }
+    },
+    "networkWatcherFlowLogsType": {
+      "type": "string",
+      "defaultValue": "VirtualNetwork",
+      "allowedValues": [
+        "NetworkSecurityGroup",
+        "VirtualNetwork"
+      ],
+      "metadata": {
+        "description": "When set to \"true\", enables Virtual Network Flow Logs. It defaults to \"true\" as its required by MCSB."
+      }
+    },
+    "networkWatcherResourceId": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The resource ID for an existing network watcher for the desired deployment location. Only one network watcher per location can exist in a subscription. The value can be left empty to create a new network watcher resource."
       }
     },
     "operationsLogAnalyticsWorkspaceResourceId": {
@@ -552,6 +624,20 @@
         "description": "The address prefix for the new spoke virtual network(s). Specify only one address prefix in the array if the session hosts location and the control plan location are the same. If different locations are specified, add a second address prefix for the hosts virtual network."
       }
     },
+    "virtualNetworkDiagnosticsLogs": {
+      "type": "array",
+      "defaultValue": [],
+      "metadata": {
+        "description": "The diagnostic logs to apply to the workload Virtual Network."
+      }
+    },
+    "virtualNetworkDiagnosticsMetrics": {
+      "type": "array",
+      "defaultValue": [],
+      "metadata": {
+        "description": "The metrics to monitor for the workload Virtual Network."
+      }
+    },
     "workspaceFriendlyName": {
       "type": "string",
       "defaultValue": "",
@@ -670,7 +756,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.33.93.31351",
-              "templateHash": "15849868065670521203"
+              "templateHash": "15415907016508079581"
             }
           },
           "parameters": {
@@ -1183,6 +1269,8 @@
               "networkSecurityGroup": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').networkSecurityGroups)]",
               "networkSecurityGroupDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, variables('resourceAbbreviations').networkSecurityGroups)]",
               "networkWatcher": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').networkWatchers)]",
+              "networkWatcherFlowLogsNetworkSecurityGroup": "[replace(variables('namingConvention'), parameters('tokens').resource, format('{0}-fl-nsg', variables('resourceAbbreviations').networkWatchers))]",
+              "networkWatcherFlowLogsVirtualNetwork": "[replace(variables('namingConvention'), parameters('tokens').resource, format('{0}-fl-vnet', variables('resourceAbbreviations').networkWatchers))]",
               "privateLinkScope": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').privateLinkScopes)]",
               "privateLinkScopeNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').networkInterfaces), parameters('tokens').service, variables('resourceAbbreviations').privateLinkScopes)]",
               "privateLinkScopePrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').privateEndpoints), parameters('tokens').service, variables('resourceAbbreviations').privateLinkScopes)]",
@@ -1262,11 +1350,11 @@
           "deployDefender": {
             "value": "[parameters('deployDefender')]"
           },
+          "deployNetworkWatcherTrafficAnalytics": {
+            "value": "[parameters('deployNetworkWatcherTrafficAnalytics')]"
+          },
           "deploymentNameSuffix": {
             "value": "[parameters('deploymentNameSuffix')]"
-          },
-          "deployNetworkWatcher": {
-            "value": "[parameters('deployNetworkWatcher')]"
           },
           "deployPolicy": {
             "value": "[parameters('deployPolicy')]"
@@ -1286,11 +1374,32 @@
           "identifier": {
             "value": "[parameters('identifier')]"
           },
+          "keyVaultDiagnosticsLogs": {
+            "value": "[parameters('keyVaultDiagnosticsLogs')]"
+          },
           "location": {
             "value": "[parameters('locationVirtualMachines')]"
           },
           "logAnalyticsWorkspaceResourceId": {
             "value": "[parameters('operationsLogAnalyticsWorkspaceResourceId')]"
+          },
+          "networkSecurityGroupDiagnosticsLogs": {
+            "value": "[parameters('networkSecurityGroupDiagnosticsLogs')]"
+          },
+          "networkSecurityGroupDiagnosticsMetrics": {
+            "value": "[parameters('networkSecurityGroupDiagnosticsMetrics')]"
+          },
+          "networkSecurityGroupRules": {
+            "value": "[parameters('networkSecurityGroupRules')]"
+          },
+          "networkWatcherFlowLogsRetentionDays": {
+            "value": "[parameters('networkWatcherFlowLogsRetentionDays')]"
+          },
+          "networkWatcherFlowLogsType": {
+            "value": "[parameters('networkWatcherFlowLogsType')]"
+          },
+          "networkWatcherResourceId": {
+            "value": "[parameters('networkWatcherResourceId')]"
           },
           "policy": {
             "value": "[parameters('policy')]"
@@ -1306,6 +1415,12 @@
           },
           "tags": {
             "value": "[parameters('tags')]"
+          },
+          "virtualNetworkDiagnosticsLogs": {
+            "value": "[parameters('virtualNetworkDiagnosticsLogs')]"
+          },
+          "virtualNetworkDiagnosticsMetrics": {
+            "value": "[parameters('virtualNetworkDiagnosticsMetrics')]"
           },
           "virtualNetworkAddressPrefix": {
             "value": "[parameters('virtualNetworkAddressPrefixes')[0]]"
@@ -1324,7 +1439,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.33.93.31351",
-              "templateHash": "10598981267411746069"
+              "templateHash": "17051856372751238855"
             }
           },
           "parameters": {
@@ -1354,10 +1469,11 @@
                 "description": "The suffix to append to the deployment name. It defaults to the current UTC date and time."
               }
             },
-            "deployNetworkWatcher": {
+            "deployNetworkWatcherTrafficAnalytics": {
               "type": "bool",
+              "defaultValue": false,
               "metadata": {
-                "description": "Choose whether to deploy Network Watcher for the deployment location."
+                "description": "When set to true, deploys Network Watcher Traffic Analytics. It defaults to \"false\"."
               }
             },
             "deployPolicy": {
@@ -1467,6 +1583,31 @@
               "defaultValue": [],
               "metadata": {
                 "description": "The rules to apply to the Network Security Group."
+              }
+            },
+            "networkWatcherFlowLogsRetentionDays": {
+              "type": "int",
+              "defaultValue": 30,
+              "metadata": {
+                "description": "The number of days to retain Network Watcher Flow Logs. It defaults to \"30\"."
+              }
+            },
+            "networkWatcherFlowLogsType": {
+              "type": "string",
+              "defaultValue": "VirtualNetwork",
+              "allowedValues": [
+                "NetworkSecurityGroup",
+                "VirtualNetwork"
+              ],
+              "metadata": {
+                "description": "When set to \"true\", enables Virtual Network Flow Logs. It defaults to \"true\" as its required by MCSB."
+              }
+            },
+            "networkWatcherResourceId": {
+              "type": "string",
+              "defaultValue": "",
+              "metadata": {
+                "description": "The resource ID for an existing network watcher for the desired deployment location. Only one network watcher per location can exist in a subscription. The value can be left empty to create a new network watcher resource."
               }
             },
             "policy": {
@@ -1601,7 +1742,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.33.93.31351",
-                      "templateHash": "2382123255874918133"
+                      "templateHash": "2486743018296958855"
                     }
                   },
                   "parameters": {
@@ -1681,7 +1822,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.33.93.31351",
-                              "templateHash": "15849868065670521203"
+                              "templateHash": "15415907016508079581"
                             }
                           },
                           "parameters": {
@@ -2194,6 +2335,8 @@
                               "networkSecurityGroup": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').networkSecurityGroups)]",
                               "networkSecurityGroupDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, variables('resourceAbbreviations').networkSecurityGroups)]",
                               "networkWatcher": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').networkWatchers)]",
+                              "networkWatcherFlowLogsNetworkSecurityGroup": "[replace(variables('namingConvention'), parameters('tokens').resource, format('{0}-fl-nsg', variables('resourceAbbreviations').networkWatchers))]",
+                              "networkWatcherFlowLogsVirtualNetwork": "[replace(variables('namingConvention'), parameters('tokens').resource, format('{0}-fl-vnet', variables('resourceAbbreviations').networkWatchers))]",
                               "privateLinkScope": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').privateLinkScopes)]",
                               "privateLinkScopeNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').networkInterfaces), parameters('tokens').service, variables('resourceAbbreviations').privateLinkScopes)]",
                               "privateLinkScopePrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').privateEndpoints), parameters('tokens').service, variables('resourceAbbreviations').privateLinkScopes)]",
@@ -2415,7 +2558,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.33.93.31351",
-                      "templateHash": "5246388172474140801"
+                      "templateHash": "13158109401467250998"
                     }
                   },
                   "parameters": {
@@ -2439,7 +2582,7 @@
                       "apiVersion": "2019-05-01",
                       "name": "[parameters('name')]",
                       "location": "[parameters('location')]",
-                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Resources/resourceGroups'), parameters('tags')['Microsoft.Resources/resourceGroups'], createObject()), parameters('mlzTags'))]"
+                      "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Resources/resourceGroups'), createObject()), parameters('mlzTags'))]"
                     }
                   ],
                   "outputs": {
@@ -2484,8 +2627,8 @@
                   "deploymentNameSuffix": {
                     "value": "[parameters('deploymentNameSuffix')]"
                   },
-                  "deployNetworkWatcher": {
-                    "value": "[parameters('deployNetworkWatcher')]"
+                  "deployUniqueResources": {
+                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tiers.value[0].deployUniqueResources]"
                   },
                   "hubVirtualNetworkResourceId": {
                     "value": "[parameters('hubVirtualNetworkResourceId')]"
@@ -2504,6 +2647,9 @@
                   },
                   "networkWatcherName": {
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tiers.value[0].namingConvention.networkWatcher]"
+                  },
+                  "networkWatcherResourceId": {
+                    "value": "[parameters('networkWatcherResourceId')]"
                   },
                   "resourceGroupName": {
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
@@ -2544,7 +2690,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.33.93.31351",
-                      "templateHash": "3880750075472744631"
+                      "templateHash": "5699910770493601263"
                     }
                   },
                   "parameters": {
@@ -2554,7 +2700,7 @@
                     "deploymentNameSuffix": {
                       "type": "string"
                     },
-                    "deployNetworkWatcher": {
+                    "deployUniqueResources": {
                       "type": "bool"
                     },
                     "hubVirtualNetworkResourceId": {
@@ -2573,6 +2719,9 @@
                       "type": "array"
                     },
                     "networkWatcherName": {
+                      "type": "string"
+                    },
+                    "networkWatcherResourceId": {
                       "type": "string"
                     },
                     "resourceGroupName": {
@@ -2624,8 +2773,8 @@
                           "additionalSubnets": {
                             "value": "[parameters('additionalSubnets')]"
                           },
-                          "deployNetworkWatcher": {
-                            "value": "[parameters('deployNetworkWatcher')]"
+                          "deployUniqueResources": {
+                            "value": "[parameters('deployUniqueResources')]"
                           },
                           "location": {
                             "value": "[parameters('location')]"
@@ -2641,6 +2790,9 @@
                           },
                           "networkWatcherName": {
                             "value": "[parameters('networkWatcherName')]"
+                          },
+                          "networkWatcherResourceId": {
+                            "value": "[parameters('networkWatcherResourceId')]"
                           },
                           "resourceGroupName": {
                             "value": "[parameters('resourceGroupName')]"
@@ -2680,7 +2832,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.33.93.31351",
-                              "templateHash": "17825679496986485712"
+                              "templateHash": "2286050725148082731"
                             }
                           },
                           "parameters": {
@@ -2688,7 +2840,7 @@
                               "type": "array",
                               "defaultValue": []
                             },
-                            "deployNetworkWatcher": {
+                            "deployUniqueResources": {
                               "type": "bool"
                             },
                             "location": {
@@ -2704,6 +2856,9 @@
                               "type": "array"
                             },
                             "networkWatcherName": {
+                              "type": "string"
+                            },
+                            "networkWatcherResourceId": {
                               "type": "string"
                             },
                             "resourceGroupName": {
@@ -2798,7 +2953,7 @@
                                     "_generator": {
                                       "name": "bicep",
                                       "version": "0.33.93.31351",
-                                      "templateHash": "11237544888813757516"
+                                      "templateHash": "2197479355586796636"
                                     }
                                   },
                                   "parameters": {
@@ -2824,7 +2979,7 @@
                                       "apiVersion": "2021-02-01",
                                       "name": "[parameters('name')]",
                                       "location": "[parameters('location')]",
-                                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Network/networkSecurityGroups'), parameters('tags')['Microsoft.Network/networkSecurityGroups'], createObject()), parameters('mlzTags'))]",
+                                      "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/networkSecurityGroups'), createObject()), parameters('mlzTags'))]",
                                       "properties": {
                                         "securityRules": "[parameters('securityRules')]"
                                       }
@@ -2881,7 +3036,7 @@
                                     "_generator": {
                                       "name": "bicep",
                                       "version": "0.33.93.31351",
-                                      "templateHash": "10617042070917950523"
+                                      "templateHash": "14322165813389637925"
                                     }
                                   },
                                   "parameters": {
@@ -2922,7 +3077,7 @@
                                       "apiVersion": "2021-02-01",
                                       "name": "[parameters('name')]",
                                       "location": "[parameters('location')]",
-                                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Network/routeTables'), parameters('tags')['Microsoft.Network/routeTables'], createObject()), parameters('mlzTags'))]",
+                                      "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/routeTables'), createObject()), parameters('mlzTags'))]",
                                       "properties": {
                                         "disableBgpRoutePropagation": "[parameters('disableBgpRoutePropagation')]",
                                         "routes": [
@@ -2952,7 +3107,7 @@
                               }
                             },
                             {
-                              "condition": "[parameters('deployNetworkWatcher')]",
+                              "condition": "[and(empty(parameters('networkWatcherResourceId')), parameters('deployUniqueResources'))]",
                               "type": "Microsoft.Resources/deployments",
                               "apiVersion": "2022-09-01",
                               "name": "networkWatcher",
@@ -2984,7 +3139,7 @@
                                     "_generator": {
                                       "name": "bicep",
                                       "version": "0.33.93.31351",
-                                      "templateHash": "13760222295094965145"
+                                      "templateHash": "6544693908534760839"
                                     }
                                   },
                                   "parameters": {
@@ -3007,7 +3162,7 @@
                                       "apiVersion": "2021-02-01",
                                       "name": "[parameters('name')]",
                                       "location": "[parameters('location')]",
-                                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Network/networkWatchers'), parameters('tags')['Microsoft.Network/networkWatchers'], createObject()), parameters('mlzTags'))]",
+                                      "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/networkWatchers'), createObject()), parameters('mlzTags'))]",
                                       "properties": {}
                                     }
                                   ]
@@ -3061,7 +3216,7 @@
                                     "_generator": {
                                       "name": "bicep",
                                       "version": "0.33.93.31351",
-                                      "templateHash": "5869702697217251306"
+                                      "templateHash": "15898943496915761552"
                                     }
                                   },
                                   "parameters": {
@@ -3093,7 +3248,7 @@
                                       "apiVersion": "2021-02-01",
                                       "name": "[parameters('name')]",
                                       "location": "[parameters('location')]",
-                                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Network/virtualNetworks'), parameters('tags')['Microsoft.Network/virtualNetworks'], createObject()), parameters('mlzTags'))]",
+                                      "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/virtualNetworks'), createObject()), parameters('mlzTags'))]",
                                       "properties": {
                                         "addressSpace": {
                                           "addressPrefixes": [
@@ -3425,6 +3580,10 @@
                       "type": "string",
                       "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-spoke-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkSecurityGroupName.value]"
                     },
+                    "networkSecurityGroupResourceId": {
+                      "type": "string",
+                      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-spoke-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkSecurityGroupResourceId.value]"
+                    },
                     "subnets": {
                       "type": "array",
                       "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-spoke-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnets.value]"
@@ -3460,12 +3619,6 @@
                   "deploymentNameSuffix": {
                     "value": "[parameters('deploymentNameSuffix')]"
                   },
-                  "hubResourceGroupName": {
-                    "value": "[variables('hubResourceGroupName')]"
-                  },
-                  "hubSubscriptionId": {
-                    "value": "[variables('hubSubscriptionId')]"
-                  },
                   "privateDnsZoneNames": {
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.privateDnsZones.value]"
                   },
@@ -3489,7 +3642,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.33.93.31351",
-                      "templateHash": "11862888992468899403"
+                      "templateHash": "11161371350834819427"
                     }
                   },
                   "parameters": {
@@ -3497,12 +3650,6 @@
                       "type": "string"
                     },
                     "deploymentNameSuffix": {
-                      "type": "string"
-                    },
-                    "hubResourceGroupName": {
-                      "type": "string"
-                    },
-                    "hubSubscriptionId": {
                       "type": "string"
                     },
                     "privateDnsZoneNames": {
@@ -3527,8 +3674,6 @@
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2022-09-01",
                       "name": "[format('deploy-vnet-links-{0}-rg-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))]",
-                      "subscriptionId": "[parameters('hubSubscriptionId')]",
-                      "resourceGroup": "[parameters('hubResourceGroupName')]",
                       "properties": {
                         "expressionEvaluationOptions": {
                           "scope": "inner"
@@ -3658,7 +3803,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.33.93.31351",
-                      "templateHash": "10359950761948293446"
+                      "templateHash": "9139675263565938217"
                     }
                   },
                   "parameters": {
@@ -3747,7 +3892,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.33.93.31351",
-                              "templateHash": "17420389339008036640"
+                              "templateHash": "3414494870479353277"
                             }
                           },
                           "parameters": {
@@ -3792,7 +3937,7 @@
                               "apiVersion": "2022-07-01",
                               "name": "[format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('tier').namingConvention.keyVault, parameters('tokens').service, 'cmk'), resourceGroup().id))]",
                               "location": "[parameters('location')]",
-                              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.KeyVault/vaults'), parameters('tags')['Microsoft.KeyVault/vaults'], createObject()), parameters('mlzTags'))]",
+                              "tags": "[union(coalesce(parameters('tags')['Microsoft.KeyVault/vaults'], createObject()), parameters('mlzTags'))]",
                               "properties": {
                                 "enabledForDeployment": false,
                                 "enabledForDiskEncryption": false,
@@ -3820,7 +3965,7 @@
                               "apiVersion": "2023-04-01",
                               "name": "[variables('keyVaultPrivateEndpointName')]",
                               "location": "[parameters('location')]",
-                              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Network/privateEndpoints'), parameters('tags')['Microsoft.Network/privateEndpoints'], createObject()), parameters('mlzTags'))]",
+                              "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/privateEndpoints'), createObject()), parameters('mlzTags'))]",
                               "properties": {
                                 "customNetworkInterfaceName": "[replace(parameters('tier').namingConvention.keyVaultNetworkInterface, parameters('tokens').service, 'cmk')]",
                                 "privateLinkServiceConnections": [
@@ -4005,7 +4150,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.33.93.31351",
-                              "templateHash": "5862547501608828326"
+                              "templateHash": "4892072138782221114"
                             }
                           },
                           "parameters": {
@@ -4040,7 +4185,7 @@
                               "apiVersion": "2023-04-02",
                               "name": "[parameters('diskEncryptionSetName')]",
                               "location": "[parameters('location')]",
-                              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/diskEncryptionSets'), parameters('tags')['Microsoft.Compute/diskEncryptionSets'], createObject()), parameters('mlzTags'))]",
+                              "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/diskEncryptionSets'), createObject()), parameters('mlzTags'))]",
                               "identity": {
                                 "type": "SystemAssigned"
                               },
@@ -4180,7 +4325,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.33.93.31351",
-                              "templateHash": "17131836609130371590"
+                              "templateHash": "2463677115445458253"
                             }
                           },
                           "parameters": {
@@ -4206,7 +4351,7 @@
                               "apiVersion": "2018-11-30",
                               "name": "[parameters('userAssignedIdentityName')]",
                               "location": "[parameters('location')]",
-                              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.ManagedIdentity/userAssignedIdentities'), parameters('tags')['Microsoft.ManagedIdentity/userAssignedIdentities'], createObject()), parameters('mlzTags'))]"
+                              "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.ManagedIdentity/userAssignedIdentities'), createObject()), parameters('mlzTags'))]"
                             },
                             {
                               "type": "Microsoft.Authorization/roleAssignments",
@@ -4338,7 +4483,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.33.93.31351",
-                      "templateHash": "7597004062555862058"
+                      "templateHash": "9491198993332060023"
                     }
                   },
                   "parameters": {
@@ -4454,7 +4599,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.33.93.31351",
-                              "templateHash": "15722391318226700719"
+                              "templateHash": "14895577974208032752"
                             }
                           },
                           "parameters": {
@@ -4531,7 +4676,7 @@
                               "apiVersion": "2023-01-01",
                               "name": "[uniqueString(replace(parameters('tier').namingConvention.storageAccount, parameters('serviceToken'), 'log'), resourceGroup().id)]",
                               "location": "[parameters('location')]",
-                              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Storage/storageAccounts'), parameters('tags')['Microsoft.Storage/storageAccounts'], createObject()), parameters('mlzTags'))]",
+                              "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Storage/storageAccounts'), createObject()), parameters('mlzTags'))]",
                               "identity": {
                                 "type": "UserAssigned",
                                 "userAssignedIdentities": {
@@ -4599,7 +4744,7 @@
                               "apiVersion": "2023-04-01",
                               "name": "[variables('subResources')[copyIndex()].pe]",
                               "location": "[parameters('location')]",
-                              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Network/privateEndpoints'), parameters('tags')['Microsoft.Network/privateEndpoints'], createObject()), parameters('mlzTags'))]",
+                              "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/privateEndpoints'), createObject()), parameters('mlzTags'))]",
                               "properties": {
                                 "customNetworkInterfaceName": "[variables('subResources')[copyIndex()].nic]",
                                 "privateLinkServiceConnections": [
@@ -4688,11 +4833,17 @@
                   "deploymentNameSuffix": {
                     "value": "[parameters('deploymentNameSuffix')]"
                   },
+                  "deployNetworkWatcherTrafficAnalytics": {
+                    "value": "[parameters('deployNetworkWatcherTrafficAnalytics')]"
+                  },
                   "keyVaultDiagnosticLogs": {
                     "value": "[parameters('keyVaultDiagnosticsLogs')]"
                   },
                   "keyVaultName": {
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultName.value]"
+                  },
+                  "location": {
+                    "value": "[parameters('location')]"
                   },
                   "logAnalyticsWorkspaceResourceId": {
                     "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
@@ -4705,6 +4856,15 @@
                   },
                   "networkSecurityGroupName": {
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkSecurityGroupName.value]"
+                  },
+                  "networkWatcherFlowLogsRetentionDays": {
+                    "value": "[parameters('networkWatcherFlowLogsRetentionDays')]"
+                  },
+                  "networkWatcherFlowLogsType": {
+                    "value": "[parameters('networkWatcherFlowLogsType')]"
+                  },
+                  "networkWatcherResourceId": {
+                    "value": "[parameters('networkWatcherResourceId')]"
                   },
                   "resourceGroupName": {
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
@@ -4735,7 +4895,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.33.93.31351",
-                      "templateHash": "14218679554955015614"
+                      "templateHash": "7215313935208411610"
                     }
                   },
                   "parameters": {
@@ -4745,10 +4905,16 @@
                     "deploymentNameSuffix": {
                       "type": "string"
                     },
+                    "deployNetworkWatcherTrafficAnalytics": {
+                      "type": "bool"
+                    },
                     "keyVaultDiagnosticLogs": {
                       "type": "array"
                     },
                     "keyVaultName": {
+                      "type": "string"
+                    },
+                    "location": {
                       "type": "string"
                     },
                     "logAnalyticsWorkspaceResourceId": {
@@ -4761,6 +4927,15 @@
                       "type": "array"
                     },
                     "networkSecurityGroupName": {
+                      "type": "string"
+                    },
+                    "networkWatcherFlowLogsRetentionDays": {
+                      "type": "int"
+                    },
+                    "networkWatcherFlowLogsType": {
+                      "type": "string"
+                    },
+                    "networkWatcherResourceId": {
                       "type": "string"
                     },
                     "resourceGroupName": {
@@ -4948,6 +5123,18 @@
                         },
                         "mode": "Incremental",
                         "parameters": {
+                          "deploymentNameSuffix": {
+                            "value": "[parameters('deploymentNameSuffix')]"
+                          },
+                          "deployNetworkWatcherTrafficAnalytics": {
+                            "value": "[parameters('deployNetworkWatcherTrafficAnalytics')]"
+                          },
+                          "flowLogsName": {
+                            "value": "[parameters('tier').namingConvention.networkWatcherFlowLogsNetworkSecurityGroup]"
+                          },
+                          "location": {
+                            "value": "[parameters('location')]"
+                          },
                           "logAnalyticsWorkspaceResourceId": {
                             "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
                           },
@@ -4963,8 +5150,21 @@
                           "networkSecurityGroupDiagnosticSettingName": {
                             "value": "[parameters('tier').namingConvention.networkSecurityGroupDiagnosticSetting]"
                           },
+                          "networkWatcherFlowLogsRetentionDays": {
+                            "value": "[parameters('networkWatcherFlowLogsRetentionDays')]"
+                          },
                           "networkSecurityGroupName": {
                             "value": "[parameters('networkSecurityGroupName')]"
+                          },
+                          "networkWatcherName": {
+                            "value": "[parameters('tier').namingConvention.networkWatcher]"
+                          },
+                          "networkWatcherResourceGroupName": "[if(empty(parameters('networkWatcherResourceId')), createObject('value', parameters('resourceGroupName')), createObject('value', split(parameters('networkWatcherResourceId'), '/')[4]))]",
+                          "tiername": {
+                            "value": "[parameters('tier').name]"
+                          },
+                          "networkWatcherFlowLogsType": {
+                            "value": "[parameters('networkWatcherFlowLogsType')]"
                           }
                         },
                         "template": {
@@ -4974,10 +5174,22 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.33.93.31351",
-                              "templateHash": "1210079817642117473"
+                              "templateHash": "6464142740490957154"
                             }
                           },
                           "parameters": {
+                            "deploymentNameSuffix": {
+                              "type": "string"
+                            },
+                            "deployNetworkWatcherTrafficAnalytics": {
+                              "type": "bool"
+                            },
+                            "flowLogsName": {
+                              "type": "string"
+                            },
+                            "location": {
+                              "type": "string"
+                            },
                             "logAnalyticsWorkspaceResourceId": {
                               "type": "string"
                             },
@@ -4995,6 +5207,21 @@
                             },
                             "networkSecurityGroupName": {
                               "type": "string"
+                            },
+                            "networkWatcherFlowLogsRetentionDays": {
+                              "type": "int"
+                            },
+                            "networkWatcherFlowLogsType": {
+                              "type": "string"
+                            },
+                            "networkWatcherName": {
+                              "type": "string"
+                            },
+                            "networkWatcherResourceGroupName": {
+                              "type": "string"
+                            },
+                            "tiername": {
+                              "type": "string"
                             }
                           },
                           "resources": [
@@ -5004,10 +5231,113 @@
                               "scope": "[format('Microsoft.Network/networkSecurityGroups/{0}', parameters('networkSecurityGroupName'))]",
                               "name": "[parameters('networkSecurityGroupDiagnosticSettingName')]",
                               "properties": {
-                                "storageAccountId": "[parameters('logStorageAccountResourceId')]",
-                                "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]",
                                 "logs": "[parameters('logs')]",
-                                "metrics": "[parameters('metrics')]"
+                                "metrics": "[parameters('metrics')]",
+                                "storageAccountId": "[parameters('logStorageAccountResourceId')]",
+                                "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]"
+                              }
+                            },
+                            {
+                              "condition": "[equals(parameters('networkWatcherFlowLogsType'), 'NetworkSecurityGroup')]",
+                              "type": "Microsoft.Resources/deployments",
+                              "apiVersion": "2022-09-01",
+                              "name": "[format('deploy-{0}-flowLogs-{1}', parameters('tiername'), parameters('deploymentNameSuffix'))]",
+                              "resourceGroup": "[parameters('networkWatcherResourceGroupName')]",
+                              "properties": {
+                                "expressionEvaluationOptions": {
+                                  "scope": "inner"
+                                },
+                                "mode": "Incremental",
+                                "parameters": {
+                                  "deployNetworkWatcherTrafficAnalytics": {
+                                    "value": "[parameters('deployNetworkWatcherTrafficAnalytics')]"
+                                  },
+                                  "flowLogsName": {
+                                    "value": "[parameters('flowLogsName')]"
+                                  },
+                                  "flowLogsRetentionDays": {
+                                    "value": "[parameters('networkWatcherFlowLogsRetentionDays')]"
+                                  },
+                                  "location": {
+                                    "value": "[parameters('location')]"
+                                  },
+                                  "logAnalyticsWorkspaceResourceId": {
+                                    "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
+                                  },
+                                  "networkWatcherName": {
+                                    "value": "[parameters('networkWatcherName')]"
+                                  },
+                                  "storageAccountResourceId": {
+                                    "value": "[parameters('logStorageAccountResourceId')]"
+                                  },
+                                  "targetResourceId": {
+                                    "value": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroupName'))]"
+                                  }
+                                },
+                                "template": {
+                                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                                  "contentVersion": "1.0.0.0",
+                                  "metadata": {
+                                    "_generator": {
+                                      "name": "bicep",
+                                      "version": "0.33.93.31351",
+                                      "templateHash": "9862576446266869939"
+                                    }
+                                  },
+                                  "parameters": {
+                                    "deployNetworkWatcherTrafficAnalytics": {
+                                      "type": "bool"
+                                    },
+                                    "flowLogsName": {
+                                      "type": "string"
+                                    },
+                                    "flowLogsRetentionDays": {
+                                      "type": "int"
+                                    },
+                                    "location": {
+                                      "type": "string"
+                                    },
+                                    "logAnalyticsWorkspaceResourceId": {
+                                      "type": "string"
+                                    },
+                                    "networkWatcherName": {
+                                      "type": "string"
+                                    },
+                                    "storageAccountResourceId": {
+                                      "type": "string"
+                                    },
+                                    "targetResourceId": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "resources": [
+                                    {
+                                      "type": "Microsoft.Network/networkWatchers/flowLogs",
+                                      "apiVersion": "2023-05-01",
+                                      "name": "[format('{0}/{1}', parameters('networkWatcherName'), parameters('flowLogsName'))]",
+                                      "location": "[parameters('location')]",
+                                      "properties": {
+                                        "targetResourceId": "[parameters('targetResourceId')]",
+                                        "enabled": true,
+                                        "storageId": "[parameters('storageAccountResourceId')]",
+                                        "flowAnalyticsConfiguration": {
+                                          "networkWatcherFlowAnalyticsConfiguration": {
+                                            "enabled": "[if(parameters('deployNetworkWatcherTrafficAnalytics'), parameters('deployNetworkWatcherTrafficAnalytics'), null())]",
+                                            "workspaceResourceId": "[if(parameters('deployNetworkWatcherTrafficAnalytics'), parameters('logAnalyticsWorkspaceResourceId'), null())]"
+                                          }
+                                        },
+                                        "format": {
+                                          "type": "JSON",
+                                          "version": 2
+                                        },
+                                        "retentionPolicy": {
+                                          "days": "[parameters('flowLogsRetentionDays')]",
+                                          "enabled": true
+                                        }
+                                      }
+                                    }
+                                  ]
+                                }
                               }
                             }
                           ]
@@ -5026,6 +5356,18 @@
                         },
                         "mode": "Incremental",
                         "parameters": {
+                          "deploymentNameSuffix": {
+                            "value": "[parameters('deploymentNameSuffix')]"
+                          },
+                          "deployNetworkWatcherTrafficAnalytics": {
+                            "value": "[parameters('deployNetworkWatcherTrafficAnalytics')]"
+                          },
+                          "flowLogsName": {
+                            "value": "[parameters('tier').namingConvention.networkWatcherFlowLogsVirtualNetwork]"
+                          },
+                          "location": {
+                            "value": "[parameters('location')]"
+                          },
                           "logAnalyticsWorkspaceResourceId": {
                             "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
                           },
@@ -5037,6 +5379,17 @@
                           },
                           "metrics": {
                             "value": "[parameters('virtualNetworkDiagnosticsMetrics')]"
+                          },
+                          "networkWatcherFlowLogsRetentionDays": {
+                            "value": "[parameters('networkWatcherFlowLogsRetentionDays')]"
+                          },
+                          "networkWatcherFlowLogsType": {
+                            "value": "[parameters('networkWatcherFlowLogsType')]"
+                          },
+                          "networkWatcherName": "[if(empty(parameters('networkWatcherResourceId')), createObject('value', parameters('tier').namingConvention.networkWatcher), createObject('value', split(parameters('networkWatcherResourceId'), '/')[8]))]",
+                          "networkWatcherResourceGroupName": "[if(empty(parameters('networkWatcherResourceId')), createObject('value', parameters('resourceGroupName')), createObject('value', split(parameters('networkWatcherResourceId'), '/')[4]))]",
+                          "tiername": {
+                            "value": "[parameters('tier').name]"
                           },
                           "virtualNetworkDiagnosticSettingName": {
                             "value": "[parameters('tier').namingConvention.virtualNetworkDiagnosticSetting]"
@@ -5052,10 +5405,22 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.33.93.31351",
-                              "templateHash": "1532165171430374185"
+                              "templateHash": "17015510694106150425"
                             }
                           },
                           "parameters": {
+                            "deploymentNameSuffix": {
+                              "type": "string"
+                            },
+                            "deployNetworkWatcherTrafficAnalytics": {
+                              "type": "bool"
+                            },
+                            "flowLogsName": {
+                              "type": "string"
+                            },
+                            "location": {
+                              "type": "string"
+                            },
                             "logAnalyticsWorkspaceResourceId": {
                               "type": "string"
                             },
@@ -5067,6 +5432,21 @@
                             },
                             "metrics": {
                               "type": "array"
+                            },
+                            "networkWatcherFlowLogsRetentionDays": {
+                              "type": "int"
+                            },
+                            "networkWatcherFlowLogsType": {
+                              "type": "string"
+                            },
+                            "networkWatcherName": {
+                              "type": "string"
+                            },
+                            "networkWatcherResourceGroupName": {
+                              "type": "string"
+                            },
+                            "tiername": {
+                              "type": "string"
                             },
                             "virtualNetworkDiagnosticSettingName": {
                               "type": "string"
@@ -5086,6 +5466,109 @@
                                 "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]",
                                 "logs": "[parameters('logs')]",
                                 "metrics": "[parameters('metrics')]"
+                              }
+                            },
+                            {
+                              "condition": "[equals(parameters('networkWatcherFlowLogsType'), 'VirtualNetwork')]",
+                              "type": "Microsoft.Resources/deployments",
+                              "apiVersion": "2022-09-01",
+                              "name": "[format('deploy-{0}-flowLogs-{1}', parameters('tiername'), parameters('deploymentNameSuffix'))]",
+                              "resourceGroup": "[parameters('networkWatcherResourceGroupName')]",
+                              "properties": {
+                                "expressionEvaluationOptions": {
+                                  "scope": "inner"
+                                },
+                                "mode": "Incremental",
+                                "parameters": {
+                                  "deployNetworkWatcherTrafficAnalytics": {
+                                    "value": "[parameters('deployNetworkWatcherTrafficAnalytics')]"
+                                  },
+                                  "flowLogsName": {
+                                    "value": "[parameters('flowLogsName')]"
+                                  },
+                                  "flowLogsRetentionDays": {
+                                    "value": "[parameters('networkWatcherFlowLogsRetentionDays')]"
+                                  },
+                                  "location": {
+                                    "value": "[parameters('location')]"
+                                  },
+                                  "logAnalyticsWorkspaceResourceId": {
+                                    "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
+                                  },
+                                  "networkWatcherName": {
+                                    "value": "[parameters('networkWatcherName')]"
+                                  },
+                                  "storageAccountResourceId": {
+                                    "value": "[parameters('logStorageAccountResourceId')]"
+                                  },
+                                  "targetResourceId": {
+                                    "value": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
+                                  }
+                                },
+                                "template": {
+                                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                                  "contentVersion": "1.0.0.0",
+                                  "metadata": {
+                                    "_generator": {
+                                      "name": "bicep",
+                                      "version": "0.33.93.31351",
+                                      "templateHash": "9862576446266869939"
+                                    }
+                                  },
+                                  "parameters": {
+                                    "deployNetworkWatcherTrafficAnalytics": {
+                                      "type": "bool"
+                                    },
+                                    "flowLogsName": {
+                                      "type": "string"
+                                    },
+                                    "flowLogsRetentionDays": {
+                                      "type": "int"
+                                    },
+                                    "location": {
+                                      "type": "string"
+                                    },
+                                    "logAnalyticsWorkspaceResourceId": {
+                                      "type": "string"
+                                    },
+                                    "networkWatcherName": {
+                                      "type": "string"
+                                    },
+                                    "storageAccountResourceId": {
+                                      "type": "string"
+                                    },
+                                    "targetResourceId": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "resources": [
+                                    {
+                                      "type": "Microsoft.Network/networkWatchers/flowLogs",
+                                      "apiVersion": "2023-05-01",
+                                      "name": "[format('{0}/{1}', parameters('networkWatcherName'), parameters('flowLogsName'))]",
+                                      "location": "[parameters('location')]",
+                                      "properties": {
+                                        "targetResourceId": "[parameters('targetResourceId')]",
+                                        "enabled": true,
+                                        "storageId": "[parameters('storageAccountResourceId')]",
+                                        "flowAnalyticsConfiguration": {
+                                          "networkWatcherFlowAnalyticsConfiguration": {
+                                            "enabled": "[if(parameters('deployNetworkWatcherTrafficAnalytics'), parameters('deployNetworkWatcherTrafficAnalytics'), null())]",
+                                            "workspaceResourceId": "[if(parameters('deployNetworkWatcherTrafficAnalytics'), parameters('logAnalyticsWorkspaceResourceId'), null())]"
+                                          }
+                                        },
+                                        "format": {
+                                          "type": "JSON",
+                                          "version": 2
+                                        },
+                                        "retentionPolicy": {
+                                          "days": "[parameters('flowLogsRetentionDays')]",
+                                          "enabled": true
+                                        }
+                                      }
+                                    }
+                                  ]
+                                }
                               }
                             }
                           ]
@@ -5449,9 +5932,6 @@
                 "parameters": {
                   "emailSecurityContact": {
                     "value": "[parameters('emailSecurityContact')]"
-                  },
-                  "logAnalyticsWorkspaceId": {
-                    "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
                   }
                 },
                 "template": {
@@ -5461,7 +5941,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.33.93.31351",
-                      "templateHash": "17151907584499573"
+                      "templateHash": "5325637338183897217"
                     }
                   },
                   "parameters": {
@@ -5472,19 +5952,6 @@
                       ],
                       "metadata": {
                         "description": "Defender Paid protection Plans. Even if a customer selects the free sku, at least 1 paid protection plan must be specified."
-                      }
-                    },
-                    "enableAutoProvisioning": {
-                      "type": "bool",
-                      "defaultValue": false,
-                      "metadata": {
-                        "description": "Turn automatic deployment by Defender of the MMA (OMS VM extension) on or off"
-                      }
-                    },
-                    "logAnalyticsWorkspaceId": {
-                      "type": "string",
-                      "metadata": {
-                        "description": "Specify the ID of your custom Log Analytics workspace to collect Defender data."
                       }
                     },
                     "emailSecurityContact": {
@@ -5509,7 +5976,6 @@
                     }
                   },
                   "variables": {
-                    "autoProvisioning": "[if(parameters('enableAutoProvisioning'), 'On', 'Off')]",
                     "defenderPaidPlanConfig": {
                       "AzureCloud": {
                         "Api": {
@@ -5628,27 +6094,8 @@
                       "name": "[parameters('defenderPlans')[copyIndex()]]",
                       "properties": {
                         "pricingTier": "[parameters('defenderSkuTier')]",
-                        "subPlan": "[if(contains(variables('defenderPaidPlanConfig')[environment().name][parameters('defenderPlans')[copyIndex()]], 'subPlan'), variables('defenderPaidPlanConfig')[environment().name][parameters('defenderPlans')[copyIndex()]].subPlan, json('null'))]",
-                        "extensions": "[if(contains(variables('defenderPaidPlanConfig')[environment().name][parameters('defenderPlans')[copyIndex()]], 'extensions'), variables('defenderPaidPlanConfig')[environment().name][parameters('defenderPlans')[copyIndex()]].extensions, json('null'))]"
-                      }
-                    },
-                    {
-                      "condition": "[not(or(equals(environment().name, 'AzureCloud'), equals(environment().name, 'AzureUSGovernment')))]",
-                      "type": "Microsoft.Security/autoProvisioningSettings",
-                      "apiVersion": "2019-01-01",
-                      "name": "default",
-                      "properties": {
-                        "autoProvision": "[variables('autoProvisioning')]"
-                      }
-                    },
-                    {
-                      "condition": "[not(or(equals(environment().name, 'AzureCloud'), equals(environment().name, 'AzureUSGovernment')))]",
-                      "type": "Microsoft.Security/workspaceSettings",
-                      "apiVersion": "2019-01-01",
-                      "name": "default",
-                      "properties": {
-                        "workspaceId": "[parameters('logAnalyticsWorkspaceId')]",
-                        "scope": "[subscription().id]"
+                        "subPlan": "[coalesce(tryGet(variables('defenderPaidPlanConfig')[environment().name][parameters('defenderPlans')[copyIndex()]], 'subPlan'), null())]",
+                        "extensions": "[coalesce(tryGet(variables('defenderPaidPlanConfig')[environment().name][parameters('defenderPlans')[copyIndex()]], 'extensions'), null())]"
                       }
                     },
                     {
@@ -5717,6 +6164,10 @@
             "namingConvention": {
               "type": "object",
               "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tiers.value[0].namingConvention]"
+            },
+            "networkSecurityGroupResourceId": {
+              "type": "string",
+              "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkSecurityGroupResourceId.value]"
             },
             "privateDnsZones": {
               "type": "array",
@@ -5928,7 +6379,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.33.93.31351",
-              "templateHash": "13370923587603568177"
+              "templateHash": "712588268713170648"
             }
           },
           "parameters": {
@@ -6165,7 +6616,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.33.93.31351",
-                      "templateHash": "5419438508361311272"
+                      "templateHash": "2334232117024809252"
                     }
                   },
                   "parameters": {
@@ -6255,11 +6706,9 @@
                                 "\\PhysicalDisk(*)\\Avg. Disk sec/Write",
                                 "\\Processor Information(_Total)\\% Processor Time",
                                 "\\User Input Delay per Process(*)\\Max Input Delay",
-                                "\\User Input Delay per Session(*)\\Max Input Delay",
-                                "\\RemoteFX Network(*)\\Current TCP RTT",
-                                "\\RemoteFX Network(*)\\Current UDP Bandwidth"
+                                "\\User Input Delay per Session(*)\\Max Input Delay"
                               ],
-                              "name": "perfCounterDataSource10"
+                              "name": "perfCounterDataSource30"
                             },
                             {
                               "streams": [
@@ -6268,12 +6717,9 @@
                               "samplingFrequencyInSeconds": 60,
                               "counterSpecifiers": [
                                 "\\LogicalDisk(C:)\\% Free Space",
-                                "\\LogicalDisk(C:)\\Avg. Disk sec/Transfer",
-                                "\\Terminal Services(*)\\Active Sessions",
-                                "\\Terminal Services(*)\\Inactive Sessions",
-                                "\\Terminal Services(*)\\Total Sessions"
+                                "\\LogicalDisk(C:)\\Avg. Disk sec/Transfer"
                               ],
-                              "name": "perfCounterDataSource30"
+                              "name": "perfCounterDataSource60"
                             }
                           ],
                           "windowsEventLogs": [
@@ -9128,7 +9574,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.33.93.31351",
-              "templateHash": "15855822767047787610"
+              "templateHash": "17615243235627750369"
             }
           },
           "parameters": {
@@ -9256,7 +9702,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.33.93.31351",
-                      "templateHash": "5246388172474140801"
+                      "templateHash": "13158109401467250998"
                     }
                   },
                   "parameters": {
@@ -9280,7 +9726,7 @@
                       "apiVersion": "2019-05-01",
                       "name": "[parameters('name')]",
                       "location": "[parameters('location')]",
-                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Resources/resourceGroups'), parameters('tags')['Microsoft.Resources/resourceGroups'], createObject()), parameters('mlzTags'))]"
+                      "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Resources/resourceGroups'), createObject()), parameters('mlzTags'))]"
                     }
                   ],
                   "outputs": {
@@ -9464,7 +9910,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.33.93.31351",
-                      "templateHash": "5246388172474140801"
+                      "templateHash": "13158109401467250998"
                     }
                   },
                   "parameters": {
@@ -9488,7 +9934,7 @@
                       "apiVersion": "2019-05-01",
                       "name": "[parameters('name')]",
                       "location": "[parameters('location')]",
-                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Resources/resourceGroups'), parameters('tags')['Microsoft.Resources/resourceGroups'], createObject()), parameters('mlzTags'))]"
+                      "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Resources/resourceGroups'), createObject()), parameters('mlzTags'))]"
                     }
                   ],
                   "outputs": {
@@ -11735,6 +12181,9 @@
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.namingConvention.value]"
           },
           "netAppFileShares": "[if(variables('deployFslogix'), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-fslogix-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.netAppShares.value), createObject('value', createArray('None')))]",
+          "networkSecurityGroupResourceId": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkSecurityGroupResourceId.value]"
+          },
           "organizationalUnitPath": {
             "value": "[parameters('organizationalUnitPath')]"
           },
@@ -11813,7 +12262,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.33.93.31351",
-              "templateHash": "8278605754599655765"
+              "templateHash": "6806068603946831982"
             }
           },
           "parameters": {
@@ -11939,6 +12388,9 @@
             },
             "netAppFileShares": {
               "type": "array"
+            },
+            "networkSecurityGroupResourceId": {
+              "type": "string"
             },
             "organizationalUnitPath": {
               "type": "string"
@@ -12584,6 +13036,9 @@
                   "networkInterfaceNamePrefix": {
                     "value": "[parameters('namingConvention').virtualMachineNetworkInterface]"
                   },
+                  "networkSecurityGroupResourceId": {
+                    "value": "[parameters('networkSecurityGroupResourceId')]"
+                  },
                   "organizationalUnitPath": {
                     "value": "[parameters('organizationalUnitPath')]"
                   },
@@ -12645,7 +13100,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.33.93.31351",
-                      "templateHash": "234327045714322625"
+                      "templateHash": "7515200046582259785"
                     }
                   },
                   "parameters": {
@@ -12739,6 +13194,9 @@
                     "networkInterfaceNamePrefix": {
                       "type": "string"
                     },
+                    "networkSecurityGroupResourceId": {
+                      "type": "string"
+                    },
                     "organizationalUnitPath": {
                       "type": "string"
                     },
@@ -12802,7 +13260,7 @@
                     }
                   },
                   "variables": {
-                    "$fxv#0": "Param(\r\n    [string]$ActiveDirectorySolution,\r\n    [string]$AmdVmSize,\r\n    [string]$Fslogix,\r\n    [string]$FslogixContainerType,\r\n    [string]$NetAppFileShares,\r\n    [string]$NvidiaVmSize,\r\n    [string]$StorageAccountPrefix,\r\n    [int]$StorageCount,\r\n    [int]$StorageIndex,\r\n    [string]$StorageService,\r\n    [string]$StorageSuffix,\r\n    [string]$UniqueToken\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n$WarningPreference = 'SilentlyContinue'\r\n\r\n\r\n# Convert NetAppFiles share names from a JSON array to a PowerShell array\r\n[array]$NetAppFileShares = $NetAppFileShares.Replace(\"'\",'\"') | ConvertFrom-Json\r\n$NetAppFileShares | Add-Content -Path 'C:\\cse.txt' -Force\r\n\r\n#  Add Recommended Security Settings\r\n$Settings = @(\r\n\r\n    # Set Kerberos Encryption for STIG compliance\r\n    [PSCustomObject]@{\r\n        Name = 'SupportedEncryptionTypes'\r\n        Path = 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\Kerberos\\Parameters'\r\n        PropertyType = 'DWord'\r\n        Value = 2147483640\r\n    }\r\n)\r\n\r\n#  Add Recommended AVD Settings\r\n$Settings = @(\r\n\r\n    # Disable Automatic Updates: https://learn.microsoft.com/azure/virtual-desktop/set-up-customize-master-image#disable-automatic-updates\r\n    [PSCustomObject]@{\r\n        Name = 'NoAutoUpdate'\r\n        Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU'\r\n        PropertyType = 'DWord'\r\n        Value = 1\r\n    },\r\n\r\n    # Enable Time Zone Redirection: https://learn.microsoft.com/azure/virtual-desktop/set-up-customize-master-image#set-up-time-zone-redirection\r\n    [PSCustomObject]@{\r\n        Name = 'fEnableTimeZoneRedirection'\r\n        Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n        PropertyType = 'DWord'\r\n        Value = 1\r\n    }\r\n)\r\n\r\n\r\n#  Add GPU Settings\r\n# This setting applies to the VM Size's recommended for AVD with a GPU\r\nif ($AmdVmSize -eq 'true' -or $NvidiaVmSize -eq 'true') \r\n{\r\n    $Settings += @(\r\n\r\n        # Configure GPU-accelerated app rendering: https://learn.microsoft.com/azure/virtual-desktop/configure-vm-gpu#configure-gpu-accelerated-app-rendering\r\n        [PSCustomObject]@{\r\n            Name = 'bEnumerateHWBeforeSW'\r\n            Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n            PropertyType = 'DWord'\r\n            Value = 1\r\n        },\r\n\r\n        # Configure fullscreen video encoding: https://learn.microsoft.com/azure/virtual-desktop/configure-vm-gpu#configure-fullscreen-video-encoding\r\n        [PSCustomObject]@{\r\n            Name = 'AVC444ModePreferred'\r\n            Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n            PropertyType = 'DWord'\r\n            Value = 1\r\n        }\r\n    )\r\n}\r\n\r\n# This setting applies only to VM Size's recommended for AVD with a Nvidia GPU\r\nif($NvidiaVmSize -eq 'true')\r\n{\r\n    $Settings += @(\r\n\r\n        # Configure GPU-accelerated frame encoding: https://learn.microsoft.com/azure/virtual-desktop/configure-vm-gpu#configure-gpu-accelerated-frame-encoding\r\n        [PSCustomObject]@{\r\n            Name = 'AVChardwareEncodePreferred'\r\n            Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n            PropertyType = 'DWord'\r\n            Value = 1\r\n        }\r\n    )\r\n}\r\n\r\n#  Add Fslogix Settings\r\nif($Fslogix -eq 'true')\r\n{\r\n    $FilesSuffix = '.file.' + $StorageSuffix\r\n    $CloudCacheOfficeContainers = @()\r\n    $CloudCacheProfileContainers = @()\r\n    $OfficeContainers = @()\r\n    $ProfileContainers = @()\r\n    switch($StorageService)\r\n    {\r\n        'AzureFiles' {\r\n            for($i = $StorageIndex; $i -lt $($StorageIndex + $StorageCount); $i++)\r\n            {\r\n                $CloudCacheOfficeContainers += 'type=smb,connectionString=\\\\' + $($StorageAccountPrefix + $i.ToString().PadLeft(2,'0') + $UniqueToken).Substring(0,15) + $FilesSuffix + '\\office-containers;'\r\n                $CloudCacheProfileContainers += 'type=smb,connectionString=\\\\' + $($StorageAccountPrefix + $i.ToString().PadLeft(2,'0') + $UniqueToken).Substring(0,15) + $FilesSuffix + '\\profile-containers;'\r\n                $OfficeContainers += '\\\\' + $($StorageAccountPrefix + $i.ToString().PadLeft(2,'0') + $UniqueToken).Substring(0,15) + $FilesSuffix + '\\office-containers'\r\n                $ProfileContainers += '\\\\' + $($StorageAccountPrefix + $i.ToString().PadLeft(2,'0') + $UniqueToken).Substring(0,15) + $FilesSuffix + '\\profile-containers'\r\n            }\r\n        }\r\n        'AzureNetAppFiles' {\r\n            $CloudCacheOfficeContainers += 'type=smb,connectionString=\\\\' + $NetAppFileShares[0] + '\\office-containers;'\r\n            $CloudCacheProfileContainers += 'type=smb,connectionString=\\\\' + $(if($NetAppFileShares.Length -gt 1){$NetAppFileShares[1]}else{$NetAppFileShares[0]}) + '\\profile-containers;'\r\n            $OfficeContainers += '\\\\' + $NetAppFileShares[0] + '\\office-containers'\r\n            $ProfileContainers += '\\\\' + $(if($NetAppFileShares.Length -gt 1){$NetAppFileShares[1]}else{$NetAppFileShares[0]}) + '\\profile-containers'\r\n        }\r\n    }\r\n    \r\n    $Shares = @()\r\n    $Shares += $OfficeContainers\r\n    $Shares += $ProfileContainers\r\n\r\n    $Settings += @(\r\n\r\n        # Enables Fslogix profile containers: https://learn.microsoft.com/fslogix/profile-container-configuration-reference#enabled\r\n        [PSCustomObject]@{\r\n            Name = 'Enabled'\r\n            Path = 'HKLM:\\SOFTWARE\\Fslogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 1\r\n        },\r\n\r\n        # Deletes a local profile if it exists and matches the profile being loaded from VHD: https://learn.microsoft.com/fslogix/profile-container-configuration-reference#deletelocalprofilewhenvhdshouldapply\r\n        [PSCustomObject]@{\r\n            Name = 'DeleteLocalProfileWhenVHDShouldApply'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 1\r\n        },\r\n\r\n        # The folder created in the Fslogix fileshare will begin with the username instead of the SID: https://learn.microsoft.com/fslogix/profile-container-configuration-reference#flipflopprofiledirectoryname\r\n        [PSCustomObject]@{\r\n            Name = 'FlipFlopProfileDirectoryName'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 1\r\n        },\r\n\r\n        # Specifies the number of retries attempted when a VHD(x) file is locked: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#lockedretrycount\r\n        [PSCustomObject]@{\r\n            Name = 'LockedRetryCount'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 3\r\n        },\r\n\r\n        # Specifies the number of seconds to wait between retries: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#lockedretryinterval\r\n        [PSCustomObject]@{\r\n            Name = 'LockedRetryInterval'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 15\r\n        },\r\n\r\n        # Specifies if the profile container can be accessed concurrently: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#profiletype\r\n        [PSCustomObject]@{\r\n            Name = 'ProfileType'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 0\r\n        },\r\n\r\n        # Specifies the number of seconds to wait between retries when attempting to reattach the VHD(x) container if it's disconnected unexpectedly: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#reattachintervalseconds\r\n        [PSCustomObject]@{\r\n            Name = 'ReAttachIntervalSeconds'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 15\r\n        },\r\n\r\n        # Specifies the number of times the system should attempt to reattach the VHD(x) container if it's disconnected unexpectedly: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#reattachretrycount\r\n        [PSCustomObject]@{\r\n            Name = 'ReAttachRetryCount'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 3\r\n        },\r\n\r\n        # Specifies the maximum size of the user's container in megabytes. Newly created VHD(x) containers are of this size: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#sizeinmbs\r\n        [PSCustomObject]@{\r\n            Name = 'SizeInMBs'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 30000\r\n        },\r\n\r\n        # Specifies the file extension for the profile containers: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#volumetype\r\n        [PSCustomObject]@{\r\n            Name = 'VolumeType'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'String'\r\n            Value = 'VHDX'\r\n        }\r\n    )\r\n\r\n    if($FslogixContainerType -like \"CloudCache*\")\r\n    {\r\n        $Settings += @(\r\n            # List of file system locations to search for the user's profile VHD(X) file: https://learn.microsoft.com/fslogix/profile-container-configuration-reference#vhdlocations\r\n            [PSCustomObject]@{\r\n                Name = 'CCDLocations'\r\n                Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n                PropertyType = 'MultiString'\r\n                Value = $CloudCacheProfileContainers\r\n            }\r\n        )           \r\n    }\r\n    else\r\n    {\r\n        $Settings += @(\r\n            # List of file system locations to search for the user's profile VHD(X) file: https://learn.microsoft.com/fslogix/profile-container-configuration-reference#vhdlocations\r\n            [PSCustomObject]@{\r\n                Name = 'VHDLocations'\r\n                Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n                PropertyType = 'MultiString'\r\n                Value = $ProfileContainers\r\n            }\r\n        )\r\n    }\r\n\r\n    if($FslogixContainerType -like \"*OfficeContainer\")\r\n    {\r\n        $Settings += @(\r\n\r\n            # Enables Fslogix office containers: https://learn.microsoft.com/fslogix/office-container-configuration-reference#enabled\r\n            [PSCustomObject]@{\r\n                Name = 'Enabled'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 1\r\n            },\r\n\r\n            # The folder created in the Fslogix fileshare will begin with the username instead of the SID: https://learn.microsoft.com/fslogix/office-container-configuration-reference#flipflopprofiledirectoryname\r\n            [PSCustomObject]@{\r\n                Name = 'FlipFlopProfileDirectoryName'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 1\r\n            },         \r\n            \r\n            # Teams data is redirected to the container: https://learn.microsoft.com/fslogix/office-container-configuration-reference#includeteams\r\n            [PSCustomObject]@{\r\n                Name = 'IncludeTeams'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 1\r\n            },                  \r\n\r\n            # Specifies the number of retries attempted when a VHD(x) file is locked: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=odfc#lockedretrycount\r\n            [PSCustomObject]@{\r\n                Name = 'LockedRetryCount'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 3\r\n            },\r\n\r\n            # Specifies the number of seconds to wait between retries: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=odfc#lockedretryinterval\r\n            [PSCustomObject]@{\r\n                Name = 'LockedRetryInterval'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 15\r\n            },\r\n\r\n            # Specifies the number of seconds to wait between retries when attempting to reattach the VHD(x) container if it's disconnected unexpectedly: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=odfc#reattachintervalseconds\r\n            [PSCustomObject]@{\r\n                Name = 'ReAttachIntervalSeconds'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 15\r\n            },\r\n\r\n            # Specifies the number of times the system should attempt to reattach the VHD(x) container if it's disconnected unexpectedly: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=odfc#reattachretrycount\r\n            [PSCustomObject]@{\r\n                Name = 'ReAttachRetryCount'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 3\r\n            },\r\n\r\n            # Specifies the maximum size of the user's container in megabytes: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=odfc#sizeinmbs\r\n            [PSCustomObject]@{\r\n                Name = 'SizeInMBs'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 30000\r\n            },\r\n\r\n            # Specifies the type of container: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=odfc#volumetype\r\n            [PSCustomObject]@{\r\n                Name = 'VolumeType'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'String'\r\n                Value = 'VHDX'\r\n            }\r\n        )\r\n\r\n        if($FslogixContainerType -like \"CloudCache*\")\r\n        {\r\n            $Settings += @(\r\n                # List of file system locations to search for the user's profile VHD(X) file: https://learn.microsoft.com/fslogix/profile-container-configuration-reference#vhdlocations\r\n                [PSCustomObject]@{\r\n                    Name = 'CCDLocations'\r\n                    Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                    PropertyType = 'MultiString'\r\n                    Value = $CloudCacheOfficeContainers\r\n                }\r\n            )           \r\n        }\r\n        else\r\n        {\r\n            $Settings += @(\r\n                # List of file system locations to search for the user's profile VHD(X) file: https://learn.microsoft.com/fslogix/office-container-configuration-reference#vhdlocations\r\n                [PSCustomObject]@{\r\n                    Name = 'VHDLocations'\r\n                    Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                    PropertyType = 'MultiString'\r\n                    Value = $OfficeContainers\r\n                }\r\n            )\r\n        }\r\n    }\r\n}\r\n\r\n\r\n# Set registry settings\r\nforeach($Setting in $Settings)\r\n{\r\n    # Create registry key(s) if necessary\r\n    if(!(Test-Path -Path $Setting.Path))\r\n    {\r\n        New-Item -Path $Setting.Path -Force | Out-Null\r\n    }\r\n\r\n    # Checks for existing registry setting\r\n    $Value = Get-ItemProperty -Path $Setting.Path -Name $Setting.Name -ErrorAction 'SilentlyContinue'\r\n    \r\n    # Creates the registry setting when it does not exist\r\n    if(!$Value)\r\n    {\r\n        New-ItemProperty -Path $Setting.Path -Name $Setting.Name -PropertyType $Setting.PropertyType -Value $Setting.Value -Force | Out-Null\r\n    }\r\n    # Updates the registry setting when it already exists\r\n    elseif($Value.$($Setting.Name) -ne $Setting.Value)\r\n    {\r\n        Set-ItemProperty -Path $Setting.Path -Name $Setting.Name -Value $Setting.Value -Force | Out-Null\r\n    }\r\n    Start-Sleep -Seconds 1 | Out-Null\r\n}\r\n",
+                    "$fxv#0": "Param(\r\n    [string]$ActiveDirectorySolution,\r\n    [string]$AmdVmSize,\r\n    [string]$Fslogix,\r\n    [string]$FslogixContainerType,\r\n    [string]$NetAppFileShares,\r\n    [string]$NvidiaVmSize,\r\n    [string]$StorageAccountPrefix,\r\n    [int]$StorageCount,\r\n    [int]$StorageIndex,\r\n    [string]$StorageService,\r\n    [string]$StorageSuffix,\r\n    [string]$UniqueToken\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n$WarningPreference = 'SilentlyContinue'\r\n\r\n\r\n# Convert NetAppFiles share names from a JSON array to a PowerShell array\r\n[array]$NetAppFileShares = $NetAppFileShares.Replace(\"'\",'\"') | ConvertFrom-Json\r\n$NetAppFileShares | Add-Content -Path 'C:\\cse.txt' -Force\r\n\r\n#  Add Recommended Security Settings\r\n$Settings = @(\r\n\r\n    # Set Kerberos Encryption for STIG compliance\r\n    [PSCustomObject]@{\r\n        Name = 'SupportedEncryptionTypes'\r\n        Path = 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\Kerberos\\Parameters'\r\n        PropertyType = 'DWord'\r\n        Value = 2147483640\r\n    }\r\n)\r\n\r\n#  Add Recommended AVD Settings\r\n$Settings = @(\r\n\r\n    # Disable Automatic Updates: https://learn.microsoft.com/azure/virtual-desktop/set-up-customize-master-image#disable-automatic-updates\r\n    [PSCustomObject]@{\r\n        Name = 'NoAutoUpdate'\r\n        Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU'\r\n        PropertyType = 'DWord'\r\n        Value = 1\r\n    },\r\n\r\n    # Enable Time Zone Redirection: https://learn.microsoft.com/azure/virtual-desktop/set-up-customize-master-image#set-up-time-zone-redirection\r\n    [PSCustomObject]@{\r\n        Name = 'fEnableTimeZoneRedirection'\r\n        Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n        PropertyType = 'DWord'\r\n        Value = 1\r\n    }\r\n)\r\n\r\n\r\n#  Add GPU Settings\r\n# These settings apply to any VM sizes with a GPU\r\nif ($AmdVmSize -eq 'true' -or $NvidiaVmSize -eq 'true') \r\n{\r\n    $Settings += @(\r\n\r\n        # Configure GPU-accelerated app rendering: https://learn.microsoft.com/azure/virtual-desktop/configure-vm-gpu#configure-gpu-accelerated-app-rendering\r\n        [PSCustomObject]@{\r\n            Name = 'bEnumerateHWBeforeSW'\r\n            Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n            PropertyType = 'DWord'\r\n            Value = 1\r\n        },\r\n\r\n        # Configure fullscreen video encoding: https://learn.microsoft.com/azure/virtual-desktop/configure-vm-gpu#configure-fullscreen-video-encoding\r\n        [PSCustomObject]@{\r\n            Name = 'AVC444ModePreferred'\r\n            Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n            PropertyType = 'DWord'\r\n            Value = 1\r\n        }\r\n    )\r\n}\r\n\r\n# This setting applies only to VM sizes with a NVIDIA GPU\r\nif($NvidiaVmSize -eq 'true')\r\n{\r\n    $Settings += @(\r\n\r\n        # Configure GPU-accelerated frame encoding: https://learn.microsoft.com/azure/virtual-desktop/configure-vm-gpu#configure-gpu-accelerated-frame-encoding\r\n        [PSCustomObject]@{\r\n            Name = 'AVChardwareEncodePreferred'\r\n            Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n            PropertyType = 'DWord'\r\n            Value = 1\r\n        }\r\n    )\r\n}\r\n\r\n#  Add Fslogix Settings\r\nif($Fslogix -eq 'true')\r\n{\r\n    $FilesSuffix = '.file.' + $StorageSuffix\r\n    $CloudCacheOfficeContainers = @()\r\n    $CloudCacheProfileContainers = @()\r\n    $OfficeContainers = @()\r\n    $ProfileContainers = @()\r\n    switch($StorageService)\r\n    {\r\n        'AzureFiles' {\r\n            for($i = $StorageIndex; $i -lt $($StorageIndex + $StorageCount); $i++)\r\n            {\r\n                $CloudCacheOfficeContainers += 'type=smb,connectionString=\\\\' + $($StorageAccountPrefix + $i.ToString().PadLeft(2,'0') + $UniqueToken).Substring(0,15) + $FilesSuffix + '\\office-containers;'\r\n                $CloudCacheProfileContainers += 'type=smb,connectionString=\\\\' + $($StorageAccountPrefix + $i.ToString().PadLeft(2,'0') + $UniqueToken).Substring(0,15) + $FilesSuffix + '\\profile-containers;'\r\n                $OfficeContainers += '\\\\' + $($StorageAccountPrefix + $i.ToString().PadLeft(2,'0') + $UniqueToken).Substring(0,15) + $FilesSuffix + '\\office-containers'\r\n                $ProfileContainers += '\\\\' + $($StorageAccountPrefix + $i.ToString().PadLeft(2,'0') + $UniqueToken).Substring(0,15) + $FilesSuffix + '\\profile-containers'\r\n            }\r\n        }\r\n        'AzureNetAppFiles' {\r\n            $CloudCacheOfficeContainers += 'type=smb,connectionString=\\\\' + $NetAppFileShares[0] + '\\office-containers;'\r\n            $CloudCacheProfileContainers += 'type=smb,connectionString=\\\\' + $(if($NetAppFileShares.Length -gt 1){$NetAppFileShares[1]}else{$NetAppFileShares[0]}) + '\\profile-containers;'\r\n            $OfficeContainers += '\\\\' + $NetAppFileShares[0] + '\\office-containers'\r\n            $ProfileContainers += '\\\\' + $(if($NetAppFileShares.Length -gt 1){$NetAppFileShares[1]}else{$NetAppFileShares[0]}) + '\\profile-containers'\r\n        }\r\n    }\r\n    \r\n    $Shares = @()\r\n    $Shares += $OfficeContainers\r\n    $Shares += $ProfileContainers\r\n\r\n    $Settings += @(\r\n\r\n        # Enables Fslogix profile containers: https://learn.microsoft.com/fslogix/profile-container-configuration-reference#enabled\r\n        [PSCustomObject]@{\r\n            Name = 'Enabled'\r\n            Path = 'HKLM:\\SOFTWARE\\Fslogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 1\r\n        },\r\n\r\n        # Deletes a local profile if it exists and matches the profile being loaded from VHD: https://learn.microsoft.com/fslogix/profile-container-configuration-reference#deletelocalprofilewhenvhdshouldapply\r\n        [PSCustomObject]@{\r\n            Name = 'DeleteLocalProfileWhenVHDShouldApply'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 1\r\n        },\r\n\r\n        # The folder created in the Fslogix fileshare will begin with the username instead of the SID: https://learn.microsoft.com/fslogix/profile-container-configuration-reference#flipflopprofiledirectoryname\r\n        [PSCustomObject]@{\r\n            Name = 'FlipFlopProfileDirectoryName'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 1\r\n        },\r\n\r\n        # Specifies the number of retries attempted when a VHD(x) file is locked: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#lockedretrycount\r\n        [PSCustomObject]@{\r\n            Name = 'LockedRetryCount'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 3\r\n        },\r\n\r\n        # Specifies the number of seconds to wait between retries: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#lockedretryinterval\r\n        [PSCustomObject]@{\r\n            Name = 'LockedRetryInterval'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 15\r\n        },\r\n\r\n        # Specifies if the profile container can be accessed concurrently: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#profiletype\r\n        [PSCustomObject]@{\r\n            Name = 'ProfileType'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 0\r\n        },\r\n\r\n        # Specifies the number of seconds to wait between retries when attempting to reattach the VHD(x) container if it's disconnected unexpectedly: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#reattachintervalseconds\r\n        [PSCustomObject]@{\r\n            Name = 'ReAttachIntervalSeconds'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 15\r\n        },\r\n\r\n        # Specifies the number of times the system should attempt to reattach the VHD(x) container if it's disconnected unexpectedly: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#reattachretrycount\r\n        [PSCustomObject]@{\r\n            Name = 'ReAttachRetryCount'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 3\r\n        },\r\n\r\n        # Specifies the maximum size of the user's container in megabytes. Newly created VHD(x) containers are of this size: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#sizeinmbs\r\n        [PSCustomObject]@{\r\n            Name = 'SizeInMBs'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 30000\r\n        },\r\n\r\n        # Specifies the file extension for the profile containers: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#volumetype\r\n        [PSCustomObject]@{\r\n            Name = 'VolumeType'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'String'\r\n            Value = 'VHDX'\r\n        }\r\n    )\r\n\r\n    if($FslogixContainerType -like \"CloudCache*\")\r\n    {\r\n        $Settings += @(\r\n            # List of file system locations to search for the user's profile VHD(X) file: https://learn.microsoft.com/fslogix/profile-container-configuration-reference#vhdlocations\r\n            [PSCustomObject]@{\r\n                Name = 'CCDLocations'\r\n                Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n                PropertyType = 'MultiString'\r\n                Value = $CloudCacheProfileContainers\r\n            }\r\n        )           \r\n    }\r\n    else\r\n    {\r\n        $Settings += @(\r\n            # List of file system locations to search for the user's profile VHD(X) file: https://learn.microsoft.com/fslogix/profile-container-configuration-reference#vhdlocations\r\n            [PSCustomObject]@{\r\n                Name = 'VHDLocations'\r\n                Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n                PropertyType = 'MultiString'\r\n                Value = $ProfileContainers\r\n            }\r\n        )\r\n    }\r\n\r\n    if($FslogixContainerType -like \"*OfficeContainer\")\r\n    {\r\n        $Settings += @(\r\n\r\n            # Enables Fslogix office containers: https://learn.microsoft.com/fslogix/office-container-configuration-reference#enabled\r\n            [PSCustomObject]@{\r\n                Name = 'Enabled'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 1\r\n            },\r\n\r\n            # The folder created in the Fslogix fileshare will begin with the username instead of the SID: https://learn.microsoft.com/fslogix/office-container-configuration-reference#flipflopprofiledirectoryname\r\n            [PSCustomObject]@{\r\n                Name = 'FlipFlopProfileDirectoryName'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 1\r\n            },         \r\n            \r\n            # Teams data is redirected to the container: https://learn.microsoft.com/fslogix/office-container-configuration-reference#includeteams\r\n            [PSCustomObject]@{\r\n                Name = 'IncludeTeams'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 1\r\n            },                  \r\n\r\n            # Specifies the number of retries attempted when a VHD(x) file is locked: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=odfc#lockedretrycount\r\n            [PSCustomObject]@{\r\n                Name = 'LockedRetryCount'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 3\r\n            },\r\n\r\n            # Specifies the number of seconds to wait between retries: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=odfc#lockedretryinterval\r\n            [PSCustomObject]@{\r\n                Name = 'LockedRetryInterval'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 15\r\n            },\r\n\r\n            # Specifies the number of seconds to wait between retries when attempting to reattach the VHD(x) container if it's disconnected unexpectedly: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=odfc#reattachintervalseconds\r\n            [PSCustomObject]@{\r\n                Name = 'ReAttachIntervalSeconds'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 15\r\n            },\r\n\r\n            # Specifies the number of times the system should attempt to reattach the VHD(x) container if it's disconnected unexpectedly: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=odfc#reattachretrycount\r\n            [PSCustomObject]@{\r\n                Name = 'ReAttachRetryCount'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 3\r\n            },\r\n\r\n            # Specifies the maximum size of the user's container in megabytes: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=odfc#sizeinmbs\r\n            [PSCustomObject]@{\r\n                Name = 'SizeInMBs'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 30000\r\n            },\r\n\r\n            # Specifies the type of container: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=odfc#volumetype\r\n            [PSCustomObject]@{\r\n                Name = 'VolumeType'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'String'\r\n                Value = 'VHDX'\r\n            }\r\n        )\r\n\r\n        if($FslogixContainerType -like \"CloudCache*\")\r\n        {\r\n            $Settings += @(\r\n                # List of file system locations to search for the user's profile VHD(X) file: https://learn.microsoft.com/fslogix/profile-container-configuration-reference#vhdlocations\r\n                [PSCustomObject]@{\r\n                    Name = 'CCDLocations'\r\n                    Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                    PropertyType = 'MultiString'\r\n                    Value = $CloudCacheOfficeContainers\r\n                }\r\n            )           \r\n        }\r\n        else\r\n        {\r\n            $Settings += @(\r\n                # List of file system locations to search for the user's profile VHD(X) file: https://learn.microsoft.com/fslogix/office-container-configuration-reference#vhdlocations\r\n                [PSCustomObject]@{\r\n                    Name = 'VHDLocations'\r\n                    Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                    PropertyType = 'MultiString'\r\n                    Value = $OfficeContainers\r\n                }\r\n            )\r\n        }\r\n    }\r\n}\r\n\r\n\r\n# Set registry settings\r\nforeach($Setting in $Settings)\r\n{\r\n    # Create registry key(s) if necessary\r\n    if(!(Test-Path -Path $Setting.Path))\r\n    {\r\n        New-Item -Path $Setting.Path -Force | Out-Null\r\n    }\r\n\r\n    # Checks for existing registry setting\r\n    $Value = Get-ItemProperty -Path $Setting.Path -Name $Setting.Name -ErrorAction 'SilentlyContinue'\r\n    \r\n    # Creates the registry setting when it does not exist\r\n    if(!$Value)\r\n    {\r\n        New-ItemProperty -Path $Setting.Path -Name $Setting.Name -PropertyType $Setting.PropertyType -Value $Setting.Value -Force | Out-Null\r\n    }\r\n    # Updates the registry setting when it already exists\r\n    elseif($Value.$($Setting.Name) -ne $Setting.Value)\r\n    {\r\n        Set-ItemProperty -Path $Setting.Path -Name $Setting.Name -Value $Setting.Value -Force | Out-Null\r\n    }\r\n    Start-Sleep -Seconds 1 | Out-Null\r\n}\r\n",
                     "$fxv#1": "Param(\r\n    [string]$Environment,\r\n    [string]$HostPoolName,\r\n    [string]$HostPoolResourceGroupName,\r\n    [string]$ResourceManagerUri,\r\n    [int]$SessionHostCount,\r\n    [int]$SessionHostIndex,\r\n    [string]$SubscriptionId,\r\n    [string]$TenantId,\r\n    [string]$UserAssignedIdentityClientId,\r\n    [string]$VirtualMachineNamePrefix\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n$WarningPreference = 'SilentlyContinue'\r\n\r\n# Fix the resource manager URI since only AzureCloud contains a trailing slash\r\n$ResourceManagerUriFixed = if($ResourceManagerUri[-1] -eq '/'){$ResourceManagerUri} else {$ResourceManagerUri + '/'}\r\n\r\n# Get an access token for Azure resources\r\n$AzureManagementAccessToken = (Invoke-RestMethod `\r\n    -Headers @{Metadata=\"true\"} `\r\n    -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n# Set header for Azure Management API\r\n$AzureManagementHeader = @{\r\n    'Content-Type'='application/json'\r\n    'Authorization'='Bearer ' + $AzureManagementAccessToken\r\n}\r\n\r\n# Get the AVD session hosts\r\n$SessionHosts = (Invoke-RestMethod `\r\n    -Headers $AzureManagementHeader `\r\n    -Method 'GET' `\r\n    -Uri $($ResourceManagerUriFixed + 'subscriptions/' + $SubscriptionId + '/resourceGroups/' + $HostPoolResourceGroupName + '/providers/Microsoft.DesktopVirtualization/hostPools/' + $HostPoolName + '/sessionHosts?api-version=2023-09-05')).value.name\r\n\r\n# Enable drain mode for the AVD session hosts\r\nfor($i = $SessionHostIndex; $i -lt $($SessionHostIndex + $SessionHostCount); $i++)\r\n{\r\n    $VmNameFull = $VirtualMachineNamePrefix + $i.ToString().PadLeft(4,'0')\r\n    $SessionHostName = ($SessionHosts | Where-Object {$_ -like \"*$VmNameFull*\"}).Replace(\"$HostPoolName/\", '')\r\n    Invoke-RestMethod `\r\n        -Body (@{properties = @{allowNewSession = $false}} | ConvertTo-Json) `\r\n        -Headers $AzureManagementHeader `\r\n        -Method 'PATCH' `\r\n        -Uri $($ResourceManagerUriFixed + 'subscriptions/' + $SubscriptionId + '/resourceGroups/' + $HostPoolResourceGroupName + '/providers/Microsoft.DesktopVirtualization/hostPools/' + $HostPoolName + '/sessionHosts/' + $SessionHostName + '?api-version=2023-09-05') | Out-Null\r\n}\r\n",
                     "amdVmSize": "[contains(variables('amdVmSizes'), parameters('virtualMachineSize'))]",
                     "amdVmSizes": [
@@ -12866,6 +13324,9 @@
                             }
                           }
                         ],
+                        "networkSecurityGroup": {
+                          "id": "[parameters('networkSecurityGroupResourceId')]"
+                        },
                         "enableAcceleratedNetworking": "[parameters('enableAcceleratedNetworking')]",
                         "enableIPForwarding": false
                       }

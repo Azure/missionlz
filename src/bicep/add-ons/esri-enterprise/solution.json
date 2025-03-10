@@ -4,18 +4,18 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.32.4.45862",
-      "templateHash": "4507681060584373500"
+      "version": "0.33.93.31351",
+      "templateHash": "7699598925314414398"
     }
   },
   "parameters": {
-    "adminPassword": {
+    "virtualMachineAdminPassword": {
       "type": "securestring",
       "metadata": {
         "description": "The password for the local administrator account on the virtual machines."
       }
     },
-    "adminUsername": {
+    "virtualMachineAdminUsername": {
       "type": "string",
       "metadata": {
         "description": "The username for the local adminsitrator account on the virtual machines."
@@ -118,12 +118,6 @@
         "description": "Determine whether to deploy Defender for Cloud. This is only necessary if the target description does not have Defender for Cloud already enabled."
       }
     },
-    "deployPolicy": {
-      "type": "bool",
-      "metadata": {
-        "description": "Choose whether to deploy a policy assignment."
-      }
-    },
     "deploymentNameSuffix": {
       "type": "string",
       "defaultValue": "[utcNow()]",
@@ -131,10 +125,17 @@
         "description": "A suffix to use for naming deployments uniquely. It defaults to the Bicep resolution of the \"utcNow()\" function."
       }
     },
-    "deployNetworkWatcher": {
+    "deployNetworkWatcherTrafficAnalytics": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "When set to true, deploys Network Watcher Traffic Analytics. It defaults to \"false\"."
+      }
+    },
+    "deployPolicy": {
       "type": "bool",
       "metadata": {
-        "description": "Choose whether to deploy Network Watcher for the AVD session hosts location. This is necessary when the control plane and session hosts are in different locations."
+        "description": "Choose whether to deploy a policy assignment."
       }
     },
     "emailSecurityContact": {
@@ -304,6 +305,61 @@
       "defaultValue": "[deployment().location]",
       "metadata": {
         "description": "The target location for the Azure resources."
+      }
+    },
+    "networkSecurityGroupDiagnosticsLogs": {
+      "type": "array",
+      "defaultValue": [
+        {
+          "category": "NetworkSecurityGroupEvent",
+          "enabled": true
+        },
+        {
+          "category": "NetworkSecurityGroupRuleCounter",
+          "enabled": true
+        }
+      ],
+      "metadata": {
+        "description": "An array of Network Security Group diagnostic logs to apply to the workload Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-network/virtual-network-nsg-manage-log#log-categories."
+      }
+    },
+    "networkSecurityGroupDiagnosticsMetrics": {
+      "type": "array",
+      "defaultValue": [],
+      "metadata": {
+        "description": "The metrics to monitor for the Network Security Group."
+      }
+    },
+    "networkSecurityGroupRules": {
+      "type": "array",
+      "defaultValue": [],
+      "metadata": {
+        "description": "The rules to apply to the Network Security Group."
+      }
+    },
+    "networkWatcherFlowLogsRetentionDays": {
+      "type": "int",
+      "defaultValue": 30,
+      "metadata": {
+        "description": "The number of days to retain Network Watcher Flow Logs. It defaults to \"30\"."
+      }
+    },
+    "networkWatcherFlowLogsType": {
+      "type": "string",
+      "defaultValue": "VirtualNetwork",
+      "allowedValues": [
+        "NetworkSecurityGroup",
+        "VirtualNetwork"
+      ],
+      "metadata": {
+        "description": "When set to \"true\", enables Virtual Network Flow Logs. It defaults to \"true\" as its required by MCSB."
+      }
+    },
+    "networkWatcherResourceId": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The resource ID for an existing network watcher for the desired deployment location. Only one network watcher per location can exist in a subscription. The value can be left empty to create a new network watcher resource."
       }
     },
     "numberOfDataStoreVirtualMachines": {
@@ -715,8 +771,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "17115535268725479317"
+              "version": "0.33.93.31351",
+              "templateHash": "10716519991073913108"
             }
           },
           "parameters": {
@@ -777,8 +833,8 @@
           "deploymentNameSuffix": {
             "value": "[parameters('deploymentNameSuffix')]"
           },
-          "deployNetworkWatcher": {
-            "value": "[parameters('deployNetworkWatcher')]"
+          "deployNetworkWatcherTrafficAnalytics": {
+            "value": "[parameters('deployNetworkWatcherTrafficAnalytics')]"
           },
           "deployPolicy": {
             "value": "[parameters('deployPolicy')]"
@@ -804,6 +860,24 @@
           "logAnalyticsWorkspaceResourceId": {
             "value": "[parameters('operationsLogAnalyticsWorkspaceResourceId')]"
           },
+          "networkSecurityGroupDiagnosticsLogs": {
+            "value": "[parameters('networkSecurityGroupDiagnosticsLogs')]"
+          },
+          "networkSecurityGroupDiagnosticsMetrics": {
+            "value": "[parameters('networkSecurityGroupDiagnosticsMetrics')]"
+          },
+          "networkSecurityGroupRules": {
+            "value": "[parameters('networkSecurityGroupRules')]"
+          },
+          "networkWatcherFlowLogsRetentionDays": {
+            "value": "[parameters('networkWatcherFlowLogsRetentionDays')]"
+          },
+          "networkWatcherFlowLogsType": {
+            "value": "[parameters('networkWatcherFlowLogsType')]"
+          },
+          "networkWatcherResourceId": {
+            "value": "[parameters('networkWatcherResourceId')]"
+          },
           "policy": {
             "value": "[parameters('policy')]"
           },
@@ -819,6 +893,12 @@
           "virtualNetworkAddressPrefix": {
             "value": "[parameters('virtualNetworkAddressPrefix')]"
           },
+          "virtualNetworkDiagnosticsLogs": {
+            "value": "[parameters('networkSecurityGroupDiagnosticsLogs')]"
+          },
+          "virtualNetworkDiagnosticsMetrics": {
+            "value": "[parameters('networkSecurityGroupDiagnosticsMetrics')]"
+          },
           "workloadName": {
             "value": "esriEnt"
           },
@@ -832,8 +912,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "12075681672341690443"
+              "version": "0.33.93.31351",
+              "templateHash": "17051856372751238855"
             }
           },
           "parameters": {
@@ -863,10 +943,11 @@
                 "description": "The suffix to append to the deployment name. It defaults to the current UTC date and time."
               }
             },
-            "deployNetworkWatcher": {
+            "deployNetworkWatcherTrafficAnalytics": {
               "type": "bool",
+              "defaultValue": false,
               "metadata": {
-                "description": "Choose whether to deploy Network Watcher for the deployment location."
+                "description": "When set to true, deploys Network Watcher Traffic Analytics. It defaults to \"false\"."
               }
             },
             "deployPolicy": {
@@ -976,6 +1057,31 @@
               "defaultValue": [],
               "metadata": {
                 "description": "The rules to apply to the Network Security Group."
+              }
+            },
+            "networkWatcherFlowLogsRetentionDays": {
+              "type": "int",
+              "defaultValue": 30,
+              "metadata": {
+                "description": "The number of days to retain Network Watcher Flow Logs. It defaults to \"30\"."
+              }
+            },
+            "networkWatcherFlowLogsType": {
+              "type": "string",
+              "defaultValue": "VirtualNetwork",
+              "allowedValues": [
+                "NetworkSecurityGroup",
+                "VirtualNetwork"
+              ],
+              "metadata": {
+                "description": "When set to \"true\", enables Virtual Network Flow Logs. It defaults to \"true\" as its required by MCSB."
+              }
+            },
+            "networkWatcherResourceId": {
+              "type": "string",
+              "defaultValue": "",
+              "metadata": {
+                "description": "The resource ID for an existing network watcher for the desired deployment location. Only one network watcher per location can exist in a subscription. The value can be left empty to create a new network watcher resource."
               }
             },
             "policy": {
@@ -1109,8 +1215,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.32.4.45862",
-                      "templateHash": "11951558504901001113"
+                      "version": "0.33.93.31351",
+                      "templateHash": "2486743018296958855"
                     }
                   },
                   "parameters": {
@@ -1189,8 +1295,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.32.4.45862",
-                              "templateHash": "9348185205265061346"
+                              "version": "0.33.93.31351",
+                              "templateHash": "15415907016508079581"
                             }
                           },
                           "parameters": {
@@ -1703,6 +1809,8 @@
                               "networkSecurityGroup": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').networkSecurityGroups)]",
                               "networkSecurityGroupDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, variables('resourceAbbreviations').networkSecurityGroups)]",
                               "networkWatcher": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').networkWatchers)]",
+                              "networkWatcherFlowLogsNetworkSecurityGroup": "[replace(variables('namingConvention'), parameters('tokens').resource, format('{0}-fl-nsg', variables('resourceAbbreviations').networkWatchers))]",
+                              "networkWatcherFlowLogsVirtualNetwork": "[replace(variables('namingConvention'), parameters('tokens').resource, format('{0}-fl-vnet', variables('resourceAbbreviations').networkWatchers))]",
                               "privateLinkScope": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').privateLinkScopes)]",
                               "privateLinkScopeNetworkInterface": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').networkInterfaces), parameters('tokens').service, variables('resourceAbbreviations').privateLinkScopes)]",
                               "privateLinkScopePrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').privateEndpoints), parameters('tokens').service, variables('resourceAbbreviations').privateLinkScopes)]",
@@ -1783,8 +1891,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.32.4.45862",
-                              "templateHash": "10126517616466326568"
+                              "version": "0.33.93.31351",
+                              "templateHash": "1959483107665952306"
                             }
                           },
                           "parameters": {
@@ -1801,7 +1909,7 @@
                               }
                             ],
                             "cloudSuffix": "[replace(replace(environment().resourceManager, 'https://management.', ''), '/', '')]",
-                            "privateDnsZoneNames": "[union(createArray(format('privatelink.agentsvc.azure-automation.{0}', coalesce(variables('privateDnsZoneSuffixes_AzureAutomation')[environment().name], variables('cloudSuffix'))), format('privatelink.azure-automation.{0}', coalesce(variables('privateDnsZoneSuffixes_AzureAutomation')[environment().name], variables('cloudSuffix'))), format('privatelink.{0}', coalesce(variables('privateDnsZoneSuffixes_AzureWebSites')[environment().name], format('appservice.{0}', variables('cloudSuffix')))), format('scm.privatelink.{0}', coalesce(variables('privateDnsZoneSuffixes_AzureWebSites')[environment().name], format('appservice.{0}', variables('cloudSuffix')))), format('privatelink.wvd.{0}', coalesce(variables('privateDnsZoneSuffixes_AzureVirtualDesktop')[environment().name], variables('cloudSuffix'))), format('privatelink-global.wvd.{0}', coalesce(variables('privateDnsZoneSuffixes_AzureVirtualDesktop')[environment().name], variables('cloudSuffix'))), format('privatelink.file.{0}', environment().suffixes.storage), format('privatelink.queue.{0}', environment().suffixes.storage), format('privatelink.table.{0}', environment().suffixes.storage), format('privatelink.blob.{0}', environment().suffixes.storage), format('privatelink{0}', replace(environment().suffixes.keyvaultDns, 'vault', 'vaultcore')), format('privatelink.monitor.{0}', coalesce(variables('privateDnsZoneSuffixes_Monitor')[environment().name], variables('cloudSuffix'))), format('privatelink.ods.opinsights.{0}', coalesce(variables('privateDnsZoneSuffixes_Monitor')[environment().name], variables('cloudSuffix'))), format('privatelink.oms.opinsights.{0}', coalesce(variables('privateDnsZoneSuffixes_Monitor')[environment().name], variables('cloudSuffix')))), variables('privateDnsZoneNames_Backup'))]",
+                            "privateDnsZoneNames": "[union(createArray(format('privatelink.agentsvc.azure-automation.{0}', coalesce(variables('privateDnsZoneSuffixes_AzureAutomation')[environment().name], variables('cloudSuffix'))), format('privatelink.azure-automation.{0}', coalesce(variables('privateDnsZoneSuffixes_AzureAutomation')[environment().name], variables('cloudSuffix'))), format('privatelink.{0}', coalesce(variables('privateDnsZoneSuffixes_AzureWebSites')[environment().name], format('appservice.{0}', variables('cloudSuffix')))), format('scm.privatelink.{0}', coalesce(variables('privateDnsZoneSuffixes_AzureWebSites')[environment().name], format('appservice.{0}', variables('cloudSuffix')))), format('privatelink.wvd.{0}', coalesce(variables('privateDnsZoneSuffixes_AzureVirtualDesktop')[environment().name], variables('cloudSuffix'))), format('privatelink-global.wvd.{0}', coalesce(variables('privateDnsZoneSuffixes_AzureVirtualDesktop')[environment().name], variables('cloudSuffix'))), format('privatelink.file.{0}', environment().suffixes.storage), format('privatelink.queue.{0}', environment().suffixes.storage), format('privatelink.table.{0}', environment().suffixes.storage), format('privatelink.blob.{0}', environment().suffixes.storage), format('privatelink{0}', replace(environment().suffixes.keyvaultDns, 'vault', 'vaultcore')), format('privatelink.monitor.{0}', coalesce(variables('privateDnsZoneSuffixes_Monitor')[environment().name], variables('cloudSuffix'))), format('privatelink.ods.opinsights.{0}', coalesce(variables('privateDnsZoneSuffixes_Monitor')[environment().name], variables('cloudSuffix'))), format('privatelink.oms.opinsights.{0}', coalesce(variables('privateDnsZoneSuffixes_Monitor')[environment().name], variables('cloudSuffix'))), format('privatelink{0}', environment().suffixes.sqlServerHostname)), variables('privateDnsZoneNames_Backup'))]",
                             "privateDnsZoneSuffixes_AzureAutomation": {
                               "AzureCloud": "net",
                               "AzureUSGovernment": "us",
@@ -1923,8 +2031,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.32.4.45862",
-                      "templateHash": "6826910029633627352"
+                      "version": "0.33.93.31351",
+                      "templateHash": "13158109401467250998"
                     }
                   },
                   "parameters": {
@@ -1948,7 +2056,7 @@
                       "apiVersion": "2019-05-01",
                       "name": "[parameters('name')]",
                       "location": "[parameters('location')]",
-                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Resources/resourceGroups'), parameters('tags')['Microsoft.Resources/resourceGroups'], createObject()), parameters('mlzTags'))]"
+                      "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Resources/resourceGroups'), createObject()), parameters('mlzTags'))]"
                     }
                   ],
                   "outputs": {
@@ -1993,8 +2101,8 @@
                   "deploymentNameSuffix": {
                     "value": "[parameters('deploymentNameSuffix')]"
                   },
-                  "deployNetworkWatcher": {
-                    "value": "[parameters('deployNetworkWatcher')]"
+                  "deployUniqueResources": {
+                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tiers.value[0].deployUniqueResources]"
                   },
                   "hubVirtualNetworkResourceId": {
                     "value": "[parameters('hubVirtualNetworkResourceId')]"
@@ -2013,6 +2121,9 @@
                   },
                   "networkWatcherName": {
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tiers.value[0].namingConvention.networkWatcher]"
+                  },
+                  "networkWatcherResourceId": {
+                    "value": "[parameters('networkWatcherResourceId')]"
                   },
                   "resourceGroupName": {
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
@@ -2052,8 +2163,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.32.4.45862",
-                      "templateHash": "12891343365298521146"
+                      "version": "0.33.93.31351",
+                      "templateHash": "5699910770493601263"
                     }
                   },
                   "parameters": {
@@ -2063,7 +2174,7 @@
                     "deploymentNameSuffix": {
                       "type": "string"
                     },
-                    "deployNetworkWatcher": {
+                    "deployUniqueResources": {
                       "type": "bool"
                     },
                     "hubVirtualNetworkResourceId": {
@@ -2082,6 +2193,9 @@
                       "type": "array"
                     },
                     "networkWatcherName": {
+                      "type": "string"
+                    },
+                    "networkWatcherResourceId": {
                       "type": "string"
                     },
                     "resourceGroupName": {
@@ -2133,8 +2247,8 @@
                           "additionalSubnets": {
                             "value": "[parameters('additionalSubnets')]"
                           },
-                          "deployNetworkWatcher": {
-                            "value": "[parameters('deployNetworkWatcher')]"
+                          "deployUniqueResources": {
+                            "value": "[parameters('deployUniqueResources')]"
                           },
                           "location": {
                             "value": "[parameters('location')]"
@@ -2150,6 +2264,9 @@
                           },
                           "networkWatcherName": {
                             "value": "[parameters('networkWatcherName')]"
+                          },
+                          "networkWatcherResourceId": {
+                            "value": "[parameters('networkWatcherResourceId')]"
                           },
                           "resourceGroupName": {
                             "value": "[parameters('resourceGroupName')]"
@@ -2188,8 +2305,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.32.4.45862",
-                              "templateHash": "17886708743216395115"
+                              "version": "0.33.93.31351",
+                              "templateHash": "2286050725148082731"
                             }
                           },
                           "parameters": {
@@ -2197,7 +2314,7 @@
                               "type": "array",
                               "defaultValue": []
                             },
-                            "deployNetworkWatcher": {
+                            "deployUniqueResources": {
                               "type": "bool"
                             },
                             "location": {
@@ -2213,6 +2330,9 @@
                               "type": "array"
                             },
                             "networkWatcherName": {
+                              "type": "string"
+                            },
+                            "networkWatcherResourceId": {
                               "type": "string"
                             },
                             "resourceGroupName": {
@@ -2306,8 +2426,8 @@
                                   "metadata": {
                                     "_generator": {
                                       "name": "bicep",
-                                      "version": "0.32.4.45862",
-                                      "templateHash": "13846782101975662570"
+                                      "version": "0.33.93.31351",
+                                      "templateHash": "2197479355586796636"
                                     }
                                   },
                                   "parameters": {
@@ -2333,7 +2453,7 @@
                                       "apiVersion": "2021-02-01",
                                       "name": "[parameters('name')]",
                                       "location": "[parameters('location')]",
-                                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Network/networkSecurityGroups'), parameters('tags')['Microsoft.Network/networkSecurityGroups'], createObject()), parameters('mlzTags'))]",
+                                      "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/networkSecurityGroups'), createObject()), parameters('mlzTags'))]",
                                       "properties": {
                                         "securityRules": "[parameters('securityRules')]"
                                       }
@@ -2389,8 +2509,8 @@
                                   "metadata": {
                                     "_generator": {
                                       "name": "bicep",
-                                      "version": "0.32.4.45862",
-                                      "templateHash": "9322941388060090809"
+                                      "version": "0.33.93.31351",
+                                      "templateHash": "14322165813389637925"
                                     }
                                   },
                                   "parameters": {
@@ -2431,7 +2551,7 @@
                                       "apiVersion": "2021-02-01",
                                       "name": "[parameters('name')]",
                                       "location": "[parameters('location')]",
-                                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Network/routeTables'), parameters('tags')['Microsoft.Network/routeTables'], createObject()), parameters('mlzTags'))]",
+                                      "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/routeTables'), createObject()), parameters('mlzTags'))]",
                                       "properties": {
                                         "disableBgpRoutePropagation": "[parameters('disableBgpRoutePropagation')]",
                                         "routes": [
@@ -2461,7 +2581,7 @@
                               }
                             },
                             {
-                              "condition": "[parameters('deployNetworkWatcher')]",
+                              "condition": "[and(empty(parameters('networkWatcherResourceId')), parameters('deployUniqueResources'))]",
                               "type": "Microsoft.Resources/deployments",
                               "apiVersion": "2022-09-01",
                               "name": "networkWatcher",
@@ -2492,8 +2612,8 @@
                                   "metadata": {
                                     "_generator": {
                                       "name": "bicep",
-                                      "version": "0.32.4.45862",
-                                      "templateHash": "5483231664830769159"
+                                      "version": "0.33.93.31351",
+                                      "templateHash": "6544693908534760839"
                                     }
                                   },
                                   "parameters": {
@@ -2516,7 +2636,7 @@
                                       "apiVersion": "2021-02-01",
                                       "name": "[parameters('name')]",
                                       "location": "[parameters('location')]",
-                                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Network/networkWatchers'), parameters('tags')['Microsoft.Network/networkWatchers'], createObject()), parameters('mlzTags'))]",
+                                      "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/networkWatchers'), createObject()), parameters('mlzTags'))]",
                                       "properties": {}
                                     }
                                   ]
@@ -2569,8 +2689,8 @@
                                   "metadata": {
                                     "_generator": {
                                       "name": "bicep",
-                                      "version": "0.32.4.45862",
-                                      "templateHash": "5645415839002404423"
+                                      "version": "0.33.93.31351",
+                                      "templateHash": "15898943496915761552"
                                     }
                                   },
                                   "parameters": {
@@ -2602,7 +2722,7 @@
                                       "apiVersion": "2021-02-01",
                                       "name": "[parameters('name')]",
                                       "location": "[parameters('location')]",
-                                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Network/virtualNetworks'), parameters('tags')['Microsoft.Network/virtualNetworks'], createObject()), parameters('mlzTags'))]",
+                                      "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/virtualNetworks'), createObject()), parameters('mlzTags'))]",
                                       "properties": {
                                         "addressSpace": {
                                           "addressPrefixes": [
@@ -2710,8 +2830,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.32.4.45862",
-                              "templateHash": "17601114229673889726"
+                              "version": "0.33.93.31351",
+                              "templateHash": "10365342035466139193"
                             }
                           },
                           "parameters": {
@@ -2763,8 +2883,8 @@
                                   "metadata": {
                                     "_generator": {
                                       "name": "bicep",
-                                      "version": "0.32.4.45862",
-                                      "templateHash": "6477042594817819590"
+                                      "version": "0.33.93.31351",
+                                      "templateHash": "17770613472330861175"
                                     }
                                   },
                                   "parameters": {
@@ -2837,8 +2957,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.32.4.45862",
-                              "templateHash": "13320362037311908604"
+                              "version": "0.33.93.31351",
+                              "templateHash": "3614949858583199523"
                             }
                           },
                           "parameters": {
@@ -2890,8 +3010,8 @@
                                   "metadata": {
                                     "_generator": {
                                       "name": "bicep",
-                                      "version": "0.32.4.45862",
-                                      "templateHash": "6477042594817819590"
+                                      "version": "0.33.93.31351",
+                                      "templateHash": "17770613472330861175"
                                     }
                                   },
                                   "parameters": {
@@ -2934,6 +3054,10 @@
                       "type": "string",
                       "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-spoke-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkSecurityGroupName.value]"
                     },
+                    "networkSecurityGroupResourceId": {
+                      "type": "string",
+                      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-spoke-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkSecurityGroupResourceId.value]"
+                    },
                     "subnets": {
                       "type": "array",
                       "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-spoke-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnets.value]"
@@ -2969,12 +3093,6 @@
                   "deploymentNameSuffix": {
                     "value": "[parameters('deploymentNameSuffix')]"
                   },
-                  "hubResourceGroupName": {
-                    "value": "[variables('hubResourceGroupName')]"
-                  },
-                  "hubSubscriptionId": {
-                    "value": "[variables('hubSubscriptionId')]"
-                  },
                   "privateDnsZoneNames": {
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.privateDnsZones.value]"
                   },
@@ -2997,8 +3115,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.32.4.45862",
-                      "templateHash": "11568503298667055500"
+                      "version": "0.33.93.31351",
+                      "templateHash": "11161371350834819427"
                     }
                   },
                   "parameters": {
@@ -3006,12 +3124,6 @@
                       "type": "string"
                     },
                     "deploymentNameSuffix": {
-                      "type": "string"
-                    },
-                    "hubResourceGroupName": {
-                      "type": "string"
-                    },
-                    "hubSubscriptionId": {
                       "type": "string"
                     },
                     "privateDnsZoneNames": {
@@ -3036,8 +3148,6 @@
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2022-09-01",
                       "name": "[format('deploy-vnet-links-{0}-rg-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))]",
-                      "subscriptionId": "[parameters('hubSubscriptionId')]",
-                      "resourceGroup": "[parameters('hubResourceGroupName')]",
                       "properties": {
                         "expressionEvaluationOptions": {
                           "scope": "inner"
@@ -3063,8 +3173,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.32.4.45862",
-                              "templateHash": "8205818676743522558"
+                              "version": "0.33.93.31351",
+                              "templateHash": "12315209925175936164"
                             }
                           },
                           "parameters": {
@@ -3166,8 +3276,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.32.4.45862",
-                      "templateHash": "17139779324064444555"
+                      "version": "0.33.93.31351",
+                      "templateHash": "9139675263565938217"
                     }
                   },
                   "parameters": {
@@ -3255,8 +3365,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.32.4.45862",
-                              "templateHash": "16844719077752965053"
+                              "version": "0.33.93.31351",
+                              "templateHash": "3414494870479353277"
                             }
                           },
                           "parameters": {
@@ -3301,7 +3411,7 @@
                               "apiVersion": "2022-07-01",
                               "name": "[format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('tier').namingConvention.keyVault, parameters('tokens').service, 'cmk'), resourceGroup().id))]",
                               "location": "[parameters('location')]",
-                              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.KeyVault/vaults'), parameters('tags')['Microsoft.KeyVault/vaults'], createObject()), parameters('mlzTags'))]",
+                              "tags": "[union(coalesce(parameters('tags')['Microsoft.KeyVault/vaults'], createObject()), parameters('mlzTags'))]",
                               "properties": {
                                 "enabledForDeployment": false,
                                 "enabledForDiskEncryption": false,
@@ -3329,7 +3439,7 @@
                               "apiVersion": "2023-04-01",
                               "name": "[variables('keyVaultPrivateEndpointName')]",
                               "location": "[parameters('location')]",
-                              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Network/privateEndpoints'), parameters('tags')['Microsoft.Network/privateEndpoints'], createObject()), parameters('mlzTags'))]",
+                              "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/privateEndpoints'), createObject()), parameters('mlzTags'))]",
                               "properties": {
                                 "customNetworkInterfaceName": "[replace(parameters('tier').namingConvention.keyVaultNetworkInterface, parameters('tokens').service, 'cmk')]",
                                 "privateLinkServiceConnections": [
@@ -3513,8 +3623,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.32.4.45862",
-                              "templateHash": "16362514702834742003"
+                              "version": "0.33.93.31351",
+                              "templateHash": "4892072138782221114"
                             }
                           },
                           "parameters": {
@@ -3549,7 +3659,7 @@
                               "apiVersion": "2023-04-02",
                               "name": "[parameters('diskEncryptionSetName')]",
                               "location": "[parameters('location')]",
-                              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/diskEncryptionSets'), parameters('tags')['Microsoft.Compute/diskEncryptionSets'], createObject()), parameters('mlzTags'))]",
+                              "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/diskEncryptionSets'), createObject()), parameters('mlzTags'))]",
                               "identity": {
                                 "type": "SystemAssigned"
                               },
@@ -3593,8 +3703,8 @@
                                   "metadata": {
                                     "_generator": {
                                       "name": "bicep",
-                                      "version": "0.32.4.45862",
-                                      "templateHash": "10296095440786899315"
+                                      "version": "0.33.93.31351",
+                                      "templateHash": "16049255483101382387"
                                     }
                                   },
                                   "parameters": {
@@ -3688,8 +3798,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.32.4.45862",
-                              "templateHash": "9965398560847425439"
+                              "version": "0.33.93.31351",
+                              "templateHash": "2463677115445458253"
                             }
                           },
                           "parameters": {
@@ -3715,7 +3825,7 @@
                               "apiVersion": "2018-11-30",
                               "name": "[parameters('userAssignedIdentityName')]",
                               "location": "[parameters('location')]",
-                              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.ManagedIdentity/userAssignedIdentities'), parameters('tags')['Microsoft.ManagedIdentity/userAssignedIdentities'], createObject()), parameters('mlzTags'))]"
+                              "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.ManagedIdentity/userAssignedIdentities'), createObject()), parameters('mlzTags'))]"
                             },
                             {
                               "type": "Microsoft.Authorization/roleAssignments",
@@ -3846,8 +3956,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.32.4.45862",
-                      "templateHash": "4832927444657450691"
+                      "version": "0.33.93.31351",
+                      "templateHash": "9491198993332060023"
                     }
                   },
                   "parameters": {
@@ -3962,8 +4072,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.32.4.45862",
-                              "templateHash": "5654874488513857493"
+                              "version": "0.33.93.31351",
+                              "templateHash": "14895577974208032752"
                             }
                           },
                           "parameters": {
@@ -4040,7 +4150,7 @@
                               "apiVersion": "2023-01-01",
                               "name": "[uniqueString(replace(parameters('tier').namingConvention.storageAccount, parameters('serviceToken'), 'log'), resourceGroup().id)]",
                               "location": "[parameters('location')]",
-                              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Storage/storageAccounts'), parameters('tags')['Microsoft.Storage/storageAccounts'], createObject()), parameters('mlzTags'))]",
+                              "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Storage/storageAccounts'), createObject()), parameters('mlzTags'))]",
                               "identity": {
                                 "type": "UserAssigned",
                                 "userAssignedIdentities": {
@@ -4108,7 +4218,7 @@
                               "apiVersion": "2023-04-01",
                               "name": "[variables('subResources')[copyIndex()].pe]",
                               "location": "[parameters('location')]",
-                              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Network/privateEndpoints'), parameters('tags')['Microsoft.Network/privateEndpoints'], createObject()), parameters('mlzTags'))]",
+                              "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/privateEndpoints'), createObject()), parameters('mlzTags'))]",
                               "properties": {
                                 "customNetworkInterfaceName": "[variables('subResources')[copyIndex()].nic]",
                                 "privateLinkServiceConnections": [
@@ -4197,11 +4307,17 @@
                   "deploymentNameSuffix": {
                     "value": "[parameters('deploymentNameSuffix')]"
                   },
+                  "deployNetworkWatcherTrafficAnalytics": {
+                    "value": "[parameters('deployNetworkWatcherTrafficAnalytics')]"
+                  },
                   "keyVaultDiagnosticLogs": {
                     "value": "[parameters('keyVaultDiagnosticsLogs')]"
                   },
                   "keyVaultName": {
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultName.value]"
+                  },
+                  "location": {
+                    "value": "[parameters('location')]"
                   },
                   "logAnalyticsWorkspaceResourceId": {
                     "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
@@ -4214,6 +4330,15 @@
                   },
                   "networkSecurityGroupName": {
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkSecurityGroupName.value]"
+                  },
+                  "networkWatcherFlowLogsRetentionDays": {
+                    "value": "[parameters('networkWatcherFlowLogsRetentionDays')]"
+                  },
+                  "networkWatcherFlowLogsType": {
+                    "value": "[parameters('networkWatcherFlowLogsType')]"
+                  },
+                  "networkWatcherResourceId": {
+                    "value": "[parameters('networkWatcherResourceId')]"
                   },
                   "resourceGroupName": {
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
@@ -4243,8 +4368,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.32.4.45862",
-                      "templateHash": "5003010468843057430"
+                      "version": "0.33.93.31351",
+                      "templateHash": "7215313935208411610"
                     }
                   },
                   "parameters": {
@@ -4254,10 +4379,16 @@
                     "deploymentNameSuffix": {
                       "type": "string"
                     },
+                    "deployNetworkWatcherTrafficAnalytics": {
+                      "type": "bool"
+                    },
                     "keyVaultDiagnosticLogs": {
                       "type": "array"
                     },
                     "keyVaultName": {
+                      "type": "string"
+                    },
+                    "location": {
                       "type": "string"
                     },
                     "logAnalyticsWorkspaceResourceId": {
@@ -4270,6 +4401,15 @@
                       "type": "array"
                     },
                     "networkSecurityGroupName": {
+                      "type": "string"
+                    },
+                    "networkWatcherFlowLogsRetentionDays": {
+                      "type": "int"
+                    },
+                    "networkWatcherFlowLogsType": {
+                      "type": "string"
+                    },
+                    "networkWatcherResourceId": {
                       "type": "string"
                     },
                     "resourceGroupName": {
@@ -4318,8 +4458,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.32.4.45862",
-                              "templateHash": "17453871854351031685"
+                              "version": "0.33.93.31351",
+                              "templateHash": "9926516440124754027"
                             }
                           },
                           "parameters": {
@@ -4408,8 +4548,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.32.4.45862",
-                              "templateHash": "5679027658072815414"
+                              "version": "0.33.93.31351",
+                              "templateHash": "10998723309834698940"
                             }
                           },
                           "parameters": {
@@ -4457,6 +4597,18 @@
                         },
                         "mode": "Incremental",
                         "parameters": {
+                          "deploymentNameSuffix": {
+                            "value": "[parameters('deploymentNameSuffix')]"
+                          },
+                          "deployNetworkWatcherTrafficAnalytics": {
+                            "value": "[parameters('deployNetworkWatcherTrafficAnalytics')]"
+                          },
+                          "flowLogsName": {
+                            "value": "[parameters('tier').namingConvention.networkWatcherFlowLogsNetworkSecurityGroup]"
+                          },
+                          "location": {
+                            "value": "[parameters('location')]"
+                          },
                           "logAnalyticsWorkspaceResourceId": {
                             "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
                           },
@@ -4472,8 +4624,21 @@
                           "networkSecurityGroupDiagnosticSettingName": {
                             "value": "[parameters('tier').namingConvention.networkSecurityGroupDiagnosticSetting]"
                           },
+                          "networkWatcherFlowLogsRetentionDays": {
+                            "value": "[parameters('networkWatcherFlowLogsRetentionDays')]"
+                          },
                           "networkSecurityGroupName": {
                             "value": "[parameters('networkSecurityGroupName')]"
+                          },
+                          "networkWatcherName": {
+                            "value": "[parameters('tier').namingConvention.networkWatcher]"
+                          },
+                          "networkWatcherResourceGroupName": "[if(empty(parameters('networkWatcherResourceId')), createObject('value', parameters('resourceGroupName')), createObject('value', split(parameters('networkWatcherResourceId'), '/')[4]))]",
+                          "tiername": {
+                            "value": "[parameters('tier').name]"
+                          },
+                          "networkWatcherFlowLogsType": {
+                            "value": "[parameters('networkWatcherFlowLogsType')]"
                           }
                         },
                         "template": {
@@ -4482,11 +4647,23 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.32.4.45862",
-                              "templateHash": "11508259122426462594"
+                              "version": "0.33.93.31351",
+                              "templateHash": "6464142740490957154"
                             }
                           },
                           "parameters": {
+                            "deploymentNameSuffix": {
+                              "type": "string"
+                            },
+                            "deployNetworkWatcherTrafficAnalytics": {
+                              "type": "bool"
+                            },
+                            "flowLogsName": {
+                              "type": "string"
+                            },
+                            "location": {
+                              "type": "string"
+                            },
                             "logAnalyticsWorkspaceResourceId": {
                               "type": "string"
                             },
@@ -4504,6 +4681,21 @@
                             },
                             "networkSecurityGroupName": {
                               "type": "string"
+                            },
+                            "networkWatcherFlowLogsRetentionDays": {
+                              "type": "int"
+                            },
+                            "networkWatcherFlowLogsType": {
+                              "type": "string"
+                            },
+                            "networkWatcherName": {
+                              "type": "string"
+                            },
+                            "networkWatcherResourceGroupName": {
+                              "type": "string"
+                            },
+                            "tiername": {
+                              "type": "string"
                             }
                           },
                           "resources": [
@@ -4513,10 +4705,113 @@
                               "scope": "[format('Microsoft.Network/networkSecurityGroups/{0}', parameters('networkSecurityGroupName'))]",
                               "name": "[parameters('networkSecurityGroupDiagnosticSettingName')]",
                               "properties": {
-                                "storageAccountId": "[parameters('logStorageAccountResourceId')]",
-                                "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]",
                                 "logs": "[parameters('logs')]",
-                                "metrics": "[parameters('metrics')]"
+                                "metrics": "[parameters('metrics')]",
+                                "storageAccountId": "[parameters('logStorageAccountResourceId')]",
+                                "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]"
+                              }
+                            },
+                            {
+                              "condition": "[equals(parameters('networkWatcherFlowLogsType'), 'NetworkSecurityGroup')]",
+                              "type": "Microsoft.Resources/deployments",
+                              "apiVersion": "2022-09-01",
+                              "name": "[format('deploy-{0}-flowLogs-{1}', parameters('tiername'), parameters('deploymentNameSuffix'))]",
+                              "resourceGroup": "[parameters('networkWatcherResourceGroupName')]",
+                              "properties": {
+                                "expressionEvaluationOptions": {
+                                  "scope": "inner"
+                                },
+                                "mode": "Incremental",
+                                "parameters": {
+                                  "deployNetworkWatcherTrafficAnalytics": {
+                                    "value": "[parameters('deployNetworkWatcherTrafficAnalytics')]"
+                                  },
+                                  "flowLogsName": {
+                                    "value": "[parameters('flowLogsName')]"
+                                  },
+                                  "flowLogsRetentionDays": {
+                                    "value": "[parameters('networkWatcherFlowLogsRetentionDays')]"
+                                  },
+                                  "location": {
+                                    "value": "[parameters('location')]"
+                                  },
+                                  "logAnalyticsWorkspaceResourceId": {
+                                    "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
+                                  },
+                                  "networkWatcherName": {
+                                    "value": "[parameters('networkWatcherName')]"
+                                  },
+                                  "storageAccountResourceId": {
+                                    "value": "[parameters('logStorageAccountResourceId')]"
+                                  },
+                                  "targetResourceId": {
+                                    "value": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroupName'))]"
+                                  }
+                                },
+                                "template": {
+                                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                                  "contentVersion": "1.0.0.0",
+                                  "metadata": {
+                                    "_generator": {
+                                      "name": "bicep",
+                                      "version": "0.33.93.31351",
+                                      "templateHash": "9862576446266869939"
+                                    }
+                                  },
+                                  "parameters": {
+                                    "deployNetworkWatcherTrafficAnalytics": {
+                                      "type": "bool"
+                                    },
+                                    "flowLogsName": {
+                                      "type": "string"
+                                    },
+                                    "flowLogsRetentionDays": {
+                                      "type": "int"
+                                    },
+                                    "location": {
+                                      "type": "string"
+                                    },
+                                    "logAnalyticsWorkspaceResourceId": {
+                                      "type": "string"
+                                    },
+                                    "networkWatcherName": {
+                                      "type": "string"
+                                    },
+                                    "storageAccountResourceId": {
+                                      "type": "string"
+                                    },
+                                    "targetResourceId": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "resources": [
+                                    {
+                                      "type": "Microsoft.Network/networkWatchers/flowLogs",
+                                      "apiVersion": "2023-05-01",
+                                      "name": "[format('{0}/{1}', parameters('networkWatcherName'), parameters('flowLogsName'))]",
+                                      "location": "[parameters('location')]",
+                                      "properties": {
+                                        "targetResourceId": "[parameters('targetResourceId')]",
+                                        "enabled": true,
+                                        "storageId": "[parameters('storageAccountResourceId')]",
+                                        "flowAnalyticsConfiguration": {
+                                          "networkWatcherFlowAnalyticsConfiguration": {
+                                            "enabled": "[if(parameters('deployNetworkWatcherTrafficAnalytics'), parameters('deployNetworkWatcherTrafficAnalytics'), null())]",
+                                            "workspaceResourceId": "[if(parameters('deployNetworkWatcherTrafficAnalytics'), parameters('logAnalyticsWorkspaceResourceId'), null())]"
+                                          }
+                                        },
+                                        "format": {
+                                          "type": "JSON",
+                                          "version": 2
+                                        },
+                                        "retentionPolicy": {
+                                          "days": "[parameters('flowLogsRetentionDays')]",
+                                          "enabled": true
+                                        }
+                                      }
+                                    }
+                                  ]
+                                }
                               }
                             }
                           ]
@@ -4535,6 +4830,18 @@
                         },
                         "mode": "Incremental",
                         "parameters": {
+                          "deploymentNameSuffix": {
+                            "value": "[parameters('deploymentNameSuffix')]"
+                          },
+                          "deployNetworkWatcherTrafficAnalytics": {
+                            "value": "[parameters('deployNetworkWatcherTrafficAnalytics')]"
+                          },
+                          "flowLogsName": {
+                            "value": "[parameters('tier').namingConvention.networkWatcherFlowLogsVirtualNetwork]"
+                          },
+                          "location": {
+                            "value": "[parameters('location')]"
+                          },
                           "logAnalyticsWorkspaceResourceId": {
                             "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
                           },
@@ -4546,6 +4853,17 @@
                           },
                           "metrics": {
                             "value": "[parameters('virtualNetworkDiagnosticsMetrics')]"
+                          },
+                          "networkWatcherFlowLogsRetentionDays": {
+                            "value": "[parameters('networkWatcherFlowLogsRetentionDays')]"
+                          },
+                          "networkWatcherFlowLogsType": {
+                            "value": "[parameters('networkWatcherFlowLogsType')]"
+                          },
+                          "networkWatcherName": "[if(empty(parameters('networkWatcherResourceId')), createObject('value', parameters('tier').namingConvention.networkWatcher), createObject('value', split(parameters('networkWatcherResourceId'), '/')[8]))]",
+                          "networkWatcherResourceGroupName": "[if(empty(parameters('networkWatcherResourceId')), createObject('value', parameters('resourceGroupName')), createObject('value', split(parameters('networkWatcherResourceId'), '/')[4]))]",
+                          "tiername": {
+                            "value": "[parameters('tier').name]"
                           },
                           "virtualNetworkDiagnosticSettingName": {
                             "value": "[parameters('tier').namingConvention.virtualNetworkDiagnosticSetting]"
@@ -4560,11 +4878,23 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.32.4.45862",
-                              "templateHash": "2381187713713410342"
+                              "version": "0.33.93.31351",
+                              "templateHash": "17015510694106150425"
                             }
                           },
                           "parameters": {
+                            "deploymentNameSuffix": {
+                              "type": "string"
+                            },
+                            "deployNetworkWatcherTrafficAnalytics": {
+                              "type": "bool"
+                            },
+                            "flowLogsName": {
+                              "type": "string"
+                            },
+                            "location": {
+                              "type": "string"
+                            },
                             "logAnalyticsWorkspaceResourceId": {
                               "type": "string"
                             },
@@ -4576,6 +4906,21 @@
                             },
                             "metrics": {
                               "type": "array"
+                            },
+                            "networkWatcherFlowLogsRetentionDays": {
+                              "type": "int"
+                            },
+                            "networkWatcherFlowLogsType": {
+                              "type": "string"
+                            },
+                            "networkWatcherName": {
+                              "type": "string"
+                            },
+                            "networkWatcherResourceGroupName": {
+                              "type": "string"
+                            },
+                            "tiername": {
+                              "type": "string"
                             },
                             "virtualNetworkDiagnosticSettingName": {
                               "type": "string"
@@ -4595,6 +4940,109 @@
                                 "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]",
                                 "logs": "[parameters('logs')]",
                                 "metrics": "[parameters('metrics')]"
+                              }
+                            },
+                            {
+                              "condition": "[equals(parameters('networkWatcherFlowLogsType'), 'VirtualNetwork')]",
+                              "type": "Microsoft.Resources/deployments",
+                              "apiVersion": "2022-09-01",
+                              "name": "[format('deploy-{0}-flowLogs-{1}', parameters('tiername'), parameters('deploymentNameSuffix'))]",
+                              "resourceGroup": "[parameters('networkWatcherResourceGroupName')]",
+                              "properties": {
+                                "expressionEvaluationOptions": {
+                                  "scope": "inner"
+                                },
+                                "mode": "Incremental",
+                                "parameters": {
+                                  "deployNetworkWatcherTrafficAnalytics": {
+                                    "value": "[parameters('deployNetworkWatcherTrafficAnalytics')]"
+                                  },
+                                  "flowLogsName": {
+                                    "value": "[parameters('flowLogsName')]"
+                                  },
+                                  "flowLogsRetentionDays": {
+                                    "value": "[parameters('networkWatcherFlowLogsRetentionDays')]"
+                                  },
+                                  "location": {
+                                    "value": "[parameters('location')]"
+                                  },
+                                  "logAnalyticsWorkspaceResourceId": {
+                                    "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
+                                  },
+                                  "networkWatcherName": {
+                                    "value": "[parameters('networkWatcherName')]"
+                                  },
+                                  "storageAccountResourceId": {
+                                    "value": "[parameters('logStorageAccountResourceId')]"
+                                  },
+                                  "targetResourceId": {
+                                    "value": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
+                                  }
+                                },
+                                "template": {
+                                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                                  "contentVersion": "1.0.0.0",
+                                  "metadata": {
+                                    "_generator": {
+                                      "name": "bicep",
+                                      "version": "0.33.93.31351",
+                                      "templateHash": "9862576446266869939"
+                                    }
+                                  },
+                                  "parameters": {
+                                    "deployNetworkWatcherTrafficAnalytics": {
+                                      "type": "bool"
+                                    },
+                                    "flowLogsName": {
+                                      "type": "string"
+                                    },
+                                    "flowLogsRetentionDays": {
+                                      "type": "int"
+                                    },
+                                    "location": {
+                                      "type": "string"
+                                    },
+                                    "logAnalyticsWorkspaceResourceId": {
+                                      "type": "string"
+                                    },
+                                    "networkWatcherName": {
+                                      "type": "string"
+                                    },
+                                    "storageAccountResourceId": {
+                                      "type": "string"
+                                    },
+                                    "targetResourceId": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "resources": [
+                                    {
+                                      "type": "Microsoft.Network/networkWatchers/flowLogs",
+                                      "apiVersion": "2023-05-01",
+                                      "name": "[format('{0}/{1}', parameters('networkWatcherName'), parameters('flowLogsName'))]",
+                                      "location": "[parameters('location')]",
+                                      "properties": {
+                                        "targetResourceId": "[parameters('targetResourceId')]",
+                                        "enabled": true,
+                                        "storageId": "[parameters('storageAccountResourceId')]",
+                                        "flowAnalyticsConfiguration": {
+                                          "networkWatcherFlowAnalyticsConfiguration": {
+                                            "enabled": "[if(parameters('deployNetworkWatcherTrafficAnalytics'), parameters('deployNetworkWatcherTrafficAnalytics'), null())]",
+                                            "workspaceResourceId": "[if(parameters('deployNetworkWatcherTrafficAnalytics'), parameters('logAnalyticsWorkspaceResourceId'), null())]"
+                                          }
+                                        },
+                                        "format": {
+                                          "type": "JSON",
+                                          "version": 2
+                                        },
+                                        "retentionPolicy": {
+                                          "days": "[parameters('flowLogsRetentionDays')]",
+                                          "enabled": true
+                                        }
+                                      }
+                                    }
+                                  ]
+                                }
                               }
                             }
                           ]
@@ -4651,8 +5099,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.32.4.45862",
-                      "templateHash": "357638842280985685"
+                      "version": "0.33.93.31351",
+                      "templateHash": "5612851901719142503"
                     }
                   },
                   "parameters": {
@@ -4708,8 +5156,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.32.4.45862",
-                              "templateHash": "5692847317260005018"
+                              "version": "0.33.93.31351",
+                              "templateHash": "5059866416836136528"
                             }
                           },
                           "parameters": {
@@ -4884,8 +5332,8 @@
                                   "metadata": {
                                     "_generator": {
                                       "name": "bicep",
-                                      "version": "0.32.4.45862",
-                                      "templateHash": "10296095440786899315"
+                                      "version": "0.33.93.31351",
+                                      "templateHash": "16049255483101382387"
                                     }
                                   },
                                   "parameters": {
@@ -4958,9 +5406,6 @@
                 "parameters": {
                   "emailSecurityContact": {
                     "value": "[parameters('emailSecurityContact')]"
-                  },
-                  "logAnalyticsWorkspaceId": {
-                    "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
                   }
                 },
                 "template": {
@@ -4969,8 +5414,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.32.4.45862",
-                      "templateHash": "14546732833942026419"
+                      "version": "0.33.93.31351",
+                      "templateHash": "5325637338183897217"
                     }
                   },
                   "parameters": {
@@ -4981,19 +5426,6 @@
                       ],
                       "metadata": {
                         "description": "Defender Paid protection Plans. Even if a customer selects the free sku, at least 1 paid protection plan must be specified."
-                      }
-                    },
-                    "enableAutoProvisioning": {
-                      "type": "bool",
-                      "defaultValue": true,
-                      "metadata": {
-                        "description": "Turn automatic deployment by Defender of the MMA (OMS VM extension) on or off"
-                      }
-                    },
-                    "logAnalyticsWorkspaceId": {
-                      "type": "string",
-                      "metadata": {
-                        "description": "Specify the ID of your custom Log Analytics workspace to collect Defender data."
                       }
                     },
                     "emailSecurityContact": {
@@ -5018,7 +5450,6 @@
                     }
                   },
                   "variables": {
-                    "autoProvisioning": "[if(parameters('enableAutoProvisioning'), 'On', 'Off')]",
                     "defenderPaidPlanConfig": {
                       "AzureCloud": {
                         "Api": {
@@ -5137,25 +5568,8 @@
                       "name": "[parameters('defenderPlans')[copyIndex()]]",
                       "properties": {
                         "pricingTier": "[parameters('defenderSkuTier')]",
-                        "subPlan": "[if(contains(variables('defenderPaidPlanConfig')[environment().name][parameters('defenderPlans')[copyIndex()]], 'subPlan'), variables('defenderPaidPlanConfig')[environment().name][parameters('defenderPlans')[copyIndex()]].subPlan, json('null'))]",
-                        "extensions": "[if(contains(variables('defenderPaidPlanConfig')[environment().name][parameters('defenderPlans')[copyIndex()]], 'extensions'), variables('defenderPaidPlanConfig')[environment().name][parameters('defenderPlans')[copyIndex()]].extensions, json('null'))]"
-                      }
-                    },
-                    {
-                      "type": "Microsoft.Security/autoProvisioningSettings",
-                      "apiVersion": "2019-01-01",
-                      "name": "default",
-                      "properties": {
-                        "autoProvision": "[variables('autoProvisioning')]"
-                      }
-                    },
-                    {
-                      "type": "Microsoft.Security/workspaceSettings",
-                      "apiVersion": "2019-01-01",
-                      "name": "default",
-                      "properties": {
-                        "workspaceId": "[parameters('logAnalyticsWorkspaceId')]",
-                        "scope": "[subscription().id]"
+                        "subPlan": "[coalesce(tryGet(variables('defenderPaidPlanConfig')[environment().name][parameters('defenderPlans')[copyIndex()]], 'subPlan'), null())]",
+                        "extensions": "[coalesce(tryGet(variables('defenderPaidPlanConfig')[environment().name][parameters('defenderPlans')[copyIndex()]], 'extensions'), null())]"
                       }
                     },
                     {
@@ -5225,6 +5639,10 @@
               "type": "object",
               "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tiers.value[0].namingConvention]"
             },
+            "networkSecurityGroupResourceId": {
+              "type": "string",
+              "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkSecurityGroupResourceId.value]"
+            },
             "privateDnsZones": {
               "type": "array",
               "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.privateDnsZones.value]"
@@ -5292,8 +5710,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "1023650274952813570"
+              "version": "0.33.93.31351",
+              "templateHash": "7568969464844031444"
             }
           },
           "parameters": {
@@ -5370,10 +5788,10 @@
             "value": "[variables('keyVaultSecretsOfficer')]"
           },
           "localAdministratorPassword": {
-            "value": "[parameters('adminPassword')]"
+            "value": "[parameters('virtualMachineAdminPassword')]"
           },
           "localAdministratorUsername": {
-            "value": "[parameters('adminUsername')]"
+            "value": "[parameters('virtualMachineAdminUsername')]"
           },
           "location": {
             "value": "[parameters('location')]"
@@ -5403,11 +5821,15 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "14955990919492707422"
+              "version": "0.33.93.31351",
+              "templateHash": "10280607431411929700"
             }
           },
           "parameters": {
+            "diskEncryptionKeyExpirationInDays": {
+              "type": "int",
+              "defaultValue": 30
+            },
             "domainJoinPassword": {
               "type": "securestring"
             },
@@ -5420,10 +5842,13 @@
             "keyVaultName": {
               "type": "string"
             },
-            "keyVaultSecretsOfficerRoleDefinitionResourceId": {
+            "keyVaultPrivateDnsZoneResourceId": {
               "type": "string"
             },
             "keyVaultCryptoOfficerRoleDefinitionResourceId": {
+              "type": "string"
+            },
+            "keyVaultSecretsOfficerRoleDefinitionResourceId": {
               "type": "string"
             },
             "localAdministratorPassword": {
@@ -5441,23 +5866,16 @@
             "primarySiteAdministratorAccountUserName": {
               "type": "string"
             },
-            "tags": {
-              "type": "object"
-            },
-            "userAssignedIdentityPrincipalId": {
+            "resourcePrefix": {
               "type": "string"
             },
             "subnetResourceId": {
               "type": "string"
             },
-            "keyVaultPrivateDnsZoneResourceId": {
-              "type": "string"
+            "tags": {
+              "type": "object"
             },
-            "diskEncryptionKeyExpirationInDays": {
-              "type": "int",
-              "defaultValue": 30
-            },
-            "resourcePrefix": {
+            "userAssignedIdentityPrincipalId": {
               "type": "string"
             }
           },
@@ -5783,8 +6201,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "4589492536501356296"
+              "version": "0.33.93.31351",
+              "templateHash": "10621423441274969348"
             }
           },
           "parameters": {
@@ -6102,8 +6520,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "4874407657154062547"
+              "version": "0.33.93.31351",
+              "templateHash": "9590206929323214308"
             }
           },
           "parameters": {
@@ -6196,8 +6614,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "16743860269529223668"
+              "version": "0.33.93.31351",
+              "templateHash": "11285144502775921890"
             }
           },
           "parameters": {
@@ -6262,8 +6680,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "16743860269529223668"
+              "version": "0.33.93.31351",
+              "templateHash": "11285144502775921890"
             }
           },
           "parameters": {
@@ -6328,8 +6746,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "16743860269529223668"
+              "version": "0.33.93.31351",
+              "templateHash": "11285144502775921890"
             }
           },
           "parameters": {
@@ -6394,8 +6812,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "16743860269529223668"
+              "version": "0.33.93.31351",
+              "templateHash": "11285144502775921890"
             }
           },
           "parameters": {
@@ -6460,8 +6878,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "16743860269529223668"
+              "version": "0.33.93.31351",
+              "templateHash": "11285144502775921890"
             }
           },
           "parameters": {
@@ -6526,8 +6944,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "16743860269529223668"
+              "version": "0.33.93.31351",
+              "templateHash": "11285144502775921890"
             }
           },
           "parameters": {
@@ -6592,8 +7010,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "16743860269529223668"
+              "version": "0.33.93.31351",
+              "templateHash": "11285144502775921890"
             }
           },
           "parameters": {
@@ -6645,11 +7063,11 @@
         },
         "mode": "Incremental",
         "parameters": {
-          "adminPassword": {
-            "value": "[parameters('adminPassword')]"
+          "virtualMachineAdminPassword": {
+            "value": "[parameters('virtualMachineAdminPassword')]"
           },
-          "adminUsername": {
-            "value": "[parameters('adminUsername')]"
+          "virtualMachineAdminUsername": {
+            "value": "[parameters('virtualMachineAdminUsername')]"
           },
           "architecture": {
             "value": "[parameters('architecture')]"
@@ -6711,17 +7129,11 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "17445670218354390774"
+              "version": "0.33.93.31351",
+              "templateHash": "6941280276312138360"
             }
           },
           "parameters": {
-            "adminPassword": {
-              "type": "securestring"
-            },
-            "adminUsername": {
-              "type": "string"
-            },
             "architecture": {
               "type": "string"
             },
@@ -6772,7 +7184,13 @@
             "virtualMachineName": {
               "type": "string"
             },
+            "virtualMachineAdminPassword": {
+              "type": "securestring"
+            },
             "virtualMachineSize": {
+              "type": "string"
+            },
+            "virtualMachineAdminUsername": {
               "type": "string"
             },
             "windowsDomainAdministratorPassword": {
@@ -6786,6 +7204,7 @@
             }
           },
           "variables": {
+            "$fxv#0": "param(\r\n    [string]$Domain\r\n)\r\n\r\n# Get Ethernet Connections\r\n$NetworkInterfaceCards = Get-DnsClient | Where-Object -Property 'InterfaceAlias' -Match 'Ethernet'\r\n\r\n# Add Suffix To Each Ethernet Connection\r\nforeach($NetworkInterfaceCard in $NetworkInterfaceCards) \r\n{\r\n    Set-DnsClient -ConnectionSpecificSuffix $Domain -InterfaceIndex $NetworkInterfaceCard.InterfaceIndex -confirm:$false\r\n}",
             "roleDefinitionId": "2a2b9908-6ea1-4ae2-8e65-a410df84e7d1",
             "windowsDomainNameNetBios": "[split(parameters('windowsDomainName'), '.')[0]]",
             "nicDnsSuffix": "[format('{0}.{1}', split(parameters('externalDnsHostName'), '.')[1], split(parameters('externalDnsHostName'), '.')[2])]",
@@ -6867,8 +7286,8 @@
                 },
                 "osProfile": {
                   "computerName": "[parameters('virtualMachineName')]",
-                  "adminUsername": "[parameters('adminUsername')]",
-                  "adminPassword": "[parameters('adminPassword')]",
+                  "adminUsername": "[parameters('virtualMachineAdminUsername')]",
+                  "adminPassword": "[parameters('virtualMachineAdminPassword')]",
                   "windowsConfiguration": {
                     "provisionVMAgent": true,
                     "enableAutomaticUpdates": false,
@@ -7069,7 +7488,7 @@
                   }
                 ],
                 "source": {
-                  "script": "      param(\r\n        [string]$Domain\r\n      )\r\n      # ONLY RETURN ETHERNET CONNECTIONS\r\n      $nic = Get-DnsClient | Where-Object -Property InterfaceAlias -Match Ethernet\r\n      # ADD SUFFIX TO EACH ETHERNET CONNECTION\r\n      Foreach ($nic in $nics) {\r\n      Set-DnsClient -ConnectionSpecificSuffix $Domain -InterfaceIndex $nic.InterfaceIndex -confirm:$false\r\n      $Alias = $nic.InterfaceAlias\r\n      $Index = $nic.InterfaceIndex\r\n      }\r\n      Set-DnsClient -ConnectionSpecificSuffix $Domain -InterfaceIndex $nic.InterfaceIndex -confirm:$false\r\n      "
+                  "script": "[variables('$fxv#0')]"
                 }
               },
               "dependsOn": [
@@ -7120,11 +7539,11 @@
         },
         "mode": "Incremental",
         "parameters": {
-          "adminPassword": {
-            "value": "[parameters('adminPassword')]"
+          "virtualMachineAdminPassword": {
+            "value": "[parameters('virtualMachineAdminPassword')]"
           },
-          "adminUsername": {
-            "value": "[parameters('adminUsername')]"
+          "virtualMachineAdminUsername": {
+            "value": "[parameters('virtualMachineAdminUsername')]"
           },
           "architecture": {
             "value": "[parameters('architecture')]"
@@ -7188,17 +7607,11 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "17445670218354390774"
+              "version": "0.33.93.31351",
+              "templateHash": "6941280276312138360"
             }
           },
           "parameters": {
-            "adminPassword": {
-              "type": "securestring"
-            },
-            "adminUsername": {
-              "type": "string"
-            },
             "architecture": {
               "type": "string"
             },
@@ -7249,7 +7662,13 @@
             "virtualMachineName": {
               "type": "string"
             },
+            "virtualMachineAdminPassword": {
+              "type": "securestring"
+            },
             "virtualMachineSize": {
+              "type": "string"
+            },
+            "virtualMachineAdminUsername": {
               "type": "string"
             },
             "windowsDomainAdministratorPassword": {
@@ -7263,6 +7682,7 @@
             }
           },
           "variables": {
+            "$fxv#0": "param(\r\n    [string]$Domain\r\n)\r\n\r\n# Get Ethernet Connections\r\n$NetworkInterfaceCards = Get-DnsClient | Where-Object -Property 'InterfaceAlias' -Match 'Ethernet'\r\n\r\n# Add Suffix To Each Ethernet Connection\r\nforeach($NetworkInterfaceCard in $NetworkInterfaceCards) \r\n{\r\n    Set-DnsClient -ConnectionSpecificSuffix $Domain -InterfaceIndex $NetworkInterfaceCard.InterfaceIndex -confirm:$false\r\n}",
             "roleDefinitionId": "2a2b9908-6ea1-4ae2-8e65-a410df84e7d1",
             "windowsDomainNameNetBios": "[split(parameters('windowsDomainName'), '.')[0]]",
             "nicDnsSuffix": "[format('{0}.{1}', split(parameters('externalDnsHostName'), '.')[1], split(parameters('externalDnsHostName'), '.')[2])]",
@@ -7344,8 +7764,8 @@
                 },
                 "osProfile": {
                   "computerName": "[parameters('virtualMachineName')]",
-                  "adminUsername": "[parameters('adminUsername')]",
-                  "adminPassword": "[parameters('adminPassword')]",
+                  "adminUsername": "[parameters('virtualMachineAdminUsername')]",
+                  "adminPassword": "[parameters('virtualMachineAdminPassword')]",
                   "windowsConfiguration": {
                     "provisionVMAgent": true,
                     "enableAutomaticUpdates": false,
@@ -7546,7 +7966,7 @@
                   }
                 ],
                 "source": {
-                  "script": "      param(\r\n        [string]$Domain\r\n      )\r\n      # ONLY RETURN ETHERNET CONNECTIONS\r\n      $nic = Get-DnsClient | Where-Object -Property InterfaceAlias -Match Ethernet\r\n      # ADD SUFFIX TO EACH ETHERNET CONNECTION\r\n      Foreach ($nic in $nics) {\r\n      Set-DnsClient -ConnectionSpecificSuffix $Domain -InterfaceIndex $nic.InterfaceIndex -confirm:$false\r\n      $Alias = $nic.InterfaceAlias\r\n      $Index = $nic.InterfaceIndex\r\n      }\r\n      Set-DnsClient -ConnectionSpecificSuffix $Domain -InterfaceIndex $nic.InterfaceIndex -confirm:$false\r\n      "
+                  "script": "[variables('$fxv#0')]"
                 }
               },
               "dependsOn": [
@@ -7598,11 +8018,11 @@
         },
         "mode": "Incremental",
         "parameters": {
-          "adminPassword": {
-            "value": "[parameters('adminPassword')]"
+          "virtualMachineAdminPassword": {
+            "value": "[parameters('virtualMachineAdminPassword')]"
           },
-          "adminUsername": {
-            "value": "[parameters('adminUsername')]"
+          "virtualMachineAdminUsername": {
+            "value": "[parameters('virtualMachineAdminUsername')]"
           },
           "architecture": {
             "value": "[parameters('architecture')]"
@@ -7666,17 +8086,11 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "17445670218354390774"
+              "version": "0.33.93.31351",
+              "templateHash": "6941280276312138360"
             }
           },
           "parameters": {
-            "adminPassword": {
-              "type": "securestring"
-            },
-            "adminUsername": {
-              "type": "string"
-            },
             "architecture": {
               "type": "string"
             },
@@ -7727,7 +8141,13 @@
             "virtualMachineName": {
               "type": "string"
             },
+            "virtualMachineAdminPassword": {
+              "type": "securestring"
+            },
             "virtualMachineSize": {
+              "type": "string"
+            },
+            "virtualMachineAdminUsername": {
               "type": "string"
             },
             "windowsDomainAdministratorPassword": {
@@ -7741,6 +8161,7 @@
             }
           },
           "variables": {
+            "$fxv#0": "param(\r\n    [string]$Domain\r\n)\r\n\r\n# Get Ethernet Connections\r\n$NetworkInterfaceCards = Get-DnsClient | Where-Object -Property 'InterfaceAlias' -Match 'Ethernet'\r\n\r\n# Add Suffix To Each Ethernet Connection\r\nforeach($NetworkInterfaceCard in $NetworkInterfaceCards) \r\n{\r\n    Set-DnsClient -ConnectionSpecificSuffix $Domain -InterfaceIndex $NetworkInterfaceCard.InterfaceIndex -confirm:$false\r\n}",
             "roleDefinitionId": "2a2b9908-6ea1-4ae2-8e65-a410df84e7d1",
             "windowsDomainNameNetBios": "[split(parameters('windowsDomainName'), '.')[0]]",
             "nicDnsSuffix": "[format('{0}.{1}', split(parameters('externalDnsHostName'), '.')[1], split(parameters('externalDnsHostName'), '.')[2])]",
@@ -7822,8 +8243,8 @@
                 },
                 "osProfile": {
                   "computerName": "[parameters('virtualMachineName')]",
-                  "adminUsername": "[parameters('adminUsername')]",
-                  "adminPassword": "[parameters('adminPassword')]",
+                  "adminUsername": "[parameters('virtualMachineAdminUsername')]",
+                  "adminPassword": "[parameters('virtualMachineAdminPassword')]",
                   "windowsConfiguration": {
                     "provisionVMAgent": true,
                     "enableAutomaticUpdates": false,
@@ -8024,7 +8445,7 @@
                   }
                 ],
                 "source": {
-                  "script": "      param(\r\n        [string]$Domain\r\n      )\r\n      # ONLY RETURN ETHERNET CONNECTIONS\r\n      $nic = Get-DnsClient | Where-Object -Property InterfaceAlias -Match Ethernet\r\n      # ADD SUFFIX TO EACH ETHERNET CONNECTION\r\n      Foreach ($nic in $nics) {\r\n      Set-DnsClient -ConnectionSpecificSuffix $Domain -InterfaceIndex $nic.InterfaceIndex -confirm:$false\r\n      $Alias = $nic.InterfaceAlias\r\n      $Index = $nic.InterfaceIndex\r\n      }\r\n      Set-DnsClient -ConnectionSpecificSuffix $Domain -InterfaceIndex $nic.InterfaceIndex -confirm:$false\r\n      "
+                  "script": "[variables('$fxv#0')]"
                 }
               },
               "dependsOn": [
@@ -8076,11 +8497,11 @@
         },
         "mode": "Incremental",
         "parameters": {
-          "adminPassword": {
-            "value": "[parameters('adminPassword')]"
+          "virtualMachineAdminPassword": {
+            "value": "[parameters('virtualMachineAdminPassword')]"
           },
-          "adminUsername": {
-            "value": "[parameters('adminUsername')]"
+          "virtualMachineAdminUsername": {
+            "value": "[parameters('virtualMachineAdminUsername')]"
           },
           "architecture": {
             "value": "[parameters('architecture')]"
@@ -8144,17 +8565,11 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "17445670218354390774"
+              "version": "0.33.93.31351",
+              "templateHash": "6941280276312138360"
             }
           },
           "parameters": {
-            "adminPassword": {
-              "type": "securestring"
-            },
-            "adminUsername": {
-              "type": "string"
-            },
             "architecture": {
               "type": "string"
             },
@@ -8205,7 +8620,13 @@
             "virtualMachineName": {
               "type": "string"
             },
+            "virtualMachineAdminPassword": {
+              "type": "securestring"
+            },
             "virtualMachineSize": {
+              "type": "string"
+            },
+            "virtualMachineAdminUsername": {
               "type": "string"
             },
             "windowsDomainAdministratorPassword": {
@@ -8219,6 +8640,7 @@
             }
           },
           "variables": {
+            "$fxv#0": "param(\r\n    [string]$Domain\r\n)\r\n\r\n# Get Ethernet Connections\r\n$NetworkInterfaceCards = Get-DnsClient | Where-Object -Property 'InterfaceAlias' -Match 'Ethernet'\r\n\r\n# Add Suffix To Each Ethernet Connection\r\nforeach($NetworkInterfaceCard in $NetworkInterfaceCards) \r\n{\r\n    Set-DnsClient -ConnectionSpecificSuffix $Domain -InterfaceIndex $NetworkInterfaceCard.InterfaceIndex -confirm:$false\r\n}",
             "roleDefinitionId": "2a2b9908-6ea1-4ae2-8e65-a410df84e7d1",
             "windowsDomainNameNetBios": "[split(parameters('windowsDomainName'), '.')[0]]",
             "nicDnsSuffix": "[format('{0}.{1}', split(parameters('externalDnsHostName'), '.')[1], split(parameters('externalDnsHostName'), '.')[2])]",
@@ -8300,8 +8722,8 @@
                 },
                 "osProfile": {
                   "computerName": "[parameters('virtualMachineName')]",
-                  "adminUsername": "[parameters('adminUsername')]",
-                  "adminPassword": "[parameters('adminPassword')]",
+                  "adminUsername": "[parameters('virtualMachineAdminUsername')]",
+                  "adminPassword": "[parameters('virtualMachineAdminPassword')]",
                   "windowsConfiguration": {
                     "provisionVMAgent": true,
                     "enableAutomaticUpdates": false,
@@ -8502,7 +8924,7 @@
                   }
                 ],
                 "source": {
-                  "script": "      param(\r\n        [string]$Domain\r\n      )\r\n      # ONLY RETURN ETHERNET CONNECTIONS\r\n      $nic = Get-DnsClient | Where-Object -Property InterfaceAlias -Match Ethernet\r\n      # ADD SUFFIX TO EACH ETHERNET CONNECTION\r\n      Foreach ($nic in $nics) {\r\n      Set-DnsClient -ConnectionSpecificSuffix $Domain -InterfaceIndex $nic.InterfaceIndex -confirm:$false\r\n      $Alias = $nic.InterfaceAlias\r\n      $Index = $nic.InterfaceIndex\r\n      }\r\n      Set-DnsClient -ConnectionSpecificSuffix $Domain -InterfaceIndex $nic.InterfaceIndex -confirm:$false\r\n      "
+                  "script": "[variables('$fxv#0')]"
                 }
               },
               "dependsOn": [
@@ -8554,11 +8976,11 @@
         },
         "mode": "Incremental",
         "parameters": {
-          "adminPassword": {
-            "value": "[parameters('adminPassword')]"
+          "virtualMachineAdminPassword": {
+            "value": "[parameters('virtualMachineAdminPassword')]"
           },
-          "adminUsername": {
-            "value": "[parameters('adminUsername')]"
+          "virtualMachineAdminUsername": {
+            "value": "[parameters('virtualMachineAdminUsername')]"
           },
           "architecture": {
             "value": "[parameters('architecture')]"
@@ -8624,17 +9046,11 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "17445670218354390774"
+              "version": "0.33.93.31351",
+              "templateHash": "6941280276312138360"
             }
           },
           "parameters": {
-            "adminPassword": {
-              "type": "securestring"
-            },
-            "adminUsername": {
-              "type": "string"
-            },
             "architecture": {
               "type": "string"
             },
@@ -8685,7 +9101,13 @@
             "virtualMachineName": {
               "type": "string"
             },
+            "virtualMachineAdminPassword": {
+              "type": "securestring"
+            },
             "virtualMachineSize": {
+              "type": "string"
+            },
+            "virtualMachineAdminUsername": {
               "type": "string"
             },
             "windowsDomainAdministratorPassword": {
@@ -8699,6 +9121,7 @@
             }
           },
           "variables": {
+            "$fxv#0": "param(\r\n    [string]$Domain\r\n)\r\n\r\n# Get Ethernet Connections\r\n$NetworkInterfaceCards = Get-DnsClient | Where-Object -Property 'InterfaceAlias' -Match 'Ethernet'\r\n\r\n# Add Suffix To Each Ethernet Connection\r\nforeach($NetworkInterfaceCard in $NetworkInterfaceCards) \r\n{\r\n    Set-DnsClient -ConnectionSpecificSuffix $Domain -InterfaceIndex $NetworkInterfaceCard.InterfaceIndex -confirm:$false\r\n}",
             "roleDefinitionId": "2a2b9908-6ea1-4ae2-8e65-a410df84e7d1",
             "windowsDomainNameNetBios": "[split(parameters('windowsDomainName'), '.')[0]]",
             "nicDnsSuffix": "[format('{0}.{1}', split(parameters('externalDnsHostName'), '.')[1], split(parameters('externalDnsHostName'), '.')[2])]",
@@ -8780,8 +9203,8 @@
                 },
                 "osProfile": {
                   "computerName": "[parameters('virtualMachineName')]",
-                  "adminUsername": "[parameters('adminUsername')]",
-                  "adminPassword": "[parameters('adminPassword')]",
+                  "adminUsername": "[parameters('virtualMachineAdminUsername')]",
+                  "adminPassword": "[parameters('virtualMachineAdminPassword')]",
                   "windowsConfiguration": {
                     "provisionVMAgent": true,
                     "enableAutomaticUpdates": false,
@@ -8982,7 +9405,7 @@
                   }
                 ],
                 "source": {
-                  "script": "      param(\r\n        [string]$Domain\r\n      )\r\n      # ONLY RETURN ETHERNET CONNECTIONS\r\n      $nic = Get-DnsClient | Where-Object -Property InterfaceAlias -Match Ethernet\r\n      # ADD SUFFIX TO EACH ETHERNET CONNECTION\r\n      Foreach ($nic in $nics) {\r\n      Set-DnsClient -ConnectionSpecificSuffix $Domain -InterfaceIndex $nic.InterfaceIndex -confirm:$false\r\n      $Alias = $nic.InterfaceAlias\r\n      $Index = $nic.InterfaceIndex\r\n      }\r\n      Set-DnsClient -ConnectionSpecificSuffix $Domain -InterfaceIndex $nic.InterfaceIndex -confirm:$false\r\n      "
+                  "script": "[variables('$fxv#0')]"
                 }
               },
               "dependsOn": [
@@ -9033,11 +9456,11 @@
         },
         "mode": "Incremental",
         "parameters": {
-          "adminPassword": {
-            "value": "[parameters('adminPassword')]"
+          "virtualMachineAdminPassword": {
+            "value": "[parameters('virtualMachineAdminPassword')]"
           },
-          "adminUsername": {
-            "value": "[parameters('adminUsername')]"
+          "virtualMachineAdminUsername": {
+            "value": "[parameters('virtualMachineAdminUsername')]"
           },
           "architecture": {
             "value": "[parameters('architecture')]"
@@ -9101,17 +9524,11 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "17445670218354390774"
+              "version": "0.33.93.31351",
+              "templateHash": "6941280276312138360"
             }
           },
           "parameters": {
-            "adminPassword": {
-              "type": "securestring"
-            },
-            "adminUsername": {
-              "type": "string"
-            },
             "architecture": {
               "type": "string"
             },
@@ -9162,7 +9579,13 @@
             "virtualMachineName": {
               "type": "string"
             },
+            "virtualMachineAdminPassword": {
+              "type": "securestring"
+            },
             "virtualMachineSize": {
+              "type": "string"
+            },
+            "virtualMachineAdminUsername": {
               "type": "string"
             },
             "windowsDomainAdministratorPassword": {
@@ -9176,6 +9599,7 @@
             }
           },
           "variables": {
+            "$fxv#0": "param(\r\n    [string]$Domain\r\n)\r\n\r\n# Get Ethernet Connections\r\n$NetworkInterfaceCards = Get-DnsClient | Where-Object -Property 'InterfaceAlias' -Match 'Ethernet'\r\n\r\n# Add Suffix To Each Ethernet Connection\r\nforeach($NetworkInterfaceCard in $NetworkInterfaceCards) \r\n{\r\n    Set-DnsClient -ConnectionSpecificSuffix $Domain -InterfaceIndex $NetworkInterfaceCard.InterfaceIndex -confirm:$false\r\n}",
             "roleDefinitionId": "2a2b9908-6ea1-4ae2-8e65-a410df84e7d1",
             "windowsDomainNameNetBios": "[split(parameters('windowsDomainName'), '.')[0]]",
             "nicDnsSuffix": "[format('{0}.{1}', split(parameters('externalDnsHostName'), '.')[1], split(parameters('externalDnsHostName'), '.')[2])]",
@@ -9257,8 +9681,8 @@
                 },
                 "osProfile": {
                   "computerName": "[parameters('virtualMachineName')]",
-                  "adminUsername": "[parameters('adminUsername')]",
-                  "adminPassword": "[parameters('adminPassword')]",
+                  "adminUsername": "[parameters('virtualMachineAdminUsername')]",
+                  "adminPassword": "[parameters('virtualMachineAdminPassword')]",
                   "windowsConfiguration": {
                     "provisionVMAgent": true,
                     "enableAutomaticUpdates": false,
@@ -9459,7 +9883,7 @@
                   }
                 ],
                 "source": {
-                  "script": "      param(\r\n        [string]$Domain\r\n      )\r\n      # ONLY RETURN ETHERNET CONNECTIONS\r\n      $nic = Get-DnsClient | Where-Object -Property InterfaceAlias -Match Ethernet\r\n      # ADD SUFFIX TO EACH ETHERNET CONNECTION\r\n      Foreach ($nic in $nics) {\r\n      Set-DnsClient -ConnectionSpecificSuffix $Domain -InterfaceIndex $nic.InterfaceIndex -confirm:$false\r\n      $Alias = $nic.InterfaceAlias\r\n      $Index = $nic.InterfaceIndex\r\n      }\r\n      Set-DnsClient -ConnectionSpecificSuffix $Domain -InterfaceIndex $nic.InterfaceIndex -confirm:$false\r\n      "
+                  "script": "[variables('$fxv#0')]"
                 }
               },
               "dependsOn": [
@@ -9511,11 +9935,11 @@
         },
         "mode": "Incremental",
         "parameters": {
-          "adminPassword": {
-            "value": "[parameters('adminPassword')]"
+          "virtualMachineAdminPassword": {
+            "value": "[parameters('virtualMachineAdminPassword')]"
           },
-          "adminUsername": {
-            "value": "[parameters('adminUsername')]"
+          "virtualMachineAdminUsername": {
+            "value": "[parameters('virtualMachineAdminUsername')]"
           },
           "architecture": {
             "value": "[parameters('architecture')]"
@@ -9579,17 +10003,11 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "17445670218354390774"
+              "version": "0.33.93.31351",
+              "templateHash": "6941280276312138360"
             }
           },
           "parameters": {
-            "adminPassword": {
-              "type": "securestring"
-            },
-            "adminUsername": {
-              "type": "string"
-            },
             "architecture": {
               "type": "string"
             },
@@ -9640,7 +10058,13 @@
             "virtualMachineName": {
               "type": "string"
             },
+            "virtualMachineAdminPassword": {
+              "type": "securestring"
+            },
             "virtualMachineSize": {
+              "type": "string"
+            },
+            "virtualMachineAdminUsername": {
               "type": "string"
             },
             "windowsDomainAdministratorPassword": {
@@ -9654,6 +10078,7 @@
             }
           },
           "variables": {
+            "$fxv#0": "param(\r\n    [string]$Domain\r\n)\r\n\r\n# Get Ethernet Connections\r\n$NetworkInterfaceCards = Get-DnsClient | Where-Object -Property 'InterfaceAlias' -Match 'Ethernet'\r\n\r\n# Add Suffix To Each Ethernet Connection\r\nforeach($NetworkInterfaceCard in $NetworkInterfaceCards) \r\n{\r\n    Set-DnsClient -ConnectionSpecificSuffix $Domain -InterfaceIndex $NetworkInterfaceCard.InterfaceIndex -confirm:$false\r\n}",
             "roleDefinitionId": "2a2b9908-6ea1-4ae2-8e65-a410df84e7d1",
             "windowsDomainNameNetBios": "[split(parameters('windowsDomainName'), '.')[0]]",
             "nicDnsSuffix": "[format('{0}.{1}', split(parameters('externalDnsHostName'), '.')[1], split(parameters('externalDnsHostName'), '.')[2])]",
@@ -9735,8 +10160,8 @@
                 },
                 "osProfile": {
                   "computerName": "[parameters('virtualMachineName')]",
-                  "adminUsername": "[parameters('adminUsername')]",
-                  "adminPassword": "[parameters('adminPassword')]",
+                  "adminUsername": "[parameters('virtualMachineAdminUsername')]",
+                  "adminPassword": "[parameters('virtualMachineAdminPassword')]",
                   "windowsConfiguration": {
                     "provisionVMAgent": true,
                     "enableAutomaticUpdates": false,
@@ -9937,7 +10362,7 @@
                   }
                 ],
                 "source": {
-                  "script": "      param(\r\n        [string]$Domain\r\n      )\r\n      # ONLY RETURN ETHERNET CONNECTIONS\r\n      $nic = Get-DnsClient | Where-Object -Property InterfaceAlias -Match Ethernet\r\n      # ADD SUFFIX TO EACH ETHERNET CONNECTION\r\n      Foreach ($nic in $nics) {\r\n      Set-DnsClient -ConnectionSpecificSuffix $Domain -InterfaceIndex $nic.InterfaceIndex -confirm:$false\r\n      $Alias = $nic.InterfaceAlias\r\n      $Index = $nic.InterfaceIndex\r\n      }\r\n      Set-DnsClient -ConnectionSpecificSuffix $Domain -InterfaceIndex $nic.InterfaceIndex -confirm:$false\r\n      "
+                  "script": "[variables('$fxv#0')]"
                 }
               },
               "dependsOn": [
@@ -9989,11 +10414,11 @@
         },
         "mode": "Incremental",
         "parameters": {
-          "adminPassword": {
-            "value": "[parameters('adminPassword')]"
+          "virtualMachineAdminPassword": {
+            "value": "[parameters('virtualMachineAdminPassword')]"
           },
-          "adminUsername": {
-            "value": "[parameters('adminUsername')]"
+          "virtualMachineAdminUsername": {
+            "value": "[parameters('virtualMachineAdminUsername')]"
           },
           "architecture": {
             "value": "[parameters('architecture')]"
@@ -10057,17 +10482,11 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "17445670218354390774"
+              "version": "0.33.93.31351",
+              "templateHash": "6941280276312138360"
             }
           },
           "parameters": {
-            "adminPassword": {
-              "type": "securestring"
-            },
-            "adminUsername": {
-              "type": "string"
-            },
             "architecture": {
               "type": "string"
             },
@@ -10118,7 +10537,13 @@
             "virtualMachineName": {
               "type": "string"
             },
+            "virtualMachineAdminPassword": {
+              "type": "securestring"
+            },
             "virtualMachineSize": {
+              "type": "string"
+            },
+            "virtualMachineAdminUsername": {
               "type": "string"
             },
             "windowsDomainAdministratorPassword": {
@@ -10132,6 +10557,7 @@
             }
           },
           "variables": {
+            "$fxv#0": "param(\r\n    [string]$Domain\r\n)\r\n\r\n# Get Ethernet Connections\r\n$NetworkInterfaceCards = Get-DnsClient | Where-Object -Property 'InterfaceAlias' -Match 'Ethernet'\r\n\r\n# Add Suffix To Each Ethernet Connection\r\nforeach($NetworkInterfaceCard in $NetworkInterfaceCards) \r\n{\r\n    Set-DnsClient -ConnectionSpecificSuffix $Domain -InterfaceIndex $NetworkInterfaceCard.InterfaceIndex -confirm:$false\r\n}",
             "roleDefinitionId": "2a2b9908-6ea1-4ae2-8e65-a410df84e7d1",
             "windowsDomainNameNetBios": "[split(parameters('windowsDomainName'), '.')[0]]",
             "nicDnsSuffix": "[format('{0}.{1}', split(parameters('externalDnsHostName'), '.')[1], split(parameters('externalDnsHostName'), '.')[2])]",
@@ -10213,8 +10639,8 @@
                 },
                 "osProfile": {
                   "computerName": "[parameters('virtualMachineName')]",
-                  "adminUsername": "[parameters('adminUsername')]",
-                  "adminPassword": "[parameters('adminPassword')]",
+                  "adminUsername": "[parameters('virtualMachineAdminUsername')]",
+                  "adminPassword": "[parameters('virtualMachineAdminPassword')]",
                   "windowsConfiguration": {
                     "provisionVMAgent": true,
                     "enableAutomaticUpdates": false,
@@ -10415,7 +10841,7 @@
                   }
                 ],
                 "source": {
-                  "script": "      param(\r\n        [string]$Domain\r\n      )\r\n      # ONLY RETURN ETHERNET CONNECTIONS\r\n      $nic = Get-DnsClient | Where-Object -Property InterfaceAlias -Match Ethernet\r\n      # ADD SUFFIX TO EACH ETHERNET CONNECTION\r\n      Foreach ($nic in $nics) {\r\n      Set-DnsClient -ConnectionSpecificSuffix $Domain -InterfaceIndex $nic.InterfaceIndex -confirm:$false\r\n      $Alias = $nic.InterfaceAlias\r\n      $Index = $nic.InterfaceIndex\r\n      }\r\n      Set-DnsClient -ConnectionSpecificSuffix $Domain -InterfaceIndex $nic.InterfaceIndex -confirm:$false\r\n      "
+                  "script": "[variables('$fxv#0')]"
                 }
               },
               "dependsOn": [
@@ -10467,11 +10893,11 @@
         },
         "mode": "Incremental",
         "parameters": {
-          "adminPassword": {
-            "value": "[parameters('adminPassword')]"
+          "virtualMachineAdminPassword": {
+            "value": "[parameters('virtualMachineAdminPassword')]"
           },
-          "adminUsername": {
-            "value": "[parameters('adminUsername')]"
+          "virtualMachineAdminUsername": {
+            "value": "[parameters('virtualMachineAdminUsername')]"
           },
           "architecture": {
             "value": "[parameters('architecture')]"
@@ -10535,17 +10961,11 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "17445670218354390774"
+              "version": "0.33.93.31351",
+              "templateHash": "6941280276312138360"
             }
           },
           "parameters": {
-            "adminPassword": {
-              "type": "securestring"
-            },
-            "adminUsername": {
-              "type": "string"
-            },
             "architecture": {
               "type": "string"
             },
@@ -10596,7 +11016,13 @@
             "virtualMachineName": {
               "type": "string"
             },
+            "virtualMachineAdminPassword": {
+              "type": "securestring"
+            },
             "virtualMachineSize": {
+              "type": "string"
+            },
+            "virtualMachineAdminUsername": {
               "type": "string"
             },
             "windowsDomainAdministratorPassword": {
@@ -10610,6 +11036,7 @@
             }
           },
           "variables": {
+            "$fxv#0": "param(\r\n    [string]$Domain\r\n)\r\n\r\n# Get Ethernet Connections\r\n$NetworkInterfaceCards = Get-DnsClient | Where-Object -Property 'InterfaceAlias' -Match 'Ethernet'\r\n\r\n# Add Suffix To Each Ethernet Connection\r\nforeach($NetworkInterfaceCard in $NetworkInterfaceCards) \r\n{\r\n    Set-DnsClient -ConnectionSpecificSuffix $Domain -InterfaceIndex $NetworkInterfaceCard.InterfaceIndex -confirm:$false\r\n}",
             "roleDefinitionId": "2a2b9908-6ea1-4ae2-8e65-a410df84e7d1",
             "windowsDomainNameNetBios": "[split(parameters('windowsDomainName'), '.')[0]]",
             "nicDnsSuffix": "[format('{0}.{1}', split(parameters('externalDnsHostName'), '.')[1], split(parameters('externalDnsHostName'), '.')[2])]",
@@ -10691,8 +11118,8 @@
                 },
                 "osProfile": {
                   "computerName": "[parameters('virtualMachineName')]",
-                  "adminUsername": "[parameters('adminUsername')]",
-                  "adminPassword": "[parameters('adminPassword')]",
+                  "adminUsername": "[parameters('virtualMachineAdminUsername')]",
+                  "adminPassword": "[parameters('virtualMachineAdminPassword')]",
                   "windowsConfiguration": {
                     "provisionVMAgent": true,
                     "enableAutomaticUpdates": false,
@@ -10893,7 +11320,7 @@
                   }
                 ],
                 "source": {
-                  "script": "      param(\r\n        [string]$Domain\r\n      )\r\n      # ONLY RETURN ETHERNET CONNECTIONS\r\n      $nic = Get-DnsClient | Where-Object -Property InterfaceAlias -Match Ethernet\r\n      # ADD SUFFIX TO EACH ETHERNET CONNECTION\r\n      Foreach ($nic in $nics) {\r\n      Set-DnsClient -ConnectionSpecificSuffix $Domain -InterfaceIndex $nic.InterfaceIndex -confirm:$false\r\n      $Alias = $nic.InterfaceAlias\r\n      $Index = $nic.InterfaceIndex\r\n      }\r\n      Set-DnsClient -ConnectionSpecificSuffix $Domain -InterfaceIndex $nic.InterfaceIndex -confirm:$false\r\n      "
+                  "script": "[variables('$fxv#0')]"
                 }
               },
               "dependsOn": [
@@ -10951,8 +11378,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "9187366172750168523"
+              "version": "0.33.93.31351",
+              "templateHash": "10731657693473272828"
             }
           },
           "parameters": {
@@ -11011,8 +11438,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "13959494426051843297"
+              "version": "0.33.93.31351",
+              "templateHash": "17161693227682699355"
             }
           },
           "parameters": {
@@ -11073,8 +11500,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "2083349351526836884"
+              "version": "0.33.93.31351",
+              "templateHash": "1998027178508600254"
             }
           },
           "parameters": {
@@ -11114,8 +11541,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.32.4.45862",
-                      "templateHash": "14705777707643640892"
+                      "version": "0.33.93.31351",
+                      "templateHash": "16714164489647665591"
                     }
                   },
                   "parameters": {
@@ -11192,10 +11619,10 @@
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-key-vault-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
           },
           "localAdministratorPassword": {
-            "value": "[parameters('adminPassword')]"
+            "value": "[parameters('virtualMachineAdminPassword')]"
           },
           "localAdministratorUsername": {
-            "value": "[parameters('adminUsername')]"
+            "value": "[parameters('virtualMachineAdminUsername')]"
           },
           "location": {
             "value": "[parameters('location')]"
@@ -11243,8 +11670,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "7995504492543961073"
+              "version": "0.33.93.31351",
+              "templateHash": "9897302624926608616"
             }
           },
           "parameters": {
@@ -11620,8 +12047,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "17861835856855820827"
+              "version": "0.33.93.31351",
+              "templateHash": "10981046418532106997"
             }
           },
           "parameters": {
@@ -11727,11 +12154,11 @@
         },
         "mode": "Incremental",
         "parameters": {
-          "adminPassword": {
-            "value": "[parameters('adminPassword')]"
+          "virtualMachineAdminPassword": {
+            "value": "[parameters('virtualMachineAdminPassword')]"
           },
-          "adminUsername": {
-            "value": "[parameters('adminUsername')]"
+          "virtualMachineAdminUsername": {
+            "value": "[parameters('virtualMachineAdminUsername')]"
           },
           "applicationGatewayName": {
             "value": "[variables('applicationGatewayName')]"
@@ -11978,18 +12405,15 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "1630209312575387362"
+              "version": "0.33.93.31351",
+              "templateHash": "13595197194508674905"
             }
           },
           "parameters": {
-            "adminPassword": {
-              "type": "securestring"
-            },
-            "adminUsername": {
+            "applicationGatewayName": {
               "type": "string"
             },
-            "applicationGatewayName": {
+            "applicationGatewayPrivateIPAddress": {
               "type": "string"
             },
             "arcgisServiceAccountIsDomainAccount": {
@@ -12025,6 +12449,12 @@
             "dscDataStoreFunction": {
               "type": "string"
             },
+            "dscGraphDataStoreFunction": {
+              "type": "string"
+            },
+            "dscObjectDataStoreFunction": {
+              "type": "string"
+            },
             "dscPortalFunction": {
               "type": "string"
             },
@@ -12037,19 +12467,34 @@
             "dscTileCacheFunction": {
               "type": "string"
             },
-            "dscGraphDataStoreFunction": {
-              "type": "string"
-            },
-            "dscObjectDataStoreFunction": {
-              "type": "string"
-            },
             "enableDataStoreVirtualMachineDataDisk": {
+              "type": "bool"
+            },
+            "enableGraphDataStore": {
+              "type": "bool"
+            },
+            "enableGraphDataStoreVirtualMachineDataDisk": {
+              "type": "bool"
+            },
+            "enableObjectDataStore": {
+              "type": "bool"
+            },
+            "enableObjectDataStoreVirtualMachineDataDisk": {
               "type": "bool"
             },
             "enableServerLogHarvesterPlugin": {
               "type": "bool"
             },
+            "enableSpatiotemporalBigDataStore": {
+              "type": "bool"
+            },
             "enableSpatiotemporalBigDataStoreVirtualMachineDataDisk": {
+              "type": "bool"
+            },
+            "enableTileCacheDataStore": {
+              "type": "bool"
+            },
+            "enableTileCacheDataStoreVirtualMachineDataDisk": {
               "type": "bool"
             },
             "enableVirtualMachineDataDisk": {
@@ -12064,6 +12509,24 @@
             "fileShareVirtualMachineName": {
               "type": "string"
             },
+            "graphDataStoreVirtualMachineNames": {
+              "type": "string"
+            },
+            "graphDataStoreVirtualMachineOSDiskSize": {
+              "type": "int"
+            },
+            "graphDataStoreVirtualMachines": {
+              "type": "array"
+            },
+            "isMultiMachineTileCacheDataStore": {
+              "type": "bool"
+            },
+            "isObjectDataStoreClustered": {
+              "type": "bool"
+            },
+            "isTileCacheDataStoreClustered": {
+              "type": "bool"
+            },
             "isUpdatingCertificates": {
               "type": "bool"
             },
@@ -12076,6 +12539,15 @@
             "location": {
               "type": "string",
               "defaultValue": "[resourceGroup().location]"
+            },
+            "objectDataStoreVirtualMachineNames": {
+              "type": "string"
+            },
+            "objectDataStoreVirtualMachineOSDiskSize": {
+              "type": "int"
+            },
+            "objectDataStoreVirtualMachines": {
+              "type": "array"
             },
             "portalBackendSslCert": {
               "type": "string"
@@ -12116,6 +12588,9 @@
             "secondaryDnsHostName": {
               "type": "string"
             },
+            "selfSignedSSLCertificatePassword": {
+              "type": "securestring"
+            },
             "serverBackendSSLCert": {
               "type": "string"
             },
@@ -12139,6 +12614,9 @@
             },
             "spatiotemporalBigDataStoreVirtualMachines": {
               "type": "array"
+            },
+            "tileCacheDataStoreVirtualMachineOSDiskSize": {
+              "type": "int"
             },
             "tileCacheVirtualMachines": {
               "type": "array"
@@ -12168,67 +12646,16 @@
             "userAssignedIdenityResourceId": {
               "type": "string"
             },
+            "virtualMachineAdminPassword": {
+              "type": "securestring"
+            },
+            "virtualMachineAdminUsername": {
+              "type": "string"
+            },
             "virtualMachineOSDiskSize": {
               "type": "int"
             },
             "virtualNetworkName": {
-              "type": "string"
-            },
-            "selfSignedSSLCertificatePassword": {
-              "type": "securestring"
-            },
-            "tileCacheDataStoreVirtualMachineOSDiskSize": {
-              "type": "int"
-            },
-            "isTileCacheDataStoreClustered": {
-              "type": "bool"
-            },
-            "isMultiMachineTileCacheDataStore": {
-              "type": "bool"
-            },
-            "enableTileCacheDataStoreVirtualMachineDataDisk": {
-              "type": "bool"
-            },
-            "graphDataStoreVirtualMachineNames": {
-              "type": "string"
-            },
-            "graphDataStoreVirtualMachines": {
-              "type": "array"
-            },
-            "graphDataStoreVirtualMachineOSDiskSize": {
-              "type": "int"
-            },
-            "enableGraphDataStoreVirtualMachineDataDisk": {
-              "type": "bool"
-            },
-            "objectDataStoreVirtualMachineNames": {
-              "type": "string"
-            },
-            "objectDataStoreVirtualMachines": {
-              "type": "array"
-            },
-            "objectDataStoreVirtualMachineOSDiskSize": {
-              "type": "int"
-            },
-            "isObjectDataStoreClustered": {
-              "type": "bool"
-            },
-            "enableObjectDataStoreVirtualMachineDataDisk": {
-              "type": "bool"
-            },
-            "enableSpatiotemporalBigDataStore": {
-              "type": "bool"
-            },
-            "enableTileCacheDataStore": {
-              "type": "bool"
-            },
-            "enableGraphDataStore": {
-              "type": "bool"
-            },
-            "enableObjectDataStore": {
-              "type": "bool"
-            },
-            "applicationGatewayPrivateIPAddress": {
               "type": "string"
             },
             "windowsDomainName": {
@@ -12249,12 +12676,6 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
-                  "adminPassword": {
-                    "value": "[parameters('adminPassword')]"
-                  },
-                  "adminUsername": {
-                    "value": "[parameters('adminUsername')]"
-                  },
                   "arcgisServiceAccountIsDomainAccount": {
                     "value": "[parameters('arcgisServiceAccountIsDomainAccount')]"
                   },
@@ -12297,6 +12718,12 @@
                   "tags": {
                     "value": "[parameters('tags')]"
                   },
+                  "virtualMachineAdminPassword": {
+                    "value": "[parameters('virtualMachineAdminUsername')]"
+                  },
+                  "virtualMachineAdminUsername": {
+                    "value": "[parameters('virtualMachineAdminPassword')]"
+                  },
                   "virtualMachineOSDiskSize": {
                     "value": "[parameters('virtualMachineOSDiskSize')]"
                   }
@@ -12307,17 +12734,11 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.32.4.45862",
-                      "templateHash": "17114035968416980500"
+                      "version": "0.33.93.31351",
+                      "templateHash": "15295139213814521056"
                     }
                   },
                   "parameters": {
-                    "adminPassword": {
-                      "type": "securestring"
-                    },
-                    "adminUsername": {
-                      "type": "string"
-                    },
                     "arcgisServiceAccountIsDomainAccount": {
                       "type": "bool"
                     },
@@ -12325,9 +12746,6 @@
                       "type": "securestring"
                     },
                     "arcgisServiceAccountUsername": {
-                      "type": "string"
-                    },
-                    "storageAccountName": {
                       "type": "string"
                     },
                     "convertedEpoch": {
@@ -12346,11 +12764,14 @@
                     "enableVirtualMachineDataDisk": {
                       "type": "bool"
                     },
+                    "externalDNSHostName": {
+                      "type": "string"
+                    },
                     "fileShareName": {
                       "type": "string",
                       "defaultValue": "fileshare"
                     },
-                    "externalDNSHostName": {
+                    "fileShareVirtualMachineName": {
                       "type": "string"
                     },
                     "location": {
@@ -12360,13 +12781,19 @@
                     "portalContext": {
                       "type": "string"
                     },
+                    "storageAccountName": {
+                      "type": "string"
+                    },
                     "storageUriPrefix": {
                       "type": "string"
                     },
                     "tags": {
                       "type": "object"
                     },
-                    "fileShareVirtualMachineName": {
+                    "virtualMachineAdminPassword": {
+                      "type": "securestring"
+                    },
+                    "virtualMachineAdminUsername": {
                       "type": "string"
                     },
                     "virtualMachineOSDiskSize": {
@@ -12426,8 +12853,8 @@
                               "password": "[parameters('arcgisServiceAccountPassword')]"
                             },
                             "MachineAdministratorCredential": {
-                              "userName": "[parameters('adminUsername')]",
-                              "password": "[parameters('adminPassword')]"
+                              "userName": "[parameters('virtualMachineAdminUsername')]",
+                              "password": "[parameters('virtualMachineAdminPassword')]"
                             }
                           }
                         }
@@ -12515,8 +12942,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.32.4.45862",
-                      "templateHash": "18084133921093310412"
+                      "version": "0.33.93.31351",
+                      "templateHash": "2965989767631055645"
                     }
                   },
                   "parameters": {
@@ -13136,8 +13563,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.32.4.45862",
-                      "templateHash": "4999509703898646916"
+                      "version": "0.33.93.31351",
+                      "templateHash": "14353199404460190562"
                     }
                   },
                   "parameters": {
@@ -13413,8 +13840,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.32.4.45862",
-                      "templateHash": "2321399602348097455"
+                      "version": "0.33.93.31351",
+                      "templateHash": "4621797688687325040"
                     }
                   },
                   "parameters": {
@@ -13656,8 +14083,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.32.4.45862",
-                      "templateHash": "1911405676955178803"
+                      "version": "0.33.93.31351",
+                      "templateHash": "18194667092696400959"
                     }
                   },
                   "parameters": {
@@ -13882,8 +14309,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.32.4.45862",
-                      "templateHash": "5251435890429178939"
+                      "version": "0.33.93.31351",
+                      "templateHash": "14754964369602665792"
                     }
                   },
                   "parameters": {
@@ -14110,8 +14537,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.32.4.45862",
-                      "templateHash": "12381122353010692281"
+                      "version": "0.33.93.31351",
+                      "templateHash": "7577877736303173688"
                     }
                   },
                   "parameters": {
@@ -14340,8 +14767,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.32.4.45862",
-                      "templateHash": "11144674879087999865"
+                      "version": "0.33.93.31351",
+                      "templateHash": "14037288010765317190"
                     }
                   },
                   "parameters": {
@@ -14599,8 +15026,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.32.4.45862",
-                      "templateHash": "12942455901448475676"
+                      "version": "0.33.93.31351",
+                      "templateHash": "7258622623561064894"
                     }
                   },
                   "parameters": {
@@ -14840,11 +15267,11 @@
         },
         "mode": "Incremental",
         "parameters": {
-          "adminPassword": {
-            "value": "[parameters('adminPassword')]"
+          "virtualMachineAdminPassword": {
+            "value": "[parameters('virtualMachineAdminPassword')]"
           },
-          "adminUsername": {
-            "value": "[parameters('adminUsername')]"
+          "virtualMachineAdminUsername": {
+            "value": "[parameters('virtualMachineAdminUsername')]"
           },
           "applicationGatewayName": {
             "value": "[variables('applicationGatewayName')]"
@@ -14983,15 +15410,15 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.32.4.45862",
-              "templateHash": "15336321161982809349"
+              "version": "0.33.93.31351",
+              "templateHash": "3820132851624372138"
             }
           },
           "parameters": {
-            "adminPassword": {
+            "virtualMachineAdminPassword": {
               "type": "securestring"
             },
-            "adminUsername": {
+            "virtualMachineAdminUsername": {
               "type": "string"
             },
             "arcgisServiceAccountIsDomainAccount": {
@@ -15200,8 +15627,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.32.4.45862",
-                      "templateHash": "18084133921093310412"
+                      "version": "0.33.93.31351",
+                      "templateHash": "2965989767631055645"
                     }
                   },
                   "parameters": {
@@ -15721,12 +16148,6 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
-                  "adminPassword": {
-                    "value": "[parameters('adminPassword')]"
-                  },
-                  "adminUsername": {
-                    "value": "[parameters('adminUsername')]"
-                  },
                   "arcgisServiceAccountIsDomainAccount": {
                     "value": "[parameters('arcgisServiceAccountIsDomainAccount')]"
                   },
@@ -15787,11 +16208,17 @@
                   "publicKeySSLCertificateFileName": {
                     "value": "[parameters('publicKeySSLCertificateFileName')]"
                   },
+                  "selfSignedSSLCertificatePassword": {
+                    "value": "[parameters('selfSignedSSLCertificatePassword')]"
+                  },
                   "serverContext": {
                     "value": "[parameters('serverContext')]"
                   },
                   "serverLicenseFileName": {
                     "value": "[parameters('serverLicenseFileName')]"
+                  },
+                  "storageAccountName": {
+                    "value": "[parameters('storageAccountName')]"
                   },
                   "storageUriPrefix": {
                     "value": "[parameters('storageUriPrefix')]"
@@ -15805,17 +16232,17 @@
                   "useCloudStorage": {
                     "value": "[parameters('useCloudStorage')]"
                   },
+                  "virtualMachineAdminPassword": {
+                    "value": "[parameters('virtualMachineAdminPassword')]"
+                  },
+                  "virtualMachineAdminUsername": {
+                    "value": "[parameters('virtualMachineAdminUsername')]"
+                  },
                   "virtualMachineNames": {
                     "value": "[parameters('virtualMachineName')]"
                   },
                   "virtualMachineOSDiskSize": {
                     "value": "[parameters('virtualMachineOSDiskSize')]"
-                  },
-                  "storageAccountName": {
-                    "value": "[parameters('storageAccountName')]"
-                  },
-                  "selfSignedSSLCertificatePassword": {
-                    "value": "[parameters('selfSignedSSLCertificatePassword')]"
                   }
                 },
                 "template": {
@@ -15824,17 +16251,11 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.32.4.45862",
-                      "templateHash": "2379395567486957512"
+                      "version": "0.33.93.31351",
+                      "templateHash": "12321101250472979459"
                     }
                   },
                   "parameters": {
-                    "adminPassword": {
-                      "type": "securestring"
-                    },
-                    "adminUsername": {
-                      "type": "string"
-                    },
                     "arcgisServiceAccountIsDomainAccount": {
                       "type": "bool"
                     },
@@ -15904,6 +16325,9 @@
                     "publicKeySSLCertificateFileName": {
                       "type": "string"
                     },
+                    "selfSignedSSLCertificatePassword": {
+                      "type": "securestring"
+                    },
                     "serverContext": {
                       "type": "string"
                     },
@@ -15926,6 +16350,12 @@
                       "type": "bool",
                       "defaultValue": true
                     },
+                    "virtualMachineAdminPassword": {
+                      "type": "securestring"
+                    },
+                    "virtualMachineAdminUsername": {
+                      "type": "string"
+                    },
                     "virtualMachineNames": {
                       "type": "string"
                     },
@@ -15934,9 +16364,6 @@
                     },
                     "storageAccountName": {
                       "type": "string"
-                    },
-                    "selfSignedSSLCertificatePassword": {
-                      "type": "securestring"
                     }
                   },
                   "variables": {
@@ -16001,8 +16428,8 @@
                               "password": "[parameters('arcgisServiceAccountPassword')]"
                             },
                             "MachineAdministratorCredential": {
-                              "userName": "[parameters('adminUsername')]",
-                              "password": "[parameters('adminPassword')]"
+                              "userName": "[parameters('virtualMachineAdminUsername')]",
+                              "password": "[parameters('virtualMachineAdminPassword')]"
                             },
                             "ServerInternalCertificatePassword": {
                               "userName": "Placeholder",

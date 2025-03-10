@@ -12,7 +12,7 @@ param tags object
 resource networkSecurityGroup 'Microsoft.Network/networkSecurityGroups@2021-02-01' = {
   name: name
   location: location
-  tags: union(contains(tags, 'Microsoft.Network/networkSecurityGroups') ? tags['Microsoft.Network/networkSecurityGroups'] : {}, mlzTags)
+  tags: union(tags[?'Microsoft.Network/networkSecurityGroups'] ?? {}, mlzTags)
   properties: {
     securityRules: securityRules
   }

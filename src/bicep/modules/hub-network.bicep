@@ -3,12 +3,11 @@ Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
 
+param azureGatewaySubnetAddressPrefix string
 param bastionHostNetworkSecurityGroup string
 param bastionHostSubnetAddressPrefix string
-param azureGatewaySubnetAddressPrefix string
-param deployNetworkWatcher bool
-param deployBastion bool
 param deployAzureGatewaySubnet bool
+param deployBastion bool
 param dnsServers array
 param enableProxy bool
 param firewallClientPrivateIpAddress string
@@ -39,6 +38,7 @@ param mlzTags object
 param networkSecurityGroupName string
 param networkSecurityGroupRules array
 param networkWatcherName string
+param networkWatcherResourceId string
 param routeTableName string
 param subnetAddressPrefix string
 param subnetName string
@@ -249,7 +249,7 @@ module routeTable '../modules/route-table.bicep' = {
   }
 }
 
-module networkWatcher '../modules/network-watcher.bicep' = if (deployNetworkWatcher) {
+module networkWatcher '../modules/network-watcher.bicep' = if (empty(networkWatcherResourceId)) {
   name: 'networkWatcher'
   params: {
     location: location

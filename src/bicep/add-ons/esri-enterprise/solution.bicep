@@ -64,14 +64,14 @@ param deployActivityLogDiagnosticSetting bool
 @description('Determine whether to deploy Defender for Cloud. This is only necessary if the target description does not have Defender for Cloud already enabled.')
 param deployDefender bool
 
-@description('Choose whether to deploy a policy assignment.')
-param deployPolicy bool
-
 @description('A suffix to use for naming deployments uniquely. It defaults to the Bicep resolution of the "utcNow()" function.')
 param deploymentNameSuffix string = utcNow()
 
-@description('Choose whether to deploy Network Watcher for the AVD session hosts location. This is necessary when the control plane and session hosts are in different locations.')
-param deployNetworkWatcher bool
+@description('When set to true, deploys Network Watcher Traffic Analytics. It defaults to "false".')
+param deployNetworkWatcherTrafficAnalytics bool = false
+
+@description('Choose whether to deploy a policy assignment.')
+param deployPolicy bool
 
 @description('The email address or distribution list to receive security alerts.')
 param emailSecurityContact string = ''
@@ -160,8 +160,36 @@ param joinWindowsDomain bool = false
 @description('The target location for the Azure resources.')
 param location string = deployment().location
 
-// @description('Log Analytics Workspace Name')
-// param logAnalyticsWorkspaceName string = ''
+@description('An array of Network Security Group diagnostic logs to apply to the workload Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-network/virtual-network-nsg-manage-log#log-categories.')
+param networkSecurityGroupDiagnosticsLogs array = [
+  {
+    category: 'NetworkSecurityGroupEvent'
+    enabled: true
+  }
+  {
+    category: 'NetworkSecurityGroupRuleCounter'
+    enabled: true
+  }
+]
+
+@description('The metrics to monitor for the Network Security Group.')
+param networkSecurityGroupDiagnosticsMetrics array = []
+
+@description('The rules to apply to the Network Security Group.')
+param networkSecurityGroupRules array = []
+
+@description('The number of days to retain Network Watcher Flow Logs. It defaults to "30".')  
+param networkWatcherFlowLogsRetentionDays int = 30
+
+@allowed([
+  'NetworkSecurityGroup'
+  'VirtualNetwork'
+])
+@description('When set to "true", enables Virtual Network Flow Logs. It defaults to "true" as its required by MCSB.')
+param networkWatcherFlowLogsType string = 'VirtualNetwork'
+
+@description('The resource ID for an existing network watcher for the desired deployment location. Only one network watcher per location can exist in a subscription. The value can be left empty to create a new network watcher resource.')
+param networkWatcherResourceId string = ''
 
 @description('The number of data store virtual machines.')
 param numberOfDataStoreVirtualMachines int = 2
@@ -429,7 +457,7 @@ module tier3 '../tier3/solution.bicep' = {
     deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
     deployDefender: deployDefender
     deploymentNameSuffix: deploymentNameSuffix
-    deployNetworkWatcher: deployNetworkWatcher
+    deployNetworkWatcherTrafficAnalytics: deployNetworkWatcherTrafficAnalytics
     deployPolicy: deployPolicy
     emailSecurityContact: emailSecurityContact
     environmentAbbreviation: environmentAbbreviation
@@ -438,11 +466,19 @@ module tier3 '../tier3/solution.bicep' = {
     identifier: identifier
     location: location
     logAnalyticsWorkspaceResourceId: operationsLogAnalyticsWorkspaceResourceId
+    networkSecurityGroupDiagnosticsLogs: networkSecurityGroupDiagnosticsLogs
+    networkSecurityGroupDiagnosticsMetrics: networkSecurityGroupDiagnosticsMetrics
+    networkSecurityGroupRules: networkSecurityGroupRules
+    networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
+    networkWatcherFlowLogsType: networkWatcherFlowLogsType
+    networkWatcherResourceId: networkWatcherResourceId
     policy: policy
     subnetName: 'EsriEnterpise'
     subnetAddressPrefix: subnetAddressPrefix
     tags: tags
     virtualNetworkAddressPrefix: virtualNetworkAddressPrefix
+    virtualNetworkDiagnosticsLogs: networkSecurityGroupDiagnosticsLogs
+    virtualNetworkDiagnosticsMetrics: networkSecurityGroupDiagnosticsMetrics
     workloadName: 'esriEnt'
     workloadShortName: 'ent'
   }

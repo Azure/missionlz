@@ -16,7 +16,7 @@ param tags object
 resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = {
   name: name
   location: location
-  tags: union(contains(tags, 'Microsoft.Network/privateEndpoints') ? tags['Microsoft.Network/privateEndpoints'] : {}, mlzTags)
+  tags: union(tags[?'Microsoft.Network/privateEndpoints'] ?? {}, mlzTags)
   properties: {
     customNetworkInterfaceName: networkInterfaceName
     privateLinkServiceConnections: [

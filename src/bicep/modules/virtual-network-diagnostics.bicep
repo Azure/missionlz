@@ -3,10 +3,19 @@ Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
 
+param deploymentNameSuffix string
+param deployNetworkWatcherTrafficAnalytics bool
+param flowLogsName string
+param location string
 param logAnalyticsWorkspaceResourceId string
 param logs array
 param logStorageAccountResourceId string
 param metrics array
+param networkWatcherFlowLogsRetentionDays int
+param networkWatcherFlowLogsType string
+param networkWatcherName string
+param networkWatcherResourceGroupName string
+param tiername string
 param virtualNetworkDiagnosticSettingName string
 param virtualNetworkName string
 
@@ -22,5 +31,20 @@ resource diagnostics 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' 
     workspaceId: logAnalyticsWorkspaceResourceId
     logs: logs
     metrics: metrics
+  }
+}
+
+module virtualNetworkFlowLogs '../modules/network-watcher-flow-logs.bicep' = if (networkWatcherFlowLogsType == 'VirtualNetwork') {
+  name: 'deploy-${tiername}-flowLogs-${deploymentNameSuffix}'
+  scope: resourceGroup(networkWatcherResourceGroupName)
+  params: {
+    deployNetworkWatcherTrafficAnalytics: deployNetworkWatcherTrafficAnalytics
+    flowLogsName: flowLogsName
+    flowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
+    location: location
+    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
+    networkWatcherName: networkWatcherName
+    storageAccountResourceId: logStorageAccountResourceId
+    targetResourceId: virtualNetwork.id
   }
 }

@@ -13,7 +13,7 @@ param tags object = {}
 resource resourceGroup 'Microsoft.Resources/resourceGroups@2019-05-01' = {
   name: name
   location: location
-  tags: union(contains(tags, 'Microsoft.Resources/resourceGroups') ? tags['Microsoft.Resources/resourceGroups'] : {}, mlzTags)
+  tags: union(tags[?'Microsoft.Resources/resourceGroups'] ?? {}, mlzTags)
 }
 
 output id string = resourceGroup.id
