@@ -15,6 +15,9 @@ param networkWatcherFlowLogsRetentionDays int
 param networkWatcherFlowLogsType string
 param networkWatcherName string
 param networkWatcherResourceGroupName string
+param supportedClouds array = [
+  'AzureCloud'
+]
 param tiername string
 param virtualNetworkDiagnosticSettingName string
 param virtualNetworkName string
@@ -29,7 +32,7 @@ resource diagnostics 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' 
   properties: {
     storageAccountId: logStorageAccountResourceId
     workspaceId: logAnalyticsWorkspaceResourceId
-    logs: logs
+    logs: contains(supportedClouds, environment().name) ?  logs : []
     metrics: metrics
   }
 }
