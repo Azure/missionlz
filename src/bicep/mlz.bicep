@@ -832,7 +832,7 @@ module diagnostics 'modules/diagnostics.bicep' = {
     location: location
     logAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
     networkInterfaceDiagnosticsMetrics: networkInterfaceDiagnosticsMetrics
-    networkInterfaceResourceIds: union(customerManagedKeys.outputs.networkInterfaceResourceIds, monitoring.outputs.networkInterfaceResourceIds, remoteAccess.outputs.networkInterfaceResourceIds, storage.outputs.networkInterfaceResourceIds)
+    networkInterfaceResourceIds: union(customerManagedKeys.outputs.networkInterfaceResourceIds, monitoring.outputs.networkInterfaceResourceIds, remoteAccess.outputs.networkInterfaceResourceIds, flatten(storage.outputs.networkInterfaceResourceIds))
     networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
     networkWatcherFlowLogsType: networkWatcherFlowLogsType
     networkWatcherResourceId: networkWatcherResourceId
