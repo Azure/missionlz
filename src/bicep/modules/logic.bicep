@@ -59,7 +59,6 @@ output tiers array = [for (network, i) in networks: {
   deployUniqueResources: network.deployUniqueResources
   subscriptionId: network.subscriptionId
   nsgDiagLogs: network.?nsgDiagLogs ?? []
-  nsgDiagMetrics: network.?nsgDiagMetrics ?? []
   nsgRules: network.?nsgRules ?? []
   vnetAddressPrefix: network.?vnetAddressPrefix ?? ''
   vnetDiagLogs: network.?vnetDiagLogs ?? []

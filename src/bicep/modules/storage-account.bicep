@@ -144,3 +144,4 @@ resource privateDnsZoneGroups 'Microsoft.Network/privateEndpoints/privateDnsZone
 }]
 
 output id string = storageAccount.id
+output networkInterfaceResourceIds array = [for (resource, i) in subResources: privateEndpoints[i].properties.networkInterfaces[0].id]

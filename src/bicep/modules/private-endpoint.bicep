@@ -41,3 +41,5 @@ resource privateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneG
     privateDnsZoneConfigs: privateDnsZoneConfigs
   }
 }
+
+output networkInterfaceResourceId string = privateEndpoint.properties.networkInterfaces[0].id

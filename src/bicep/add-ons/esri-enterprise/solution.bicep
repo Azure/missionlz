@@ -157,8 +157,39 @@ param joinEntraDomain bool
 @description('Join Windows Domain')
 param joinWindowsDomain bool = false
 
+@description('An array of Key Vault Diagnostic Logs categories to collect. See "https://learn.microsoft.com/en-us/azure/key-vault/general/logging?tabs=Vault" for valid values.')
+param keyVaultDiagnosticLogs array = [
+  {
+    category: 'AuditEvent'
+    enabled: true
+  }
+  {
+    category: 'AzurePolicyEvaluationDetails'
+    enabled: true
+  }
+]
+
+@description('The Key Vault Diagnostic Metrics to collect. See the following URL for valid settings: "https://learn.microsoft.com/azure/key-vault/general/logging?tabs=Vault".')
+param keyVaultDiagnosticMetrics array = [
+  {
+    category: 'AllMetrics'
+    enabled: true
+  }
+]
+
 @description('The target location for the Azure resources.')
 param location string = deployment().location
+
+@description('The Storage Account SKU to use for log storage. It defaults to "Standard_GRS". See https://docs.microsoft.com/en-us/rest/api/storagerp/srp_sku_types for valid settings.')
+param logStorageSkuName string = 'Standard_GRS'
+
+@description('An array of metrics to enable on the diagnostic setting for network interfaces.')
+param networkInterfaceDiagnosticsMetrics array = [
+  {
+    category: 'AllMetrics'
+    enabled: true
+  }
+]
 
 @description('An array of Network Security Group diagnostic logs to apply to the workload Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-network/virtual-network-nsg-manage-log#log-categories.')
 param networkSecurityGroupDiagnosticsLogs array = [
@@ -464,17 +495,20 @@ module tier3 '../tier3/solution.bicep' = {
     firewallResourceId: hubAzureFirewallResourceId
     hubVirtualNetworkResourceId: hubVirtualNetworkResourceId
     identifier: identifier
+    keyVaultDiagnosticLogs: keyVaultDiagnosticLogs
+    keyVaultDiagnosticMetrics: keyVaultDiagnosticMetrics
     location: location
     logAnalyticsWorkspaceResourceId: operationsLogAnalyticsWorkspaceResourceId
+    logStorageSkuName: logStorageSkuName
+    networkInterfaceDiagnosticsMetrics: networkInterfaceDiagnosticsMetrics
     networkSecurityGroupDiagnosticsLogs: networkSecurityGroupDiagnosticsLogs
-    networkSecurityGroupDiagnosticsMetrics: networkSecurityGroupDiagnosticsMetrics
     networkSecurityGroupRules: networkSecurityGroupRules
     networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
     networkWatcherFlowLogsType: networkWatcherFlowLogsType
     networkWatcherResourceId: networkWatcherResourceId
     policy: policy
-    subnetName: 'EsriEnterpise'
     subnetAddressPrefix: subnetAddressPrefix
+    subnetName: 'EsriEnterpise'
     tags: tags
     virtualNetworkAddressPrefix: virtualNetworkAddressPrefix
     virtualNetworkDiagnosticsLogs: networkSecurityGroupDiagnosticsLogs

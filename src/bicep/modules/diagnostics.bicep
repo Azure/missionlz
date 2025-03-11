@@ -6,15 +6,19 @@ Licensed under the MIT License.
 targetScope = 'subscription'
 
 param bastionDiagnosticsLogs array
+param bastionDiagnosticsMetrics array
 param deployBastion bool
 param deploymentNameSuffix string
 param deployNetworkWatcherTrafficAnalytics bool
 param firewallDiagnosticsLogs array
 param firewallDiagnosticsMetrics array
 param keyVaultDiagnosticLogs array
+param keyVaultDiagnosticMetrics array
 param keyVaultName string
 param location string
 param logAnalyticsWorkspaceResourceId string
+param networkInterfaceDiagnosticsMetrics array
+param networkInterfaceResourceIds array
 param networkWatcherFlowLogsRetentionDays int
 param networkWatcherFlowLogsType string
 param networkWatcherResourceId string
@@ -75,14 +79,13 @@ module networkSecurityGroupDiagnostics '../modules/network-security-group-diagno
     location: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     logs: tier.nsgDiagLogs
-    logStorageAccountResourceId: storageAccountResourceIds[i]
-    metrics: tier.nsgDiagMetrics
     networkSecurityGroupDiagnosticSettingName: tier.namingConvention.networkSecurityGroupDiagnosticSetting
+    networkSecurityGroupName: tier.namingConvention.networkSecurityGroup
     networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
     networkWatcherFlowLogsType: networkWatcherFlowLogsType
-    networkSecurityGroupName: tier.namingConvention.networkSecurityGroup
     networkWatcherName: empty(networkWatcherResourceId) ? hub.namingConvention.networkWatcher : split(networkWatcherResourceId, '/')[8]
     networkWatcherResourceGroupName: empty(networkWatcherResourceId) ? hubResourceGroupName : split(networkWatcherResourceId, '/')[4]
+    storageAccountResourceId: storageAccountResourceIds[i]
     tiername: tier.name
   }
 }]
@@ -145,6 +148,7 @@ module keyVaultDiagnostics '../modules/key-vault-diagnostics.bicep' = {
     keyVaultStorageAccountId: storageAccountResourceIds[0]
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     logs: keyVaultDiagnosticLogs
+    metrics: keyVaultDiagnosticMetrics
   }
 }
 
@@ -152,10 +156,24 @@ module bastionDiagnostics '../modules/bastion-diagnostics.bicep' = if (deployBas
   name: 'deploy-bastion-diags-${deploymentNameSuffix}'
   scope: resourceGroup(hub.subscriptionId, hubResourceGroupName)
   params: {
-    bastionDiagnosticSettingName: replace(hub.namingConvention.bastionHostPublicIPAddressDiagnosticSetting, serviceToken, '')
-    bastionName: hub.namingConvention.bastionHost
-    bastionStorageAccountId: storageAccountResourceIds[0]
+    diagnosticSettingName: replace(hub.namingConvention.bastionHostPublicIPAddressDiagnosticSetting, serviceToken, '')
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     logs: bastionDiagnosticsLogs
+    metrics: bastionDiagnosticsMetrics
+    name: hub.namingConvention.bastionHost
+    storageAccountResourceId: storageAccountResourceIds[0]
   }
 }
+
+module networkInterfaceDiagnostics '../modules/network-interface-diagnostics.bicep' = [for (networkInterfaceResourceId, i) in networkInterfaceResourceIds: {
+  name: 'deploy-nic-diags-${i}-${deploymentNameSuffix}'
+  scope: resourceGroup(split(networkInterfaceResourceId, '/')[2], split(networkInterfaceResourceId, '/')[4])
+  params: {
+    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
+    logs: []
+    metrics: networkInterfaceDiagnosticsMetrics
+    networkInterfaceResourceId: networkInterfaceResourceId
+    storageAccountResourceIds: storageAccountResourceIds
+    tiers: tiers
+  }
+}]

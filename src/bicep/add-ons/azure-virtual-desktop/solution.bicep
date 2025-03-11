@@ -175,6 +175,14 @@ param keyVaultDiagnosticsLogs array = [
   }
 ]
 
+@description('The Key Vault Diagnostic Metrics to collect. See the following URL for valid settings: "https://learn.microsoft.com/azure/key-vault/general/logging?tabs=Vault".')
+param keyVaultDiagnosticMetrics array = [
+  {
+    category: 'AllMetrics'
+    enabled: true
+  }
+]
+
 @description('The deployment location for the AVD sessions hosts. This is necessary when the users are closer to a different location than the control plane location.')
 param locationVirtualMachines string = deployment().location
 
@@ -195,6 +203,17 @@ param logAnalyticsWorkspaceRetention int = 30
 @description('The SKU for the Log Analytics Workspace to setup the AVD monitoring solution')
 param logAnalyticsWorkspaceSku string = 'PerGB2018'
 
+@description('The Storage Account SKU to use for log storage. It defaults to "Standard_GRS". See https://docs.microsoft.com/en-us/rest/api/storagerp/srp_sku_types for valid settings.')
+param logStorageSkuName string = 'Standard_GRS'
+
+@description('An array of metrics to enable on the diagnostic setting for network interfaces.')
+param networkInterfaceDiagnosticsMetrics array = [
+  {
+    category: 'AllMetrics'
+    enabled: true
+  }
+]
+
 @description('An array of Network Security Group diagnostic logs to apply to the workload Virtual Network. See https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-nsg-manage-log#log-categories for valid settings.')
 param networkSecurityGroupDiagnosticsLogs array = [
   {
@@ -206,9 +225,6 @@ param networkSecurityGroupDiagnosticsLogs array = [
     enabled: true
   }
 ]
-
-@description('The metrics to monitor for the Network Security Group.')
-param networkSecurityGroupDiagnosticsMetrics array = []
 
 @description('The rules to apply to the Network Security Group.')
 param networkSecurityGroupRules array = []
@@ -471,31 +487,33 @@ module tier3_hosts '../tier3/solution.bicep' = {
     additionalSubnets: union(subnets.avdControlPlane, subnets.azureNetAppFiles, subnets.functionApp)
     deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
     deployDefender: deployDefender
-    deployNetworkWatcherTrafficAnalytics: deployNetworkWatcherTrafficAnalytics
     deploymentNameSuffix: deploymentNameSuffix
+    deployNetworkWatcherTrafficAnalytics: deployNetworkWatcherTrafficAnalytics
     deployPolicy: deployPolicy
     emailSecurityContact: emailSecurityContact
     environmentAbbreviation: environmentAbbreviation
     firewallResourceId: hubAzureFirewallResourceId
     hubVirtualNetworkResourceId: hubVirtualNetworkResourceId
     identifier: identifier
-    keyVaultDiagnosticsLogs: keyVaultDiagnosticsLogs
+    keyVaultDiagnosticLogs: keyVaultDiagnosticsLogs
+    keyVaultDiagnosticMetrics: keyVaultDiagnosticMetrics
     location: locationVirtualMachines
     logAnalyticsWorkspaceResourceId: operationsLogAnalyticsWorkspaceResourceId
+    logStorageSkuName: logStorageSkuName
+    networkInterfaceDiagnosticsMetrics: networkInterfaceDiagnosticsMetrics
     networkSecurityGroupDiagnosticsLogs: networkSecurityGroupDiagnosticsLogs
-    networkSecurityGroupDiagnosticsMetrics: networkSecurityGroupDiagnosticsMetrics
     networkSecurityGroupRules: networkSecurityGroupRules
     networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
     networkWatcherFlowLogsType: networkWatcherFlowLogsType
     networkWatcherResourceId: networkWatcherResourceId
     policy: policy
     stampIndex: string(stampIndex)
-    subnetName: 'AvdSessionHosts'
     subnetAddressPrefix: subnetAddressPrefixes[0]
+    subnetName: 'AvdSessionHosts'
     tags: tags
+    virtualNetworkAddressPrefix: virtualNetworkAddressPrefixes[0]
     virtualNetworkDiagnosticsLogs: virtualNetworkDiagnosticsLogs
     virtualNetworkDiagnosticsMetrics: virtualNetworkDiagnosticsMetrics
-    virtualNetworkAddressPrefix: virtualNetworkAddressPrefixes[0]
     workloadName: 'avd'
     workloadShortName: 'avd'
   }

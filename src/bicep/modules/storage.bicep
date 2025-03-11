@@ -43,4 +43,5 @@ module storageAccount 'storage-account.bicep' = [for (tier, i) in tiers: {
   }
 }]
 
+output networkInterfaceResourceIds array = [for (tier, i) in tiers: storageAccount[i].outputs.networkInterfaceResourceIds]
 output storageAccountResourceIds array = [for (tier, i) in tiers: storageAccount[i].outputs.id]

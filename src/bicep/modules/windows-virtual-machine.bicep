@@ -214,3 +214,5 @@ resource extension_DependencyAgent 'Microsoft.Compute/virtualMachines/extensions
     extension_MicrosoftMonitoringAgent
   ]
 }
+
+output networkInterfaceResourceId string = networkInterface.outputs.id

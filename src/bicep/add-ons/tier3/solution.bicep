@@ -45,13 +45,21 @@ param hubVirtualNetworkResourceId string
 param identifier string
 
 @description('An array of Key Vault Diagnostic Logs categories to collect. See "https://learn.microsoft.com/en-us/azure/key-vault/general/logging?tabs=Vault" for valid values.')
-param keyVaultDiagnosticsLogs array = [
+param keyVaultDiagnosticLogs array = [
   {
     category: 'AuditEvent'
     enabled: true
   }
   {
     category: 'AzurePolicyEvaluationDetails'
+    enabled: true
+  }
+]
+
+@description('The Key Vault Diagnostic Metrics to collect. See the following URL for valid settings: "https://learn.microsoft.com/azure/key-vault/general/logging?tabs=Vault".')
+param keyVaultDiagnosticMetrics array = [
+  {
+    category: 'AllMetrics'
     enabled: true
   }
 ]
@@ -65,6 +73,14 @@ param logAnalyticsWorkspaceResourceId string
 @description('The Storage Account SKU to use for log storage. It defaults to "Standard_GRS". See https://docs.microsoft.com/en-us/rest/api/storagerp/srp_sku_types for valid settings.')
 param logStorageSkuName string = 'Standard_GRS'
 
+@description('An array of metrics to enable on the diagnostic setting for network interfaces.')
+param networkInterfaceDiagnosticsMetrics array = [
+  {
+    category: 'AllMetrics'
+    enabled: true
+  }
+]
+
 @description('An array of Network Security Group diagnostic logs to apply to the workload Virtual Network. See https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-nsg-manage-log#log-categories for valid settings.')
 param networkSecurityGroupDiagnosticsLogs array = [
   {
@@ -76,9 +92,6 @@ param networkSecurityGroupDiagnosticsLogs array = [
     enabled: true
   }
 ]
-
-@description('The metrics to monitor for the Network Security Group.')
-param networkSecurityGroupDiagnosticsMetrics array = []
 
 @description('The rules to apply to the Network Security Group.')
 param networkSecurityGroupRules array = []
@@ -115,10 +128,20 @@ param tags object = {}
 param virtualNetworkAddressPrefix string = ''
 
 @description('The diagnostic logs to apply to the workload Virtual Network.')
-param virtualNetworkDiagnosticsLogs array = []
+param virtualNetworkDiagnosticsLogs array = [
+  {
+    category: 'VMProtectionAlerts'
+    enabled: true
+  }
+]
 
 @description('The metrics to monitor for the workload Virtual Network.')
-param virtualNetworkDiagnosticsMetrics array = []
+param virtualNetworkDiagnosticsMetrics array = [
+  {
+    category: 'AllMetrics'
+    enabled: true
+  }
+]
 
 @minLength(1)
 @maxLength(10)
@@ -157,7 +180,6 @@ module logic '../../modules/logic.bicep' = {
         deployUniqueResources: false
         subscriptionId: subscriptionId
         nsgDiagLogs: networkSecurityGroupDiagnosticsLogs
-        nsgDiagMetrics: networkSecurityGroupDiagnosticsMetrics
         nsgRules: networkSecurityGroupRules
         vnetAddressPrefix: virtualNetworkAddressPrefix
         vnetDiagLogs: virtualNetworkDiagnosticsLogs
@@ -273,12 +295,14 @@ module diagnostics 'modules/diagnostics.bicep' = if (!(empty(virtualNetworkAddre
     deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
     deploymentNameSuffix: deploymentNameSuffix
     deployNetworkWatcherTrafficAnalytics: deployNetworkWatcherTrafficAnalytics
-    keyVaultDiagnosticLogs: keyVaultDiagnosticsLogs
+    keyVaultDiagnosticLogs: keyVaultDiagnosticLogs
+    keyVaultDiagnosticMetrics: keyVaultDiagnosticMetrics
     keyVaultName: customerManagedKeys.outputs.keyVaultName
     location: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
+    networkInterfaceDiagnosticsMetrics: networkInterfaceDiagnosticsMetrics
+    networkInterfaceResourceIds: union(customerManagedKeys.outputs.networkInterfaceResourceIds, storage.outputs.networkInterfaceResourceIds)
     networkSecurityGroupDiagnosticsLogs: networkSecurityGroupDiagnosticsLogs
-    networkSecurityGroupDiagnosticsMetrics: networkSecurityGroupDiagnosticsMetrics
     networkSecurityGroupName: networking.outputs.networkSecurityGroupName
     networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
     networkWatcherFlowLogsType: networkWatcherFlowLogsType
@@ -286,7 +310,7 @@ module diagnostics 'modules/diagnostics.bicep' = if (!(empty(virtualNetworkAddre
     resourceGroupName: rg.outputs.name
     serviceToken: logic.outputs.tokens.service
     storageAccountResourceId: storage.outputs.storageAccountResourceId
-    tier: logic.outputs.tiers[0]
+    tiers: logic.outputs.tiers
     virtualNetworkDiagnosticsLogs: virtualNetworkDiagnosticsLogs
     virtualNetworkDiagnosticsMetrics: virtualNetworkDiagnosticsMetrics
     virtualNetworkName: networking.outputs.virtualNetworkName

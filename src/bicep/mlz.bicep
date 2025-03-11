@@ -16,6 +16,14 @@ param bastionDiagnosticsLogs array = [
   }
 ]
 
+@description('An array of Bastion Diagnostic Metrics categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/bastion/monitor-bastion#collect-data-with-azure-monitor.')
+param bastionDiagnosticsMetrics array = [
+  {
+    category: 'AllMetrics'
+    enabled: true
+  }
+]
+
 @description('The Azure Bastion Public IP Address Availability Zones. It defaults to "No-Zone" because Availability Zones are not available in every cloud. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-network/ip-services/public-ip-addresses#sku.')
 param bastionHostPublicIPAddressAvailabilityZones array = []
 
@@ -82,7 +90,7 @@ param deploySentinel bool = false
 @description('When set to "true", provisions Windows Virtual Machine Host only. It defaults to "false".')
 param deployWindowsVirtualMachine bool = false
 
-@description('''['168.63.129.16'] The Azure Firewall DNS Proxy will forward all DNS traffic. When this value is set to true, you must provide a value for "servers". This should be a comma separated list of IP addresses to forward DNS traffic''')
+@description('The Azure Firewall DNS Proxy will forward all DNS traffic. When this value is set to true, you must provide a value for "servers". This should be a comma separated list of IP addresses to forward DNS traffic')
 param dnsServers array = ['168.63.129.16']
 
 @description('The email address for Defender for Cloud alert notifications, in the form of john@contoso.com.')
@@ -108,16 +116,64 @@ param firewallClientSubnetAddressPrefix string = '10.0.128.0/26'
 @description('An array of Firewall Diagnostic Logs categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/firewall/monitor-firewall#enable-diagnostic-logging-through-the-azure-portal.')
 param firewallDiagnosticsLogs array = [
   {
-    category: 'AzureFirewallApplicationRule'
-    enabled: true
+      category: 'AzureFirewallApplicationRule'
+      enabled: true
   }
   {
-    category: 'AzureFirewallNetworkRule'
-    enabled: true
+      category: 'AzureFirewallNetworkRule'
+      enabled: true
   }
   {
-    category: 'AzureFirewallDnsProxy'
-    enabled: enableProxy
+      category: 'AzureFirewallDnsProxy'
+      enabled: enableProxy
+  }
+  {
+      category: 'AZFWNetworkRule'
+      enabled: true
+  }
+  {
+      category: 'AZFWApplicationRule'
+      enabled: true
+  }
+  {
+      category: 'AZFWNatRule'
+      enabled: true
+  }
+  {
+      category: 'AZFWThreatIntel'
+      enabled: true
+  }
+  {
+      category: 'AZFWIdpsSignature'
+      enabled: true
+  }
+  {
+      category: 'AZFWDnsQuery'
+      enabled: true
+  }
+  {
+      category: 'AZFWFqdnResolveFailure'
+      enabled: true
+  }
+  {
+      category: 'AZFWFatFlow'
+      enabled: true
+  }
+  {
+      category: 'AZFWFlowTrace'
+      enabled: true
+  }
+  {
+      category: 'AZFWApplicationRuleAggregation'
+      enabled: true
+  }
+  {
+      category: 'AZFWNetworkRuleAggregation'
+      enabled: true
+  }
+  {
+      category: 'AZFWNatRuleAggregation'
+      enabled: true
   }
 ]
 
@@ -134,7 +190,7 @@ param firewallDiagnosticsMetrics array = [
   'Deny'
   'Off'
 ])
-@description('[Alert/Deny/Off] The Azure Firewall Intrusion Detection mode. Valid values are "Alert", "Deny", or "Off". The default value is "Alert".')
+@description('The Azure Firewall Intrusion Detection mode. Valid values are "Alert", "Deny", or "Off". The default value is "Alert".')
 param firewallIntrusionDetectionMode string = 'Alert'
 
 @description('An array of Azure Firewall Public IP Address Availability Zones. It defaults to empty, or "No-Zone", because Availability Zones are not available in every cloud. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-network/ip-services/public-ip-addresses#sku.')
@@ -174,9 +230,6 @@ param hubNetworkSecurityGroupDiagnosticsLogs array = [
   }
 ]
 
-@description('An array of Network Security Group Metrics to apply to enable for the Hub Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics.')
-param hubNetworkSecurityGroupDiagnosticsMetrics array = []
-
 @description('An array of Network Security Group Rules to apply to the Hub Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/templates/microsoft.network/networksecuritygroups/securityrules?tabs=bicep&pivots=deployment-language-bicep#securityrulepropertiesformat.')
 param hubNetworkSecurityGroupRules array = []
 
@@ -190,10 +243,20 @@ param hubSubscriptionId string = subscription().subscriptionId
 param hubVirtualNetworkAddressPrefix string = '10.0.128.0/23'
 
 @description('An array of Network Diagnostic Logs to enable for the Hub Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#logs.')
-param hubVirtualNetworkDiagnosticsLogs array = []
+param hubVirtualNetworkDiagnosticsLogs array = [
+  {
+    category: 'VMProtectionAlerts'
+    enabled: true
+  }
+]
 
 @description('An array of Network Diagnostic Metrics to enable for the Hub Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics.')
-param hubVirtualNetworkDiagnosticsMetrics array = []
+param hubVirtualNetworkDiagnosticsMetrics array = [
+  {
+    category: 'AllMetrics'
+    enabled: true
+  }
+]
 
 @description('The hybrid use benefit provides a discount on virtual machines when a customer has an on-premises Windows Server license with Software Assurance. It defaults to "false".')
 param hybridUseBenefit bool = false
@@ -210,9 +273,6 @@ param identityNetworkSecurityGroupDiagnosticsLogs array = [
   }
 ]
 
-@description('An array of Network Security Group Metrics to apply to enable for the Identity Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics.')
-param identityNetworkSecurityGroupDiagnosticsMetrics array = []
-
 @description('An array of Network Security Group Rules to apply to the Identity Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/templates/microsoft.network/networksecuritygroups/securityrules?tabs=bicep#securityrulepropertiesformat.')
 param identityNetworkSecurityGroupRules array = []
 
@@ -226,10 +286,20 @@ param identitySubscriptionId string = subscription().subscriptionId
 param identityVirtualNetworkAddressPrefix string = '10.0.130.0/24'
 
 @description('An array of Network Diagnostic Logs to enable for the Identity Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#logs.')
-param identityVirtualNetworkDiagnosticsLogs array = []
+param identityVirtualNetworkDiagnosticsLogs array = [
+  {
+    category: 'VMProtectionAlerts'
+    enabled: true
+  }
+]
 
 @description('An array of Network Diagnostic Metrics to enable for the Identity Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics.')
-param identityVirtualNetworkDiagnosticsMetrics array = []
+param identityVirtualNetworkDiagnosticsMetrics array = [
+  {
+    category: 'AllMetrics'
+    enabled: true
+  }
+]
 
 @description('An array of Key Vault Diagnostic Logs categories to collect. See the following URL for valid settings: "https://learn.microsoft.com/azure/key-vault/general/logging?tabs=Vault".')
 param keyVaultDiagnosticsLogs array = [
@@ -239,6 +309,14 @@ param keyVaultDiagnosticsLogs array = [
   }
   {
     category: 'AzurePolicyEvaluationDetails'
+    enabled: true
+  }
+]
+
+@description('The Key Vault Diagnostic Metrics to collect. See the following URL for valid settings: "https://learn.microsoft.com/azure/key-vault/general/logging?tabs=Vault".')
+param keyVaultDiagnosticsMetrics array = [
+  {
+    category: 'AllMetrics'
     enabled: true
   }
 ]
@@ -256,7 +334,7 @@ param linuxNetworkInterfacePrivateIPAddressAllocationMethod string = 'Dynamic'
 param linuxVmAdminPasswordOrKey string = deployLinuxVirtualMachine ? '' : newGuid()
 
 @description('The administrator username for the Linux Virtual Machine to Azure Bastion remote into. It defaults to "azureuser".')
-param linuxVmAdminUsername string = 'azureuser'
+param linuxVmAdminUsername string = 'xadmin'
 
 @allowed([
   'sshPublicKey'
@@ -312,11 +390,19 @@ param logAnalyticsWorkspaceRetentionInDays int = 30
   'PerGB2018'
   'Standalone'
 ])
-@description('[Free/Standard/Premium/PerNode/PerGB2018/Standalone] The SKU for the Log Analytics Workspace. It defaults to "PerGB2018". See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/logs/resource-manager-workspace.')
+@description('The SKU for the Log Analytics Workspace. It defaults to "PerGB2018". See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/logs/resource-manager-workspace.')
 param logAnalyticsWorkspaceSkuName string = 'PerGB2018'
 
 @description('The Storage Account SKU to use for log storage. It defaults to "Standard_GRS". See the following URL for valid settings: https://learn.microsoft.com/rest/api/storagerp/srp_sku_types.')
 param logStorageSkuName string = 'Standard_GRS'
+
+@description('An array of metrics to enable on the diagnostic setting for network interfaces.')
+param networkInterfaceDiagnosticsMetrics array = [
+  {
+    category: 'AllMetrics'
+    enabled: true
+  }
+]
 
 @description('The number of days to retain Network Watcher Flow Logs. It defaults to "30".')  
 param networkWatcherFlowLogsRetentionDays int = 30
@@ -343,9 +429,6 @@ param operationsNetworkSecurityGroupDiagnosticsLogs array = [
   }
 ]
 
-@description('An array of Network Security Group Diagnostic Metrics to enable for the Operations Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics.')
-param operationsNetworkSecurityGroupDiagnosticsMetrics array = []
-
 @description('An array of Network Security Group rules to apply to the Operations Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/templates/microsoft.network/networksecuritygroups/securityrules?tabs=bicep#securityrulepropertiesformat.')
 param operationsNetworkSecurityGroupRules array = []
 
@@ -359,10 +442,20 @@ param operationsSubscriptionId string = subscription().subscriptionId
 param operationsVirtualNetworkAddressPrefix string = '10.0.131.0/24'
 
 @description('An array of Network Diagnostic Logs to enable for the Operations Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#logs.')
-param operationsVirtualNetworkDiagnosticsLogs array = []
+param operationsVirtualNetworkDiagnosticsLogs array = [
+  {
+    category: 'VMProtectionAlerts'
+    enabled: true
+  }
+]
 
 @description('An array of Network Diagnostic Metrics to enable for the Operations Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics.')
-param operationsVirtualNetworkDiagnosticsMetrics array = []
+param operationsVirtualNetworkDiagnosticsMetrics array = [
+  {
+    category: 'AllMetrics'
+    enabled: true
+  }
+]
 
 @allowed([
   'NISTRev4'
@@ -370,7 +463,7 @@ param operationsVirtualNetworkDiagnosticsMetrics array = []
   'IL5' // AzureUsGoverment only, trying to deploy IL5 in AzureCloud will switch to NISTRev4
   'CMMC'
 ])
-@description('[NISTRev4/NISTRev5/IL5/CMMC] Built-in policy assignments to assign, it defaults to "NISTRev4". IL5 is only available for AzureUsGovernment and will switch to NISTRev4 if tried in AzureCloud.')
+@description('Built-in policy assignments to assign, it defaults to "NISTRev4". IL5 is only available for AzureUsGovernment and will switch to NISTRev4 if tried in AzureCloud.')
 param policy string = 'NISTRev4'
 
 @description('An array of Public IP Address Diagnostic Logs for the Azure Firewall. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/tutorial-resource-logs?tabs=DDoSProtectionNotifications#configure-ddos-diagnostic-logs.')
@@ -414,9 +507,6 @@ param sharedServicesNetworkSecurityGroupDiagnosticsLogs array = [
   }
 ]
 
-@description('An array of Network Security Group Diagnostic Metrics to enable for the SharedServices Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics.')
-param sharedServicesNetworkSecurityGroupDiagnosticsMetrics array = []
-
 @description('An array of Network Security Group rules to apply to the SharedServices Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/templates/microsoft.network/networksecuritygroups/securityrules?tabs=bicep#securityrulepropertiesformat.')
 param sharedServicesNetworkSecurityGroupRules array = []
 
@@ -430,10 +520,20 @@ param sharedServicesSubscriptionId string = subscription().subscriptionId
 param sharedServicesVirtualNetworkAddressPrefix string = '10.0.132.0/24'
 
 @description('An array of Network Diagnostic Logs to enable for the SharedServices Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#logs.')
-param sharedServicesVirtualNetworkDiagnosticsLogs array = []
+param sharedServicesVirtualNetworkDiagnosticsLogs array = [
+  {
+    category: 'VMProtectionAlerts'
+    enabled: true
+  }
+]
 
 @description('An array of Network Diagnostic Metrics to enable for the SharedServices Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics.')
-param sharedServicesVirtualNetworkDiagnosticsMetrics array = []
+param sharedServicesVirtualNetworkDiagnosticsMetrics array = [
+  {
+    category: 'AllMetrics'
+    enabled: true
+  }
+]
 
 @description('The Azure clouds that support specific service features. It defaults to the Azure Cloud and Azure US Government.')
 param supportedClouds array = [
@@ -450,7 +550,7 @@ param tags object = {}
 param windowsVmAdminPassword string = deployWindowsVirtualMachine ? '' : newGuid()
 
 @description('The administrator username for the Windows Virtual Machine to Azure Bastion remote into. It defaults to "azureuser".')
-param windowsVmAdminUsername string = 'azureuser'
+param windowsVmAdminUsername string = 'xadmin'
 
 @description('The disk creation option of the Windows Virtual Machine to Azure Bastion remote into. It defaults to "FromImage".')
 param windowsVmCreateOption string = 'FromImage'
@@ -494,7 +594,6 @@ var networks = union([
     deployUniqueResources: true
     subscriptionId: hubSubscriptionId
     nsgDiagLogs: hubNetworkSecurityGroupDiagnosticsLogs
-    nsgDiagMetrics: hubNetworkSecurityGroupDiagnosticsMetrics
     nsgRules: hubNetworkSecurityGroupRules
     vnetAddressPrefix: hubVirtualNetworkAddressPrefix
     vnetDiagLogs: hubVirtualNetworkDiagnosticsLogs
@@ -507,7 +606,6 @@ var networks = union([
     deployUniqueResources: contains([ hubSubscriptionId ], operationsSubscriptionId) ? false : true
     subscriptionId: operationsSubscriptionId  
     nsgDiagLogs: operationsNetworkSecurityGroupDiagnosticsLogs
-    nsgDiagMetrics: operationsNetworkSecurityGroupDiagnosticsMetrics
     nsgRules: operationsNetworkSecurityGroupRules
     vnetAddressPrefix: operationsVirtualNetworkAddressPrefix
     vnetDiagLogs: operationsVirtualNetworkDiagnosticsLogs
@@ -520,7 +618,6 @@ var networks = union([
     deployUniqueResources: contains([ hubSubscriptionId, operationsSubscriptionId ], sharedServicesSubscriptionId) ? false : true
     subscriptionId: sharedServicesSubscriptionId  
     nsgDiagLogs: sharedServicesNetworkSecurityGroupDiagnosticsLogs
-    nsgDiagMetrics: sharedServicesNetworkSecurityGroupDiagnosticsMetrics
     nsgRules: sharedServicesNetworkSecurityGroupRules
     vnetAddressPrefix: sharedServicesVirtualNetworkAddressPrefix
     vnetDiagLogs: sharedServicesVirtualNetworkDiagnosticsLogs
@@ -534,7 +631,6 @@ var networks = union([
     deployUniqueResources: contains([ hubSubscriptionId, operationsSubscriptionId, sharedServicesSubscriptionId ], identitySubscriptionId) ? false : true
     subscriptionId: identitySubscriptionId
     nsgDiagLogs: identityNetworkSecurityGroupDiagnosticsLogs
-    nsgDiagMetrics: identityNetworkSecurityGroupDiagnosticsMetrics
     nsgRules: identityNetworkSecurityGroupRules
     vnetAddressPrefix: identityVirtualNetworkAddressPrefix
     vnetDiagLogs: identityVirtualNetworkDiagnosticsLogs
@@ -724,6 +820,7 @@ module diagnostics 'modules/diagnostics.bicep' = {
   name: 'deploy-resource-diag-${deploymentNameSuffix}'
   params: {
     bastionDiagnosticsLogs: bastionDiagnosticsLogs
+    bastionDiagnosticsMetrics: bastionDiagnosticsMetrics
     deployBastion: deployBastion
     deployNetworkWatcherTrafficAnalytics: deployNetworkWatcherTrafficAnalytics
     deploymentNameSuffix: deploymentNameSuffix
@@ -731,8 +828,11 @@ module diagnostics 'modules/diagnostics.bicep' = {
     firewallDiagnosticsMetrics: firewallDiagnosticsMetrics
     keyVaultName: customerManagedKeys.outputs.keyVaultName
     keyVaultDiagnosticLogs: keyVaultDiagnosticsLogs
+    keyVaultDiagnosticMetrics: keyVaultDiagnosticsMetrics
     location: location
     logAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
+    networkInterfaceDiagnosticsMetrics: networkInterfaceDiagnosticsMetrics
+    networkInterfaceResourceIds: union(customerManagedKeys.outputs.networkInterfaceResourceIds, monitoring.outputs.networkInterfaceResourceIds, remoteAccess.outputs.networkInterfaceResourceIds, storage.outputs.networkInterfaceResourceIds)
     networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
     networkWatcherFlowLogsType: networkWatcherFlowLogsType
     networkWatcherResourceId: networkWatcherResourceId

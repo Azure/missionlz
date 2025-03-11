@@ -142,6 +142,26 @@ param installVisio bool
 @description('Determines whether to install Word.')
 param installWord bool
 
+@description('An array of Key Vault Diagnostic Logs categories to collect. See "https://learn.microsoft.com/en-us/azure/key-vault/general/logging?tabs=Vault" for valid values.')
+param keyVaultDiagnosticLogs array = [
+  {
+    category: 'AuditEvent'
+    enabled: true
+  }
+  {
+    category: 'AzurePolicyEvaluationDetails'
+    enabled: true
+  }
+]
+
+@description('The Key Vault Diagnostic Metrics to collect. See the following URL for valid settings: "https://learn.microsoft.com/azure/key-vault/general/logging?tabs=Vault".')
+param keyVaultDiagnosticMetrics array = [
+  {
+    category: 'AllMetrics'
+    enabled: true
+  }
+]
+
 @secure()
 @description('The password for the local administrator account.')
 param localAdministratorPassword string
@@ -170,6 +190,14 @@ param marketplaceImageSKU string = ''
 @description('The file name of the msrdcwebrtcsvc installer in Azure Blobs.')
 param msrdcwebrtcsvcInstaller string = ''
 
+@description('An array of metrics to enable on the diagnostic setting for network interfaces.')
+param networkInterfaceDiagnosticsMetrics array = [
+  {
+    category: 'AllMetrics'
+    enabled: true
+  }
+]
+
 @description('The network security group diagnostics logs to apply to the subnet.')
 param networkSecurityGroupDiagnosticsLogs array = [
   {
@@ -181,9 +209,6 @@ param networkSecurityGroupDiagnosticsLogs array = [
     enabled: true
   }
 ]
-
-@description('The network security group diagnostics metrics to apply to the subnet.')
-param networkSecurityGroupDiagnosticsMetrics array = []
 
 @description('The network security group rules to apply to the subnet.')
 param networkSecurityGroupRules array = []
@@ -259,10 +284,20 @@ param virtualMachineSize string
 param virtualNetworkAddressPrefix string = '10.0.134.0/24'
 
 @description('The logs for the diagnostic setting on the virtual network.')
-param virtualNetworkDiagnosticsLogs array = []
+param virtualNetworkDiagnosticsLogs array = [
+  {
+    category: 'VMProtectionAlerts'
+    enabled: true
+  }
+]
 
 @description('The metrics for the diagnostic setting on the virtual network.')
-param virtualNetworkDiagnosticsMetrics array = []
+param virtualNetworkDiagnosticsMetrics array = [
+  {
+    category: 'AllMetrics'
+    enabled: true
+  }
+]
 
 @description('The WSUS Server Url if WSUS is specified. (i.e., https://wsus.corp.contoso.com:8531)')
 param wsusServer string = ''
@@ -286,17 +321,20 @@ module tier3 '../tier3/solution.bicep' = {
     firewallResourceId: azureFirewallResourceId
     hubVirtualNetworkResourceId: hubVirtualNetworkResourceId
     identifier: identifier
+    keyVaultDiagnosticLogs: keyVaultDiagnosticLogs
+    keyVaultDiagnosticMetrics: keyVaultDiagnosticMetrics
     location: location
     logAnalyticsWorkspaceResourceId: spokelogAnalyticsWorkspaceResourceId
     logStorageSkuName: logStorageSkuName
+    networkInterfaceDiagnosticsMetrics: networkInterfaceDiagnosticsMetrics
     networkSecurityGroupDiagnosticsLogs: networkSecurityGroupDiagnosticsLogs 
-    networkSecurityGroupDiagnosticsMetrics: networkSecurityGroupDiagnosticsMetrics
     networkSecurityGroupRules: networkSecurityGroupRules
     networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
     networkWatcherFlowLogsType: networkWatcherFlowLogsType
     networkWatcherResourceId: networkWatcherResourceId
     policy: policy
     subnetAddressPrefix: subnetAddressPrefix
+    subnetName: 'Imaging'
     tags: tags
     virtualNetworkAddressPrefix: virtualNetworkAddressPrefix
     virtualNetworkDiagnosticsLogs: virtualNetworkDiagnosticsLogs

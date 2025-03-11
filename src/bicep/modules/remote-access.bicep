@@ -129,3 +129,8 @@ module windowsVirtualMachine '../modules/windows-virtual-machine.bicep' =
       version: windowsVmVersion
     }
   }
+
+output networkInterfaceResourceIds array = [
+  linuxVirtualMachine.outputs.networkInterfaceResourceId
+  windowsVirtualMachine.outputs.networkInterfaceResourceId
+]

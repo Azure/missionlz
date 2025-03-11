@@ -124,6 +124,7 @@ var names = {
   virtualMachine: replace(replace(replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.virtualMachines), environmentAbbreviation, first(environmentAbbreviation)), networkName, ''), '-', '')
   virtualMachineDisk: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.disks), tokens.service, '${tokens.service}-${resourceAbbreviations.virtualMachines}')
   virtualMachineNetworkInterface: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.networkInterfaces), tokens.service, '${tokens.service}-${resourceAbbreviations.virtualMachines}')
+  virtualMachineNetworkInterfaceDiagnosticSetting: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.diagnosticSettings), tokens.service, '${tokens.service}-${resourceAbbreviations.networkInterfaces}-${resourceAbbreviations.virtualMachines}')
   virtualNetwork: replace(namingConvention, tokens.resource, resourceAbbreviations.virtualNetworks)
   virtualNetworkDiagnosticSetting: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.diagnosticSettings), tokens.service, resourceAbbreviations.virtualNetworks)
   workspaceFeed: replace(replace(namingConvention, tokens.resource, '${resourceAbbreviations.workspaces}-feed'), '-${stampIndex}', '')

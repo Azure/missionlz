@@ -9,11 +9,13 @@ param deployActivityLogDiagnosticSetting bool
 param deploymentNameSuffix string
 param deployNetworkWatcherTrafficAnalytics bool
 param keyVaultDiagnosticLogs array
+param keyVaultDiagnosticMetrics array
 param keyVaultName string
 param location string
 param logAnalyticsWorkspaceResourceId string
+param networkInterfaceDiagnosticsMetrics array
+param networkInterfaceResourceIds array
 param networkSecurityGroupDiagnosticsLogs array
-param networkSecurityGroupDiagnosticsMetrics array
 param networkSecurityGroupName string
 param networkWatcherFlowLogsRetentionDays int
 param networkWatcherFlowLogsType string
@@ -21,61 +23,61 @@ param networkWatcherResourceId string
 param resourceGroupName string
 param serviceToken string
 param storageAccountResourceId string
-param tier object
+param tiers array
 param virtualNetworkDiagnosticsLogs array
 param virtualNetworkDiagnosticsMetrics array
 param virtualNetworkName string
 
 module activityLogDiagnosticSettings '../../../modules/activity-log-diagnostic-settings.bicep' =
   if (deployActivityLogDiagnosticSetting) {
-    name: 'deploy-activity-diags-${tier.shortName}-${deploymentNameSuffix}'
-    scope: subscription(tier.subscriptionId)
+    name: 'deploy-activity-diags-${tiers[0].shortName}-${deploymentNameSuffix}'
+    scope: subscription(tiers[0].subscriptionId)
     params: {
       logAnalyticsWorkspaceId: logAnalyticsWorkspaceResourceId
     }
   }
 
 module keyvaultDiagnostics '../../../modules/key-vault-diagnostics.bicep' = {
-  name: 'deploy-kv-diags-${tier.shortName}-${deploymentNameSuffix}'
-  scope: resourceGroup(tier.subscriptionId, resourceGroupName)
+  name: 'deploy-kv-diags-${tiers[0].shortName}-${deploymentNameSuffix}'
+  scope: resourceGroup(tiers[0].subscriptionId, resourceGroupName)
   params: {
-    keyVaultDiagnosticSettingName: replace(tier.namingConvention.keyVaultDiagnosticSetting, '${serviceToken}-', '')
+    keyVaultDiagnosticSettingName: replace(tiers[0].namingConvention.keyVaultDiagnosticSetting, '${serviceToken}-', '')
     keyVaultName: keyVaultName
     keyVaultStorageAccountId: storageAccountResourceId
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     logs: keyVaultDiagnosticLogs
+    metrics: keyVaultDiagnosticMetrics
   }
 }  
 
 module networkSecurityGroupDiagnostics '../../../modules/network-security-group-diagnostics.bicep' = {
-  name: 'deploy-nsg-diags-${tier.shortName}-${deploymentNameSuffix}'
-  scope: resourceGroup(tier.subscriptionId, resourceGroupName)
+  name: 'deploy-nsg-diags-${tiers[0].shortName}-${deploymentNameSuffix}'
+  scope: resourceGroup(tiers[0].subscriptionId, resourceGroupName)
   params: {
     deploymentNameSuffix: deploymentNameSuffix
     deployNetworkWatcherTrafficAnalytics: deployNetworkWatcherTrafficAnalytics
-    flowLogsName: tier.namingConvention.networkWatcherFlowLogsNetworkSecurityGroup
+    flowLogsName: tiers[0].namingConvention.networkWatcherFlowLogsNetworkSecurityGroup
     location: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     logs: networkSecurityGroupDiagnosticsLogs
-    logStorageAccountResourceId: storageAccountResourceId
-    metrics: networkSecurityGroupDiagnosticsMetrics
-    networkSecurityGroupDiagnosticSettingName: tier.namingConvention.networkSecurityGroupDiagnosticSetting
-    networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
+    networkSecurityGroupDiagnosticSettingName: tiers[0].namingConvention.networkSecurityGroupDiagnosticSetting
     networkSecurityGroupName: networkSecurityGroupName
-    networkWatcherName: tier.namingConvention.networkWatcher
-    networkWatcherResourceGroupName: empty(networkWatcherResourceId) ? resourceGroupName : split(networkWatcherResourceId, '/')[4]
-    tiername: tier.name
+    networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
     networkWatcherFlowLogsType: networkWatcherFlowLogsType
+    networkWatcherName: tiers[0].namingConvention.networkWatcher
+    networkWatcherResourceGroupName: empty(networkWatcherResourceId) ? resourceGroupName : split(networkWatcherResourceId, '/')[4]
+    storageAccountResourceId: storageAccountResourceId
+    tiername: tiers[0].name
   }
 }
 
 module virtualNetworkDiagnostics '../../../modules/virtual-network-diagnostics.bicep' = {
-  name: 'deploy-vnet-diags-${tier.shortName}-${deploymentNameSuffix}'
-  scope: resourceGroup(tier.subscriptionId, resourceGroupName)
+  name: 'deploy-vnet-diags-${tiers[0].shortName}-${deploymentNameSuffix}'
+  scope: resourceGroup(tiers[0].subscriptionId, resourceGroupName)
   params: {
     deploymentNameSuffix: deploymentNameSuffix
     deployNetworkWatcherTrafficAnalytics: deployNetworkWatcherTrafficAnalytics
-    flowLogsName: tier.namingConvention.networkWatcherFlowLogsVirtualNetwork
+    flowLogsName: tiers[0].namingConvention.networkWatcherFlowLogsVirtualNetwork
     location: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     logs: virtualNetworkDiagnosticsLogs
@@ -83,10 +85,25 @@ module virtualNetworkDiagnostics '../../../modules/virtual-network-diagnostics.b
     metrics: virtualNetworkDiagnosticsMetrics
     networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
     networkWatcherFlowLogsType: networkWatcherFlowLogsType
-    networkWatcherName: empty(networkWatcherResourceId) ? tier.namingConvention.networkWatcher : split(networkWatcherResourceId, '/')[8]
+    networkWatcherName: empty(networkWatcherResourceId) ? tiers[0].namingConvention.networkWatcher : split(networkWatcherResourceId, '/')[8]
     networkWatcherResourceGroupName: empty(networkWatcherResourceId) ? resourceGroupName : split(networkWatcherResourceId, '/')[4]
-    tiername: tier.name
-    virtualNetworkDiagnosticSettingName: tier.namingConvention.virtualNetworkDiagnosticSetting
+    tiername: tiers[0].name
+    virtualNetworkDiagnosticSettingName: tiers[0].namingConvention.virtualNetworkDiagnosticSetting
     virtualNetworkName: virtualNetworkName
   }
 }
+
+module networkInterfaceDiagnostics '../../../modules/network-interface-diagnostics.bicep' = [for (networkInterfaceResourceId, i) in networkInterfaceResourceIds: {
+  name: 'deploy-nic-diags-${i}-${deploymentNameSuffix}'
+  scope: resourceGroup(split(networkInterfaceResourceId, '/')[2], split(networkInterfaceResourceId, '/')[4])
+  params: {
+    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
+    logs: []
+    metrics: networkInterfaceDiagnosticsMetrics
+    networkInterfaceResourceId: networkInterfaceResourceId
+    storageAccountResourceIds: [
+      storageAccountResourceId
+    ]
+    tiers: tiers
+  }
+}]

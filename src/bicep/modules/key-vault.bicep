@@ -19,7 +19,7 @@ var keyVaultPrivateEndpointName = replace(tier.namingConvention.keyVaultPrivateE
 resource vault 'Microsoft.KeyVault/vaults@2022-07-01' = {
   name: '${resourceAbbreviations.keyVaults}${uniqueString(replace(tier.namingConvention.keyVault, tokens.service, 'cmk'), resourceGroup().id)}'
   location: location
-  tags: union(tags['Microsoft.KeyVault/vaults'] ?? {}, mlzTags)
+  tags: union(tags[?'Microsoft.KeyVault/vaults'] ?? {}, mlzTags)
   properties: {
     enabledForDeployment: false
     enabledForDiskEncryption: false
@@ -155,4 +155,5 @@ output keyUriWithVersion string = key_disks.properties.keyUriWithVersion
 output keyVaultResourceId string = vault.id
 output keyVaultName string = vault.name
 output keyVaultUri string = vault.properties.vaultUri
+output networkInterfaceResourceId string = privateEndpoint.properties.networkInterfaces[0].id
 output storageKeyName string = key_storageAccounts.name

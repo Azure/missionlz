@@ -237,3 +237,4 @@ resource dependencyAgent 'Microsoft.Compute/virtualMachines/extensions@2021-04-0
 
 output adminUsername string = adminUsername
 output authenticationType string = authenticationType
+output networkInterfaceResourceId string = networkInterface.outputs.id

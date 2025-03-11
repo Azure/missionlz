@@ -9,14 +9,13 @@ param flowLogsName string
 param location string
 param logAnalyticsWorkspaceResourceId string
 param logs array
-param logStorageAccountResourceId string
-param metrics array
 param networkSecurityGroupDiagnosticSettingName string
 param networkSecurityGroupName string
 param networkWatcherFlowLogsRetentionDays int
 param networkWatcherFlowLogsType string
 param networkWatcherName string
 param networkWatcherResourceGroupName string
+param storageAccountResourceId string
 param tiername string
 
 resource networkSecurityGroup 'Microsoft.Network/networkSecurityGroups@2021-02-01' existing = {
@@ -28,8 +27,8 @@ resource diagnostics 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' 
   name: networkSecurityGroupDiagnosticSettingName
   properties: {
     logs: logs
-    metrics: metrics
-    storageAccountId: logStorageAccountResourceId
+    metrics: []
+    storageAccountId: storageAccountResourceId
     workspaceId: logAnalyticsWorkspaceResourceId
   }
 }
@@ -44,7 +43,7 @@ module nsgFlowLogs '../modules/network-watcher-flow-logs.bicep' = if (networkWat
     location: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     networkWatcherName: networkWatcherName
-    storageAccountResourceId: logStorageAccountResourceId
+    storageAccountResourceId: storageAccountResourceId
     targetResourceId: networkSecurityGroup.id
   }
 }

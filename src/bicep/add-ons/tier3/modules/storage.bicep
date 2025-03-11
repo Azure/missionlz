@@ -43,4 +43,5 @@ module storageAccount '../../../modules/storage-account.bicep' = {
   }
 }
 
+output networkInterfaceResourceIds array = storageAccount.outputs.networkInterfaceResourceIds
 output storageAccountResourceId string = storageAccount.outputs.id

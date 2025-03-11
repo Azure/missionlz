@@ -44,7 +44,7 @@ module diskEncryptionSet 'disk-encryption-set.bicep' = {
     keyVaultResourceId: keyVault.outputs.keyVaultResourceId
     location: location
     mlzTags: mlzTags
-    tags: contains(tags, 'Microsoft.Compute/diskEncryptionSets') ? tags['Microsoft.Compute/diskEncryptionSets'] : {}
+    tags: tags
     workloadShortName: workloadShortName
   }
 }
@@ -65,5 +65,8 @@ output diskEncryptionSetResourceId string = diskEncryptionSet.outputs.resourceId
 output keyVaultName string = keyVault.outputs.keyVaultName
 output keyVaultUri string = keyVault.outputs.keyVaultUri
 output keyVaultResourceId string = keyVault.outputs.keyVaultResourceId
+output networkInterfaceResourceIds array = [
+  keyVault.outputs.networkInterfaceResourceId
+]
 output storageKeyName string = keyVault.outputs.storageKeyName
 output userAssignedIdentityResourceId string = userAssignedIdentity.outputs.resourceId
