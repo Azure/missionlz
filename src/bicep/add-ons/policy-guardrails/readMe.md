@@ -96,6 +96,13 @@ root/
 - **Policy Parameters**: Policy definitions that require custom values when assigned should have a `-parameters.json` file associated with them in the directory structure.   Parameter.json files are not required for the script, they are only needed if they are required for the policy definition to be assigned.
 - **Assignment Names**: The script shortens the assignment names to ensure they do not exceed 24 characters.
 
+## Step by step
+
+1. **Evaluate policies - The policies provided in the sample directory structure are functional and recommended guard rail policies.   Evaluate those and others for potential addition or removal based upon organizational needs.
+2. **Set the proper values to be used in the -parameters.json files for policies that require a specific value.
+3. **Rename or move files into new directory structure, making user the root folder contains folders that match the names of existing management group ids in Azure and that the names of the initiatives are as short as possible, as assignment names are limited to 24 characters.
+4. **Use "Connect-AzAccount" to log into Azure with a user that has Global Administrator permissions.   This will be used to create and assign the policies, in addition to setting the proper role definitions for the system assigned managed identity for policies that require it.
+
 ## Running the Script
 
 To run the script, set the rootfolder path to your directory structure location and execute the following command in PowerShell:
@@ -105,4 +112,3 @@ To run the script, set the rootfolder path to your directory structure location 
 ```
 
 Ensure that the directory structure and JSON files are correctly set up before running the script. The script will create the necessary Azure resources based on the directory structure and JSON files.
-
