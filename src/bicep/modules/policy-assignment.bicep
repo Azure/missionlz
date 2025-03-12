@@ -5,14 +5,17 @@ Licensed under the MIT License.
 
 param builtInAssignment string
 param deployRemediation bool
+param linuxVmAdminUsername string
 param location string
 param logAnalyticsWorkspaceResourceId string
 param networkWatcherResourceGroupName string
+param windowsVmAdminUsername string
 
+var adminUsernames = linuxVmAdminUsername == windowsVmAdminUsername ? linuxVmAdminUsername : '${linuxVmAdminUsername}, ${windowsVmAdminUsername}'
 var policyDefinitionID = {
   NISTRev4: {
     id: '/providers/Microsoft.Authorization/policySetDefinitions/cf25b9c1-bd23-4eb6-bd2c-f4f3ac644a5f'
-    parameters: json(replace(replace(loadTextContent('policies/NISTRev4-policyAssignmentParameters.json'), '<LAWORKSPACE>', logAnalyticsWorkspace.id), 'NetworkWatcherRG', networkWatcherResourceGroupName))
+    parameters: json(replace(replace(replace(loadTextContent('policies/NISTRev4-policyAssignmentParameters.json'), '<LAWORKSPACE>', logAnalyticsWorkspace.id), 'NetworkWatcherRG', networkWatcherResourceGroupName), '<MembersToInclude>', adminUsernames))
   }
   NISTRev5: {
     id: '/providers/Microsoft.Authorization/policySetDefinitions/179d1daa-458f-4e47-8086-2a68d0d6c38f'
@@ -20,11 +23,11 @@ var policyDefinitionID = {
   }
   IL5: {
     id: '/providers/Microsoft.Authorization/policySetDefinitions/f9a961fa-3241-4b20-adc4-bbf8ad9d7197'
-    parameters: json(replace(replace(loadTextContent('policies/IL5-policyAssignmentParameters.json'), '<LAWORKSPACE>', logAnalyticsWorkspace.id), 'NetworkWatcherRG', networkWatcherResourceGroupName))
+    parameters: json(replace(replace(replace(loadTextContent('policies/IL5-policyAssignmentParameters.json'), '<LAWORKSPACE>', logAnalyticsWorkspace.id), 'NetworkWatcherRG', networkWatcherResourceGroupName), '<MembersToInclude>', adminUsernames))
   }
   CMMC: {
     id: '/providers/Microsoft.Authorization/policySetDefinitions/b5629c75-5c77-4422-87b9-2509e680f8de'
-    parameters: json(replace(replace(loadTextContent('policies/CMMC-policyAssignmentParameters.json'), '<LAWORKSPACE>', logAnalyticsWorkspace.properties.customerId), 'NetworkWatcherRG', networkWatcherResourceGroupName))
+    parameters: json(replace(replace(replace(loadTextContent('policies/CMMC-policyAssignmentParameters.json'), '<LAWORKSPACE>', logAnalyticsWorkspace.properties.customerId), 'NetworkWatcherRG', networkWatcherResourceGroupName), '<MembersToInclude>', adminUsernames))
   }
 }
 

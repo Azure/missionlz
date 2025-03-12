@@ -6,6 +6,7 @@ Licensed under the MIT License.
 targetScope = 'subscription'
 
 param deploymentNameSuffix string
+param linuxVmAdminUsername string
 param location string
 param logAnalyticsWorkspaceResourceId string
 param networkWatcherResourceId string
@@ -13,12 +14,14 @@ param policy string
 param resourceGroupNames array
 param serviceToken string
 param tiers array
+param windowsVmAdminUsername string
 
 module policyAssignment 'policy-assignment.bicep' = [for (tier, i) in tiers: {
   name: 'assign-policy-${tier.name}-${deploymentNameSuffix}'
   scope: resourceGroup(tier.subscriptionId, resourceGroupNames[i])
   params: {
     builtInAssignment: policy
+    linuxVmAdminUsername: linuxVmAdminUsername
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     location: location
     deployRemediation: false
@@ -29,5 +32,6 @@ module policyAssignment 'policy-assignment.bicep' = [for (tier, i) in tiers: {
     // is used to determine if the MLZ deployment is spread across multiple subscriptions. 
     // If so, the tier's resource group is used. If neither of those conditions are met, the hub resource group is used.
     networkWatcherResourceGroupName: !empty(networkWatcherResourceId) ? split(networkWatcherResourceId, '/')[4] : tier.deployUniqueResources ? replace(tier.namingConvention.resourceGroup, serviceToken, 'network') : replace(tiers[0].namingConvention.resourceGroup, serviceToken, 'network')
+    windowsVmAdminUsername: windowsVmAdminUsername
   }
 }]

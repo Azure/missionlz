@@ -497,6 +497,7 @@ module tier3 '../tier3/solution.bicep' = {
     identifier: identifier
     keyVaultDiagnosticLogs: keyVaultDiagnosticLogs
     keyVaultDiagnosticMetrics: keyVaultDiagnosticMetrics
+    linuxVmAdminUsername: virtualMachineAdminUsername
     location: location
     logAnalyticsWorkspaceResourceId: operationsLogAnalyticsWorkspaceResourceId
     logStorageSkuName: logStorageSkuName
@@ -513,6 +514,7 @@ module tier3 '../tier3/solution.bicep' = {
     virtualNetworkAddressPrefix: virtualNetworkAddressPrefix
     virtualNetworkDiagnosticsLogs: networkSecurityGroupDiagnosticsLogs
     virtualNetworkDiagnosticsMetrics: networkSecurityGroupDiagnosticsMetrics
+    windowsVmAdminUsername: virtualMachineAdminUsername
     workloadName: 'esriEnt'
     workloadShortName: 'ent'
   }

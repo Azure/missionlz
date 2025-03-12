@@ -330,17 +330,17 @@ param linuxNetworkInterfacePrivateIPAddressAllocationMethod string = 'Dynamic'
 
 @minLength(12)
 @secure()
-@description('The administrator password or public SSH key for the Linux Virtual Machine to Azure Bastion remote into. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-machines/linux/faq#what-are-the-password-requirements-when-creating-a-vm-.')
+@description('The administrator password or public SSH key for the Linux Virtual Machine for remote access. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-machines/linux/faq#what-are-the-password-requirements-when-creating-a-vm-.')
 param linuxVmAdminPasswordOrKey string = deployLinuxVirtualMachine ? '' : newGuid()
 
-@description('The administrator username for the Linux Virtual Machine to Azure Bastion remote into. It defaults to "azureuser".')
+@description('The administrator username for the Linux Virtual Machine for remote access. It defaults to "xadmin".')
 param linuxVmAdminUsername string = 'xadmin'
 
 @allowed([
   'sshPublicKey'
   'password'
 ])
-@description('[sshPublicKey/password] The authentication type for the Linux Virtual Machine to Azure Bastion remote into. It defaults to "password".')
+@description('The authentication type for the Linux Virtual Machine for remote access. It defaults to "password".')
 param linuxVmAuthenticationType string = 'password'
 
 @allowed([
@@ -350,7 +350,7 @@ param linuxVmAuthenticationType string = 'password'
   'RHEL'
   'Debian-12'
 ])
-@description('[Ubuntu/RHEL/Debian-12] The available Linux Offers')
+@description('The available Linux Offers')
 param linuxVmImageOffer string = '0001-com-ubuntu-server-focal'
 
 @allowed([
@@ -358,16 +358,16 @@ param linuxVmImageOffer string = '0001-com-ubuntu-server-focal'
   'RedHat'
   'Debian'
 ])
-@description('[Canonical for Ubuntu/RedHat/Debian] The available Linux Publishers')
+@description('The available Linux Publishers')
 param linuxVmImagePublisher string = 'Canonical'
 
 @description('The SKU of the Linux marketplace image.')
 param linuxVmImageSku string = '20_04-lts-gen2'
 
-@description('The disk creation option of the Linux Virtual Machine to Azure Bastion remote into. It defaults to "FromImage".')
+@description('The disk creation option of the Linux Virtual Machine for remote access. It defaults to "FromImage".')
 param linuxVmOsDiskCreateOption string = 'FromImage'
 
-@description('The disk type of the Linux Virtual Machine to Azure Bastion remote into. It defaults to "Standard_LRS".')
+@description('The disk type of the Linux Virtual Machine for remote access. It defaults to "Standard_LRS".')
 param linuxVmOsDiskType string = 'Standard_LRS'
 
 @description('The size of the Linux virtual machine.')
@@ -546,26 +546,26 @@ param tags object = {}
 
 @minLength(12)
 @secure()
-@description('The administrator password the Windows Virtual Machine to Azure Bastion remote into. It must be > 12 characters in length. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-machines/windows/faq#what-are-the-password-requirements-when-creating-a-vm-.')
+@description('The administrator password the Windows Virtual Machine for remote access. It must be > 12 characters in length. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-machines/windows/faq#what-are-the-password-requirements-when-creating-a-vm-.')
 param windowsVmAdminPassword string = deployWindowsVirtualMachine ? '' : newGuid()
 
-@description('The administrator username for the Windows Virtual Machine to Azure Bastion remote into. It defaults to "azureuser".')
+@description('The administrator username for the Windows Virtual Machine for remote access. It defaults to "xadmin".')
 param windowsVmAdminUsername string = 'xadmin'
 
-@description('The disk creation option of the Windows Virtual Machine to Azure Bastion remote into. It defaults to "FromImage".')
+@description('The disk creation option of the Windows Virtual Machine for remote access. It defaults to "FromImage".')
 param windowsVmCreateOption string = 'FromImage'
 
-@description('The offer of the Windows Virtual Machine to Azure Bastion remote into. It defaults to "WindowsServer".')
+@description('The offer of the Windows Virtual Machine for remote access. It defaults to "WindowsServer".')
 param windowsVmImageOffer string = 'WindowsServer'
 
-@description('The publisher of the Windows Virtual Machine to Azure Bastion remote into. It defaults to "MicrosoftWindowsServer".')
+@description('The publisher of the Windows Virtual Machine for remote access. It defaults to "MicrosoftWindowsServer".')
 param windowsVmImagePublisher string = 'MicrosoftWindowsServer'
 
 @allowed([
   '2019-datacenter-gensecond'
   '2022-datacenter-g2'
 ])
-@description('The SKU of the Windows Virtual Machines to Azure Bastion remote into. It defaults to "2019-datacenter".')
+@description('The SKU of the Windows Virtual Machines for remote access. It defaults to "2019-datacenter".')
 param windowsVmImageSku string = '2019-datacenter-gensecond'
 
 @allowed([
@@ -575,13 +575,13 @@ param windowsVmImageSku string = '2019-datacenter-gensecond'
 @description('[Static/Dynamic] The public IP Address allocation method for the Windows virtual machine. It defaults to "Dynamic".')
 param windowsVmNetworkInterfacePrivateIPAddressAllocationMethod string = 'Dynamic'
 
-@description('The size of the Windows Virtual Machine to Azure Bastion remote into. It defaults to "Standard_DS1_v2".')
+@description('The size of the Windows Virtual Machine for remote access. It defaults to "Standard_DS1_v2".')
 param windowsVmSize string = 'Standard_DS1_v2'
 
-@description('The storage account type of the Windows Virtual Machine to Azure Bastion remote into. It defaults to "StandardSSD_LRS".')
+@description('The storage account type of the Windows Virtual Machine for remote access. It defaults to "StandardSSD_LRS".')
 param windowsVmStorageAccountType string = 'StandardSSD_LRS'
 
-@description('The version of the Windows Virtual Machine to Azure Bastion remote into. It defaults to "latest".')
+@description('The version of the Windows Virtual Machine for remote access. It defaults to "latest".')
 param windowsVmVersion string = 'latest'
 
 var firewallClientPrivateIpAddress = firewallClientUsableIpAddresses[3]
@@ -853,6 +853,7 @@ module policyAssignments 'modules/policy-assignments.bicep' =
     name: 'assign-policies-${deploymentNameSuffix}'
     params: {
       deploymentNameSuffix: deploymentNameSuffix
+      linuxVmAdminUsername: linuxVmAdminUsername
       location: location
       logAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
       networkWatcherResourceId: networkWatcherResourceId
@@ -860,6 +861,7 @@ module policyAssignments 'modules/policy-assignments.bicep' =
       resourceGroupNames: resourceGroups.outputs.names
       serviceToken: logic.outputs.tokens.service
       tiers: logic.outputs.tiers
+      windowsVmAdminUsername: windowsVmAdminUsername
     }
   }
 

@@ -497,6 +497,7 @@ module tier3_hosts '../tier3/solution.bicep' = {
     identifier: identifier
     keyVaultDiagnosticLogs: keyVaultDiagnosticsLogs
     keyVaultDiagnosticMetrics: keyVaultDiagnosticMetrics
+    linuxVmAdminUsername: virtualMachineUsername
     location: locationVirtualMachines
     logAnalyticsWorkspaceResourceId: operationsLogAnalyticsWorkspaceResourceId
     logStorageSkuName: logStorageSkuName
@@ -514,6 +515,7 @@ module tier3_hosts '../tier3/solution.bicep' = {
     virtualNetworkAddressPrefix: virtualNetworkAddressPrefixes[0]
     virtualNetworkDiagnosticsLogs: virtualNetworkDiagnosticsLogs
     virtualNetworkDiagnosticsMetrics: virtualNetworkDiagnosticsMetrics
+    windowsVmAdminUsername: virtualMachineUsername
     workloadName: 'avd'
     workloadShortName: 'avd'
   }

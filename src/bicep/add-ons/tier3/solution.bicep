@@ -64,6 +64,9 @@ param keyVaultDiagnosticMetrics array = [
   }
 ]
 
+@description('The administrator username for Linux virtual machines. This value is needed if you plan to deploy the following Azure Policy initiatives: CMMC Level 3, DoD Impact Level 5, or NIST SP 800-53 Rev. 4 It defaults to "xadmin".')
+param linuxVmAdminUsername string = 'xadmin'
+
 @description('The location for the deployment. It defaults to the location of the deployment.')
 param location string = deployment().location
 
@@ -142,6 +145,9 @@ param virtualNetworkDiagnosticsMetrics array = [
     enabled: true
   }
 ]
+
+@description('The administrator username for Windows virtual machines. This value is needed if you plan to deploy the following Azure Policy initiatives: CMMC Level 3, DoD Impact Level 5, or NIST SP 800-53 Rev. 4 It defaults to "xadmin".')
+param windowsVmAdminUsername string = 'xadmin'
 
 @minLength(1)
 @maxLength(10)
@@ -322,6 +328,7 @@ module policyAssignments '../../modules/policy-assignments.bicep' =
     name: 'assign-policy-${workloadShortName}-${deploymentNameSuffix}'
     params: {
       deploymentNameSuffix: deploymentNameSuffix
+      linuxVmAdminUsername: linuxVmAdminUsername
       location: location
       logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
       networkWatcherResourceId: networkWatcherResourceId
@@ -331,6 +338,7 @@ module policyAssignments '../../modules/policy-assignments.bicep' =
       ]
       serviceToken: logic.outputs.tokens.service
       tiers: logic.outputs.tiers
+      windowsVmAdminUsername: windowsVmAdminUsername
     }
   }
 

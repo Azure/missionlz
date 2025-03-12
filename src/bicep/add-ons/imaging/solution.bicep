@@ -323,6 +323,7 @@ module tier3 '../tier3/solution.bicep' = {
     identifier: identifier
     keyVaultDiagnosticLogs: keyVaultDiagnosticLogs
     keyVaultDiagnosticMetrics: keyVaultDiagnosticMetrics
+    linuxVmAdminUsername: localAdministratorUsername
     location: location
     logAnalyticsWorkspaceResourceId: spokelogAnalyticsWorkspaceResourceId
     logStorageSkuName: logStorageSkuName
@@ -339,6 +340,7 @@ module tier3 '../tier3/solution.bicep' = {
     virtualNetworkAddressPrefix: virtualNetworkAddressPrefix
     virtualNetworkDiagnosticsLogs: virtualNetworkDiagnosticsLogs
     virtualNetworkDiagnosticsMetrics: virtualNetworkDiagnosticsMetrics
+    windowsVmAdminUsername: localAdministratorUsername
     workloadName: workloadName
     workloadShortName: workloadShortName
   }
