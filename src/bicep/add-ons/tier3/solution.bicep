@@ -324,11 +324,12 @@ module policyAssignments '../../modules/policy-assignments.bicep' =
       deploymentNameSuffix: deploymentNameSuffix
       location: location
       logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
-      tiers: logic.outputs.tiers
       policy: policy
       resourceGroupNames: [
         rg.outputs.name
       ]
+      serviceToken: logic.outputs.tokens.service
+      tiers: logic.outputs.tiers
     }
   }
 
