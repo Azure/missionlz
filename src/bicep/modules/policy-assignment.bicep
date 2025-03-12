@@ -3,38 +3,28 @@ Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
 
-@allowed([
-  'NISTRev4'
-  'NISTRev5'
-  'IL5' // AzureUsGoverment only, trying to deploy IL5 in AzureCloud will switch to NISTRev4
-  'CMMC'
-])
-@description('[NISTRev4/NISTRev5/IL5/CMMC] Built-in policy assignments to assign, default is NISTRev4. IL5 is only available for AzureUsGovernment and will switch to NISTRev4 if tried in AzureCloud.')
-param builtInAssignment string = 'NISTRev4'
+param builtInAssignment string
+param deployRemediation bool
+param location string
 param logAnalyticsWorkspaceResourceId string
-
-@description('Starts a policy remediation for the VM Agent policies in hub RG. Set to false by default since this is time consuming in deployment.')
-param deployRemediation bool = false
-
-@description('The location of this resource')
-param location string = resourceGroup().location
+param networkWatcherResourceGroupName string
 
 var policyDefinitionID = {
   NISTRev4: {
     id: '/providers/Microsoft.Authorization/policySetDefinitions/cf25b9c1-bd23-4eb6-bd2c-f4f3ac644a5f'
-    parameters: json(replace(loadTextContent('policies/NISTRev4-policyAssignmentParameters.json'), '<LAWORKSPACE>', logAnalyticsWorkspace.id))
+    parameters: json(replace(replace(loadTextContent('policies/NISTRev4-policyAssignmentParameters.json'), '<LAWORKSPACE>', logAnalyticsWorkspace.id), 'NetworkWatcherRG', networkWatcherResourceGroupName))
   }
   NISTRev5: {
     id: '/providers/Microsoft.Authorization/policySetDefinitions/179d1daa-458f-4e47-8086-2a68d0d6c38f'
-    parameters: json(loadTextContent('policies/NISTRev5-policyAssignmentParameters.json'))
+    parameters: json(replace(loadTextContent('policies/NISTRev5-policyAssignmentParameters.json'), 'NetworkWatcherRG', networkWatcherResourceGroupName))
   }
   IL5: {
     id: '/providers/Microsoft.Authorization/policySetDefinitions/f9a961fa-3241-4b20-adc4-bbf8ad9d7197'
-    parameters: json(replace(loadTextContent('policies/IL5-policyAssignmentParameters.json'), '<LAWORKSPACE>', logAnalyticsWorkspace.id))
+    parameters: json(replace(replace(loadTextContent('policies/IL5-policyAssignmentParameters.json'), '<LAWORKSPACE>', logAnalyticsWorkspace.id), 'NetworkWatcherRG', networkWatcherResourceGroupName))
   }
   CMMC: {
     id: '/providers/Microsoft.Authorization/policySetDefinitions/b5629c75-5c77-4422-87b9-2509e680f8de'
-    parameters: json(replace(loadTextContent('policies/CMMC-policyAssignmentParameters.json'), '<LAWORKSPACE>', logAnalyticsWorkspace.properties.customerId))
+    parameters: json(replace(replace(loadTextContent('policies/CMMC-policyAssignmentParameters.json'), '<LAWORKSPACE>', logAnalyticsWorkspace.properties.customerId), 'NetworkWatcherRG', networkWatcherResourceGroupName))
   }
 }
 

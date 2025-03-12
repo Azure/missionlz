@@ -10,6 +10,7 @@ param location string
 param logAnalyticsWorkspaceResourceId string
 param policy string
 param resourceGroupNames array
+param serviceToken string
 param tiers array
 
 module policyAssignment 'policy-assignment.bicep' = [for (tier, i) in tiers: {
@@ -19,5 +20,7 @@ module policyAssignment 'policy-assignment.bicep' = [for (tier, i) in tiers: {
     builtInAssignment: policy
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     location: location
+    deployRemediation: false
+    networkWatcherResourceGroupName: tier.deployUniqueResources ? replace(tier.namingConvention.resourceGroup, serviceToken, 'network') : replace(tiers[0].namingConvention.resourceGroup, serviceToken, 'network')
   }
 }]

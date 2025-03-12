@@ -857,6 +857,7 @@ module policyAssignments 'modules/policy-assignments.bicep' =
       logAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
       policy: policy
       resourceGroupNames: resourceGroups.outputs.names
+      serviceToken: logic.outputs.tokens.service
       tiers: logic.outputs.tiers
     }
   }
