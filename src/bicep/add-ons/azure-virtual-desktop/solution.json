@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.33.93.31351",
-      "templateHash": "6248251383086729869"
+      "templateHash": "14208893244846859086"
     }
   },
   "parameters": {
@@ -1470,7 +1470,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.33.93.31351",
-              "templateHash": "7925229065560402860"
+              "templateHash": "12519340367707375799"
             }
           },
           "parameters": {
@@ -5795,6 +5795,9 @@
                   "logAnalyticsWorkspaceResourceId": {
                     "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
                   },
+                  "networkWatcherResourceId": {
+                    "value": "[parameters('networkWatcherResourceId')]"
+                  },
                   "policy": {
                     "value": "[parameters('policy')]"
                   },
@@ -5817,7 +5820,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.33.93.31351",
-                      "templateHash": "17348142447688710765"
+                      "templateHash": "4747772909116548256"
                     }
                   },
                   "parameters": {
@@ -5828,6 +5831,9 @@
                       "type": "string"
                     },
                     "logAnalyticsWorkspaceResourceId": {
+                      "type": "string"
+                    },
+                    "networkWatcherResourceId": {
                       "type": "string"
                     },
                     "policy": {
@@ -5872,7 +5878,7 @@
                           "deployRemediation": {
                             "value": false
                           },
-                          "networkWatcherResourceGroupName": "[if(parameters('tiers')[copyIndex()].deployUniqueResources, createObject('value', replace(parameters('tiers')[copyIndex()].namingConvention.resourceGroup, parameters('serviceToken'), 'network')), createObject('value', replace(parameters('tiers')[0].namingConvention.resourceGroup, parameters('serviceToken'), 'network')))]"
+                          "networkWatcherResourceGroupName": "[if(not(empty(parameters('networkWatcherResourceId'))), createObject('value', split(parameters('networkWatcherResourceId'), '/')[4]), if(parameters('tiers')[copyIndex()].deployUniqueResources, createObject('value', replace(parameters('tiers')[copyIndex()].namingConvention.resourceGroup, parameters('serviceToken'), 'network')), createObject('value', replace(parameters('tiers')[0].namingConvention.resourceGroup, parameters('serviceToken'), 'network'))))]"
                         },
                         "template": {
                           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",

@@ -855,6 +855,7 @@ module policyAssignments 'modules/policy-assignments.bicep' =
       deploymentNameSuffix: deploymentNameSuffix
       location: location
       logAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
+      networkWatcherResourceId: networkWatcherResourceId
       policy: policy
       resourceGroupNames: resourceGroups.outputs.names
       serviceToken: logic.outputs.tokens.service
