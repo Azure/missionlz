@@ -130,7 +130,10 @@ module windowsVirtualMachine '../modules/windows-virtual-machine.bicep' =
     }
   }
 
-output networkInterfaceResourceIds array = [
-  linuxVirtualMachine.outputs.networkInterfaceResourceId
-  windowsVirtualMachine.outputs.networkInterfaceResourceId
-]
+output networkInterfaceResourceIds array = union(
+  deployLinuxVirtualMachine ? [
+    linuxVirtualMachine.outputs.networkInterfaceResourceId
+  ] : [], 
+  deployWindowsVirtualMachine ? [
+    windowsVirtualMachine.outputs.networkInterfaceResourceId
+  ] : [])
