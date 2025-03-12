@@ -74,9 +74,6 @@
   "effect-098fc59e-46c7-4d99-9b16-64990e543d75": {
     "value": "audit"
   },
-  "NetworkWatcherResourceGroupName": {
-    "value": "NetworkWatcherRG"
-  },
   "setting-a6fb4358-5bf4-4ad7-ba82-2cd2f41ce5e9": {
     "value": "enabled"
   },
@@ -431,14 +428,8 @@
   "sqlDbVulnerabilityAssesmentMonitoringEffect": {
     "value": "AuditIfNotExists"
   },
-  "membersToIncludeInLocalAdministratorsGroup": {
-    "value": "<MembersToInclude>"
-  },
   "membersToExcludeInLocalAdministratorsGroup": {
     "value": "admin"
-  },
-  "logAnalyticsWorkspaceIDForVMAgents": {
-    "value": "<LAWORKSPACE>"
   },
   "PHPLatestVersionForAppServices": {
     "value": "7.4"
