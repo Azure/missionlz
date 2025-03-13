@@ -1,12 +1,5 @@
 targetScope = 'subscription'
 
-@secure()
-@description('The password for the local administrator account on the virtual machines.')
-param virtualMachineAdminPassword string
-
-@description('The username for the local adminsitrator account on the virtual machines.')
-param virtualMachineAdminUsername string
-
 @description('The address prefix for the subnet of the application gateway.')
 param applicationGatewaySubnetAddressPrefix string = '10.0.136.0/24'
 
@@ -364,6 +357,13 @@ param useAzureFiles bool
 @description('Determine whether to use cloud storage.')
 param useCloudStorage bool
 
+@secure()
+@description('The password for the local administrator account on the virtual machines.')
+param virtualMachineAdminPassword string
+
+@description('The username for the local adminsitrator account on the virtual machines.')
+param virtualMachineAdminUsername string
+
 @description('The size of the virtual machine OS disk')
 @allowed([
   64
@@ -497,7 +497,6 @@ module tier3 '../tier3/solution.bicep' = {
     identifier: identifier
     keyVaultDiagnosticLogs: keyVaultDiagnosticLogs
     keyVaultDiagnosticMetrics: keyVaultDiagnosticMetrics
-    linuxVmAdminUsername: virtualMachineAdminUsername
     location: location
     logAnalyticsWorkspaceResourceId: operationsLogAnalyticsWorkspaceResourceId
     logStorageSkuName: logStorageSkuName
@@ -514,7 +513,7 @@ module tier3 '../tier3/solution.bicep' = {
     virtualNetworkAddressPrefix: virtualNetworkAddressPrefix
     virtualNetworkDiagnosticsLogs: networkSecurityGroupDiagnosticsLogs
     virtualNetworkDiagnosticsMetrics: networkSecurityGroupDiagnosticsMetrics
-    windowsVmAdminUsername: virtualMachineAdminUsername
+    windowsAdministratorsGroupMembership: virtualMachineAdminUsername
     workloadName: 'esriEnt'
     workloadShortName: 'ent'
   }

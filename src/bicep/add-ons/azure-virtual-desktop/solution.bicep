@@ -335,13 +335,13 @@ param validationEnvironment bool = false
 
 @secure()
 @description('The local administrator password for the AVD session hosts')
-param virtualMachinePassword string
+param virtualMachineAdminPassword string
+
+@description('The local administrator username for the AVD session hosts')
+param virtualMachineAdminUsername string
 
 @description('The virtual machine SKU for the AVD session hosts.')
 param virtualMachineSize string = 'Standard_D4ads_v5'
-
-@description('The local administrator username for the AVD session hosts')
-param virtualMachineUsername string
 
 @description('The number of virtual CPUs per virtual machine for the selected virtual machine size.')
 param virtualMachineVirtualCpuCount int
@@ -497,7 +497,6 @@ module tier3_hosts '../tier3/solution.bicep' = {
     identifier: identifier
     keyVaultDiagnosticLogs: keyVaultDiagnosticsLogs
     keyVaultDiagnosticMetrics: keyVaultDiagnosticMetrics
-    linuxVmAdminUsername: virtualMachineUsername
     location: locationVirtualMachines
     logAnalyticsWorkspaceResourceId: operationsLogAnalyticsWorkspaceResourceId
     logStorageSkuName: logStorageSkuName
@@ -515,7 +514,7 @@ module tier3_hosts '../tier3/solution.bicep' = {
     virtualNetworkAddressPrefix: virtualNetworkAddressPrefixes[0]
     virtualNetworkDiagnosticsLogs: virtualNetworkDiagnosticsLogs
     virtualNetworkDiagnosticsMetrics: virtualNetworkDiagnosticsMetrics
-    windowsVmAdminUsername: virtualMachineUsername
+    windowsAdministratorsGroupMembership: virtualMachineAdminUsername
     workloadName: 'avd'
     workloadShortName: 'avd'
   }
@@ -577,9 +576,9 @@ module management 'modules/management/management.bicep' = {
     tags: tags
     timeZone: tier3_hosts.outputs.locationProperties.timeZone
     validationEnvironment: validationEnvironment
-    virtualMachinePassword: virtualMachinePassword
+    virtualMachineAdminPassword: virtualMachineAdminPassword
+    virtualMachineAdminUsername: virtualMachineAdminUsername
     virtualMachineSize: virtualMachineSize
-    virtualMachineUsername: virtualMachineUsername
   }
 }
 
@@ -760,9 +759,9 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     subnetResourceId: tier3_hosts.outputs.subnets[0].id
     tags: tags
     timeZone: tier3_hosts.outputs.locationProperties.timeZone
-    virtualMachinePassword: virtualMachinePassword
+    virtualMachineAdminPassword: virtualMachineAdminPassword
+    virtualMachineAdminUsername: virtualMachineAdminUsername
     virtualMachineSize: virtualMachineSize
-    virtualMachineUsername: virtualMachineUsername
   }
 }
 

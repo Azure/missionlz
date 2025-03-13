@@ -1193,8 +1193,6 @@
     },
     "outputs": {
       "parameters": {
-        "adminPassword": "[steps('server').localAdminCredentials.password]",
-        "adminUsername": "[steps('server').localAdminCredentials.username]",
         "applicationGatewaySubnetAddressPrefix": "[steps('network').vnet.appGwSubnetAddressCidrRange]",
         "arcgisServiceAccountIsDomainAccount": "[steps('portal').arcgisServiceAccount.isDomainAccount]",
         "arcgisServiceAccountPassword": "[steps('portal').arcgisServiceAccount.password]",
@@ -1254,6 +1252,8 @@
         "tags": "[steps('tags').tags]",
         "useAzureFiles": "[if(equals(steps('server').esri.architecture, true), steps('server').configuration.useAzureStorage, false)]",
         "useCloudStorage": "[if(equals(steps('server').esri.architecture, true), steps('server').configuration.useAzureStorage, false)]",
+        "virtualMachineAdminPassword": "[steps('server').localAdminCredentials.password]",
+        "virtualMachineAdminUsername": "[steps('server').localAdminCredentials.username]",
         "virtualMachineOSDiskSize": "[steps('server').configuration.osDiskSize]",
         "virtualNetworkAddressPrefix": "[steps('network').vnet.vnetAddressCidrRange]",
         "windowsDomainAdministratorPassword": "[if(equals(steps('server').domain.identity, true), steps('server').domain.password, '')]",

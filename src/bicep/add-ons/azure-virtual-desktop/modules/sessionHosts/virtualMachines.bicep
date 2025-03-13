@@ -48,9 +48,9 @@ param timestamp string = utcNow('yyyyMMddhhmmss')
 param uniqueToken string
 param virtualMachineNamePrefix string
 @secure()
-param virtualMachinePassword string
+param virtualMachineAdminPassword string
+param virtualMachineAdminUsername string
 param virtualMachineSize string
-param virtualMachineUsername string
 
 var amdVmSize = contains(amdVmSizes, virtualMachineSize)
 var amdVmSizes = [
@@ -167,9 +167,9 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-03-01' = [for i 
       dataDisks: []
     }
     osProfile: {
+      adminPassword: virtualMachineAdminPassword
+      adminUsername: virtualMachineAdminUsername
       computerName: '${sessionHostNamePrefix}${padLeft((i + sessionHostIndex), 4, '0')}'
-      adminUsername: virtualMachineUsername
-      adminPassword: virtualMachinePassword
       windowsConfiguration: {
         provisionVMAgent: true
         enableAutomaticUpdates: false
