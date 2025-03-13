@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.33.93.31351",
-      "templateHash": "8964226737995139691"
+      "templateHash": "10211090016426723534"
     }
   },
   "parameters": {
@@ -1473,7 +1473,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.33.93.31351",
-              "templateHash": "7308005479442724370"
+              "templateHash": "1298998083434953587"
             }
           },
           "parameters": {
@@ -4991,7 +4991,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.33.93.31351",
-                      "templateHash": "15727209018241821317"
+                      "templateHash": "14720377481988404066"
                     }
                   },
                   "parameters": {
@@ -5262,9 +5262,7 @@
                           "networkWatcherFlowLogsType": {
                             "value": "[parameters('networkWatcherFlowLogsType')]"
                           },
-                          "networkWatcherName": {
-                            "value": "[parameters('tiers')[0].namingConvention.networkWatcher]"
-                          },
+                          "networkWatcherName": "[if(empty(parameters('networkWatcherResourceId')), createObject('value', parameters('tiers')[0].namingConvention.networkWatcher), createObject('value', split(parameters('networkWatcherResourceId'), '/')[8]))]",
                           "networkWatcherResourceGroupName": "[if(empty(parameters('networkWatcherResourceId')), createObject('value', parameters('resourceGroupName')), createObject('value', split(parameters('networkWatcherResourceId'), '/')[4]))]",
                           "networkWatcherSubscriptionId": "[if(empty(parameters('networkWatcherResourceId')), createObject('value', parameters('tiers')[0].subscriptionId), createObject('value', split(parameters('networkWatcherResourceId'), '/')[2]))]",
                           "storageAccountResourceId": {

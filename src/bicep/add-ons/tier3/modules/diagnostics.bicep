@@ -64,7 +64,7 @@ module networkSecurityGroupDiagnostics '../../../modules/network-security-group-
     networkSecurityGroupName: networkSecurityGroupName
     networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
     networkWatcherFlowLogsType: networkWatcherFlowLogsType
-    networkWatcherName: tiers[0].namingConvention.networkWatcher
+    networkWatcherName: empty(networkWatcherResourceId) ? tiers[0].namingConvention.networkWatcher : split(networkWatcherResourceId, '/')[8]
     networkWatcherResourceGroupName: empty(networkWatcherResourceId) ? resourceGroupName : split(networkWatcherResourceId, '/')[4]
     networkWatcherSubscriptionId: empty(networkWatcherResourceId) ? tiers[0].subscriptionId : split(networkWatcherResourceId, '/')[2]
     storageAccountResourceId: storageAccountResourceId

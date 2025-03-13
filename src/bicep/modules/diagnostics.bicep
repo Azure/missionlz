@@ -83,9 +83,9 @@ module networkSecurityGroupDiagnostics '../modules/network-security-group-diagno
     networkSecurityGroupName: tier.namingConvention.networkSecurityGroup
     networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
     networkWatcherFlowLogsType: networkWatcherFlowLogsType
-    networkWatcherName: empty(networkWatcherResourceId) ? hub.namingConvention.networkWatcher : split(networkWatcherResourceId, '/')[8]
-    networkWatcherResourceGroupName: empty(networkWatcherResourceId) ? hubResourceGroupName : split(networkWatcherResourceId, '/')[4]
-    networkWatcherSubscriptionId: empty(networkWatcherResourceId) ? hub.subscriptionId : split(networkWatcherResourceId, '/')[2]
+    networkWatcherName: !empty(networkWatcherResourceId) ? split(networkWatcherResourceId, '/')[8] : tier.deployUniqueResources ? tier.namingConvention.networkWatcher : hub.namingConvention.networkWatcher
+    networkWatcherResourceGroupName: !empty(networkWatcherResourceId) ? split(networkWatcherResourceId, '/')[4] : tier.deployUniqueResources ? resourceGroupNames[i] : hubResourceGroupName
+    networkWatcherSubscriptionId: !empty(networkWatcherResourceId) ? split(networkWatcherResourceId, '/')[2] : tier.deployUniqueResources ? tier.subscriptionId : hub.subscriptionId
     storageAccountResourceId: storageAccountResourceIds[i]
     tiername: tier.name
   }
@@ -106,9 +106,9 @@ module virtualNetworkDiagnostics '../modules/virtual-network-diagnostics.bicep' 
     metrics: tier.vnetDiagMetrics
     networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
     networkWatcherFlowLogsType: networkWatcherFlowLogsType
-    networkWatcherName: empty(networkWatcherResourceId) ? hub.namingConvention.networkWatcher : split(networkWatcherResourceId, '/')[8]
-    networkWatcherResourceGroupName: empty(networkWatcherResourceId) ? hubResourceGroupName : split(networkWatcherResourceId, '/')[4]
-    networkWatcherSubscriptionId: empty(networkWatcherResourceId) ? hub.subscriptionId : split(networkWatcherResourceId, '/')[2]
+    networkWatcherName: !empty(networkWatcherResourceId) ? split(networkWatcherResourceId, '/')[8] : tier.deployUniqueResources ? tier.namingConvention.networkWatcher : hub.namingConvention.networkWatcher
+    networkWatcherResourceGroupName: !empty(networkWatcherResourceId) ? split(networkWatcherResourceId, '/')[4] : tier.deployUniqueResources ? resourceGroupNames[i] : hubResourceGroupName
+    networkWatcherSubscriptionId: !empty(networkWatcherResourceId) ? split(networkWatcherResourceId, '/')[2] : tier.deployUniqueResources ? tier.subscriptionId : hub.subscriptionId
     tiername: tier.name
     virtualNetworkDiagnosticSettingName: tier.namingConvention.virtualNetworkDiagnosticSetting
     virtualNetworkName: tier.namingConvention.virtualNetwork
