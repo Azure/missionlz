@@ -853,7 +853,6 @@ module policyAssignments 'modules/policy-assignments.bicep' =
     name: 'assign-policies-${deploymentNameSuffix}'
     params: {
       deploymentNameSuffix: deploymentNameSuffix
-      linuxVmAdminUsername: linuxVmAdminUsername
       location: location
       logAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
       networkWatcherResourceId: networkWatcherResourceId
@@ -861,7 +860,7 @@ module policyAssignments 'modules/policy-assignments.bicep' =
       resourceGroupNames: resourceGroups.outputs.names
       serviceToken: logic.outputs.tokens.service
       tiers: logic.outputs.tiers
-      windowsVmAdminUsername: windowsVmAdminUsername
+      windowsAdministratorsGroupMembership: windowsVmAdminUsername
     }
   }
 
