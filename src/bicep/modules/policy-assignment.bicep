@@ -5,19 +5,17 @@ Licensed under the MIT License.
 
 param builtInAssignment string
 param deployRemediation bool
-param linuxVmAdminUsername string
 param location string
 param logAnalyticsWorkspaceResourceId string
 param networkWatcherResourceGroupName string
-param windowsVmAdminUsername string
+param windowsAdministratorsGroupMembership string
 
-var adminUsernames = linuxVmAdminUsername == windowsVmAdminUsername ? linuxVmAdminUsername : '${linuxVmAdminUsername}; ${windowsVmAdminUsername}'
 var policyDefinitionID = {
   NISTRev4: {
     id: '/providers/Microsoft.Authorization/policySetDefinitions/cf25b9c1-bd23-4eb6-bd2c-f4f3ac644a5f'
     parameters: union(json(replace(loadTextContent('policies/NISTRev4-policyAssignmentParameters.json'), 'NetworkWatcherRG', networkWatcherResourceGroupName)), {
       listOfMembersToIncludeInWindowsVMAdministratorsGroup: {
-        value: adminUsernames
+        value: windowsAdministratorsGroupMembership
       }
       logAnalyticsWorkspaceIdforVMReporting: {
         value:  logAnalyticsWorkspace.id
@@ -42,7 +40,7 @@ var policyDefinitionID = {
         value: logAnalyticsWorkspace.id
       }
       membersToIncludeInLocalAdministratorsGroup: {
-        value: adminUsernames
+        value: windowsAdministratorsGroupMembership
       }
       NetworkWatcherResourceGroupName: {
         value: networkWatcherResourceGroupName
@@ -63,7 +61,7 @@ var policyDefinitionID = {
         value: 'admin'
       }
       'MembersToInclude-30f71ea1-ac77-4f26-9fc5-2d926bbd4ba7': {
-        value: adminUsernames
+        value: windowsAdministratorsGroupMembership
       }
     } : {})
   }
