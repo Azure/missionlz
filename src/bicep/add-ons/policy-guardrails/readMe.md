@@ -8,6 +8,8 @@ The JSON files must be well formed policy definitions and parameters. A good res
 
 This document does not cover custom policy design or construction.
 
+The policy sets provided in the sample are not curated or updated by the Mission Landing Zone team. The organization implementing the policies must curate and update on the basis of their internal operational requirements.
+
 ## Directory Structure
 
 The directory structure should be organized as follows:
