@@ -85,6 +85,7 @@ module networkSecurityGroupDiagnostics '../modules/network-security-group-diagno
     networkWatcherFlowLogsType: networkWatcherFlowLogsType
     networkWatcherName: empty(networkWatcherResourceId) ? hub.namingConvention.networkWatcher : split(networkWatcherResourceId, '/')[8]
     networkWatcherResourceGroupName: empty(networkWatcherResourceId) ? hubResourceGroupName : split(networkWatcherResourceId, '/')[4]
+    networkWatcherSubscriptionId: empty(networkWatcherResourceId) ? hub.subscriptionId : split(networkWatcherResourceId, '/')[2]
     storageAccountResourceId: storageAccountResourceIds[i]
     tiername: tier.name
   }
@@ -107,6 +108,7 @@ module virtualNetworkDiagnostics '../modules/virtual-network-diagnostics.bicep' 
     networkWatcherFlowLogsType: networkWatcherFlowLogsType
     networkWatcherName: empty(networkWatcherResourceId) ? hub.namingConvention.networkWatcher : split(networkWatcherResourceId, '/')[8]
     networkWatcherResourceGroupName: empty(networkWatcherResourceId) ? hubResourceGroupName : split(networkWatcherResourceId, '/')[4]
+    networkWatcherSubscriptionId: empty(networkWatcherResourceId) ? hub.subscriptionId : split(networkWatcherResourceId, '/')[2]
     tiername: tier.name
     virtualNetworkDiagnosticSettingName: tier.namingConvention.virtualNetworkDiagnosticSetting
     virtualNetworkName: tier.namingConvention.virtualNetwork

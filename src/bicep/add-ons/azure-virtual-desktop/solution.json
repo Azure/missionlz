@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.33.93.31351",
-      "templateHash": "3550585042487471500"
+      "templateHash": "8964226737995139691"
     }
   },
   "parameters": {
@@ -1473,7 +1473,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.33.93.31351",
-              "templateHash": "7204599959853891356"
+              "templateHash": "7308005479442724370"
             }
           },
           "parameters": {
@@ -4991,7 +4991,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.33.93.31351",
-                      "templateHash": "562784248762867939"
+                      "templateHash": "15727209018241821317"
                     }
                   },
                   "parameters": {
@@ -5266,6 +5266,7 @@
                             "value": "[parameters('tiers')[0].namingConvention.networkWatcher]"
                           },
                           "networkWatcherResourceGroupName": "[if(empty(parameters('networkWatcherResourceId')), createObject('value', parameters('resourceGroupName')), createObject('value', split(parameters('networkWatcherResourceId'), '/')[4]))]",
+                          "networkWatcherSubscriptionId": "[if(empty(parameters('networkWatcherResourceId')), createObject('value', parameters('tiers')[0].subscriptionId), createObject('value', split(parameters('networkWatcherResourceId'), '/')[2]))]",
                           "storageAccountResourceId": {
                             "value": "[parameters('storageAccountResourceId')]"
                           },
@@ -5280,7 +5281,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.33.93.31351",
-                              "templateHash": "7963019223728155622"
+                              "templateHash": "12450943368298134389"
                             }
                           },
                           "parameters": {
@@ -5320,6 +5321,9 @@
                             "networkWatcherResourceGroupName": {
                               "type": "string"
                             },
+                            "networkWatcherSubscriptionId": {
+                              "type": "string"
+                            },
                             "storageAccountResourceId": {
                               "type": "string"
                             },
@@ -5345,6 +5349,7 @@
                               "type": "Microsoft.Resources/deployments",
                               "apiVersion": "2022-09-01",
                               "name": "[format('deploy-{0}-flowLogs-{1}', parameters('tiername'), parameters('deploymentNameSuffix'))]",
+                              "subscriptionId": "[parameters('networkWatcherSubscriptionId')]",
                               "resourceGroup": "[parameters('networkWatcherResourceGroupName')]",
                               "properties": {
                                 "expressionEvaluationOptions": {
@@ -5491,6 +5496,7 @@
                           },
                           "networkWatcherName": "[if(empty(parameters('networkWatcherResourceId')), createObject('value', parameters('tiers')[0].namingConvention.networkWatcher), createObject('value', split(parameters('networkWatcherResourceId'), '/')[8]))]",
                           "networkWatcherResourceGroupName": "[if(empty(parameters('networkWatcherResourceId')), createObject('value', parameters('resourceGroupName')), createObject('value', split(parameters('networkWatcherResourceId'), '/')[4]))]",
+                          "networkWatcherSubscriptionId": "[if(empty(parameters('networkWatcherResourceId')), createObject('value', parameters('tiers')[0].subscriptionId), createObject('value', split(parameters('networkWatcherResourceId'), '/')[2]))]",
                           "tiername": {
                             "value": "[parameters('tiers')[0].name]"
                           },
@@ -5508,7 +5514,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.33.93.31351",
-                              "templateHash": "11802264191977855923"
+                              "templateHash": "1459088614317417940"
                             }
                           },
                           "parameters": {
@@ -5548,6 +5554,9 @@
                             "networkWatcherResourceGroupName": {
                               "type": "string"
                             },
+                            "networkWatcherSubscriptionId": {
+                              "type": "string"
+                            },
                             "supportedClouds": {
                               "type": "array",
                               "defaultValue": [
@@ -5582,6 +5591,7 @@
                               "type": "Microsoft.Resources/deployments",
                               "apiVersion": "2022-09-01",
                               "name": "[format('deploy-{0}-flowLogs-{1}', parameters('tiername'), parameters('deploymentNameSuffix'))]",
+                              "subscriptionId": "[parameters('networkWatcherSubscriptionId')]",
                               "resourceGroup": "[parameters('networkWatcherResourceGroupName')]",
                               "properties": {
                                 "expressionEvaluationOptions": {

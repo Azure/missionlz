@@ -15,6 +15,7 @@ param networkWatcherFlowLogsRetentionDays int
 param networkWatcherFlowLogsType string
 param networkWatcherName string
 param networkWatcherResourceGroupName string
+param networkWatcherSubscriptionId string
 param storageAccountResourceId string
 param tiername string
 
@@ -35,7 +36,7 @@ resource diagnostics 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' 
 
 module nsgFlowLogs '../modules/network-watcher-flow-logs.bicep' = if (networkWatcherFlowLogsType == 'NetworkSecurityGroup') {
   name: 'deploy-${tiername}-flowLogs-${deploymentNameSuffix}'
-  scope: resourceGroup(networkWatcherResourceGroupName)
+  scope: resourceGroup(networkWatcherSubscriptionId, networkWatcherResourceGroupName)
   params: {
     deployNetworkWatcherTrafficAnalytics: deployNetworkWatcherTrafficAnalytics
     flowLogsName: flowLogsName
