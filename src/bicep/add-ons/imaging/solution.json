@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.33.93.31351",
-      "templateHash": "4750850214330917131"
+      "templateHash": "7938042647678625463"
     }
   },
   "parameters": {
@@ -306,18 +306,6 @@
         "description": "The Key Vault Diagnostic Metrics to collect. See the following URL for valid settings: \"https://learn.microsoft.com/azure/key-vault/general/logging?tabs=Vault\"."
       }
     },
-    "localAdministratorPassword": {
-      "type": "securestring",
-      "metadata": {
-        "description": "The password for the local administrator account."
-      }
-    },
-    "localAdministratorUsername": {
-      "type": "string",
-      "metadata": {
-        "description": "The username for the local administrator account."
-      }
-    },
     "location": {
       "type": "string",
       "defaultValue": "[deployment().location]",
@@ -526,6 +514,18 @@
         "description": "The file name of the vDOT installer in Azure Blobs."
       }
     },
+    "virtualMachineAdminPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "The password for the local administrator account on the virtual machines."
+      }
+    },
+    "virtualMachineAdminUsername": {
+      "type": "securestring",
+      "metadata": {
+        "description": "The username for the local administrator account on the virtual machines."
+      }
+    },
     "virtualMachineSize": {
       "type": "string",
       "metadata": {
@@ -626,9 +626,6 @@
           "keyVaultDiagnosticMetrics": {
             "value": "[parameters('keyVaultDiagnosticMetrics')]"
           },
-          "linuxVmAdminUsername": {
-            "value": "[parameters('localAdministratorUsername')]"
-          },
           "location": {
             "value": "[parameters('location')]"
           },
@@ -677,8 +674,8 @@
           "virtualNetworkDiagnosticsMetrics": {
             "value": "[parameters('virtualNetworkDiagnosticsMetrics')]"
           },
-          "windowsVmAdminUsername": {
-            "value": "[parameters('localAdministratorUsername')]"
+          "windowsAdministratorsGroupMembership": {
+            "value": "[parameters('virtualMachineAdminUsername')]"
           },
           "workloadName": {
             "value": "[variables('workloadName')]"
@@ -694,7 +691,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.33.93.31351",
-              "templateHash": "16797063039846539552"
+              "templateHash": "7204599959853891356"
             }
           },
           "parameters": {
@@ -800,13 +797,6 @@
               ],
               "metadata": {
                 "description": "The Key Vault Diagnostic Metrics to collect. See the following URL for valid settings: \"https://learn.microsoft.com/azure/key-vault/general/logging?tabs=Vault\"."
-              }
-            },
-            "linuxVmAdminUsername": {
-              "type": "string",
-              "defaultValue": "xadmin",
-              "metadata": {
-                "description": "The administrator username for Linux virtual machines. This value is needed if you plan to deploy the following Azure Policy initiatives: CMMC Level 3, DoD Impact Level 5, or NIST SP 800-53 Rev. 4 It defaults to \"xadmin\"."
               }
             },
             "location": {
@@ -955,11 +945,11 @@
                 "description": "The metrics to monitor for the workload Virtual Network."
               }
             },
-            "windowsVmAdminUsername": {
+            "windowsAdministratorsGroupMembership": {
               "type": "string",
               "defaultValue": "xadmin",
               "metadata": {
-                "description": "The administrator username for Windows virtual machines. This value is needed if you plan to deploy the following Azure Policy initiatives: CMMC Level 3, DoD Impact Level 5, or NIST SP 800-53 Rev. 4 It defaults to \"xadmin\"."
+                "description": "The local administrator username for Windows virtual machines. This value is needed if you plan to deploy the following Azure Policy initiatives: CMMC Level 3, DoD Impact Level 5, or NIST SP 800-53 Rev. 4 It defaults to \"xadmin\"."
               }
             },
             "workloadName": {
@@ -5027,9 +5017,6 @@
                   "deploymentNameSuffix": {
                     "value": "[parameters('deploymentNameSuffix')]"
                   },
-                  "linuxVmAdminUsername": {
-                    "value": "[parameters('linuxVmAdminUsername')]"
-                  },
                   "location": {
                     "value": "[parameters('location')]"
                   },
@@ -5053,8 +5040,8 @@
                   "tiers": {
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tiers.value]"
                   },
-                  "windowsVmAdminUsername": {
-                    "value": "[parameters('windowsVmAdminUsername')]"
+                  "windowsAdministratorsGroupMembership": {
+                    "value": "[parameters('windowsAdministratorsGroupMembership')]"
                   }
                 },
                 "template": {
@@ -5064,14 +5051,11 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.33.93.31351",
-                      "templateHash": "8311918618449721485"
+                      "templateHash": "15749144817252179561"
                     }
                   },
                   "parameters": {
                     "deploymentNameSuffix": {
-                      "type": "string"
-                    },
-                    "linuxVmAdminUsername": {
                       "type": "string"
                     },
                     "location": {
@@ -5095,7 +5079,7 @@
                     "tiers": {
                       "type": "array"
                     },
-                    "windowsVmAdminUsername": {
+                    "windowsAdministratorsGroupMembership": {
                       "type": "string"
                     }
                   },
@@ -5119,9 +5103,6 @@
                           "builtInAssignment": {
                             "value": "[parameters('policy')]"
                           },
-                          "linuxVmAdminUsername": {
-                            "value": "[parameters('linuxVmAdminUsername')]"
-                          },
                           "logAnalyticsWorkspaceResourceId": {
                             "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
                           },
@@ -5132,8 +5113,8 @@
                             "value": false
                           },
                           "networkWatcherResourceGroupName": "[if(not(empty(parameters('networkWatcherResourceId'))), createObject('value', split(parameters('networkWatcherResourceId'), '/')[4]), if(parameters('tiers')[copyIndex()].deployUniqueResources, createObject('value', replace(parameters('tiers')[copyIndex()].namingConvention.resourceGroup, parameters('serviceToken'), 'network')), createObject('value', replace(parameters('tiers')[0].namingConvention.resourceGroup, parameters('serviceToken'), 'network'))))]",
-                          "windowsVmAdminUsername": {
-                            "value": "[parameters('windowsVmAdminUsername')]"
+                          "windowsAdministratorsGroupMembership": {
+                            "value": "[parameters('windowsAdministratorsGroupMembership')]"
                           }
                         },
                         "template": {
@@ -5143,7 +5124,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.33.93.31351",
-                              "templateHash": "9473363198923468140"
+                              "templateHash": "14343664420377969832"
                             }
                           },
                           "parameters": {
@@ -5152,9 +5133,6 @@
                             },
                             "deployRemediation": {
                               "type": "bool"
-                            },
-                            "linuxVmAdminUsername": {
-                              "type": "string"
                             },
                             "location": {
                               "type": "string"
@@ -5165,7 +5143,7 @@
                             "networkWatcherResourceGroupName": {
                               "type": "string"
                             },
-                            "windowsVmAdminUsername": {
+                            "windowsAdministratorsGroupMembership": {
                               "type": "string"
                             }
                           },
@@ -5174,7 +5152,6 @@
                             "$fxv#1": "{\r\n  \"IncludeArcMachines\": {\r\n    \"value\": \"true\"\r\n  },\r\n  \"MinimumTLSVersion-5752e6d6-1206-46d8-8ab1-ecc2f71a8112\": {\r\n    \"value\": \"1.2\"\r\n  },\r\n  \"NotAvailableMachineState-bed48b13-6647-468e-aa2f-1af1d3f4dd40\": {\r\n    \"value\": \"Compliant\"\r\n  },\r\n  \"requiredRetentionDays\": {\r\n    \"value\": \"365\"\r\n  }\r\n}",
                             "$fxv#2": "{\r\n  \"IncludeArcMachines\": {\r\n    \"value\": \"false\"\r\n  },\r\n  \"NotAvailableMachineState-bed48b13-6647-468e-aa2f-1af1d3f4dd40\": {\r\n    \"value\": \"Compliant\"\r\n  },\r\n  \"MinimumTLSVersionForWindowsServers\": {\r\n    \"value\": \"1.2\"\r\n  },\r\n  \"requiredRetentionDays\": {\r\n    \"value\": \"365\"\r\n  },\r\n  \"effect-febd0533-8e55-448f-b837-bd0e06f16469\": {\r\n    \"value\": \"audit\"\r\n  },\r\n  \"allowedContainerImagesRegex-febd0533-8e55-448f-b837-bd0e06f16469\": {\r\n    \"value\": \"^(.+){0}$\"\r\n  },\r\n  \"effect-95edb821-ddaf-4404-9732-666045e056b4\": {\r\n    \"value\": \"audit\"\r\n  },\r\n  \"effect-440b515e-a580-421e-abeb-b159a61ddcbc\": {\r\n    \"value\": \"audit\"\r\n  },\r\n  \"effect-233a2a17-77ca-4fb1-9b6b-69223d272a44\": {\r\n    \"value\": \"audit\"\r\n  },\r\n  \"effect-e345eecc-fa47-480f-9e88-67dcc122b164\": {\r\n    \"value\": \"audit\"\r\n  },\r\n  \"cpuLimit-e345eecc-fa47-480f-9e88-67dcc122b164\": {\r\n    \"value\": \"0\"\r\n  },\r\n  \"memoryLimit-e345eecc-fa47-480f-9e88-67dcc122b164\": {\r\n    \"value\": \"0\"\r\n  },\r\n  \"effect-f06ddb64-5fa3-4b77-b166-acb36f7f6042\": {\r\n    \"value\": \"audit\"\r\n  },\r\n  \"runAsUserRule-f06ddb64-5fa3-4b77-b166-acb36f7f6042\": {\r\n    \"value\": \"MustRunAsNonRoot\"\r\n  },\r\n  \"runAsGroupRule-f06ddb64-5fa3-4b77-b166-acb36f7f6042\": {\r\n    \"value\": \"RunAsAny\"\r\n  },\r\n  \"supplementalGroupsRule-f06ddb64-5fa3-4b77-b166-acb36f7f6042\": {\r\n    \"value\": \"RunAsAny\"\r\n  },\r\n  \"fsGroupRule-f06ddb64-5fa3-4b77-b166-acb36f7f6042\": {\r\n    \"value\": \"RunAsAny\"\r\n  },\r\n  \"effect-1c6e92c9-99f0-4e55-9cf2-0c234dc48f99\": {\r\n    \"value\": \"audit\"\r\n  },\r\n  \"effect-47a1ee2f-2a2a-4576-bf2a-e0e36709c2b8\": {\r\n    \"value\": \"audit\"\r\n  },\r\n  \"effect-df49d893-a74c-421d-bc95-c663042e5b80\": {\r\n    \"value\": \"audit\"\r\n  },\r\n  \"effect-1a5b4dca-0b6f-4cf5-907c-56316bc1bf3d\": {\r\n    \"value\": \"audit\"\r\n  },\r\n  \"effect-c26596ff-4d70-4e6a-9a30-c2506bd2f80c\": {\r\n    \"value\": \"audit\"\r\n  },\r\n  \"effect-511f5417-5d12-434d-ab2e-816901e72a5e\": {\r\n    \"value\": \"audit\"\r\n  },\r\n  \"effect-82985f06-dc18-4a48-bc1c-b9f4f0098cfe\": {\r\n    \"value\": \"audit\"\r\n  },\r\n  \"effect-098fc59e-46c7-4d99-9b16-64990e543d75\": {\r\n    \"value\": \"audit\"\r\n  },\r\n  \"setting-a6fb4358-5bf4-4ad7-ba82-2cd2f41ce5e9\": {\r\n    \"value\": \"enabled\"\r\n  },\r\n  \"aadAuthenticationInServiceFabricMonitoringEffect\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-71ef260a-8f18-47b7-abcb-62d0673d94dc\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-055aa869-bc98-4af8-bafc-23f1ab6ffe2c\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-564feb30-bf6a-4854-b4bb-0d2d2d1e6c66\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-862e97cf-49fc-4a5c-9de4-40d4e2e7c8eb\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-d9da03a1-f3c3-412a-9709-947156872263\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-617c02be-7f02-4efd-8836-3180d47b6c68\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-0b60c0b2-2dc2-4e1c-b5c9-abbed971de53\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-1e66c121-a66a-4b1f-9b83-0fd99bf0fc2d\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-ec068d99-e9c7-401f-8cef-5bdde4e6ccf1\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-c349d81b-9985-44ae-a8da-ff98d108ede8\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-3657f5a0-770e-44a3-b44e-9431ba1e9735\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-b4ac1030-89c5-4697-8e00-28b5ba6a8811\": {\r\n    \"value\": \"audit\"\r\n  },\r\n  \"effect-ea0dfaed-95fb-448c-934e-d6e713ce393d\": {\r\n    \"value\": \"audit\"\r\n  },\r\n  \"effect-4733ea7b-a883-42fe-8cac-97454c2a9e4a\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-f4b53539-8df9-40e4-86c6-6b607703bd4e\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-41425d9f-d1a5-499a-9932-f8ed8453932c\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-fc4d8e41-e223-45ea-9bf5-eada37891d87\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-86efb160-8de7-451d-bc08-5d475b0aadae\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-4ec52d6d-beb7-40c4-9a9e-fe753254690e\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-64d314f6-6062-4780-a861-c23e8951bee5\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-1fd32ebd-e4c3-4e13-a54a-d7422d4d95f6\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-fa298e57-9444-42ba-bf04-86e8470e32c7\": {\r\n    \"value\": \"audit\"\r\n  },\r\n  \"effect-67121cc7-ff39-4ab8-b7e3-95b84dab487d\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-1f905d99-2ab7-462c-a6b0-f709acca6c8f\": {\r\n    \"value\": \"audit\"\r\n  },\r\n  \"effect-5b9159ae-1701-4a6f-9a7a-aa9c8ddd0580\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-ba769a63-b8cc-4b2d-abf6-ac33c7204be8\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-81e74cea-30fd-40d5-802f-d72103c2aaaa\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-0aa61e00-0a01-4a3c-9945-e93cffedf0e6\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-47031206-ce96-41f8-861b-6a915f3de284\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-87ba29ef-1ab3-4d82-b763-87fcd4f531f7\": {\r\n    \"value\": \"audit\"\r\n  },\r\n  \"effect-51522a96-0869-4791-82f3-981000c2c67f\": {\r\n    \"value\": \"audit\"\r\n  },\r\n  \"effect-b5ec538c-daa0-4006-8596-35468b9148e8\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-56a5ee18-2ae6-4810-86f7-18e39ce5629b\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-2e94d99a-8a36-4563-bc77-810d8893b671\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-1fafeaf6-7927-4059-a50a-8eb2a7a6f2b5\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-99e9ccd8-3db9-4592-b0d1-14b1715a4d8a\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-1f68a601-6e6d-4e42-babf-3f643a047ea2\": {\r\n    \"value\": \"audit\"\r\n  },\r\n  \"effect-f7d52b2d-e161-4dfa-a82b-55e564167385\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-7d7be79c-23ba-4033-84dd-45e2a5ccdd67\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-ca91455f-eace-4f96-be59-e6e2c35b4816\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-702dd420-7fcc-42c5-afe8-4026edd20fe0\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"diagnosticsLogsInRedisCacheMonitoringEffect\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"secureTransferToStorageAccountMonitoringEffect\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-d0793b48-0edc-4296-a390-4c75d1bdfd71\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-7d092e0a-7acd-40d2-a975-dca21cae48c4\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-2a1a9cdf-e04d-429a-8416-3bfb72a1b26f\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"disableUnrestrictedNetworkToStorageAccountMonitoringEffect\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-55615ac9-af46-4a59-874e-391cc3dfb490\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-1b8ca024-1d5c-4dec-8995-b1a932b41780\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-037eea7a-bd0a-46c5-9a66-03aea78705d3\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-53503636-bcc9-4748-9663-5348217f160f\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-40cec1dd-a100-4920-b15b-3024fe8901ab\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-0725b4dd-7e76-479c-a735-68e7ee23d5ca\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-a049bf77-880b-470f-ba6d-9f21c530cf83\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-ee980b6d-0eca-4501-8d54-f6290fd512c3\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-1d84d5fb-01f6-4d12-ba4f-4a26081d403d\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-37e0d2fe-28a5-43d6-a273-67d37d1f5606\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"identityDesignateMoreThanOneOwnerMonitoringEffect\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"diskEncryptionMonitoringEffect\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"emailNotificationToSubscriptionOwnerHighSeverityAlertsEnabledEffect\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"functionAppDisableRemoteDebuggingMonitoringEffect\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"sqlDbEncryptionMonitoringEffect\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"vulnerabilityAssessmentOnManagedInstanceMonitoringEffect\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"ensurePHPVersionLatestForAPIAppEffect\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"aadAuthenticationInSqlServerMonitoringEffect\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"vmssEndpointProtectionMonitoringEffect\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"vmssOsVulnerabilitiesMonitoringEffect\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"adaptiveApplicationControlsMonitoringEffect\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"geoRedundantBackupShouldBeEnabledForAzureDatabaseForPostgreSQLEffect\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"ensureJavaVersionLatestForWebAppEffect\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"identityDesignateLessThanOwnersMonitoringEffect\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"securityContactEmailAddressForSubscriptionEffect\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"webAppRestrictCORSAccessMonitoringEffect\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"identityRemoveExternalAccountWithWritePermissionsMonitoringEffect\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"identityRemoveExternalAccountWithReadPermissionsMonitoringEffect\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"identityRemoveDeprecatedAccountMonitoringEffect\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"functionAppEnforceHttpsMonitoringEffect\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"ensurePythonVersionLatestForWebAppEffect\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"ensurePythonVersionLatestForFunctionAppEffect\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"ensurePHPVersionLatestForWebAppEffect\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"ensurePythonVersionLatestForAPIAppEffect\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"geoRedundantBackupShouldBeEnabledForAzureDatabaseForMySQLEffect\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"systemUpdatesMonitoringEffect\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"ensureJavaVersionLatestForAPIAppEffect\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"ensureHTTPVersionLatestForWebAppEffect\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"apiAppRequireLatestTlsMonitoringEffect\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"identityEnableMFAForWritePermissionsMonitoringEffect\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"ensureHTTPVersionLatestForAPIAppEffect\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"ensureJavaVersionLatestForFunctionAppEffect\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"nextGenerationFirewallMonitoringEffect\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"useRbacRulesMonitoringEffect\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"webAppEnforceHttpsMonitoringEffect\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"sqlServerAuditingMonitoringEffect\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"vnetEnableDDoSProtectionMonitoringEffect\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"identityEnableMFAForOwnerPermissionsMonitoringEffect\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"sqlServerAdvancedDataSecurityMonitoringEffect\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"sqlManagedInstanceAdvancedDataSecurityMonitoringEffect\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"endpointProtectionMonitoringEffect\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"jitNetworkAccessMonitoringEffect\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"apiAppEnforceHttpsMonitoringEffect\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"geoRedundantStorageShouldBeEnabledForStorageAccountsEffect\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"vmssSystemUpdatesMonitoringEffect\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"webAppDisableRemoteDebuggingMonitoringEffect\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"longtermGeoRedundantBackupEnabledAzureSQLDatabasesEffect\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"systemConfigurationsMonitoringEffect\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"ensureHTTPVersionLatestForFunctionAppEffect\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"identityEnableMFAForReadPermissionsMonitoringEffect\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"containerBenchmarkMonitoringEffect\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"apiAppDisableRemoteDebuggingMonitoringEffect\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"identityRemoveDeprecatedAccountWithOwnerPermissionsMonitoringEffect\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"vulnerabilityAssessmentOnServerMonitoringEffect\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"webAppRequireLatestTlsMonitoringEffect\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"identityRemoveExternalAccountWithOwnerPermissionsMonitoringEffect\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"functionAppRequireLatestTlsMonitoringEffect\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"kubernetesServiceVersionUpToDateMonitoringEffect\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"sqlDbVulnerabilityAssesmentMonitoringEffect\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"membersToExcludeInLocalAdministratorsGroup\": {\r\n    \"value\": \"admin\"\r\n  },\r\n  \"PHPLatestVersionForAppServices\": {\r\n    \"value\": \"7.4\"\r\n  },\r\n  \"JavaLatestVersionForAppServices\": {\r\n    \"value\": \"11\"\r\n  },\r\n  \"WindowsPythonLatestVersionForAppServices\": {\r\n    \"value\": \"3.6\"\r\n  },\r\n  \"LinuxPythonLatestVersionForAppServices\": {\r\n    \"value\": \"3.9\"\r\n  },\r\n  \"ensureDotNetFrameworkLatestForFunctionAppEffect\": {\r\n    \"value\": \"Disabled\"\r\n  },\r\n  \"sqlManagedInstanceAdvancedDataSecurityEmailsMonitoringEffect\": {\r\n    \"value\": \"Disabled\"\r\n  },\r\n  \"vulnerabilityAssessmentMonitoringEffect\": {\r\n    \"value\": \"Disabled\"\r\n  },\r\n  \"ensureDotNetFrameworkLatestForWebAppEffect\": {\r\n    \"value\": \"Disabled\"\r\n  },\r\n  \"sqlServerAdvancedDataSecurityEmailsMonitoringEffect\": {\r\n    \"value\": \"Disabled\"\r\n  },\r\n  \"microsoftIaaSAntimalwareExtensionShouldBeDeployedOnWindowsServersEffect\": {\r\n    \"value\": \"Disabled\"\r\n  },\r\n  \"securityCenterStandardPricingTierShouldBeSelectedEffect\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"theLogAnalyticsAgentShouldBeInstalledOnVirtualMachinesEffect\": {\r\n    \"value\": \"Disabled\"\r\n  },\r\n  \"ensurePHPVersionLatestForFunctionAppEffect\": {\r\n    \"value\": \"Disabled\"\r\n  },\r\n  \"sqlManagedInstanceAdvancedDataSecurityEmailAdminsMonitoringEffect\": {\r\n    \"value\": \"Disabled\"\r\n  },\r\n  \"securityContactPhoneNumberShouldBeProvidedForSubscriptionEffect\": {\r\n    \"value\": \"Disabled\"\r\n  },\r\n  \"threatDetectionTypesOnManagedInstanceMonitoringEffect\": {\r\n    \"value\": \"Disabled\"\r\n  },\r\n  \"ensureDotNetFrameworkLatestForAPIAppEffect\": {\r\n    \"value\": \"Disabled\"\r\n  },\r\n  \"sqlServerAdvancedDataSecurityEmailAdminsMonitoringEffect\": {\r\n    \"value\": \"Disabled\"\r\n  },\r\n  \"threatDetectionTypesOnServerMonitoringEffect\": {\r\n    \"value\": \"Disabled\"\r\n  },\r\n  \"theLogAnalyticsAgentShouldBeInstalledOnVirtualMachineScaleSetsEffect\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  }\r\n}",
                             "$fxv#3": "{\r\n  \"effect-09024ccc-0c5f-475e-9457-b7c0d9ed487b\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-0961003e-5a0a-4549-abde-af6a37f2724d\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-0b15565f-aa9e-48ba-8619-45960f2c314d\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-0e60b895-3786-45da-8377-9c6b4b6ac5f9\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-17k78e20-9358-41c9-923c-fb736d382a12\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-1bc1795e-d44a-4d48-9b3b-6fff0fd5f9ba\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"PHPLatestVersion\": {\r\n    \"value\": \"7.3\"\r\n  },\r\n  \"effect-22bee202-a82f-4305-9a2a-6d7f44d4dedb\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-26a828e1-e88f-464e-bbb3-c134a282b9de\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-34c877ad-507e-4c82-993e-3452a6e0ad3c\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-3c735d8a-a4ba-4a3a-b7cf-db7754cf57f4\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-404c3081-a854-4457-ae30-26a93ef643f9\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-47a6b606-51aa-4496-8bb7-64b11cf66adc\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-496223c3-ad65-4ecd-878a-bae78737e9ed\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"JavaLatestVersion\": {\r\n    \"value\": \"11\"\r\n  },\r\n  \"effect-4f11b553-d42e-4e3a-89be-32ca364cad4c\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-4f4f78b8-e367-4b10-a341-d9a4ad5cf1c7\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-5c607a2e-c700-4744-8254-d77e7c9eb5e4\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-5f76cf89-fbf2-47fd-a3f4-b891fa780b60\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-6b1cbf55-e8b6-442f-ba4c-7246b6381474\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-6d555dd1-86f2-4f1c-8ed7-5abae7c6cbab\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-7008174a-fd10-4ef0-817e-fc820a951d73\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"LinuxPythonLatestVersion\": {\r\n    \"value\": \"3.8\"\r\n  },\r\n  \"effect-7238174a-fd10-4ef0-817e-fc820a951d73\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-7261b898-8a84-4db8-9e04-18527132abb3\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-74c3584d-afae-46f7-a20a-6f8adba71a16\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-86b3d65f-7626-441e-b690-81a8b71cff60\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-88999f4c-376a-45c8-bcb3-4058f713cf39\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-8c122334-9d20-4eb8-89ea-ac9a705b74ae\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-8cb6aa8b-9e41-4f4e-aa25-089a7ac2581e\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-9297c21d-2ed6-4474-b48f-163f75654ce3\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-991310cd-e9f3-47bc-b7b6-f57b557d07db\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-9b597639-28e4-48eb-b506-56b05d366257\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-9d0b6ea4-93e2-4578-bf2f-6bb17d22b4bc\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-9daedab3-fb2d-461e-b861-71790eead4f6\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-a4af4a39-4135-47fb-b175-47fbdf85311d\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-a6fb4358-5bf4-4ad7-ba82-2cd2f41ce5e9\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"setting-a6fb4358-5bf4-4ad7-ba82-2cd2f41ce5e9\": {\r\n    \"value\": \"enabled\"\r\n  },\r\n  \"effect-a70ca396-0a34-413a-88e1-b956c1e683be\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-aa633080-8b72-40c4-a2d7-d00c03e80bed\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-abfb4388-5bf4-4ad7-ba82-2cd2f41ceae9\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-abfb7388-5bf4-4ad7-ba99-2cd2f41cebb9\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-af6cd1bd-1635-48cb-bde7-5b15693900b9\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-b7ddfbdc-1260-477d-91fd-98bd9be789a6\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-c3f317a7-a95c-4547-b7e7-11017ebdf2fe\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-cb510bfd-1cba-4d9f-a230-cb0976f4bb71\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-e1e5fd5d-3e4c-4ce1-8661-7d1873ae6b15\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-e2c1c086-2d84-4019-bff3-c44ccd95113c\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-e3576e28-8b17-4677-84c3-db2990658d64\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-e8cbc669-f12d-49eb-93e7-9273119e9933\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-e9c8d085-d9cc-4b17-9cdc-059f1f01f19e\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-ebb62a0c-3560-49e1-89ed-27e074e9f8ad\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-efbde977-ba53-4479-b8e9-10b957924fbf\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-f0e6e85b-9b9f-4a4b-b67b-f730d42f1b0b\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-f6de0be7-9a8a-4b8a-b349-43cf02d22f7c\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-f8456c1c-aa66-4dfb-861a-25d127b775c9\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-f9d614c5-c173-4d56-95a7-b4437057d193\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-fb893a29-21bb-418c-a157-e99480ec364c\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-feedbf84-6b99-488c-acc2-71c829aa5ffc\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-3b980d31-7904-4bb7-8575-5665739a8052\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-6e2593d9-add6-4083-9c9b-4b7d2188c899\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-b607c5de-e7d9-4eee-9e5c-83f1bcee4fa0\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-12430be1-6cc8-4527-a9a8-e3d38f250096\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"modeRequirement-12430be1-6cc8-4527-a9a8-e3d38f250096\": {\r\n    \"value\": \"Detection\"\r\n  },\r\n  \"effect-425bea59-a659-4cbb-8d31-34499bd030b8\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"modeRequirement-425bea59-a659-4cbb-8d31-34499bd030b8\": {\r\n    \"value\": \"Detection\"\r\n  },\r\n  \"effect-564feb30-bf6a-4854-b4bb-0d2d2d1e6c66\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-055aa869-bc98-4af8-bafc-23f1ab6ffe2c\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-013e242c-8828-4970-87b3-ab247555486d\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-d38fc420-0735-4ef3-ac11-c806f651a570\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-a1181c5f-672a-477a-979a-7d58aa086233\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-308fbb08-4ab8-4e67-9b29-592e93fb94fa\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-4da35fc9-c9e7-4960-aec9-797fe7d9051d\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-523b5cd1-3e23-492f-a539-13118b6d1e3a\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-7fe3b40f-802b-4cdd-8bd4-fd799c948cc2\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-c25d9a16-bc35-4e15-a7e5-9db606bf9ed4\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-b0f33259-77d7-4c9e-aac6-3aabcfae693c\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-037eea7a-bd0a-46c5-9a66-03aea78705d3\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-0725b4dd-7e76-479c-a735-68e7ee23d5ca\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-0820b7b9-23aa-4725-a1ce-ae4558f718e5\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-2c89a2e5-7285-40fe-afe0-ae8654b92fab\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-358c20a6-3f9e-4f0e-97ff-c6ce485e2aac\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-5744710e-cc2f-4ee8-8809-3b11e89f4bc9\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-ac4a19c2-fa67-49b4-8ae5-0b2e78c49457\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-c9d007d0-c057-4772-b18c-01e546713bcd\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-d0793b48-0edc-4296-a390-4c75d1bdfd71\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-e372f825-a257-4fb8-9175-797a8a8627d6\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-d158790f-bfb0-486c-8631-2dc6b4e8e6af\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-e802a67a-daf5-4436-9ea6-f6d821dd0c5d\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-a451c1ef-c6ca-483d-87ed-f49761e3ffb5\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-b954148f-4c11-4c38-8221-be76711e194a-MicrosoftSql-servers-firewallRules-delete\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-b954148f-4c11-4c38-8221-be76711e194a-MicrosoftNetwork-networkSecurityGroups-delete\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-b954148f-4c11-4c38-8221-be76711e194a-MicrosoftClassicNetwork-networkSecurityGroups-delete\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-b954148f-4c11-4c38-8221-be76711e194a-MicrosoftNetwork-networkSecurityGroups-securityRules-delete\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-b954148f-4c11-4c38-8221-be76711e194a-MicrosoftClassicNetwork-networkSecurityGroups-securityRules-delete\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-ae89ebca-1c92-4898-ac2c-9f63decb045c\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-d26f7642-7545-4e18-9b75-8c9bbdee3a9a\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-1a4e592a-6a6e-44a5-9814-e36264ca96e7\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-7796937f-307b-4598-941c-67d3a05ebfe7\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-c5447c04-a4d7-4ba8-a263-c9ee321a6858\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-41388f1c-2db0-4c25-95b2-35d7f5ccbfa9\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-b02aacc0-b073-424e-8298-42b22829ee0a\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-057d6cfe-9c4f-4a6d-bc60-14420ea1f1a9\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-0ec47710-77ff-4a3d-9181-6aa50af424d0\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-48af4db5-9b8b-401c-8e74-076be876a430\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-82339799-d096-41ae-8538-b108becf0970\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-1b7aa243-30e4-4c9e-bca8-d0d3022b634a\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-ef2a8f2a-b3d9-49cd-a8a8-9a3aaaf647d9\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-bb91dfba-c30d-4263-9add-9c2384e659a6\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-e71308d3-144b-4262-b144-efdc3cc90517\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-2bdd0062-9d75-436e-89df-487dd8e4b3c7\": {\r\n    \"value\": \"Disabled\"\r\n  },\r\n  \"effect-4733ea7b-a883-42fe-8cac-97454c2a9e4a\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-67121cc7-ff39-4ab8-b7e3-95b84dab487d\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-6fac406b-40ca-413b-bf8e-0bf964659c25\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-81e74cea-30fd-40d5-802f-d72103c2aaaa\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-c349d81b-9985-44ae-a8da-ff98d108ede8\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-f4b53539-8df9-40e4-86c6-6b607703bd4e\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-ec068d99-e9c7-401f-8cef-5bdde4e6ccf1\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-048248b0-55cd-46da-b1ff-39efd52db260\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-0d134df8-db83-46fb-ad72-fe0c9428c8dd\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-2c89a2e5-7285-40fe-afe0-ae8654b92fb2\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-3657f5a0-770e-44a3-b44e-9431ba1e9735\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-5b9159ae-1701-4a6f-9a7a-aa9c8ddd0580\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-617c02be-7f02-4efd-8836-3180d47b6c68\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-7d7be79c-23ba-4033-84dd-45e2a5ccdd67\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-87ba29ef-1ab3-4d82-b763-87fcd4f531f7\": {\r\n    \"value\": \"audit\"\r\n  },\r\n  \"effect-f7d52b2d-e161-4dfa-a82b-55e564167385\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-c43e4a30-77cb-48ab-a4dd-93f175c63b57\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-0b60c0b2-2dc2-4e1c-b5c9-abbed971de53\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-1e66c121-a66a-4b1f-9b83-0fd99bf0fc2d\": {\r\n    \"value\": \"Audit\"\r\n  },\r\n  \"effect-1f314764-cb73-4fc9-b863-8eca98ac36e9\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  },\r\n  \"effect-123a3936-f020-408a-ba0c-47873faf1534\": {\r\n    \"value\": \"AuditIfNotExists\"\r\n  }\r\n}",
-                            "adminUsernames": "[if(equals(parameters('linuxVmAdminUsername'), parameters('windowsVmAdminUsername')), parameters('linuxVmAdminUsername'), format('{0}; {1}', parameters('linuxVmAdminUsername'), parameters('windowsVmAdminUsername')))]",
                             "modifiedAssignment": "[if(and(equals(toLower(environment().name), toLower('AzureCloud')), equals(toLower(parameters('builtInAssignment')), toLower('IL5'))), 'NISTRev4', parameters('builtInAssignment'))]",
                             "assignmentName": "[format('{0} {1}', variables('modifiedAssignment'), resourceGroup().name)]",
                             "agentVmssAssignmentName": "[format('Deploy VMSS Agents {0}', resourceGroup().name)]",
@@ -5189,8 +5166,8 @@
                               "name": "[variables('assignmentName')]",
                               "location": "[parameters('location')]",
                               "properties": {
-                                "policyDefinitionId": "[createObject('NISTRev4', createObject('id', '/providers/Microsoft.Authorization/policySetDefinitions/cf25b9c1-bd23-4eb6-bd2c-f4f3ac644a5f', 'parameters', union(json(replace(variables('$fxv#0'), 'NetworkWatcherRG', parameters('networkWatcherResourceGroupName'))), createObject('listOfMembersToIncludeInWindowsVMAdministratorsGroup', createObject('value', variables('adminUsernames')), 'logAnalyticsWorkspaceIdforVMReporting', createObject('value', extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('logAnalyticsWorkspaceResourceId'), '/')[2], split(parameters('logAnalyticsWorkspaceResourceId'), '/')[4]), 'Microsoft.OperationalInsights/workspaces', split(parameters('logAnalyticsWorkspaceResourceId'), '/')[8])), 'resourceGroupName-b6e2945c-0b7b-40f5-9233-7a5323b5cdc6', createObject('value', parameters('networkWatcherResourceGroupName'))))), 'NISTRev5', createObject('id', '/providers/Microsoft.Authorization/policySetDefinitions/179d1daa-458f-4e47-8086-2a68d0d6c38f', 'parameters', union(json(variables('$fxv#1')), createObject('resourceGroupName-b6e2945c-0b7b-40f5-9233-7a5323b5cdc6', createObject('value', parameters('networkWatcherResourceGroupName'))))), 'IL5', createObject('id', '/providers/Microsoft.Authorization/policySetDefinitions/f9a961fa-3241-4b20-adc4-bbf8ad9d7197', 'parameters', union(json(variables('$fxv#2')), createObject('logAnalyticsWorkspaceIDForVMAgents', createObject('value', extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('logAnalyticsWorkspaceResourceId'), '/')[2], split(parameters('logAnalyticsWorkspaceResourceId'), '/')[4]), 'Microsoft.OperationalInsights/workspaces', split(parameters('logAnalyticsWorkspaceResourceId'), '/')[8])), 'membersToIncludeInLocalAdministratorsGroup', createObject('value', variables('adminUsernames')), 'NetworkWatcherResourceGroupName', createObject('value', parameters('networkWatcherResourceGroupName'))))), 'CMMC', createObject('id', '/providers/Microsoft.Authorization/policySetDefinitions/b5629c75-5c77-4422-87b9-2509e680f8de', 'parameters', union(json(variables('$fxv#3')), createObject('logAnalyticsWorkspaceId-f47b5582-33ec-4c5c-87c0-b010a6b2e917', createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('logAnalyticsWorkspaceResourceId'), '/')[2], split(parameters('logAnalyticsWorkspaceResourceId'), '/')[4]), 'Microsoft.OperationalInsights/workspaces', split(parameters('logAnalyticsWorkspaceResourceId'), '/')[8]), '2021-06-01').customerId), 'resourceGroupName-b6e2945c-0b7b-40f5-9233-7a5323b5cdc6', createObject('value', parameters('networkWatcherResourceGroupName'))), if(equals('AzureCloud', environment().name), createObject('MembersToExclude-69bf4abd-ca1e-4cf6-8b5a-762d42e61d4f', createObject('value', 'admin'), 'MembersToInclude-30f71ea1-ac77-4f26-9fc5-2d926bbd4ba7', createObject('value', variables('adminUsernames'))), createObject()))))[variables('modifiedAssignment')].id]",
-                                "parameters": "[createObject('NISTRev4', createObject('id', '/providers/Microsoft.Authorization/policySetDefinitions/cf25b9c1-bd23-4eb6-bd2c-f4f3ac644a5f', 'parameters', union(json(replace(variables('$fxv#0'), 'NetworkWatcherRG', parameters('networkWatcherResourceGroupName'))), createObject('listOfMembersToIncludeInWindowsVMAdministratorsGroup', createObject('value', variables('adminUsernames')), 'logAnalyticsWorkspaceIdforVMReporting', createObject('value', extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('logAnalyticsWorkspaceResourceId'), '/')[2], split(parameters('logAnalyticsWorkspaceResourceId'), '/')[4]), 'Microsoft.OperationalInsights/workspaces', split(parameters('logAnalyticsWorkspaceResourceId'), '/')[8])), 'resourceGroupName-b6e2945c-0b7b-40f5-9233-7a5323b5cdc6', createObject('value', parameters('networkWatcherResourceGroupName'))))), 'NISTRev5', createObject('id', '/providers/Microsoft.Authorization/policySetDefinitions/179d1daa-458f-4e47-8086-2a68d0d6c38f', 'parameters', union(json(variables('$fxv#1')), createObject('resourceGroupName-b6e2945c-0b7b-40f5-9233-7a5323b5cdc6', createObject('value', parameters('networkWatcherResourceGroupName'))))), 'IL5', createObject('id', '/providers/Microsoft.Authorization/policySetDefinitions/f9a961fa-3241-4b20-adc4-bbf8ad9d7197', 'parameters', union(json(variables('$fxv#2')), createObject('logAnalyticsWorkspaceIDForVMAgents', createObject('value', extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('logAnalyticsWorkspaceResourceId'), '/')[2], split(parameters('logAnalyticsWorkspaceResourceId'), '/')[4]), 'Microsoft.OperationalInsights/workspaces', split(parameters('logAnalyticsWorkspaceResourceId'), '/')[8])), 'membersToIncludeInLocalAdministratorsGroup', createObject('value', variables('adminUsernames')), 'NetworkWatcherResourceGroupName', createObject('value', parameters('networkWatcherResourceGroupName'))))), 'CMMC', createObject('id', '/providers/Microsoft.Authorization/policySetDefinitions/b5629c75-5c77-4422-87b9-2509e680f8de', 'parameters', union(json(variables('$fxv#3')), createObject('logAnalyticsWorkspaceId-f47b5582-33ec-4c5c-87c0-b010a6b2e917', createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('logAnalyticsWorkspaceResourceId'), '/')[2], split(parameters('logAnalyticsWorkspaceResourceId'), '/')[4]), 'Microsoft.OperationalInsights/workspaces', split(parameters('logAnalyticsWorkspaceResourceId'), '/')[8]), '2021-06-01').customerId), 'resourceGroupName-b6e2945c-0b7b-40f5-9233-7a5323b5cdc6', createObject('value', parameters('networkWatcherResourceGroupName'))), if(equals('AzureCloud', environment().name), createObject('MembersToExclude-69bf4abd-ca1e-4cf6-8b5a-762d42e61d4f', createObject('value', 'admin'), 'MembersToInclude-30f71ea1-ac77-4f26-9fc5-2d926bbd4ba7', createObject('value', variables('adminUsernames'))), createObject()))))[variables('modifiedAssignment')].parameters]"
+                                "policyDefinitionId": "[createObject('NISTRev4', createObject('id', '/providers/Microsoft.Authorization/policySetDefinitions/cf25b9c1-bd23-4eb6-bd2c-f4f3ac644a5f', 'parameters', union(json(replace(variables('$fxv#0'), 'NetworkWatcherRG', parameters('networkWatcherResourceGroupName'))), createObject('listOfMembersToIncludeInWindowsVMAdministratorsGroup', createObject('value', parameters('windowsAdministratorsGroupMembership')), 'logAnalyticsWorkspaceIdforVMReporting', createObject('value', extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('logAnalyticsWorkspaceResourceId'), '/')[2], split(parameters('logAnalyticsWorkspaceResourceId'), '/')[4]), 'Microsoft.OperationalInsights/workspaces', split(parameters('logAnalyticsWorkspaceResourceId'), '/')[8])), 'resourceGroupName-b6e2945c-0b7b-40f5-9233-7a5323b5cdc6', createObject('value', parameters('networkWatcherResourceGroupName'))))), 'NISTRev5', createObject('id', '/providers/Microsoft.Authorization/policySetDefinitions/179d1daa-458f-4e47-8086-2a68d0d6c38f', 'parameters', union(json(variables('$fxv#1')), createObject('resourceGroupName-b6e2945c-0b7b-40f5-9233-7a5323b5cdc6', createObject('value', parameters('networkWatcherResourceGroupName'))))), 'IL5', createObject('id', '/providers/Microsoft.Authorization/policySetDefinitions/f9a961fa-3241-4b20-adc4-bbf8ad9d7197', 'parameters', union(json(variables('$fxv#2')), createObject('logAnalyticsWorkspaceIDForVMAgents', createObject('value', extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('logAnalyticsWorkspaceResourceId'), '/')[2], split(parameters('logAnalyticsWorkspaceResourceId'), '/')[4]), 'Microsoft.OperationalInsights/workspaces', split(parameters('logAnalyticsWorkspaceResourceId'), '/')[8])), 'membersToIncludeInLocalAdministratorsGroup', createObject('value', parameters('windowsAdministratorsGroupMembership')), 'NetworkWatcherResourceGroupName', createObject('value', parameters('networkWatcherResourceGroupName'))))), 'CMMC', createObject('id', '/providers/Microsoft.Authorization/policySetDefinitions/b5629c75-5c77-4422-87b9-2509e680f8de', 'parameters', union(json(variables('$fxv#3')), createObject('logAnalyticsWorkspaceId-f47b5582-33ec-4c5c-87c0-b010a6b2e917', createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('logAnalyticsWorkspaceResourceId'), '/')[2], split(parameters('logAnalyticsWorkspaceResourceId'), '/')[4]), 'Microsoft.OperationalInsights/workspaces', split(parameters('logAnalyticsWorkspaceResourceId'), '/')[8]), '2021-06-01').customerId), 'resourceGroupName-b6e2945c-0b7b-40f5-9233-7a5323b5cdc6', createObject('value', parameters('networkWatcherResourceGroupName'))), if(equals('AzureCloud', environment().name), createObject('MembersToExclude-69bf4abd-ca1e-4cf6-8b5a-762d42e61d4f', createObject('value', 'admin'), 'MembersToInclude-30f71ea1-ac77-4f26-9fc5-2d926bbd4ba7', createObject('value', parameters('windowsAdministratorsGroupMembership'))), createObject()))))[variables('modifiedAssignment')].id]",
+                                "parameters": "[createObject('NISTRev4', createObject('id', '/providers/Microsoft.Authorization/policySetDefinitions/cf25b9c1-bd23-4eb6-bd2c-f4f3ac644a5f', 'parameters', union(json(replace(variables('$fxv#0'), 'NetworkWatcherRG', parameters('networkWatcherResourceGroupName'))), createObject('listOfMembersToIncludeInWindowsVMAdministratorsGroup', createObject('value', parameters('windowsAdministratorsGroupMembership')), 'logAnalyticsWorkspaceIdforVMReporting', createObject('value', extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('logAnalyticsWorkspaceResourceId'), '/')[2], split(parameters('logAnalyticsWorkspaceResourceId'), '/')[4]), 'Microsoft.OperationalInsights/workspaces', split(parameters('logAnalyticsWorkspaceResourceId'), '/')[8])), 'resourceGroupName-b6e2945c-0b7b-40f5-9233-7a5323b5cdc6', createObject('value', parameters('networkWatcherResourceGroupName'))))), 'NISTRev5', createObject('id', '/providers/Microsoft.Authorization/policySetDefinitions/179d1daa-458f-4e47-8086-2a68d0d6c38f', 'parameters', union(json(variables('$fxv#1')), createObject('resourceGroupName-b6e2945c-0b7b-40f5-9233-7a5323b5cdc6', createObject('value', parameters('networkWatcherResourceGroupName'))))), 'IL5', createObject('id', '/providers/Microsoft.Authorization/policySetDefinitions/f9a961fa-3241-4b20-adc4-bbf8ad9d7197', 'parameters', union(json(variables('$fxv#2')), createObject('logAnalyticsWorkspaceIDForVMAgents', createObject('value', extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('logAnalyticsWorkspaceResourceId'), '/')[2], split(parameters('logAnalyticsWorkspaceResourceId'), '/')[4]), 'Microsoft.OperationalInsights/workspaces', split(parameters('logAnalyticsWorkspaceResourceId'), '/')[8])), 'membersToIncludeInLocalAdministratorsGroup', createObject('value', parameters('windowsAdministratorsGroupMembership')), 'NetworkWatcherResourceGroupName', createObject('value', parameters('networkWatcherResourceGroupName'))))), 'CMMC', createObject('id', '/providers/Microsoft.Authorization/policySetDefinitions/b5629c75-5c77-4422-87b9-2509e680f8de', 'parameters', union(json(variables('$fxv#3')), createObject('logAnalyticsWorkspaceId-f47b5582-33ec-4c5c-87c0-b010a6b2e917', createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('logAnalyticsWorkspaceResourceId'), '/')[2], split(parameters('logAnalyticsWorkspaceResourceId'), '/')[4]), 'Microsoft.OperationalInsights/workspaces', split(parameters('logAnalyticsWorkspaceResourceId'), '/')[8]), '2021-06-01').customerId), 'resourceGroupName-b6e2945c-0b7b-40f5-9233-7a5323b5cdc6', createObject('value', parameters('networkWatcherResourceGroupName'))), if(equals('AzureCloud', environment().name), createObject('MembersToExclude-69bf4abd-ca1e-4cf6-8b5a-762d42e61d4f', createObject('value', 'admin'), 'MembersToInclude-30f71ea1-ac77-4f26-9fc5-2d926bbd4ba7', createObject('value', parameters('windowsAdministratorsGroupMembership'))), createObject()))))[variables('modifiedAssignment')].parameters]"
                               },
                               "identity": {
                                 "type": "SystemAssigned"
@@ -6323,11 +6300,11 @@
           "keyVaultPrivateDnsZoneResourceId": {
             "value": "[variables('keyVaultPrivateDnsZoneResourceId')]"
           },
-          "localAdministratorPassword": {
-            "value": "[parameters('localAdministratorPassword')]"
+          "virtualMachineAdminPassword": {
+            "value": "[parameters('virtualMachineAdminPassword')]"
           },
-          "localAdministratorUsername": {
-            "value": "[parameters('localAdministratorUsername')]"
+          "virtualMachineAdminUsername": {
+            "value": "[parameters('virtualMachineAdminUsername')]"
           },
           "location": {
             "value": "[parameters('location')]"
@@ -6418,7 +6395,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.33.93.31351",
-              "templateHash": "15060158345250631476"
+              "templateHash": "11771120946593350621"
             }
           },
           "parameters": {
@@ -6536,12 +6513,6 @@
             "keyVaultPrivateDnsZoneResourceId": {
               "type": "string"
             },
-            "localAdministratorPassword": {
-              "type": "securestring"
-            },
-            "localAdministratorUsername": {
-              "type": "string"
-            },
             "location": {
               "type": "string"
             },
@@ -6618,6 +6589,12 @@
               "type": "string"
             },
             "vDOTInstaller": {
+              "type": "string"
+            },
+            "virtualMachineAdminPassword": {
+              "type": "securestring"
+            },
+            "virtualMachineAdminUsername": {
               "type": "string"
             },
             "virtualMachineSize": {
@@ -6727,11 +6704,11 @@
                   "keyVaultPrivateDnsZoneResourceId": {
                     "value": "[parameters('keyVaultPrivateDnsZoneResourceId')]"
                   },
-                  "localAdministratorPassword": {
-                    "value": "[parameters('localAdministratorPassword')]"
+                  "virtualMachineAdminPassword": {
+                    "value": "[parameters('virtualMachineAdminPassword')]"
                   },
-                  "localAdministratorUsername": {
-                    "value": "[parameters('localAdministratorUsername')]"
+                  "virtualMachineAdminUsername": {
+                    "value": "[parameters('virtualMachineAdminUsername')]"
                   },
                   "location": {
                     "value": "[parameters('location')]"
@@ -6759,7 +6736,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.33.93.31351",
-                      "templateHash": "8412322013421734654"
+                      "templateHash": "6891303965586253784"
                     }
                   },
                   "parameters": {
@@ -6778,12 +6755,6 @@
                     "location": {
                       "type": "string"
                     },
-                    "localAdministratorPassword": {
-                      "type": "securestring"
-                    },
-                    "localAdministratorUsername": {
-                      "type": "securestring"
-                    },
                     "mlzTags": {
                       "type": "object"
                     },
@@ -6798,6 +6769,12 @@
                     },
                     "userAssignedIdentityPrincipalId": {
                       "type": "string"
+                    },
+                    "virtualMachineAdminPassword": {
+                      "type": "securestring"
+                    },
+                    "virtualMachineAdminUsername": {
+                      "type": "securestring"
                     }
                   },
                   "variables": {
@@ -6812,12 +6789,12 @@
                         "value": "[parameters('domainJoinUserPrincipalName')]"
                       },
                       {
-                        "name": "LocalAdministratorPassword",
-                        "value": "[parameters('localAdministratorPassword')]"
+                        "name": "VirtualMachineAdminPassword",
+                        "value": "[parameters('virtualMachineAdminPassword')]"
                       },
                       {
-                        "name": "LocalAdministratorUsername",
-                        "value": "[parameters('localAdministratorUsername')]"
+                        "name": "VirtualMachineAdminUsername",
+                        "value": "[parameters('virtualMachineAdminUsername')]"
                       }
                     ]
                   },
@@ -6853,7 +6830,7 @@
                       "apiVersion": "2023-05-01",
                       "name": "[variables('privateEndpointName')]",
                       "location": "[parameters('location')]",
-                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Network/privateEndpoints'), parameters('tags')['Microsoft.Network/privateEndpoints'], createObject()), parameters('mlzTags'))]",
+                      "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/privateEndpoints'), createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "privateLinkServiceConnections": [
                           {
@@ -6969,7 +6946,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.33.93.31351",
-                      "templateHash": "12870779401836359113"
+                      "templateHash": "7851979067280097875"
                     }
                   },
                   "parameters": {
@@ -6993,8 +6970,8 @@
                       "metadata": {
                         "_generator": {
                           "name": "bicep",
-                          "version": "0.26.170.59819",
-                          "templateHash": "3135582023314630375"
+                          "version": "0.33.93.31351",
+                          "templateHash": "7443211343054596224"
                         }
                       },
                       "parameters": {
@@ -7039,6 +7016,9 @@
                           "type": "string"
                         },
                         "imageMajorVersion": {
+                          "type": "int"
+                        },
+                        "imageMinorVersion": {
                           "type": "int"
                         },
                         "imagePatchVersion": {
@@ -7110,14 +7090,6 @@
                         "keyVaultName": {
                           "type": "string"
                         },
-                        "localAdministratorPassword": {
-                          "type": "securestring",
-                          "defaultValue": ""
-                        },
-                        "localAdministratorUsername": {
-                          "type": "securestring",
-                          "defaultValue": ""
-                        },
                         "location": {
                           "type": "string",
                           "defaultValue": "[[deployment().location]"
@@ -7177,7 +7149,7 @@
                         },
                         "updateService": {
                           "type": "string",
-                          "defaultValue": "MicrosoftUpdate"
+                          "defaultValue": "MU"
                         },
                         "userAssignedIdentityClientId": {
                           "type": "string"
@@ -7196,6 +7168,14 @@
                           "type": "string",
                           "defaultValue": ""
                         },
+                        "virtualMachineAdminPassword": {
+                          "type": "securestring",
+                          "defaultValue": ""
+                        },
+                        "virtualMachineAdminUsername": {
+                          "type": "securestring",
+                          "defaultValue": ""
+                        },
                         "virtualMachineSize": {
                           "type": "string"
                         },
@@ -7205,8 +7185,7 @@
                         }
                       },
                       "variables": {
-                        "autoImageVersion": "[[format('{0}.{1}.{2}', parameters('imageMajorVersion'), variables('imageSuffix'), parameters('imagePatchVersion'))]",
-                        "imageSuffix": "[[take(parameters('deploymentNameSuffix'), 9)]",
+                        "autoImageVersion": "[[format('{0}.{1}.{2}', parameters('imageMajorVersion'), parameters('imageMinorVersion'), parameters('imagePatchVersion'))]",
                         "storageAccountName": "[[split(parameters('storageAccountResourceId'), '/')[8]]",
                         "storageEndpoint": "[[environment().suffixes.storage]",
                         "subscriptionId": "[[subscription().subscriptionId]"
@@ -7225,20 +7204,11 @@
                             },
                             "mode": "Incremental",
                             "parameters": {
-                              "containerName": {
-                                "value": "[[parameters('containerName')]"
-                              },
                               "diskEncryptionSetResourceId": {
                                 "value": "[[parameters('diskEncryptionSetResourceId')]"
                               },
                               "hybridUseBenefit": {
                                 "value": "[[parameters('hybridUseBenefit')]"
-                              },
-                              "localAdministratorPassword": {
-                                "value": "[[parameters('localAdministratorPassword')]"
-                              },
-                              "localAdministratorUsername": {
-                                "value": "[[parameters('localAdministratorUsername')]"
                               },
                               "location": {
                                 "value": "[[parameters('location')]"
@@ -7246,23 +7216,26 @@
                               "mlzTags": {
                                 "value": "[[parameters('mlzTags')]"
                               },
-                              "storageAccountName": {
-                                "value": "[[split(parameters('storageAccountResourceId'), '/')[8]]"
-                              },
                               "subnetResourceId": {
                                 "value": "[[parameters('subnetResourceId')]"
                               },
                               "tags": {
                                 "value": "[[parameters('tags')]"
                               },
-                              "userAssignedIdentityPrincipalId": {
-                                "value": "[[parameters('userAssignedIdentityPrincipalId')]"
-                              },
                               "userAssignedIdentityResourceId": {
                                 "value": "[[parameters('userAssignedIdentityResourceId')]"
                               },
+                              "virtualMachineAdminPassword": {
+                                "value": "[[parameters('virtualMachineAdminPassword')]"
+                              },
+                              "virtualMachineAdminUsername": {
+                                "value": "[[parameters('virtualMachineAdminUsername')]"
+                              },
                               "virtualMachineName": {
                                 "value": "[[parameters('managementVirtualMachineName')]"
+                              },
+                              "virtualMachineSize": {
+                                "value": "[[parameters('virtualMachineSize')]"
                               }
                             },
                             "template": {
@@ -7271,25 +7244,16 @@
                               "metadata": {
                                 "_generator": {
                                   "name": "bicep",
-                                  "version": "0.26.170.59819",
-                                  "templateHash": "8898522588803558538"
+                                  "version": "0.33.93.31351",
+                                  "templateHash": "15594129744731548865"
                                 }
                               },
                               "parameters": {
-                                "containerName": {
-                                  "type": "string"
-                                },
                                 "diskEncryptionSetResourceId": {
                                   "type": "string"
                                 },
                                 "hybridUseBenefit": {
                                   "type": "bool"
-                                },
-                                "localAdministratorPassword": {
-                                  "type": "securestring"
-                                },
-                                "localAdministratorUsername": {
-                                  "type": "securestring"
                                 },
                                 "location": {
                                   "type": "string"
@@ -7297,22 +7261,25 @@
                                 "mlzTags": {
                                   "type": "object"
                                 },
-                                "storageAccountName": {
-                                  "type": "string"
-                                },
                                 "subnetResourceId": {
                                   "type": "string"
                                 },
                                 "tags": {
                                   "type": "object"
                                 },
-                                "userAssignedIdentityPrincipalId": {
-                                  "type": "string"
-                                },
                                 "userAssignedIdentityResourceId": {
                                   "type": "string"
                                 },
+                                "virtualMachineAdminPassword": {
+                                  "type": "securestring"
+                                },
+                                "virtualMachineAdminUsername": {
+                                  "type": "string"
+                                },
                                 "virtualMachineName": {
+                                  "type": "string"
+                                },
+                                "virtualMachineSize": {
                                   "type": "string"
                                 }
                               },
@@ -7322,7 +7289,7 @@
                                   "apiVersion": "2023-04-01",
                                   "name": "[[format('nic-{0}', parameters('virtualMachineName'))]",
                                   "location": "[[parameters('location')]",
-                                  "tags": "[[union(if(contains(parameters('tags'), 'Microsoft.Network/networkInterfaces'), parameters('tags')['Microsoft.Network/networkInterfaces'], createObject()), parameters('mlzTags'))]",
+                                  "tags": "[[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/networkInterfaces'), createObject()), parameters('mlzTags'))]",
                                   "properties": {
                                     "ipConfigurations": [
                                       {
@@ -7346,21 +7313,21 @@
                                   "apiVersion": "2022-03-01",
                                   "name": "[[parameters('virtualMachineName')]",
                                   "location": "[[parameters('location')]",
-                                  "tags": "[[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
+                                  "tags": "[[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/virtualMachines'), createObject()), parameters('mlzTags'))]",
                                   "identity": {
-                                    "type": "UserAssigned",
+                                    "type": "SystemAssigned, UserAssigned",
                                     "userAssignedIdentities": {
                                       "[[format('{0}', parameters('userAssignedIdentityResourceId'))]": {}
                                     }
                                   },
                                   "properties": {
                                     "hardwareProfile": {
-                                      "vmSize": "Standard_D2s_v3"
+                                      "vmSize": "[[parameters('virtualMachineSize')]"
                                     },
                                     "osProfile": {
+                                      "adminPassword": "[[parameters('virtualMachineAdminPassword')]",
+                                      "adminUsername": "[[parameters('virtualMachineAdminUsername')]",
                                       "computerName": "[[parameters('virtualMachineName')]",
-                                      "adminUsername": "[[parameters('localAdministratorUsername')]",
-                                      "adminPassword": "[[parameters('localAdministratorPassword')]",
                                       "windowsConfiguration": {
                                         "provisionVMAgent": true,
                                         "enableAutomaticUpdates": true,
@@ -7419,41 +7386,6 @@
                                   "dependsOn": [
                                     "[[resourceId('Microsoft.Network/networkInterfaces', format('nic-{0}', parameters('virtualMachineName')))]"
                                   ]
-                                },
-                                {
-                                  "type": "Microsoft.Compute/virtualMachines/runCommands",
-                                  "apiVersion": "2023-03-01",
-                                  "name": "[[format('{0}/{1}', parameters('virtualMachineName'), 'appAzModules')]",
-                                  "location": "[[parameters('location')]",
-                                  "tags": "[[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
-                                  "properties": {
-                                    "treatFailureAsDeploymentFailure": true,
-                                    "asyncExecution": false,
-                                    "parameters": [
-                                      {
-                                        "name": "ContainerName",
-                                        "value": "[[parameters('containerName')]"
-                                      },
-                                      {
-                                        "name": "StorageAccountName",
-                                        "value": "[[parameters('storageAccountName')]"
-                                      },
-                                      {
-                                        "name": "StorageEndpoint",
-                                        "value": "[[environment().suffixes.storage]"
-                                      },
-                                      {
-                                        "name": "UserAssignedIdentityObjectId",
-                                        "value": "[[parameters('userAssignedIdentityPrincipalId')]"
-                                      }
-                                    ],
-                                    "source": {
-                                      "script": "        param(\r\n          [string]$ContainerName,\r\n          [string]$StorageAccountName,\r\n          [string]$StorageEndpoint,\r\n          [string]$UserAssignedIdentityObjectId\r\n        )\r\n        $ErrorActionPreference = \"Stop\"\r\n        $StorageAccountUrl = \"https://\" + $StorageAccountName + \".blob.\" + $StorageEndpoint + \"/\"\r\n        $TokenUri = \"http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=$StorageAccountUrl&object_id=$UserAssignedIdentityObjectId\"\r\n        $AccessToken = ((Invoke-WebRequest -Headers @{Metadata=$true} -Uri $TokenUri -UseBasicParsing).Content | ConvertFrom-Json).access_token\r\n        $BlobNames = @('az.accounts.2.12.1.nupkg','az.automation.1.9.0.nupkg','az.compute.5.7.0.nupkg','az.resources.6.6.0.nupkg')\r\n        foreach($BlobName in $BlobNames)\r\n        {\r\n          do\r\n          {\r\n              try\r\n              {\r\n                  Write-Output \"Download Attempt $i\"\r\n                  Invoke-WebRequest -Headers @{\"x-ms-version\"=\"2017-11-09\"; Authorization =\"Bearer $AccessToken\"} -Uri \"$StorageAccountUrl$ContainerName/$BlobName\" -OutFile \"$env:windir\\temp\\$BlobName\"\r\n              }\r\n              catch [System.Net.WebException]\r\n              {\r\n                  Start-Sleep -Seconds 60\r\n                  $i++\r\n                  if($i -gt 10){throw}\r\n                  continue\r\n              }\r\n              catch\r\n              {\r\n                  $Output = $_ | select *\r\n                  Write-Output $Output\r\n                  throw\r\n              }\r\n          }\r\n          until(Test-Path -Path $env:windir\\temp\\$BlobName)\r\n          Start-Sleep -Seconds 5\r\n          Unblock-File -Path $env:windir\\temp\\$BlobName\r\n          $BlobZipName = $Blobname.Replace('nupkg','zip')\r\n          Rename-Item -Path $env:windir\\temp\\$BlobName -NewName $BlobZipName\r\n          $BlobNameArray = $BlobName.Split('.')\r\n          $ModuleFolderName = $BlobNameArray[0] + '.' + $BlobNameArray[1]\r\n          $VersionFolderName = $BlobNameArray[2] + '.' + $BlobNameArray[3]+ '.' + $BlobNameArray[4]\r\n          $ModulesDirectory = \"C:\\Program Files\\WindowsPowerShell\\Modules\"\r\n          New-Item -Path $ModulesDirectory -Name $ModuleFolderName -ItemType \"Directory\" -Force\r\n          Expand-Archive -Path $env:windir\\temp\\$BlobZipName -DestinationPath \"$ModulesDirectory\\$ModuleFolderName\\$VersionFolderName\" -Force\r\n          Remove-Item -Path \"$ModulesDirectory\\$ModuleFolderName\\$VersionFolderName\\_rels\" -Force -Recurse\r\n          Remove-Item -Path \"$ModulesDirectory\\$ModuleFolderName\\$VersionFolderName\\package\" -Force -Recurse\r\n          Remove-Item -LiteralPath \"$ModulesDirectory\\$ModuleFolderName\\$VersionFolderName\\[Content_Types].xml\" -Force\r\n          Remove-Item -Path \"$ModulesDirectory\\$ModuleFolderName\\$VersionFolderName\\$ModuleFolderName.nuspec\" -Force\r\n        }\r\n        Remove-Item -Path \"$env:windir\\temp\\az*\" -Force\r\n      "
-                                    }
-                                  },
-                                  "dependsOn": [
-                                    "[[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
-                                  ]
                                 }
                               ],
                               "outputs": {
@@ -7477,8 +7409,6 @@
                             },
                             "mode": "Incremental",
                             "parameters": {
-                              "localAdministratorPassword": "[[if(parameters('runbookExecution'), createObject('reference', createObject('keyVault', createObject('id', extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.KeyVault/vaults', parameters('keyVaultName'))), 'secretName', 'LocalAdministratorPassword')), createObject('value', parameters('localAdministratorPassword')))]",
-                              "localAdministratorUsername": "[[if(parameters('runbookExecution'), createObject('reference', createObject('keyVault', createObject('id', extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.KeyVault/vaults', parameters('keyVaultName'))), 'secretName', 'LocalAdministratorUsername')), createObject('value', parameters('localAdministratorUsername')))]",
                               "location": {
                                 "value": "[[parameters('location')]"
                               },
@@ -7509,6 +7439,8 @@
                               "userAssignedIdentityResourceId": {
                                 "value": "[[parameters('userAssignedIdentityResourceId')]"
                               },
+                              "virtualMachineAdminPassword": "[[if(parameters('runbookExecution'), createObject('reference', createObject('keyVault', createObject('id', extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.KeyVault/vaults', parameters('keyVaultName'))), 'secretName', 'VirtualMachineAdminPassword')), createObject('value', parameters('virtualMachineAdminPassword')))]",
+                              "virtualMachineAdminUsername": "[[if(parameters('runbookExecution'), createObject('reference', createObject('keyVault', createObject('id', extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.KeyVault/vaults', parameters('keyVaultName'))), 'secretName', 'VirtualMachineAdminUsername')), createObject('value', parameters('virtualMachineAdminUsername')))]",
                               "virtualMachineName": {
                                 "value": "[[parameters('imageVirtualMachineName')]"
                               },
@@ -7522,19 +7454,13 @@
                               "metadata": {
                                 "_generator": {
                                   "name": "bicep",
-                                  "version": "0.26.170.59819",
-                                  "templateHash": "8557004379539182499"
+                                  "version": "0.33.93.31351",
+                                  "templateHash": "11393432732482196290"
                                 }
                               },
                               "parameters": {
                                 "computeGalleryImageResourceId": {
                                   "type": "string"
-                                },
-                                "localAdministratorPassword": {
-                                  "type": "securestring"
-                                },
-                                "localAdministratorUsername": {
-                                  "type": "securestring"
                                 },
                                 "location": {
                                   "type": "string"
@@ -7563,6 +7489,12 @@
                                 "userAssignedIdentityResourceId": {
                                   "type": "string"
                                 },
+                                "virtualMachineAdminPassword": {
+                                  "type": "securestring"
+                                },
+                                "virtualMachineAdminUsername": {
+                                  "type": "securestring"
+                                },
                                 "virtualMachineName": {
                                   "type": "string"
                                 },
@@ -7579,7 +7511,7 @@
                                   "apiVersion": "2022-05-01",
                                   "name": "[[format('nic-{0}', parameters('virtualMachineName'))]",
                                   "location": "[[parameters('location')]",
-                                  "tags": "[[union(if(contains(parameters('tags'), 'Microsoft.Network/networkInterfaces'), parameters('tags')['Microsoft.Network/networkInterfaces'], createObject()), parameters('mlzTags'))]",
+                                  "tags": "[[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/networkInterfaces'), createObject()), parameters('mlzTags'))]",
                                   "properties": {
                                     "ipConfigurations": [
                                       {
@@ -7599,7 +7531,7 @@
                                   "apiVersion": "2022-03-01",
                                   "name": "[[parameters('virtualMachineName')]",
                                   "location": "[[parameters('location')]",
-                                  "tags": "[[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
+                                  "tags": "[[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/virtualMachines'), createObject()), parameters('mlzTags'))]",
                                   "identity": {
                                     "type": "UserAssigned",
                                     "userAssignedIdentities": {
@@ -7611,9 +7543,9 @@
                                       "vmSize": "[[parameters('virtualMachineSize')]"
                                     },
                                     "osProfile": {
-                                      "computerName": "[[parameters('virtualMachineName')]",
-                                      "adminUsername": "[[parameters('localAdministratorUsername')]",
-                                      "adminPassword": "[[parameters('localAdministratorPassword')]"
+                                      "adminPassword": "[[parameters('virtualMachineAdminPassword')]",
+                                      "adminUsername": "[[parameters('virtualMachineAdminUsername')]",
+                                      "computerName": "[[parameters('virtualMachineName')]"
                                     },
                                     "storageProfile": {
                                       "imageReference": "[[variables('imageReference')]",
@@ -7773,8 +7705,8 @@
                               "metadata": {
                                 "_generator": {
                                   "name": "bicep",
-                                  "version": "0.26.170.59819",
-                                  "templateHash": "3676051126599760309"
+                                  "version": "0.33.93.31351",
+                                  "templateHash": "16455535134300982050"
                                 }
                               },
                               "parameters": {
@@ -7869,7 +7801,7 @@
                               "variables": {
                                 "installAccessVar": "[[format('{0}installAccess', parameters('installAccess'))]",
                                 "installers": "[[parameters('customizations')]",
-                                "installExcelVar": "[[format('{0}installWord', parameters('installExcel'))]",
+                                "installExcelVar": "[[format('{0}installExcel', parameters('installExcel'))]",
                                 "installOneDriveVar": "[[format('{0}installOneDrive', parameters('installOneDrive'))]",
                                 "installOneNoteVar": "[[format('{0}installOneNote', parameters('installOneNote'))]",
                                 "installOutlookVar": "[[format('{0}installOutlook', parameters('installOutlook'))]",
@@ -7888,6 +7820,7 @@
                                     "mode": "serial",
                                     "batchSize": 1
                                   },
+                                  "condition": "[[variables('installers')[copyIndex()].enabled]",
                                   "type": "Microsoft.Compute/virtualMachines/runCommands",
                                   "apiVersion": "2023-03-01",
                                   "name": "[[format('{0}/{1}', parameters('virtualMachineName'), format('app-{0}', variables('installers')[copyIndex()].name))]",
@@ -7927,7 +7860,7 @@
                                       }
                                     ],
                                     "source": {
-                                      "script": "        param(\r\n          [string]$UserAssignedIdentityObjectId,\r\n          [string]$StorageAccountName,\r\n          [string]$ContainerName,\r\n          [string]$StorageEndpoint,\r\n          [string]$BlobName,\r\n          [string]$Installer,\r\n          [string]$Arguments\r\n        )\r\n        $ErrorActionPreference = 'Stop'\r\n        $WarningPreference = 'SilentlyContinue'\r\n        $StorageAccountUrl = \"https://\" + $StorageAccountName + \".blob.\" + $StorageEndpoint + \"/\"\r\n        $TokenUri = \"http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=$StorageAccountUrl&object_id=$UserAssignedIdentityObjectId\"\r\n        $AccessToken = ((Invoke-WebRequest -Headers @{Metadata=$true} -Uri $TokenUri -UseBasicParsing).Content | ConvertFrom-Json).access_token\r\n        New-Item -Path $env:windir\\temp -Name $Installer -ItemType \"directory\" -Force\r\n        New-Item -Path $env:windir\\temp\\$Installer -Name 'Files' -ItemType \"directory\" -Force\r\n        #Invoking WebClient to download blobs because it is more efficient than Invoke-WebRequest for large files.\r\n        $WebClient = New-Object System.Net.WebClient\r\n        $WebClient.Headers.Add('x-ms-version', '2017-11-09')\r\n        $webClient.Headers.Add(\"Authorization\", \"Bearer $AccessToken\")\r\n        $webClient.DownloadFile(\"$StorageAccountUrl$ContainerName/$BlobName\", \"$env:windir\\temp\\$Installer\\Files\\$Blobname\")\r\n        Start-Sleep -Seconds 30\r\n        Set-Location -Path $env:windir\\temp\\$Installer\r\n        if($Blobname -like (\"*.exe\"))\r\n        {\r\n          Start-Process -FilePath $env:windir\\temp\\$Installer\\Files\\$Blobname -ArgumentList $Arguments -NoNewWindow -Wait -PassThru\r\n          $status = Get-WmiObject -Class Win32_Product | Where-Object Name -like \"*$($installer)*\"\r\n          if($status)\r\n          {\r\n            Write-Host $status.Name \"is installed\"\r\n          }\r\n          else\r\n          {\r\n            Write-host $Installer \"did not install properly, please check arguments\"\r\n          }\r\n        }\r\n        if($Blobname -like (\"*.msi\"))\r\n        {\r\n          Set-Location -Path $env:windir\\temp\\$Installer\\Files\r\n          Start-Process -FilePath msiexec.exe -ArgumentList $Arguments -Wait\r\n          $status = Get-WmiObject -Class Win32_Product | Where-Object Name -like \"*$($installer)*\"\r\n          if($status)\r\n          {\r\n            Write-Host $status.Name \"is installed\"\r\n          }\r\n          else\r\n          {\r\n            Write-host $Installer \"did not install properly, please check arguments\"\r\n          }\r\n        }\r\n        if($Blobname -like (\"*.bat\"))\r\n        {\r\n          Start-Process -FilePath cmd.exe -ArgumentList $env:windir\\temp\\$Installer\\Files\\$Arguments -Wait\r\n        }\r\n        if($Blobname -like (\"*.ps1\"))\r\n        {\r\n          Start-Process -FilePath PowerShell.exe -ArgumentList $env:windir\\temp\\$Installer\\Files\\$Arguments -Wait\r\n        }\r\n        if($Blobname -like (\"*.zip\"))\r\n        {\r\n          Set-Location -Path $env:windir\\temp\\$Installer\\Files\r\n          Expand-Archive -Path $env:windir\\temp\\$Installer\\Files\\$Blobname -DestinationPath $env:windir\\temp\\$Installer\\Files -Force\r\n          Remove-Item -Path .\\$Blobname -Force -Recurse\r\n        }\r\n        Write-Host \"Removing $Installer Files\"\r\n        Remove-item $env:windir\\temp\\$Installer -Force -Recurse -Confirm:$false\r\n       "
+                                      "script": "        param(\r\n          [string]$UserAssignedIdentityObjectId,\r\n          [string]$StorageAccountName,\r\n          [string]$ContainerName,\r\n          [string]$StorageEndpoint,\r\n          [string]$BlobName,\r\n          [string]$Installer,\r\n          [string]$Arguments\r\n        )\r\n        $ErrorActionPreference = 'Stop'\r\n        $WarningPreference = 'SilentlyContinue'\r\n        $StorageAccountUrl = \"https://\" + $StorageAccountName + \".blob.\" + $StorageEndpoint + \"/\"\r\n        $TokenUri = \"http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=$StorageAccountUrl&object_id=$UserAssignedIdentityObjectId\"\r\n        $AccessToken = ((Invoke-WebRequest -Headers @{Metadata=$true} -Uri $TokenUri -UseBasicParsing).Content | ConvertFrom-Json).access_token\r\n        $BlobFileName = $BlobName.Split(\"/\")[-1]\r\n        New-Item -Path $env:windir\\temp -Name $Installer -ItemType \"directory\" -Force\r\n        $InstallerDirectory = \"$env:windir\\temp\\$Installer\"\r\n        Write-Host \"Setting file copy to install directory: $InstallerDirectory\"\r\n        Set-Location -Path $InstallerDirectory\r\n        Write-Host \"Invoking WebClient download for file : $BlobFileName\"\r\n        #Invoking WebClient to download blobs because it is more efficient than Invoke-WebRequest for large files.\r\n        $WebClient = New-Object System.Net.WebClient\r\n        $WebClient.Headers.Add('x-ms-version', '2017-11-09')\r\n        $webClient.Headers.Add(\"Authorization\", \"Bearer $AccessToken\")\r\n        $webClient.DownloadFile(\"$StorageAccountUrl$ContainerName/$BlobName\", \"$InstallerDirectory\\$BlobName\")\r\n        Start-Sleep -Seconds 30\r\n        $Path = (Get-ChildItem -Path \"$InstallerDirectory\\$BlobName\" -Recurse | Where-Object {$_.Name -eq \"$BlobName\"}).FullName\r\n        if($BlobName -like (\"*.exe\"))\r\n        {\r\n          Start-Process -FilePath $InstallerDirectory\\$BlobName -ArgumentList $Arguments -NoNewWindow -Wait -PassThru\r\n          $wmistatus = Get-WmiObject -Class Win32_Product | Where-Object Name -like \"*$($Installer)*\"\r\n          if($wmistatus)\r\n          {\r\n            Write-Host $wmistatus.Name \"is installed\"\r\n          }\r\n          $regstatus = Get-ItemProperty 'HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*' | Where-Object { $_.DisplayName -like \"*$($Installer)*\" }\r\n          if($regstatus)\r\n          {\r\n            Write-Host $regstatus.DisplayName \"is installed\"\r\n          }\r\n          $regstatusWow6432 = Get-ItemProperty 'HKLM:\\Software\\WOW6432Node\\*' | Where-Object { $_.PSChildName -like \"*$($Installer)*\" }\r\n          if($regstatusWow6432)\r\n          {\r\n            Write-Host $regstatusWow6432.PSChildName \"is installed\"\r\n          }\r\n          else\r\n          {\r\n            Write-host $Installer \"did not install properly, please check arguments\"\r\n          }\r\n        }\r\n        if($BlobName -like (\"*.msi\"))\r\n        {\r\n          Write-Host \"Invoking msiexec.exe for install path : $Path\"\r\n          Start-Process -FilePath msiexec.exe -ArgumentList \"/i $Path $Arguments\" -Wait\r\n          $status = Get-WmiObject -Class Win32_Product | Where-Object Name -like \"*$($installer)*\"\r\n          if($status)\r\n          {\r\n            Write-Host $status.Name \"is installed\"\r\n          }\r\n          else\r\n          {\r\n            Write-host $Installer \"did not install properly, please check arguments\"\r\n          }\r\n        }\r\n        if($BlobName -like (\"*.bat\"))\r\n        {\r\n          Start-Process -FilePath cmd.exe -ArgumentList $InstallerDirectory\\$Arguments -Wait\r\n        }\r\n        if($BlobName -like (\"*.ps1\"))\r\n        {\r\n          if($BlobName -like (\"Install-BundleSoftware.ps1\"))\r\n          {\r\n            Start-Process -FilePath PowerShell.exe -ArgumentList \"-File $Path -UserAssignedIdentityObjectId $UserAssignedIdentityObjectId -StorageAccountName $StorageAccountName -ContainerName $ContainerName -StorageEndpoint $StorageEndpoint $Arguments\" -Wait\r\n          }\r\n          else\r\n          {\r\n            Start-Process -FilePath PowerShell.exe -ArgumentList \"-File $Path $Arguments\" -Wait\r\n          }\r\n        }\r\n        if($BlobName -like (\"*.zip\"))\r\n        {\r\n          Expand-Archive -Path $InstallerDirectory\\$BlobName -DestinationPath $InstallerDirectory -Force\r\n          Remove-Item -Path .\\$BlobName -Force -Recurse\r\n        }\r\n        Write-Host \"Removing $Installer Files\"\r\n        #Start-Sleep -Seconds 5\r\n        Remove-item $env:windir\\temp\\$Installer -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue\r\n       "
                                     }
                                   }
                                 },
@@ -8195,8 +8128,8 @@
                               "metadata": {
                                 "_generator": {
                                   "name": "bicep",
-                                  "version": "0.26.170.59819",
-                                  "templateHash": "14414542062672835812"
+                                  "version": "0.33.93.31351",
+                                  "templateHash": "7400813670576825580"
                                 }
                               },
                               "parameters": {
@@ -8234,32 +8167,20 @@
                                     "asyncExecution": false,
                                     "parameters": [
                                       {
-                                        "name": "Environment",
-                                        "value": "[[environment().name]"
-                                      },
-                                      {
-                                        "name": "ResourceGroupName",
-                                        "value": "[[parameters('resourceGroupName')]"
-                                      },
-                                      {
-                                        "name": "SubscriptionId",
-                                        "value": "[[subscription().subscriptionId]"
-                                      },
-                                      {
-                                        "name": "TenantId",
-                                        "value": "[[tenant().tenantId]"
+                                        "name": "ResourceManagerUri",
+                                        "value": "[[environment().resourceManager]"
                                       },
                                       {
                                         "name": "UserAssignedIdentityClientId",
                                         "value": "[[parameters('userAssignedIdentityClientId')]"
                                       },
                                       {
-                                        "name": "VirtualMachineName",
-                                        "value": "[[parameters('imageVirtualMachineName')]"
+                                        "name": "VmResourceId",
+                                        "value": "[[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Compute/virtualMachines', parameters('imageVirtualMachineName'))]"
                                       }
                                     ],
                                     "source": {
-                                      "script": "        param(\r\n          [string]$Environment,\r\n          [string]$ResourceGroupName,\r\n          [string]$SubscriptionId,\r\n          [string]$TenantId,\r\n          [string]$UserAssignedIdentityClientId,\r\n          [string]$VirtualMachineName\r\n        )\r\n        $ErrorActionPreference = 'Stop'\r\n        Connect-AzAccount -Environment $Environment -Tenant $TenantId -Subscription $SubscriptionId -Identity -AccountId $UserAssignedIdentityClientId | Out-Null\r\n        Restart-AzVM -ResourceGroupName $ResourceGroupName -Name $VirtualMachineName\r\n        $AgentStatus = $Null\r\n        while ($Null -eq $AgentStatus) \r\n        {\r\n            Start-Sleep -Seconds 5\r\n            $AgentStatus = (Get-AzVM -ResourceGroupName $ResourceGroupName -Name $VirtualMachineName -Status).VMAgent\r\n        }\r\n      "
+                                      "script": "        param(\r\n            [Parameter(Mandatory=$true)]\r\n            [string]$ResourceManagerUri,\r\n\r\n            [Parameter(Mandatory=$true)]\r\n            [string]$UserAssignedIdentityClientId,\r\n\r\n            [Parameter(Mandatory=$true)]\r\n            [string]$VmResourceId\r\n        )\r\n\r\n        $ErrorActionPreference = 'Stop'\r\n        $WarningPreference = 'SilentlyContinue'\r\n\r\n        Try {\r\n            # Fix the resource manager URI since only AzureCloud contains a trailing slash\r\n            $ResourceManagerUriFixed = if($ResourceManagerUri[-1] -eq '/'){$ResourceManagerUri.Substring(0,$ResourceManagerUri.Length - 1)} else {$ResourceManagerUri}\r\n\r\n            # Get an access token for Azure resources\r\n            $AzureManagementAccessToken = (Invoke-RestMethod `\r\n                -Headers @{Metadata=\"true\"} `\r\n                -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n            # Set header for Azure Management API\r\n            $AzureManagementHeader = @{\r\n                'Content-Type'='application/json'\r\n                'Authorization'='Bearer ' + $AzureManagementAccessToken\r\n            }\r\n            \r\n            # Restart the VM\r\n            $null = Invoke-RestMethod -Headers $AzureManagementHeader -Method 'Post' -Uri $($ResourceManagerUriFixed + $VmResourceId + '/restart?api-version=2024-03-01')\r\n            $lastProvisioningState = \"\"\r\n            $VmStatus = Invoke-RestMethod -Headers $AzureManagementHeader -Method 'Get' -Uri $($ResourceManagerUriFixed + $VmResourceId + '/instanceView?api-version=2024-03-01')\r\n            $provisioningState = ($VMStatus.statuses | Where-Object {$_.code -like 'PowerState*'}).code\r\n            While ($provisioningState -ne \"PowerState/running\") {\r\n                $lastProvisioningState = $provisioningState\r\n                Start-Sleep -Seconds 5\r\n                $VmStatus = Invoke-RestMethod -Headers $AzureManagementHeader -Method 'Get' -Uri $($ResourceManagerUriFixed + $VmResourceId + '/instanceView?api-version=2024-03-01')\r\n                $provisioningState = ($VMStatus.statuses | Where-Object {$_.code -like 'PowerState*'}).code\r\n            }   \r\n        }\r\n        catch {\r\n            throw\r\n        }\r\n      "
                                     }
                                   }
                                 }
@@ -8310,8 +8231,8 @@
                               "metadata": {
                                 "_generator": {
                                   "name": "bicep",
-                                  "version": "0.26.170.59819",
-                                  "templateHash": "461917832205884645"
+                                  "version": "0.33.93.31351",
+                                  "templateHash": "9407380787926779583"
                                 }
                               },
                               "parameters": {
@@ -8345,7 +8266,7 @@
                                     "asyncExecution": false,
                                     "parameters": "[[if(equals(parameters('updateService'), 'WSUS'), createArray(createObject('name', 'Service', 'value', parameters('updateService')), createObject('name', 'WSUSServer', 'value', parameters('wsusServer'))), createArray(createObject('name', 'Service', 'value', parameters('updateService'))))]",
                                     "source": {
-                                      "script": "        param (\r\n          # The App Name to pass to the WUA API as the calling application.\r\n          [Parameter()]\r\n          [String]$AppName = \"Windows Update API Script\",\r\n          # The search criteria to be used.\r\n          [Parameter()]\r\n          [String]$Criteria = \"IsInstalled=0 and Type='Software' and IsHidden=0\",\r\n          [Parameter()]\r\n          [bool]$ExcludePreviewUpdates = $true,\r\n          # Default service (WSUS if machine is configured to use it, or MU if opted in, or WU otherwise.)\r\n          [Parameter()]\r\n          [ValidateSet(\"WU\",\"MU\",\"WSUS\",\"DCAT\",\"STORE\",\"OTHER\")]\r\n          [string]$Service = 'MU',\r\n          # The http/https fqdn for the Windows Server Update Server\r\n          [Parameter()]\r\n          [string]$WSUSServer\r\n        )\r\n        \r\n        Function ConvertFrom-InstallationResult {\r\n        [CmdletBinding()]\r\n            param (\r\n                [Parameter()]\r\n                [int]$Result\r\n            )        \r\n            switch ($Result) {\r\n                2 { $Text = 'Succeeded' }\r\n                3 { $Text = 'Succeeded with errors' }\r\n                4 { $Text = 'Failed' }\r\n                5 { $Text = 'Cancelled' }\r\n                Default { $Text = \"Unexpected ($Result)\"}\r\n            }        \r\n            Return $Text\r\n        }\r\n        Start-Transcript -Path \"$env:SystemRoot\\Logs\\ImageBuild\\Install-Updates.log\"\r\n        Switch ($Service.ToUpper()) {\r\n            'WU' { $ServerSelection = 2 }\r\n            'MU' { $ServerSelection = 3; $ServiceId = \"7971f918-a847-4430-9279-4a52d1efe18d\" }\r\n            'WSUS' { $ServerSelection = 1 }\r\n            'DCAT' { $ServerSelection = 3; $ServiceId = \"855E8A7C-ECB4-4CA3-B045-1DFA50104289\" }\r\n            'STORE' { $serverSelection = 3; $ServiceId = \"117cab2d-82b1-4b5a-a08c-4d62dbee7782\" }\r\n            'OTHER' { $ServerSelection = 3; $ServiceId = $Service }\r\n        }        \r\n        If ($Service -eq 'MU') {\r\n            $UpdateServiceManager = New-Object -ComObject Microsoft.Update.ServiceManager\r\n            $UpdateServiceManager.ClientApplicationID = $AppName\r\n            $UpdateServiceManager.AddService2(\"7971f918-a847-4430-9279-4a52d1efe18d\", 7, \"\")\r\n            $null = cmd /c reg.exe ADD \"HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\" /v AllowMUUpdateService /t REG_DWORD /d 1 /f '2>&1'\r\n            Write-Output \"Added Registry entry to configure Microsoft Update. Exit Code: [$LastExitCode]\"\r\n        } Elseif ($Service -eq 'WSUS' -and $WSUSServer) {\r\n            $null = cmd /c reg.exe ADD \"HKLM\\Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\" /v WUServer /t REG_SZ /d $WSUSServer /f '2>&1'\r\n            $null = cmd /c reg.exe ADD \"HKLM\\Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\" /v WUStatusServer /t REG_SZ /d $WSUSServer /f '2>&1'\r\n            Write-Output \"Added Registry entry to configure WSUS Server. Exit Code: [$LastExitCode]\"\r\n        }        \r\n        $UpdateSession = New-Object -ComObject Microsoft.Update.Session\r\n        $updateSession.ClientApplicationID = $AppName   \r\n        $UpdateSearcher = $UpdateSession.CreateUpdateSearcher()\r\n        $UpdateSearcher.ServerSelection = $ServerSelection\r\n        If ($ServerSelection -eq 3) {\r\n            $UpdateSearcher.ServiceId = $ServiceId\r\n        }\r\n        Write-Output \"Searching for Updates...\"\r\n        $SearchResult = $UpdateSearcher.Search($Criteria)\r\n        If ($SearchResult.Updates.Count -eq 0) {\r\n            Write-Output \"There are no applicable updates.\"\r\n            Write-Output \"Now Exiting\"\r\n            Exit $ExitCode\r\n        }\r\n        Write-Output \"List of applicable items found for this computer:\"\r\n        For ($i = 0; $i -lt $SearchResult.Updates.Count; $i++) {\r\n            $Update = $SearchResult.Updates[$i]\r\n            Write-Output \"$($i + 1) > $($update.Title)\"\r\n        }\r\n        $AtLeastOneAdded = $false\r\n        $ExclusiveAdded = $false   \r\n        $UpdatesToDownload = New-Object -ComObject Microsoft.Update.UpdateColl\r\n        Write-Output \"Checking search results:\"\r\n        For ($i = 0; $i -lt $SearchResult.Updates.Count; $i++) {\r\n            $Update = $SearchResult.Updates[$i]\r\n            $AddThisUpdate = $false        \r\n            If ($ExclusiveAdded) {\r\n                Write-Output \"$($i + 1) > skipping: '$($update.Title)' because an exclusive update has already been selected.\"\r\n            } Else {\r\n                $AddThisUpdate = $true\r\n            }        \r\n            if ($ExcludePreviewUpdates -and $update.Title -like '*Preview*') {\r\n                Write-Output \"$($i + 1) > Skipping: '$($update.Title)' because it is a preview update.\"\r\n                $AddThisUpdate = $false\r\n            }        \r\n            If ($AddThisUpdate) {\r\n                $PropertyTest = 0\r\n                $ErrorActionPreference = 'SilentlyContinue'\r\n                $PropertyTest = $Update.InstallationBehavior.Impact\r\n                $ErrorActionPreference = 'Stop'\r\n                If ($PropertyTest -eq 2) {\r\n                    If ($AtLeastOneAdded) {\r\n                        Write-Output \"$($i + 1) > skipping: '$($update.Title)' because it is exclusive and other updates are being installed first.\"\r\n                        $AddThisUpdate = $false\r\n                    }\r\n                }\r\n            }\r\n            If ($AddThisUpdate) {\r\n                Write-Output \"$($i + 1) > adding: '$($update.Title)'\"\r\n                $UpdatesToDownload.Add($Update) | out-null\r\n                $AtLeastOneAdded = $true\r\n                $ErrorActionPreference = 'SilentlyContinue'\r\n                $PropertyTest = $Update.InstallationBehavior.Impact\r\n                $ErrorActionPreference = 'Stop'\r\n                If ($PropertyTest -eq 2) {\r\n                    Write-Output \"This update is exclusive; skipping remaining updates\"\r\n                    $ExclusiveAdded = $true\r\n                }\r\n            }\r\n        }        \r\n        $UpdatesToInstall = New-Object -ComObject Microsoft.Update.UpdateColl\r\n        Write-Output \"Downloading updates...\"\r\n        $Downloader = $UpdateSession.CreateUpdateDownloader()\r\n        $Downloader.Updates = $UpdatesToDownload\r\n        $Downloader.Download()\r\n        Write-Output \"Successfully downloaded updates:\"        \r\n        For ($i = 0; $i -lt $UpdatesToDownload.Count; $i++) {\r\n            $Update = $UpdatesToDownload[$i]\r\n            If ($Update.IsDownloaded -eq $true) {\r\n                Write-Output \"$($i + 1) > $($update.title)\"\r\n                $UpdatesToInstall.Add($Update) | out-null\r\n            }\r\n        }        \r\n        If ($UpdatesToInstall.Count -gt 0) {\r\n            Write-Output \"Now installing updates...\"\r\n            $Installer = $UpdateSession.CreateUpdateInstaller()\r\n            $Installer.Updates = $UpdatesToInstall\r\n            $InstallationResult = $Installer.Install()\r\n            $Text = ConvertFrom-InstallationResult -Result $InstallationResult.ResultCode\r\n            Write-Output \"Installation Result: $($Text)\"        \r\n            If ($InstallationResult.RebootRequired) {\r\n                Write-Output \"Atleast one update requires a reboot to complete the installation.\"\r\n            }\r\n        }\r\n        If ($service -eq 'MU') {\r\n            Reg.exe DELETE \"HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\" /v AllowMUUpdateService /f\r\n        } Elseif ($Service -eq 'WSUS' -and $WSUSServer) {\r\n            reg.exe DELETE \"HKLM\\Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\" /v WUServer /f\r\n            reg.exe DELETE \"HKLM\\Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\" /v WUStatusServer /f\r\n        }\r\n        Stop-Transcript\r\n      "
+                                      "script": "        param (\r\n          # The App Name to pass to the WUA API as the calling application.\r\n          [Parameter()]\r\n          [String]$AppName = \"Windows Update API Script\",\r\n          # The search criteria to be used.\r\n          [Parameter()]\r\n          [String]$Criteria = \"IsInstalled=0 and Type='Software' and IsHidden=0\",\r\n          [Parameter()]\r\n          [bool]$ExcludePreviewUpdates = $true,\r\n          # Default service (WSUS if machine is configured to use it, or MU if opted in, or WU otherwise.)\r\n          [Parameter()]\r\n          [ValidateSet(\"WU\",\"MU\",\"WSUS\",\"DCAT\",\"STORE\",\"OTHER\")]\r\n          [string]$Service = 'MU',\r\n          # The http/https fqdn for the Windows Server Update Server\r\n          [Parameter()]\r\n          [string]$WSUSServer\r\n        )\r\n        \r\n        Function ConvertFrom-InstallationResult {\r\n        [CmdletBinding()]\r\n            param (\r\n                [Parameter()]\r\n                [int]$Result\r\n            )        \r\n            switch ($Result) {\r\n                2 { $Text = 'Succeeded' }\r\n                3 { $Text = 'Succeeded with errors' }\r\n                4 { $Text = 'Failed' }\r\n                5 { $Text = 'Cancelled' }\r\n                Default { $Text = \"Unexpected ($Result)\"}\r\n            }        \r\n            Return $Text\r\n        }\r\n        Start-Transcript -Path \"$env:SystemRoot\\Logs\\ImageBuild\\Install-Updates.log\"\r\n        Switch ($Service.ToUpper()) {\r\n            'WU' { $ServerSelection = 2 }\r\n            'MU' { $ServerSelection = 3; $ServiceId = \"7971f918-a847-4430-9279-4a52d1efe18d\" }\r\n            'WSUS' { $ServerSelection = 1 }\r\n            'DCAT' { $ServerSelection = 3; $ServiceId = \"855E8A7C-ECB4-4CA3-B045-1DFA50104289\" }\r\n            'STORE' { $serverSelection = 3; $ServiceId = \"117cab2d-82b1-4b5a-a08c-4d62dbee7782\" }\r\n            'OTHER' { $ServerSelection = 3; $ServiceId = $Service }\r\n        }        \r\n        If ($Service -eq 'MU') {\r\n            $UpdateServiceManager = New-Object -ComObject Microsoft.Update.ServiceManager\r\n            $UpdateServiceManager.ClientApplicationID = $AppName\r\n            $UpdateServiceManager.AddService2(\"7971f918-a847-4430-9279-4a52d1efe18d\", 7, \"\")\r\n            $null = cmd /c reg.exe ADD \"HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\" /v AllowMUUpdateService /t REG_DWORD /d 1 /f '2>&1'\r\n            Write-Output \"Added Registry entry to configure Microsoft Update. Exit Code: [$LastExitCode]\"\r\n        } Elseif ($Service -eq 'WSUS' -and $WSUSServer) {\r\n            $null = cmd /c reg.exe ADD \"HKLM\\Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\" /v WUServer /t REG_SZ /d $WSUSServer /f '2>&1'\r\n            $null = cmd /c reg.exe ADD \"HKLM\\Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\" /v WUStatusServer /t REG_SZ /d $WSUSServer /f '2>&1'\r\n            Write-Output \"Added Registry entry to configure WSUS Server. Exit Code: [$LastExitCode]\"\r\n        }        \r\n        $UpdateSession = New-Object -ComObject Microsoft.Update.Session\r\n        $updateSession.ClientApplicationID = $AppName   \r\n        $UpdateSearcher = $UpdateSession.CreateUpdateSearcher()\r\n        $UpdateSearcher.ServerSelection = $ServerSelection\r\n        If ($ServerSelection -eq 3) {\r\n            $UpdateSearcher.ServiceId = $ServiceId\r\n        }\r\n        Write-Output \"Searching for Updates...\"\r\n        $SearchResult = $UpdateSearcher.Search($Criteria)\r\n        If ($SearchResult.Updates.Count -gt 0) {\r\n            Write-Output \"List of applicable items found for this computer:\"\r\n            For ($i = 0; $i -lt $SearchResult.Updates.Count; $i++) {\r\n                $Update = $SearchResult.Updates[$i]\r\n                Write-Output \"$($i + 1) > $($update.Title)\"\r\n            }\r\n            $AtLeastOneAdded = $false\r\n            $ExclusiveAdded = $false   \r\n            $UpdatesToDownload = New-Object -ComObject Microsoft.Update.UpdateColl\r\n            Write-Output \"Checking search results:\"\r\n            For ($i = 0; $i -lt $SearchResult.Updates.Count; $i++) {\r\n                $Update = $SearchResult.Updates[$i]\r\n                $AddThisUpdate = $false        \r\n                If ($ExclusiveAdded) {\r\n                    Write-Output \"$($i + 1) > skipping: '$($update.Title)' because an exclusive update has already been selected.\"\r\n                } Else {\r\n                    $AddThisUpdate = $true\r\n                }        \r\n                if ($ExcludePreviewUpdates -and $update.Title -like '*Preview*') {\r\n                    Write-Output \"$($i + 1) > Skipping: '$($update.Title)' because it is a preview update.\"\r\n                    $AddThisUpdate = $false\r\n                }        \r\n                If ($AddThisUpdate) {\r\n                    $PropertyTest = 0\r\n                    $ErrorActionPreference = 'SilentlyContinue'\r\n                    $PropertyTest = $Update.InstallationBehavior.Impact\r\n                    $ErrorActionPreference = 'Stop'\r\n                    If ($PropertyTest -eq 2) {\r\n                        If ($AtLeastOneAdded) {\r\n                            Write-Output \"$($i + 1) > skipping: '$($update.Title)' because it is exclusive and other updates are being installed first.\"\r\n                            $AddThisUpdate = $false\r\n                        }\r\n                    }\r\n                }\r\n                If ($AddThisUpdate) {\r\n                    Write-Output \"$($i + 1) > adding: '$($update.Title)'\"\r\n                    $UpdatesToDownload.Add($Update) | out-null\r\n                    $AtLeastOneAdded = $true\r\n                    $ErrorActionPreference = 'SilentlyContinue'\r\n                    $PropertyTest = $Update.InstallationBehavior.Impact\r\n                    $ErrorActionPreference = 'Stop'\r\n                    If ($PropertyTest -eq 2) {\r\n                        Write-Output \"This update is exclusive; skipping remaining updates\"\r\n                        $ExclusiveAdded = $true\r\n                    }\r\n                }\r\n            }        \r\n            $UpdatesToInstall = New-Object -ComObject Microsoft.Update.UpdateColl\r\n            Write-Output \"Downloading updates...\"\r\n            $Downloader = $UpdateSession.CreateUpdateDownloader()\r\n            $Downloader.Updates = $UpdatesToDownload\r\n            $Downloader.Download()\r\n            Write-Output \"Successfully downloaded updates:\"        \r\n            For ($i = 0; $i -lt $UpdatesToDownload.Count; $i++) {\r\n                $Update = $UpdatesToDownload[$i]\r\n                If ($Update.IsDownloaded -eq $true) {\r\n                    Write-Output \"$($i + 1) > $($update.title)\"\r\n                    $UpdatesToInstall.Add($Update) | out-null\r\n                }\r\n            }        \r\n            If ($UpdatesToInstall.Count -gt 0) {\r\n                Write-Output \"Now installing updates...\"\r\n                $Installer = $UpdateSession.CreateUpdateInstaller()\r\n                $Installer.Updates = $UpdatesToInstall\r\n                $InstallationResult = $Installer.Install()\r\n                $Text = ConvertFrom-InstallationResult -Result $InstallationResult.ResultCode\r\n                Write-Output \"Installation Result: $($Text)\"        \r\n                If ($InstallationResult.RebootRequired) {\r\n                    Write-Output \"Atleast one update requires a reboot to complete the installation.\"\r\n                }\r\n            }\r\n        }\r\n        Else {\r\n            Write-Output \"There are no applicable updates.\"\r\n        }\r\n       \r\n        If ($service -eq 'MU') {\r\n            Reg.exe DELETE \"HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\" /v AllowMUUpdateService /f\r\n        } Elseif ($Service -eq 'WSUS' -and $WSUSServer) {\r\n            reg.exe DELETE \"HKLM\\Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\" /v WUServer /f\r\n            reg.exe DELETE \"HKLM\\Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\" /v WUStatusServer /f\r\n        }\r\n        Stop-Transcript\r\n      "
                                     },
                                     "treatFailureAsDeploymentFailure": true
                                   }
@@ -8359,6 +8280,7 @@
                           ]
                         },
                         {
+                          "condition": "[[parameters('installUpdates')]",
                           "type": "Microsoft.Resources/deployments",
                           "apiVersion": "2022-09-01",
                           "name": "[[format('restart-vm-2-{0}', parameters('deploymentNameSuffix'))]",
@@ -8396,8 +8318,8 @@
                               "metadata": {
                                 "_generator": {
                                   "name": "bicep",
-                                  "version": "0.26.170.59819",
-                                  "templateHash": "14414542062672835812"
+                                  "version": "0.33.93.31351",
+                                  "templateHash": "7400813670576825580"
                                 }
                               },
                               "parameters": {
@@ -8435,32 +8357,20 @@
                                     "asyncExecution": false,
                                     "parameters": [
                                       {
-                                        "name": "Environment",
-                                        "value": "[[environment().name]"
-                                      },
-                                      {
-                                        "name": "ResourceGroupName",
-                                        "value": "[[parameters('resourceGroupName')]"
-                                      },
-                                      {
-                                        "name": "SubscriptionId",
-                                        "value": "[[subscription().subscriptionId]"
-                                      },
-                                      {
-                                        "name": "TenantId",
-                                        "value": "[[tenant().tenantId]"
+                                        "name": "ResourceManagerUri",
+                                        "value": "[[environment().resourceManager]"
                                       },
                                       {
                                         "name": "UserAssignedIdentityClientId",
                                         "value": "[[parameters('userAssignedIdentityClientId')]"
                                       },
                                       {
-                                        "name": "VirtualMachineName",
-                                        "value": "[[parameters('imageVirtualMachineName')]"
+                                        "name": "VmResourceId",
+                                        "value": "[[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Compute/virtualMachines', parameters('imageVirtualMachineName'))]"
                                       }
                                     ],
                                     "source": {
-                                      "script": "        param(\r\n          [string]$Environment,\r\n          [string]$ResourceGroupName,\r\n          [string]$SubscriptionId,\r\n          [string]$TenantId,\r\n          [string]$UserAssignedIdentityClientId,\r\n          [string]$VirtualMachineName\r\n        )\r\n        $ErrorActionPreference = 'Stop'\r\n        Connect-AzAccount -Environment $Environment -Tenant $TenantId -Subscription $SubscriptionId -Identity -AccountId $UserAssignedIdentityClientId | Out-Null\r\n        Restart-AzVM -ResourceGroupName $ResourceGroupName -Name $VirtualMachineName\r\n        $AgentStatus = $Null\r\n        while ($Null -eq $AgentStatus) \r\n        {\r\n            Start-Sleep -Seconds 5\r\n            $AgentStatus = (Get-AzVM -ResourceGroupName $ResourceGroupName -Name $VirtualMachineName -Status).VMAgent\r\n        }\r\n      "
+                                      "script": "        param(\r\n            [Parameter(Mandatory=$true)]\r\n            [string]$ResourceManagerUri,\r\n\r\n            [Parameter(Mandatory=$true)]\r\n            [string]$UserAssignedIdentityClientId,\r\n\r\n            [Parameter(Mandatory=$true)]\r\n            [string]$VmResourceId\r\n        )\r\n\r\n        $ErrorActionPreference = 'Stop'\r\n        $WarningPreference = 'SilentlyContinue'\r\n\r\n        Try {\r\n            # Fix the resource manager URI since only AzureCloud contains a trailing slash\r\n            $ResourceManagerUriFixed = if($ResourceManagerUri[-1] -eq '/'){$ResourceManagerUri.Substring(0,$ResourceManagerUri.Length - 1)} else {$ResourceManagerUri}\r\n\r\n            # Get an access token for Azure resources\r\n            $AzureManagementAccessToken = (Invoke-RestMethod `\r\n                -Headers @{Metadata=\"true\"} `\r\n                -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n            # Set header for Azure Management API\r\n            $AzureManagementHeader = @{\r\n                'Content-Type'='application/json'\r\n                'Authorization'='Bearer ' + $AzureManagementAccessToken\r\n            }\r\n            \r\n            # Restart the VM\r\n            $null = Invoke-RestMethod -Headers $AzureManagementHeader -Method 'Post' -Uri $($ResourceManagerUriFixed + $VmResourceId + '/restart?api-version=2024-03-01')\r\n            $lastProvisioningState = \"\"\r\n            $VmStatus = Invoke-RestMethod -Headers $AzureManagementHeader -Method 'Get' -Uri $($ResourceManagerUriFixed + $VmResourceId + '/instanceView?api-version=2024-03-01')\r\n            $provisioningState = ($VMStatus.statuses | Where-Object {$_.code -like 'PowerState*'}).code\r\n            While ($provisioningState -ne \"PowerState/running\") {\r\n                $lastProvisioningState = $provisioningState\r\n                Start-Sleep -Seconds 5\r\n                $VmStatus = Invoke-RestMethod -Headers $AzureManagementHeader -Method 'Get' -Uri $($ResourceManagerUriFixed + $VmResourceId + '/instanceView?api-version=2024-03-01')\r\n                $provisioningState = ($VMStatus.statuses | Where-Object {$_.code -like 'PowerState*'}).code\r\n            }   \r\n        }\r\n        catch {\r\n            throw\r\n        }\r\n      "
                                     }
                                   }
                                 }
@@ -8504,8 +8414,8 @@
                               "metadata": {
                                 "_generator": {
                                   "name": "bicep",
-                                  "version": "0.26.170.59819",
-                                  "templateHash": "7415404915420906908"
+                                  "version": "0.33.93.31351",
+                                  "templateHash": "18367526052756419166"
                                 }
                               },
                               "parameters": {
@@ -8585,8 +8495,8 @@
                               "metadata": {
                                 "_generator": {
                                   "name": "bicep",
-                                  "version": "0.26.170.59819",
-                                  "templateHash": "15694908783439778041"
+                                  "version": "0.33.93.31351",
+                                  "templateHash": "12290487570291502704"
                                 }
                               },
                               "parameters": {
@@ -8625,32 +8535,20 @@
                                     "asyncExecution": false,
                                     "parameters": [
                                       {
-                                        "name": "Environment",
-                                        "value": "[[environment().name]"
-                                      },
-                                      {
-                                        "name": "ResourceGroupName",
-                                        "value": "[[parameters('resourceGroupName')]"
-                                      },
-                                      {
-                                        "name": "SubscriptionId",
-                                        "value": "[[subscription().subscriptionId]"
-                                      },
-                                      {
-                                        "name": "TenantId",
-                                        "value": "[[tenant().tenantId]"
+                                        "name": "ResourceManagerUri",
+                                        "value": "[[environment().resourceManager]"
                                       },
                                       {
                                         "name": "UserAssignedIdentityClientId",
                                         "value": "[[parameters('userAssignedIdentityClientId')]"
                                       },
                                       {
-                                        "name": "VirtualMachineName",
-                                        "value": "[[parameters('imageVirtualMachineName')]"
+                                        "name": "VmResourceId",
+                                        "value": "[[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Compute/virtualMachines', parameters('imageVirtualMachineName'))]"
                                       }
                                     ],
                                     "source": {
-                                      "script": "        param(\r\n          [string]$Environment,\r\n          [string]$ResourceGroupName,\r\n          [string]$SubscriptionId,\r\n          [string]$TenantId,\r\n          [string]$UserAssignedIdentityClientId,\r\n          [string]$VirtualMachineName\r\n        )\r\n        $ErrorActionPreference = 'Stop'\r\n        Connect-AzAccount -Environment $Environment -Tenant $TenantId -Subscription $SubscriptionId -Identity -AccountId $UserAssignedIdentityClientId | Out-Null\r\n        $PowerStatus = ''\r\n        while ($PowerStatus -ne 'VM stopped') \r\n        {\r\n            Start-Sleep -Seconds 5\r\n            $PowerStatus = (Get-AzVM -ResourceGroupName $ResourceGroupName -Name $VirtualMachineName -Status).Statuses[1].DisplayStatus\r\n        }\r\n        Set-AzVm -ResourceGroupName $ResourceGroupName -Name $VirtualMachineName -Generalized\r\n        Start-Sleep -Seconds 30\r\n      "
+                                      "script": "        param(\r\n            [Parameter(Mandatory=$true)]\r\n            [string]$ResourceManagerUri,\r\n\r\n            [Parameter(Mandatory=$true)]\r\n            [string]$UserAssignedIdentityClientId,\r\n\r\n            [Parameter(Mandatory=$true)]\r\n            [string]$VmResourceId\r\n        )\r\n\r\n        $ErrorActionPreference = 'Stop'\r\n        $WarningPreference = 'SilentlyContinue'\r\n\r\n        Try {\r\n            # Fix the resource manager URI since only AzureCloud contains a trailing slash\r\n            $ResourceManagerUriFixed = if($ResourceManagerUri[-1] -eq '/'){$ResourceManagerUri.Substring(0,$ResourceManagerUri.Length - 1)} else {$ResourceManagerUri}\r\n\r\n            # Get an access token for Azure resources\r\n            $AzureManagementAccessToken = (Invoke-RestMethod `\r\n                -Headers @{Metadata=\"true\"} `\r\n                -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n            # Set header for Azure Management API\r\n            $AzureManagementHeader = @{\r\n                'Content-Type'='application/json'\r\n                'Authorization'='Bearer ' + $AzureManagementAccessToken\r\n            }\r\n\r\n            # Stop the VM\r\n            #$null = Invoke-RestMethod -Headers $AzureManagementHeader -Method 'Post' -Uri $($ResourceManagerUriFixed + $VmResourceId + '/powerOff?api-version=2024-03-01')\r\n            # Wait for it to show as stopped in Azure\r\n            Do {\r\n                Start-Sleep -Seconds 5\r\n                $VmStatus = Invoke-RestMethod -Headers $AzureManagementHeader -Method 'Get' -Uri $($ResourceManagerUriFixed + $VmResourceId + '/instanceView?api-version=2024-03-01')\r\n                $VMPowerState = ($VMStatus.statuses | Where-Object {$_.code -like 'PowerState*'}).displayStatus\r\n\r\n            } Until ($VMPowerState -eq 'VM stopped')\r\n            # Generatlize the VM\r\n            $null = Invoke-RestMethod -Headers $AzureManagementHeader -Method 'Post' -Uri $($ResourceManagerUriFixed + $VmResourceId + '/generalize?api-version=2024-03-01')\r\n        }\r\n        catch {\r\n            throw\r\n        }\r\n      "
                                     }
                                   }
                                 }
@@ -8718,8 +8616,8 @@
                               "metadata": {
                                 "_generator": {
                                   "name": "bicep",
-                                  "version": "0.26.170.59819",
-                                  "templateHash": "673135601830674247"
+                                  "version": "0.33.93.31351",
+                                  "templateHash": "18262891690771946297"
                                 }
                               },
                               "parameters": {
@@ -8770,7 +8668,7 @@
                                   "apiVersion": "2022-03-03",
                                   "name": "[[format('{0}/{1}', parameters('computeGalleryName'), parameters('imageDefinitionName'))]",
                                   "location": "[[parameters('location')]",
-                                  "tags": "[[union(if(contains(parameters('tags'), 'Microsoft.Compute/galleries'), parameters('tags')['Microsoft.Compute/galleries'], createObject()), parameters('mlzTags'))]",
+                                  "tags": "[[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/galleries'), createObject()), parameters('mlzTags'))]",
                                   "properties": {
                                     "architecture": "x64",
                                     "features": [
@@ -8794,7 +8692,7 @@
                                   "apiVersion": "2022-03-03",
                                   "name": "[[format('{0}/{1}/{2}', parameters('computeGalleryName'), parameters('imageDefinitionName'), parameters('imageVersionNumber'))]",
                                   "location": "[[parameters('location')]",
-                                  "tags": "[[union(if(contains(parameters('tags'), 'Microsoft.Compute/galleries'), parameters('tags')['Microsoft.Compute/galleries'], createObject()), parameters('mlzTags'))]",
+                                  "tags": "[[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/galleries'), createObject()), parameters('mlzTags'))]",
                                   "properties": {
                                     "publishingProfile": {
                                       "excludeFromLatest": "[[parameters('excludeFromLatest')]",
@@ -8874,8 +8772,8 @@
                               "metadata": {
                                 "_generator": {
                                   "name": "bicep",
-                                  "version": "0.26.170.59819",
-                                  "templateHash": "874338715058883059"
+                                  "version": "0.33.93.31351",
+                                  "templateHash": "16391379206468268227"
                                 }
                               },
                               "parameters": {
@@ -8910,7 +8808,7 @@
                                   "location": "[[parameters('location')]",
                                   "tags": "[[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
                                   "properties": {
-                                    "treatFailureAsDeploymentFailure": true,
+                                    "treatFailureAsDeploymentFailure": false,
                                     "asyncExecution": "[[if(parameters('enableBuildAutomation'), false(), true())]",
                                     "parameters": [
                                       {
@@ -8918,28 +8816,16 @@
                                         "value": "[[string(parameters('enableBuildAutomation'))]"
                                       },
                                       {
-                                        "name": "Environment",
-                                        "value": "[[environment().name]"
+                                        "name": "ResourceManagerUri",
+                                        "value": "[[environment().resourceManager]"
                                       },
                                       {
-                                        "name": "ImageVmName",
-                                        "value": "[[parameters('imageVirtualMachineName')]"
+                                        "name": "ImageVmResourceId",
+                                        "value": "[[resourceId('Microsoft.Compute/virtualMachines', parameters('imageVirtualMachineName'))]"
                                       },
                                       {
-                                        "name": "ManagementVmName",
-                                        "value": "[[parameters('virtualMachineName')]"
-                                      },
-                                      {
-                                        "name": "ResourceGroupName",
-                                        "value": "[[resourceGroup().name]"
-                                      },
-                                      {
-                                        "name": "SubscriptionId",
-                                        "value": "[[subscription().subscriptionId]"
-                                      },
-                                      {
-                                        "name": "TenantId",
-                                        "value": "[[tenant().tenantId]"
+                                        "name": "ManagementVmResourceId",
+                                        "value": "[[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
                                       },
                                       {
                                         "name": "UserAssignedIdentityClientId",
@@ -8947,7 +8833,7 @@
                                       }
                                     ],
                                     "source": {
-                                      "script": "        param(\r\n          [string]$EnableBuildAutomation,\r\n          [string]$Environment,\r\n          [string]$ImageVmName,\r\n          [string]$ManagementVmName,\r\n          [string]$ResourceGroupName,\r\n          [string]$SubscriptionId,\r\n          [string]$TenantId,\r\n          [string]$UserAssignedIdentityClientId\r\n        )\r\n        $ErrorActionPreference = 'Stop'\r\n        Connect-AzAccount -Environment $Environment -Tenant $TenantId -Subscription $SubscriptionId -Identity -AccountId $UserAssignedIdentityClientId | Out-Null\r\n        Remove-AzVM -ResourceGroupName $ResourceGroupName -Name $ImageVmName -Force\r\n        if($EnableBuildAutomation -eq 'false')\r\n        {\r\n          Remove-AzVM -ResourceGroupName $ResourceGroupName -Name $ManagementVmName -NoWait -Force -AsJob\r\n        }\r\n      "
+                                      "script": "        param(\r\n            [Parameter(Mandatory=$false)]\r\n            [string]$EnableBuildAutomation,\r\n\r\n            [Parameter(Mandatory=$true)]\r\n            [string]$ResourceManagerUri,\r\n\r\n            [Parameter(Mandatory=$true)]\r\n            [string]$UserAssignedIdentityClientId,\r\n\r\n            [Parameter(Mandatory=$true)]\r\n            [string]$ImageVmResourceId,\r\n\r\n            [Parameter(Mandatory=$true)]\r\n            [string]$ManagementVmResourceId\r\n        )\r\n\r\n        $ErrorActionPreference = 'Stop'\r\n        $WarningPreference = 'SilentlyContinue'\r\n\r\n        Try {\r\n            # Fix the resource manager URI since only AzureCloud contains a trailing slash\r\n            $ResourceManagerUriFixed = if($ResourceManagerUri[-1] -eq '/'){$ResourceManagerUri.Substring(0,$ResourceManagerUri.Length - 1)} else {$ResourceManagerUri}\r\n\r\n            # Get an access token for Azure resources\r\n            $AzureManagementAccessToken = (Invoke-RestMethod `\r\n                -Headers @{Metadata=\"true\"} `\r\n                -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n            # Set header for Azure Management API\r\n            $AzureManagementHeader = @{\r\n                'Content-Type'='application/json'\r\n                'Authorization'='Bearer ' + $AzureManagementAccessToken\r\n            }\r\n\r\n            # Delete Image VM\r\n            Invoke-RestMethod -Headers $AzureManagementHeader -Method 'DELETE' -Uri $($ResourceManagerUriFixed + $ImageVmResourceId + '?api-version=2024-03-01')\r\n            if($EnableBuildAutomation -eq 'false') {\r\n              # Wait 20 secs to make sure run command takes at least 20 secs to prevent failure.\r\n              Start-Sleep -Seconds 20\r\n              Invoke-RestMethod -Headers $AzureManagementHeader -Method 'DELETE' -Uri $($ResourceManagerUriFixed + $ManagementVmResourceId + '?api-version=2024-03-01')\r\n            }\r\n        }\r\n        catch {\r\n            throw\r\n        }\r\n      "
                                     }
                                   }
                                 }
@@ -9022,11 +8908,11 @@
                   "hybridUseBenefit": {
                     "value": "[parameters('hybridUseBenefit')]"
                   },
-                  "localAdministratorPassword": {
-                    "value": "[parameters('localAdministratorPassword')]"
+                  "virtualMachineAdminPassword": {
+                    "value": "[parameters('virtualMachineAdminPassword')]"
                   },
-                  "localAdministratorUsername": {
-                    "value": "[parameters('localAdministratorUsername')]"
+                  "virtualMachineAdminUsername": {
+                    "value": "[parameters('virtualMachineAdminUsername')]"
                   },
                   "location": {
                     "value": "[parameters('location')]"
@@ -9057,7 +8943,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.33.93.31351",
-                      "templateHash": "1517268897046831653"
+                      "templateHash": "15594129744731548865"
                     }
                   },
                   "parameters": {
@@ -9066,12 +8952,6 @@
                     },
                     "hybridUseBenefit": {
                       "type": "bool"
-                    },
-                    "localAdministratorPassword": {
-                      "type": "securestring"
-                    },
-                    "localAdministratorUsername": {
-                      "type": "securestring"
                     },
                     "location": {
                       "type": "string"
@@ -9088,6 +8968,12 @@
                     "userAssignedIdentityResourceId": {
                       "type": "string"
                     },
+                    "virtualMachineAdminPassword": {
+                      "type": "securestring"
+                    },
+                    "virtualMachineAdminUsername": {
+                      "type": "string"
+                    },
                     "virtualMachineName": {
                       "type": "string"
                     },
@@ -9101,7 +8987,7 @@
                       "apiVersion": "2023-04-01",
                       "name": "[format('nic-{0}', parameters('virtualMachineName'))]",
                       "location": "[parameters('location')]",
-                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Network/networkInterfaces'), parameters('tags')['Microsoft.Network/networkInterfaces'], createObject()), parameters('mlzTags'))]",
+                      "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/networkInterfaces'), createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "ipConfigurations": [
                           {
@@ -9125,7 +9011,7 @@
                       "apiVersion": "2022-03-01",
                       "name": "[parameters('virtualMachineName')]",
                       "location": "[parameters('location')]",
-                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
+                      "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/virtualMachines'), createObject()), parameters('mlzTags'))]",
                       "identity": {
                         "type": "SystemAssigned, UserAssigned",
                         "userAssignedIdentities": {
@@ -9137,9 +9023,9 @@
                           "vmSize": "[parameters('virtualMachineSize')]"
                         },
                         "osProfile": {
+                          "adminPassword": "[parameters('virtualMachineAdminPassword')]",
+                          "adminUsername": "[parameters('virtualMachineAdminUsername')]",
                           "computerName": "[parameters('virtualMachineName')]",
-                          "adminUsername": "[parameters('localAdministratorUsername')]",
-                          "adminPassword": "[parameters('localAdministratorPassword')]",
                           "windowsConfiguration": {
                             "provisionVMAgent": true,
                             "enableAutomaticUpdates": true,
@@ -10251,11 +10137,11 @@
           "keyVaultName": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.namingConvention.value.keyVault]"
           },
-          "localAdministratorPassword": {
-            "value": "[parameters('localAdministratorPassword')]"
+          "virtualMachineAdminPassword": {
+            "value": "[parameters('virtualMachineAdminPassword')]"
           },
-          "localAdministratorUsername": {
-            "value": "[parameters('localAdministratorUsername')]"
+          "virtualMachineAdminUsername": {
+            "value": "[parameters('virtualMachineAdminUsername')]"
           },
           "location": {
             "value": "[parameters('location')]"
@@ -10334,7 +10220,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.33.93.31351",
-              "templateHash": "489496477899436854"
+              "templateHash": "7443211343054596224"
             }
           },
           "parameters": {
@@ -10453,14 +10339,6 @@
             "keyVaultName": {
               "type": "string"
             },
-            "localAdministratorPassword": {
-              "type": "securestring",
-              "defaultValue": ""
-            },
-            "localAdministratorUsername": {
-              "type": "securestring",
-              "defaultValue": ""
-            },
             "location": {
               "type": "string",
               "defaultValue": "[deployment().location]"
@@ -10539,6 +10417,14 @@
               "type": "string",
               "defaultValue": ""
             },
+            "virtualMachineAdminPassword": {
+              "type": "securestring",
+              "defaultValue": ""
+            },
+            "virtualMachineAdminUsername": {
+              "type": "securestring",
+              "defaultValue": ""
+            },
             "virtualMachineSize": {
               "type": "string"
             },
@@ -10573,12 +10459,6 @@
                   "hybridUseBenefit": {
                     "value": "[parameters('hybridUseBenefit')]"
                   },
-                  "localAdministratorPassword": {
-                    "value": "[parameters('localAdministratorPassword')]"
-                  },
-                  "localAdministratorUsername": {
-                    "value": "[parameters('localAdministratorUsername')]"
-                  },
                   "location": {
                     "value": "[parameters('location')]"
                   },
@@ -10594,6 +10474,12 @@
                   "userAssignedIdentityResourceId": {
                     "value": "[parameters('userAssignedIdentityResourceId')]"
                   },
+                  "virtualMachineAdminPassword": {
+                    "value": "[parameters('virtualMachineAdminPassword')]"
+                  },
+                  "virtualMachineAdminUsername": {
+                    "value": "[parameters('virtualMachineAdminUsername')]"
+                  },
                   "virtualMachineName": {
                     "value": "[parameters('managementVirtualMachineName')]"
                   },
@@ -10608,7 +10494,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.33.93.31351",
-                      "templateHash": "1517268897046831653"
+                      "templateHash": "15594129744731548865"
                     }
                   },
                   "parameters": {
@@ -10617,12 +10503,6 @@
                     },
                     "hybridUseBenefit": {
                       "type": "bool"
-                    },
-                    "localAdministratorPassword": {
-                      "type": "securestring"
-                    },
-                    "localAdministratorUsername": {
-                      "type": "securestring"
                     },
                     "location": {
                       "type": "string"
@@ -10639,6 +10519,12 @@
                     "userAssignedIdentityResourceId": {
                       "type": "string"
                     },
+                    "virtualMachineAdminPassword": {
+                      "type": "securestring"
+                    },
+                    "virtualMachineAdminUsername": {
+                      "type": "string"
+                    },
                     "virtualMachineName": {
                       "type": "string"
                     },
@@ -10652,7 +10538,7 @@
                       "apiVersion": "2023-04-01",
                       "name": "[format('nic-{0}', parameters('virtualMachineName'))]",
                       "location": "[parameters('location')]",
-                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Network/networkInterfaces'), parameters('tags')['Microsoft.Network/networkInterfaces'], createObject()), parameters('mlzTags'))]",
+                      "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/networkInterfaces'), createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "ipConfigurations": [
                           {
@@ -10676,7 +10562,7 @@
                       "apiVersion": "2022-03-01",
                       "name": "[parameters('virtualMachineName')]",
                       "location": "[parameters('location')]",
-                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
+                      "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/virtualMachines'), createObject()), parameters('mlzTags'))]",
                       "identity": {
                         "type": "SystemAssigned, UserAssigned",
                         "userAssignedIdentities": {
@@ -10688,9 +10574,9 @@
                           "vmSize": "[parameters('virtualMachineSize')]"
                         },
                         "osProfile": {
+                          "adminPassword": "[parameters('virtualMachineAdminPassword')]",
+                          "adminUsername": "[parameters('virtualMachineAdminUsername')]",
                           "computerName": "[parameters('virtualMachineName')]",
-                          "adminUsername": "[parameters('localAdministratorUsername')]",
-                          "adminPassword": "[parameters('localAdministratorPassword')]",
                           "windowsConfiguration": {
                             "provisionVMAgent": true,
                             "enableAutomaticUpdates": true,
@@ -10772,8 +10658,6 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
-                  "localAdministratorPassword": "[if(parameters('runbookExecution'), createObject('reference', createObject('keyVault', createObject('id', extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.KeyVault/vaults', parameters('keyVaultName'))), 'secretName', 'LocalAdministratorPassword')), createObject('value', parameters('localAdministratorPassword')))]",
-                  "localAdministratorUsername": "[if(parameters('runbookExecution'), createObject('reference', createObject('keyVault', createObject('id', extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.KeyVault/vaults', parameters('keyVaultName'))), 'secretName', 'LocalAdministratorUsername')), createObject('value', parameters('localAdministratorUsername')))]",
                   "location": {
                     "value": "[parameters('location')]"
                   },
@@ -10804,6 +10688,8 @@
                   "userAssignedIdentityResourceId": {
                     "value": "[parameters('userAssignedIdentityResourceId')]"
                   },
+                  "virtualMachineAdminPassword": "[if(parameters('runbookExecution'), createObject('reference', createObject('keyVault', createObject('id', extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.KeyVault/vaults', parameters('keyVaultName'))), 'secretName', 'VirtualMachineAdminPassword')), createObject('value', parameters('virtualMachineAdminPassword')))]",
+                  "virtualMachineAdminUsername": "[if(parameters('runbookExecution'), createObject('reference', createObject('keyVault', createObject('id', extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.KeyVault/vaults', parameters('keyVaultName'))), 'secretName', 'VirtualMachineAdminUsername')), createObject('value', parameters('virtualMachineAdminUsername')))]",
                   "virtualMachineName": {
                     "value": "[parameters('imageVirtualMachineName')]"
                   },
@@ -10818,18 +10704,12 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.33.93.31351",
-                      "templateHash": "545922004413064147"
+                      "templateHash": "11393432732482196290"
                     }
                   },
                   "parameters": {
                     "computeGalleryImageResourceId": {
                       "type": "string"
-                    },
-                    "localAdministratorPassword": {
-                      "type": "securestring"
-                    },
-                    "localAdministratorUsername": {
-                      "type": "securestring"
                     },
                     "location": {
                       "type": "string"
@@ -10858,6 +10738,12 @@
                     "userAssignedIdentityResourceId": {
                       "type": "string"
                     },
+                    "virtualMachineAdminPassword": {
+                      "type": "securestring"
+                    },
+                    "virtualMachineAdminUsername": {
+                      "type": "securestring"
+                    },
                     "virtualMachineName": {
                       "type": "string"
                     },
@@ -10874,7 +10760,7 @@
                       "apiVersion": "2022-05-01",
                       "name": "[format('nic-{0}', parameters('virtualMachineName'))]",
                       "location": "[parameters('location')]",
-                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Network/networkInterfaces'), parameters('tags')['Microsoft.Network/networkInterfaces'], createObject()), parameters('mlzTags'))]",
+                      "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/networkInterfaces'), createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "ipConfigurations": [
                           {
@@ -10894,7 +10780,7 @@
                       "apiVersion": "2022-03-01",
                       "name": "[parameters('virtualMachineName')]",
                       "location": "[parameters('location')]",
-                      "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
+                      "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/virtualMachines'), createObject()), parameters('mlzTags'))]",
                       "identity": {
                         "type": "UserAssigned",
                         "userAssignedIdentities": {
@@ -10906,9 +10792,9 @@
                           "vmSize": "[parameters('virtualMachineSize')]"
                         },
                         "osProfile": {
-                          "computerName": "[parameters('virtualMachineName')]",
-                          "adminUsername": "[parameters('localAdministratorUsername')]",
-                          "adminPassword": "[parameters('localAdministratorPassword')]"
+                          "adminPassword": "[parameters('virtualMachineAdminPassword')]",
+                          "adminUsername": "[parameters('virtualMachineAdminUsername')]",
+                          "computerName": "[parameters('virtualMachineName')]"
                         },
                         "storageProfile": {
                           "imageReference": "[variables('imageReference')]",

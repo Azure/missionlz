@@ -5,10 +5,6 @@ Licensed under the MIT License.
 
 param computeGalleryImageResourceId string
 // param diskEncryptionSetResourceId string
-@secure()
-param localAdministratorPassword string
-@secure()
-param localAdministratorUsername string
 param location string
 param marketplaceImageOffer string
 param marketplaceImagePublisher string
@@ -18,6 +14,10 @@ param sourceImageType string
 param subnetResourceId string
 param tags object
 param userAssignedIdentityResourceId string
+@secure()
+param virtualMachineAdminPassword string
+@secure()
+param virtualMachineAdminUsername string
 param virtualMachineName string
 param virtualMachineSize string
 
@@ -35,10 +35,7 @@ var imageReference = sourceImageType == 'AzureComputeGallery'
 resource nic 'Microsoft.Network/networkInterfaces@2022-05-01' = {
   name: 'nic-${virtualMachineName}'
   location: location
-  tags: union(
-    contains(tags, 'Microsoft.Network/networkInterfaces') ? tags['Microsoft.Network/networkInterfaces'] : {},
-    mlzTags
-  )
+  tags: union(tags[?'Microsoft.Network/networkInterfaces'] ?? {}, mlzTags)
   properties: {
     ipConfigurations: [
       {
@@ -57,10 +54,7 @@ resource nic 'Microsoft.Network/networkInterfaces@2022-05-01' = {
 resource virtualMachine 'Microsoft.Compute/virtualMachines@2022-03-01' = {
   name: virtualMachineName
   location: location
-  tags: union(
-    contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {},
-    mlzTags
-  )
+  tags: union(tags[?'Microsoft.Compute/virtualMachines'] ?? {}, mlzTags)
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
@@ -72,9 +66,9 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2022-03-01' = {
       vmSize: virtualMachineSize
     }
     osProfile: {
+      adminPassword: virtualMachineAdminPassword
+      adminUsername: virtualMachineAdminUsername
       computerName: virtualMachineName
-      adminUsername: localAdministratorUsername
-      adminPassword: localAdministratorPassword
     }
     storageProfile: {
       imageReference: imageReference

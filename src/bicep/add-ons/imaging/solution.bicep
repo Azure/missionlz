@@ -162,13 +162,6 @@ param keyVaultDiagnosticMetrics array = [
   }
 ]
 
-@secure()
-@description('The password for the local administrator account.')
-param localAdministratorPassword string
-
-@description('The username for the local administrator account.')
-param localAdministratorUsername string
-
 @description('The location for the resources.')
 param location string = deployment().location
 
@@ -277,6 +270,14 @@ param vcRedistInstaller string = ''
 @description('The file name of the vDOT installer in Azure Blobs.')
 param vDOTInstaller string = ''
 
+@secure()
+@description('The password for the local administrator account on the virtual machines.')
+param virtualMachineAdminPassword string
+
+@secure()
+@description('The username for the local administrator account on the virtual machines.')
+param virtualMachineAdminUsername string
+
 @description('The size of the image virtual machine.')
 param virtualMachineSize string
 
@@ -323,7 +324,6 @@ module tier3 '../tier3/solution.bicep' = {
     identifier: identifier
     keyVaultDiagnosticLogs: keyVaultDiagnosticLogs
     keyVaultDiagnosticMetrics: keyVaultDiagnosticMetrics
-    linuxVmAdminUsername: localAdministratorUsername
     location: location
     logAnalyticsWorkspaceResourceId: spokelogAnalyticsWorkspaceResourceId
     logStorageSkuName: logStorageSkuName
@@ -340,7 +340,7 @@ module tier3 '../tier3/solution.bicep' = {
     virtualNetworkAddressPrefix: virtualNetworkAddressPrefix
     virtualNetworkDiagnosticsLogs: virtualNetworkDiagnosticsLogs
     virtualNetworkDiagnosticsMetrics: virtualNetworkDiagnosticsMetrics
-    windowsVmAdminUsername: localAdministratorUsername
+    windowsAdministratorsGroupMembership: virtualMachineAdminUsername
     workloadName: workloadName
     workloadShortName: workloadShortName
   }
@@ -406,8 +406,8 @@ module buildAutomation 'modules/buildAutomation.bicep' = if (enableBuildAutomati
     installWord: installWord
     keyVaultName: tier3.outputs.namingConvention.keyVault
     keyVaultPrivateDnsZoneResourceId: keyVaultPrivateDnsZoneResourceId
-    localAdministratorPassword: localAdministratorPassword
-    localAdministratorUsername: localAdministratorUsername
+    virtualMachineAdminPassword: virtualMachineAdminPassword
+    virtualMachineAdminUsername: virtualMachineAdminUsername
     location: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     managementVirtualMachineName: replace(tier3.outputs.namingConvention.virtualMachine, tier3.outputs.tokens.service, 'm')
@@ -472,8 +472,8 @@ module imageBuild 'modules/imageBuild.bicep' = {
     installVisio: installVisio
     installWord: installWord
     keyVaultName: tier3.outputs.namingConvention.keyVault
-    localAdministratorPassword: localAdministratorPassword
-    localAdministratorUsername: localAdministratorUsername
+    virtualMachineAdminPassword: virtualMachineAdminPassword
+    virtualMachineAdminUsername: virtualMachineAdminUsername
     location: location
     managementVirtualMachineName: replace(tier3.outputs.namingConvention.virtualMachine, tier3.outputs.tokens.service, 'm')
     marketplaceImageOffer: marketplaceImageOffer
