@@ -2,7 +2,11 @@
 
 ## Overview
 
-The `deploy-policy-initiatives.ps1` script automates the deployment of Azure Policy Definitions, Policy Set Definitions (Initiatives), and Policy Assignments. The script reads the directory structure and JSON files to create the necessary Azure resources. The directory structure and folder names must match the existing management group names in Azure.
+The `deploy-policy-initiatives.ps1` script automates the deployment of Azure Policy Definitions, Policy Set Definitions (Initiatives), and Policy Assignments. The script reads the directory structure and JSON files to create the necessary Azure resources. The directory structure and folder names must match the existing management group names in Azure.  
+
+The JSON files must be well formed policy definitions and parameters. A good resource for policies is Az Policy Advertiser <https://azadvertizer.com/>.
+
+This document does not cover custom policy design or construction.
 
 ## Directory Structure
 

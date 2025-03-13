@@ -1,6 +1,7 @@
-# Initialize the root folder path
-$RootFolderPath = "."
-
+[CmdletBinding()]
+param (
+    [string]$RootFolderPath = "."
+)
 # Set the location for the managed identity
 $location = "usgovvirginia"
 
