@@ -14,7 +14,7 @@ param tags object
 resource publicIPAddress 'Microsoft.Network/publicIPAddresses@2021-02-01' = {
   name: name
   location: location
-  tags: union(contains(tags, 'Microsoft.Network/publicIPAddresses') ? tags['Microsoft.Network/publicIPAddresses'] : {}, mlzTags)
+  tags: union(tags[?'Microsoft.Network/publicIPAddresses'] ?? {}, mlzTags)
   sku: {
     name: skuName
   }

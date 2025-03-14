@@ -64,10 +64,8 @@ resource dataCollectionRule 'Microsoft.Insights/dataCollectionRules@2022-06-01' 
             '\\Processor Information(_Total)\\% Processor Time'
             '\\User Input Delay per Process(*)\\Max Input Delay'
             '\\User Input Delay per Session(*)\\Max Input Delay'
-            '\\RemoteFX Network(*)\\Current TCP RTT'
-            '\\RemoteFX Network(*)\\Current UDP Bandwidth'
           ]
-          name: 'perfCounterDataSource10'
+          name: 'perfCounterDataSource30'
         }
         {
           streams: [
@@ -77,11 +75,8 @@ resource dataCollectionRule 'Microsoft.Insights/dataCollectionRules@2022-06-01' 
           counterSpecifiers: [
             '\\LogicalDisk(C:)\\% Free Space'
             '\\LogicalDisk(C:)\\Avg. Disk sec/Transfer'
-            '\\Terminal Services(*)\\Active Sessions'
-            '\\Terminal Services(*)\\Inactive Sessions'
-            '\\Terminal Services(*)\\Total Sessions'
           ]
-          name: 'perfCounterDataSource30'
+          name: 'perfCounterDataSource60'
         }
       ]
       windowsEventLogs: [

@@ -12,7 +12,7 @@ param userAssignedIdentityName string
 resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' =  {
   name: userAssignedIdentityName
   location: location
-  tags: union(contains(tags, 'Microsoft.ManagedIdentity/userAssignedIdentities') ? tags['Microsoft.ManagedIdentity/userAssignedIdentities'] : {}, mlzTags)
+  tags: union(tags[?'Microsoft.ManagedIdentity/userAssignedIdentities'] ?? {}, mlzTags)
 }
 
 resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' existing = {

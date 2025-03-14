@@ -44,7 +44,7 @@ var  subResources = [
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   name: uniqueString(replace(tier.namingConvention.storageAccount, serviceToken, 'log'), resourceGroup().id)
   location: location
-  tags: union(contains(tags, 'Microsoft.Storage/storageAccounts') ? tags['Microsoft.Storage/storageAccounts'] : {}, mlzTags)
+  tags: union(tags[?'Microsoft.Storage/storageAccounts'] ?? {}, mlzTags)
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
@@ -107,7 +107,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
 resource privateEndpoints 'Microsoft.Network/privateEndpoints@2023-04-01' = [for (resource, i) in subResources: {
   name: resource.pe
   location: location
-  tags: union(contains(tags, 'Microsoft.Network/privateEndpoints') ? tags['Microsoft.Network/privateEndpoints'] : {}, mlzTags)
+  tags: union(tags[?'Microsoft.Network/privateEndpoints'] ?? {}, mlzTags)
   properties: {
     customNetworkInterfaceName: resource.nic
     privateLinkServiceConnections: [
@@ -144,3 +144,4 @@ resource privateDnsZoneGroups 'Microsoft.Network/privateEndpoints/privateDnsZone
 }]
 
 output id string = storageAccount.id
+output networkInterfaceResourceIds array = [for (resource, i) in subResources: privateEndpoints[i].properties.networkInterfaces[0].id]

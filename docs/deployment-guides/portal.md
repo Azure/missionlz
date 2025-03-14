@@ -84,6 +84,12 @@ The following parameters affect networking. Each virtual network and subnet has 
 - **Shared Services Virtual Network CIDR Range:** the CIDR range for the Shared Services virtual network.
 - **Shared Services Subnet CIDR Range:** the CIDR range for the default Shared Services subnet. The range must fit in the Shared Services virtual network.
 
+#### Network Watcher Flow Logs
+
+- **Flow Logs Type:** the type of network watcher flow logs to deploy, either virtual network or network security group. The latter will be deprecated in June 2025.
+- **Retention Days:** the number of days to retain the flow logs.
+- **Enable Traffic Analytics:** choose whether to enable network watcher traffic analytics.
+
 ### STEP 3: Security and Compliance
 
 MLZ has optional features that can be enabled in the Security and Compliance step.

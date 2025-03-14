@@ -45,7 +45,7 @@ module networkInterface '../modules/network-interface.bicep' = {
 resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-04-01' = {
   name: name
   location: location
-  tags: union(contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}, mlzTags)
+  tags: union(tags[?'Microsoft.Compute/virtualMachines'] ?? {}, mlzTags)
   identity: {
     type: 'SystemAssigned'
   }
@@ -138,7 +138,7 @@ resource extension_GuestConfiguration 'Microsoft.Compute/virtualMachines/extensi
   parent: virtualMachine
   name: 'AzurePolicyforWindows'
   location: location
-  tags: union(contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}, mlzTags)
+  tags: union(tags[?'Microsoft.Compute/virtualMachines'] ?? {}, mlzTags)
   properties: {
     publisher: 'Microsoft.GuestConfiguration'
     type: 'ConfigurationforWindows'
@@ -152,7 +152,7 @@ resource extension_NetworkWatcher 'Microsoft.Compute/virtualMachines/extensions@
   parent: virtualMachine
   name: 'Microsoft.Azure.NetworkWatcher'
   location: location
-  tags: union(contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}, mlzTags)
+  tags: union(tags[?'Microsoft.Compute/virtualMachines'] ?? {}, mlzTags)
   properties: {
     publisher: 'Microsoft.Azure.NetworkWatcher'
     type: 'NetworkWatcherAgentWindows'
@@ -167,7 +167,7 @@ resource extension_AzureMonitorWindowsAgent 'Microsoft.Compute/virtualMachines/e
   parent: virtualMachine
   name: 'AzureMonitorWindowsAgent'
   location: location
-  tags: union(contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}, mlzTags)
+  tags: union(tags[?'Microsoft.Compute/virtualMachines'] ?? {}, mlzTags)
   properties: {
     publisher: 'Microsoft.Azure.Monitor'
     type: 'AzureMonitorWindowsAgent'
@@ -181,7 +181,7 @@ resource extension_MicrosoftMonitoringAgent 'Microsoft.Compute/virtualMachines/e
   parent: virtualMachine
   name: 'MMAExtension'
   location: location
-  tags: union(contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}, mlzTags)
+  tags: union(tags[?'Microsoft.Compute/virtualMachines'] ?? {}, mlzTags)
   properties: {
     publisher: 'Microsoft.EnterpriseCloud.Monitoring'
     type: 'MicrosoftMonitoringAgent'
@@ -203,7 +203,7 @@ resource extension_DependencyAgent 'Microsoft.Compute/virtualMachines/extensions
   parent: virtualMachine
   name: 'DependencyAgentWindows'
   location: location
-  tags: union(contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}, mlzTags)
+  tags: union(tags[?'Microsoft.Compute/virtualMachines'] ?? {}, mlzTags)
   properties: {
     publisher: 'Microsoft.Azure.Monitoring.DependencyAgent'
     type: 'DependencyAgentWindows'
@@ -214,3 +214,5 @@ resource extension_DependencyAgent 'Microsoft.Compute/virtualMachines/extensions
     extension_MicrosoftMonitoringAgent
   ]
 }
+
+output networkInterfaceResourceId string = networkInterface.outputs.id

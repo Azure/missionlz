@@ -93,4 +93,7 @@ module privateEndpoint 'private-endpoint.bicep' = {
 }
 
 output logAnalyticsWorkspaceResourceId string = logAnalyticsWorkspace.outputs.resourceId
+output networkInterfaceResourceIds array = [
+  privateEndpoint.outputs.networkInterfaceResourceId
+]
 output privateLinkScopeResourceId string = privateLinkScope.outputs.resourceId

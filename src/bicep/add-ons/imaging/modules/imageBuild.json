@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.26.170.59819",
-      "templateHash": "3135582023314630375"
+      "version": "0.33.93.31351",
+      "templateHash": "7443211343054596224"
     }
   },
   "parameters": {
@@ -50,6 +50,9 @@
       "type": "string"
     },
     "imageMajorVersion": {
+      "type": "int"
+    },
+    "imageMinorVersion": {
       "type": "int"
     },
     "imagePatchVersion": {
@@ -121,14 +124,6 @@
     "keyVaultName": {
       "type": "string"
     },
-    "localAdministratorPassword": {
-      "type": "securestring",
-      "defaultValue": ""
-    },
-    "localAdministratorUsername": {
-      "type": "securestring",
-      "defaultValue": ""
-    },
     "location": {
       "type": "string",
       "defaultValue": "[deployment().location]"
@@ -188,7 +183,7 @@
     },
     "updateService": {
       "type": "string",
-      "defaultValue": "MicrosoftUpdate"
+      "defaultValue": "MU"
     },
     "userAssignedIdentityClientId": {
       "type": "string"
@@ -207,6 +202,14 @@
       "type": "string",
       "defaultValue": ""
     },
+    "virtualMachineAdminPassword": {
+      "type": "securestring",
+      "defaultValue": ""
+    },
+    "virtualMachineAdminUsername": {
+      "type": "securestring",
+      "defaultValue": ""
+    },
     "virtualMachineSize": {
       "type": "string"
     },
@@ -216,8 +219,7 @@
     }
   },
   "variables": {
-    "autoImageVersion": "[format('{0}.{1}.{2}', parameters('imageMajorVersion'), variables('imageSuffix'), parameters('imagePatchVersion'))]",
-    "imageSuffix": "[take(parameters('deploymentNameSuffix'), 9)]",
+    "autoImageVersion": "[format('{0}.{1}.{2}', parameters('imageMajorVersion'), parameters('imageMinorVersion'), parameters('imagePatchVersion'))]",
     "storageAccountName": "[split(parameters('storageAccountResourceId'), '/')[8]]",
     "storageEndpoint": "[environment().suffixes.storage]",
     "subscriptionId": "[subscription().subscriptionId]"
@@ -236,20 +238,11 @@
         },
         "mode": "Incremental",
         "parameters": {
-          "containerName": {
-            "value": "[parameters('containerName')]"
-          },
           "diskEncryptionSetResourceId": {
             "value": "[parameters('diskEncryptionSetResourceId')]"
           },
           "hybridUseBenefit": {
             "value": "[parameters('hybridUseBenefit')]"
-          },
-          "localAdministratorPassword": {
-            "value": "[parameters('localAdministratorPassword')]"
-          },
-          "localAdministratorUsername": {
-            "value": "[parameters('localAdministratorUsername')]"
           },
           "location": {
             "value": "[parameters('location')]"
@@ -257,23 +250,26 @@
           "mlzTags": {
             "value": "[parameters('mlzTags')]"
           },
-          "storageAccountName": {
-            "value": "[split(parameters('storageAccountResourceId'), '/')[8]]"
-          },
           "subnetResourceId": {
             "value": "[parameters('subnetResourceId')]"
           },
           "tags": {
             "value": "[parameters('tags')]"
           },
-          "userAssignedIdentityPrincipalId": {
-            "value": "[parameters('userAssignedIdentityPrincipalId')]"
-          },
           "userAssignedIdentityResourceId": {
             "value": "[parameters('userAssignedIdentityResourceId')]"
           },
+          "virtualMachineAdminPassword": {
+            "value": "[parameters('virtualMachineAdminPassword')]"
+          },
+          "virtualMachineAdminUsername": {
+            "value": "[parameters('virtualMachineAdminUsername')]"
+          },
           "virtualMachineName": {
             "value": "[parameters('managementVirtualMachineName')]"
+          },
+          "virtualMachineSize": {
+            "value": "[parameters('virtualMachineSize')]"
           }
         },
         "template": {
@@ -282,25 +278,16 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.26.170.59819",
-              "templateHash": "8898522588803558538"
+              "version": "0.33.93.31351",
+              "templateHash": "15594129744731548865"
             }
           },
           "parameters": {
-            "containerName": {
-              "type": "string"
-            },
             "diskEncryptionSetResourceId": {
               "type": "string"
             },
             "hybridUseBenefit": {
               "type": "bool"
-            },
-            "localAdministratorPassword": {
-              "type": "securestring"
-            },
-            "localAdministratorUsername": {
-              "type": "securestring"
             },
             "location": {
               "type": "string"
@@ -308,22 +295,25 @@
             "mlzTags": {
               "type": "object"
             },
-            "storageAccountName": {
-              "type": "string"
-            },
             "subnetResourceId": {
               "type": "string"
             },
             "tags": {
               "type": "object"
             },
-            "userAssignedIdentityPrincipalId": {
-              "type": "string"
-            },
             "userAssignedIdentityResourceId": {
               "type": "string"
             },
+            "virtualMachineAdminPassword": {
+              "type": "securestring"
+            },
+            "virtualMachineAdminUsername": {
+              "type": "string"
+            },
             "virtualMachineName": {
+              "type": "string"
+            },
+            "virtualMachineSize": {
               "type": "string"
             }
           },
@@ -333,7 +323,7 @@
               "apiVersion": "2023-04-01",
               "name": "[format('nic-{0}', parameters('virtualMachineName'))]",
               "location": "[parameters('location')]",
-              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Network/networkInterfaces'), parameters('tags')['Microsoft.Network/networkInterfaces'], createObject()), parameters('mlzTags'))]",
+              "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/networkInterfaces'), createObject()), parameters('mlzTags'))]",
               "properties": {
                 "ipConfigurations": [
                   {
@@ -357,21 +347,21 @@
               "apiVersion": "2022-03-01",
               "name": "[parameters('virtualMachineName')]",
               "location": "[parameters('location')]",
-              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
+              "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/virtualMachines'), createObject()), parameters('mlzTags'))]",
               "identity": {
-                "type": "UserAssigned",
+                "type": "SystemAssigned, UserAssigned",
                 "userAssignedIdentities": {
                   "[format('{0}', parameters('userAssignedIdentityResourceId'))]": {}
                 }
               },
               "properties": {
                 "hardwareProfile": {
-                  "vmSize": "Standard_D2s_v3"
+                  "vmSize": "[parameters('virtualMachineSize')]"
                 },
                 "osProfile": {
+                  "adminPassword": "[parameters('virtualMachineAdminPassword')]",
+                  "adminUsername": "[parameters('virtualMachineAdminUsername')]",
                   "computerName": "[parameters('virtualMachineName')]",
-                  "adminUsername": "[parameters('localAdministratorUsername')]",
-                  "adminPassword": "[parameters('localAdministratorPassword')]",
                   "windowsConfiguration": {
                     "provisionVMAgent": true,
                     "enableAutomaticUpdates": true,
@@ -430,41 +420,6 @@
               "dependsOn": [
                 "[resourceId('Microsoft.Network/networkInterfaces', format('nic-{0}', parameters('virtualMachineName')))]"
               ]
-            },
-            {
-              "type": "Microsoft.Compute/virtualMachines/runCommands",
-              "apiVersion": "2023-03-01",
-              "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'appAzModules')]",
-              "location": "[parameters('location')]",
-              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
-              "properties": {
-                "treatFailureAsDeploymentFailure": true,
-                "asyncExecution": false,
-                "parameters": [
-                  {
-                    "name": "ContainerName",
-                    "value": "[parameters('containerName')]"
-                  },
-                  {
-                    "name": "StorageAccountName",
-                    "value": "[parameters('storageAccountName')]"
-                  },
-                  {
-                    "name": "StorageEndpoint",
-                    "value": "[environment().suffixes.storage]"
-                  },
-                  {
-                    "name": "UserAssignedIdentityObjectId",
-                    "value": "[parameters('userAssignedIdentityPrincipalId')]"
-                  }
-                ],
-                "source": {
-                  "script": "        param(\r\n          [string]$ContainerName,\r\n          [string]$StorageAccountName,\r\n          [string]$StorageEndpoint,\r\n          [string]$UserAssignedIdentityObjectId\r\n        )\r\n        $ErrorActionPreference = \"Stop\"\r\n        $StorageAccountUrl = \"https://\" + $StorageAccountName + \".blob.\" + $StorageEndpoint + \"/\"\r\n        $TokenUri = \"http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=$StorageAccountUrl&object_id=$UserAssignedIdentityObjectId\"\r\n        $AccessToken = ((Invoke-WebRequest -Headers @{Metadata=$true} -Uri $TokenUri -UseBasicParsing).Content | ConvertFrom-Json).access_token\r\n        $BlobNames = @('az.accounts.2.12.1.nupkg','az.automation.1.9.0.nupkg','az.compute.5.7.0.nupkg','az.resources.6.6.0.nupkg')\r\n        foreach($BlobName in $BlobNames)\r\n        {\r\n          do\r\n          {\r\n              try\r\n              {\r\n                  Write-Output \"Download Attempt $i\"\r\n                  Invoke-WebRequest -Headers @{\"x-ms-version\"=\"2017-11-09\"; Authorization =\"Bearer $AccessToken\"} -Uri \"$StorageAccountUrl$ContainerName/$BlobName\" -OutFile \"$env:windir\\temp\\$BlobName\"\r\n              }\r\n              catch [System.Net.WebException]\r\n              {\r\n                  Start-Sleep -Seconds 60\r\n                  $i++\r\n                  if($i -gt 10){throw}\r\n                  continue\r\n              }\r\n              catch\r\n              {\r\n                  $Output = $_ | select *\r\n                  Write-Output $Output\r\n                  throw\r\n              }\r\n          }\r\n          until(Test-Path -Path $env:windir\\temp\\$BlobName)\r\n          Start-Sleep -Seconds 5\r\n          Unblock-File -Path $env:windir\\temp\\$BlobName\r\n          $BlobZipName = $Blobname.Replace('nupkg','zip')\r\n          Rename-Item -Path $env:windir\\temp\\$BlobName -NewName $BlobZipName\r\n          $BlobNameArray = $BlobName.Split('.')\r\n          $ModuleFolderName = $BlobNameArray[0] + '.' + $BlobNameArray[1]\r\n          $VersionFolderName = $BlobNameArray[2] + '.' + $BlobNameArray[3]+ '.' + $BlobNameArray[4]\r\n          $ModulesDirectory = \"C:\\Program Files\\WindowsPowerShell\\Modules\"\r\n          New-Item -Path $ModulesDirectory -Name $ModuleFolderName -ItemType \"Directory\" -Force\r\n          Expand-Archive -Path $env:windir\\temp\\$BlobZipName -DestinationPath \"$ModulesDirectory\\$ModuleFolderName\\$VersionFolderName\" -Force\r\n          Remove-Item -Path \"$ModulesDirectory\\$ModuleFolderName\\$VersionFolderName\\_rels\" -Force -Recurse\r\n          Remove-Item -Path \"$ModulesDirectory\\$ModuleFolderName\\$VersionFolderName\\package\" -Force -Recurse\r\n          Remove-Item -LiteralPath \"$ModulesDirectory\\$ModuleFolderName\\$VersionFolderName\\[Content_Types].xml\" -Force\r\n          Remove-Item -Path \"$ModulesDirectory\\$ModuleFolderName\\$VersionFolderName\\$ModuleFolderName.nuspec\" -Force\r\n        }\r\n        Remove-Item -Path \"$env:windir\\temp\\az*\" -Force\r\n      "
-                }
-              },
-              "dependsOn": [
-                "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
-              ]
             }
           ],
           "outputs": {
@@ -488,8 +443,6 @@
         },
         "mode": "Incremental",
         "parameters": {
-          "localAdministratorPassword": "[if(parameters('runbookExecution'), createObject('reference', createObject('keyVault', createObject('id', extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.KeyVault/vaults', parameters('keyVaultName'))), 'secretName', 'LocalAdministratorPassword')), createObject('value', parameters('localAdministratorPassword')))]",
-          "localAdministratorUsername": "[if(parameters('runbookExecution'), createObject('reference', createObject('keyVault', createObject('id', extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.KeyVault/vaults', parameters('keyVaultName'))), 'secretName', 'LocalAdministratorUsername')), createObject('value', parameters('localAdministratorUsername')))]",
           "location": {
             "value": "[parameters('location')]"
           },
@@ -520,6 +473,8 @@
           "userAssignedIdentityResourceId": {
             "value": "[parameters('userAssignedIdentityResourceId')]"
           },
+          "virtualMachineAdminPassword": "[if(parameters('runbookExecution'), createObject('reference', createObject('keyVault', createObject('id', extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.KeyVault/vaults', parameters('keyVaultName'))), 'secretName', 'VirtualMachineAdminPassword')), createObject('value', parameters('virtualMachineAdminPassword')))]",
+          "virtualMachineAdminUsername": "[if(parameters('runbookExecution'), createObject('reference', createObject('keyVault', createObject('id', extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.KeyVault/vaults', parameters('keyVaultName'))), 'secretName', 'VirtualMachineAdminUsername')), createObject('value', parameters('virtualMachineAdminUsername')))]",
           "virtualMachineName": {
             "value": "[parameters('imageVirtualMachineName')]"
           },
@@ -533,19 +488,13 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.26.170.59819",
-              "templateHash": "8557004379539182499"
+              "version": "0.33.93.31351",
+              "templateHash": "11393432732482196290"
             }
           },
           "parameters": {
             "computeGalleryImageResourceId": {
               "type": "string"
-            },
-            "localAdministratorPassword": {
-              "type": "securestring"
-            },
-            "localAdministratorUsername": {
-              "type": "securestring"
             },
             "location": {
               "type": "string"
@@ -574,6 +523,12 @@
             "userAssignedIdentityResourceId": {
               "type": "string"
             },
+            "virtualMachineAdminPassword": {
+              "type": "securestring"
+            },
+            "virtualMachineAdminUsername": {
+              "type": "securestring"
+            },
             "virtualMachineName": {
               "type": "string"
             },
@@ -590,7 +545,7 @@
               "apiVersion": "2022-05-01",
               "name": "[format('nic-{0}', parameters('virtualMachineName'))]",
               "location": "[parameters('location')]",
-              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Network/networkInterfaces'), parameters('tags')['Microsoft.Network/networkInterfaces'], createObject()), parameters('mlzTags'))]",
+              "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/networkInterfaces'), createObject()), parameters('mlzTags'))]",
               "properties": {
                 "ipConfigurations": [
                   {
@@ -610,7 +565,7 @@
               "apiVersion": "2022-03-01",
               "name": "[parameters('virtualMachineName')]",
               "location": "[parameters('location')]",
-              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
+              "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/virtualMachines'), createObject()), parameters('mlzTags'))]",
               "identity": {
                 "type": "UserAssigned",
                 "userAssignedIdentities": {
@@ -622,9 +577,9 @@
                   "vmSize": "[parameters('virtualMachineSize')]"
                 },
                 "osProfile": {
-                  "computerName": "[parameters('virtualMachineName')]",
-                  "adminUsername": "[parameters('localAdministratorUsername')]",
-                  "adminPassword": "[parameters('localAdministratorPassword')]"
+                  "adminPassword": "[parameters('virtualMachineAdminPassword')]",
+                  "adminUsername": "[parameters('virtualMachineAdminUsername')]",
+                  "computerName": "[parameters('virtualMachineName')]"
                 },
                 "storageProfile": {
                   "imageReference": "[variables('imageReference')]",
@@ -784,8 +739,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.26.170.59819",
-              "templateHash": "3676051126599760309"
+              "version": "0.33.93.31351",
+              "templateHash": "16455535134300982050"
             }
           },
           "parameters": {
@@ -880,7 +835,7 @@
           "variables": {
             "installAccessVar": "[format('{0}installAccess', parameters('installAccess'))]",
             "installers": "[parameters('customizations')]",
-            "installExcelVar": "[format('{0}installWord', parameters('installExcel'))]",
+            "installExcelVar": "[format('{0}installExcel', parameters('installExcel'))]",
             "installOneDriveVar": "[format('{0}installOneDrive', parameters('installOneDrive'))]",
             "installOneNoteVar": "[format('{0}installOneNote', parameters('installOneNote'))]",
             "installOutlookVar": "[format('{0}installOutlook', parameters('installOutlook'))]",
@@ -899,6 +854,7 @@
                 "mode": "serial",
                 "batchSize": 1
               },
+              "condition": "[variables('installers')[copyIndex()].enabled]",
               "type": "Microsoft.Compute/virtualMachines/runCommands",
               "apiVersion": "2023-03-01",
               "name": "[format('{0}/{1}', parameters('virtualMachineName'), format('app-{0}', variables('installers')[copyIndex()].name))]",
@@ -938,7 +894,7 @@
                   }
                 ],
                 "source": {
-                  "script": "        param(\r\n          [string]$UserAssignedIdentityObjectId,\r\n          [string]$StorageAccountName,\r\n          [string]$ContainerName,\r\n          [string]$StorageEndpoint,\r\n          [string]$BlobName,\r\n          [string]$Installer,\r\n          [string]$Arguments\r\n        )\r\n        $ErrorActionPreference = 'Stop'\r\n        $WarningPreference = 'SilentlyContinue'\r\n        $StorageAccountUrl = \"https://\" + $StorageAccountName + \".blob.\" + $StorageEndpoint + \"/\"\r\n        $TokenUri = \"http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=$StorageAccountUrl&object_id=$UserAssignedIdentityObjectId\"\r\n        $AccessToken = ((Invoke-WebRequest -Headers @{Metadata=$true} -Uri $TokenUri -UseBasicParsing).Content | ConvertFrom-Json).access_token\r\n        New-Item -Path $env:windir\\temp -Name $Installer -ItemType \"directory\" -Force\r\n        New-Item -Path $env:windir\\temp\\$Installer -Name 'Files' -ItemType \"directory\" -Force\r\n        #Invoking WebClient to download blobs because it is more efficient than Invoke-WebRequest for large files.\r\n        $WebClient = New-Object System.Net.WebClient\r\n        $WebClient.Headers.Add('x-ms-version', '2017-11-09')\r\n        $webClient.Headers.Add(\"Authorization\", \"Bearer $AccessToken\")\r\n        $webClient.DownloadFile(\"$StorageAccountUrl$ContainerName/$BlobName\", \"$env:windir\\temp\\$Installer\\Files\\$Blobname\")\r\n        Start-Sleep -Seconds 30\r\n        Set-Location -Path $env:windir\\temp\\$Installer\r\n        if($Blobname -like (\"*.exe\"))\r\n        {\r\n          Start-Process -FilePath $env:windir\\temp\\$Installer\\Files\\$Blobname -ArgumentList $Arguments -NoNewWindow -Wait -PassThru\r\n          $status = Get-WmiObject -Class Win32_Product | Where-Object Name -like \"*$($installer)*\"\r\n          if($status)\r\n          {\r\n            Write-Host $status.Name \"is installed\"\r\n          }\r\n          else\r\n          {\r\n            Write-host $Installer \"did not install properly, please check arguments\"\r\n          }\r\n        }\r\n        if($Blobname -like (\"*.msi\"))\r\n        {\r\n          Set-Location -Path $env:windir\\temp\\$Installer\\Files\r\n          Start-Process -FilePath msiexec.exe -ArgumentList $Arguments -Wait\r\n          $status = Get-WmiObject -Class Win32_Product | Where-Object Name -like \"*$($installer)*\"\r\n          if($status)\r\n          {\r\n            Write-Host $status.Name \"is installed\"\r\n          }\r\n          else\r\n          {\r\n            Write-host $Installer \"did not install properly, please check arguments\"\r\n          }\r\n        }\r\n        if($Blobname -like (\"*.bat\"))\r\n        {\r\n          Start-Process -FilePath cmd.exe -ArgumentList $env:windir\\temp\\$Installer\\Files\\$Arguments -Wait\r\n        }\r\n        if($Blobname -like (\"*.ps1\"))\r\n        {\r\n          Start-Process -FilePath PowerShell.exe -ArgumentList $env:windir\\temp\\$Installer\\Files\\$Arguments -Wait\r\n        }\r\n        if($Blobname -like (\"*.zip\"))\r\n        {\r\n          Set-Location -Path $env:windir\\temp\\$Installer\\Files\r\n          Expand-Archive -Path $env:windir\\temp\\$Installer\\Files\\$Blobname -DestinationPath $env:windir\\temp\\$Installer\\Files -Force\r\n          Remove-Item -Path .\\$Blobname -Force -Recurse\r\n        }\r\n        Write-Host \"Removing $Installer Files\"\r\n        Remove-item $env:windir\\temp\\$Installer -Force -Recurse -Confirm:$false\r\n       "
+                  "script": "        param(\r\n          [string]$UserAssignedIdentityObjectId,\r\n          [string]$StorageAccountName,\r\n          [string]$ContainerName,\r\n          [string]$StorageEndpoint,\r\n          [string]$BlobName,\r\n          [string]$Installer,\r\n          [string]$Arguments\r\n        )\r\n        $ErrorActionPreference = 'Stop'\r\n        $WarningPreference = 'SilentlyContinue'\r\n        $StorageAccountUrl = \"https://\" + $StorageAccountName + \".blob.\" + $StorageEndpoint + \"/\"\r\n        $TokenUri = \"http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=$StorageAccountUrl&object_id=$UserAssignedIdentityObjectId\"\r\n        $AccessToken = ((Invoke-WebRequest -Headers @{Metadata=$true} -Uri $TokenUri -UseBasicParsing).Content | ConvertFrom-Json).access_token\r\n        $BlobFileName = $BlobName.Split(\"/\")[-1]\r\n        New-Item -Path $env:windir\\temp -Name $Installer -ItemType \"directory\" -Force\r\n        $InstallerDirectory = \"$env:windir\\temp\\$Installer\"\r\n        Write-Host \"Setting file copy to install directory: $InstallerDirectory\"\r\n        Set-Location -Path $InstallerDirectory\r\n        Write-Host \"Invoking WebClient download for file : $BlobFileName\"\r\n        #Invoking WebClient to download blobs because it is more efficient than Invoke-WebRequest for large files.\r\n        $WebClient = New-Object System.Net.WebClient\r\n        $WebClient.Headers.Add('x-ms-version', '2017-11-09')\r\n        $webClient.Headers.Add(\"Authorization\", \"Bearer $AccessToken\")\r\n        $webClient.DownloadFile(\"$StorageAccountUrl$ContainerName/$BlobName\", \"$InstallerDirectory\\$BlobName\")\r\n        Start-Sleep -Seconds 30\r\n        $Path = (Get-ChildItem -Path \"$InstallerDirectory\\$BlobName\" -Recurse | Where-Object {$_.Name -eq \"$BlobName\"}).FullName\r\n        if($BlobName -like (\"*.exe\"))\r\n        {\r\n          Start-Process -FilePath $InstallerDirectory\\$BlobName -ArgumentList $Arguments -NoNewWindow -Wait -PassThru\r\n          $wmistatus = Get-WmiObject -Class Win32_Product | Where-Object Name -like \"*$($Installer)*\"\r\n          if($wmistatus)\r\n          {\r\n            Write-Host $wmistatus.Name \"is installed\"\r\n          }\r\n          $regstatus = Get-ItemProperty 'HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*' | Where-Object { $_.DisplayName -like \"*$($Installer)*\" }\r\n          if($regstatus)\r\n          {\r\n            Write-Host $regstatus.DisplayName \"is installed\"\r\n          }\r\n          $regstatusWow6432 = Get-ItemProperty 'HKLM:\\Software\\WOW6432Node\\*' | Where-Object { $_.PSChildName -like \"*$($Installer)*\" }\r\n          if($regstatusWow6432)\r\n          {\r\n            Write-Host $regstatusWow6432.PSChildName \"is installed\"\r\n          }\r\n          else\r\n          {\r\n            Write-host $Installer \"did not install properly, please check arguments\"\r\n          }\r\n        }\r\n        if($BlobName -like (\"*.msi\"))\r\n        {\r\n          Write-Host \"Invoking msiexec.exe for install path : $Path\"\r\n          Start-Process -FilePath msiexec.exe -ArgumentList \"/i $Path $Arguments\" -Wait\r\n          $status = Get-WmiObject -Class Win32_Product | Where-Object Name -like \"*$($installer)*\"\r\n          if($status)\r\n          {\r\n            Write-Host $status.Name \"is installed\"\r\n          }\r\n          else\r\n          {\r\n            Write-host $Installer \"did not install properly, please check arguments\"\r\n          }\r\n        }\r\n        if($BlobName -like (\"*.bat\"))\r\n        {\r\n          Start-Process -FilePath cmd.exe -ArgumentList $InstallerDirectory\\$Arguments -Wait\r\n        }\r\n        if($BlobName -like (\"*.ps1\"))\r\n        {\r\n          if($BlobName -like (\"Install-BundleSoftware.ps1\"))\r\n          {\r\n            Start-Process -FilePath PowerShell.exe -ArgumentList \"-File $Path -UserAssignedIdentityObjectId $UserAssignedIdentityObjectId -StorageAccountName $StorageAccountName -ContainerName $ContainerName -StorageEndpoint $StorageEndpoint $Arguments\" -Wait\r\n          }\r\n          else\r\n          {\r\n            Start-Process -FilePath PowerShell.exe -ArgumentList \"-File $Path $Arguments\" -Wait\r\n          }\r\n        }\r\n        if($BlobName -like (\"*.zip\"))\r\n        {\r\n          Expand-Archive -Path $InstallerDirectory\\$BlobName -DestinationPath $InstallerDirectory -Force\r\n          Remove-Item -Path .\\$BlobName -Force -Recurse\r\n        }\r\n        Write-Host \"Removing $Installer Files\"\r\n        #Start-Sleep -Seconds 5\r\n        Remove-item $env:windir\\temp\\$Installer -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue\r\n       "
                 }
               }
             },
@@ -1206,8 +1162,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.26.170.59819",
-              "templateHash": "14414542062672835812"
+              "version": "0.33.93.31351",
+              "templateHash": "7400813670576825580"
             }
           },
           "parameters": {
@@ -1245,32 +1201,20 @@
                 "asyncExecution": false,
                 "parameters": [
                   {
-                    "name": "Environment",
-                    "value": "[environment().name]"
-                  },
-                  {
-                    "name": "ResourceGroupName",
-                    "value": "[parameters('resourceGroupName')]"
-                  },
-                  {
-                    "name": "SubscriptionId",
-                    "value": "[subscription().subscriptionId]"
-                  },
-                  {
-                    "name": "TenantId",
-                    "value": "[tenant().tenantId]"
+                    "name": "ResourceManagerUri",
+                    "value": "[environment().resourceManager]"
                   },
                   {
                     "name": "UserAssignedIdentityClientId",
                     "value": "[parameters('userAssignedIdentityClientId')]"
                   },
                   {
-                    "name": "VirtualMachineName",
-                    "value": "[parameters('imageVirtualMachineName')]"
+                    "name": "VmResourceId",
+                    "value": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Compute/virtualMachines', parameters('imageVirtualMachineName'))]"
                   }
                 ],
                 "source": {
-                  "script": "        param(\r\n          [string]$Environment,\r\n          [string]$ResourceGroupName,\r\n          [string]$SubscriptionId,\r\n          [string]$TenantId,\r\n          [string]$UserAssignedIdentityClientId,\r\n          [string]$VirtualMachineName\r\n        )\r\n        $ErrorActionPreference = 'Stop'\r\n        Connect-AzAccount -Environment $Environment -Tenant $TenantId -Subscription $SubscriptionId -Identity -AccountId $UserAssignedIdentityClientId | Out-Null\r\n        Restart-AzVM -ResourceGroupName $ResourceGroupName -Name $VirtualMachineName\r\n        $AgentStatus = $Null\r\n        while ($Null -eq $AgentStatus) \r\n        {\r\n            Start-Sleep -Seconds 5\r\n            $AgentStatus = (Get-AzVM -ResourceGroupName $ResourceGroupName -Name $VirtualMachineName -Status).VMAgent\r\n        }\r\n      "
+                  "script": "        param(\r\n            [Parameter(Mandatory=$true)]\r\n            [string]$ResourceManagerUri,\r\n\r\n            [Parameter(Mandatory=$true)]\r\n            [string]$UserAssignedIdentityClientId,\r\n\r\n            [Parameter(Mandatory=$true)]\r\n            [string]$VmResourceId\r\n        )\r\n\r\n        $ErrorActionPreference = 'Stop'\r\n        $WarningPreference = 'SilentlyContinue'\r\n\r\n        Try {\r\n            # Fix the resource manager URI since only AzureCloud contains a trailing slash\r\n            $ResourceManagerUriFixed = if($ResourceManagerUri[-1] -eq '/'){$ResourceManagerUri.Substring(0,$ResourceManagerUri.Length - 1)} else {$ResourceManagerUri}\r\n\r\n            # Get an access token for Azure resources\r\n            $AzureManagementAccessToken = (Invoke-RestMethod `\r\n                -Headers @{Metadata=\"true\"} `\r\n                -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n            # Set header for Azure Management API\r\n            $AzureManagementHeader = @{\r\n                'Content-Type'='application/json'\r\n                'Authorization'='Bearer ' + $AzureManagementAccessToken\r\n            }\r\n            \r\n            # Restart the VM\r\n            $null = Invoke-RestMethod -Headers $AzureManagementHeader -Method 'Post' -Uri $($ResourceManagerUriFixed + $VmResourceId + '/restart?api-version=2024-03-01')\r\n            $lastProvisioningState = \"\"\r\n            $VmStatus = Invoke-RestMethod -Headers $AzureManagementHeader -Method 'Get' -Uri $($ResourceManagerUriFixed + $VmResourceId + '/instanceView?api-version=2024-03-01')\r\n            $provisioningState = ($VMStatus.statuses | Where-Object {$_.code -like 'PowerState*'}).code\r\n            While ($provisioningState -ne \"PowerState/running\") {\r\n                $lastProvisioningState = $provisioningState\r\n                Start-Sleep -Seconds 5\r\n                $VmStatus = Invoke-RestMethod -Headers $AzureManagementHeader -Method 'Get' -Uri $($ResourceManagerUriFixed + $VmResourceId + '/instanceView?api-version=2024-03-01')\r\n                $provisioningState = ($VMStatus.statuses | Where-Object {$_.code -like 'PowerState*'}).code\r\n            }   \r\n        }\r\n        catch {\r\n            throw\r\n        }\r\n      "
                 }
               }
             }
@@ -1321,8 +1265,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.26.170.59819",
-              "templateHash": "461917832205884645"
+              "version": "0.33.93.31351",
+              "templateHash": "9407380787926779583"
             }
           },
           "parameters": {
@@ -1356,7 +1300,7 @@
                 "asyncExecution": false,
                 "parameters": "[if(equals(parameters('updateService'), 'WSUS'), createArray(createObject('name', 'Service', 'value', parameters('updateService')), createObject('name', 'WSUSServer', 'value', parameters('wsusServer'))), createArray(createObject('name', 'Service', 'value', parameters('updateService'))))]",
                 "source": {
-                  "script": "        param (\r\n          # The App Name to pass to the WUA API as the calling application.\r\n          [Parameter()]\r\n          [String]$AppName = \"Windows Update API Script\",\r\n          # The search criteria to be used.\r\n          [Parameter()]\r\n          [String]$Criteria = \"IsInstalled=0 and Type='Software' and IsHidden=0\",\r\n          [Parameter()]\r\n          [bool]$ExcludePreviewUpdates = $true,\r\n          # Default service (WSUS if machine is configured to use it, or MU if opted in, or WU otherwise.)\r\n          [Parameter()]\r\n          [ValidateSet(\"WU\",\"MU\",\"WSUS\",\"DCAT\",\"STORE\",\"OTHER\")]\r\n          [string]$Service = 'MU',\r\n          # The http/https fqdn for the Windows Server Update Server\r\n          [Parameter()]\r\n          [string]$WSUSServer\r\n        )\r\n        \r\n        Function ConvertFrom-InstallationResult {\r\n        [CmdletBinding()]\r\n            param (\r\n                [Parameter()]\r\n                [int]$Result\r\n            )        \r\n            switch ($Result) {\r\n                2 { $Text = 'Succeeded' }\r\n                3 { $Text = 'Succeeded with errors' }\r\n                4 { $Text = 'Failed' }\r\n                5 { $Text = 'Cancelled' }\r\n                Default { $Text = \"Unexpected ($Result)\"}\r\n            }        \r\n            Return $Text\r\n        }\r\n        Start-Transcript -Path \"$env:SystemRoot\\Logs\\ImageBuild\\Install-Updates.log\"\r\n        Switch ($Service.ToUpper()) {\r\n            'WU' { $ServerSelection = 2 }\r\n            'MU' { $ServerSelection = 3; $ServiceId = \"7971f918-a847-4430-9279-4a52d1efe18d\" }\r\n            'WSUS' { $ServerSelection = 1 }\r\n            'DCAT' { $ServerSelection = 3; $ServiceId = \"855E8A7C-ECB4-4CA3-B045-1DFA50104289\" }\r\n            'STORE' { $serverSelection = 3; $ServiceId = \"117cab2d-82b1-4b5a-a08c-4d62dbee7782\" }\r\n            'OTHER' { $ServerSelection = 3; $ServiceId = $Service }\r\n        }        \r\n        If ($Service -eq 'MU') {\r\n            $UpdateServiceManager = New-Object -ComObject Microsoft.Update.ServiceManager\r\n            $UpdateServiceManager.ClientApplicationID = $AppName\r\n            $UpdateServiceManager.AddService2(\"7971f918-a847-4430-9279-4a52d1efe18d\", 7, \"\")\r\n            $null = cmd /c reg.exe ADD \"HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\" /v AllowMUUpdateService /t REG_DWORD /d 1 /f '2>&1'\r\n            Write-Output \"Added Registry entry to configure Microsoft Update. Exit Code: [$LastExitCode]\"\r\n        } Elseif ($Service -eq 'WSUS' -and $WSUSServer) {\r\n            $null = cmd /c reg.exe ADD \"HKLM\\Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\" /v WUServer /t REG_SZ /d $WSUSServer /f '2>&1'\r\n            $null = cmd /c reg.exe ADD \"HKLM\\Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\" /v WUStatusServer /t REG_SZ /d $WSUSServer /f '2>&1'\r\n            Write-Output \"Added Registry entry to configure WSUS Server. Exit Code: [$LastExitCode]\"\r\n        }        \r\n        $UpdateSession = New-Object -ComObject Microsoft.Update.Session\r\n        $updateSession.ClientApplicationID = $AppName   \r\n        $UpdateSearcher = $UpdateSession.CreateUpdateSearcher()\r\n        $UpdateSearcher.ServerSelection = $ServerSelection\r\n        If ($ServerSelection -eq 3) {\r\n            $UpdateSearcher.ServiceId = $ServiceId\r\n        }\r\n        Write-Output \"Searching for Updates...\"\r\n        $SearchResult = $UpdateSearcher.Search($Criteria)\r\n        If ($SearchResult.Updates.Count -eq 0) {\r\n            Write-Output \"There are no applicable updates.\"\r\n            Write-Output \"Now Exiting\"\r\n            Exit $ExitCode\r\n        }\r\n        Write-Output \"List of applicable items found for this computer:\"\r\n        For ($i = 0; $i -lt $SearchResult.Updates.Count; $i++) {\r\n            $Update = $SearchResult.Updates[$i]\r\n            Write-Output \"$($i + 1) > $($update.Title)\"\r\n        }\r\n        $AtLeastOneAdded = $false\r\n        $ExclusiveAdded = $false   \r\n        $UpdatesToDownload = New-Object -ComObject Microsoft.Update.UpdateColl\r\n        Write-Output \"Checking search results:\"\r\n        For ($i = 0; $i -lt $SearchResult.Updates.Count; $i++) {\r\n            $Update = $SearchResult.Updates[$i]\r\n            $AddThisUpdate = $false        \r\n            If ($ExclusiveAdded) {\r\n                Write-Output \"$($i + 1) > skipping: '$($update.Title)' because an exclusive update has already been selected.\"\r\n            } Else {\r\n                $AddThisUpdate = $true\r\n            }        \r\n            if ($ExcludePreviewUpdates -and $update.Title -like '*Preview*') {\r\n                Write-Output \"$($i + 1) > Skipping: '$($update.Title)' because it is a preview update.\"\r\n                $AddThisUpdate = $false\r\n            }        \r\n            If ($AddThisUpdate) {\r\n                $PropertyTest = 0\r\n                $ErrorActionPreference = 'SilentlyContinue'\r\n                $PropertyTest = $Update.InstallationBehavior.Impact\r\n                $ErrorActionPreference = 'Stop'\r\n                If ($PropertyTest -eq 2) {\r\n                    If ($AtLeastOneAdded) {\r\n                        Write-Output \"$($i + 1) > skipping: '$($update.Title)' because it is exclusive and other updates are being installed first.\"\r\n                        $AddThisUpdate = $false\r\n                    }\r\n                }\r\n            }\r\n            If ($AddThisUpdate) {\r\n                Write-Output \"$($i + 1) > adding: '$($update.Title)'\"\r\n                $UpdatesToDownload.Add($Update) | out-null\r\n                $AtLeastOneAdded = $true\r\n                $ErrorActionPreference = 'SilentlyContinue'\r\n                $PropertyTest = $Update.InstallationBehavior.Impact\r\n                $ErrorActionPreference = 'Stop'\r\n                If ($PropertyTest -eq 2) {\r\n                    Write-Output \"This update is exclusive; skipping remaining updates\"\r\n                    $ExclusiveAdded = $true\r\n                }\r\n            }\r\n        }        \r\n        $UpdatesToInstall = New-Object -ComObject Microsoft.Update.UpdateColl\r\n        Write-Output \"Downloading updates...\"\r\n        $Downloader = $UpdateSession.CreateUpdateDownloader()\r\n        $Downloader.Updates = $UpdatesToDownload\r\n        $Downloader.Download()\r\n        Write-Output \"Successfully downloaded updates:\"        \r\n        For ($i = 0; $i -lt $UpdatesToDownload.Count; $i++) {\r\n            $Update = $UpdatesToDownload[$i]\r\n            If ($Update.IsDownloaded -eq $true) {\r\n                Write-Output \"$($i + 1) > $($update.title)\"\r\n                $UpdatesToInstall.Add($Update) | out-null\r\n            }\r\n        }        \r\n        If ($UpdatesToInstall.Count -gt 0) {\r\n            Write-Output \"Now installing updates...\"\r\n            $Installer = $UpdateSession.CreateUpdateInstaller()\r\n            $Installer.Updates = $UpdatesToInstall\r\n            $InstallationResult = $Installer.Install()\r\n            $Text = ConvertFrom-InstallationResult -Result $InstallationResult.ResultCode\r\n            Write-Output \"Installation Result: $($Text)\"        \r\n            If ($InstallationResult.RebootRequired) {\r\n                Write-Output \"Atleast one update requires a reboot to complete the installation.\"\r\n            }\r\n        }\r\n        If ($service -eq 'MU') {\r\n            Reg.exe DELETE \"HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\" /v AllowMUUpdateService /f\r\n        } Elseif ($Service -eq 'WSUS' -and $WSUSServer) {\r\n            reg.exe DELETE \"HKLM\\Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\" /v WUServer /f\r\n            reg.exe DELETE \"HKLM\\Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\" /v WUStatusServer /f\r\n        }\r\n        Stop-Transcript\r\n      "
+                  "script": "        param (\r\n          # The App Name to pass to the WUA API as the calling application.\r\n          [Parameter()]\r\n          [String]$AppName = \"Windows Update API Script\",\r\n          # The search criteria to be used.\r\n          [Parameter()]\r\n          [String]$Criteria = \"IsInstalled=0 and Type='Software' and IsHidden=0\",\r\n          [Parameter()]\r\n          [bool]$ExcludePreviewUpdates = $true,\r\n          # Default service (WSUS if machine is configured to use it, or MU if opted in, or WU otherwise.)\r\n          [Parameter()]\r\n          [ValidateSet(\"WU\",\"MU\",\"WSUS\",\"DCAT\",\"STORE\",\"OTHER\")]\r\n          [string]$Service = 'MU',\r\n          # The http/https fqdn for the Windows Server Update Server\r\n          [Parameter()]\r\n          [string]$WSUSServer\r\n        )\r\n        \r\n        Function ConvertFrom-InstallationResult {\r\n        [CmdletBinding()]\r\n            param (\r\n                [Parameter()]\r\n                [int]$Result\r\n            )        \r\n            switch ($Result) {\r\n                2 { $Text = 'Succeeded' }\r\n                3 { $Text = 'Succeeded with errors' }\r\n                4 { $Text = 'Failed' }\r\n                5 { $Text = 'Cancelled' }\r\n                Default { $Text = \"Unexpected ($Result)\"}\r\n            }        \r\n            Return $Text\r\n        }\r\n        Start-Transcript -Path \"$env:SystemRoot\\Logs\\ImageBuild\\Install-Updates.log\"\r\n        Switch ($Service.ToUpper()) {\r\n            'WU' { $ServerSelection = 2 }\r\n            'MU' { $ServerSelection = 3; $ServiceId = \"7971f918-a847-4430-9279-4a52d1efe18d\" }\r\n            'WSUS' { $ServerSelection = 1 }\r\n            'DCAT' { $ServerSelection = 3; $ServiceId = \"855E8A7C-ECB4-4CA3-B045-1DFA50104289\" }\r\n            'STORE' { $serverSelection = 3; $ServiceId = \"117cab2d-82b1-4b5a-a08c-4d62dbee7782\" }\r\n            'OTHER' { $ServerSelection = 3; $ServiceId = $Service }\r\n        }        \r\n        If ($Service -eq 'MU') {\r\n            $UpdateServiceManager = New-Object -ComObject Microsoft.Update.ServiceManager\r\n            $UpdateServiceManager.ClientApplicationID = $AppName\r\n            $UpdateServiceManager.AddService2(\"7971f918-a847-4430-9279-4a52d1efe18d\", 7, \"\")\r\n            $null = cmd /c reg.exe ADD \"HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\" /v AllowMUUpdateService /t REG_DWORD /d 1 /f '2>&1'\r\n            Write-Output \"Added Registry entry to configure Microsoft Update. Exit Code: [$LastExitCode]\"\r\n        } Elseif ($Service -eq 'WSUS' -and $WSUSServer) {\r\n            $null = cmd /c reg.exe ADD \"HKLM\\Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\" /v WUServer /t REG_SZ /d $WSUSServer /f '2>&1'\r\n            $null = cmd /c reg.exe ADD \"HKLM\\Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\" /v WUStatusServer /t REG_SZ /d $WSUSServer /f '2>&1'\r\n            Write-Output \"Added Registry entry to configure WSUS Server. Exit Code: [$LastExitCode]\"\r\n        }        \r\n        $UpdateSession = New-Object -ComObject Microsoft.Update.Session\r\n        $updateSession.ClientApplicationID = $AppName   \r\n        $UpdateSearcher = $UpdateSession.CreateUpdateSearcher()\r\n        $UpdateSearcher.ServerSelection = $ServerSelection\r\n        If ($ServerSelection -eq 3) {\r\n            $UpdateSearcher.ServiceId = $ServiceId\r\n        }\r\n        Write-Output \"Searching for Updates...\"\r\n        $SearchResult = $UpdateSearcher.Search($Criteria)\r\n        If ($SearchResult.Updates.Count -gt 0) {\r\n            Write-Output \"List of applicable items found for this computer:\"\r\n            For ($i = 0; $i -lt $SearchResult.Updates.Count; $i++) {\r\n                $Update = $SearchResult.Updates[$i]\r\n                Write-Output \"$($i + 1) > $($update.Title)\"\r\n            }\r\n            $AtLeastOneAdded = $false\r\n            $ExclusiveAdded = $false   \r\n            $UpdatesToDownload = New-Object -ComObject Microsoft.Update.UpdateColl\r\n            Write-Output \"Checking search results:\"\r\n            For ($i = 0; $i -lt $SearchResult.Updates.Count; $i++) {\r\n                $Update = $SearchResult.Updates[$i]\r\n                $AddThisUpdate = $false        \r\n                If ($ExclusiveAdded) {\r\n                    Write-Output \"$($i + 1) > skipping: '$($update.Title)' because an exclusive update has already been selected.\"\r\n                } Else {\r\n                    $AddThisUpdate = $true\r\n                }        \r\n                if ($ExcludePreviewUpdates -and $update.Title -like '*Preview*') {\r\n                    Write-Output \"$($i + 1) > Skipping: '$($update.Title)' because it is a preview update.\"\r\n                    $AddThisUpdate = $false\r\n                }        \r\n                If ($AddThisUpdate) {\r\n                    $PropertyTest = 0\r\n                    $ErrorActionPreference = 'SilentlyContinue'\r\n                    $PropertyTest = $Update.InstallationBehavior.Impact\r\n                    $ErrorActionPreference = 'Stop'\r\n                    If ($PropertyTest -eq 2) {\r\n                        If ($AtLeastOneAdded) {\r\n                            Write-Output \"$($i + 1) > skipping: '$($update.Title)' because it is exclusive and other updates are being installed first.\"\r\n                            $AddThisUpdate = $false\r\n                        }\r\n                    }\r\n                }\r\n                If ($AddThisUpdate) {\r\n                    Write-Output \"$($i + 1) > adding: '$($update.Title)'\"\r\n                    $UpdatesToDownload.Add($Update) | out-null\r\n                    $AtLeastOneAdded = $true\r\n                    $ErrorActionPreference = 'SilentlyContinue'\r\n                    $PropertyTest = $Update.InstallationBehavior.Impact\r\n                    $ErrorActionPreference = 'Stop'\r\n                    If ($PropertyTest -eq 2) {\r\n                        Write-Output \"This update is exclusive; skipping remaining updates\"\r\n                        $ExclusiveAdded = $true\r\n                    }\r\n                }\r\n            }        \r\n            $UpdatesToInstall = New-Object -ComObject Microsoft.Update.UpdateColl\r\n            Write-Output \"Downloading updates...\"\r\n            $Downloader = $UpdateSession.CreateUpdateDownloader()\r\n            $Downloader.Updates = $UpdatesToDownload\r\n            $Downloader.Download()\r\n            Write-Output \"Successfully downloaded updates:\"        \r\n            For ($i = 0; $i -lt $UpdatesToDownload.Count; $i++) {\r\n                $Update = $UpdatesToDownload[$i]\r\n                If ($Update.IsDownloaded -eq $true) {\r\n                    Write-Output \"$($i + 1) > $($update.title)\"\r\n                    $UpdatesToInstall.Add($Update) | out-null\r\n                }\r\n            }        \r\n            If ($UpdatesToInstall.Count -gt 0) {\r\n                Write-Output \"Now installing updates...\"\r\n                $Installer = $UpdateSession.CreateUpdateInstaller()\r\n                $Installer.Updates = $UpdatesToInstall\r\n                $InstallationResult = $Installer.Install()\r\n                $Text = ConvertFrom-InstallationResult -Result $InstallationResult.ResultCode\r\n                Write-Output \"Installation Result: $($Text)\"        \r\n                If ($InstallationResult.RebootRequired) {\r\n                    Write-Output \"Atleast one update requires a reboot to complete the installation.\"\r\n                }\r\n            }\r\n        }\r\n        Else {\r\n            Write-Output \"There are no applicable updates.\"\r\n        }\r\n       \r\n        If ($service -eq 'MU') {\r\n            Reg.exe DELETE \"HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\" /v AllowMUUpdateService /f\r\n        } Elseif ($Service -eq 'WSUS' -and $WSUSServer) {\r\n            reg.exe DELETE \"HKLM\\Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\" /v WUServer /f\r\n            reg.exe DELETE \"HKLM\\Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\" /v WUStatusServer /f\r\n        }\r\n        Stop-Transcript\r\n      "
                 },
                 "treatFailureAsDeploymentFailure": true
               }
@@ -1370,6 +1314,7 @@
       ]
     },
     {
+      "condition": "[parameters('installUpdates')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('restart-vm-2-{0}', parameters('deploymentNameSuffix'))]",
@@ -1407,8 +1352,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.26.170.59819",
-              "templateHash": "14414542062672835812"
+              "version": "0.33.93.31351",
+              "templateHash": "7400813670576825580"
             }
           },
           "parameters": {
@@ -1446,32 +1391,20 @@
                 "asyncExecution": false,
                 "parameters": [
                   {
-                    "name": "Environment",
-                    "value": "[environment().name]"
-                  },
-                  {
-                    "name": "ResourceGroupName",
-                    "value": "[parameters('resourceGroupName')]"
-                  },
-                  {
-                    "name": "SubscriptionId",
-                    "value": "[subscription().subscriptionId]"
-                  },
-                  {
-                    "name": "TenantId",
-                    "value": "[tenant().tenantId]"
+                    "name": "ResourceManagerUri",
+                    "value": "[environment().resourceManager]"
                   },
                   {
                     "name": "UserAssignedIdentityClientId",
                     "value": "[parameters('userAssignedIdentityClientId')]"
                   },
                   {
-                    "name": "VirtualMachineName",
-                    "value": "[parameters('imageVirtualMachineName')]"
+                    "name": "VmResourceId",
+                    "value": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Compute/virtualMachines', parameters('imageVirtualMachineName'))]"
                   }
                 ],
                 "source": {
-                  "script": "        param(\r\n          [string]$Environment,\r\n          [string]$ResourceGroupName,\r\n          [string]$SubscriptionId,\r\n          [string]$TenantId,\r\n          [string]$UserAssignedIdentityClientId,\r\n          [string]$VirtualMachineName\r\n        )\r\n        $ErrorActionPreference = 'Stop'\r\n        Connect-AzAccount -Environment $Environment -Tenant $TenantId -Subscription $SubscriptionId -Identity -AccountId $UserAssignedIdentityClientId | Out-Null\r\n        Restart-AzVM -ResourceGroupName $ResourceGroupName -Name $VirtualMachineName\r\n        $AgentStatus = $Null\r\n        while ($Null -eq $AgentStatus) \r\n        {\r\n            Start-Sleep -Seconds 5\r\n            $AgentStatus = (Get-AzVM -ResourceGroupName $ResourceGroupName -Name $VirtualMachineName -Status).VMAgent\r\n        }\r\n      "
+                  "script": "        param(\r\n            [Parameter(Mandatory=$true)]\r\n            [string]$ResourceManagerUri,\r\n\r\n            [Parameter(Mandatory=$true)]\r\n            [string]$UserAssignedIdentityClientId,\r\n\r\n            [Parameter(Mandatory=$true)]\r\n            [string]$VmResourceId\r\n        )\r\n\r\n        $ErrorActionPreference = 'Stop'\r\n        $WarningPreference = 'SilentlyContinue'\r\n\r\n        Try {\r\n            # Fix the resource manager URI since only AzureCloud contains a trailing slash\r\n            $ResourceManagerUriFixed = if($ResourceManagerUri[-1] -eq '/'){$ResourceManagerUri.Substring(0,$ResourceManagerUri.Length - 1)} else {$ResourceManagerUri}\r\n\r\n            # Get an access token for Azure resources\r\n            $AzureManagementAccessToken = (Invoke-RestMethod `\r\n                -Headers @{Metadata=\"true\"} `\r\n                -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n            # Set header for Azure Management API\r\n            $AzureManagementHeader = @{\r\n                'Content-Type'='application/json'\r\n                'Authorization'='Bearer ' + $AzureManagementAccessToken\r\n            }\r\n            \r\n            # Restart the VM\r\n            $null = Invoke-RestMethod -Headers $AzureManagementHeader -Method 'Post' -Uri $($ResourceManagerUriFixed + $VmResourceId + '/restart?api-version=2024-03-01')\r\n            $lastProvisioningState = \"\"\r\n            $VmStatus = Invoke-RestMethod -Headers $AzureManagementHeader -Method 'Get' -Uri $($ResourceManagerUriFixed + $VmResourceId + '/instanceView?api-version=2024-03-01')\r\n            $provisioningState = ($VMStatus.statuses | Where-Object {$_.code -like 'PowerState*'}).code\r\n            While ($provisioningState -ne \"PowerState/running\") {\r\n                $lastProvisioningState = $provisioningState\r\n                Start-Sleep -Seconds 5\r\n                $VmStatus = Invoke-RestMethod -Headers $AzureManagementHeader -Method 'Get' -Uri $($ResourceManagerUriFixed + $VmResourceId + '/instanceView?api-version=2024-03-01')\r\n                $provisioningState = ($VMStatus.statuses | Where-Object {$_.code -like 'PowerState*'}).code\r\n            }   \r\n        }\r\n        catch {\r\n            throw\r\n        }\r\n      "
                 }
               }
             }
@@ -1515,8 +1448,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.26.170.59819",
-              "templateHash": "7415404915420906908"
+              "version": "0.33.93.31351",
+              "templateHash": "18367526052756419166"
             }
           },
           "parameters": {
@@ -1596,8 +1529,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.26.170.59819",
-              "templateHash": "15694908783439778041"
+              "version": "0.33.93.31351",
+              "templateHash": "12290487570291502704"
             }
           },
           "parameters": {
@@ -1636,32 +1569,20 @@
                 "asyncExecution": false,
                 "parameters": [
                   {
-                    "name": "Environment",
-                    "value": "[environment().name]"
-                  },
-                  {
-                    "name": "ResourceGroupName",
-                    "value": "[parameters('resourceGroupName')]"
-                  },
-                  {
-                    "name": "SubscriptionId",
-                    "value": "[subscription().subscriptionId]"
-                  },
-                  {
-                    "name": "TenantId",
-                    "value": "[tenant().tenantId]"
+                    "name": "ResourceManagerUri",
+                    "value": "[environment().resourceManager]"
                   },
                   {
                     "name": "UserAssignedIdentityClientId",
                     "value": "[parameters('userAssignedIdentityClientId')]"
                   },
                   {
-                    "name": "VirtualMachineName",
-                    "value": "[parameters('imageVirtualMachineName')]"
+                    "name": "VmResourceId",
+                    "value": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Compute/virtualMachines', parameters('imageVirtualMachineName'))]"
                   }
                 ],
                 "source": {
-                  "script": "        param(\r\n          [string]$Environment,\r\n          [string]$ResourceGroupName,\r\n          [string]$SubscriptionId,\r\n          [string]$TenantId,\r\n          [string]$UserAssignedIdentityClientId,\r\n          [string]$VirtualMachineName\r\n        )\r\n        $ErrorActionPreference = 'Stop'\r\n        Connect-AzAccount -Environment $Environment -Tenant $TenantId -Subscription $SubscriptionId -Identity -AccountId $UserAssignedIdentityClientId | Out-Null\r\n        $PowerStatus = ''\r\n        while ($PowerStatus -ne 'VM stopped') \r\n        {\r\n            Start-Sleep -Seconds 5\r\n            $PowerStatus = (Get-AzVM -ResourceGroupName $ResourceGroupName -Name $VirtualMachineName -Status).Statuses[1].DisplayStatus\r\n        }\r\n        Set-AzVm -ResourceGroupName $ResourceGroupName -Name $VirtualMachineName -Generalized\r\n        Start-Sleep -Seconds 30\r\n      "
+                  "script": "        param(\r\n            [Parameter(Mandatory=$true)]\r\n            [string]$ResourceManagerUri,\r\n\r\n            [Parameter(Mandatory=$true)]\r\n            [string]$UserAssignedIdentityClientId,\r\n\r\n            [Parameter(Mandatory=$true)]\r\n            [string]$VmResourceId\r\n        )\r\n\r\n        $ErrorActionPreference = 'Stop'\r\n        $WarningPreference = 'SilentlyContinue'\r\n\r\n        Try {\r\n            # Fix the resource manager URI since only AzureCloud contains a trailing slash\r\n            $ResourceManagerUriFixed = if($ResourceManagerUri[-1] -eq '/'){$ResourceManagerUri.Substring(0,$ResourceManagerUri.Length - 1)} else {$ResourceManagerUri}\r\n\r\n            # Get an access token for Azure resources\r\n            $AzureManagementAccessToken = (Invoke-RestMethod `\r\n                -Headers @{Metadata=\"true\"} `\r\n                -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n            # Set header for Azure Management API\r\n            $AzureManagementHeader = @{\r\n                'Content-Type'='application/json'\r\n                'Authorization'='Bearer ' + $AzureManagementAccessToken\r\n            }\r\n\r\n            # Stop the VM\r\n            #$null = Invoke-RestMethod -Headers $AzureManagementHeader -Method 'Post' -Uri $($ResourceManagerUriFixed + $VmResourceId + '/powerOff?api-version=2024-03-01')\r\n            # Wait for it to show as stopped in Azure\r\n            Do {\r\n                Start-Sleep -Seconds 5\r\n                $VmStatus = Invoke-RestMethod -Headers $AzureManagementHeader -Method 'Get' -Uri $($ResourceManagerUriFixed + $VmResourceId + '/instanceView?api-version=2024-03-01')\r\n                $VMPowerState = ($VMStatus.statuses | Where-Object {$_.code -like 'PowerState*'}).displayStatus\r\n\r\n            } Until ($VMPowerState -eq 'VM stopped')\r\n            # Generatlize the VM\r\n            $null = Invoke-RestMethod -Headers $AzureManagementHeader -Method 'Post' -Uri $($ResourceManagerUriFixed + $VmResourceId + '/generalize?api-version=2024-03-01')\r\n        }\r\n        catch {\r\n            throw\r\n        }\r\n      "
                 }
               }
             }
@@ -1729,8 +1650,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.26.170.59819",
-              "templateHash": "673135601830674247"
+              "version": "0.33.93.31351",
+              "templateHash": "18262891690771946297"
             }
           },
           "parameters": {
@@ -1781,7 +1702,7 @@
               "apiVersion": "2022-03-03",
               "name": "[format('{0}/{1}', parameters('computeGalleryName'), parameters('imageDefinitionName'))]",
               "location": "[parameters('location')]",
-              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/galleries'), parameters('tags')['Microsoft.Compute/galleries'], createObject()), parameters('mlzTags'))]",
+              "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/galleries'), createObject()), parameters('mlzTags'))]",
               "properties": {
                 "architecture": "x64",
                 "features": [
@@ -1805,7 +1726,7 @@
               "apiVersion": "2022-03-03",
               "name": "[format('{0}/{1}/{2}', parameters('computeGalleryName'), parameters('imageDefinitionName'), parameters('imageVersionNumber'))]",
               "location": "[parameters('location')]",
-              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/galleries'), parameters('tags')['Microsoft.Compute/galleries'], createObject()), parameters('mlzTags'))]",
+              "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/galleries'), createObject()), parameters('mlzTags'))]",
               "properties": {
                 "publishingProfile": {
                   "excludeFromLatest": "[parameters('excludeFromLatest')]",
@@ -1885,8 +1806,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.26.170.59819",
-              "templateHash": "874338715058883059"
+              "version": "0.33.93.31351",
+              "templateHash": "16391379206468268227"
             }
           },
           "parameters": {
@@ -1921,7 +1842,7 @@
               "location": "[parameters('location')]",
               "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
               "properties": {
-                "treatFailureAsDeploymentFailure": true,
+                "treatFailureAsDeploymentFailure": false,
                 "asyncExecution": "[if(parameters('enableBuildAutomation'), false(), true())]",
                 "parameters": [
                   {
@@ -1929,28 +1850,16 @@
                     "value": "[string(parameters('enableBuildAutomation'))]"
                   },
                   {
-                    "name": "Environment",
-                    "value": "[environment().name]"
+                    "name": "ResourceManagerUri",
+                    "value": "[environment().resourceManager]"
                   },
                   {
-                    "name": "ImageVmName",
-                    "value": "[parameters('imageVirtualMachineName')]"
+                    "name": "ImageVmResourceId",
+                    "value": "[resourceId('Microsoft.Compute/virtualMachines', parameters('imageVirtualMachineName'))]"
                   },
                   {
-                    "name": "ManagementVmName",
-                    "value": "[parameters('virtualMachineName')]"
-                  },
-                  {
-                    "name": "ResourceGroupName",
-                    "value": "[resourceGroup().name]"
-                  },
-                  {
-                    "name": "SubscriptionId",
-                    "value": "[subscription().subscriptionId]"
-                  },
-                  {
-                    "name": "TenantId",
-                    "value": "[tenant().tenantId]"
+                    "name": "ManagementVmResourceId",
+                    "value": "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
                   },
                   {
                     "name": "UserAssignedIdentityClientId",
@@ -1958,7 +1867,7 @@
                   }
                 ],
                 "source": {
-                  "script": "        param(\r\n          [string]$EnableBuildAutomation,\r\n          [string]$Environment,\r\n          [string]$ImageVmName,\r\n          [string]$ManagementVmName,\r\n          [string]$ResourceGroupName,\r\n          [string]$SubscriptionId,\r\n          [string]$TenantId,\r\n          [string]$UserAssignedIdentityClientId\r\n        )\r\n        $ErrorActionPreference = 'Stop'\r\n        Connect-AzAccount -Environment $Environment -Tenant $TenantId -Subscription $SubscriptionId -Identity -AccountId $UserAssignedIdentityClientId | Out-Null\r\n        Remove-AzVM -ResourceGroupName $ResourceGroupName -Name $ImageVmName -Force\r\n        if($EnableBuildAutomation -eq 'false')\r\n        {\r\n          Remove-AzVM -ResourceGroupName $ResourceGroupName -Name $ManagementVmName -NoWait -Force -AsJob\r\n        }\r\n      "
+                  "script": "        param(\r\n            [Parameter(Mandatory=$false)]\r\n            [string]$EnableBuildAutomation,\r\n\r\n            [Parameter(Mandatory=$true)]\r\n            [string]$ResourceManagerUri,\r\n\r\n            [Parameter(Mandatory=$true)]\r\n            [string]$UserAssignedIdentityClientId,\r\n\r\n            [Parameter(Mandatory=$true)]\r\n            [string]$ImageVmResourceId,\r\n\r\n            [Parameter(Mandatory=$true)]\r\n            [string]$ManagementVmResourceId\r\n        )\r\n\r\n        $ErrorActionPreference = 'Stop'\r\n        $WarningPreference = 'SilentlyContinue'\r\n\r\n        Try {\r\n            # Fix the resource manager URI since only AzureCloud contains a trailing slash\r\n            $ResourceManagerUriFixed = if($ResourceManagerUri[-1] -eq '/'){$ResourceManagerUri.Substring(0,$ResourceManagerUri.Length - 1)} else {$ResourceManagerUri}\r\n\r\n            # Get an access token for Azure resources\r\n            $AzureManagementAccessToken = (Invoke-RestMethod `\r\n                -Headers @{Metadata=\"true\"} `\r\n                -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n            # Set header for Azure Management API\r\n            $AzureManagementHeader = @{\r\n                'Content-Type'='application/json'\r\n                'Authorization'='Bearer ' + $AzureManagementAccessToken\r\n            }\r\n\r\n            # Delete Image VM\r\n            Invoke-RestMethod -Headers $AzureManagementHeader -Method 'DELETE' -Uri $($ResourceManagerUriFixed + $ImageVmResourceId + '?api-version=2024-03-01')\r\n            if($EnableBuildAutomation -eq 'false') {\r\n              # Wait 20 secs to make sure run command takes at least 20 secs to prevent failure.\r\n              Start-Sleep -Seconds 20\r\n              Invoke-RestMethod -Headers $AzureManagementHeader -Method 'DELETE' -Uri $($ResourceManagerUriFixed + $ManagementVmResourceId + '?api-version=2024-03-01')\r\n            }\r\n        }\r\n        catch {\r\n            throw\r\n        }\r\n      "
                 }
               }
             }

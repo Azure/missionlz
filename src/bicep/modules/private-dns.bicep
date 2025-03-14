@@ -28,7 +28,7 @@ var virtualNetworks = union([
 resource privateDnsZones 'Microsoft.Network/privateDnsZones@2018-09-01' = [for name in privateDnsZoneNames: {
   name: name
   location: 'global'
-  tags: union(contains(tags, 'Microsoft.Network/privateDnsZones') ? tags['Microsoft.Network/privateDnsZones'] : {}, mlzTags)
+  tags: union(tags[?'Microsoft.Network/privateDnsZones'] ?? {}, mlzTags)
 }]
 
 @batchSize(1)

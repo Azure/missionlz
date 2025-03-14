@@ -10,15 +10,15 @@ param domainJoinUserPrincipalName string
 param keyVaultName string
 param keyVaultPrivateDnsZoneResourceId string
 param location string
-@secure()
-param localAdministratorPassword string
-@secure()
-param localAdministratorUsername string
 param mlzTags object
 param roleDefinitionResourceId string
 param subnetResourceId string
 param tags object
 param userAssignedIdentityPrincipalId string
+@secure()
+param virtualMachineAdminPassword string
+@secure()
+param virtualMachineAdminUsername string
 
 var privateEndpointName = 'pe-${keyVaultName}'
 
@@ -32,12 +32,12 @@ var Secrets = [
     value: domainJoinUserPrincipalName
   }
   {
-    name: 'LocalAdministratorPassword'
-    value: localAdministratorPassword
+    name: 'VirtualMachineAdminPassword'
+    value: virtualMachineAdminPassword
   }
   {
-    name: 'LocalAdministratorUsername'
-    value: localAdministratorUsername
+    name: 'VirtualMachineAdminUsername'
+    value: virtualMachineAdminUsername
   }
 ]
 
@@ -45,7 +45,7 @@ var Secrets = [
 resource keyVault 'Microsoft.KeyVault/vaults@2021-10-01' = {
   name: keyVaultName
   location: location
-  tags: union(contains(tags, 'Microsoft.KeyVault/vaults') ? tags['Microsoft.KeyVault/vaults'] : {}, mlzTags)
+  tags: union(tags[?'Microsoft.KeyVault/vaults'] ?? {}, mlzTags)
   properties: {
     tenantId: subscription().tenantId
     sku: {
@@ -70,10 +70,7 @@ resource keyVault 'Microsoft.KeyVault/vaults@2021-10-01' = {
 resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-05-01' = {
   name: privateEndpointName
   location: location
-  tags: union(
-    contains(tags, 'Microsoft.Network/privateEndpoints') ? tags['Microsoft.Network/privateEndpoints'] : {},
-    mlzTags
-  )
+  tags: union(tags[?'Microsoft.Network/privateEndpoints'] ?? {}, mlzTags)
   properties: {
     privateLinkServiceConnections: [
       {
@@ -117,7 +114,7 @@ resource secrets 'Microsoft.KeyVault/vaults/secrets@2021-10-01' = [
   for Secret in Secrets: {
     parent: keyVault
     name: Secret.name
-    tags: union(contains(tags, 'Microsoft.KeyVault/vaults') ? tags['Microsoft.KeyVault/vaults'] : {}, mlzTags)
+    tags: union(tags[?'Microsoft.KeyVault/vaults'] ?? {}, mlzTags)
     properties: {
       value: Secret.value
     }

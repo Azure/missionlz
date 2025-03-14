@@ -14,7 +14,7 @@ param vNetDnsServers array
 resource virtualNetwork 'Microsoft.Network/virtualNetworks@2021-02-01' = {
   name: name
   location: location
-  tags: union(contains(tags, 'Microsoft.Network/virtualNetworks') ? tags['Microsoft.Network/virtualNetworks'] : {}, mlzTags)
+  tags: union(tags[?'Microsoft.Network/virtualNetworks'] ?? {}, mlzTags)
   properties: {
     addressSpace: {
       addressPrefixes: [

@@ -16,7 +16,7 @@ param tags object
 resource routeTable 'Microsoft.Network/routeTables@2021-02-01' = {
   name: name
   location: location
-  tags: union(contains(tags, 'Microsoft.Network/routeTables') ? tags['Microsoft.Network/routeTables'] : {}, mlzTags)
+  tags: union(tags[?'Microsoft.Network/routeTables'] ?? {}, mlzTags)
   properties: {
     disableBgpRoutePropagation: disableBgpRoutePropagation
     routes: [

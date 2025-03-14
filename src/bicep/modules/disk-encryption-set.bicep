@@ -15,7 +15,7 @@ param workloadShortName string
 resource diskEncryptionSet 'Microsoft.Compute/diskEncryptionSets@2023-04-02' = {
   name: diskEncryptionSetName
   location: location
-  tags: union(contains(tags, 'Microsoft.Compute/diskEncryptionSets') ? tags['Microsoft.Compute/diskEncryptionSets'] : {}, mlzTags)
+  tags: union(tags[?'Microsoft.Compute/diskEncryptionSets'] ?? {}, mlzTags)
   identity: {
     type: 'SystemAssigned'
   }

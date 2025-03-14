@@ -3,38 +3,67 @@ Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
 
-@allowed([
-  'NISTRev4'
-  'NISTRev5'
-  'IL5' // AzureUsGoverment only, trying to deploy IL5 in AzureCloud will switch to NISTRev4
-  'CMMC'
-])
-@description('[NISTRev4/NISTRev5/IL5/CMMC] Built-in policy assignments to assign, default is NISTRev4. IL5 is only available for AzureUsGovernment and will switch to NISTRev4 if tried in AzureCloud.')
-param builtInAssignment string = 'NISTRev4'
+param builtInAssignment string
+param deployRemediation bool
+param location string
 param logAnalyticsWorkspaceResourceId string
-
-@description('Starts a policy remediation for the VM Agent policies in hub RG. Set to false by default since this is time consuming in deployment.')
-param deployRemediation bool = false
-
-@description('The location of this resource')
-param location string = resourceGroup().location
+param networkWatcherResourceGroupName string
+param windowsAdministratorsGroupMembership string
 
 var policyDefinitionID = {
   NISTRev4: {
     id: '/providers/Microsoft.Authorization/policySetDefinitions/cf25b9c1-bd23-4eb6-bd2c-f4f3ac644a5f'
-    parameters: json(replace(loadTextContent('policies/NISTRev4-policyAssignmentParameters.json'), '<LAWORKSPACE>', logAnalyticsWorkspace.id))
+    parameters: union(json(replace(loadTextContent('policies/NISTRev4-policyAssignmentParameters.json'), 'NetworkWatcherRG', networkWatcherResourceGroupName)), {
+      listOfMembersToIncludeInWindowsVMAdministratorsGroup: {
+        value: windowsAdministratorsGroupMembership
+      }
+      logAnalyticsWorkspaceIdforVMReporting: {
+        value:  logAnalyticsWorkspace.id
+      }
+      'resourceGroupName-b6e2945c-0b7b-40f5-9233-7a5323b5cdc6': {
+        value: networkWatcherResourceGroupName
+      }
+    })
   }
   NISTRev5: {
     id: '/providers/Microsoft.Authorization/policySetDefinitions/179d1daa-458f-4e47-8086-2a68d0d6c38f'
-    parameters: json(loadTextContent('policies/NISTRev5-policyAssignmentParameters.json'))
+    parameters: union(json(loadTextContent('policies/NISTRev5-policyAssignmentParameters.json')), {
+      'resourceGroupName-b6e2945c-0b7b-40f5-9233-7a5323b5cdc6': {
+        value: networkWatcherResourceGroupName
+      }
+    })
   }
   IL5: {
     id: '/providers/Microsoft.Authorization/policySetDefinitions/f9a961fa-3241-4b20-adc4-bbf8ad9d7197'
-    parameters: json(replace(loadTextContent('policies/IL5-policyAssignmentParameters.json'), '<LAWORKSPACE>', logAnalyticsWorkspace.id))
+    parameters: union(json(loadTextContent('policies/IL5-policyAssignmentParameters.json')), {
+      logAnalyticsWorkspaceIDForVMAgents: {
+        value: logAnalyticsWorkspace.id
+      }
+      membersToIncludeInLocalAdministratorsGroup: {
+        value: windowsAdministratorsGroupMembership
+      }
+      NetworkWatcherResourceGroupName: {
+        value: networkWatcherResourceGroupName
+      }
+    })
   }
   CMMC: {
     id: '/providers/Microsoft.Authorization/policySetDefinitions/b5629c75-5c77-4422-87b9-2509e680f8de'
-    parameters: json(replace(loadTextContent('policies/CMMC-policyAssignmentParameters.json'), '<LAWORKSPACE>', logAnalyticsWorkspace.properties.customerId))
+    parameters: union(json(loadTextContent('policies/CMMC-policyAssignmentParameters.json')),{
+      'logAnalyticsWorkspaceId-f47b5582-33ec-4c5c-87c0-b010a6b2e917': {
+        value: logAnalyticsWorkspace.properties.customerId
+      }
+      'resourceGroupName-b6e2945c-0b7b-40f5-9233-7a5323b5cdc6': {
+        value: networkWatcherResourceGroupName
+      }
+    }, 'AzureCloud' == environment().name ? {
+      'MembersToExclude-69bf4abd-ca1e-4cf6-8b5a-762d42e61d4f': {
+        value: 'admin'
+      }
+      'MembersToInclude-30f71ea1-ac77-4f26-9fc5-2d926bbd4ba7': {
+        value: windowsAdministratorsGroupMembership
+      }
+    } : {})
   }
 }
 

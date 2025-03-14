@@ -44,9 +44,6 @@ param installVisio bool
 param installWord bool
 param keyVaultName string
 param keyVaultPrivateDnsZoneResourceId string
-@secure()
-param localAdministratorPassword string
-param localAdministratorUsername string
 param location string
 param logAnalyticsWorkspaceResourceId string
 param managementVirtualMachineName string
@@ -73,6 +70,9 @@ param userAssignedIdentityPrincipalId string
 param userAssignedIdentityResourceId string
 param vcRedistInstaller string
 param vDOTInstaller string
+@secure()
+param virtualMachineAdminPassword string
+param virtualMachineAdminUsername string
 param virtualMachineSize string
 param wsusServer string
 
@@ -111,8 +111,8 @@ module keyVault 'keyVault.bicep' = {
     domainJoinUserPrincipalName: domainJoinUserPrincipalName
     keyVaultName: keyVaultName
     keyVaultPrivateDnsZoneResourceId: keyVaultPrivateDnsZoneResourceId
-    localAdministratorPassword: localAdministratorPassword
-    localAdministratorUsername: localAdministratorUsername
+    virtualMachineAdminPassword: virtualMachineAdminPassword
+    virtualMachineAdminUsername: virtualMachineAdminUsername
     location: location
     mlzTags: mlzTags
     roleDefinitionResourceId: roleDefinition.id
@@ -140,8 +140,8 @@ module managementVM 'managementVM.bicep' = {
 
     diskEncryptionSetResourceId: diskEncryptionSetResourceId
     hybridUseBenefit: hybridUseBenefit
-    localAdministratorPassword: localAdministratorPassword
-    localAdministratorUsername: localAdministratorUsername
+    virtualMachineAdminPassword: virtualMachineAdminPassword
+    virtualMachineAdminUsername: virtualMachineAdminUsername
     location: location
     mlzTags: mlzTags
 

@@ -42,6 +42,7 @@ param maxResourcesPerTemplateDeployment int
 param mlzTags object
 param namingConvention object
 param netAppFileShares array
+param networkSecurityGroupResourceId string
 param organizationalUnitPath string
 param profile string
 param recoveryServicesVaultName string
@@ -64,9 +65,9 @@ param subnetResourceId string
 param tags object
 param timeZone string
 @secure()
-param virtualMachinePassword string
+param virtualMachineAdminPassword string
+param virtualMachineAdminUsername string
 param virtualMachineSize string
-param virtualMachineUsername string
 
 var availabilitySetNamePrefix = namingConvention.availabilitySet
 var tagsVirtualMachines = union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Compute/virtualMachines'] ?? {}, mlzTags)
@@ -243,6 +244,7 @@ module virtualMachines 'virtualMachines.bicep' = [for i in range(1, sessionHostB
     managementVirtualMachineName: managementVirtualMachineName
     netAppFileShares: netAppFileShares
     networkInterfaceNamePrefix: namingConvention.virtualMachineNetworkInterface
+    networkSecurityGroupResourceId: networkSecurityGroupResourceId
     organizationalUnitPath: organizationalUnitPath
     profile: profile
     resourceGroupManagement: resourceGroupManagement
@@ -259,9 +261,9 @@ module virtualMachines 'virtualMachines.bicep' = [for i in range(1, sessionHostB
     tagsVirtualMachines: tagsVirtualMachines
     uniqueToken: uniqueToken
     virtualMachineNamePrefix: virtualMachineNamePrefix
-    virtualMachinePassword: virtualMachinePassword
+    virtualMachineAdminPassword: virtualMachineAdminPassword
+    virtualMachineAdminUsername: virtualMachineAdminUsername
     virtualMachineSize: virtualMachineSize
-    virtualMachineUsername: virtualMachineUsername
   }
   dependsOn: [
     availabilitySets

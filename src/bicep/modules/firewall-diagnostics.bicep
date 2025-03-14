@@ -18,10 +18,10 @@ resource diagnostics 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' 
   scope: firewall
   name: firewallDiagnosticSettingsName
   properties: {
-    storageAccountId: logStorageAccountResourceId
-    workspaceId: logAnalyticsWorkspaceResourceId
     logs: logs
     metrics: metrics
+    storageAccountId: logStorageAccountResourceId
+    workspaceId: logAnalyticsWorkspaceResourceId
   }
 }
 

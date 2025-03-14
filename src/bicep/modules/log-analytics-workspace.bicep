@@ -3,6 +3,7 @@ Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
 
+param deploySentinel bool = false
 param location string
 param mlzTags object
 param name string
@@ -10,9 +11,6 @@ param retentionInDays int = 30
 param skuName string = 'PerGB2018'
 param tags object
 param workspaceCappingDailyQuotaGb int = -1
-
-@description('Whether or not to deploy Sentinel solution to workspace.')
-param deploySentinel bool = false
 
 // Solutions to add to workspace
 var solutions = [
@@ -70,9 +68,9 @@ var solutions = [
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2021-06-01' = {
   name: name
   location: location
-  tags: union(contains(tags, 'Microsoft.OperationalInsights/workspaces') ? tags['Microsoft.OperationalInsights/workspaces'] : {}, mlzTags)
+  tags: union(tags[?'Microsoft.OperationalInsights/workspaces'] ?? {}, mlzTags)
   properties: {
-    retentionInDays: retentionInDays
+    retentionInDays: deploySentinel && retentionInDays < 90 ? 90 : retentionInDays
     sku:{
       name: skuName
     }
@@ -87,7 +85,7 @@ resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2021-06
 resource logAnalyticsSolutions 'Microsoft.OperationsManagement/solutions@2015-11-01-preview' = [for solution in solutions: if(solution.deploy) {
   name: '${solution.name}(${logAnalyticsWorkspace.name})'
   location: location
-  tags: union(contains(tags, 'Microsoft.OperationsManagement/solutions') ? tags['Microsoft.OperationsManagement/solutions'] : {}, mlzTags)
+  tags: union(tags[?'Microsoft.OperationsManagement/solutions'] ?? {}, mlzTags)
   properties: {
     workspaceResourceId: logAnalyticsWorkspace.id
   }

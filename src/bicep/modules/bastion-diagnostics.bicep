@@ -3,22 +3,24 @@ Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
 
-param bastionDiagnosticSettingName string
-param bastionName string
-param bastionStorageAccountId string
+param diagnosticSettingName string
 param logAnalyticsWorkspaceResourceId string
 param logs array
+param metrics array
+param name string
+param storageAccountResourceId string
 
 resource bastionHost 'Microsoft.Network/bastionHosts@2021-02-01' existing = {
-  name: bastionName
+  name: name
 }
 
 resource diagnostics 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' = {
   scope: bastionHost
-  name: bastionDiagnosticSettingName
+  name: diagnosticSettingName
   properties: {
-    storageAccountId: bastionStorageAccountId
-    workspaceId: logAnalyticsWorkspaceResourceId
     logs: logs
+    metrics: metrics
+    storageAccountId: storageAccountResourceId
+    workspaceId: logAnalyticsWorkspaceResourceId
   }
 }

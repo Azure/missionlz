@@ -5,13 +5,12 @@ Licensed under the MIT License.
 
 targetScope = 'subscription'
 
-param bastionHostSubnetAddressPrefix string
 param azureGatewaySubnetAddressPrefix string
+param bastionHostSubnetAddressPrefix string
+param deployAzureGatewaySubnet bool
+param deployBastion bool
 param deployIdentity bool
 param deploymentNameSuffix string
-param deployNetworkWatcher bool
-param deployBastion bool
-param deployAzureGatewaySubnet bool
 param dnsServers array
 param enableProxy bool
 param firewallSettings object
@@ -19,8 +18,8 @@ param location string
 param mlzTags object
 param privateDnsZoneNames array
 param resourceGroupNames array
-param tiers array
 param tags object
+param tiers array
 
 var hub = filter(tiers, tier => tier.name == 'hub')[0]
 var hubResourceGroupName = filter(resourceGroupNames, name => contains(name, 'hub'))[0]
@@ -31,12 +30,11 @@ module hubNetwork 'hub-network.bicep' = {
   name: 'deploy-vnet-hub-${deploymentNameSuffix}'
   scope: resourceGroup(hub.subscriptionId, hubResourceGroupName)
   params: {
+    azureGatewaySubnetAddressPrefix: azureGatewaySubnetAddressPrefix
     bastionHostNetworkSecurityGroup: hub.namingConvention.bastionHostNetworkSecurityGroup
     bastionHostSubnetAddressPrefix: bastionHostSubnetAddressPrefix
-    azureGatewaySubnetAddressPrefix: azureGatewaySubnetAddressPrefix
-    deployNetworkWatcher: deployNetworkWatcher
-    deployBastion: deployBastion
     deployAzureGatewaySubnet: deployAzureGatewaySubnet
+    deployBastion: deployBastion
     dnsServers: dnsServers
     enableProxy: enableProxy
     firewallClientPrivateIpAddress: firewallSettings.clientPrivateIpAddress
@@ -57,6 +55,7 @@ module hubNetwork 'hub-network.bicep' = {
     networkSecurityGroupName: hub.namingConvention.networkSecurityGroup
     networkSecurityGroupRules: hub.nsgRules
     networkWatcherName: hub.namingConvention.networkWatcher
+    networkWatcherResourceId: hub.networkWatcherResourceId
     routeTableName: hub.namingConvention.routeTable
     subnetAddressPrefix: hub.subnetAddressPrefix
     subnetName: hub.namingConvention.subnet
@@ -72,12 +71,13 @@ module hubNetwork 'hub-network.bicep' = {
 module spokeNetworks 'spoke-network.bicep' = [for (spoke, i) in spokes: {
   name: 'deploy-vnet-${spoke.name}-${deploymentNameSuffix}'
   params: {
-    deployNetworkWatcher: deployNetworkWatcher && spoke.deployUniqueResources
+    deployUniqueResources: spoke.deployUniqueResources
     location: location
     mlzTags: mlzTags
     networkSecurityGroupName: spoke.namingConvention.networkSecurityGroup
     networkSecurityGroupRules: spoke.nsgRules
     networkWatcherName: spoke.namingConvention.networkWatcher
+    networkWatcherResourceId: spoke.networkWatcherResourceId
     resourceGroupName: spokeResourceGroupNames[i]
     routeTableName: spoke.namingConvention.routeTable
     routeTableRouteNextHopIpAddress: firewallSettings.clientPrivateIpAddress
