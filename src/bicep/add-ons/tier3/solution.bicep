@@ -182,6 +182,7 @@ module logic '../../modules/logic.bicep' = {
         shortName: workloadShortName
         deployUniqueResources: false
         subscriptionId: subscriptionId
+        networkWatcherResourceId: networkWatcherResourceId
         nsgDiagLogs: networkSecurityGroupDiagnosticsLogs
         nsgRules: networkSecurityGroupRules
         vnetAddressPrefix: virtualNetworkAddressPrefix
@@ -327,7 +328,6 @@ module policyAssignments '../../modules/policy-assignments.bicep' =
       deploymentNameSuffix: deploymentNameSuffix
       location: location
       logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
-      networkWatcherResourceId: networkWatcherResourceId
       policy: policy
       resourceGroupNames: [
         rg.outputs.name

@@ -21,7 +21,6 @@ param networkInterfaceDiagnosticsMetrics array
 param networkInterfaceResourceIds array
 param networkWatcherFlowLogsRetentionDays int
 param networkWatcherFlowLogsType string
-param networkWatcherResourceId string
 param publicIPAddressDiagnosticsLogs array
 param publicIPAddressDiagnosticsMetrics array
 param resourceGroupNames array
@@ -83,9 +82,9 @@ module networkSecurityGroupDiagnostics '../modules/network-security-group-diagno
     networkSecurityGroupName: tier.namingConvention.networkSecurityGroup
     networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
     networkWatcherFlowLogsType: networkWatcherFlowLogsType
-    networkWatcherName: !empty(networkWatcherResourceId) ? split(networkWatcherResourceId, '/')[8] : tier.deployUniqueResources ? tier.namingConvention.networkWatcher : hub.namingConvention.networkWatcher
-    networkWatcherResourceGroupName: !empty(networkWatcherResourceId) ? split(networkWatcherResourceId, '/')[4] : tier.deployUniqueResources ? resourceGroupNames[i] : hubResourceGroupName
-    networkWatcherSubscriptionId: !empty(networkWatcherResourceId) ? split(networkWatcherResourceId, '/')[2] : tier.deployUniqueResources ? tier.subscriptionId : hub.subscriptionId
+    networkWatcherName: !empty(tier.networkWatcherResourceId) ? split(tier.networkWatcherResourceId, '/')[8] : tier.deployUniqueResources ? tier.namingConvention.networkWatcher : hub.namingConvention.networkWatcher
+    networkWatcherResourceGroupName: !empty(tier.networkWatcherResourceId) ? split(tier.networkWatcherResourceId, '/')[4] : tier.deployUniqueResources ? resourceGroupNames[i] : hubResourceGroupName
+    networkWatcherSubscriptionId: !empty(tier.networkWatcherResourceId) ? split(tier.networkWatcherResourceId, '/')[2] : tier.deployUniqueResources ? tier.subscriptionId : hub.subscriptionId
     storageAccountResourceId: storageAccountResourceIds[i]
     tiername: tier.name
   }
@@ -106,9 +105,9 @@ module virtualNetworkDiagnostics '../modules/virtual-network-diagnostics.bicep' 
     metrics: tier.vnetDiagMetrics
     networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
     networkWatcherFlowLogsType: networkWatcherFlowLogsType
-    networkWatcherName: !empty(networkWatcherResourceId) ? split(networkWatcherResourceId, '/')[8] : tier.deployUniqueResources ? tier.namingConvention.networkWatcher : hub.namingConvention.networkWatcher
-    networkWatcherResourceGroupName: !empty(networkWatcherResourceId) ? split(networkWatcherResourceId, '/')[4] : tier.deployUniqueResources ? resourceGroupNames[i] : hubResourceGroupName
-    networkWatcherSubscriptionId: !empty(networkWatcherResourceId) ? split(networkWatcherResourceId, '/')[2] : tier.deployUniqueResources ? tier.subscriptionId : hub.subscriptionId
+    networkWatcherName: !empty(tier.networkWatcherResourceId) ? split(tier.networkWatcherResourceId, '/')[8] : tier.deployUniqueResources ? tier.namingConvention.networkWatcher : hub.namingConvention.networkWatcher
+    networkWatcherResourceGroupName: !empty(tier.networkWatcherResourceId) ? split(tier.networkWatcherResourceId, '/')[4] : tier.deployUniqueResources ? resourceGroupNames[i] : hubResourceGroupName
+    networkWatcherSubscriptionId: !empty(tier.networkWatcherResourceId) ? split(tier.networkWatcherResourceId, '/')[2] : tier.deployUniqueResources ? tier.subscriptionId : hub.subscriptionId
     tiername: tier.name
     virtualNetworkDiagnosticSettingName: tier.namingConvention.virtualNetworkDiagnosticSetting
     virtualNetworkName: tier.namingConvention.virtualNetwork

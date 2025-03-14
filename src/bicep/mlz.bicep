@@ -107,6 +107,18 @@ param enableProxy bool = true
 @description('The abbreviation for the environment.')
 param environmentAbbreviation string = 'dev'
 
+@description('The resource ID for an existing network watcher in the Hub tier for the desired deployment location. Only one network watcher per location can exist in a subscription. The value can be left empty to create a new network watcher resource.')
+param existingHubNetworkWatcherResourceId string = ''
+
+@description('The resource ID for an existing network watcher in the Identity tier for the desired deployment location. Only one network watcher per location can exist in a subscription. The value can be left empty to create a new network watcher resource.')
+param existingIdentityNetworkWatcherResourceId string = ''
+
+@description('The resource ID for an existing network watcher in the Operations tier for the desired deployment location. Only one network watcher per location can exist in a subscription. The value can be left empty to create a new network watcher resource.')
+param existingOperationsNetworkWatcherResourceId string = ''
+
+@description('The resource ID for an existing network watcher in the Shared Services tier for the desired deployment location. Only one network watcher per location can exist in a subscription. The value can be left empty to create a new network watcher resource.')
+param existingSharedServicesNetworkWatcherResourceId string = ''
+
 @description('An array of Azure Firewall Public IP Address Availability Zones. It defaults to empty, or "No-Zone", because Availability Zones are not available in every cloud. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-network/ip-services/public-ip-addresses#sku.')
 param firewallClientPublicIPAddressAvailabilityZones array = []
 
@@ -414,9 +426,6 @@ param networkWatcherFlowLogsRetentionDays int = 30
 @description('The type of network watcher flow logs to enable. It defaults to "VirtualNetwork" since they provide more data and NSG flow logs will be deprecated in June 2025.')
 param networkWatcherFlowLogsType string = 'VirtualNetwork'
 
-@description('The resource ID for an existing network watcher for the desired deployment location. Only one network watcher per location can exist in a subscription. The value can be left empty to create a new network watcher resource.')
-param networkWatcherResourceId string = ''
-
 @description('An array of Network Security Group diagnostic logs to apply to the Operations Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-network/virtual-network-nsg-manage-log#log-categories.')
 param operationsNetworkSecurityGroupDiagnosticsLogs array = [
   {
@@ -593,6 +602,7 @@ var networks = union([
     shortName: 'hub'
     deployUniqueResources: true
     subscriptionId: hubSubscriptionId
+    networkWatcherResourceId: existingHubNetworkWatcherResourceId
     nsgDiagLogs: hubNetworkSecurityGroupDiagnosticsLogs
     nsgRules: hubNetworkSecurityGroupRules
     vnetAddressPrefix: hubVirtualNetworkAddressPrefix
@@ -604,7 +614,8 @@ var networks = union([
     name: 'operations'
     shortName: 'ops'
     deployUniqueResources: contains([ hubSubscriptionId ], operationsSubscriptionId) ? false : true
-    subscriptionId: operationsSubscriptionId  
+    subscriptionId: operationsSubscriptionId
+    networkWatcherResourceId: existingOperationsNetworkWatcherResourceId
     nsgDiagLogs: operationsNetworkSecurityGroupDiagnosticsLogs
     nsgRules: operationsNetworkSecurityGroupRules
     vnetAddressPrefix: operationsVirtualNetworkAddressPrefix
@@ -616,7 +627,8 @@ var networks = union([
     name: 'sharedServices'
     shortName: 'svcs'
     deployUniqueResources: contains([ hubSubscriptionId, operationsSubscriptionId ], sharedServicesSubscriptionId) ? false : true
-    subscriptionId: sharedServicesSubscriptionId  
+    subscriptionId: sharedServicesSubscriptionId
+    networkWatcherResourceId: existingSharedServicesNetworkWatcherResourceId
     nsgDiagLogs: sharedServicesNetworkSecurityGroupDiagnosticsLogs
     nsgRules: sharedServicesNetworkSecurityGroupRules
     vnetAddressPrefix: sharedServicesVirtualNetworkAddressPrefix
@@ -630,6 +642,7 @@ var networks = union([
     shortName: 'id'
     deployUniqueResources: contains([ hubSubscriptionId, operationsSubscriptionId, sharedServicesSubscriptionId ], identitySubscriptionId) ? false : true
     subscriptionId: identitySubscriptionId
+    networkWatcherResourceId: existingIdentityNetworkWatcherResourceId
     nsgDiagLogs: identityNetworkSecurityGroupDiagnosticsLogs
     nsgRules: identityNetworkSecurityGroupRules
     vnetAddressPrefix: identityVirtualNetworkAddressPrefix
@@ -692,7 +705,6 @@ module networking 'modules/networking.bicep' = {
     }
     location: location
     mlzTags: logic.outputs.mlzTags
-    networkWatcherResourceId: networkWatcherResourceId
     privateDnsZoneNames: logic.outputs.privateDnsZones
     resourceGroupNames: resourceGroups.outputs.names
     tags: tags
@@ -835,7 +847,6 @@ module diagnostics 'modules/diagnostics.bicep' = {
     networkInterfaceResourceIds: union(customerManagedKeys.outputs.networkInterfaceResourceIds, monitoring.outputs.networkInterfaceResourceIds, remoteAccess.outputs.networkInterfaceResourceIds, flatten(storage.outputs.networkInterfaceResourceIds))
     networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
     networkWatcherFlowLogsType: networkWatcherFlowLogsType
-    networkWatcherResourceId: networkWatcherResourceId
     publicIPAddressDiagnosticsLogs: publicIPAddressDiagnosticsLogs
     publicIPAddressDiagnosticsMetrics: publicIPAddressDiagnosticsMetrics
     resourceGroupNames: resourceGroups.outputs.names
@@ -855,7 +866,6 @@ module policyAssignments 'modules/policy-assignments.bicep' =
       deploymentNameSuffix: deploymentNameSuffix
       location: location
       logAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
-      networkWatcherResourceId: networkWatcherResourceId
       policy: policy
       resourceGroupNames: resourceGroups.outputs.names
       serviceToken: logic.outputs.tokens.service

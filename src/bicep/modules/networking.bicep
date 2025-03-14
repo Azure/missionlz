@@ -16,7 +16,6 @@ param enableProxy bool
 param firewallSettings object
 param location string
 param mlzTags object
-param networkWatcherResourceId string
 param privateDnsZoneNames array
 param resourceGroupNames array
 param tags object
@@ -56,7 +55,7 @@ module hubNetwork 'hub-network.bicep' = {
     networkSecurityGroupName: hub.namingConvention.networkSecurityGroup
     networkSecurityGroupRules: hub.nsgRules
     networkWatcherName: hub.namingConvention.networkWatcher
-    networkWatcherResourceId: networkWatcherResourceId
+    networkWatcherResourceId: hub.networkWatcherResourceId
     routeTableName: hub.namingConvention.routeTable
     subnetAddressPrefix: hub.subnetAddressPrefix
     subnetName: hub.namingConvention.subnet
@@ -78,7 +77,7 @@ module spokeNetworks 'spoke-network.bicep' = [for (spoke, i) in spokes: {
     networkSecurityGroupName: spoke.namingConvention.networkSecurityGroup
     networkSecurityGroupRules: spoke.nsgRules
     networkWatcherName: spoke.namingConvention.networkWatcher
-    networkWatcherResourceId: networkWatcherResourceId
+    networkWatcherResourceId: spoke.networkWatcherResourceId
     resourceGroupName: spokeResourceGroupNames[i]
     routeTableName: spoke.namingConvention.routeTable
     routeTableRouteNextHopIpAddress: firewallSettings.clientPrivateIpAddress

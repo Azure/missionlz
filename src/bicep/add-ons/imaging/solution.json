@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.33.93.31351",
-      "templateHash": "16344719945174736681"
+      "templateHash": "12318951743486508237"
     }
   },
   "parameters": {
@@ -691,7 +691,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.33.93.31351",
-              "templateHash": "1298998083434953587"
+              "templateHash": "17884682912555764854"
             }
           },
           "parameters": {
@@ -1004,6 +1004,7 @@
                         "shortName": "[parameters('workloadShortName')]",
                         "deployUniqueResources": false,
                         "subscriptionId": "[variables('subscriptionId')]",
+                        "networkWatcherResourceId": "[parameters('networkWatcherResourceId')]",
                         "nsgDiagLogs": "[parameters('networkSecurityGroupDiagnosticsLogs')]",
                         "nsgRules": "[parameters('networkSecurityGroupRules')]",
                         "vnetAddressPrefix": "[parameters('virtualNetworkAddressPrefix')]",
@@ -1027,7 +1028,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.33.93.31351",
-                      "templateHash": "6344094676552838887"
+                      "templateHash": "1635070605339849434"
                     }
                   },
                   "parameters": {
@@ -1793,6 +1794,7 @@
                           "shortName": "[parameters('networks')[copyIndex()].shortName]",
                           "deployUniqueResources": "[parameters('networks')[copyIndex()].deployUniqueResources]",
                           "subscriptionId": "[parameters('networks')[copyIndex()].subscriptionId]",
+                          "networkWatcherResourceId": "[parameters('networks')[copyIndex()].networkWatcherResourceId]",
                           "nsgDiagLogs": "[coalesce(tryGet(parameters('networks')[copyIndex()], 'nsgDiagLogs'), createArray())]",
                           "nsgRules": "[coalesce(tryGet(parameters('networks')[copyIndex()], 'nsgRules'), createArray())]",
                           "vnetAddressPrefix": "[coalesce(tryGet(parameters('networks')[copyIndex()], 'vnetAddressPrefix'), '')]",
@@ -5031,9 +5033,6 @@
                   "logAnalyticsWorkspaceResourceId": {
                     "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
                   },
-                  "networkWatcherResourceId": {
-                    "value": "[parameters('networkWatcherResourceId')]"
-                  },
                   "policy": {
                     "value": "[parameters('policy')]"
                   },
@@ -5059,7 +5058,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.33.93.31351",
-                      "templateHash": "15749144817252179561"
+                      "templateHash": "17659470587883886364"
                     }
                   },
                   "parameters": {
@@ -5070,9 +5069,6 @@
                       "type": "string"
                     },
                     "logAnalyticsWorkspaceResourceId": {
-                      "type": "string"
-                    },
-                    "networkWatcherResourceId": {
                       "type": "string"
                     },
                     "policy": {
@@ -5120,7 +5116,7 @@
                           "deployRemediation": {
                             "value": false
                           },
-                          "networkWatcherResourceGroupName": "[if(not(empty(parameters('networkWatcherResourceId'))), createObject('value', split(parameters('networkWatcherResourceId'), '/')[4]), if(parameters('tiers')[copyIndex()].deployUniqueResources, createObject('value', replace(parameters('tiers')[copyIndex()].namingConvention.resourceGroup, parameters('serviceToken'), 'network')), createObject('value', replace(parameters('tiers')[0].namingConvention.resourceGroup, parameters('serviceToken'), 'network'))))]",
+                          "networkWatcherResourceGroupName": "[if(not(empty(parameters('tiers')[copyIndex()].networkWatcherResourceId)), createObject('value', split(parameters('tiers')[copyIndex()].networkWatcherResourceId, '/')[4]), if(parameters('tiers')[copyIndex()].deployUniqueResources, createObject('value', replace(parameters('tiers')[copyIndex()].namingConvention.resourceGroup, parameters('serviceToken'), 'network')), createObject('value', replace(parameters('tiers')[0].namingConvention.resourceGroup, parameters('serviceToken'), 'network'))))]",
                           "windowsAdministratorsGroupMembership": {
                             "value": "[parameters('windowsAdministratorsGroupMembership')]"
                           }
