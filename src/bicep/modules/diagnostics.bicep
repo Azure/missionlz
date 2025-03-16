@@ -31,6 +31,16 @@ param tiers array
 
 var hub = (filter(tiers, tier => tier.name == 'hub'))[0]
 var hubResourceGroupName = filter(resourceGroupNames, name => contains(name, 'hub'))[0]
+var networkSecurityGroups = union(tiers, [
+  {
+    deployUniqueResources: hub.deployUniqueResources
+    name: 'hub-bastion'
+    namingConvention: hub.namingConvention
+    networkWatcherResourceId: hub.networkWatcherResourceId
+    nsgDiagLogs: hub.nsgDiagLogs
+    subscriptionId: hub.subscriptionId
+  }
+])
 var operations = first(filter(tiers, tier => tier.name == 'operations'))
 var operationsResourceGroupName = filter(resourceGroupNames, name => contains(name, 'operations'))[0]
 var publicIPAddresses = union([
@@ -68,25 +78,25 @@ module logAnalyticsWorkspaceDiagnosticSetting 'log-analytics-diagnostic-setting.
   }
 }
 
-module networkSecurityGroupDiagnostics '../modules/network-security-group-diagnostics.bicep' = [for (tier, i) in tiers: {
-  name: 'deploy-nsg-diags-${tier.name}-${deploymentNameSuffix}'
-  scope: resourceGroup(tier.subscriptionId, resourceGroupNames[i])
+module networkSecurityGroupDiagnostics '../modules/network-security-group-diagnostics.bicep' = [for (nsg, i) in networkSecurityGroups: {
+  name: 'deploy-nsg-diags-${nsg.name}-${deploymentNameSuffix}'
+  scope: resourceGroup(nsg.subscriptionId, resourceGroupNames[i])
   params: {
     deploymentNameSuffix: deploymentNameSuffix
     deployNetworkWatcherTrafficAnalytics: deployNetworkWatcherTrafficAnalytics
-    flowLogsName: tier.namingConvention.networkWatcherFlowLogsNetworkSecurityGroup
+    flowLogsName: nsg.namingConvention.networkWatcherFlowLogsNetworkSecurityGroup
     location: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
-    logs: tier.nsgDiagLogs
-    networkSecurityGroupDiagnosticSettingName: tier.namingConvention.networkSecurityGroupDiagnosticSetting
-    networkSecurityGroupName: tier.namingConvention.networkSecurityGroup
+    logs: nsg.nsgDiagLogs
+    networkSecurityGroupDiagnosticSettingName: contains(nsg.name, 'bastion') ? nsg.namingConvention.bastionHostNetworkSecurityGroupDiagnosticSetting : nsg.namingConvention.networkSecurityGroupDiagnosticSetting
+    networkSecurityGroupName: contains(nsg.name, 'bastion') ? nsg.namingConvention.bastionHostNetworkSecurityGroup : nsg.namingConvention.networkSecurityGroup
     networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
     networkWatcherFlowLogsType: networkWatcherFlowLogsType
-    networkWatcherName: !empty(tier.networkWatcherResourceId) ? split(tier.networkWatcherResourceId, '/')[8] : tier.deployUniqueResources ? tier.namingConvention.networkWatcher : hub.namingConvention.networkWatcher
-    networkWatcherResourceGroupName: !empty(tier.networkWatcherResourceId) ? split(tier.networkWatcherResourceId, '/')[4] : tier.deployUniqueResources ? resourceGroupNames[i] : hubResourceGroupName
-    networkWatcherSubscriptionId: !empty(tier.networkWatcherResourceId) ? split(tier.networkWatcherResourceId, '/')[2] : tier.deployUniqueResources ? tier.subscriptionId : hub.subscriptionId
+    networkWatcherName: !empty(nsg.networkWatcherResourceId) ? split(nsg.networkWatcherResourceId, '/')[8] : nsg.deployUniqueResources ? nsg.namingConvention.networkWatcher : hub.namingConvention.networkWatcher
+    networkWatcherResourceGroupName: !empty(nsg.networkWatcherResourceId) ? split(nsg.networkWatcherResourceId, '/')[4] : nsg.deployUniqueResources ? resourceGroupNames[i] : hubResourceGroupName
+    networkWatcherSubscriptionId: !empty(nsg.networkWatcherResourceId) ? split(nsg.networkWatcherResourceId, '/')[2] : nsg.deployUniqueResources ? nsg.subscriptionId : hub.subscriptionId
     storageAccountResourceId: storageAccountResourceIds[i]
-    tiername: tier.name
+    tiername: nsg.name
   }
 }]
 

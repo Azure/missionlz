@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.33.93.31351",
-      "templateHash": "12318951743486508237"
+      "templateHash": "7537888571892068869"
     }
   },
   "parameters": {
@@ -691,7 +691,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.33.93.31351",
-              "templateHash": "17884682912555764854"
+              "templateHash": "7122731762643979427"
             }
           },
           "parameters": {
@@ -1028,7 +1028,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.33.93.31351",
-                      "templateHash": "1635070605339849434"
+                      "templateHash": "6049908398330959962"
                     }
                   },
                   "parameters": {
@@ -1108,7 +1108,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.33.93.31351",
-                              "templateHash": "16177782581486694891"
+                              "templateHash": "3340370223092056906"
                             }
                           },
                           "parameters": {
@@ -1591,8 +1591,9 @@
                               "azureFirewallManagementPublicIPAddressDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, format('{0}-mgmt-{1}', variables('resourceAbbreviations').publicIPAddresses, variables('resourceAbbreviations').azureFirewalls))]",
                               "azureFirewallPolicy": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').firewallPolicies)]",
                               "bastionHost": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').bastionHosts)]",
-                              "bastionHostNetworkSecurityGroup": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').networkSecurityGroups), parameters('tokens').service, variables('resourceAbbreviations').bastionHosts)]",
                               "bastionHostDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, variables('resourceAbbreviations').bastionHosts)]",
+                              "bastionHostNetworkSecurityGroup": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').networkSecurityGroups), parameters('tokens').service, variables('resourceAbbreviations').bastionHosts)]",
+                              "bastionHostNetworkSecurityGroupDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, format('{0}-{1}', variables('resourceAbbreviations').networkSecurityGroups, variables('resourceAbbreviations').bastionHosts))]",
                               "bastionHostPublicIPAddress": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').publicIPAddresses), parameters('tokens').service, variables('resourceAbbreviations').bastionHosts)]",
                               "bastionHostPublicIPAddressDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, format('{0}-{1}', variables('resourceAbbreviations').publicIPAddresses, variables('resourceAbbreviations').bastionHosts))]",
                               "computeGallery": "[replace(replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').computeGallieries), '-', '_')]",
