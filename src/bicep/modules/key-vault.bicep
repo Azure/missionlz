@@ -114,6 +114,10 @@ resource key_disks 'Microsoft.KeyVault/vaults/keys@2022-07-01' = {
       ]
     }
   }
+  dependsOn: [
+    privateEndpoint
+    privateDnsZoneGroups
+  ]
 }
 
 resource key_storageAccounts 'Microsoft.KeyVault/vaults/keys@2022-07-01' = {
@@ -149,6 +153,10 @@ resource key_storageAccounts 'Microsoft.KeyVault/vaults/keys@2022-07-01' = {
       ]
     }
   }
+  dependsOn: [
+    privateEndpoint
+    privateDnsZoneGroups
+  ]
 }
 
 output keyUriWithVersion string = key_disks.properties.keyUriWithVersion
