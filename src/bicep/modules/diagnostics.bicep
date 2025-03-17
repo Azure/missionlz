@@ -41,6 +41,9 @@ var networkSecurityGroups = union(tiers, deployBastion ? [
     subscriptionId: hub.subscriptionId
   }
 ] : [])
+var networkSecurityGroupResourceGroupNames = union(resourceGroupNames, deployBastion ? [
+  hubResourceGroupName
+] : [])
 var operations = first(filter(tiers, tier => tier.name == 'operations'))
 var operationsResourceGroupName = filter(resourceGroupNames, name => contains(name, 'operations'))[0]
 var publicIPAddresses = union([
@@ -80,7 +83,7 @@ module logAnalyticsWorkspaceDiagnosticSetting 'log-analytics-diagnostic-setting.
 
 module networkSecurityGroupDiagnostics '../modules/network-security-group-diagnostics.bicep' = [for (nsg, i) in networkSecurityGroups: {
   name: 'deploy-nsg-diags-${nsg.name}-${deploymentNameSuffix}'
-  scope: resourceGroup(nsg.subscriptionId, resourceGroupNames[i])
+  scope: resourceGroup(nsg.subscriptionId, networkSecurityGroupResourceGroupNames[i])
   params: {
     deploymentNameSuffix: deploymentNameSuffix
     deployNetworkWatcherTrafficAnalytics: deployNetworkWatcherTrafficAnalytics
