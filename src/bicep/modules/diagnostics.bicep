@@ -31,19 +31,33 @@ param tiers array
 
 var hub = (filter(tiers, tier => tier.name == 'hub'))[0]
 var hubResourceGroupName = filter(resourceGroupNames, name => contains(name, 'hub'))[0]
-var networkSecurityGroups = union(tiers, deployBastion ? [
+var networkSecurityGroups = union(networkSecurityGroups_Tiers, networkSecurityGroup_Bastion)
+var networkSecurityGroups_Tiers = [for (tier, i) in tiers: {
+  deployUniqueResources: tiers[i].deployUniqueResources
+  diagnosticLogs: tiers[i].nsgDiagLogs
+  diagnosticSettingName: tiers[i].namingConvention.networkSecurityGroupDiagnosticSetting
+  name: tiers[i].namingConvention.networkSecurityGroup
+  namingConvention: tiers[i].namingConvention
+  networkWatcherResourceId: tiers[i].networkWatcherResourceId
+  resourceGroupName: resourceGroupNames[i]
+  storageAccountResourceId: storageAccountResourceIds[i]
+  subscriptionId: tiers[i].subscriptionId
+  tierName: tiers[i].name
+}]
+var networkSecurityGroup_Bastion = deployBastion ? [
   {
     deployUniqueResources: hub.deployUniqueResources
-    name: 'hub-bastion'
+    diagnosticLogs: hub.nsgDiagLogs
+    diagnosticSettingName: hub.namingConvention.bastionHostNetworkSecurityGroupDiagnosticSetting
+    name: hub.namingConvention.bastionHostNetworkSecurityGroup
     namingConvention: hub.namingConvention
     networkWatcherResourceId: hub.networkWatcherResourceId
-    nsgDiagLogs: hub.nsgDiagLogs
+    resourceGroupName: hubResourceGroupName
+    storageAccountResourceId: storageAccountResourceIds[0]
     subscriptionId: hub.subscriptionId
+    tierName: 'hub-bastion'
   }
-] : [])
-var networkSecurityGroupResourceGroupNames = union(resourceGroupNames, deployBastion ? [
-  hubResourceGroupName
-] : [])
+] : []
 var operations = first(filter(tiers, tier => tier.name == 'operations'))
 var operationsResourceGroupName = filter(resourceGroupNames, name => contains(name, 'operations'))[0]
 var publicIPAddresses = union([
@@ -82,24 +96,24 @@ module logAnalyticsWorkspaceDiagnosticSetting 'log-analytics-diagnostic-setting.
 }
 
 module networkSecurityGroupDiagnostics '../modules/network-security-group-diagnostics.bicep' = [for (nsg, i) in networkSecurityGroups: {
-  name: 'deploy-nsg-diags-${nsg.name}-${deploymentNameSuffix}'
-  scope: resourceGroup(nsg.subscriptionId, networkSecurityGroupResourceGroupNames[i])
+  name: 'deploy-nsg-diags-${nsg.tierName}-${deploymentNameSuffix}'
+  scope: resourceGroup(nsg.subscriptionId, nsg.resourceGroupName)
   params: {
     deploymentNameSuffix: deploymentNameSuffix
     deployNetworkWatcherTrafficAnalytics: deployNetworkWatcherTrafficAnalytics
     flowLogsName: nsg.namingConvention.networkWatcherFlowLogsNetworkSecurityGroup
     location: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
-    logs: nsg.nsgDiagLogs
-    networkSecurityGroupDiagnosticSettingName: contains(nsg.name, 'bastion') ? nsg.namingConvention.bastionHostNetworkSecurityGroupDiagnosticSetting : nsg.namingConvention.networkSecurityGroupDiagnosticSetting
-    networkSecurityGroupName: contains(nsg.name, 'bastion') ? nsg.namingConvention.bastionHostNetworkSecurityGroup : nsg.namingConvention.networkSecurityGroup
+    logs: nsg.diagnosticLogs
+    networkSecurityGroupDiagnosticSettingName: nsg.diagnosticSettingName
+    networkSecurityGroupName: nsg.name
     networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
     networkWatcherFlowLogsType: networkWatcherFlowLogsType
-    networkWatcherName: !empty(nsg.networkWatcherResourceId) ? split(nsg.networkWatcherResourceId, '/')[8] : nsg.deployUniqueResources ? nsg.namingConvention.networkWatcher : hub.namingConvention.networkWatcher
-    networkWatcherResourceGroupName: !empty(nsg.networkWatcherResourceId) ? split(nsg.networkWatcherResourceId, '/')[4] : nsg.deployUniqueResources ? resourceGroupNames[i] : hubResourceGroupName
-    networkWatcherSubscriptionId: !empty(nsg.networkWatcherResourceId) ? split(nsg.networkWatcherResourceId, '/')[2] : nsg.deployUniqueResources ? nsg.subscriptionId : hub.subscriptionId
-    storageAccountResourceId: storageAccountResourceIds[i]
-    tiername: nsg.name
+    networkWatcherName: nsg.name
+    networkWatcherResourceGroupName: nsg.resourceGroupName
+    networkWatcherSubscriptionId: nsg.subscriptionId
+    storageAccountResourceId: nsg.storageAccountResourceId
+    tiername: nsg.tierName
   }
 }]
 
