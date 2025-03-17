@@ -31,7 +31,7 @@ param tiers array
 
 var hub = (filter(tiers, tier => tier.name == 'hub'))[0]
 var hubResourceGroupName = filter(resourceGroupNames, name => contains(name, 'hub'))[0]
-var networkSecurityGroups = union(tiers, [
+var networkSecurityGroups = union(tiers, deployBastion ? [
   {
     deployUniqueResources: hub.deployUniqueResources
     name: 'hub-bastion'
@@ -40,7 +40,7 @@ var networkSecurityGroups = union(tiers, [
     nsgDiagLogs: hub.nsgDiagLogs
     subscriptionId: hub.subscriptionId
   }
-])
+] : [])
 var operations = first(filter(tiers, tier => tier.name == 'operations'))
 var operationsResourceGroupName = filter(resourceGroupNames, name => contains(name, 'operations'))[0]
 var publicIPAddresses = union([
