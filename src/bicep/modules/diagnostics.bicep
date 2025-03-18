@@ -109,9 +109,9 @@ module networkSecurityGroupDiagnostics '../modules/network-security-group-diagno
     networkSecurityGroupName: nsg.name
     networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
     networkWatcherFlowLogsType: networkWatcherFlowLogsType
-    networkWatcherName: nsg.name
-    networkWatcherResourceGroupName: nsg.resourceGroupName
-    networkWatcherSubscriptionId: nsg.subscriptionId
+    networkWatcherName: !empty(nsg.networkWatcherResourceId) ? split(nsg.networkWatcherResourceId, '/')[8] : nsg.deployUniqueResources ? nsg.namingConvention.networkWatcher : hub.namingConvention.networkWatcher
+    networkWatcherResourceGroupName: !empty(nsg.networkWatcherResourceId) ? split(nsg.networkWatcherResourceId, '/')[4] : nsg.deployUniqueResources ? nsg.resourceGroupName : hubResourceGroupName
+    networkWatcherSubscriptionId: !empty(nsg.networkWatcherResourceId) ? split(nsg.networkWatcherResourceId, '/')[2] : nsg.deployUniqueResources ? nsg.subscriptionId : hub.subscriptionId
     storageAccountResourceId: nsg.storageAccountResourceId
     tiername: nsg.tierName
   }
