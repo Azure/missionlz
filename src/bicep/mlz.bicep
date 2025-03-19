@@ -24,7 +24,7 @@ param bastionDiagnosticsMetrics array = [
   }
 ]
 
-@description('The Azure Bastion Public IP Address Availability Zones. It defaults to "No-Zone" because Availability Zones are not available in every cloud. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-network/ip-services/public-ip-addresses#sku.')
+@description('The Azure Bastion Public IP Address Availability Zones. Default value = "No-Zone" because Availability Zones are not available in every cloud. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-network/ip-services/public-ip-addresses#sku.')
 param bastionHostPublicIPAddressAvailabilityZones array = []
 
 @description('The CIDR Subnet Address Prefix for the Azure Bastion Subnet. It must be in the Hub Virtual Network space "hubVirtualNetworkAddressPrefix" parameter value. It must be /27 or larger.')
@@ -34,16 +34,16 @@ param bastionHostSubnetAddressPrefix string = '10.0.128.192/26'
   'Standard'
   'Free'
 ])
-@description('[Standard/Free] The SKU for Defender. It defaults to "Free".')
+@description('[Standard/Free] The SKU for Defender for Cloud. Default value = "Free".')
 param defenderSkuTier string = 'Free'
 
-@description('When set to "true", provisions Azure Gateway Subnet only. It defaults to "false".')
+@description('When set to "true", provisions Azure Gateway Subnet only. Default value = "false".')
 param deployAzureGatewaySubnet bool = false
 
-@description('When set to "true", provisions Azure Bastion Host using the Standard SKU. It defaults to "false".')
+@description('When set to "true", provisions Azure Bastion Host using the Standard SKU. Default value = "false".')
 param deployBastion bool = false
 
-@description('When set to "true", enables Microsoft Defender for Cloud for the subscriptions used in the deployment. It defaults to "false".')
+@description('When set to "true", enables Microsoft Defender for Cloud for the subscriptions used in the deployment. Default value = "false".')
 param deployDefender bool = true
 
 // Allowed Values for paid workload protection Plans.  
@@ -66,37 +66,37 @@ param deployDefender bool = true
   'StorageAccounts'
   'VirtualMachine*/
   
-@description('The Paid Workload Protection plans for Defender for Cloud. It defaults to "VirtualMachines". See the following URL for valid settings: https://learn.microsoft.com/rest/api/defenderforcloud-composite/pricings/update?view=rest-defenderforcloud-composite-latest&tabs=HTTP.')
+@description('The Paid Workload Protection plans for Defender for Cloud. Default value = "VirtualMachines". See the following URL for valid settings: https://learn.microsoft.com/rest/api/defenderforcloud-composite/pricings/update?view=rest-defenderforcloud-composite-latest&tabs=HTTP.')
 param deployDefenderPlans array = ['VirtualMachines']
 
 @description('Choose to deploy the identity resources. The identity resoures are not required if you plan to use cloud identities.')
 param deployIdentity bool = false
 
-@description('When set to "true", provisions Linux Virtual Machine Host only. It defaults to "false".')
+@description('When set to "true", provisions Linux Virtual Machine Host only. Default value = "false".')
 param deployLinuxVirtualMachine bool = false
 
-@description('A suffix to use for naming deployments uniquely. It defaults to the Bicep resolution of the "utcNow()" function.')
+@description('A suffix to use for naming deployments uniquely. Default value = "utcNow()".')
 param deploymentNameSuffix string = utcNow()
 
-@description('When set to true, deploys Network Watcher Traffic Analytics. It defaults to "false".')
+@description('When set to true, deploys Network Watcher Traffic Analytics. Default value = "false".')
 param deployNetworkWatcherTrafficAnalytics bool = false
 
-@description('When set to "true", deploys the Azure Policy set defined at by the parameter "policy" to the resource groups generated in the deployment. It defaults to "false".')
+@description('When set to "true", deploys the Azure Policy set defined at by the parameter "policy" to the resource groups generated in the deployment. Default value = "false".')
 param deployPolicy bool = false
 
-@description('When set to "true", enables Microsoft Sentinel within the Log Analytics Workspace created in this deployment. It defaults to "false".')
+@description('When set to "true", enables Microsoft Sentinel within the Log Analytics Workspace created in this deployment. Default value = "false".')
 param deploySentinel bool = false
 
-@description('When set to "true", provisions Windows Virtual Machine Host only. It defaults to "false".')
+@description('When set to "true", provisions Windows Virtual Machine Host only. Default value = "false".')
 param deployWindowsVirtualMachine bool = false
 
-@description('The Azure Firewall DNS Proxy will forward all DNS traffic. When this value is set to true, you must provide a value for "servers". This should be a comma separated list of IP addresses to forward DNS traffic')
+@description('The Azure Firewall DNS Proxy will forward all DNS traffic. When this value is set to true, you must provide a value for "servers". This should be a comma separated list of IP addresses to forward DNS traffic.')
 param dnsServers array = ['168.63.129.16']
 
 @description('The email address for Defender for Cloud alert notifications, in the form of john@contoso.com.')
 param emailSecurityContact string = ''
 
-@description('[true/false] The Azure Firewall DNS Proxy will forward all DNS traffic. It defaults to "true".')
+@description('The Azure Firewall DNS Proxy will forward all DNS traffic. Default value = "true".')
 param enableProxy bool = true
 
 @allowed([
@@ -104,22 +104,22 @@ param enableProxy bool = true
   'prod'
   'test'
 ])
-@description('The abbreviation for the environment.')
+@description('[dev/prod/test] The abbreviation for the target environment.')
 param environmentAbbreviation string = 'dev'
 
-@description('The resource ID for an existing network watcher in the Hub tier for the desired deployment location. Only one network watcher per location can exist in a subscription. The value can be left empty to create a new network watcher resource.')
+@description('The resource ID for an existing network watcher in the Hub tier for the desired deployment location. Only one network watcher per location can exist in a subscription and must be specified if it already exists. If the value is left empty, a new network watcher resource will be created.')
 param existingHubNetworkWatcherResourceId string = ''
 
-@description('The resource ID for an existing network watcher in the Identity tier for the desired deployment location. Only one network watcher per location can exist in a subscription. The value can be left empty to create a new network watcher resource.')
+@description('The resource ID for an existing network watcher in the Identity tier for the desired deployment location. Only one network watcher per location can exist in a subscription and must be specified if it already exists. If the value is left empty, a new network watcher resource will be created.')
 param existingIdentityNetworkWatcherResourceId string = ''
 
-@description('The resource ID for an existing network watcher in the Operations tier for the desired deployment location. Only one network watcher per location can exist in a subscription. The value can be left empty to create a new network watcher resource.')
+@description('The resource ID for an existing network watcher in the Operations tier for the desired deployment location. Only one network watcher per location can exist in a subscription and must be specified if it already exists. If the value is left empty, a new network watcher resource will be created.')
 param existingOperationsNetworkWatcherResourceId string = ''
 
-@description('The resource ID for an existing network watcher in the Shared Services tier for the desired deployment location. Only one network watcher per location can exist in a subscription. The value can be left empty to create a new network watcher resource.')
+@description('The resource ID for an existing network watcher in the Shared Services tier for the desired deployment location. Only one network watcher per location can exist in a subscription and must be specified if it already exists. If the value is left empty, a new network watcher resource will be created.')
 param existingSharedServicesNetworkWatcherResourceId string = ''
 
-@description('An array of Azure Firewall Public IP Address Availability Zones. It defaults to empty, or "No-Zone", because Availability Zones are not available in every cloud. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-network/ip-services/public-ip-addresses#sku.')
+@description('An array of Azure Firewall Public IP Address Availability Zones. Default value = "[]" because Availability Zones are not available in every cloud. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-network/ip-services/public-ip-addresses#sku.')
 param firewallClientPublicIPAddressAvailabilityZones array = []
 
 @description('The CIDR Subnet Address Prefix for the Azure Firewall Subnet. It must be in the Hub Virtual Network space. It must be /26.')
@@ -202,10 +202,10 @@ param firewallDiagnosticsMetrics array = [
   'Deny'
   'Off'
 ])
-@description('The Azure Firewall Intrusion Detection mode. Valid values are "Alert", "Deny", or "Off". The default value is "Alert".')
+@description('[Alert/Deny/Off] The Azure Firewall Intrusion Detection mode. Valid values are "Alert", "Deny", or "Off". The default value is "Alert".')
 param firewallIntrusionDetectionMode string = 'Alert'
 
-@description('An array of Azure Firewall Public IP Address Availability Zones. It defaults to empty, or "No-Zone", because Availability Zones are not available in every cloud. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-network/ip-services/public-ip-addresses#sku.')
+@description('An array of Azure Firewall Public IP Address Availability Zones. Default value = "[]" because Availability Zones are not available in every cloud. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-network/ip-services/public-ip-addresses#sku.')
 param firewallManagementPublicIPAddressAvailabilityZones array = []
 
 @description('The CIDR Subnet Address Prefix for the Azure Firewall Management Subnet. It must be in the Hub Virtual Network space. It must be /26.')
@@ -216,10 +216,10 @@ param firewallManagementSubnetAddressPrefix string = '10.0.128.64/26'
   'Premium'
   'Basic'
 ])
-@description('[Standard/Premium/Basic] The SKU for Azure Firewall. It defaults to "Premium". Selecting a value other than Premium is not recommended for environments that are required to be SCCA compliant.')
+@description('[Standard/Premium/Basic] The SKU for Azure Firewall. Default value = "Premium". Selecting a value other than Premium is not recommended for environments that are required to be SCCA compliant.')
 param firewallSkuTier string = 'Premium'
 
-@description('Supernet CIDR address for the entire network of vnets, this address allows for communication between spokes. Recommended to use a Supernet calculator if modifying vnet addresses')
+@description('Supernet CIDR address for the entire network of vnets, this address allows for communication between spokes. Recommended to use a Supernet calculator if modifying vnet addresses.')
 param firewallSupernetIPAddress string = '10.0.128.0/18'
 
 @allowed([
@@ -248,7 +248,7 @@ param hubNetworkSecurityGroupRules array = []
 @description('The CIDR Subnet Address Prefix for the default Hub subnet. It must be in the Hub Virtual Network space.')
 param hubSubnetAddressPrefix string = '10.0.128.128/26'
 
-@description('The subscription ID for the Hub Network and resources. It defaults to the deployment subscription.')
+@description('The subscription ID for the Hub Network and resources. Default value = "subscription().subscriptionId".')
 param hubSubscriptionId string = subscription().subscriptionId
 
 @description('The CIDR Virtual Network Address Prefix for the Hub Virtual Network.')
@@ -270,7 +270,7 @@ param hubVirtualNetworkDiagnosticsMetrics array = [
   }
 ]
 
-@description('The hybrid use benefit provides a discount on virtual machines when a customer has an on-premises Windows Server license with Software Assurance. It defaults to "false".')
+@description('The hybrid use benefit provides a discount on virtual machines when a customer has an on-premises Windows Server license with Software Assurance. Default value = "false".')
 param hybridUseBenefit bool = false
 
 @description('An array of Network Security Group diagnostic logs to apply to the Identity Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-network/virtual-network-nsg-manage-log#log-categories.')
@@ -291,7 +291,7 @@ param identityNetworkSecurityGroupRules array = []
 @description('The CIDR Subnet Address Prefix for the default Identity subnet. It must be in the Identity Virtual Network space.')
 param identitySubnetAddressPrefix string = '10.0.130.0/24'
 
-@description('The subscription ID for the Identity Network and resources. It defaults to the deployment subscription.')
+@description('The subscription ID for the Identity Network and resources. Default value = "subscription().subscriptionId".')
 param identitySubscriptionId string = subscription().subscriptionId
 
 @description('The CIDR Virtual Network Address Prefix for the Identity Virtual Network.')
@@ -337,7 +337,7 @@ param keyVaultDiagnosticsMetrics array = [
   'Static'
   'Dynamic'
 ])
-@description('[Static/Dynamic] The public IP Address allocation method for the Linux virtual machine. It defaults to "Dynamic".')
+@description('[Static/Dynamic] The public IP Address allocation method for the Linux virtual machine. Default value = "Dynamic".')
 param linuxNetworkInterfacePrivateIPAddressAllocationMethod string = 'Dynamic'
 
 @minLength(12)
@@ -345,14 +345,14 @@ param linuxNetworkInterfacePrivateIPAddressAllocationMethod string = 'Dynamic'
 @description('The administrator password or public SSH key for the Linux Virtual Machine for remote access. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-machines/linux/faq#what-are-the-password-requirements-when-creating-a-vm-.')
 param linuxVmAdminPasswordOrKey string = deployLinuxVirtualMachine ? '' : newGuid()
 
-@description('The administrator username for the Linux Virtual Machine for remote access. It defaults to "xadmin".')
+@description('The administrator username for the Linux Virtual Machine for remote access. Default value = "xadmin".')
 param linuxVmAdminUsername string = 'xadmin'
 
 @allowed([
   'sshPublicKey'
   'password'
 ])
-@description('The authentication type for the Linux Virtual Machine for remote access. It defaults to "password".')
+@description('[sshPublicKey/password] The authentication type for the Linux Virtual Machine for remote access. Default value = "password".')
 param linuxVmAuthenticationType string = 'password'
 
 @allowed([
@@ -362,7 +362,7 @@ param linuxVmAuthenticationType string = 'password'
   'RHEL'
   'Debian-12'
 ])
-@description('The available Linux Offers')
+@description('[ubuntuserver/0001-com-ubuntu-server-focal/0001-com-ubuntu-server-jammy/RHEL/Debian-12] The Linux image offer in the Azure marketplace. Default value = "0001-com-ubuntu-server-focal".')
 param linuxVmImageOffer string = '0001-com-ubuntu-server-focal'
 
 @allowed([
@@ -370,28 +370,28 @@ param linuxVmImageOffer string = '0001-com-ubuntu-server-focal'
   'RedHat'
   'Debian'
 ])
-@description('The available Linux Publishers')
+@description('[Canonical/RedHat/Debian] The Linux image publisher in the Azure marketplace. Default value = "Canonical".')
 param linuxVmImagePublisher string = 'Canonical'
 
-@description('The SKU of the Linux marketplace image.')
+@description('The Linux image SKU in the Azure marketplace. Default value = "20_04-lts-gen2".')
 param linuxVmImageSku string = '20_04-lts-gen2'
 
-@description('The disk creation option of the Linux Virtual Machine for remote access. It defaults to "FromImage".')
+@description('The disk creation option of the Linux Virtual Machine for remote access. Default value = "FromImage".')
 param linuxVmOsDiskCreateOption string = 'FromImage'
 
-@description('The disk type of the Linux Virtual Machine for remote access. It defaults to "Standard_LRS".')
+@description('The disk type of the Linux Virtual Machine for remote access. Default value = "Standard_LRS".')
 param linuxVmOsDiskType string = 'Standard_LRS'
 
-@description('The size of the Linux virtual machine.')
+@description('The size of the Linux virtual machine. Default value = "Standard_D2s_v3".')
 param linuxVmSize string = 'Standard_D2s_v3'
 
-@description('The region to deploy resources into. It defaults to the deployment location.')
+@description('The region to deploy resources into. Default value = "deployment().location".')
 param location string = deployment().location
 
-@description('The daily quota for Log Analytics Workspace logs in Gigabytes. It defaults to "-1" for no quota.')
+@description('The daily quota for Log Analytics Workspace logs in Gigabytes. Default value = "-1", meaning no quota.')
 param logAnalyticsWorkspaceCappingDailyQuotaGb int = -1
 
-@description('The number of days to retain Log Analytics Workspace logs without Sentinel. It defaults to "30".')
+@description('The number of days to retain Log Analytics Workspace logs without Sentinel. Default value = "30".')
 param logAnalyticsWorkspaceRetentionInDays int = 30
 
 @allowed([
@@ -402,10 +402,10 @@ param logAnalyticsWorkspaceRetentionInDays int = 30
   'PerGB2018'
   'Standalone'
 ])
-@description('The SKU for the Log Analytics Workspace. It defaults to "PerGB2018". See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/logs/resource-manager-workspace.')
+@description('[Free/Standard/Premium/PerNode/PerGB2018/Standalone] The SKU for the Log Analytics Workspace. Default value = "PerGB2018". See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/logs/resource-manager-workspace.')
 param logAnalyticsWorkspaceSkuName string = 'PerGB2018'
 
-@description('The Storage Account SKU to use for log storage. It defaults to "Standard_GRS". See the following URL for valid settings: https://learn.microsoft.com/rest/api/storagerp/srp_sku_types.')
+@description('The Storage Account SKU to use for log storage. Default value = "Standard_GRS". See the following URL for valid settings: https://learn.microsoft.com/rest/api/storagerp/srp_sku_types.')
 param logStorageSkuName string = 'Standard_GRS'
 
 @description('An array of metrics to enable on the diagnostic setting for network interfaces.')
@@ -416,14 +416,14 @@ param networkInterfaceDiagnosticsMetrics array = [
   }
 ]
 
-@description('The number of days to retain Network Watcher Flow Logs. It defaults to "30".')  
+@description('The number of days to retain Network Watcher Flow Logs. Default value = "30".')  
 param networkWatcherFlowLogsRetentionDays int = 30
 
 @allowed([
   'NetworkSecurityGroup'
   'VirtualNetwork'
 ])
-@description('The type of network watcher flow logs to enable. It defaults to "VirtualNetwork" since they provide more data and NSG flow logs will be deprecated in June 2025.')
+@description('[NetworkSecurityGroup/VirtualNetwork] The type of network watcher flow logs to enable. Default value = "VirtualNetwork" since they provide more data and NSG flow logs will be deprecated in June 2025.')
 param networkWatcherFlowLogsType string = 'VirtualNetwork'
 
 @description('An array of Network Security Group diagnostic logs to apply to the Operations Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-network/virtual-network-nsg-manage-log#log-categories.')
@@ -444,7 +444,7 @@ param operationsNetworkSecurityGroupRules array = []
 @description('The CIDR Subnet Address Prefix for the default Operations subnet. It must be in the Operations Virtual Network space.')
 param operationsSubnetAddressPrefix string = '10.0.131.0/24'
 
-@description('The subscription ID for the Operations Network and resources. It defaults to the deployment subscription.')
+@description('The subscription ID for the Operations Network and resources. Default value = "subscription().subscriptionId".')
 param operationsSubscriptionId string = subscription().subscriptionId
 
 @description('The CIDR Virtual Network Address Prefix for the Operations Virtual Network.')
@@ -472,7 +472,7 @@ param operationsVirtualNetworkDiagnosticsMetrics array = [
   'IL5' // AzureUsGoverment only, trying to deploy IL5 in AzureCloud will switch to NISTRev4
   'CMMC'
 ])
-@description('Built-in policy assignments to assign, it defaults to "NISTRev4". IL5 is only available for AzureUsGovernment and will switch to NISTRev4 if tried in AzureCloud.')
+@description('[NISTRev4/NISTRev5/IL5/CMMC] Built-in policy assignments to assign, Default value = "NISTRev4". IL5 is only available for AzureUsGovernment and will switch to NISTRev4 if tried in AzureCloud.')
 param policy string = 'NISTRev4'
 
 @description('An array of Public IP Address Diagnostic Logs for the Azure Firewall. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/tutorial-resource-logs?tabs=DDoSProtectionNotifications#configure-ddos-diagnostic-logs.')
@@ -501,7 +501,7 @@ param publicIPAddressDiagnosticsMetrics array = [
 
 @minLength(1)
 @maxLength(6)
-@description('A prefix, 1-6 alphanumeric characters without whitespace, used to prefix resources and generate uniqueness for resources with globally unique naming requirements like Storage Accounts and Log Analytics Workspaces')
+@description('A prefix, 1-6 alphanumeric characters without whitespace, used to prefix resources and generate uniqueness for resources within your subscription. Ideally, the value should represent department or project within your organization.')
 param resourcePrefix string
 
 @description('An array of Network Security Group diagnostic logs to apply to the SharedServices Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-network/virtual-network-nsg-manage-log#log-categories.')
@@ -519,13 +519,13 @@ param sharedServicesNetworkSecurityGroupDiagnosticsLogs array = [
 @description('An array of Network Security Group rules to apply to the SharedServices Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/templates/microsoft.network/networksecuritygroups/securityrules?tabs=bicep#securityrulepropertiesformat.')
 param sharedServicesNetworkSecurityGroupRules array = []
 
-@description('The CIDR Subnet Address Prefix for the default Shared Services subnet. It must be in the Shared Services Virtual Network space.')
+@description('The CIDR Subnet Address Prefix for the default Shared Services subnet. It must be in the Shared Services Virtual Network space. Default value = "10.0.132.0/24".')
 param sharedServicesSubnetAddressPrefix string = '10.0.132.0/24'
 
-@description('The subscription ID for the Shared Services Network and resources. It defaults to the deployment subscription.')
+@description('The subscription ID for the Shared Services Network and resources. Default value = "subscription().subscriptionId".')
 param sharedServicesSubscriptionId string = subscription().subscriptionId
 
-@description('The CIDR Virtual Network Address Prefix for the Shared Services Virtual Network.')
+@description('The CIDR Virtual Network Address Prefix for the Shared Services Virtual Network. Default value = "10.0.132.0/24".')
 param sharedServicesVirtualNetworkAddressPrefix string = '10.0.132.0/24'
 
 @description('An array of Network Diagnostic Logs to enable for the SharedServices Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#logs.')
@@ -544,7 +544,7 @@ param sharedServicesVirtualNetworkDiagnosticsMetrics array = [
   }
 ]
 
-@description('The Azure clouds that support specific service features. It defaults to the Azure Cloud and Azure US Government.')
+@description('The Azure clouds that support specific service features. Default value = "[\'AzureCloud\',\'AzureUSGovernment\']".')
 param supportedClouds array = [
   'AzureCloud'
   'AzureUSGovernment'
@@ -558,39 +558,39 @@ param tags object = {}
 @description('The administrator password the Windows Virtual Machine for remote access. It must be > 12 characters in length. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-machines/windows/faq#what-are-the-password-requirements-when-creating-a-vm-.')
 param windowsVmAdminPassword string = deployWindowsVirtualMachine ? '' : newGuid()
 
-@description('The administrator username for the Windows Virtual Machine for remote access. It defaults to "xadmin".')
+@description('The administrator username for the Windows Virtual Machine for remote access. Default value = "xadmin".')
 param windowsVmAdminUsername string = 'xadmin'
 
-@description('The disk creation option of the Windows Virtual Machine for remote access. It defaults to "FromImage".')
+@description('The disk creation option of the Windows Virtual Machine for remote access. Default value = "FromImage".')
 param windowsVmCreateOption string = 'FromImage'
 
-@description('The offer of the Windows Virtual Machine for remote access. It defaults to "WindowsServer".')
+@description('The Windows image offer in the Azure marketplace. Default value = "WindowsServer".')
 param windowsVmImageOffer string = 'WindowsServer'
 
-@description('The publisher of the Windows Virtual Machine for remote access. It defaults to "MicrosoftWindowsServer".')
+@description('The Windows image publisher in the Azure marketplace. Default value = "MicrosoftWindowsServer".')
 param windowsVmImagePublisher string = 'MicrosoftWindowsServer'
 
 @allowed([
   '2019-datacenter-gensecond'
   '2022-datacenter-g2'
 ])
-@description('The SKU of the Windows Virtual Machines for remote access. It defaults to "2019-datacenter".')
+@description('[2019-datacenter-gensecond/2022-datacenter-g2] The Windows image SKU in the Azure marketplace. Default value = "2019-datacenter-gensecond".')
 param windowsVmImageSku string = '2019-datacenter-gensecond'
 
 @allowed([
   'Static'
   'Dynamic'
 ])
-@description('[Static/Dynamic] The public IP Address allocation method for the Windows virtual machine. It defaults to "Dynamic".')
+@description('[Static/Dynamic] The public IP Address allocation method for the Windows virtual machine. Default value = "Dynamic".')
 param windowsVmNetworkInterfacePrivateIPAddressAllocationMethod string = 'Dynamic'
 
-@description('The size of the Windows Virtual Machine for remote access. It defaults to "Standard_DS1_v2".')
+@description('The size of the Windows Virtual Machine for remote access. Default value = "Standard_DS1_v2".')
 param windowsVmSize string = 'Standard_DS1_v2'
 
-@description('The storage account type of the Windows Virtual Machine for remote access. It defaults to "StandardSSD_LRS".')
+@description('The storage account type of the Windows Virtual Machine for remote access. Default value = "StandardSSD_LRS".')
 param windowsVmStorageAccountType string = 'StandardSSD_LRS'
 
-@description('The version of the Windows Virtual Machine for remote access. It defaults to "latest".')
+@description('The version of the Windows Virtual Machine for remote access. Default value = "latest".')
 param windowsVmVersion string = 'latest'
 
 var firewallClientPrivateIpAddress = firewallClientUsableIpAddresses[3]
