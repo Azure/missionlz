@@ -232,11 +232,13 @@ Parameter Name | Default Value | Description
 `supportedClouds` | AzureCloud, AzureUSGovernment | The Azure clouds that support specific service features.
 `tags` | {} | A string dictionary of tags to add to deployed resources. [Reference](https://learn.microsoft.com/azure/azure-resource-manager/management/tag-resources?tabs=json#arm-templates)
 
-### Modifying the Naming Convention
+### Modifying the Naming Conventions
 
-Mission Landing Zone resources are named according to the naming convention defined in the [src/bicep/modules/naming-convention.bicep](../../src/bicep/modules/naming-convention.bicep) file. There are two different conventions used, depending on the type of resource. One convention is used to signify the relationship between itself and parent resources so the name contains a service token. The other convention is essentially the same, minus the service token. For global resources, like storage accounts, the unique string function is used to create names that will prevent collisions with other Azure customers.
+MLZ resources are named according to the naming conventions defined in the following bicep file: [src/bicep/modules/naming-convention.bicep](../../src/bicep/modules/naming-convention.bicep)
 
-You can modify MLZ's default naming convention to suit your needs by updating the [naming-convention.bicep](../../src/bicep/modules/naming-convention.bicep) file. To avoid breaking the code, be sure to only reorder the components or remove components for the `namingConvention` and `namingConvention_Service` variables.
+There are two conventions used, depending on the type of resource. One convention is used to signify the relationship between itself and parent resources so the name contains a service token. The other convention is the same except it lacks the service token. Global resources, like storage accounts, use the unique string function to create names that will prevent collisions with other Azure customers.
+
+When modifying the naming conventions, be sure to only reorder the components or remove components for the `namingConvention` and `namingConvention_Service` variables.
 
 > [!WARNING]
 > When changing any bicep files, be sure to compile the changes to JSON.
