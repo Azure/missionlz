@@ -36,6 +36,7 @@ var networkSecurityGroups_Tiers = [for (tier, i) in tiers: {
   deployUniqueResources: tiers[i].deployUniqueResources
   diagnosticLogs: tiers[i].nsgDiagLogs
   diagnosticSettingName: tiers[i].namingConvention.networkSecurityGroupDiagnosticSetting
+  flowLogsName: tiers[i].namingConvention.networkWatcherFlowLogsNetworkSecurityGroup
   name: tiers[i].namingConvention.networkSecurityGroup
   namingConvention: tiers[i].namingConvention
   networkWatcherResourceId: tiers[i].networkWatcherResourceId
@@ -49,13 +50,14 @@ var networkSecurityGroup_Bastion = deployBastion ? [
     deployUniqueResources: hub.deployUniqueResources
     diagnosticLogs: hub.nsgDiagLogs
     diagnosticSettingName: hub.namingConvention.bastionHostNetworkSecurityGroupDiagnosticSetting
+    flowLogsName: replace(hub.namingConvention.networkWatcherFlowLogsNetworkSecurityGroup, '-nsg-', '-nsg-bastion-')
     name: hub.namingConvention.bastionHostNetworkSecurityGroup
     namingConvention: hub.namingConvention
     networkWatcherResourceId: hub.networkWatcherResourceId
     resourceGroupName: hubResourceGroupName
     storageAccountResourceId: storageAccountResourceIds[0]
     subscriptionId: hub.subscriptionId
-    tierName: 'hub-bastion'
+    tierName: 'hub-bas'
   }
 ] : []
 var operations = first(filter(tiers, tier => tier.name == 'operations'))
@@ -101,7 +103,7 @@ module networkSecurityGroupDiagnostics '../modules/network-security-group-diagno
   params: {
     deploymentNameSuffix: deploymentNameSuffix
     deployNetworkWatcherTrafficAnalytics: deployNetworkWatcherTrafficAnalytics
-    flowLogsName: nsg.namingConvention.networkWatcherFlowLogsNetworkSecurityGroup
+    flowLogsName: nsg.flowLogsName
     location: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     logs: nsg.diagnosticLogs
@@ -117,7 +119,6 @@ module networkSecurityGroupDiagnostics '../modules/network-security-group-diagno
   }
 }]
 
-@batchSize(1)
 module virtualNetworkDiagnostics '../modules/virtual-network-diagnostics.bicep' = [for (tier, i) in tiers: {
   name: 'deploy-vnet-diags-${tier.name}-${deploymentNameSuffix}'
   scope: resourceGroup(tier.subscriptionId, resourceGroupNames[i])
