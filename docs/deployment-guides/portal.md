@@ -35,8 +35,8 @@ The first step in the deployment UI is the Basics step. This requires basic info
 
 The project details provide the scope of the deployment. These elements also help inform other elements in the UI like the VM size for the remote access VMs.
 
-- **Subscriptions:** select the subscription you plan to use for the hub.
-- **Region:** select the location you plan to use for the resources.
+- **Subscriptions:** select the deployment subscription.
+- **Region:** select the deployment location for the Azure resources.
 
 #### Select Subscription(s)
 
@@ -46,10 +46,6 @@ Select subscription(s) for each: Hub, Identity, Operations, and Shared Services.
 
 > [!NOTE]
 > The Identity option is not required. This is intended for customers that need to deploy domain controllers in Azure.
-
-#### Location
-
-- **Location:** Select the desired location to deploy your MLZ resources. The drop down menu will be populated with locations that support all the resources in the deployment.
 
 #### Naming Components
 
