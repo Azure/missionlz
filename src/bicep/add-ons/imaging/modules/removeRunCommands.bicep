@@ -26,7 +26,7 @@ resource customScriptExtension 'Microsoft.Compute/virtualMachines/extensions@202
   parent: virtualMachine
   name: 'CustomScriptExtension'
   location: location
-  tags: contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}
+  tags: tags[?'Microsoft.Compute/virtualMachines'] ?? {}
   properties: {
     publisher: 'Microsoft.Compute'
     type: 'CustomScriptExtension'

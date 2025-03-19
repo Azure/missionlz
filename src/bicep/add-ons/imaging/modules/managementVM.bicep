@@ -122,10 +122,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2022-03-01' = {
 resource modules 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' = {
   name: 'appAzModules'
   location: location
-  tags: union(
-    contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {},
-    mlzTags
-  )
+  tags: union(tags[?'Microsoft.Compute/virtualMachines'] ?? {}, mlzTags)
   parent: virtualMachine
   properties: {
     treatFailureAsDeploymentFailure: true

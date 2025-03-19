@@ -11,12 +11,7 @@ param tags object
 resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
   name: name
   location: location
-  tags: union(
-    contains(tags, 'Microsoft.ManagedIdentity/userAssignedIdentities')
-      ? tags['Microsoft.ManagedIdentity/userAssignedIdentities']
-      : {},
-    mlzTags
-  )
+  tags: union(tags[?'Microsoft.ManagedIdentity/userAssignedIdentities'] ?? {}, mlzTags)
 }
 
 output clientId string = userAssignedIdentity.properties.clientId
