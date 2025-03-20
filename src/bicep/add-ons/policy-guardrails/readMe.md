@@ -57,6 +57,17 @@ root/
 7. **Create Policy Assignments**: The script creates policy assignments in Azure, with the parameter values from the parameter JSON files, then assigns the policy sets to the management groups with a system-assigned managed identity.
 8. **Role Assignments**: Role assignments from the policy definitions are added to the system-assigned managed identity.
 
+### Script usage
+
+1. Open powershell.
+2. Run "Connect-AzAccount -Environment _AZURECLOUDENVIRONMENT_ and login when prompted.  Global Admin required.
+3. Change directory to the script folder.
+4. Run the script with parameters:  
+
+```powershell
+\deploy-policy-initiatives.ps1 -RootFolderPath "C:\Path\To\Your\RootFolder" -Location "YOURAZURELOCATION"
+```
+
 ### Azure Resources
 
 - **Management Group: managementGroup1**
