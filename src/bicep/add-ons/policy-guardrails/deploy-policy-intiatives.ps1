@@ -1,7 +1,7 @@
-[CmdletBinding()]
+#[CmdletBinding()]
 param (
-    [string]$RootFolderPath = ".",
-    [string]$Location = "usgovvirginia"
+    [string]$RootFolderPath = 'C:\Users\brsteel\OneDrive - Microsoft\Documents\policies',
+    [string]$Location = 'usgovvirginia'
 )
 
 # Iterate through the folder structure
@@ -9,7 +9,7 @@ $managementGroups = Get-ChildItem -Path $RootFolderPath -Directory
 
 foreach ($mg in $managementGroups) {
     Write-Output "Processing management group: $($mg.Name)"
-    $policySets = Get-ChildItem -Path $mg.FullName -Directory
+    $policySets = Get-ChildItem -Path $mg.FullName
 
     foreach ($ps in $policySets) {
         Write-Output "Processing policy set: $($ps.Name)"
