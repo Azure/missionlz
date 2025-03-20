@@ -10,9 +10,9 @@
 - [Remove MLZ](#remove-mlz)
 - [References](#references)
 
-This guide describes how to deploy Mission Landing Zone (MLZ) using the ARM template at [src/bicep/mlz.json](../src/bicep/mlz.json) using either Azure CLI or Azure PowerShell. The supported clouds for this guide include the Azure Commercial, Azure Government, Azure Government Secret, and Azure Government Top Secret.
+This guide describes how to deploy Mission Landing Zone (MLZ) using the ARM template at [src/bicep/mlz.json](../../src/bicep/mlz.json) using either Azure CLI or Azure PowerShell. The supported clouds for this guide include the Azure Commercial, Azure Government, Azure Government Secret, and Azure Government Top Secret.
 
-MLZ has only one required parameter and provides sensible defaults for the rest, allowing for simple deployments that specify only the parameters that need to differ from the defaults. See the [README.md](../src/bicep/README.md) document in the **src/bicep** folder for a complete list of parameters.
+MLZ has only one required parameter and provides sensible defaults for the rest, allowing for simple deployments that specify only the parameters that need to differ from the defaults. See the [README.md](../../src/bicep/README.md) document in the **src/bicep** folder for a complete list of parameters.
 
 ## Prerequisites
 
@@ -30,136 +30,218 @@ The following prerequisites are required on the target Azure subscription(s):
 
 ## Planning
 
-### Decide on a Resource Prefix
+### Naming Convention
 
-Resource Groups and resource names are derived from the required parameter `resourcePrefix`. Pick a unqiue resource prefix that is 1-6 alphanumeric characters in length without whitespaces.
+Resource group and resource names are derived from the following parameters:
 
-### One Subscription or Multiple
+Parameter Name | Default Value | Description
+:------------- | :------------ | :----------
+`environmentAbbreviation` | dev | The abbreviation for the target environment.
+`resourcePrefix` |  | A prefix, 1-6 alphanumeric characters without whitespace, used to prefix resources and generate uniqueness for resources within your subscription. Ideally, the value should represent a department or project within your organization.
+
+### Deployment Scope
 
 MLZ can deploy to a single subscription or multiple subscriptions. A test and evaluation deployment may deploy everything to a single subscription, and a production deployment may place each tier into its own subscription.
 
 The optional parameters related to subscriptions are below. They default to the subscription used for deployment.
 
-Parameter name | Default Value | Description
+Parameter Name | Default Value | Description
 :------------- | :------------ | :----------
+`deployIdentity` | false | Choose to deploy the identity resources. The identity resoures are not required if you plan to use cloud identities.
 `hubSubscriptionId` | Deployment subscription | Subscription containing the firewall and network hub
 `identitySubscriptionId` | Deployment subscription | Tier 0 for identity solutions
+`location` | deployment().location | The region to deploy resources into.
 `operationsSubscriptionId` | Deployment subscription | Tier 1 for network operations and security tools
 `sharedServicesSubscriptionId` | Deployment subscription | Tier 2 for shared services
 
 ### Networking
 
-The following parameters affect networking. Each virtual network and subnet has been given a default address prefix to ensure they fall within the default super network. Refer to the [Networking page](../networking.md) for all the default address prefixes.
+The following parameters affect the networking resources. For the address prefixes, each virtual network and subnet has been given a default value to ensure they fall within the default super network. Refer to the [Networking page](../networking.md) for all the default address prefixes.
 
-Parameter name | Default Value | Description
--------------- | ------------- | -----------
-`hubVirtualNetworkAddressPrefix` | '10.0.128.0/23' | The CIDR Virtual Network Address Prefix for the Hub Virtual Network.
-`hubSubnetAddressPrefix` | '10.0.128.128/26' | The CIDR Subnet Address Prefix for the default Hub subnet. It must be in the Hub Virtual Network space.
-`firewallClientSubnetAddressPrefix` | '10.0.128.0/26' | The CIDR Subnet Address Prefix for the Azure Firewall Subnet. It must be in the Hub Virtual Network space. It must be /26.
-`firewallManagementSubnetAddressPrefix` | '10.0.128.64/26' | The CIDR Subnet Address Prefix for the Azure Firewall Management Subnet. It must be in the Hub Virtual Network space. It must be /26.
-`identityVirtualNetworkAddressPrefix` | '10.0.130.0/24' | The CIDR Virtual Network Address Prefix for the Identity Virtual Network.
-`identitySubnetAddressPrefix` | '10.0.130.0/24' | The CIDR Subnet Address Prefix for the default Identity subnet. It must be in the Identity Virtual Network space.
-`operationsVirtualNetworkAddressPrefix` | '10.0.131.0/24' | The CIDR Virtual Network Address Prefix for the Operations Virtual Network.
-`operationsSubnetAddressPrefix` | '10.0.131.0/24' | The CIDR Subnet Address Prefix for the default Operations subnet. It must be in the Operations Virtual Network space.
-`sharedServicesVirtualNetworkAddressPrefix` | '10.0.132.0/24' | The CIDR Virtual Network Address Prefix for the Shared Services Virtual Network.
-`sharedServicesSubnetAddressPrefix` | '10.0.132.0/24' | The CIDR Subnet Address Prefix for the default Shared Services subnet. It must be in the Shared Services Virtual Network space.
+Parameter Name | Default Value | Description
+:------------- | :------------ | :----------
+`deployNetworkWatcherTrafficAnalytics` | false | When set to true, deploys Network Watcher Traffic Analytics.
+`dnsServers` | ['168.63.129.16'] | The Azure Firewall DNS Proxy will forward all DNS traffic. When this value is set to true, you must provide a value for "servers". This should be a comma separated list of IP addresses to forward DNS traffic.
+`existingHubNetworkWatcherResourceId` | '' | The resource ID for an existing network watcher in the Hub tier for the desired deployment location. Only one network watcher per location can exist in a subscription and must be specified if it already exists. If the value is left empty, a new network watcher resource will be created.
+`existingIdentityNetworkWatcherResourceId` | '' | The resource ID for an existing network watcher in the Identity tier for the desired deployment location. Only one network watcher per location can exist in a subscription and must be specified if it already exists. If the value is left empty, a new network watcher resource will be created.
+`existingOperationsNetworkWatcherResourceId` | '' | The resource ID for an existing network watcher in the Operations tier for the desired deployment location. Only one network watcher per location can exist in a subscription and must be specified if it already exists. If the value is left empty, a new network watcher resource will be created.
+`existingSharedServicesNetworkWatcherResourceId` | '' | The resource ID for an existing network watcher in the Shared Services tier for the desired deployment location. Only one network watcher per location can exist in a subscription and must be specified if it already exists. If the value is left empty, a new network watcher resource will be created.
+`hubNetworkSecurityGroupRules` | [] | An array of Network Security Group Rules to apply to the Hub Virtual Network. [Reference](https://learn.microsoft.com/azure/templates/microsoft.network/networksecuritygroups/securityrules?tabs=bicep&pivots=deployment-language-bicep#securityrulepropertiesformat)
+`hubSubnetAddressPrefix` | 10.0.128.128/26 | The CIDR Subnet Address Prefix for the default Hub subnet. It must be in the Hub Virtual Network space.
+`hubVirtualNetworkAddressPrefix` | 10.0.128.0/23 | The CIDR Virtual Network Address Prefix for the Hub Virtual Network.
+`identityNetworkSecurityGroupRules` | [] | An array of Network Security Group Rules to apply to the Identity Virtual Network. [Reference](https://learn.microsoft.com/azure/templates/microsoft.network/networksecuritygroups/securityrules?tabs=bicep#securityrulepropertiesformat)
+`identitySubnetAddressPrefix` | 10.0.130.0/24 | The CIDR Subnet Address Prefix for the default Identity subnet. It must be in the Identity Virtual Network space.
+`identityVirtualNetworkAddressPrefix` | 10.0.130.0/24 | The CIDR Virtual Network Address Prefix for the Identity Virtual Network.
+`operationsNetworkSecurityGroupRules` | [] | An array of Network Security Group rules to apply to the Operations Virtual Network. [Reference](https://learn.microsoft.com/azure/templates/microsoft.network/networksecuritygroups/securityrules?tabs=bicep#securityrulepropertiesformat)
+`operationsSubnetAddressPrefix` | 10.0.131.0/24 | The CIDR Subnet Address Prefix for the default Operations subnet. It must be in the Operations Virtual Network space.
+`operationsVirtualNetworkAddressPrefix` | 10.0.131.0/24 | The CIDR Virtual Network Address Prefix for the Operations Virtual Network.
+`sharedServicesNetworkSecurityGroupRules` | [] | An array of Network Security Group rules to apply to the SharedServices Virtual Network. [Reference](https://learn.microsoft.com/azure/templates/microsoft.network/networksecuritygroups/securityrules?tabs=bicep#securityrulepropertiesformat)
+`sharedServicesSubnetAddressPrefix` | 10.0.132.0/24 | The CIDR Subnet Address Prefix for the default Shared Services subnet. It must be in the Shared Services Virtual Network space.
+`sharedServicesVirtualNetworkAddressPrefix` | 10.0.132.0/24 | The CIDR Virtual Network Address Prefix for the Shared Services Virtual Network.
 
-### Optional Features
+#### Azure Firewall
 
-MLZ has optional features that can be enabled by setting parameters on the deployment.
+By default, MLZ deploys **[Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features). Not all regions support Azure Firewall Premium.** Check here to [see if the region you're deploying to supports Azure Firewall Premium](https://learn.microsoft.com/azure/firewall/premium-features#supported-regions). If necessary you can set a different firewall SKU or location.
 
-#### Azure Policy Initiatives: NISTRev4, NISTRev5, IL5, CMMC
+You can manually specify which SKU of Azure Firewall to use for your deployment by specifying the `firewallSkuTier` parameter. This parameter only accepts values of `Premium`, `Standard`, or `Basic`.
+
+Parameter Name    | Default Value | Description
+:---------------- | :------------ | :----------
+`enableProxy` | true | The Azure Firewall DNS Proxy will forward all DNS traffic.
+`firewallClientPublicIPAddressAvailabilityZones` | [] | An array of Azure Firewall Public IP Address Availability Zones. It defaults to empty, or "No-Zone", because Availability Zones are not available in every cloud. [Reference](https://learn.microsoft.com/azure/virtual-network/ip-services/public-ip-addresses#sku)
+`firewallClientSubnetAddressPrefix` | 10.0.128.0/26 | The CIDR Subnet Address Prefix for the Azure Firewall Subnet. It must be in the Hub Virtual Network space. It must be /26.
+`firewallIntrusionDetectionMode` | Alert | The Azure Firewall Intrusion Detection mode.
+`firewallManagementPublicIPAddressAvailabilityZones` | [] | An array of Azure Firewall Public IP Address Availability Zones. It defaults to empty, or "No-Zone", because Availability Zones are not available in every cloud. [Reference](https://learn.microsoft.com/azure/virtual-network/ip-services/public-ip-addresses#sku)
+`firewallManagementSubnetAddressPrefix` | 10.0.128.64/26 | The CIDR Subnet Address Prefix for the Azure Firewall Management Subnet. It must be in the Hub Virtual Network space. It must be /26.
+`firewallSkuTier` | Premium | The SKU for Azure Firewall. Selecting a value other than Premium is not recommended for environments that are required to be SCCA compliant.
+`firewallSupernetIPAddress` | 10.0.128.0/18 | Supernet CIDR address for the entire network of vnets, this address allows for communication between spokes. Recommended to use a Supernet calculator if modifying vnet addresses.
+`firewallThreatIntelMode` | Alert | [Alert/Deny/Off] The Azure Firewall Threat Intelligence Rule triggered logging behavior.
+
+### Monitoring
+
+Set the following settings to enable the capture of resource logs and metrics:
+
+Parameter Name    | Default Value | Description
+:---------------- | :------------ | :----------
+`firewallDiagnosticsLogs` | AzureFirewallApplicationRule, AzureFirewallNetworkRule, AzureFirewallDnsProxy, AZFWNetworkRule, AZFWApplicationRule, AZFWNatRule, AZFWThreatIntel, AZFWIdpsSignature, AZFWDnsQuery, AZFWFqdnResolveFailure, AZFWFatFlow, AZFWFlowTrace, AZFWApplicationRuleAggregation, AZFWNetworkRuleAggregation, AZFWNatRuleAggregation | An array of Firewall Diagnostic Logs categories to collect.
+`firewallDiagnosticsMetrics` | AllMetrics | An array of Firewall Diagnostic Metrics categories to collect. [Reference](https://learn.microsoft.com/azure/firewall/monitor-firewall#enable-diagnostic-logging-through-the-azure-portal)
+`hubNetworkSecurityGroupDiagnosticsLogs` | NetworkSecurityGroupEvent, NetworkSecurityGroupRuleCounter | An array of Network Security Group diagnostic logs to apply to the Hub Virtual Network. [Reference](https://learn.microsoft.com/azure/virtual-network/virtual-network-nsg-manage-log#log-categories)
+`hubVirtualNetworkDiagnosticsLogs` | VMProtectionAlerts | An array of Network Diagnostic Logs to enable for the Hub Virtual Network. [Reference](https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#logs)
+`hubVirtualNetworkDiagnosticsMetrics` | AllMetrics | An array of Network Diagnostic Metrics to enable for the Hub Virtual Network. [Reference](https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics)
+`identityNetworkSecurityGroupDiagnosticsLogs` | NetworkSecurityGroupEvent, NetworkSecurityGroupRuleCounter | An array of Network Security Group diagnostic logs to apply to the Identity Virtual Network. [Reference](https://learn.microsoft.com/azure/virtual-network/virtual-network-nsg-manage-log#log-categories)
+`identityVirtualNetworkDiagnosticsLogs` | VMProtectionAlerts | An array of Network Diagnostic Logs to enable for the Identity Virtual Network. [Reference](https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#logs)
+`identityVirtualNetworkDiagnosticsMetrics` | AllMetrics | An array of Network Diagnostic Metrics to enable for the Identity Virtual Network. [Reference](https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics)
+`keyVaultDiagnosticsLogs` | AuditEvent, AzurePolicyEvaluationDetails | An array of Key Vault Diagnostic Logs categories to collect. [Reference](https://learn.microsoft.com/azure/key-vault/general/logging?tabs=Vault)
+`keyVaultDiagnosticsMetrics` | AllMetrics | The Key Vault Diagnostic Metrics to collect. [Reference](https://learn.microsoft.com/azure/key-vault/general/logging?tabs=Vault)
+`logAnalyticsWorkspaceCappingDailyQuotaGb` | -1 | The daily quota for Log Analytics Workspace logs in Gigabytes. It defaults to "-1" for no quota.
+`logAnalyticsWorkspaceRetentionInDays` | 30 | The number of days to retain Log Analytics Workspace logs without Sentinel.
+`logAnalyticsWorkspaceSkuName` | PerGB2018 | The SKU for the Log Analytics Workspace. It defaults to "PerGB2018". [Reference](https://learn.microsoft.com/azure/azure-monitor/logs/resource-manager-workspace)
+`logStorageSkuName` | Standard_GRS | The Storage Account SKU to use for log storage. It defaults to "Standard_GRS". [Reference](https://learn.microsoft.com/rest/api/storagerp/srp_sku_types)
+`networkInterfaceDiagnosticsMetrics` | AllMetrics | An array of metrics to enable on the diagnostic setting for network interfaces.
+`networkWatcherFlowLogsRetentionDays` | 30 | The number of days to retain Network Watcher Flow Logs.
+`networkWatcherFlowLogsType` | VirtualNetwork | The type of network watcher flow logs to enable. It defaults to "VirtualNetwork" since they provide more data and NSG flow logs will be deprecated in June 2025.
+`operationsNetworkSecurityGroupDiagnosticsLogs` | NetworkSecurityGroupEvent, NetworkSecurityGroupRuleCounter | An array of Network Security Group diagnostic logs to apply to the Operations Virtual Network. [Reference](https://learn.microsoft.com/azure/virtual-network/virtual-network-nsg-manage-log#log-categories)
+`operationsVirtualNetworkDiagnosticsLogs` | VMProtectionAlerts | An array of Network Diagnostic Logs to enable for the Operations Virtual Network. [Reference](https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#logs)
+`operationsVirtualNetworkDiagnosticsMetrics` | AllMetrics | An array of Network Diagnostic Metrics to enable for the Operations Virtual Network. [Reference](https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics)
+`publicIPAddressDiagnosticsLogs` | DDoSProtectionNotifications, DDoSMitigationFlowLogs, DDoSMitigationReports | An array of Public IP Address Diagnostic Logs for the Azure Firewall. [Reference](https://learn.microsoft.com/azure/azure-monitor/essentials/tutorial-resource-logs?tabs=DDoSProtectionNotifications#configure-ddos-diagnostic-logs)
+`publicIPAddressDiagnosticsMetrics` | AllMetrics | An array of Public IP Address Diagnostic Metrics for the Azure Firewall. [Reference](https://learn.microsoft.com/azure/azure-monitor/essentials/tutorial-resource-logs?tabs=DDoSProtectionNotifications)
+`sharedServicesNetworkSecurityGroupDiagnosticsLogs` | NetworkSecurityGroupEvent, NetworkSecurityGroupRuleCounter | An array of Network Security Group diagnostic logs to apply to the SharedServices Virtual Network. [Reference](https://learn.microsoft.com/azure/virtual-network/virtual-network-nsg-manage-log#log-categories)
+`sharedServicesVirtualNetworkDiagnosticsLogs` | VMProtectionAlerts | An array of Network Diagnostic Logs to enable for the SharedServices Virtual Network. [Reference](https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#logs)
+`sharedServicesVirtualNetworkDiagnosticsMetrics` | AllMetrics | An array of Network Diagnostic Metrics to enable for the SharedServices Virtual Network. [Reference](https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics)
+
+### Azure Policy Initiatives: NISTRev4, NISTRev5, DoD IL5, & CMMC
 
 To include one of the built in Azure policy initiatives for NIST 800-53, CMMC Level 3 or DoD IL5 compliance add the `deployPolicy=true` parameter with `policy` assigned to one of the following: `NISTRev4`, `NISTRev5`, `IL5`, or `CMMC`.
 
 The result will be a policy assignment created for each resource group deployed by MLZ that can be viewed in the 'Compliance' view of Azure Policy in the Azure Portal.
 
-Parameter name | Default Value | Description
--------------- | ------------- | -----------
+Parameter Name | Default Value | Description
+:------------- | :------------ | :----------
 `deployPolicy` | 'false' | When set to "true", deploys the Azure Policy set defined at by the parameter "policy" to the resource groups generated in the deployment. It defaults to "false".
-`policy` | 'NISTRev4' | [NISTRev4/NISTRev5/IL5/CMMC] Built-in policy assignments to assign, it defaults to "NISTRev4". IL5 is only available for AzureUsGovernment and will switch to NISTRev4 if tried in AzureCloud.
+`policy` | NISTRev4 | [NISTRev4/NISTRev5/IL5/CMMC] Built-in policy assignments to assign, it defaults to "NISTRev4". IL5 is only available for AzureUsGovernment and will switch to NISTRev4 if tried in AzureCloud.
 
 Under the [src/bicep/modules/policies](../src/bicep/modules/policies) directory are JSON files named for the initiatives with default parameters (except for a Log Analytics workspace ID value `<LAWORKSPACE>` that we substitute at deployment time -- any other parameter can be modified as needed).
 
-#### Microsoft Defender for Cloud
+### Microsoft Defender for Cloud
 
 By default [Microsoft Defender for Cloud](https://docs.microsoft.com/en-us/azure/defender-for-cloud/defender-for-cloud-introduction) offers a free set of monitoring capabilities that are enabled via an Azure policy when you first set up a subscription and view the Microsoft Defender for Cloud portal blade.
 
 Microsoft Defender for Cloud offers a standard/defender sku which enables a greater depth of awareness including more recomendations and threat analytics. You can enable this higher depth level of security in MLZ by setting the parameter `deployDefender` during deployment. In addition you can include the `emailSecurityContact` parameter to set a contact email for alerts.
 
-Parameter name | Default Value | Description
--------------- | ------------- | -----------
-`deployDefender` | 'false' | When set to "true", enables Microsoft Defender for Cloud for the subscriptions used in the deployment. It defaults to "false".
-`deployDefenderPlans` | '['VirtualMachines']' | Paid Workload Protection plans for Defender for Cloud. It defaults to "VirtualMachines".
+Parameter Name | Default Value | Description
+:------------- | :------------ | :----------
+`deployDefender` | false | When set to "true", enables Microsoft Defender for Cloud for the subscriptions used in the deployment. It defaults to "false".
+`deployDefenderPlans` | ['VirtualMachines'] | Paid Workload Protection plans for Defender for Cloud. It defaults to "VirtualMachines".
+`defenderSkuTier` | Free | The SKU for Defender for Cloud
 `emailSecurityContact` | '' | Email address of the contact, in the form of <john@doe.com>
 
 The Defender plan for Microsoft Defender for Cloud is enabled by default in the following [Azure Environments](https://learn.microsoft.com/powershell/module/servicemanagement/azure.service/get-azureenvironment?view=azuresmps-4.0.0): `AzureCloud`. To enable this for other Azure Cloud environments, this will need to executed manually. Documentation on how to do this can be found [here](https://learn.microsoft.com/azure/defender-for-cloud/enable-enhanced-security).
 
-#### Azure Sentinel
+### Azure Sentinel
 
-[Sentinel](https://docs.microsoft.com/en-us/azure/sentinel/overview) is a scalable, cloud-native, security information and event management (SIEM) and security orchestration, automation, and response (SOAR) solution. Sentinel can be enabled by setting the `deploySentinel=true` parameter.
+[Sentinel](https://learn.microsoft.com/azure/sentinel/overview) is a scalable, cloud-native, security information and event management (SIEM) and security orchestration, automation, and response (SOAR) solution. Sentinel can be enabled using the following setting:
 
-Parameter name | Default Value | Description
--------------- | ------------- | -----------
-`deploySentinel` | 'false' | When set to "true", enables Microsoft Sentinel within the Log Analytics Workspace created in this deployment. It defaults to "false".
+Parameter Name | Default Value | Description
+:------------- | :------------ | :----------
+`deploySentinel` | false | When set to "true", enables Microsoft Sentinel within the Log Analytics Workspace created in this deployment.
 
-#### Remote Access
+### Remote Access
 
-If you want to remotely access the network and the resources you've deployed, you can use [Azure Bastion](https://learn.microsoft.com/azure/bastion/) to remotely access virtual machines within the network without exposing them via Public IP Addresses.
+#### Azure Gateway Subnet
 
-Deploy a Linux or Windows virtual machine as jumpboxes into the network without a Public IP Address using Azure Bastion Host by providing values for these parameters:
+Create a gateway subnet for the Hub virtual network. Deploying this subnet simplifies the deployment of a virtual network gateway to support a site-to-site VPN or express route connection. Set the following settings to deploy the Gateway Subnet:
 
-Parameter name | Default Value | Description
--------------- | ------------- | -----------
+Parameter Name | Default Value | Description
+:------------- | :------------ | :----------
+`azureGatewaySubnetAddressPrefix` | 10.0.129.192/26 | The CIDR Subnet Address Prefix for the Azure Gateway Subnet. It must be in the Hub Virtual Network space. It must be /26.
+`deployAzureGatewaySubnet` | false | When set to "true", provisions Azure Gateway Subnet only.
+
+#### Azure Bastion
+
+Remotely access the network and resources without exposing them via public endpoints using [Azure Bastion](https://learn.microsoft.com/azure/bastion/). Set the following parameters to configure the Azure Bastion service:
+
+Parameter Name | Default Value | Description
+:------------- | :------------ | :----------
 `bastionDiagnosticsLogs` | BastionAuditLogs | The logs enabled in the diagnostic setting for Bastion.
+`bastionDiagnosticsMetrics` | AllMetrics | The metrics enabled in the diagnostic setting for Bastion.
 `bastionHostPublicIPAddressAvailabilityZones` | null | The availability zones for the public IP address for Bastion.
 `bastionHostSubnetAddressPrefix` | 10.0.128.192/26 | The address prefix for the subnet for Bastion.
 `deployBastion` | false | When set to 'true', provisions Azure Bastion Host and virtual machine jumpboxes. It defaults to "false".
-`deployLinuxVirtualMachine` | false | When set to 'true', a Linux virtual machine is deployed.
+
+#### Windows Jumpbox
+
+Deploy a Windows virtual machine as a jumpbox into the Hub network. The VM must be accessed using Azure Bastion. Set the following values to configure the Windows jumpbox:
+
+Parameter Name | Default Value | Description
+:------------- | :------------ | :----------
 `deployWindowsVirtualMachine` | false | When set to 'true', a Windows virtual machine is deployed.
-`linuxNetworkInterfacePrivateIPAddressAllocationMethod` | Dynamic | The allocation method for the private IP address on the Linux virtual machine.
-`linuxVmImageOffer` | 0001-com-ubuntu-server-focal | The marketplace image offer for Linux images.
-`linuxVmImagePublisher` | Canonical | The marketplace image publisher for Linux images.
-`linuxVmImageSku` | 20_04-lts-gen2 | The marketplace image SKU for Linux images.
-`linuxVmOsDiskType` | Standard_LRS | The disk SKU of the Linux Virtual Machine.
-`linuxVmAdminPasswordOrKey` | new guid | The administrator password or public SSH key for the Linux Virtual Machine to Azure Bastion remote into. See [password requirements for creating a Linux VM](https://docs.microsoft.com/en-us/azure/virtual-machines/linux/faq#what-are-the-password-requirements-when-creating-a-vm-).
-`linuxVmAdminUsername` | 'azureuser' | The administrator username for the Linux Virtual Machine to Azure Bastion remote into. It defaults to "azureuser".
-`linuxVmAuthenticationType` | 'password' | [sshPublicKey/password] The authentication type for the Linux Virtual Machine to Azure Bastion remote into. It defaults to "password".
-`linuxVmSize` | Standard_D2s_v3 | The size for the Linux virtual machine.
-`windowsVmAdminPassword` | new guid | The administrator password the Windows Virtual Machine to Azure Bastion remote into. It must be > 12 characters in length. See [password requirements for creating a Windows VM](https://learn.microsoft.com/azure/virtual-machines/windows/faq#what-are-the-password-requirements-when-creating-a-vm-).
-`windowsVmAdminUsername` | 'azureuser' | The administrator username for the Linux Virtual Machine to Azure Bastion remote into. It defaults to "azureuser".
+`hybridUseBenefit` | false | The hybrid use benefit provides a discount on virtual machines when a customer has an on-premises Windows Server license with Software Assurance.
+`windowsVmAdminPassword` | new guid | The administrator password the Windows virtual machine to Azure Bastion remote into. It must be > 12 characters in length. See [password requirements for creating a Windows VM](https://learn.microsoft.com/azure/virtual-machines/windows/faq#what-are-the-password-requirements-when-creating-a-vm-).
+`windowsVmAdminUsername` | xadmin | The administrator username for the Windows virtual machine for remote access.
 `windowsVmCreateOption` | FromImage | The create option for the disk on the Windows virtual machine.
-`windowsVmOffer` | WindowsServer | The marketplace image offer for the Windows virtual machine.
-`windowsVmPublisher` | MicrosoftWindowsServer | The marketplace image publisher for the Windows virtual machine.
+`windowsVmImageOffer` | WindowsServer | The marketplace image offer for the Windows virtual machine.
+`windowsVmImagePublisher` | MicrosoftWindowsServer | The marketplace image publisher for the Windows virtual machine.
+`windowsVmImageSku` | 2019-datacenter-gensecond | The marketplace image SKU for the Windows virtual machine.
+`windowsVmNetworkInterfacePrivateIPAddressAllocationMethod` | Dynamic | The public IP Address allocation method for the Windows virtual machine.
 `windowsVmSize` | Standard_D2s_v3 | The size for the Windows virtual machine.
-`windowsVmSku` | 2019-datacenter-gensecond | The marketplace image SKU for the Windows virtual machine.
 `windowsVmStorageAccountType` | StandardSSD_LRS | The disk SKU for the Windows virtual machine.
 `windowsVmVersion` | latest | The marketplace image version for the Windows virtual machine.
 
-#### Azure Firewall Premium
+#### Linux Jumpbox
 
-By default, MLZ deploys **[Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features). Not all regions support Azure Firewall Premium.** Check here to [see if the region you're deploying to supports Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features#supported-regions). If necessary you can set a different firewall SKU or location.
+Deploy a Linux virtual machine as a jumpbox into the Hub network. The VM must be accessed using Azure Bastion. Set the following values to configure the Linux jumpbox:
 
-You can manually specify which SKU of Azure Firewall to use for your deployment by specifying the `firewallSkuTier` parameter. This parameter only accepts values of `Premium`, `Standard`, or `Basic`.
+Parameter Name | Default Value | Description
+:------------- | :------------ | :----------
+`deployLinuxVirtualMachine` | false | When set to 'true', a Linux virtual machine is deployed.
+`linuxNetworkInterfacePrivateIPAddressAllocationMethod` | Dynamic | The allocation method for the private IP address on the Linux virtual machine.
+`linuxVmAdminPasswordOrKey` | new guid | The administrator password or public SSH key for the Linux Virtual Machine to Azure Bastion remote into. See [password requirements for creating a Linux VM](https://docs.microsoft.com/en-us/azure/virtual-machines/linux/faq#what-are-the-password-requirements-when-creating-a-vm-).
+`linuxVmAdminUsername` | xadmin | The administrator username for the Linux Virtual Machine to Azure Bastion remote into.
+`linuxVmAuthenticationType` | 'password' | [sshPublicKey/password] The authentication type for the Linux Virtual Machine to Azure Bastion remote into. It defaults to "password".
+`linuxVmImageOffer` | 0001-com-ubuntu-server-focal | The marketplace image offer for Linux images.
+`linuxVmImagePublisher` | Canonical | The marketplace image publisher for Linux images.
+`linuxVmImageSku` | 20_04-lts-gen2 | The marketplace image SKU for Linux images.
+`linuxVmOsDiskCreateOption` | FromImage | The disk creation option of the Linux Virtual Machine for remote access.
+`linuxVmOsDiskType` | Standard_LRS | The disk SKU of the Linux Virtual Machine.
+`linuxVmSize` | Standard_D2s_v3 | The size for the Linux virtual machine.
 
-Parameter name    | Default Value | Description
-:---------------- | :------------ | :----------
-`firewallSkuTier` | 'Premium'     | [Standard/Premium/Basic] The SKU for Azure Firewall. It defaults to "Premium".
+#### Other Settings
 
-If you'd like to specify a different region to deploy your resources into, change the location of the deployment. For example, when using the AZ CLI set the deployment command's `--location` argument.
+Parameter Name | Default Value | Description
+:------------- | :------------ | :----------
+`supportedClouds` | AzureCloud, AzureUSGovernment | The Azure clouds that support specific service features.
+`tags` | {} | A string dictionary of tags to add to deployed resources. [Reference](https://learn.microsoft.com/azure/azure-resource-manager/management/tag-resources?tabs=json#arm-templates)
 
-### Naming Conventions
+### Modifying the Naming Conventions
 
-<!-- markdownlint-disable MD013 -->
-Mission Landing Zone resources are named according to the naming convention defined in the [src/bicep/modules/naming-convention.bicep](../../src/bicep/modules/naming-convention.bicep) file. There are two different conventions used, depending on the type of resource. One convention is used to signify the relationship between itself and parent resources so the name contains a service token. The other convention is essentially the same, minus the service token. For global resources, like storage accounts, the unique string function is used to create names that will prevent collisions with other Azure customers.
-<!-- markdownlint-enable MD013 -->
+MLZ resources are named according to the naming conventions defined in the following bicep file: [src/bicep/modules/naming-convention.bicep](../../src/bicep/modules/naming-convention.bicep)
 
-#### Modifying the Naming Convention
+There are two conventions used, depending on the type of resource. One convention is used to signify the relationship between itself and parent resources so the name contains a service token. The other convention is the same except it lacks the service token. Global resources, like storage accounts, use the unique string function to create names that will prevent collisions with other Azure customers.
 
-You can modify MLZ's default naming convention to suit your needs by updating the [src/bicep/modules/naming-convention.bicep](../../src/bicep/modules/naming-convention.bicep) file. To avoid breaking the code, be sure to only reorder the components or remove components for the `namingConvention` and `namingConvention_Service` variables.
+When modifying the naming conventions, be sure to only reorder the components or remove components for the `namingConvention` and `namingConvention_Service` variables.
 
 > [!WARNING]
-> If you change a bicep file in the repository, be sure to compile the changes to JSON when you're done.
+> When changing any bicep files, be sure to compile the changes to JSON.
 
 ## Deploy MLZ
 
@@ -167,7 +249,7 @@ Use the `New-AzSubscriptionDeployment` PowerShell cmdlet or the `az deployment s
 
 ### Connect to Azure
 
-Before deploying to Azure, you first need to ensure your session is connected to Azure. Use the following examples to connect to any of the supported Azure clouds:
+Before executing an Azure deployment, first ensure you are connected. Use the following examples to connect to any of the supported Azure clouds:
 
 ```PowerShell
 # PowerShell
@@ -182,7 +264,7 @@ az login
 
 ### Single Subscription Deployment
 
-To deploy Mission LZ into a single subscription, give your deployment a name and a location and specify the `./mlz.json` template file.
+To deploy MLZ into a single subscription, specify the values for the resource prefix, location, and template file.
 
 ```PowerShell
 # PowerShell
@@ -202,7 +284,7 @@ az deployment sub create \
 
 ### Multiple Subscription Deployment
 
-Deployment to multiple subscriptions requires specifying the subscription IDs for each tier:
+To deploy MLZ into multiple subscriptions, specifiy the value for the resource prefix, location, template file, and each tier's subscription ID:
 
 ```PowerShell
 # PowerShell

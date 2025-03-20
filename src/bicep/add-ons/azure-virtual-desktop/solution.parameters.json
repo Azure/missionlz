@@ -2,206 +2,288 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "activeDirectorySolution": {
-      "value": "ActiveDirectoryDomainServices"
-    },
-    "availability": {
-      "value": "AvailabilityZones"
-    },
-    "availabilityZones": {
-      "value": ["1","2","3"]
-    },
-    "avdConfigurationZipFileName": {
-      "value": "Configuration_1.0.02790.438.zip"
-    },
-    "avdObjectId": {
-      "value": "cdcfb416-e2fe-41e2-be12-33813c1cd427"
-    },
-    "azureNetAppFilesSubnetAddressPrefix": {
-      "value": ""
-    },
-    "customRdpProperty": {
-      "value": "audiocapturemode:i:1;camerastoredirect:s:*;use multimon:i:0;drivestoredirect:s:;encode redirected video capture:i:1;redirected video capture encoding quality:i:1;audiomode:i:0;devicestoredirect:s:;redirectclipboard:i:0;redirectcomports:i:0;redirectlocation:i:1;redirectprinters:i:0;redirectsmartcards:i:1;redirectwebauthn:i:1;usbdevicestoredirect:s:;keyboardhook:i:2;"
-    },
-    "deployActivityLogDiagnosticSetting": {
-      "value": true
-    },
-    "deployDefender": {
-      "value": true
-    },
-    "deployNetworkWatcher": {
-      "value": true
-    },
-    "deployPolicy": {
-      "value": true
-    },
-    "desktopFriendlyName": {
-      "value": ""
-    },
-    "diskSku": {
-      "value": "Premium_LRS"
-    },
-    "domainJoinUserPrincipalName": {
-      "value": "xadmin"
-    },
-    "domainName": {
-      "value": "contoso.com"
-    },
-    "drainMode": {
-      "value": true
-    },
-    "emailSecurityContact": {
-      "value": "email@contoso.com"
-    },
-    "enableAcceleratedNetworking": {
-      "value": true
-    },
-    "enableApplicationInsights": {
-      "value": true
-    },
-    "enableAvdInsights": {
-      "value": true
-    },
-    "enableTelemetry": {
-      "value": false
-    },
-    "environmentAbbreviation": {
-      "value": "dev"
-    },
-    "existingSharedActiveDirectoryConnection": {
-      "value": false
-    },
-    "existingFeedWorkspaceResourceId": {
-      "value": ""
-    },
-    "fslogixShareSizeInGB": {
-      "value": 100
-    },
-    "fslogixContainerType": {
-      "value": "ProfileContainer"
-    },
-    "fslogixStorageService": {
-      "value": "AzureFiles Premium"
-    },
-    "functionAppSubnetAddressPrefix": {
-      "value": "10.0.141.128/26"
-    },
-    "hostPoolPublicNetworkAccess": {
-      "value": "Enabled"
-    },
-    "hostPoolType": {
-      "value": "Pooled"
-    },
-    "hubAzureFirewallResourceId": {
-      "value": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/mlz-rg-network-hub-dev-use2/providers/Microsoft.Network/azureFirewalls/mlz-afw-hub-dev-use2"
-    },
-    "hubVirtualNetworkResourceId": {
-      "value": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/mlz-rg-network-hub-dev-use2/providers/Microsoft.Network/virtualNetworks/mlz-vnet-hub-dev-use2"
-    },
-    "identifier": {
-      "value": "mlz"
-    },
-    "imageOffer": {
-      "value": "windows-11"
-    },
-    "imagePublisher": {
-      "value": "MicrosoftWindowsDesktop"
-    },
-    "imageSku": {
-      "value": "win11-23h2-avd"
-    },
-    "imageVersionResourceId": {
-      "value": ""
-    },
-    "locationVirtualMachines": {
-      "value": "eastus2"
-    },
-    "logAnalyticsWorkspaceRetention": {
-      "value": 30
-    },
-    "logAnalyticsWorkspaceSku": {
-      "value": "PerGB2018"
-    },
-    "operationsLogAnalyticsWorkspaceResourceId": {
-      "value": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/mlz-rg-network-operations-dev-use2/providers/Microsoft.OperationalInsights/workspaces/mlz-log-operations-dev-use2"
-    },
-    "organizationalUnitPath": {
-      "value": "OU=Computers,OU=AVD,DC=contoso,DC=com"
-    },
-    "policy": {
-      "value": "NISTRev4"
-    },
-    "privateLinkScopeResourceId": {
-      "value": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/mlz-rg-network-operations-dev-use2/providers/microsoft.insights/privatelinkscopes/mlz-pls-operations-dev-use2"
-    },
-    "profile": {
-      "value": "Generic"
-    },
-    "recoveryServices": {
-      "value": true
-    },
-    "scalingWeekdaysOffPeakStartTime": {
-      "value": "17:00"
-    },
-    "scalingWeekdaysPeakStartTime": {
-      "value": "09:00"
-    },
-    "scalingWeekendsOffPeakStartTime": {
-      "value": "17:00"
-    },
-    "scalingWeekendsPeakStartTime": {
-      "value": "09:00"
-    },
-    "securityPrincipals": {
-      "value": [{"name":"AVD","objectId":"00000000-0000-0000-0000-000000000000"}]
-    },
-    "sessionHostCount": {
-      "value": 1
-    },
-    "sessionHostIndex": {
-      "value": 0
-    },
-    "sharedServicesSubnetResourceId": {
-      "value": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/mlz-rg-network-sharedServices-dev-use2/providers/Microsoft.Network/virtualNetworks/mlz-vnet-sharedServices-dev-use2/subnets/mlz-snet-sharedServices-dev-use2"
-    },
-    "stampIndex": {
-      "value": 0
-    },
-    "storageCount": {
-      "value": 1
-    },
-    "storageIndex": {
-      "value": 0
-    },
-    "subnetAddressPrefixes": {
-      "value": ["10.0.140.0/24","10.0.141.0/26"]
-    },
-    "tags": {
-      "value": {}
-    },
-    "usersPerCore": {
-      "value": 2
-    },
-    "validationEnvironment": {
-      "value": false
-    },
-    "virtualMachineSize": {
-      "value": "Standard_D4ads_v5"
-    },
-    "virtualMachineUsername": {
-      "value": "xadmin"
-    },
-    "virtualMachineVirtualCpuCount": {
-      "value": 4
-    },
-    "virtualNetworkAddressPrefixes": {
-      "value": ["10.0.140.0/23"]
-    },
-    "workspaceFriendlyName": {
-      "value": "mlz-vdws-avd-use2-dev"
-    },
-    "workspacePublicNetworkAccess": {
-      "value": "Enabled"
-    }
+      "activeDirectorySolution": {
+          "value": ""
+      },
+      "availability": {
+          "value": "AvailabilityZones"
+      },
+      "availabilityZones": {
+          "value": [
+            "1",
+            "2",
+            "3"
+          ]
+      },
+      "avdConfigurationZipFileName": {
+          "value": "Configuration_1.0.02790.438.zip"
+      },
+      "avdObjectId": {
+          "value": ""
+      },
+      "azureNetAppFilesSubnetAddressPrefix": {
+          "value": ""
+      },
+      "customRdpProperty": {
+          "value": "audiocapturemode:i:1;camerastoredirect:s:*;use multimon:i:0;drivestoredirect:s:;encode redirected video capture:i:1;redirected video capture encoding quality:i:1;audiomode:i:0;devicestoredirect:s:;redirectclipboard:i:0;redirectcomports:i:0;redirectlocation:i:1;redirectprinters:i:0;redirectsmartcards:i:1;redirectwebauthn:i:1;usbdevicestoredirect:s:;keyboardhook:i:2;"
+      },
+      "deployActivityLogDiagnosticSetting": {
+          "value": false
+      },
+      "deployDefender": {
+          "value": false
+      },
+      "deployNetworkWatcherTrafficAnalytics": {
+          "value": false
+      },
+      "deployPolicy": {
+          "value": false
+      },
+      "deploymentNameSuffix": {
+          "value": ""
+      },
+      "desktopFriendlyName": {
+          "value": ""
+      },
+      "diskSku": {
+          "value": "Premium_LRS"
+      },
+      "domainJoinPassword": {
+          "value": ""
+      },
+      "domainJoinUserPrincipalName": {
+          "value": ""
+      },
+      "domainName": {
+          "value": ""
+      },
+      "drainMode": {
+          "value": false
+      },
+      "emailSecurityContact": {
+          "value": ""
+      },
+      "enableAcceleratedNetworking": {
+          "value": false
+      },
+      "enableApplicationInsights": {
+          "value": true
+      },
+      "enableAvdInsights": {
+          "value": true
+      },
+      "enableTelemetry": {
+          "value": false
+      },
+      "environmentAbbreviation": {
+          "value": "dev"
+      },
+      "existingSharedActiveDirectoryConnection": {
+          "value": false
+      },
+      "existingFeedWorkspaceResourceId": {
+          "value": ""
+      },
+      "fslogixShareSizeInGB": {
+          "value": 100
+      },
+      "fslogixContainerType": {
+          "value": "ProfileContainer"
+      },
+      "fslogixStorageService": {
+          "value": "AzureFiles Standard"
+      },
+      "functionAppSubnetAddressPrefix": {
+          "value": ""
+      },
+      "hostPoolPublicNetworkAccess": {
+          "value": "Enabled"
+      },
+      "hostPoolType": {
+          "value": "Pooled"
+      },
+      "hubAzureFirewallResourceId": {
+          "value": ""
+      },
+      "hubVirtualNetworkResourceId": {
+          "value": ""
+      },
+      "identifier": {
+          "value": "avd"
+      },
+      "imageOffer": {
+          "value": "office-365"
+      },
+      "imagePublisher": {
+          "value": "MicrosoftWindowsDesktop"
+      },
+      "imageSku": {
+          "value": "win11-22h2-avd-m365"
+      },
+      "imageVersionResourceId": {
+          "value": ""
+      },
+      "keyVaultDiagnosticsLogs": {
+          "value": [
+            {
+              "category": "AuditEvent",
+              "enabled": true
+            },
+            {
+              "category": "AzurePolicyEvaluationDetails",
+              "enabled": true
+            }
+          ]
+      },
+      "keyVaultDiagnosticMetrics": {
+          "value": [
+            {
+              "category": "AllMetrics",
+              "enabled": true
+            }
+          ]
+      },
+      "locationVirtualMachines": {
+          "value": ""
+      },
+      "logAnalyticsWorkspaceRetention": {
+          "value": 30
+      },
+      "logAnalyticsWorkspaceSku": {
+          "value": "PerGB2018"
+      },
+      "logStorageSkuName": {
+          "value": "Standard_GRS"
+      },
+      "networkInterfaceDiagnosticsMetrics": {
+          "value": [
+            {
+              "category": "AllMetrics",
+              "enabled": true
+            }
+          ]
+      },
+      "networkSecurityGroupDiagnosticsLogs": {
+          "value": [
+            {
+              "category": "NetworkSecurityGroupEvent",
+              "enabled": true
+            },
+            {
+              "category": "NetworkSecurityGroupRuleCounter",
+              "enabled": true
+            }
+          ]
+      },
+      "networkSecurityGroupRules": {
+          "value": []
+      },
+      "networkWatcherFlowLogsRetentionDays": {
+          "value": 30
+      },
+      "networkWatcherFlowLogsType": {
+          "value": "VirtualNetwork"
+      },
+      "networkWatcherResourceId": {
+          "value": ""
+      },
+      "operationsLogAnalyticsWorkspaceResourceId": {
+          "value": ""
+      },
+      "organizationalUnitPath": {
+          "value": ""
+      },
+      "policy": {
+          "value": "NISTRev4"
+      },
+      "privateLinkScopeResourceId": {
+          "value": ""
+      },
+      "profile": {
+          "value": "Generic"
+      },
+      "recoveryServices": {
+          "value": false
+      },
+      "scalingWeekdaysOffPeakStartTime": {
+          "value": "17:00"
+      },
+      "scalingWeekdaysPeakStartTime": {
+          "value": "09:00"
+      },
+      "scalingWeekendsOffPeakStartTime": {
+          "value": "17:00"
+      },
+      "scalingWeekendsPeakStartTime": {
+          "value": "09:00"
+      },
+      "securityPrincipals": {
+          "value": [
+             
+          ]
+      },
+      "sessionHostCount": {
+          "value": 1
+      },
+      "sessionHostIndex": {
+          "value": 0
+      },
+      "sharedServicesSubnetResourceId": {
+          "value": ""
+      },
+      "stampIndex": {
+          "value": 0
+      },
+      "storageCount": {
+          "value": 1
+      },
+      "storageIndex": {
+          "value": 0
+      },
+      "subnetAddressPrefixes": {
+          "value": [
+            "10.0.140.0/24",
+            "10.0.141.0/26"
+          ]
+      },
+      "tags": {
+          "value": {}
+      },
+      "usersPerCore": {
+          "value": 1
+      },
+      "validationEnvironment": {
+          "value": false
+      },
+      "virtualMachineAdminPassword": {
+          "value": ""
+      },
+      "virtualMachineAdminUsername": {
+          "value": ""
+      },
+      "virtualMachineSize": {
+          "value": "Standard_D4ads_v5"
+      },
+      "virtualMachineVirtualCpuCount": {
+          "value": 0
+      },
+      "virtualNetworkAddressPrefixes": {
+          "value": [
+            "10.0.140.0/23"
+          ]
+      },
+      "virtualNetworkDiagnosticsLogs": {
+          "value": []
+      },
+      "virtualNetworkDiagnosticsMetrics": {
+          "value": []
+      },
+      "workspaceFriendlyName": {
+          "value": ""
+      },
+      "workspacePublicNetworkAccess": {
+          "value": "Enabled"
+      }
+    
   }
 }

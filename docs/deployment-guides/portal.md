@@ -35,8 +35,8 @@ The first step in the deployment UI is the Basics step. This requires basic info
 
 The project details provide the scope of the deployment. These elements also help inform other elements in the UI like the VM size for the remote access VMs.
 
-- **Subscriptions:** select the subscription you plan to use for the hub.
-- **Region:** select the location you plan to use for the resources.
+- **Subscriptions:** select the deployment subscription.
+- **Region:** select the deployment location for the Azure resources.
 
 #### Select Subscription(s)
 
@@ -46,10 +46,6 @@ Select subscription(s) for each: Hub, Identity, Operations, and Shared Services.
 
 > [!NOTE]
 > The Identity option is not required. This is intended for customers that need to deploy domain controllers in Azure.
-
-#### Location
-
-- **Location:** Select the desired location to deploy your MLZ resources. The drop down menu will be populated with locations that support all the resources in the deployment.
 
 #### Naming Components
 
@@ -83,6 +79,12 @@ The following parameters affect networking. Each virtual network and subnet has 
 
 - **Shared Services Virtual Network CIDR Range:** the CIDR range for the Shared Services virtual network.
 - **Shared Services Subnet CIDR Range:** the CIDR range for the default Shared Services subnet. The range must fit in the Shared Services virtual network.
+
+#### Network Watcher Flow Logs
+
+- **Flow Logs Type:** the type of network watcher flow logs to deploy, either virtual network or network security group. The latter will be deprecated in June 2025.
+- **Retention Days:** the number of days to retain the flow logs.
+- **Enable Traffic Analytics:** choose whether to enable network watcher traffic analytics.
 
 ### STEP 3: Security and Compliance
 

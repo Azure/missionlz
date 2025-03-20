@@ -16,7 +16,7 @@ param tags object
 resource publicIPAddress 'Microsoft.Network/publicIPAddresses@2021-02-01' = {
   name: publicIPAddressName
   location: location
-  tags: union(contains(tags, 'Microsoft.Network/publicIPAddresses') ? tags['Microsoft.Network/publicIPAddresses'] : {}, mlzTags)
+  tags: union(tags[?'Microsoft.Network/publicIPAddresses'] ?? {}, mlzTags)
   sku: {
     name: publicIPAddressSkuName
   }
@@ -29,7 +29,7 @@ resource publicIPAddress 'Microsoft.Network/publicIPAddresses@2021-02-01' = {
 resource bastionHost 'Microsoft.Network/bastionHosts@2021-02-01' = {
   name: name
   location: location
-  tags: union(contains(tags, 'Microsoft.Network/bastionHosts') ? tags['Microsoft.Network/bastionHosts'] : {}, mlzTags)
+  tags: union(tags[?'Microsoft.Network/bastionHosts'] ?? {}, mlzTags)
   properties: {
     ipConfigurations: [
       {

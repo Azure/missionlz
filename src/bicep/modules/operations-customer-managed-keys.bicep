@@ -38,7 +38,7 @@ module diskEncryptionSet '../modules/disk-encryption-set.bicep' = {
     keyVaultResourceId: keyVault.outputs.keyVaultResourceId
     location: location
     mlzTags: mlzTags
-    tags: contains(tags, 'Microsoft.Compute/diskEncryptionSets') ? tags['Microsoft.Compute/diskEncryptionSets'] : {}
+    tags: tags[?'Microsoft.Compute/diskEncryptionSets'] ?? {}
   }
 }
 

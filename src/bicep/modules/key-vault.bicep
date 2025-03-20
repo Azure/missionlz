@@ -19,7 +19,7 @@ var keyVaultPrivateEndpointName = replace(tier.namingConvention.keyVaultPrivateE
 resource vault 'Microsoft.KeyVault/vaults@2022-07-01' = {
   name: '${resourceAbbreviations.keyVaults}${uniqueString(replace(tier.namingConvention.keyVault, tokens.service, 'cmk'), resourceGroup().id)}'
   location: location
-  tags: union(contains(tags, 'Microsoft.KeyVault/vaults') ? tags['Microsoft.KeyVault/vaults'] : {}, mlzTags)
+  tags: union(tags[?'Microsoft.KeyVault/vaults'] ?? {}, mlzTags)
   properties: {
     enabledForDeployment: false
     enabledForDiskEncryption: false
@@ -46,7 +46,7 @@ resource vault 'Microsoft.KeyVault/vaults@2022-07-01' = {
 resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = {
   name: keyVaultPrivateEndpointName
   location: location
-  tags: union(contains(tags, 'Microsoft.Network/privateEndpoints') ? tags['Microsoft.Network/privateEndpoints'] : {}, mlzTags)
+  tags: union(tags[?'Microsoft.Network/privateEndpoints'] ?? {}, mlzTags)
   properties: {
     customNetworkInterfaceName: replace(tier.namingConvention.keyVaultNetworkInterface, tokens.service, 'cmk')
     privateLinkServiceConnections: [
@@ -114,6 +114,10 @@ resource key_disks 'Microsoft.KeyVault/vaults/keys@2022-07-01' = {
       ]
     }
   }
+  dependsOn: [
+    privateEndpoint
+    privateDnsZoneGroups
+  ]
 }
 
 resource key_storageAccounts 'Microsoft.KeyVault/vaults/keys@2022-07-01' = {
@@ -149,10 +153,15 @@ resource key_storageAccounts 'Microsoft.KeyVault/vaults/keys@2022-07-01' = {
       ]
     }
   }
+  dependsOn: [
+    privateEndpoint
+    privateDnsZoneGroups
+  ]
 }
 
 output keyUriWithVersion string = key_disks.properties.keyUriWithVersion
 output keyVaultResourceId string = vault.id
 output keyVaultName string = vault.name
 output keyVaultUri string = vault.properties.vaultUri
+output networkInterfaceResourceId string = privateEndpoint.properties.networkInterfaces[0].id
 output storageKeyName string = key_storageAccounts.name

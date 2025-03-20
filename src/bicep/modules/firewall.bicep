@@ -46,7 +46,7 @@ var dnsSettings = {
 resource firewallPolicy 'Microsoft.Network/firewallPolicies@2021-02-01' = {
   name: firewallPolicyName
   location: location
-  tags: union(contains(tags, 'Microsoft.Network/firewallPolicies') ? tags['Microsoft.Network/firewallPolicies'] : {}, mlzTags)
+  tags: union(tags[?'Microsoft.Network/firewallPolicies'] ?? {}, mlzTags)
   properties: {
     threatIntelMode: threatIntelMode
     intrusionDetection: ((skuTier == 'Premium') ? intrusionDetectionObject : null)
@@ -174,7 +174,7 @@ resource firewallNetworkRuleCollectionGroup 'Microsoft.Network/firewallPolicies/
 resource firewall 'Microsoft.Network/azureFirewalls@2021-02-01' = {
   name: name
   location: location
-  tags: union(contains(tags, 'Microsoft.Network/azureFirewalls') ? tags['Microsoft.Network/azureFirewalls'] : {}, mlzTags)
+  tags: union(tags[?'Microsoft.Network/azureFirewalls'] ?? {}, mlzTags)
   dependsOn: [
     firewallNetworkRuleCollectionGroup
     firewallAppRuleCollectionGroup

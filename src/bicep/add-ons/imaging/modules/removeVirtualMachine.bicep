@@ -23,10 +23,7 @@ resource removeVirtualMachine 'Microsoft.Compute/virtualMachines/runCommands@202
   parent: virtualMachine
   name: 'removeVirtualMachine'
   location: location
-  tags: union(
-    contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {},
-    mlzTags
-  )
+  tags: union(tags[?'Microsoft.Compute/virtualMachines'] ?? {}, mlzTags)
   properties: {
     treatFailureAsDeploymentFailure: false
     asyncExecution: enableBuildAutomation ? false : true

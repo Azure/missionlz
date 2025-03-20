@@ -144,10 +144,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2023-07-01' existing 
 resource automationAccount 'Microsoft.Automation/automationAccounts@2022-08-08' = {
   name: automationAccountName
   location: location
-  tags: union(
-    contains(tags, 'Microsoft.Automation/automationAccounts') ? tags['Microsoft.Automation/automationAccounts'] : {},
-    mlzTags
-  )
+  tags: union(tags[?'Microsoft.Automation/automationAccounts'] ?? {}, mlzTags)
   properties: {
     disableLocalAuth: false
     publicNetworkAccess: false
@@ -164,10 +161,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2022-08-08' 
 resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-05-01' = {
   name: privateEndpointName
   location: location
-  tags: union(
-    contains(tags, 'Microsoft.Network/privateEndpoints') ? tags['Microsoft.Network/privateEndpoints'] : {},
-    mlzTags
-  )
+  tags: union(tags[?'Microsoft.Network/privateEndpoints'] ?? {}, mlzTags)
   properties: {
     privateLinkServiceConnections: [
       {
@@ -215,19 +209,13 @@ resource runBook 'Microsoft.Automation/automationAccounts/runbooks@2023-11-01' =
     logProgress: true
     logVerbose: true
   }
-  tags: union(
-    contains(tags, 'Microsoft.Automation/automationAccounts/runbooks') ? tags['Microsoft.Automation/automationAccounts/runbooks'] : {},
-    mlzTags
-  )
+  tags: union(tags[?'Microsoft.Automation/automationAccounts/runbooks'] ?? {}, mlzTags)
 }
 
 resource updateRunBook 'Microsoft.Compute/virtualMachines/runCommands@2023-07-01' = {
   name: 'runbook'
   location: location
-  tags: union(
-    contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {},
-    mlzTags
-  )
+  tags: union(tags[?'Microsoft.Compute/virtualMachines'] ?? {}, mlzTags)
   parent: virtualMachine
   properties: {
     treatFailureAsDeploymentFailure: true
@@ -356,7 +344,7 @@ resource extension_HybridWorker 'Microsoft.Compute/virtualMachines/extensions@20
   parent: virtualMachine
   name: 'HybridWorkerForWindows'
   location: location
-  tags: contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}
+  tags: tags[?'Microsoft.Compute/virtualMachines'] ?? {}
   properties: {
     publisher: 'Microsoft.Azure.Automation.HybridWorker'
     type: 'HybridWorkerForWindows'
@@ -377,7 +365,7 @@ resource extension_JsonADDomainExtension 'Microsoft.Compute/virtualMachines/exte
     parent: virtualMachine
     name: 'JsonADDomainExtension'
     location: location
-    tags: contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}
+    tags: tags[?'Microsoft.Compute/virtualMachines'] ?? {}
     properties: {
       forceUpdateTag: time
       publisher: 'Microsoft.Compute'
