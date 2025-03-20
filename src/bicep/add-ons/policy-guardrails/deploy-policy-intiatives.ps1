@@ -1,9 +1,8 @@
 [CmdletBinding()]
 param (
-    [string]$RootFolderPath = "."
+    [string]$RootFolderPath = ".",
+    [string]$Location = "usgovvirginia"
 )
-# Set the location for the managed identity
-$location = "usgovvirginia"
 
 # Iterate through the folder structure
 $managementGroups = Get-ChildItem -Path $RootFolderPath -Directory
@@ -120,23 +119,24 @@ foreach ($mg in $managementGroups) {
         $policyAssignmentParametersJson = $policyAssignmentParameters | ConvertTo-Json -Depth 10
 
         # Shorten the assignment name to ensure it does not exceed 24 characters
-        $assignmentName = "${policySetName}Assign"
-        if ($assignmentName.Length -gt 24) {
-            $assignmentName = $assignmentName.Substring(0, 24)
+        $maxPolicySetNameLength = 24 - "Assign".Length
+        if ($policySetName.Length -gt $maxPolicySetNameLength) {
+            $policySetName = $policySetName.Substring(0, $maxPolicySetNameLength)
         }
+        $assignmentName = "${policySetName}Assign"
 
         Write-Output "Assigning policy set to management group: $($mg.Name)"
         $scope = "/providers/Microsoft.Management/managementGroups/$($mg.Name)"
 
         # Create the policy assignment with a system-assigned managed identity
-        $policyAssignment = New-AzPolicyAssignment -Name $assignmentName -Scope $scope -PolicySetDefinition $policySet.Id -PolicyParameter $policyAssignmentParametersJson -IdentityType SystemAssigned -Location $location
+        $policyAssignment = New-AzPolicyAssignment -Name $assignmentName -Scope $scope -PolicySetDefinition $policySet.Id -PolicyParameter $policyAssignmentParametersJson -IdentityType SystemAssigned -Location $Location
         Write-Output "Policy set assigned: $($policyAssignment | ConvertTo-Json -Depth 10)"
 
         # Extract roleDefinitionIds from the policy set definition
         $roleDefinitionIds = @()
         foreach ($policyDefinition in $policySet.PolicyDefinition) {
             $policyDef = Get-AzPolicyDefinition -Id $policyDefinition.policyDefinitionId
-            if ($policyDef.PolicyRule.then.details -ne $null) {
+            if ($null -ne $policyDef.PolicyRule.then.details) {
                 $roleDefinitionIds += $policyDef.PolicyRule.then.details.roleDefinitionIds
             }
         }

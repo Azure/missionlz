@@ -1,9 +1,0 @@
-{
-  "logAnalytics": {
-    "type": "string",
-    "metadata": {
-      "description": "Log Analytics workspace resourceId for diagnostics"
-    },
-    "value": "/subscriptions/<tenantId>/resourceGroups/<resourceGroupName>/providers/Microsoft.OperationalInsights/workspaces/<workspaceName>"
-  }
-}
