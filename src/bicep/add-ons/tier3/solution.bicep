@@ -17,8 +17,8 @@ param deployDefender bool
 @description('The suffix to append to the deployment name. It defaults to the current UTC date and time.')
 param deploymentNameSuffix string = utcNow()
 
-@description('Choose whether to deploy Network Watcher for the deployment location.')
-param deployNetworkWatcher bool
+@description('When set to true, deploys Network Watcher Traffic Analytics. It defaults to "false".')
+param deployNetworkWatcherTrafficAnalytics bool = false
 
 @description('Choose whether to deploy a policy assignment.')
 param deployPolicy bool
@@ -45,13 +45,21 @@ param hubVirtualNetworkResourceId string
 param identifier string
 
 @description('An array of Key Vault Diagnostic Logs categories to collect. See "https://learn.microsoft.com/en-us/azure/key-vault/general/logging?tabs=Vault" for valid values.')
-param keyVaultDiagnosticsLogs array = [
+param keyVaultDiagnosticLogs array = [
   {
     category: 'AuditEvent'
     enabled: true
   }
   {
     category: 'AzurePolicyEvaluationDetails'
+    enabled: true
+  }
+]
+
+@description('The Key Vault Diagnostic Metrics to collect. See the following URL for valid settings: "https://learn.microsoft.com/azure/key-vault/general/logging?tabs=Vault".')
+param keyVaultDiagnosticMetrics array = [
+  {
+    category: 'AllMetrics'
     enabled: true
   }
 ]
@@ -65,6 +73,14 @@ param logAnalyticsWorkspaceResourceId string
 @description('The Storage Account SKU to use for log storage. It defaults to "Standard_GRS". See https://docs.microsoft.com/en-us/rest/api/storagerp/srp_sku_types for valid settings.')
 param logStorageSkuName string = 'Standard_GRS'
 
+@description('An array of metrics to enable on the diagnostic setting for network interfaces.')
+param networkInterfaceDiagnosticsMetrics array = [
+  {
+    category: 'AllMetrics'
+    enabled: true
+  }
+]
+
 @description('An array of Network Security Group diagnostic logs to apply to the workload Virtual Network. See https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-nsg-manage-log#log-categories for valid settings.')
 param networkSecurityGroupDiagnosticsLogs array = [
   {
@@ -77,11 +93,21 @@ param networkSecurityGroupDiagnosticsLogs array = [
   }
 ]
 
-@description('The metrics to monitor for the Network Security Group.')
-param networkSecurityGroupDiagnosticsMetrics array = []
-
 @description('The rules to apply to the Network Security Group.')
 param networkSecurityGroupRules array = []
+
+@description('The number of days to retain Network Watcher Flow Logs. It defaults to "30".')  
+param networkWatcherFlowLogsRetentionDays int = 30
+
+@allowed([
+  'NetworkSecurityGroup'
+  'VirtualNetwork'
+])
+@description('When set to "true", enables Virtual Network Flow Logs. It defaults to "true" as its required by MCSB.')
+param networkWatcherFlowLogsType string = 'VirtualNetwork'
+
+@description('The resource ID for an existing network watcher for the desired deployment location. Only one network watcher per location can exist in a subscription. The value can be left empty to create a new network watcher resource.')
+param networkWatcherResourceId string = ''
 
 @description('The policy to assign to the workload.')
 param policy string = 'NISTRev4'
@@ -102,10 +128,23 @@ param tags object = {}
 param virtualNetworkAddressPrefix string = ''
 
 @description('The diagnostic logs to apply to the workload Virtual Network.')
-param virtualNetworkDiagnosticsLogs array = []
+param virtualNetworkDiagnosticsLogs array = [
+  {
+    category: 'VMProtectionAlerts'
+    enabled: true
+  }
+]
 
 @description('The metrics to monitor for the workload Virtual Network.')
-param virtualNetworkDiagnosticsMetrics array = []
+param virtualNetworkDiagnosticsMetrics array = [
+  {
+    category: 'AllMetrics'
+    enabled: true
+  }
+]
+
+@description('The local administrator username for Windows virtual machines. This value is needed if you plan to deploy the following Azure Policy initiatives: CMMC Level 3, DoD Impact Level 5, or NIST SP 800-53 Rev. 4 It defaults to "xadmin".')
+param windowsAdministratorsGroupMembership string = 'xadmin'
 
 @minLength(1)
 @maxLength(10)
@@ -143,8 +182,8 @@ module logic '../../modules/logic.bicep' = {
         shortName: workloadShortName
         deployUniqueResources: false
         subscriptionId: subscriptionId
+        networkWatcherResourceId: networkWatcherResourceId
         nsgDiagLogs: networkSecurityGroupDiagnosticsLogs
-        nsgDiagMetrics: networkSecurityGroupDiagnosticsMetrics
         nsgRules: networkSecurityGroupRules
         vnetAddressPrefix: virtualNetworkAddressPrefix
         vnetDiagLogs: virtualNetworkDiagnosticsLogs
@@ -172,13 +211,14 @@ module networking 'modules/networking.bicep' = if (!(empty(virtualNetworkAddress
   params: {
     additionalSubnets: additionalSubnets
     deploymentNameSuffix: deploymentNameSuffix
-    deployNetworkWatcher: deployNetworkWatcher
+    deployUniqueResources: logic.outputs.tiers[0].deployUniqueResources
     hubVirtualNetworkResourceId: hubVirtualNetworkResourceId
     location: location
     mlzTags: logic.outputs.mlzTags
     networkSecurityGroupName: logic.outputs.tiers[0].namingConvention.networkSecurityGroup
     networkSecurityGroupRules: networkSecurityGroupRules
     networkWatcherName: logic.outputs.tiers[0].namingConvention.networkWatcher
+    networkWatcherResourceId: networkWatcherResourceId
     resourceGroupName: rg.outputs.name
     routeTableName: logic.outputs.tiers[0].namingConvention.routeTable
     routeTableRouteNextHopIpAddress: azureFirewall.properties.ipConfigurations[0].properties.privateIPAddress
@@ -191,15 +231,12 @@ module networking 'modules/networking.bicep' = if (!(empty(virtualNetworkAddress
     vNetDnsServers: virtualNetwork.properties.?dhcpOptions.dnsServers ?? [] 
     workloadShortName: workloadShortName
   }
-  dependsOn: [
-    rg
-  ]
 }
 
 // This module deploys VNET links when the Azure Firewall SKU is "Basic".
 module virtualNetworkLinks 'modules/virtual-network-links.bicep' = if (!(empty(virtualNetworkAddressPrefix))) {
   name: 'deploy-vnet-links-${workloadShortName}-sub-${deploymentNameSuffix}'
-  scope: resourceGroup(hubResourceGroupName)
+  scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
   params: {
     azureFirewallSku: azureFirewall.properties.sku.tier
     deploymentNameSuffix: deploymentNameSuffix
@@ -261,16 +298,23 @@ module diagnostics 'modules/diagnostics.bicep' = if (!(empty(virtualNetworkAddre
   params: {
     deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
     deploymentNameSuffix: deploymentNameSuffix
-    keyVaultDiagnosticLogs: keyVaultDiagnosticsLogs
+    deployNetworkWatcherTrafficAnalytics: deployNetworkWatcherTrafficAnalytics
+    keyVaultDiagnosticLogs: keyVaultDiagnosticLogs
+    keyVaultDiagnosticMetrics: keyVaultDiagnosticMetrics
     keyVaultName: customerManagedKeys.outputs.keyVaultName
+    location: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
+    networkInterfaceDiagnosticsMetrics: networkInterfaceDiagnosticsMetrics
+    networkInterfaceResourceIds: union(customerManagedKeys.outputs.networkInterfaceResourceIds, storage.outputs.networkInterfaceResourceIds)
     networkSecurityGroupDiagnosticsLogs: networkSecurityGroupDiagnosticsLogs
-    networkSecurityGroupDiagnosticsMetrics: networkSecurityGroupDiagnosticsMetrics
     networkSecurityGroupName: networking.outputs.networkSecurityGroupName
+    networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
+    networkWatcherFlowLogsType: networkWatcherFlowLogsType
+    networkWatcherResourceId: networkWatcherResourceId
     resourceGroupName: rg.outputs.name
     serviceToken: logic.outputs.tokens.service
     storageAccountResourceId: storage.outputs.storageAccountResourceId
-    tier: logic.outputs.tiers[0]
+    tiers: logic.outputs.tiers
     virtualNetworkDiagnosticsLogs: virtualNetworkDiagnosticsLogs
     virtualNetworkDiagnosticsMetrics: virtualNetworkDiagnosticsMetrics
     virtualNetworkName: networking.outputs.virtualNetworkName
@@ -284,15 +328,14 @@ module policyAssignments '../../modules/policy-assignments.bicep' =
       deploymentNameSuffix: deploymentNameSuffix
       location: location
       logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
-      tiers: logic.outputs.tiers
       policy: policy
       resourceGroupNames: [
         rg.outputs.name
       ]
+      serviceToken: logic.outputs.tokens.service
+      tiers: logic.outputs.tiers
+      windowsAdministratorsGroupMembership: windowsAdministratorsGroupMembership
     }
-    dependsOn: [
-      rg
-    ]
   }
 
 module defenderForCloud '../../modules/defender-for-cloud.bicep' =
@@ -300,7 +343,6 @@ module defenderForCloud '../../modules/defender-for-cloud.bicep' =
     name: 'set-defender-${workloadShortName}-${deploymentNameSuffix}'
     params: {
       emailSecurityContact: emailSecurityContact
-      logAnalyticsWorkspaceId: logAnalyticsWorkspaceResourceId
     }
   }
 
@@ -311,6 +353,7 @@ output locationProperties object = logic.outputs.locationProperties
 output logAnalyticsWorkspaceResourceId string = logAnalyticsWorkspaceResourceId
 output mlzTags object = logic.outputs.mlzTags
 output namingConvention object = logic.outputs.tiers[0].namingConvention
+output networkSecurityGroupResourceId string = networking.outputs.networkSecurityGroupResourceId
 output privateDnsZones array = logic.outputs.privateDnsZones
 output resourceAbbreviations object = logic.outputs.resourceAbbreviations
 output resourcePrefix string = azureFirewall.tags.resourcePrefix

@@ -22,33 +22,27 @@
               }
             },
             {
-              "name": "armApiControls",
-              "label": "",
-              "type": "Microsoft.Common.Section",
-              "elements": [
-                {
-                  "name": "subscriptionApi",
-                  "type": "Microsoft.Solutions.ArmApiControl",
-                  "request": {
-                    "method": "GET",
-                    "path": "subscriptions?api-version=2020-01-01"
-                  }
-                },
-                {
-                  "name": "locationsApi",
-                  "type": "Microsoft.Solutions.ArmApiControl",
-                  "request": {
-                    "method": "GET",
-                    "path": "locations?api-version=2019-11-01"
-                  }
-                }
-              ]
-            },
-            {
               "name": "resourceScope",
               "type": "Microsoft.Common.ResourceScope",
               "location": {
-                "resourceTypes": []
+                "resourceTypes": [
+                  "Microsoft.Compute/diskEncryptionSets",
+                  "Microsoft.KeyVault/vaults",
+                  "Microsoft.ManagedIdentity/userAssignedIdentities",
+                  "Microsoft.Network/azureFirewalls",
+                  "Microsoft.Network/firewallPolicies",
+                  "Microsoft.Network/networkSecurityGroups",
+                  "Microsoft.Network/networkWatchers",
+                  "Microsoft.Network/privateDnsZones",
+                  "Microsoft.Network/privateEndpoints",
+                  "Microsoft.Network/publicIPAddresses",
+                  "Microsoft.Network/routeTables",
+                  "Microsoft.Network/virtualNetworks",
+                  "Microsoft.OperationalInsights/workspaces",
+                  "Microsoft.OperationsManagement/solutions",
+                  "Microsoft.Resources/resourceGroups",
+                  "Microsoft.Storage/storageAccounts"
+                ]
               }
             },
             {
@@ -64,6 +58,14 @@
                   }
                 }
               ]
+            },
+            {
+              "name": "subscriptionApi",
+              "type": "Microsoft.Solutions.ArmApiControl",
+              "request": {
+                "method": "GET",
+                "path": "subscriptions?api-version=2020-01-01"
+              }
             },
             {
               "name": "hubSection",
@@ -89,8 +91,17 @@
                   "filterPlaceholder": "Filter items ...",
                   "multiLine": true,
                   "constraints": {
-                    "allowedValues": "[map(steps('basics').armApiControls.subscriptionApi.value, (item) => parse(concat('{\"label\":\"', item.displayName, '\",\"value\":\"', item.id, '\",\"description\":\"', 'ID: ', item.subscriptionId, '\"}')))]",
+                    "allowedValues": "[map(steps('basics').subscriptionApi.value, (item) => parse(concat('{\"label\":\"', item.displayName, '\",\"value\":\"', item.id, '\",\"description\":\"', 'ID: ', item.subscriptionId, '\"}')))]",
                     "required": true
+                  }
+                },
+                {
+                  "name": "hubNetworkWatchersApi",
+                  "type": "Microsoft.Solutions.ArmApiControl",
+                  "condition": "[not(empty(steps('basics').hubSection.hubSubscriptionId))]",
+                  "request": {
+                    "method": "GET",
+                    "path": "[concat(steps('basics').hubSection.hubSubscriptionId, '/providers/Microsoft.Network/networkWatchers?api-version=2023-09-01')]"
                   }
                 }
               ]
@@ -129,8 +140,17 @@
                   "filterPlaceholder": "Filter items ...",
                   "multiLine": true,
                   "constraints": {
-                    "allowedValues": "[map(steps('basics').armApiControls.subscriptionApi.value, (item) => parse(concat('{\"label\":\"', item.displayName, '\",\"value\":\"', item.id, '\",\"description\":\"', 'ID: ', item.subscriptionId, '\"}')))]",
+                    "allowedValues": "[map(steps('basics').subscriptionApi.value, (item) => parse(concat('{\"label\":\"', item.displayName, '\",\"value\":\"', item.id, '\",\"description\":\"', 'ID: ', item.subscriptionId, '\"}')))]",
                     "required": true
+                  }
+                },
+                {
+                  "name": "identityNetworkWatchersApi",
+                  "type": "Microsoft.Solutions.ArmApiControl",
+                  "condition": "[not(empty(steps('basics').identitySection.identitySubscriptionId))]",
+                  "request": {
+                    "method": "GET",
+                    "path": "[concat(steps('basics').identitySection.identitySubscriptionId, '/providers/Microsoft.Network/networkWatchers?api-version=2023-09-01')]"
                   }
                 }
               ]
@@ -159,8 +179,17 @@
                   "filterPlaceholder": "Filter items ...",
                   "multiLine": true,
                   "constraints": {
-                    "allowedValues": "[map(steps('basics').armApiControls.subscriptionApi.value, (item) => parse(concat('{\"label\":\"', item.displayName, '\",\"value\":\"', item.id, '\",\"description\":\"', 'ID: ', item.subscriptionId, '\"}')))]",
+                    "allowedValues": "[map(steps('basics').subscriptionApi.value, (item) => parse(concat('{\"label\":\"', item.displayName, '\",\"value\":\"', item.id, '\",\"description\":\"', 'ID: ', item.subscriptionId, '\"}')))]",
                     "required": true
+                  }
+                },
+                {
+                  "name": "operationsNetworkWatchersApi",
+                  "type": "Microsoft.Solutions.ArmApiControl",
+                  "condition": "[not(empty(steps('basics').operationsSection.operationsSubscriptionId))]",
+                  "request": {
+                    "method": "GET",
+                    "path": "[concat(steps('basics').operationsSection.operationsSubscriptionId, '/providers/Microsoft.Network/networkWatchers?api-version=2023-09-01')]"
                   }
                 }
               ]
@@ -189,33 +218,18 @@
                   "filterPlaceholder": "Filter items ...",
                   "multiLine": true,
                   "constraints": {
-                    "allowedValues": "[map(steps('basics').armApiControls.subscriptionApi.value, (item) => parse(concat('{\"label\":\"', item.displayName, '\",\"value\":\"', item.id, '\",\"description\":\"', 'ID: ', item.subscriptionId, '\"}')))]",
+                    "allowedValues": "[map(steps('basics').subscriptionApi.value, (item) => parse(concat('{\"label\":\"', item.displayName, '\",\"value\":\"', item.id, '\",\"description\":\"', 'ID: ', item.subscriptionId, '\"}')))]",
                     "required": true
-                  }
-                }
-              ]
-            },
-            {
-              "name": "locationSection",
-              "label": "Location",
-              "type": "Microsoft.Common.Section",
-              "elements": [
-                {
-                  "name": "infoBoxLocation",
-                  "type": "Microsoft.Common.InfoBox",
-                  "options": {
-                    "text": "Since not all service features are available in all regions, Mission Landing Zone is available in a subset of regions.",
-                    "style": "Info"
                   }
                 },
                 {
-                  "name": "location",
-                  "type": "Microsoft.Common.LocationSelector",
-                  "label": "Location",
-                  "toolTip": "Select the deployment location for MLZ.",
-                  "resourceTypes": [
-                    "Microsoft.Compute/virtualMachines"
-                  ]
+                  "name": "sharedServicesNetworkWatchersApi",
+                  "type": "Microsoft.Solutions.ArmApiControl",
+                  "condition": "[not(empty(steps('basics').sharedServicesSection.sharedServicesSubscriptionId))]",
+                  "request": {
+                    "method": "GET",
+                    "path": "[concat(steps('basics').sharedServicesSection.sharedServicesSubscriptionId, '/providers/Microsoft.Network/networkWatchers?api-version=2023-09-01')]"
+                  }
                 }
               ]
             },
@@ -294,7 +308,7 @@
                 "text": "SCCA guidance and architectures are specific to DoD customers, but they also help civilian customers comply with Trusted Internet Connections (TIC) guidance and help commercial customers that want to implement a secure DMZ to protect their Azure environments.",
                 "link": {
                   "label": "Learn more",
-                  "uri": "https://docs.microsoft.com/en-us/azure/azure-government/compliance/secure-azure-computing-architecture"
+                  "uri": "https://docs.microsoft.com/azure/azure-government/compliance/secure-azure-computing-architecture"
                 }
               }
             },
@@ -669,12 +683,70 @@
               ]
             },
             {
-              "name": "networkWatchersApi",
-              "type": "Microsoft.Solutions.ArmApiControl",
-              "request": {
-                "method": "GET",
-                "path": "[concat(steps('basics').hubSection.hubSubscriptionId, '/providers/Microsoft.Network/networkWatchers?api-version=2023-09-01')]"
-              }
+              "name": "flowLogsSection",
+              "label": "Network Watcher Flow Logs",
+              "type": "Microsoft.Common.Section",
+              "elements": [
+                {
+                  "name": "flowLogsDescription",
+                  "type": "Microsoft.Common.TextBlock",
+                  "options": {
+                    "text": "To support the on-going security and compliance of your landing zone, MLZ configures network watcher flow logs for virtual networks by default. Flow logs capture information about IP traffic flowing through your virtual Networks or network security groups. Flow log data can be used to troubleshoot network connectivity issues, monitor network traffic, and detect and diagnose security threats.",
+                    "link": {
+                      "label": "Click here to learn more about network watcher flow logs",
+                      "uri": "https://learn.microsoft.com/azure/network-watcher/network-watcher-overview#flow-logs"
+                    }
+                  }
+                },
+                {
+                  "name": "flowLogsType",
+                  "label": "Flow Logs Type",
+                  "type": "Microsoft.Common.DropDown",
+                  "defaultValue": "Virtual Network (recommended)",
+                  "toolTip": "Select the type of flow logs to deploy.",
+                  "constraints": {
+                    "allowedValues": [
+                      {
+                        "label": "Virtual Network (recommended)",
+                        "value": "VirtualNetwork"
+                      },
+                      {
+                        "label": "Network Security Group",
+                        "value": "NetworkSecurityGroup"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "nsgFlowLogsRetirementWarning",
+                  "type": "Microsoft.Common.InfoBox",
+                  "visible": "[equals(steps('networking').flowLogsSection.flowLogsType, 'deployNetworkSecurityGroupFlowLogs')]",
+                  "options": {
+                    "style": "Warning",
+                    "text": "NSG flow logs are scheduled for retirement on June 30, 2025. All customers should move to VNet flow logs which offer more logging and visibility. Click here learn more about NSG flow log retirement",
+                    "uri": "https://learn.microsoft.com/azure/network-watcher/nsg-flow-logs-overview"
+                  }
+                },
+                {
+                  "name": "retentionDays",
+                  "label": "Retention Days",
+                  "type": "Microsoft.Common.TextBox",
+                  "defaultValue": "30",
+                  "toolTip": "Enter the number of days to retain the network watcher flow logs. If you want to retain the data forever and do not want to apply any retention policy, set retention (days) to 0.",
+                  "constraints": {
+                    "required": true,
+                    "regex": "^36[0-5]$|^3[0-5][0-9]$|^[1-2][0-9][0-9]$|^[0-9][0-9]$|^[0-9]$",
+                    "message": "The value must be between 0 and 365."
+                  }
+                },
+                {
+                  "name": "deployTrafficAnalytics",
+                  "label": "Enable Traffic Analytics",
+                  "type": "Microsoft.Common.CheckBox",
+                  "defaultValue": false,
+                  "toolTip": "Enable this option to deploy Network Watcher Traffic Analytics."
+                }
+              ]
             }
           ]
         },
@@ -689,7 +761,7 @@
                 "text": "To support the on-going security and compliance of your landing zone, MLZ provides options for configuring: Defender for Cloud, Regulatory Compliance Policies, and Microsoft Sentinel.",
                 "link": {
                   "label": "Click here to learn more about recommended security best practices",
-                  "uri": "https://learn.microsoft.com/en-us/azure/security/fundamentals/operational-best-practices"
+                  "uri": "https://learn.microsoft.com/azure/security/fundamentals/operational-best-practices"
                 }
               }
             },
@@ -705,7 +777,7 @@
                     "text": "To support the on-going security and compliance of your landing zone, by default - MLZ deploys the free cloud security posture management features of Defender for Cloud, such as: secure score, which is powered by the Microsoft Cloud Security Benchmark. The Microsoft Cloud Security Benchmark is a security framework derived from Microsoft best practices, and NIST/CIS security Controls.",
                     "link": {
                       "label": "Click here to learn more about Defender for Cloud",
-                      "uri": "https://docs.microsoft.com/en-us/azure/defender-for-cloud/defender-for-cloud-introduction"
+                      "uri": "https://docs.microsoft.com/azure/defender-for-cloud/defender-for-cloud-introduction"
                     }
                   }
                 }
@@ -729,7 +801,7 @@
                   "visible": true,
                   "options": {
                     "text": "Enabling the additional paid features of Microsoft Defender for Cloud is recommended.  If you have previously enabled any paid workload protection plans, you must select the checkbox and relevant plans on the dropdown list, to ensure protection is maintained through any deployment(s) of MLZ.",
-                    "uri": "https://learn.microsoft.com/en-us/azure/defender-for-cloud/defender-for-cloud-introduction#protect-cloud-workloads"
+                    "uri": "https://learn.microsoft.com/azure/defender-for-cloud/defender-for-cloud-introduction#protect-cloud-workloads"
                   }
                 },
                 {
@@ -747,7 +819,7 @@
                   "options": {
                     "icon": "Info",
                     "text": "Click the link to open a new browser tab, to confirm what workload protection features are available in the in Azure Commercial and Azure Government Clouds.",
-                    "uri": "https://learn.microsoft.com/en-us/azure/security/fundamentals/feature-availability#microsoft-defender-for-cloud"
+                    "uri": "https://learn.microsoft.com/azure/security/fundamentals/feature-availability#microsoft-defender-for-cloud"
                   },
                   "visible": "[steps('compliance').defenderSection.deployDefender]"
                 },
@@ -940,7 +1012,7 @@
                     "text": "MLZ can deploy Microsoft Sentinel to the Log Analytics Workspace, for its Security information and event management (SIEM) and Security orchestration, automation, and response (SOAR).",
                     "link": {
                       "label": "Learn more about Microsoft Sentinel",
-                      "uri": "https://learn.microsoft.com/en-us/azure/sentinel/overview"
+                      "uri": "https://learn.microsoft.com/azure/sentinel/overview"
                     }
                   }
                 },
@@ -951,7 +1023,7 @@
                     "text": "Please note further configuration of Sentinel is required to take advantage of threat detection, log retention and response capabilities. Please check the following article to determine what regions support Sentinel.",
                     "link": {
                       "label": "Learn more about Sentinel regions",
-                      "uri": "https://learn.microsoft.com/en-us/azure/sentinel/geographical-availability-data-residency"
+                      "uri": "https://learn.microsoft.com/azure/sentinel/geographical-availability-data-residency"
                     }
                   }
                 },
@@ -961,7 +1033,7 @@
                   "options": {
                     "style": "Info",
                     "text": "Please check the following article to see what features are available for Sentinel in different Azure environments.",
-                    "uri": "https://learn.microsoft.com/en-us/azure/sentinel/feature-availability"
+                    "uri": "https://learn.microsoft.com/azure/sentinel/feature-availability"
                   }
                 },
                 {
@@ -988,7 +1060,7 @@
                 "text": "Mission Landing Zone can provision a Windows and a Linux virtual machine to securely access the network remotely using Azure Bastion hosts.",
                 "link": {
                   "label": "Learn more",
-                  "uri": "https://docs.microsoft.com/en-us/azure/bastion/bastion-overview"
+                  "uri": "https://docs.microsoft.com/azure/bastion/bastion-overview"
                 }
               }
             },
@@ -1146,6 +1218,7 @@
                   "name": "windowsVmSku",
                   "type": "Microsoft.Common.DropDown",
                   "label": "Windows Server Version",
+                  "defaultValue": "2022",
                   "toolTip": "Select the desired Windows Server Version.",
                   "placeholder": "",
                   "multiselect": false,
@@ -1294,7 +1367,7 @@
                   "type": "Microsoft.Solutions.ArmApiControl",
                   "request": {
                     "method": "GET",
-                    "path": "[concat(steps('basics').hubSection.hubSubscriptionId, '/providers/Microsoft.Compute/locations/', steps('basics').locationSection.location.name, '/publishers/', steps('remoteAccess').linuxVmSection.linuxVmImagePublisher, '/artifactTypes/vmImage/offers/', steps('remoteAccess').linuxVmSection.linuxVmImageOffer, '/skus?api-version=2024-03-01')]"
+                    "path": "[concat(steps('basics').hubSection.hubSubscriptionId, '/providers/Microsoft.Compute/locations/', steps('basics').resourceScope.location.name, '/publishers/', steps('remoteAccess').linuxVmSection.linuxVmImagePublisher, '/artifactTypes/vmImage/offers/', steps('remoteAccess').linuxVmSection.linuxVmImageOffer, '/skus?api-version=2024-03-01')]"
                   },
                   "visible": false
                 },
@@ -1415,26 +1488,31 @@
     },
     "outputs": {
       "kind": "Subscription",
-      "location": "[steps('basics').locationSection.location.name]",
-      "subscriptionId": "[steps('basics').hubSection.hubSubscriptionId]",
+      "location": "[steps('basics').resourceScope.location.name]",
+      "subscriptionId": "[steps('basics').resourceScope.subscription.id]",
       "parameters": {
-        "bastionHostSubnetAddressPrefix": "[steps('remoteAccess').azureBastionSection.bastionSubnetAddressCidrRange]",
         "azureGatewaySubnetAddressPrefix": "[steps('remoteAccess').azureGatewaySubnetSection.azureGatewaySubnetAddressCidrRange]",
+        "bastionHostSubnetAddressPrefix": "[steps('remoteAccess').azureBastionSection.bastionSubnetAddressCidrRange]",
         "defenderSkuTier": "[if(steps('compliance').defenderSection.deployDefender, 'Standard', 'Free')]",
+        "deployAzureGatewaySubnet": "[steps('remoteAccess').azureGatewaySubnetSection.deployAzureGatewaySubnet]",
+        "deployBastion": "[steps('remoteAccess').azureBastionSection.deployBastion]",
         "deployDefenderPlans": "[steps('compliance').defenderSection.deployDefenderPlans]",
         "deployIdentity": "[steps('basics').identitySection.deployIdentity]",
         "deployLinuxVirtualMachine": "[steps('remoteAccess').linuxVmSection.deployLinuxVirtualMachine]",
-        "deployWindowsVirtualMachine": "[steps('remoteAccess').windowsVmSection.deployWindowsVirtualMachine]",
-        "deployNetworkWatcher": "[empty(filter(steps('networking').networkWatchersApi.value, (item) => equals(item.location, steps('basics').locationSection.location.name)))]",
+        "deployNetworkWatcherTrafficAnalytics": "[steps('networking').flowLogsSection.deployTrafficAnalytics]",
         "deployPolicy": "[steps('compliance').policySection.deployPolicy]",
-        "deployBastion": "[steps('remoteAccess').azureBastionSection.deployBastion]",
-        "deployAzureGatewaySubnet": "[steps('remoteAccess').azureGatewaySubnetSection.deployAzureGatewaySubnet]",
         "deploySentinel": "[steps('compliance').sentinelSection.deploySentinel]",
+        "deployWindowsVirtualMachine": "[steps('remoteAccess').windowsVmSection.deployWindowsVirtualMachine]",
         "emailSecurityContact": "[steps('compliance').defenderSection.emailSecurityContact]",
+        "environmentAbbreviation": "[steps('basics').namingSection.environmentAbbreviation]",
+        "existingHubNetworkWatcherResourceId": "[if(not(empty(filter(steps('basics').hubSection.hubNetworkWatchersApi.value, (item) => equals(item.location, steps('basics').resourceScope.location.name)))), first(map(filter(steps('basics').hubSection.hubNetworkWatchersApi.value, (item) => equals(item.location, steps('basics').resourceScope.location.name)), (item) => item.id)), '')]",
+        "existingIdentityNetworkWatcherResourceId": "[if(not(empty(filter(steps('basics').identitySection.identityNetworkWatchersApi.value, (item) => equals(item.location, steps('basics').resourceScope.location.name)))), first(map(filter(steps('basics').identitySection.identityNetworkWatchersApi.value, (item) => equals(item.location, steps('basics').resourceScope.location.name)), (item) => item.id)), '')]",
+        "existingOperationsNetworkWatcherResourceId": "[if(not(empty(filter(steps('basics').operationsSection.operationsNetworkWatchersApi.value, (item) => equals(item.location, steps('basics').resourceScope.location.name)))), first(map(filter(steps('basics').operationsSection.operationsNetworkWatchersApi.value, (item) => equals(item.location, steps('basics').resourceScope.location.name)), (item) => item.id)), '')]",
+        "existingSharedServicesNetworkWatcherResourceId": "[if(not(empty(filter(steps('basics').sharedServicesSection.sharedServicesNetworkWatchersApi.value, (item) => equals(item.location, steps('basics').resourceScope.location.name)))), first(map(filter(steps('basics').sharedServicesSection.sharedServicesNetworkWatchersApi.value, (item) => equals(item.location, steps('basics').resourceScope.location.name)), (item) => item.id)), '')]",
         "firewallClientSubnetAddressPrefix": "[steps('networking').hubVirtualNetwork.firewallClientSubnetAddressCidrRange]",
         "firewallManagementSubnetAddressPrefix": "[steps('networking').hubVirtualNetwork.firewallManagementSubnetAddressCidrRange]",
-        "firewallSupernetIPAddress": "[steps('networking').hubVirtualNetwork.superNetworkAddressCidrRange]",
         "firewallSkuTier": "[steps('networking').hubVirtualNetwork.firewallSkuTier]",
+        "firewallSupernetIPAddress": "[steps('networking').hubVirtualNetwork.superNetworkAddressCidrRange]",
         "hubSubnetAddressPrefix": "[steps('networking').hubVirtualNetwork.subnetAddressCidrRange]",
         "hubSubscriptionId": "[replace(steps('basics').hubSection.hubSubscriptionId, '/subscriptions/', '')]",
         "hubVirtualNetworkAddressPrefix": "[steps('networking').hubVirtualNetwork.virtualNetworkAddressCidrRange]",
@@ -1443,27 +1521,27 @@
         "identitySubscriptionId": "[if(steps('basics').identitySection.deployIdentity, replace(steps('basics').identitySection.identitySubscriptionId, '/subscriptions/', ''), replace(steps('basics').hubSection.hubSubscriptionId, '/subscriptions/', ''))]",
         "identityVirtualNetworkAddressPrefix": "[steps('networking').identityVirtualNetwork.virtualNetworkAddressCidrRange]",
         "linuxVmAdminPasswordOrKey": "[if(equals(steps('remoteAccess').linuxVmSection.linuxVmAdminPasswordOrKey.authenticationType, 'password'), steps('remoteAccess').linuxVmSection.linuxVmAdminPasswordOrKey.password, steps('remoteAccess').linuxVmSection.linuxVmAdminPasswordOrKey.sshPublicKey)]",
-        "linuxVmAuthenticationType": "password",
         "linuxVmAdminUsername": "[steps('remoteAccess').linuxVmSection.linuxVmAdminUsername]",
-        "linuxVmImagePublisher": "[steps('remoteAccess').linuxVmSection.linuxVmImagePublisher]",
+        "linuxVmAuthenticationType": "password",
         "linuxVmImageOffer": "[steps('remoteAccess').linuxVmSection.linuxVmImageOffer]",
+        "linuxVmImagePublisher": "[steps('remoteAccess').linuxVmSection.linuxVmImagePublisher]",
         "linuxVmImageSku": "[steps('remoteAccess').linuxVmSection.linuxVmImageSku]",
         "linuxVmSize": "[steps('remoteAccess').linuxVmSection.linuxVmSize]",
-        "location": "[steps('basics').locationSection.location.name]",
+        "networkWatcherFlowLogsRetentionDays": "[steps('networking').flowLogsSection.retentionDays]",
+        "networkWatcherFlowLogsType": "[steps('networking').flowLogsSection.flowLogsType]",
         "operationsSubnetAddressPrefix": "[steps('networking').operationsVirtualNetwork.subnetAddressCidrRange]",
         "operationsSubscriptionId": "[replace(steps('basics').operationsSection.operationsSubscriptionId, '/subscriptions/', '')]",
         "operationsVirtualNetworkAddressPrefix": "[steps('networking').operationsVirtualNetwork.virtualNetworkAddressCidrRange]",
         "policy": "[steps('compliance').policySection.policy]",
         "resourcePrefix": "[steps('basics').namingSection.resourcePrefix]",
-        "environmentAbbreviation": "[steps('basics').namingSection.environmentAbbreviation]",
         "sharedServicesSubnetAddressPrefix": "[steps('networking').sharedServicesVirtualNetwork.subnetAddressCidrRange]",
         "sharedServicesSubscriptionId": "[replace(steps('basics').sharedServicesSection.sharedServicesSubscriptionId, '/subscriptions/', '')]",
         "sharedServicesVirtualNetworkAddressPrefix": "[steps('networking').sharedServicesVirtualNetwork.virtualNetworkAddressCidrRange]",
         "tags": "[steps('tags').tags]",
-        "windowsVmSku": "[steps('remoteAccess').windowsVmSection.windowsVmSku]",
-        "windowsVmSize": "[steps('remoteAccess').windowsVmSection.windowsVmSize]",
         "windowsVmAdminPassword": "[steps('remoteAccess').windowsVmSection.windowsVmAdminPassword.password]",
-        "windowsVmAdminUsername": "[steps('remoteAccess').windowsVmSection.windowsVmAdminUsername]"
+        "windowsVmAdminUsername": "[steps('remoteAccess').windowsVmSection.windowsVmAdminUsername]",
+        "windowsVmSize": "[steps('remoteAccess').windowsVmSection.windowsVmSize]",
+        "windowsVmSku": "[steps('remoteAccess').windowsVmSection.windowsVmSku]"
       }
     }
   }

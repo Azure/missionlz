@@ -2,115 +2,286 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "adminPassword": {
-      "value": ""
-    },
-    "adminUsername": {
-      "value": ""
-    },
-    "applicationGatewayPrivateIpAddress": {
-      "value": ""
-    },
-    "applicationGatewaySubnetAddressPrefix": {
-      "value": ""
-    },
-    "arcgisServiceAccountIsDomainAccount": {
-      "value": false
-    },
-    "arcgisServiceAccountPassword": {
-      "value": ""
-    },
-    "arcgisServiceAccountUserName": {
-      "value": ""
-    },
-    "architecture": {},
-    "azureFirewallName": {
-      "value": ""
-    },
-    "debugMode": {
-      "value": false
-    },
-    "defaultSubnetAddressPrefix": {
-      "value": ""
-    },
-    "deployDefender": {
-      "value": false
-    },
-    "deployPolicy": {
-      "value": false
-    },
-    "diskEncryptionSetResourceId": {
-      "value": ""
-    },
-    "enableGraphDataStore": {
-      "value": false
-    },
-    "enableMonitoring": {
-      "value": false
-    },
-    "enableObjectDataStore": {
-      "value": false
-    },
-    "enableSpatiotemporalBigDataStore": {
-      "value": false
-    },
-    "enableTileCacheDataStore": {
-      "value": false
-    },
-    "externalDnsHostname": {
-      "value": ""
-    },
-    "hubResourceGroupName": {
-      "value": ""
-    },
-    "hubSubscriptionId": {
-      "value": ""
-    },
-    "hubVirtualNetworkName": {
-      "value": ""
-    },
-    "portalLicenseFile": {
-      "value": ""
-    },
-    "portalLicenseUserTypeId": {},
-    "primarySiteAdministratorAccountPassword": {
-      "value": ""
-    },
-    "primarySiteAdministratorAccountUserName": {
-      "value": ""
-    },
-    "resourcePrefix": {
-      "value": ""
-    },
-    "selfSignedCertificatePassword": {
-      "value": ""
-    },
-    "serverLicenseFile": {
-      "value": ""
-    },
-    "spokelogAnalyticsWorkspaceResourceId": {
-      "value": ""
-    },
-    "useAzureFiles": {
-      "value": false
-    },
-    "useCloudStorage": {
-      "value": false
-    },
-    "virtualNetworkAddressPrefix": {
-      "value": ""
-    },
-    "certificatePassword": {
-      "value": ""
-    },
-    "certificateFileName": {
-      "value": ""
-    },
-    "hubStorageAccountName": {
-      "value": ""
-    },
-    "hubContainerName": {
-      "value": ""
-    }
+      "applicationGatewaySubnetAddressPrefix": {
+          "value": "10.0.136.0/24"
+      },
+      "arcgisServiceAccountIsDomainAccount": {
+          "value": false
+      },
+      "arcgisServiceAccountPassword": {
+          "value": ""
+      },
+      "arcgisServiceAccountUsername": {
+          "value": ""
+      },
+      "artifactsStorageAccountResourceId": {
+          "value": ""
+      },
+      "artifactsContainerName": {
+          "value": ""
+      },
+      "architecture": {
+          "value": ""
+      },
+      "certificatePassword": {
+          "value": ""
+      },
+      "certificateFileName": {
+          "value": ""
+      },
+      "dataStoreVirtualMachineOSDiskSize": {
+          "value": 128
+      },
+      "debugMode": {
+          "value": false
+      },
+      "deployActivityLogDiagnosticSetting": {
+          "value": false
+      },
+      "deployDefender": {
+          "value": false
+      },
+      "deploymentNameSuffix": {
+          "value": ""
+      },
+      "deployNetworkWatcherTrafficAnalytics": {
+          "value": false
+      },
+      "deployPolicy": {
+          "value": false
+      },
+      "emailSecurityContact": {
+          "value": ""
+      },
+      "enableDataStoreVirtualMachineDataDisk": {
+          "value": false
+      },
+      "enableGraphDataStore": {
+          "value": false
+      },
+      "enableGraphDataStoreVirtualMachineDataDisk": {
+          "value": false
+      },
+      "enableMonitoring": {
+          "value": false
+      },
+      "enableObjectDataStore": {
+          "value": false
+      },
+      "enableObjectDataStoreVirtualMachineDataDisk": {
+          "value": false
+      },
+      "enableServerLogHarvesterPlugin": {
+          "value": false
+      },
+      "enableSpatiotemporalBigDataStore": {
+          "value": false
+      },
+      "enableSpatiotemporalBigDataStoreVirtualMachineDataDisk": {
+          "value": false
+      },
+      "enableTileCacheDataStore": {
+          "value": false
+      },
+      "enableTileCacheDataStoreVirtualMachineDataDisk": {
+          "value": false
+      },
+      "enableVirtualMachineDataDisk": {
+          "value": false
+      },
+      "environmentAbbreviation": {
+          "value": "dev"
+      },
+      "externalDnsHostname": {
+          "value": ""
+      },
+      "graphDataStoreVirtualMachineOSDiskSize": {
+          "value": 128
+      },
+      "hubAzureFirewallResourceId": {
+          "value": ""
+      },
+      "hubVirtualNetworkResourceId": {
+          "value": ""
+      },
+      "identifier": {
+          "value": ""
+      },
+      "isUpdatingCertificates": {
+          "value": false
+      },
+      "joinEntraDomain": {
+          "value": false
+      },
+      "joinWindowsDomain": {
+          "value": false
+      },
+      "keyVaultDiagnosticLogs": {
+          "value": [
+            {
+              "category": "AuditEvent",
+              "enabled": true
+            },
+            {
+              "category": "AzurePolicyEvaluationDetails",
+              "enabled": true
+            }
+          ]
+      },
+      "keyVaultDiagnosticMetrics": {
+          "value": [
+            {
+              "category": "AllMetrics",
+              "enabled": true
+            }
+          ]
+      },
+      "location": {
+          "value": ""
+      },
+      "logStorageSkuName": {
+          "value": "Standard_GRS"
+      },
+      "networkInterfaceDiagnosticsMetrics": {
+          "value": [
+            {
+              "category": "AllMetrics",
+              "enabled": true
+            }
+          ]
+      },
+      "networkSecurityGroupDiagnosticsLogs": {
+          "value": [
+            {
+              "category": "NetworkSecurityGroupEvent",
+              "enabled": true
+            },
+            {
+              "category": "NetworkSecurityGroupRuleCounter",
+              "enabled": true
+            }
+          ]
+      },
+      "networkSecurityGroupDiagnosticsMetrics": {
+          "value": []
+      },
+      "networkSecurityGroupRules": {
+          "value": []
+      },
+      "networkWatcherFlowLogsRetentionDays": {
+          "value": 30
+      },
+      "networkWatcherFlowLogsType": {
+          "value": "VirtualNetwork"
+      },
+      "networkWatcherResourceId": {
+          "value": ""
+      },
+      "numberOfDataStoreVirtualMachines": {
+          "value": 2
+      },
+      "numberOfEsriServers": {
+          "value": 2
+      },
+      "numberOfEsrispatiotemporalBigDataStoreVirtualMachines": {
+          "value": 3
+      },
+      "numberOfFileShareVirtualMachineNames": {
+          "value": 1
+      },
+      "numberOfGraphDataStoreVirtualMachineNames": {
+          "value": 1
+      },
+      "numberOfObjectDataStoreVirtualMachines": {
+          "value": 1
+      },
+      "numberOfPortalVirtualMachines": {
+          "value": 2
+      },
+      "numberOfTileCacheDataStoreVirtualMachineNames": {
+          "value": 1
+      },
+      "objectDataStoreVirtualMachineOSDiskSize": {
+          "value": 128
+      },
+      "operationsLogAnalyticsWorkspaceResourceId": {
+          "value": ""
+      },
+      "ouPath": {
+          "value": ""
+      },
+      "policy": {
+          "value": "NISTRev4"
+      },
+      "portalLicenseFile": {
+          "value": ""
+      },
+      "portalLicenseUserTypeId": {
+          "value": ""
+      },
+      "portalVirtualMachineOSDiskSize": {
+          "value": 128
+      },
+      "primarySiteAdministratorAccountPassword": {
+          "value": ""
+      },
+      "primarySiteAdministratorAccountUserName": {
+          "value": ""
+      },
+      "resourcePrefix": {
+          "value": ""
+      },
+      "secondaryDnsHostName": {
+          "value": ""
+      },
+      "selfSignedCertificatePassword": {
+          "value": ""
+      },
+      "serverLicenseFile": {
+          "value": ""
+      },
+      "spatiotemporalBigDataStoreVirtualMachineOSDiskSize": {
+          "value": 128
+      },
+      "subnetAddressPrefix": {
+          "value": "10.0.137.0/24"
+      },
+      "tags": {
+          "value": {}
+      },
+      "tileCacheDataStoreVirtualMachineOSDiskSize": {
+          "value": 128
+      },
+      "useAzureFiles": {
+          "value": false
+      },
+      "useCloudStorage": {
+          "value": false
+      },
+      "virtualMachineAdminPassword": {
+          "value": ""
+      },
+      "virtualMachineAdminUsername": {
+          "value": ""
+      },
+      "virtualMachineOSDiskSize": {
+          "value": 128
+      },
+      "virtualMachineSize": {
+          "value": "Standard_DS4_v2"
+      },
+      "virtualNetworkAddressPrefix": {
+          "value": "10.0.136.0/23"
+      },
+      "windowsDomainAdministratorPassword": {
+          "value": ""
+      },
+      "windowsDomainAdministratorUserName": {
+          "value": ""
+      },
+      "windowsDomainName": {
+          "value": ""
+      }
+    
   }
 }

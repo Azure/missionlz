@@ -17,8 +17,8 @@ param tags object
 param timestamp string = utcNow('yyyyMMddhhmmss')
 param virtualMachineName string
 @secure()
-param virtualMachinePassword string
-param virtualMachineUsername string
+param virtualMachineAdminPassword string
+param virtualMachineAdminUsername string
 
 var tagsVirtualMachines = union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Compute/virtualMachines'] ?? {}, mlzTags)
 
@@ -78,9 +78,9 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-11-01' = {
       dataDisks: []
     }
     osProfile: {
+      adminPassword: virtualMachineAdminPassword
+      adminUsername: virtualMachineAdminUsername
       computerName: virtualMachineName
-      adminUsername: virtualMachineUsername
-      adminPassword: virtualMachinePassword
       windowsConfiguration: {
         provisionVMAgent: true
         enableAutomaticUpdates: false
@@ -114,7 +114,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-11-01' = {
     licenseType: 'Windows_Server'
   }
   identity: {
-    type: 'SystemAssigned, UserAssigned'
+    type: 'UserAssigned'
     userAssignedIdentities: {
       '${deploymentUserAssignedIdentityResourceId}': {}
     }

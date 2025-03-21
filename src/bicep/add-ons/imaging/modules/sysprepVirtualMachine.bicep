@@ -18,10 +18,7 @@ resource sysprepVirtualMachine 'Microsoft.Compute/virtualMachines/runCommands@20
   parent: virtualMachine
   name: 'sysprepVirtualMachine'
   location: location
-  tags: union(
-    contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {},
-    mlzTags
-  )
+  tags: union(tags[?'Microsoft.Compute/virtualMachines'] ?? {}, mlzTags)
   properties: {
     treatFailureAsDeploymentFailure: false
     asyncExecution: true

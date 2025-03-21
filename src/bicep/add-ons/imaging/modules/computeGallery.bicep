@@ -15,7 +15,7 @@ var roleDefinitionId = 'b24988ac-6180-42a0-ab88-20f7382dd24c' // Contributor | h
 resource computeGallery 'Microsoft.Compute/galleries@2022-01-03' = {
   name: computeGalleryName
   location: location
-  tags: union(contains(tags, 'Microsoft.Compute/galleries') ? tags['Microsoft.Compute/galleries'] : {}, mlzTags)
+  tags: union(tags[?'Microsoft.Compute/galleries'] ?? {}, mlzTags)
 }
 
 resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' =

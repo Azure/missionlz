@@ -18,6 +18,7 @@ var privateDnsZoneNames = union([
   'privatelink.monitor.${privateDnsZoneSuffixes_Monitor[environment().name] ?? cloudSuffix}' // Azure Monitor
   'privatelink.ods.opinsights.${privateDnsZoneSuffixes_Monitor[environment().name] ?? cloudSuffix}' // Azure Monitor
   'privatelink.oms.opinsights.${privateDnsZoneSuffixes_Monitor[environment().name] ?? cloudSuffix}' // Azure Monitor
+  'privatelink${environment().suffixes.sqlServerHostname}'  // Azure SQL Server
 ], privateDnsZoneNames_Backup) // Recovery Services
 var privateDnsZoneNames_Backup = [for location in items(locations): 'privatelink.${location.value.recoveryServicesGeo}.backup.windowsazure.${privateDnsZoneSuffixes_Backup[environment().name] ?? cloudSuffix}']
 var privateDnsZoneSuffixes_AzureAutomation = {

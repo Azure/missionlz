@@ -24,10 +24,7 @@ resource generalizeVirtualMachine 'Microsoft.Compute/virtualMachines/runCommands
   parent: virtualMachine
   name: 'generalizeVirtualMachine'
   location: location
-  tags: union(
-    contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {},
-    mlzTags
-  )
+  tags: union(tags[?'Microsoft.Compute/virtualMachines'] ?? {}, mlzTags)
   properties: {
     treatFailureAsDeploymentFailure: true
     asyncExecution: false

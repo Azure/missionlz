@@ -42,6 +42,7 @@ param maxResourcesPerTemplateDeployment int
 param mlzTags object
 param namingConvention object
 param netAppFileShares array
+param networkSecurityGroupResourceId string
 param organizationalUnitPath string
 param profile string
 param recoveryServicesVaultName string
@@ -64,9 +65,9 @@ param subnetResourceId string
 param tags object
 param timeZone string
 @secure()
-param virtualMachinePassword string
+param virtualMachineAdminPassword string
+param virtualMachineAdminUsername string
 param virtualMachineSize string
-param virtualMachineUsername string
 
 var availabilitySetNamePrefix = namingConvention.availabilitySet
 var tagsVirtualMachines = union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Compute/virtualMachines'] ?? {}, mlzTags)
@@ -117,12 +118,12 @@ module roleAssignments '../common/roleAssignments/resourceGroup.bicep' = [for i 
   }
 }]
 
-resource gallery 'Microsoft.Compute/galleries@2023-07-03' existing = if (empty(imageVersionResourceId)) {
+resource gallery 'Microsoft.Compute/galleries@2023-07-03' existing = if (!empty(imageVersionResourceId)) {
   scope: resourceGroup(split(imageVersionResourceId, '/')[2], split(imageVersionResourceId, '/')[4])
   name: split(imageVersionResourceId, '/')[8]
 }
 
-resource image 'Microsoft.Compute/galleries/images@2023-07-03' existing = if (empty(imageVersionResourceId)) {
+resource image 'Microsoft.Compute/galleries/images@2023-07-03' existing = if (!empty(imageVersionResourceId)) {
   parent: gallery
   name: split(imageVersionResourceId, '/')[10]
 }
@@ -236,13 +237,14 @@ module virtualMachines 'virtualMachines.bicep' = [for i in range(1, sessionHostB
     fslogixContainerType: fslogixContainerType
     hostPoolName: hostPoolName
     imageVersionResourceId: imageVersionResourceId
-    imageOffer: empty(imageVersionResourceId) ? imageOffer : image.properties.purchasePlan.product
-    imagePublisher: empty(imageVersionResourceId) ? imagePublisher: image.properties.purchasePlan.publisher
-    imageSku: empty(imageVersionResourceId) ? imageSku : image.properties.purchasePlan.name
+    imageOffer: empty(imageVersionResourceId) ? imageOffer : image.properties.identifier.offer
+    imagePublisher: empty(imageVersionResourceId) ? imagePublisher : image.properties.identifier.publisher
+    imageSku: empty(imageVersionResourceId) ? imageSku : image.properties.identifier.sku
     location: location
     managementVirtualMachineName: managementVirtualMachineName
     netAppFileShares: netAppFileShares
     networkInterfaceNamePrefix: namingConvention.virtualMachineNetworkInterface
+    networkSecurityGroupResourceId: networkSecurityGroupResourceId
     organizationalUnitPath: organizationalUnitPath
     profile: profile
     resourceGroupManagement: resourceGroupManagement
@@ -259,9 +261,9 @@ module virtualMachines 'virtualMachines.bicep' = [for i in range(1, sessionHostB
     tagsVirtualMachines: tagsVirtualMachines
     uniqueToken: uniqueToken
     virtualMachineNamePrefix: virtualMachineNamePrefix
-    virtualMachinePassword: virtualMachinePassword
+    virtualMachineAdminPassword: virtualMachineAdminPassword
+    virtualMachineAdminUsername: virtualMachineAdminUsername
     virtualMachineSize: virtualMachineSize
-    virtualMachineUsername: virtualMachineUsername
   }
   dependsOn: [
     availabilitySets

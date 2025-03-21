@@ -6,10 +6,6 @@ Licensed under the MIT License.
 //param containerName string
 param diskEncryptionSetResourceId string
 param hybridUseBenefit bool
-@secure()
-param localAdministratorPassword string
-@secure()
-param localAdministratorUsername string
 param location string
 param mlzTags object
 //param storageAccountName string
@@ -17,16 +13,16 @@ param subnetResourceId string
 param tags object
 //param userAssignedIdentityPrincipalId string
 param userAssignedIdentityResourceId string
+@secure()
+param virtualMachineAdminPassword string
+param virtualMachineAdminUsername string
 param virtualMachineName string
 param virtualMachineSize string
 
 resource networkInterface 'Microsoft.Network/networkInterfaces@2023-04-01' = {
   name: 'nic-${virtualMachineName}'
   location: location
-  tags: union(
-    contains(tags, 'Microsoft.Network/networkInterfaces') ? tags['Microsoft.Network/networkInterfaces'] : {},
-    mlzTags
-  )
+  tags: union(tags[?'Microsoft.Network/networkInterfaces'] ?? {}, mlzTags)
   properties: {
     ipConfigurations: [
       {
@@ -49,10 +45,7 @@ resource networkInterface 'Microsoft.Network/networkInterfaces@2023-04-01' = {
 resource virtualMachine 'Microsoft.Compute/virtualMachines@2022-03-01' = {
   name: virtualMachineName
   location: location
-  tags: union(
-    contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {},
-    mlzTags
-  )
+  tags: union(tags[?'Microsoft.Compute/virtualMachines'] ?? {}, mlzTags)
   identity: {
     type: 'SystemAssigned, UserAssigned'
     //A System Assigned Identity is required for the Hybrid Runbook Worker Extension
@@ -66,9 +59,9 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2022-03-01' = {
       vmSize: virtualMachineSize
     }
     osProfile: {
+      adminPassword: virtualMachineAdminPassword
+      adminUsername: virtualMachineAdminUsername
       computerName: virtualMachineName
-      adminUsername: localAdministratorUsername
-      adminPassword: localAdministratorPassword
       windowsConfiguration: {
         provisionVMAgent: true
         enableAutomaticUpdates: true
@@ -129,10 +122,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2022-03-01' = {
 resource modules 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' = {
   name: 'appAzModules'
   location: location
-  tags: union(
-    contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {},
-    mlzTags
-  )
+  tags: union(tags[?'Microsoft.Compute/virtualMachines'] ?? {}, mlzTags)
   parent: virtualMachine
   properties: {
     treatFailureAsDeploymentFailure: true

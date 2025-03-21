@@ -18,7 +18,7 @@ param activeDirectorySolution string
 param availability string = 'AvailabilityZones'
 
 @description('The availability zones allowed for the AVD session hosts deployment location.')
-param availabilityZones array
+param availabilityZones array = ['1', '2', '3']
 
 @description('The file name for the ZIP file containing the AVD agents and DSC configuration.')
 param avdConfigurationZipFileName string = 'Configuration_1.0.02790.438.zip'
@@ -38,8 +38,8 @@ param deployActivityLogDiagnosticSetting bool
 @description('Choose whether to deploy Defender for Cloud.')
 param deployDefender bool
 
-@description('Choose whether to deploy Network Watcher for the AVD session hosts location. This is necessary when the control plane and session hosts are in different locations.')
-param deployNetworkWatcher bool
+@description('When set to true, deploys Network Watcher Traffic Analytics. It defaults to "false".')
+param deployNetworkWatcherTrafficAnalytics bool = false
 
 @description('Choose whether to deploy a policy assignment.')
 param deployPolicy bool
@@ -72,7 +72,7 @@ param domainName string = ''
 param drainMode bool = false
 
 @description('The email address to use for Defender for Cloud notifications.')
-param emailSecurityContact string
+param emailSecurityContact string = ''
 
 @description('Determine whether to enable accelerated networking on the AVD session hosts. https://learn.microsoft.com/en-us/azure/virtual-network/accelerated-networking-overview')
 param enableAcceleratedNetworking bool
@@ -132,7 +132,7 @@ param functionAppSubnetAddressPrefix string = ''
   'EnabledForSessionHostsOnly'
 ])
 @description('The type of public network access for the host pool.')
-param hostPoolPublicNetworkAccess string
+param hostPoolPublicNetworkAccess string = 'Enabled'
 
 @allowed([
   'Pooled'
@@ -163,6 +163,26 @@ param imageSku string = 'win11-22h2-avd-m365'
 @description('The resource ID for the Compute Gallery Image Version. Do not set this value if using a marketplace image.')
 param imageVersionResourceId string = ''
 
+@description('An array of Key Vault Diagnostic Logs categories to collect. See "https://learn.microsoft.com/en-us/azure/key-vault/general/logging?tabs=Vault" for valid values.')
+param keyVaultDiagnosticsLogs array = [
+  {
+    category: 'AuditEvent'
+    enabled: true
+  }
+  {
+    category: 'AzurePolicyEvaluationDetails'
+    enabled: true
+  }
+]
+
+@description('The Key Vault Diagnostic Metrics to collect. See the following URL for valid settings: "https://learn.microsoft.com/azure/key-vault/general/logging?tabs=Vault".')
+param keyVaultDiagnosticMetrics array = [
+  {
+    category: 'AllMetrics'
+    enabled: true
+  }
+]
+
 @description('The deployment location for the AVD sessions hosts. This is necessary when the users are closer to a different location than the control plane location.')
 param locationVirtualMachines string = deployment().location
 
@@ -182,6 +202,45 @@ param logAnalyticsWorkspaceRetention int = 30
 ])
 @description('The SKU for the Log Analytics Workspace to setup the AVD monitoring solution')
 param logAnalyticsWorkspaceSku string = 'PerGB2018'
+
+@description('The Storage Account SKU to use for log storage. It defaults to "Standard_GRS". See https://docs.microsoft.com/en-us/rest/api/storagerp/srp_sku_types for valid settings.')
+param logStorageSkuName string = 'Standard_GRS'
+
+@description('An array of metrics to enable on the diagnostic setting for network interfaces.')
+param networkInterfaceDiagnosticsMetrics array = [
+  {
+    category: 'AllMetrics'
+    enabled: true
+  }
+]
+
+@description('An array of Network Security Group diagnostic logs to apply to the workload Virtual Network. See https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-nsg-manage-log#log-categories for valid settings.')
+param networkSecurityGroupDiagnosticsLogs array = [
+  {
+    category: 'NetworkSecurityGroupEvent'
+    enabled: true
+  }
+  {
+    category: 'NetworkSecurityGroupRuleCounter'
+    enabled: true
+  }
+]
+
+@description('The rules to apply to the Network Security Group.')
+param networkSecurityGroupRules array = []
+
+@description('The number of days to retain Network Watcher Flow Logs. It defaults to "30".')  
+param networkWatcherFlowLogsRetentionDays int = 30
+
+@allowed([
+  'NetworkSecurityGroup'
+  'VirtualNetwork'
+])
+@description('When set to "true", enables Virtual Network Flow Logs. It defaults to "true" as its required by MCSB.')
+param networkWatcherFlowLogsType string = 'VirtualNetwork'
+
+@description('The resource ID for an existing network watcher for the desired deployment location. Only one network watcher per location can exist in a subscription. The value can be left empty to create a new network watcher resource.')
+param networkWatcherResourceId string = ''
 
 @description('The resource ID of the Log Analytics Workspace to use for log storage.')
 param operationsLogAnalyticsWorkspaceResourceId string
@@ -276,13 +335,13 @@ param validationEnvironment bool = false
 
 @secure()
 @description('The local administrator password for the AVD session hosts')
-param virtualMachinePassword string
+param virtualMachineAdminPassword string
+
+@description('The local administrator username for the AVD session hosts')
+param virtualMachineAdminUsername string
 
 @description('The virtual machine SKU for the AVD session hosts.')
 param virtualMachineSize string = 'Standard_D4ads_v5'
-
-@description('The local administrator username for the AVD session hosts')
-param virtualMachineUsername string
 
 @description('The number of virtual CPUs per virtual machine for the selected virtual machine size.')
 param virtualMachineVirtualCpuCount int
@@ -294,6 +353,12 @@ param virtualNetworkAddressPrefixes array = [
   '10.0.140.0/23'
 ]
 
+@description('The diagnostic logs to apply to the workload Virtual Network.')
+param virtualNetworkDiagnosticsLogs array = []
+
+@description('The metrics to monitor for the workload Virtual Network.')
+param virtualNetworkDiagnosticsMetrics array = []
+
 @description('The friendly name for the AVD workspace that is displayed in the end-user client.')
 param workspaceFriendlyName string = ''
 
@@ -302,7 +367,7 @@ param workspaceFriendlyName string = ''
   'Enabled'
 ])
 @description('The public network access setting on the AVD workspace either disables public network access or allows both public and private network access.')
-param workspacePublicNetworkAccess string
+param workspacePublicNetworkAccess string = 'Enabled'
 
 //  BATCH SESSION HOSTS
 // The following variables are used to determine the batches to deploy any number of AVD session hosts.
@@ -423,21 +488,33 @@ module tier3_hosts '../tier3/solution.bicep' = {
     deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
     deployDefender: deployDefender
     deploymentNameSuffix: deploymentNameSuffix
-    deployNetworkWatcher: deployNetworkWatcher
+    deployNetworkWatcherTrafficAnalytics: deployNetworkWatcherTrafficAnalytics
     deployPolicy: deployPolicy
     emailSecurityContact: emailSecurityContact
     environmentAbbreviation: environmentAbbreviation
     firewallResourceId: hubAzureFirewallResourceId
     hubVirtualNetworkResourceId: hubVirtualNetworkResourceId
     identifier: identifier
+    keyVaultDiagnosticLogs: keyVaultDiagnosticsLogs
+    keyVaultDiagnosticMetrics: keyVaultDiagnosticMetrics
     location: locationVirtualMachines
     logAnalyticsWorkspaceResourceId: operationsLogAnalyticsWorkspaceResourceId
+    logStorageSkuName: logStorageSkuName
+    networkInterfaceDiagnosticsMetrics: networkInterfaceDiagnosticsMetrics
+    networkSecurityGroupDiagnosticsLogs: networkSecurityGroupDiagnosticsLogs
+    networkSecurityGroupRules: networkSecurityGroupRules
+    networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
+    networkWatcherFlowLogsType: networkWatcherFlowLogsType
+    networkWatcherResourceId: networkWatcherResourceId
     policy: policy
     stampIndex: string(stampIndex)
-    subnetName: 'AvdSessionHosts'
     subnetAddressPrefix: subnetAddressPrefixes[0]
+    subnetName: 'AvdSessionHosts'
     tags: tags
     virtualNetworkAddressPrefix: virtualNetworkAddressPrefixes[0]
+    virtualNetworkDiagnosticsLogs: virtualNetworkDiagnosticsLogs
+    virtualNetworkDiagnosticsMetrics: virtualNetworkDiagnosticsMetrics
+    windowsAdministratorsGroupMembership: virtualMachineAdminUsername
     workloadName: 'avd'
     workloadShortName: 'avd'
   }
@@ -499,9 +576,9 @@ module management 'modules/management/management.bicep' = {
     tags: tags
     timeZone: tier3_hosts.outputs.locationProperties.timeZone
     validationEnvironment: validationEnvironment
-    virtualMachinePassword: virtualMachinePassword
+    virtualMachineAdminPassword: virtualMachineAdminPassword
+    virtualMachineAdminUsername: virtualMachineAdminUsername
     virtualMachineSize: virtualMachineSize
-    virtualMachineUsername: virtualMachineUsername
   }
 }
 
@@ -660,6 +737,7 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     netAppFileShares: deployFslogix ? fslogix.outputs.netAppShares : [
       'None'
     ]
+    networkSecurityGroupResourceId: tier3_hosts.outputs.networkSecurityGroupResourceId
     organizationalUnitPath: organizationalUnitPath
     profile: profile
     recoveryServicesVaultName: management.outputs.recoveryServicesVaultName
@@ -681,13 +759,10 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     subnetResourceId: tier3_hosts.outputs.subnets[0].id
     tags: tags
     timeZone: tier3_hosts.outputs.locationProperties.timeZone
-    virtualMachinePassword: virtualMachinePassword
+    virtualMachineAdminPassword: virtualMachineAdminPassword
+    virtualMachineAdminUsername: virtualMachineAdminUsername
     virtualMachineSize: virtualMachineSize
-    virtualMachineUsername: virtualMachineUsername
   }
-  dependsOn: [
-    fslogix
-  ]
 }
 
 module cleanUp 'modules/cleanUp/cleanUp.bicep' = {

@@ -432,7 +432,7 @@ resource vdot 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' =
 //   parent: virtualMachine
 //   name: 'fslogix'
 //   location: location
-//   tags: union(contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}, mlzTags)
+//   tags: union(tags[?'Microsoft.Compute/virtualMachines'] ?? {}, mlzTags)
 //   properties: {
 //     treatFailureAsDeploymentFailure: true
 //     asyncExecution: false

@@ -1,23 +1,23 @@
-@secure()
-param adminPassword string
-param adminUsername string
 param arcgisServiceAccountIsDomainAccount bool
 @secure()
 param arcgisServiceAccountPassword string
-param arcgisServiceAccountUserName string
-param storageAccountName string
+param arcgisServiceAccountUsername string
 param convertedEpoch int = dateTimeToEpoch(dateTimeAdd(utcNow(), 'P1D'))
 param debugMode bool
 param dscConfiguration string
 param dscScript string
 param enableVirtualMachineDataDisk bool
-param fileShareName string = 'fileshare'
 param externalDNSHostName string
+param fileShareName string = 'fileshare'
+param fileShareVirtualMachineName string
 param location string = resourceGroup().location
 param portalContext string
+param storageAccountName string
 param storageUriPrefix string
 param tags object
-param fileShareVirtualMachineName string
+@secure()
+param virtualMachineAdminPassword string
+param virtualMachineAdminUsername string
 param virtualMachineOSDiskSize int
 
 var dscModuleUrl = '${storageUriPrefix}DSC.zip'
@@ -44,7 +44,7 @@ resource dscEsriFileShare 'Microsoft.Compute/virtualMachines/extensions@2018-06-
   parent: fileShareVirtualMachine
   name: 'DSCConfiguration'
   location: location
-  tags: contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}
+  tags: tags[?'Microsoft.Compute/virtualMachines'] ?? {}
   properties: {
     autoUpgradeMinorVersion: true
     publisher: 'Microsoft.Powershell'
@@ -76,12 +76,12 @@ resource dscEsriFileShare 'Microsoft.Compute/virtualMachines/extensions@2018-06-
       }
       configurationArguments: {
         ServiceCredential: {
-          userName: arcgisServiceAccountUserName
+          userName: arcgisServiceAccountUsername
           password: arcgisServiceAccountPassword
         }
         MachineAdministratorCredential: {
-          userName: adminUsername
-          password: adminPassword
+          userName: virtualMachineAdminUsername
+          password: virtualMachineAdminPassword
         }
       }
     }

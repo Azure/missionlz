@@ -40,16 +40,17 @@ param mlzTags object
 param serviceToken string
 param supportedClouds array
 param tags object
-param windowsNetworkInterfacePrivateIPAddressAllocationMethod string
+
 @secure()
 @minLength(12)
 param windowsVmAdminPassword string
 param windowsVmAdminUsername string
 param windowsVmCreateOption string
-param windowsVmOffer string
-param windowsVmPublisher string
+param windowsVmImageOffer string
+param windowsVmImagePublisher string
+param windowsVmImageSku string
+param windowsVmNetworkInterfacePrivateIPAddressAllocationMethod string
 param windowsVmSize string
-param windowsVmSku string
 param windowsVmStorageAccountType string
 param windowsVmVersion string
 
@@ -116,11 +117,11 @@ module windowsVirtualMachine '../modules/windows-virtual-machine.bicep' =
       name: replace(hub.namingConvention.virtualMachine, serviceToken, 'raw')
       networkInterfaceName: replace(hub.namingConvention.virtualMachineNetworkInterface, serviceToken, 'remoteAccess-windows')
       networkSecurityGroupResourceId: hubNetworkSecurityGroupResourceId
-      offer: windowsVmOffer
-      privateIPAddressAllocationMethod: windowsNetworkInterfacePrivateIPAddressAllocationMethod
-      publisher: windowsVmPublisher
+      offer: windowsVmImageOffer
+      privateIPAddressAllocationMethod: windowsVmNetworkInterfacePrivateIPAddressAllocationMethod
+      publisher: windowsVmImagePublisher
       size: windowsVmSize
-      sku: windowsVmSku
+      sku: windowsVmImageSku
       storageAccountType: windowsVmStorageAccountType
       subnetResourceId: hubSubnetResourceId
       supportedClouds: supportedClouds
@@ -128,3 +129,11 @@ module windowsVirtualMachine '../modules/windows-virtual-machine.bicep' =
       version: windowsVmVersion
     }
   }
+
+output networkInterfaceResourceIds array = union(
+  deployLinuxVirtualMachine ? [
+    linuxVirtualMachine.outputs.networkInterfaceResourceId
+  ] : [], 
+  deployWindowsVirtualMachine ? [
+    windowsVirtualMachine.outputs.networkInterfaceResourceId
+  ] : [])

@@ -14,7 +14,7 @@ param tags object = {}
 resource networkInterface 'Microsoft.Network/networkInterfaces@2021-02-01' = {
   name: name
   location: location
-  tags: union(contains(tags, 'Microsoft.Network/networkInterfaces') ? tags['Microsoft.Network/networkInterfaces'] : {}, mlzTags)
+  tags: union(tags[?'Microsoft.Network/networkInterfaces'] ?? {}, mlzTags)
   properties: {
     ipConfigurations: [
       {

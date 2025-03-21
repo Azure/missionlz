@@ -36,10 +36,6 @@ param installVirtualDesktopOptimizationTool bool = false
 param installVisio bool = false
 param installWord bool = false
 param keyVaultName string
-@secure()
-param localAdministratorPassword string = ''
-@secure()
-param localAdministratorUsername string = ''
 param location string = deployment().location
 param managementVirtualMachineName string
 param marketplaceImageOffer string
@@ -62,6 +58,10 @@ param userAssignedIdentityPrincipalId string
 param userAssignedIdentityResourceId string
 param vcRedistInstaller string = ''
 param vDOTInstaller string = ''
+@secure()
+param virtualMachineAdminPassword string = ''
+@secure()
+param virtualMachineAdminUsername string = ''
 param virtualMachineSize string
 param wsusServer string = ''
 
@@ -83,13 +83,13 @@ module managementVM 'managementVM.bicep' =
     params: {
       diskEncryptionSetResourceId: diskEncryptionSetResourceId
       hybridUseBenefit: hybridUseBenefit
-      localAdministratorPassword: localAdministratorPassword
-      localAdministratorUsername: localAdministratorUsername
       location: location
       mlzTags: mlzTags
       subnetResourceId: subnetResourceId
       tags: tags
       userAssignedIdentityResourceId: userAssignedIdentityResourceId
+      virtualMachineAdminPassword: virtualMachineAdminPassword
+      virtualMachineAdminUsername: virtualMachineAdminUsername
       virtualMachineName: managementVirtualMachineName
       virtualMachineSize: virtualMachineSize
     }
@@ -100,12 +100,6 @@ module virtualMachine 'virtualMachine.bicep' = {
   scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
     // diskEncryptionSetResourceId: diskEncryptionSetResourceId
-    localAdministratorPassword: runbookExecution
-      ? keyVault.getSecret('LocalAdministratorPassword')
-      : localAdministratorPassword
-    localAdministratorUsername: runbookExecution
-      ? keyVault.getSecret('LocalAdministratorUsername')
-      : localAdministratorUsername
     location: location
     marketplaceImageOffer: marketplaceImageOffer
     marketplaceImagePublisher: marketplaceImagePublisher
@@ -116,6 +110,12 @@ module virtualMachine 'virtualMachine.bicep' = {
     subnetResourceId: subnetResourceId
     tags: tags
     userAssignedIdentityResourceId: userAssignedIdentityResourceId
+    virtualMachineAdminPassword: runbookExecution
+      ? keyVault.getSecret('VirtualMachineAdminPassword')
+      : virtualMachineAdminPassword
+    virtualMachineAdminUsername: runbookExecution
+      ? keyVault.getSecret('VirtualMachineAdminUsername')
+      : virtualMachineAdminUsername
     virtualMachineName: imageVirtualMachineName
     virtualMachineSize: virtualMachineSize
   }

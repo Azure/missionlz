@@ -36,8 +36,8 @@ param deployDefender bool = false
 @description('The suffix to append to deployment names.')
 param deploymentNameSuffix string = utcNow('yyMMddHHs')
 
-@description('Choose whether to deploy a network watcher for deployment location.')
-param deployNetworkWatcher bool = false
+@description('When set to true, deploys Network Watcher Traffic Analytics. It defaults to "false".')
+param deployNetworkWatcherTrafficAnalytics bool = false
 
 @description('Deploy Policy enabled.')
 param deployPolicy bool = false
@@ -56,7 +56,7 @@ param domainJoinUserPrincipalName string = ''
 param domainName string = ''
 
 @description('The email address for the security contact.')
-param emailSecurityContact string
+param emailSecurityContact string = ''
 
 @description('Determines whether to enable build automation.')
 param enableBuildAutomation bool
@@ -142,12 +142,25 @@ param installVisio bool
 @description('Determines whether to install Word.')
 param installWord bool
 
-@secure()
-@description('The password for the local administrator account.')
-param localAdministratorPassword string
+@description('An array of Key Vault Diagnostic Logs categories to collect. See "https://learn.microsoft.com/en-us/azure/key-vault/general/logging?tabs=Vault" for valid values.')
+param keyVaultDiagnosticLogs array = [
+  {
+    category: 'AuditEvent'
+    enabled: true
+  }
+  {
+    category: 'AzurePolicyEvaluationDetails'
+    enabled: true
+  }
+]
 
-@description('The username for the local administrator account.')
-param localAdministratorUsername string
+@description('The Key Vault Diagnostic Metrics to collect. See the following URL for valid settings: "https://learn.microsoft.com/azure/key-vault/general/logging?tabs=Vault".')
+param keyVaultDiagnosticMetrics array = [
+  {
+    category: 'AllMetrics'
+    enabled: true
+  }
+]
 
 @description('The location for the resources.')
 param location string = deployment().location
@@ -155,7 +168,7 @@ param location string = deployment().location
 @description('The resource ID of the log analytics workspace if using build automation and desired.')
 param logAnalyticsWorkspaceResourceId string = ''
 
-@description('The Storage Account SKU to use for log storage. It defaults to "Standard_GRS". See https://docs.microsoft.com/en-us/rest/api/storagerp/srp_sku_types for valid settings.')
+@description('The Storage Account SKU to use for log storage. It defaults to "Standard_GRS". See the following URL for valid settings: https://learn.microsoft.com/rest/api/storagerp/srp_sku_types.')
 param logStorageSkuName string = 'Standard_GRS'
 
 @description('The marketplace image offer.')
@@ -170,6 +183,14 @@ param marketplaceImageSKU string = ''
 @description('The file name of the msrdcwebrtcsvc installer in Azure Blobs.')
 param msrdcwebrtcsvcInstaller string = ''
 
+@description('An array of metrics to enable on the diagnostic setting for network interfaces.')
+param networkInterfaceDiagnosticsMetrics array = [
+  {
+    category: 'AllMetrics'
+    enabled: true
+  }
+]
+
 @description('The network security group diagnostics logs to apply to the subnet.')
 param networkSecurityGroupDiagnosticsLogs array = [
   {
@@ -182,11 +203,21 @@ param networkSecurityGroupDiagnosticsLogs array = [
   }
 ]
 
-@description('The network security group diagnostics metrics to apply to the subnet.')
-param networkSecurityGroupDiagnosticsMetrics array = []
-
 @description('The network security group rules to apply to the subnet.')
 param networkSecurityGroupRules array = []
+
+@description('The number of days to retain Network Watcher Flow Logs. It defaults to "30".')  
+param networkWatcherFlowLogsRetentionDays int = 30
+
+@allowed([
+  'NetworkSecurityGroup'
+  'VirtualNetwork'
+])
+@description('When set to "true", enables Virtual Network Flow Logs. It defaults to "true" as its required by MCSB.')
+param networkWatcherFlowLogsType string = 'VirtualNetwork'
+
+@description('The resource ID for an existing network watcher for the desired deployment location. Only one network watcher per location can exist in a subscription. The value can be left empty to create a new network watcher resource.')
+param networkWatcherResourceId string = ''
 
 @description('The file name of the Office installer in Azure Blobs.')
 param officeInstaller string = ''
@@ -239,6 +270,14 @@ param vcRedistInstaller string = ''
 @description('The file name of the vDOT installer in Azure Blobs.')
 param vDOTInstaller string = ''
 
+@secure()
+@description('The password for the local administrator account on the virtual machines.')
+param virtualMachineAdminPassword string
+
+@secure()
+@description('The username for the local administrator account on the virtual machines.')
+param virtualMachineAdminUsername string
+
 @description('The size of the image virtual machine.')
 param virtualMachineSize string
 
@@ -246,10 +285,20 @@ param virtualMachineSize string
 param virtualNetworkAddressPrefix string = '10.0.134.0/24'
 
 @description('The logs for the diagnostic setting on the virtual network.')
-param virtualNetworkDiagnosticsLogs array = []
+param virtualNetworkDiagnosticsLogs array = [
+  {
+    category: 'VMProtectionAlerts'
+    enabled: true
+  }
+]
 
 @description('The metrics for the diagnostic setting on the virtual network.')
-param virtualNetworkDiagnosticsMetrics array = []
+param virtualNetworkDiagnosticsMetrics array = [
+  {
+    category: 'AllMetrics'
+    enabled: true
+  }
+]
 
 @description('The WSUS Server Url if WSUS is specified. (i.e., https://wsus.corp.contoso.com:8531)')
 param wsusServer string = ''
@@ -266,25 +315,32 @@ module tier3 '../tier3/solution.bicep' = {
     deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
     deployDefender: deployDefender
     deploymentNameSuffix: deploymentNameSuffix
-    deployNetworkWatcher: deployNetworkWatcher
+    deployNetworkWatcherTrafficAnalytics: deployNetworkWatcherTrafficAnalytics
     deployPolicy:  deployPolicy
     emailSecurityContact: emailSecurityContact
     environmentAbbreviation: environmentAbbreviation
     firewallResourceId: azureFirewallResourceId
     hubVirtualNetworkResourceId: hubVirtualNetworkResourceId
     identifier: identifier
+    keyVaultDiagnosticLogs: keyVaultDiagnosticLogs
+    keyVaultDiagnosticMetrics: keyVaultDiagnosticMetrics
     location: location
     logAnalyticsWorkspaceResourceId: spokelogAnalyticsWorkspaceResourceId
     logStorageSkuName: logStorageSkuName
+    networkInterfaceDiagnosticsMetrics: networkInterfaceDiagnosticsMetrics
     networkSecurityGroupDiagnosticsLogs: networkSecurityGroupDiagnosticsLogs 
-    networkSecurityGroupDiagnosticsMetrics: networkSecurityGroupDiagnosticsMetrics
     networkSecurityGroupRules: networkSecurityGroupRules
+    networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
+    networkWatcherFlowLogsType: networkWatcherFlowLogsType
+    networkWatcherResourceId: networkWatcherResourceId
     policy: policy
     subnetAddressPrefix: subnetAddressPrefix
+    subnetName: 'Imaging'
     tags: tags
     virtualNetworkAddressPrefix: virtualNetworkAddressPrefix
     virtualNetworkDiagnosticsLogs: virtualNetworkDiagnosticsLogs
     virtualNetworkDiagnosticsMetrics: virtualNetworkDiagnosticsMetrics
+    windowsAdministratorsGroupMembership: virtualMachineAdminUsername
     workloadName: workloadName
     workloadShortName: workloadShortName
   }
@@ -350,8 +406,8 @@ module buildAutomation 'modules/buildAutomation.bicep' = if (enableBuildAutomati
     installWord: installWord
     keyVaultName: tier3.outputs.namingConvention.keyVault
     keyVaultPrivateDnsZoneResourceId: keyVaultPrivateDnsZoneResourceId
-    localAdministratorPassword: localAdministratorPassword
-    localAdministratorUsername: localAdministratorUsername
+    virtualMachineAdminPassword: virtualMachineAdminPassword
+    virtualMachineAdminUsername: virtualMachineAdminUsername
     location: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     managementVirtualMachineName: replace(tier3.outputs.namingConvention.virtualMachine, tier3.outputs.tokens.service, 'm')
@@ -416,8 +472,8 @@ module imageBuild 'modules/imageBuild.bicep' = {
     installVisio: installVisio
     installWord: installWord
     keyVaultName: tier3.outputs.namingConvention.keyVault
-    localAdministratorPassword: localAdministratorPassword
-    localAdministratorUsername: localAdministratorUsername
+    virtualMachineAdminPassword: virtualMachineAdminPassword
+    virtualMachineAdminUsername: virtualMachineAdminUsername
     location: location
     managementVirtualMachineName: replace(tier3.outputs.namingConvention.virtualMachine, tier3.outputs.tokens.service, 'm')
     marketplaceImageOffer: marketplaceImageOffer
