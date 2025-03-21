@@ -1,14 +1,14 @@
-# Policy Guard Rail Addon Tool
+# Policy Guardrails Tool
 
 ## Purpose
 
-Guardrail policies in Azure go beyond "Audit" settings. They are more intrusive and must be planned, designed, and tested to avoid unexpected impacts on the production environment. They typically include the following effects:
+Policy guardrails in Azure go beyond "Audit" settings. They are more intrusive and must be planned, designed, and tested to avoid unexpected impacts on the production environment. They typically include the following effects:
 
 - **DeployIfNotExists**: Remediation tasks configure resources to the state dictated by the policy, regardless of the initial deployment condition.
 - **Deny**: Prevents the action defined by the policy, regardless of administrative permissions. Exceptions must be made temporarily or permanently excluded from the policy.
 - **Append**: Similar to DeployIfNotExists, it appends or changes specific properties on a resource where a deployment isn't necessary.
 
-Mission Landing Zone does not maintain guardrail policies due to their significant operational impacts. Each organization should manage their policy guardrail implementation, including choosing and maintaining policies.
+Mission Landing Zone does not maintain any policies due to their significant operational impacts. Each organization should manage their implementation, including choosing and maintaining policies.
 
 ## Overview
 
@@ -59,13 +59,17 @@ root/
 
 ### Script usage
 
-1. Open powershell.
-2. Run "Connect-AzAccount -Environment _AZURECLOUDENVIRONMENT_ and login when prompted.  Global Admin required.
-3. Change directory to the script folder.
-4. Run the script with parameters:  
+> [!IMPORTANT]
+> Global Administrator permissions are required 
+
+1. Open PowerShell.
+2. Install the Azure PowerShell modules if missing: `Install-Module -Name Az -Repository PSGallery -Force`.
+3. Run `Connect-AzAccount -Environment '<Azure Cloud Environment Name>'` and login when prompted.
+4. Change directory to the script folder.
+5. Run the script with parameters:  
 
 ```powershell
-\deploy-policy-initiatives.ps1 -RootFolderPath "C:\Path\To\Your\RootFolder" -Location "YOURAZURELOCATION"
+.\deploy-policy-initiatives.ps1 -RootFolderPath 'C:\Path\To\Your\RootFolder' -Location '<Azure location>'
 ```
 
 ### Azure Resources
@@ -101,14 +105,14 @@ root/
 1. **Evaluate Policies**: Evaluate potential guardrail policies based on organizational needs. While this document does not include a list of recommended policies, you can explore Azure Policy definitions and initiatives using resources like Az Policy Advertiser. Note that this MLZ repository does not maintain or prescribe specific policy definitions.
 2. **Set Values**: Set the proper values to be used in the `-parameters.json` files for policies that require specific values.
 3. **Organize Files**: Rename or move files into a new directory structure, ensuring the root folder contains folders that match the names of existing management group IDs in Azure and that the names of the initiatives are as short as possible, as assignment names are limited to 24 characters.
-4. **Log into Azure**: Use `Connect-AzAccount -Environment AzureUsGovernment`, or another preferred cloud, to log into Azure with a user that has Global Administrator permissions. This will be used to create and assign the policies, in addition to setting the proper role definitions for the system-assigned managed identity for policies that require it.
+4. **Log into Azure**: Use `Connect-AzAccount -Environment 'AzureUSGovernment'`, or another preferred cloud, to log into Azure with a user that has Global Administrator permissions. This will be used to create and assign the policies, in addition to setting the proper role definitions for the system-assigned managed identity for policies that require it.
 
 ## Running the Script
 
 To run the script, set the root folder path to your directory structure location and execute the following command in PowerShell:
 
 ```powershell
-.\deploy-policy-initiatives.ps1 -RootFolderPath 'PATHTOROOTFOLDER' -Location 'VALIDAZURELOCATION'
+.\deploy-policy-initiatives.ps1 -RootFolderPath 'C:\Path\To\Your\RootFolder' -Location '<Azure location>'
 ```
 
 Ensure that the directory structure and JSON files are correctly set up before running the script. The script will create the necessary Azure resources based on the directory structure and JSON files.
@@ -296,6 +300,3 @@ Policy Repository:
   Navigate to: src/resources/Microsoft.Authorization/policyDefinitions
 - Az Policy Advertizer: <https://www.azadvertizer.net/azpolicyadvertizer_all.html>
   Custom policy library available and maintained by the community.
-
----
-
