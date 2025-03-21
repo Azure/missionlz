@@ -60,7 +60,7 @@ root/
 ### Script usage
 
 > [!IMPORTANT]
-> Global Administrator permissions are required 
+> Global Administrator permissions are required
 
 1. Open PowerShell.
 2. Install the Azure PowerShell modules if missing: `Install-Module -Name Az -Repository PSGallery -Force`.
