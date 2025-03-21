@@ -8,7 +8,7 @@ param clientIpConfigurationPublicIPAddressResourceId string
 param dnsServers array
 param enableProxy bool
 param firewallPolicyName string
-param firewallSupernetIPAddress string
+
 @allowed([
   'Alert'
   'Deny'
@@ -43,6 +43,13 @@ var dnsSettings = {
   servers: dnsServers
 }
 
+// Load the JSON file containing the rule collections (hardcoded relative path)
+var ruleCollectionsConfig = json(loadTextContent('./firewall-rules.json'))
+
+// Check if the JSON file contains valid data for ruleCollectionsConfig
+var hasValidRuleCollectionsConfig = contains(ruleCollectionsConfig, 'name') && contains(ruleCollectionsConfig, 'priority') && contains(ruleCollectionsConfig, 'priority') && contains(ruleCollectionsConfig, 'ruleCollections') && !empty(ruleCollectionsConfig.name)
+
+// Define the firewall policy
 resource firewallPolicy 'Microsoft.Network/firewallPolicies@2021-02-01' = {
   name: firewallPolicyName
   location: location
@@ -57,127 +64,24 @@ resource firewallPolicy 'Microsoft.Network/firewallPolicies@2021-02-01' = {
   }
 }
 
-resource firewallAppRuleCollectionGroup 'Microsoft.Network/firewallPolicies/ruleCollectionGroups@2021-02-01' = {
+
+// Loop through collection groups and create resources dynamically without internal sequential dependencies
+resource firewallCollectionGroups 'Microsoft.Network/firewallPolicies/ruleCollectionGroups@2021-02-01' = if (hasValidRuleCollectionsConfig) {
   parent: firewallPolicy
-  name: 'DefaultApplicationRuleCollectionGroup'
+  name: ruleCollectionsConfig.name
   properties: {
-    priority: 300
-    ruleCollections: [
-      {
-        ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
-        action: {
-          type: 'Allow'
-        }
-        rules: [
-          {
-            ruleType: 'ApplicationRule'
-            name: 'msftauth'
-            protocols: [
-              {
-                protocolType: 'Https'
-                port: 443
-              }
-            ]
-            fqdnTags: []
-            webCategories: []
-            targetFqdns: [
-              'aadcdn.msftauth.net'
-              'aadcdn.msauth.net'
-            ]
-            targetUrls: []
-            terminateTLS: false
-            sourceAddresses: [
-              '*'
-            ]
-            destinationAddresses: []
-            sourceIpGroups: []
-          }
-        ]
-        name: 'AzureAuth'
-        priority: 110
-      }
-    ]
+    priority: ruleCollectionsConfig.priority
+    ruleCollections: ruleCollectionsConfig.ruleCollections
   }
 }
 
-resource firewallNetworkRuleCollectionGroup 'Microsoft.Network/firewallPolicies/ruleCollectionGroups@2021-02-01' = {
-  parent: firewallPolicy
-  name: 'DefaultNetworkRuleCollectionGroup'
-  dependsOn: [
-    firewallAppRuleCollectionGroup
-  ]
-  properties: {
-    priority: 200
-    ruleCollections: [
-      {
-        ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
-        action: {
-          type: 'Allow'
-        }
-        rules: [
-          {
-            ruleType: 'NetworkRule'
-            name: 'AzureCloud'
-            ipProtocols: [
-              'Any'
-            ]
-            sourceAddresses: [
-              '*'
-            ]
-            sourceIpGroups: []
-            destinationAddresses: [
-              'AzureCloud'
-            ]
-            destinationIpGroups: []
-            destinationFqdns: []
-            destinationPorts: [
-              '*'
-            ]
-          }
-        ]
-        name: 'AllowAzureCloud'
-        priority: 100
-      }
-      {
-        ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
-        action: {
-          type: 'Allow'
-        }
-        rules: [
-          {
-            ruleType: 'NetworkRule'
-            name: 'AllSpokeTraffic'
-            ipProtocols: [
-              'Any'
-            ]
-            sourceAddresses: [
-              firewallSupernetIPAddress
-            ]
-            sourceIpGroups: []
-            destinationAddresses: [
-              '*'
-            ]
-            destinationIpGroups: []
-            destinationFqdns: []
-            destinationPorts: [
-              '*'
-            ]
-          }
-        ]
-        name: 'AllowTrafficBetweenSpokes'
-        priority: 200
-      }
-    ]
-  }
-}
-
+// Define the Azure Firewall
 resource firewall 'Microsoft.Network/azureFirewalls@2021-02-01' = {
   name: name
   location: location
   tags: union(tags[?'Microsoft.Network/azureFirewalls'] ?? {}, mlzTags)
   dependsOn: [
-    firewallNetworkRuleCollectionGroup
-    firewallAppRuleCollectionGroup
+    firewallCollectionGroups
   ]
   properties: {
     ipConfigurations: [
@@ -213,6 +117,7 @@ resource firewall 'Microsoft.Network/azureFirewalls@2021-02-01' = {
   }
 }
 
+// Outputs
 output name string = firewall.name
 output privateIPAddress string = firewall.properties.ipConfigurations[0].properties.privateIPAddress
 output resourceId string = firewall.id

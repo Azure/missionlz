@@ -48,7 +48,6 @@ module hubNetwork 'hub-network.bicep' = {
     firewallName: hub.namingConvention.azureFirewall
     firewallPolicyName: hub.namingConvention.azureFirewallPolicy
     firewallSkuTier: firewallSettings.skuTier
-    firewallSupernetIPAddress: firewallSettings.supernetIPAddress
     firewallThreatIntelMode: firewallSettings.threatIntelMode
     location: location
     mlzTags: mlzTags

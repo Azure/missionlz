@@ -1,0 +1,13 @@
+{
+  "name": "DefaultCollectionGroup",
+  "priority": 100,
+  "ruleCollections": [
+    {
+      "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+      "action": {
+        "type": "Allow"
+      },
+      "rules": []
+    }
+  ]
+}

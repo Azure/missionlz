@@ -26,7 +26,7 @@ param firewallManagementSubnetAddressPrefix string
 param firewallName string
 param firewallPolicyName string
 param firewallSkuTier string
-param firewallSupernetIPAddress string
+
 @allowed([
   'Alert'
   'Deny'
@@ -309,7 +309,6 @@ module firewall '../modules/firewall.bicep' = {
     dnsServers: dnsServers
     enableProxy: enableProxy
     firewallPolicyName: firewallPolicyName
-    firewallSupernetIPAddress: firewallSupernetIPAddress
     intrusionDetectionMode: firewallIntrusionDetectionMode
     location: location
     managementIpConfigurationPublicIPAddressResourceId: firewallManagementPublicIPAddress.outputs.id
