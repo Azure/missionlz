@@ -14,8 +14,8 @@ foreach ($mg in $managementGroups) {
     foreach ($ps in $policySets) {
         Write-Output "Processing policy set: $($ps.Name)"
         $policyDefinitions = @()
-        $policyParameters = @{ }
-        $policySetParameters = @{ }
+        $policyParameters = @{}
+        $policySetParameters = @{}
 
         # Get policy definition files (excluding parameter files)
         $policyFiles = Get-ChildItem -Path $ps.FullName -Filter *.json | Where-Object { $_.Name -notlike '*-parameters.json' }
@@ -29,7 +29,7 @@ foreach ($mg in $managementGroups) {
             $policyFileName = [System.IO.Path]::GetFileNameWithoutExtension($pf.Name)
             $policyFileName = $policyFileName -replace '-parameters$', ''
             if (-not $policyParameters.ContainsKey($policyFileName)) {
-                $policyParameters[$policyFileName] = @{ }
+                $policyParameters[$policyFileName] = @{}
             }
             foreach ($key in $policyParameter.PSObject.Properties.Name) {
                 $policyParameters[$policyFileName][$key] = @{
@@ -103,7 +103,7 @@ foreach ($mg in $managementGroups) {
         Write-Output "Policy set created: $($policySet | ConvertTo-Json -Depth 10)"
 
         # Prepare the policy parameters for the assignment
-        $policyAssignmentParameters = @{ }
+        $policyAssignmentParameters = @{}
         foreach ($policyDefinition in $policyDefinitions) {
             $policyFileName = [System.IO.Path]::GetFileNameWithoutExtension($policyDefinition.policyDefinitionId)
             if ($policyParameters.ContainsKey($policyFileName)) {
