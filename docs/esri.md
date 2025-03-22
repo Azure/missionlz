@@ -5,7 +5,7 @@
 
 ## Overview
 
-Azure Landing Zone Accelerators provide architectural guidance, reference architectures, implementations, and automation to deploy workload platforms on Azure at scale, following industry best practices. This accelerator focuses on deploying Esri’s ArcGIS Enterprise with ArcGIS Pro on GPU-enabled virtual desktops.
+Azure Landing Zone Accelerators provide architectural guidance, reference architectures, implementations, and automation to deploy workload platforms on Azure at scale, following industry best practices. This accelerator focuses on deploying Esri’s ArcGIS Enterprise with ArcGIS Pro on Azure inftrastructure and GPU-enabled virtual desktops.
 
 ## What is a Landing Zone?
 
