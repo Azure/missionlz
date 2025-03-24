@@ -137,6 +137,7 @@ module diskAccess 'diskAccess.bicep' = {
   scope: resourceGroup
   name: 'deploy-disk-access-${deploymentNameSuffix}'
   params: {
+    azureBlobsPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(privateDnsZones, name => contains(name, 'blob'))[0]}'
     hostPoolResourceId: hostPool.outputs.resourceId
     location: locationVirtualMachines
     mlzTags: mlzTags

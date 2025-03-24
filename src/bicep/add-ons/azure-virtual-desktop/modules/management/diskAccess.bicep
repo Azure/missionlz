@@ -1,3 +1,4 @@
+param azureBlobsPrivateDnsZoneResourceId string
 param hostPoolResourceId string
 param location string
 param mlzTags object
@@ -32,6 +33,21 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = {
     subnet: {
       id: subnetResourceId
     }
+  }
+}
+
+resource privateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2021-08-01' = {
+  parent: privateEndpoint
+  name: namingConvention.diskAccess
+  properties: {
+    privateDnsZoneConfigs: [
+      {
+        name: 'ipconfig1'
+        properties: {
+          privateDnsZoneId: azureBlobsPrivateDnsZoneResourceId
+        }
+      }
+    ]
   }
 }
 
