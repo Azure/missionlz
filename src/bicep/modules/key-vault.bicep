@@ -89,7 +89,7 @@ resource key_disks 'Microsoft.KeyVault/vaults/keys@2022-07-01' = {
       enabled: true
     }
     keySize: 4096
-    kty: 'RSA'
+    kty: 'RSA-HSM'
     rotationPolicy: {
       attributes: {
         expiryTime: 'P${string(diskEncryptionKeyExpirationInDays)}D'
@@ -128,7 +128,7 @@ resource key_storageAccounts 'Microsoft.KeyVault/vaults/keys@2022-07-01' = {
       enabled: true
     }
     keySize: 4096
-    kty: 'RSA'
+    kty: 'RSA-HSM'
     rotationPolicy: {
       attributes: {
         expiryTime: 'P${string(diskEncryptionKeyExpirationInDays)}D'

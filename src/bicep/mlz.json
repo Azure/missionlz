@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.34.1.11899",
-      "templateHash": "13464066120969936764"
+      "templateHash": "13855571422173628978"
     }
   },
   "parameters": {
@@ -4577,7 +4577,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.34.1.11899",
-              "templateHash": "4058810009880979040"
+              "templateHash": "5510701910897407299"
             }
           },
           "parameters": {
@@ -4666,7 +4666,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.34.1.11899",
-                      "templateHash": "2265253935022422475"
+                      "templateHash": "17287071415333918190"
                     }
                   },
                   "parameters": {
@@ -4789,7 +4789,7 @@
                           "enabled": true
                         },
                         "keySize": 4096,
-                        "kty": "RSA",
+                        "kty": "RSA-HSM",
                         "rotationPolicy": {
                           "attributes": {
                             "expiryTime": "[format('P{0}D', string(parameters('diskEncryptionKeyExpirationInDays')))]"
@@ -4829,7 +4829,7 @@
                           "enabled": true
                         },
                         "keySize": 4096,
-                        "kty": "RSA",
+                        "kty": "RSA-HSM",
                         "rotationPolicy": {
                           "attributes": {
                             "expiryTime": "[format('P{0}D', string(parameters('diskEncryptionKeyExpirationInDays')))]"
