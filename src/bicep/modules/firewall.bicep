@@ -8,6 +8,8 @@ param clientIpConfigurationPublicIPAddressResourceId string
 param dnsServers array
 param enableProxy bool
 param firewallPolicyName string
+param environmentAbbreviation string
+param resourcePrefix string
 
 @allowed([
   'Alert'
@@ -43,13 +45,9 @@ var dnsSettings = {
   servers: dnsServers
 }
 
-// Load the JSON file containing the rule collections (hardcoded relative path)
-var ruleCollectionsConfig = json(loadTextContent('./firewall-rules.json'))
-
-// Check if the JSON file contains valid data for ruleCollectionsConfig
-var hasValidRuleCollectionsConfig = contains(ruleCollectionsConfig, 'name') && contains(ruleCollectionsConfig, 'priority') && contains(ruleCollectionsConfig, 'priority') && contains(ruleCollectionsConfig, 'ruleCollections') && !empty(ruleCollectionsConfig.name)
 
 // Define the firewall policy
+@description('Azure Firewall Policy')
 resource firewallPolicy 'Microsoft.Network/firewallPolicies@2021-02-01' = {
   name: firewallPolicyName
   location: location
@@ -64,15 +62,25 @@ resource firewallPolicy 'Microsoft.Network/firewallPolicies@2021-02-01' = {
   }
 }
 
-
-// Loop through collection groups and create resources dynamically without internal sequential dependencies
-resource firewallCollectionGroups 'Microsoft.Network/firewallPolicies/ruleCollectionGroups@2021-02-01' = if (hasValidRuleCollectionsConfig) {
-  parent: firewallPolicy
-  name: ruleCollectionsConfig.name
-  properties: {
-    priority: ruleCollectionsConfig.priority
-    ruleCollections: ruleCollectionsConfig.ruleCollections
+module defaultRuleCollectionsConfig 'firewall-rules-default.bicep' = {
+  name: 'defaultRuleCollectionsConfig'
+  params: {
+    firewallPolicyName: firewallPolicy.name
+    resourcePrefix: resourcePrefix
+    environmentAbbreviation: environmentAbbreviation
   }
+}
+
+module customRuleCollectionsConfig '../data/firewall-rules-custom.bicep' = {
+  name: 'customRuleCollectionsConfig'
+  params: {
+    firewallPolicyName: firewallPolicy.name
+    resourcePrefix: resourcePrefix
+    environmentAbbreviation: environmentAbbreviation
+  }
+  dependsOn: [
+    defaultRuleCollectionsConfig
+  ]
 }
 
 // Define the Azure Firewall
@@ -80,9 +88,6 @@ resource firewall 'Microsoft.Network/azureFirewalls@2021-02-01' = {
   name: name
   location: location
   tags: union(tags[?'Microsoft.Network/azureFirewalls'] ?? {}, mlzTags)
-  dependsOn: [
-    firewallCollectionGroups
-  ]
   properties: {
     ipConfigurations: [
       {

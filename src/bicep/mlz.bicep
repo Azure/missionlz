@@ -692,6 +692,7 @@ module networking 'modules/networking.bicep' = {
     deployAzureGatewaySubnet: deployAzureGatewaySubnet
     dnsServers: dnsServers
     enableProxy: enableProxy
+    environmentAbbreviation: environmentAbbreviation
     firewallSettings: {
       clientPrivateIpAddress: firewallClientPrivateIpAddress
       clientPublicIPAddressAvailabilityZones: firewallClientPublicIPAddressAvailabilityZones
@@ -707,6 +708,7 @@ module networking 'modules/networking.bicep' = {
     mlzTags: logic.outputs.mlzTags
     privateDnsZoneNames: logic.outputs.privateDnsZones
     resourceGroupNames: resourceGroups.outputs.names
+    resourcePrefix: resourcePrefix
     tags: tags
     tiers: logic.outputs.tiers
   }

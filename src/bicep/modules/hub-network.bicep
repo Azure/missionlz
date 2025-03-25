@@ -46,6 +46,8 @@ param tags object
 param virtualNetworkAddressPrefix string
 param virtualNetworkName string
 param vNetDnsServers array
+param resourcePrefix string
+param environmentAbbreviation string
 
 var subnets = union([
   {
@@ -318,6 +320,8 @@ module firewall '../modules/firewall.bicep' = {
     skuTier: firewallSkuTier
     tags: tags
     threatIntelMode: firewallThreatIntelMode
+    environmentAbbreviation: environmentAbbreviation
+    resourcePrefix: resourcePrefix
   }
 }
 
