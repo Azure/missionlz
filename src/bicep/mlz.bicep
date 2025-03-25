@@ -593,6 +593,76 @@ param windowsVmStorageAccountType string = 'StandardSSD_LRS'
 @description('The version of the Windows Virtual Machine for remote access. Default value = "latest".')
 param windowsVmVersion string = 'latest'
 
+@description('The firewall rules that will be applied to the Azure Firewall.')
+param firewallRuleCollectionGroups array = [  {
+  Name: 'defaultApplicationCollectionGroup'
+  properties: {
+    priority: 300
+    ruleCollections: [
+      {
+        name: 'AzureAuth'
+        priority: 110
+        ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
+        action: {
+          type: 'Allow'
+        }
+        rules: [
+          {
+            name: 'msftauth'
+            ruleType: 'ApplicationRule'
+            protocols: [
+              {
+                protocolType: 'Https'
+                port: 443
+              }
+            ]
+            fqdnTags: []
+            webCategories: []
+            targetFqdns: [
+              'aadcdn.msftauth.net'
+              'aadcdn.msauth.net'
+            ]
+            targetUrls: []
+            terminateTLS: false
+            sourceAddresses: ['*']
+            destinationAddresses: []
+            sourceIpGroups: []
+          }
+        ]
+      }
+    ]
+  }
+}
+{
+name: 'defaultNetworkCollectionGroup'
+properties: {
+    priority: 200
+    ruleCollections: [
+      {
+        name: 'AllowAzureCloud'
+        priority: 100
+        ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
+        action: {
+          type: 'Allow'
+        }
+        rules: [
+          {
+            name: 'AzureCloud'
+            ruleType: 'NetworkRule'
+            ipProtocols: ['Any']
+            sourceAddresses: ['*']
+            sourceIpGroups: []
+            destinationAddresses: ['AzureCloud']
+            destinationIpGroups: []
+            destinationFqdns: []
+            destinationPorts: ['*']
+          }
+        ]
+      }
+    ]
+  }
+}]
+
 var firewallClientPrivateIpAddress = firewallClientUsableIpAddresses[3]
 var firewallClientUsableIpAddresses = [for i in range(0, 4): cidrHost(firewallClientSubnetAddressPrefix, i)]
 
@@ -692,7 +762,6 @@ module networking 'modules/networking.bicep' = {
     deployAzureGatewaySubnet: deployAzureGatewaySubnet
     dnsServers: dnsServers
     enableProxy: enableProxy
-    environmentAbbreviation: environmentAbbreviation
     firewallSettings: {
       clientPrivateIpAddress: firewallClientPrivateIpAddress
       clientPublicIPAddressAvailabilityZones: firewallClientPublicIPAddressAvailabilityZones
@@ -704,11 +773,11 @@ module networking 'modules/networking.bicep' = {
       supernetIPAddress: firewallSupernetIPAddress
       threatIntelMode: firewallThreatIntelMode
     }
+    firewallRuleCollectionGroups: firewallRuleCollectionGroups
     location: location
     mlzTags: logic.outputs.mlzTags
     privateDnsZoneNames: logic.outputs.privateDnsZones
     resourceGroupNames: resourceGroups.outputs.names
-    resourcePrefix: resourcePrefix
     tags: tags
     tiers: logic.outputs.tiers
   }

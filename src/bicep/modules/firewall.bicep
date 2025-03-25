@@ -8,8 +8,6 @@ param clientIpConfigurationPublicIPAddressResourceId string
 param dnsServers array
 param enableProxy bool
 param firewallPolicyName string
-param environmentAbbreviation string
-param resourcePrefix string
 
 @allowed([
   'Alert'
@@ -35,6 +33,7 @@ param tags object = {}
   'Off'
 ])
 param threatIntelMode string
+param firewallRuleCollectionGroups array
 
 var intrusionDetectionObject = {
   mode: intrusionDetectionMode
@@ -62,25 +61,12 @@ resource firewallPolicy 'Microsoft.Network/firewallPolicies@2021-02-01' = {
   }
 }
 
-module defaultRuleCollectionsConfig 'firewall-rules-default.bicep' = {
+module defaultRuleCollectionsConfig './firewall-rules.bicep' = {
   name: 'defaultRuleCollectionsConfig'
   params: {
     firewallPolicyName: firewallPolicy.name
-    resourcePrefix: resourcePrefix
-    environmentAbbreviation: environmentAbbreviation
+    firewallRuleCollectionGroups: firewallRuleCollectionGroups
   }
-}
-
-module customRuleCollectionsConfig '../data/firewall-rules-custom.bicep' = {
-  name: 'customRuleCollectionsConfig'
-  params: {
-    firewallPolicyName: firewallPolicy.name
-    resourcePrefix: resourcePrefix
-    environmentAbbreviation: environmentAbbreviation
-  }
-  dependsOn: [
-    defaultRuleCollectionsConfig
-  ]
 }
 
 // Define the Azure Firewall

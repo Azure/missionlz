@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.34.1.11899",
-      "templateHash": "12482414604175206095"
+      "templateHash": "8833743727504262014"
     }
   },
   "parameters": {
@@ -976,6 +976,92 @@
       "defaultValue": "latest",
       "metadata": {
         "description": "The version of the Windows Virtual Machine for remote access. Default value = \"latest\"."
+      }
+    },
+    "firewallRuleCollectionGroups": {
+      "type": "array",
+      "defaultValue": [
+        {
+          "Name": "defaultApplicationCollectionGroup",
+          "properties": {
+            "priority": 300,
+            "ruleCollections": [
+              {
+                "name": "AzureAuth",
+                "priority": 110,
+                "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                "action": {
+                  "type": "Allow"
+                },
+                "rules": [
+                  {
+                    "name": "msftauth",
+                    "ruleType": "ApplicationRule",
+                    "protocols": [
+                      {
+                        "protocolType": "Https",
+                        "port": 443
+                      }
+                    ],
+                    "fqdnTags": [],
+                    "webCategories": [],
+                    "targetFqdns": [
+                      "aadcdn.msftauth.net",
+                      "aadcdn.msauth.net"
+                    ],
+                    "targetUrls": [],
+                    "terminateTLS": false,
+                    "sourceAddresses": [
+                      "*"
+                    ],
+                    "destinationAddresses": [],
+                    "sourceIpGroups": []
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "defaultNetworkCollectionGroup",
+          "properties": {
+            "priority": 200,
+            "ruleCollections": [
+              {
+                "name": "AllowAzureCloud",
+                "priority": 100,
+                "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                "action": {
+                  "type": "Allow"
+                },
+                "rules": [
+                  {
+                    "name": "AzureCloud",
+                    "ruleType": "NetworkRule",
+                    "ipProtocols": [
+                      "Any"
+                    ],
+                    "sourceAddresses": [
+                      "*"
+                    ],
+                    "sourceIpGroups": [],
+                    "destinationAddresses": [
+                      "AzureCloud"
+                    ],
+                    "destinationIpGroups": [],
+                    "destinationFqdns": [],
+                    "destinationPorts": [
+                      "*"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "metadata": {
+        "description": "The firewall rules that will be applied to the Azure Firewall."
       }
     }
   },
@@ -2007,9 +2093,6 @@
           "enableProxy": {
             "value": "[parameters('enableProxy')]"
           },
-          "environmentAbbreviation": {
-            "value": "[parameters('environmentAbbreviation')]"
-          },
           "firewallSettings": {
             "value": {
               "clientPrivateIpAddress": "[variables('firewallClientPrivateIpAddress')]",
@@ -2023,6 +2106,9 @@
               "threatIntelMode": "[parameters('firewallThreatIntelMode')]"
             }
           },
+          "firewallRuleCollectionGroups": {
+            "value": "[parameters('firewallRuleCollectionGroups')]"
+          },
           "location": {
             "value": "[parameters('location')]"
           },
@@ -2034,9 +2120,6 @@
           },
           "resourceGroupNames": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-resource-groups-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.names.value]"
-          },
-          "resourcePrefix": {
-            "value": "[parameters('resourcePrefix')]"
           },
           "tags": {
             "value": "[parameters('tags')]"
@@ -2052,7 +2135,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.34.1.11899",
-              "templateHash": "13389020085462021967"
+              "templateHash": "10083997368460591730"
             }
           },
           "parameters": {
@@ -2083,6 +2166,9 @@
             "firewallSettings": {
               "type": "object"
             },
+            "firewallRuleCollectionGroups": {
+              "type": "array"
+            },
             "location": {
               "type": "string"
             },
@@ -2100,12 +2186,6 @@
             },
             "tiers": {
               "type": "array"
-            },
-            "environmentAbbreviation": {
-              "type": "string"
-            },
-            "resourcePrefix": {
-              "type": "string"
             }
           },
           "variables": {
@@ -2148,9 +2228,6 @@
                   "enableProxy": {
                     "value": "[parameters('enableProxy')]"
                   },
-                  "environmentAbbreviation": {
-                    "value": "[parameters('environmentAbbreviation')]"
-                  },
                   "firewallClientPrivateIpAddress": {
                     "value": "[parameters('firewallSettings').clientPrivateIpAddress]"
                   },
@@ -2187,6 +2264,9 @@
                   "firewallThreatIntelMode": {
                     "value": "[parameters('firewallSettings').threatIntelMode]"
                   },
+                  "firewallRuleCollectionGroups": {
+                    "value": "[parameters('firewallRuleCollectionGroups')]"
+                  },
                   "location": {
                     "value": "[parameters('location')]"
                   },
@@ -2207,9 +2287,6 @@
                   },
                   "routeTableName": {
                     "value": "[variables('hub').namingConvention.routeTable]"
-                  },
-                  "resourcePrefix": {
-                    "value": "[parameters('resourcePrefix')]"
                   },
                   "subnetAddressPrefix": {
                     "value": "[variables('hub').subnetAddressPrefix]"
@@ -2235,7 +2312,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.34.1.11899",
-                      "templateHash": "12011510172803682424"
+                      "templateHash": "6079499996694507251"
                     }
                   },
                   "parameters": {
@@ -2345,11 +2422,8 @@
                     "vNetDnsServers": {
                       "type": "array"
                     },
-                    "resourcePrefix": {
-                      "type": "string"
-                    },
-                    "environmentAbbreviation": {
-                      "type": "string"
+                    "firewallRuleCollectionGroups": {
+                      "type": "array"
                     }
                   },
                   "variables": {
@@ -3143,11 +3217,8 @@
                           "threatIntelMode": {
                             "value": "[parameters('firewallThreatIntelMode')]"
                           },
-                          "environmentAbbreviation": {
-                            "value": "[parameters('environmentAbbreviation')]"
-                          },
-                          "resourcePrefix": {
-                            "value": "[parameters('resourcePrefix')]"
+                          "firewallRuleCollectionGroups": {
+                            "value": "[parameters('firewallRuleCollectionGroups')]"
                           }
                         },
                         "template": {
@@ -3157,7 +3228,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.34.1.11899",
-                              "templateHash": "17375165526190338031"
+                              "templateHash": "11407283427268650592"
                             }
                           },
                           "parameters": {
@@ -3174,12 +3245,6 @@
                               "type": "bool"
                             },
                             "firewallPolicyName": {
-                              "type": "string"
-                            },
-                            "environmentAbbreviation": {
-                              "type": "string"
-                            },
-                            "resourcePrefix": {
                               "type": "string"
                             },
                             "intrusionDetectionMode": {
@@ -3224,6 +3289,9 @@
                                 "Deny",
                                 "Off"
                               ]
+                            },
+                            "firewallRuleCollectionGroups": {
+                              "type": "array"
                             }
                           },
                           "variables": {
@@ -3309,11 +3377,8 @@
                                   "firewallPolicyName": {
                                     "value": "[parameters('firewallPolicyName')]"
                                   },
-                                  "resourcePrefix": {
-                                    "value": "[parameters('resourcePrefix')]"
-                                  },
-                                  "environmentAbbreviation": {
-                                    "value": "[parameters('environmentAbbreviation')]"
+                                  "firewallRuleCollectionGroups": {
+                                    "value": "[parameters('firewallRuleCollectionGroups')]"
                                   }
                                 },
                                 "template": {
@@ -3323,173 +3388,34 @@
                                     "_generator": {
                                       "name": "bicep",
                                       "version": "0.34.1.11899",
-                                      "templateHash": "14819065737917098129"
+                                      "templateHash": "5417649464950555457"
                                     }
                                   },
                                   "parameters": {
                                     "firewallPolicyName": {
                                       "type": "string"
                                     },
-                                    "resourcePrefix": {
-                                      "type": "string"
-                                    },
-                                    "environmentAbbreviation": {
-                                      "type": "string"
-                                    }
-                                  },
-                                  "variables": {
-                                    "appRuleCollctionGroup": {
-                                      "properties": {
-                                        "priority": 300,
-                                        "ruleCollections": [
-                                          {
-                                            "name": "AzureAuth",
-                                            "priority": 110,
-                                            "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
-                                            "action": {
-                                              "type": "Allow"
-                                            },
-                                            "rules": [
-                                              {
-                                                "name": "msftauth",
-                                                "ruleType": "ApplicationRule",
-                                                "protocols": [
-                                                  {
-                                                    "protocolType": "Https",
-                                                    "port": 443
-                                                  }
-                                                ],
-                                                "fqdnTags": [],
-                                                "webCategories": [],
-                                                "targetFqdns": [
-                                                  "aadcdn.msftauth.net",
-                                                  "aadcdn.msauth.net"
-                                                ],
-                                                "targetUrls": [],
-                                                "terminateTLS": false,
-                                                "sourceAddresses": [
-                                                  "*"
-                                                ],
-                                                "destinationAddresses": [],
-                                                "sourceIpGroups": []
-                                              }
-                                            ]
-                                          }
-                                        ]
-                                      }
-                                    },
-                                    "networkRuleCollectionGroup": {
-                                      "properties": {
-                                        "priority": 200,
-                                        "ruleCollections": [
-                                          {
-                                            "name": "AllowAzureCloud",
-                                            "priority": 100,
-                                            "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
-                                            "action": {
-                                              "type": "Allow"
-                                            },
-                                            "rules": [
-                                              {
-                                                "name": "AzureCloud",
-                                                "ruleType": "NetworkRule",
-                                                "ipProtocols": [
-                                                  "Any"
-                                                ],
-                                                "sourceAddresses": [
-                                                  "*"
-                                                ],
-                                                "sourceIpGroups": [],
-                                                "destinationAddresses": [
-                                                  "AzureCloud"
-                                                ],
-                                                "destinationIpGroups": [],
-                                                "destinationFqdns": [],
-                                                "destinationPorts": [
-                                                  "*"
-                                                ]
-                                              }
-                                            ]
-                                          }
-                                        ]
-                                      }
+                                    "firewallRuleCollectionGroups": {
+                                      "type": "array"
                                     }
                                   },
                                   "resources": [
                                     {
+                                      "copy": {
+                                        "name": "ruleCreate",
+                                        "count": "[length(parameters('firewallRuleCollectionGroups'))]",
+                                        "mode": "serial",
+                                        "batchSize": 1
+                                      },
                                       "type": "Microsoft.Network/firewallPolicies/ruleCollectionGroups",
-                                      "apiVersion": "2021-08-01",
-                                      "name": "[format('{0}/{1}', parameters('firewallPolicyName'), format('{0}-{1}-AppRuleCollectionGroup', parameters('resourcePrefix'), parameters('environmentAbbreviation')))]",
-                                      "properties": "[variables('appRuleCollctionGroup').properties]"
-                                    },
-                                    {
-                                      "type": "Microsoft.Network/firewallPolicies/ruleCollectionGroups",
-                                      "apiVersion": "2021-08-01",
-                                      "name": "[format('{0}/{1}', parameters('firewallPolicyName'), format('{0}-{1}-NetworkRuleCollectionGroup', parameters('resourcePrefix'), parameters('environmentAbbreviation')))]",
-                                      "properties": "[variables('networkRuleCollectionGroup').properties]",
-                                      "dependsOn": [
-                                        "[resourceId('Microsoft.Network/firewallPolicies/ruleCollectionGroups', parameters('firewallPolicyName'), format('{0}-{1}-AppRuleCollectionGroup', parameters('resourcePrefix'), parameters('environmentAbbreviation')))]"
-                                      ]
+                                      "apiVersion": "2024-05-01",
+                                      "name": "[format('{0}/{1}', parameters('firewallPolicyName'), parameters('firewallRuleCollectionGroups')[copyIndex()].name)]",
+                                      "properties": "[parameters('firewallRuleCollectionGroups')[copyIndex()].properties]"
                                     }
                                   ]
                                 }
                               },
                               "dependsOn": [
-                                "[resourceId('Microsoft.Network/firewallPolicies', parameters('firewallPolicyName'))]"
-                              ]
-                            },
-                            {
-                              "type": "Microsoft.Resources/deployments",
-                              "apiVersion": "2022-09-01",
-                              "name": "customRuleCollectionsConfig",
-                              "properties": {
-                                "expressionEvaluationOptions": {
-                                  "scope": "inner"
-                                },
-                                "mode": "Incremental",
-                                "parameters": {
-                                  "firewallPolicyName": {
-                                    "value": "[parameters('firewallPolicyName')]"
-                                  },
-                                  "resourcePrefix": {
-                                    "value": "[parameters('resourcePrefix')]"
-                                  },
-                                  "environmentAbbreviation": {
-                                    "value": "[parameters('environmentAbbreviation')]"
-                                  }
-                                },
-                                "template": {
-                                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                                  "contentVersion": "1.0.0.0",
-                                  "metadata": {
-                                    "_generator": {
-                                      "name": "bicep",
-                                      "version": "0.34.1.11899",
-                                      "templateHash": "6127389345341051960"
-                                    }
-                                  },
-                                  "parameters": {
-                                    "firewallPolicyName": {
-                                      "type": "string"
-                                    },
-                                    "resourcePrefix": {
-                                      "type": "string"
-                                    },
-                                    "environmentAbbreviation": {
-                                      "type": "string"
-                                    }
-                                  },
-                                  "resources": [],
-                                  "outputs": {
-                                    "appRuleCollectionGroupId": {
-                                      "type": "string",
-                                      "value": "[resourceId('Microsoft.Network/firewallPolicies/ruleCollectionGroups', parameters('firewallPolicyName'), format('{0}-{1}-AppRuleCollectionGroup', parameters('resourcePrefix'), parameters('environmentAbbreviation')))]"
-                                    }
-                                  }
-                                }
-                              },
-                              "dependsOn": [
-                                "[resourceId('Microsoft.Resources/deployments', 'defaultRuleCollectionsConfig')]",
                                 "[resourceId('Microsoft.Network/firewallPolicies', parameters('firewallPolicyName'))]"
                               ]
                             }

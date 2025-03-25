@@ -14,14 +14,13 @@ param deploymentNameSuffix string
 param dnsServers array
 param enableProxy bool
 param firewallSettings object
+param firewallRuleCollectionGroups array
 param location string
 param mlzTags object
 param privateDnsZoneNames array
 param resourceGroupNames array
 param tags object
 param tiers array
-param environmentAbbreviation string
-param resourcePrefix string
 
 var hub = filter(tiers, tier => tier.name == 'hub')[0]
 var hubResourceGroupName = filter(resourceGroupNames, name => contains(name, 'hub'))[0]
@@ -39,7 +38,6 @@ module hubNetwork 'hub-network.bicep' = {
     deployBastion: deployBastion
     dnsServers: dnsServers
     enableProxy: enableProxy
-    environmentAbbreviation: environmentAbbreviation
     firewallClientPrivateIpAddress: firewallSettings.clientPrivateIpAddress
     firewallClientPublicIPAddressAvailabilityZones: firewallSettings.clientPublicIPAddressAvailabilityZones
     firewallClientPublicIPAddressName: hub.namingConvention.azureFirewallClientPublicIPAddress
@@ -52,6 +50,7 @@ module hubNetwork 'hub-network.bicep' = {
     firewallPolicyName: hub.namingConvention.azureFirewallPolicy
     firewallSkuTier: firewallSettings.skuTier
     firewallThreatIntelMode: firewallSettings.threatIntelMode
+    firewallRuleCollectionGroups: firewallRuleCollectionGroups
     location: location
     mlzTags: mlzTags
     networkSecurityGroupName: hub.namingConvention.networkSecurityGroup
@@ -59,7 +58,6 @@ module hubNetwork 'hub-network.bicep' = {
     networkWatcherName: hub.namingConvention.networkWatcher
     networkWatcherResourceId: hub.networkWatcherResourceId
     routeTableName: hub.namingConvention.routeTable
-    resourcePrefix: resourcePrefix
     subnetAddressPrefix: hub.subnetAddressPrefix
     subnetName: hub.namingConvention.subnet
     tags: tags
