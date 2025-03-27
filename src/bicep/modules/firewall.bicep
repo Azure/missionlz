@@ -67,6 +67,9 @@ module defaultRuleCollectionsConfig './firewall-rules.bicep' = {
     firewallPolicyName: firewallPolicy.name
     firewallRuleCollectionGroups: firewallRuleCollectionGroups
   }
+  dependsOn: [
+    firewall
+  ]
 }
 
 // Define the Azure Firewall

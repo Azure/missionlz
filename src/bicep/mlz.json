@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.34.1.11899",
-      "templateHash": "8833743727504262014"
+      "templateHash": "11742263593314978344"
     }
   },
   "parameters": {
@@ -982,7 +982,7 @@
       "type": "array",
       "defaultValue": [
         {
-          "Name": "defaultApplicationCollectionGroup",
+          "name": "defaultApplicationCollectionGroup",
           "properties": {
             "priority": 300,
             "ruleCollections": [
@@ -1053,6 +1053,33 @@
                     "destinationPorts": [
                       "*"
                     ]
+                  }
+                ]
+              },
+              {
+                "name": "AllowMonitorToLAW",
+                "priority": 150,
+                "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                "action": {
+                  "type": "Allow"
+                },
+                "rules": [
+                  {
+                    "name": "AllowMonitorToLAW",
+                    "ruleType": "NetworkRule",
+                    "ipProtocols": [
+                      "Tcp"
+                    ],
+                    "sourceAddresses": "[concat(createArray(parameters('hubVirtualNetworkAddressPrefix')), createArray(parameters('sharedServicesVirtualNetworkAddressPrefix')), if(empty(parameters('identityVirtualNetworkAddressPrefix')), createArray(), createArray(parameters('identityVirtualNetworkAddressPrefix'))))]",
+                    "destinationAddresses": [
+                      "[parameters('operationsVirtualNetworkAddressPrefix')]"
+                    ],
+                    "destinationPorts": [
+                      "443"
+                    ],
+                    "sourceIpGroups": [],
+                    "destinationIpGroups": [],
+                    "destinationFqdns": []
                   }
                 ]
               }
@@ -2135,7 +2162,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.34.1.11899",
-              "templateHash": "10083997368460591730"
+              "templateHash": "6835169761585320562"
             }
           },
           "parameters": {
@@ -2312,7 +2339,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.34.1.11899",
-                      "templateHash": "6079499996694507251"
+                      "templateHash": "9385427372857357933"
                     }
                   },
                   "parameters": {
@@ -3228,7 +3255,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.34.1.11899",
-                              "templateHash": "11407283427268650592"
+                              "templateHash": "8271273453095894098"
                             }
                           },
                           "parameters": {
@@ -3388,7 +3415,7 @@
                                     "_generator": {
                                       "name": "bicep",
                                       "version": "0.34.1.11899",
-                                      "templateHash": "5417649464950555457"
+                                      "templateHash": "14407710627711778794"
                                     }
                                   },
                                   "parameters": {
@@ -3408,7 +3435,7 @@
                                         "batchSize": 1
                                       },
                                       "type": "Microsoft.Network/firewallPolicies/ruleCollectionGroups",
-                                      "apiVersion": "2024-05-01",
+                                      "apiVersion": "2024-03-01",
                                       "name": "[format('{0}/{1}', parameters('firewallPolicyName'), parameters('firewallRuleCollectionGroups')[copyIndex()].name)]",
                                       "properties": "[parameters('firewallRuleCollectionGroups')[copyIndex()].properties]"
                                     }
@@ -3416,6 +3443,7 @@
                                 }
                               },
                               "dependsOn": [
+                                "[resourceId('Microsoft.Network/azureFirewalls', parameters('name'))]",
                                 "[resourceId('Microsoft.Network/firewallPolicies', parameters('firewallPolicyName'))]"
                               ]
                             }

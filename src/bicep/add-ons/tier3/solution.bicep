@@ -156,6 +156,39 @@ param workloadName string = 'tier3'
 @description('The short name for the workload.')
 param workloadShortName string = 't3'
 
+param operationsVirtualNetworkAddressPrefix string = '10.0.131.0/24'
+param firewallRuleCollectionGroups array = [
+  {
+    name: 'tier3NetworkCollectionGroup'
+    properties: {
+      priority: 200
+      ruleCollections: [
+        {
+          name: 'AVD-AllowMonitorToLAW'
+          priority: 150
+          ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
+          action: {
+            type: 'Allow'
+          }
+          rules: [
+            {
+              name: 'AllowMonitorToLAW'
+              ruleType: 'NetworkRule'
+              ipProtocols: ['Tcp']
+              sourceAddresses: [virtualNetworkAddressPrefix ]
+              destinationAddresses: [operationsVirtualNetworkAddressPrefix] // Network of the Log Analytics Workspace, could be narrowed using parameters file post deployment
+              destinationPorts: ['443'] // HTTPS port for Azure Monitor
+              sourceIpGroups: []
+              destinationIpGroups: []
+              destinationFqdns: []
+            }
+          ]
+        }
+      ]
+    }
+  }
+]
+
 var hubResourceGroupName = split(hubVirtualNetworkResourceId, '/')[4]
 var hubSubscriptionId = split(hubVirtualNetworkResourceId, '/')[2]
 var subscriptionId = subscription().subscriptionId
@@ -168,6 +201,18 @@ resource azureFirewall 'Microsoft.Network/azureFirewalls@2020-11-01' existing = 
 resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-11-01' existing = {
   name: split(hubVirtualNetworkResourceId, '/')[8]
   scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
+}
+
+// Retrieve the Firewall Policy Resource ID
+var firewallPolicyResourceId = azureFirewall.properties.firewallPolicy.id
+
+module firewallRules '../../modules/firewall-rules.bicep' = if (!(empty(operationsVirtualNetworkAddressPrefix))) {
+  name: 'deploy-firewall-rules-${workloadShortName}-${deploymentNameSuffix}'
+  scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
+  params: {
+    firewallPolicyName: split(firewallPolicyResourceId, '/')[8]
+    firewallRuleCollectionGroups: firewallRuleCollectionGroups
+  }
 }
 
 module logic '../../modules/logic.bicep' = {
