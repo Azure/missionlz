@@ -164,7 +164,7 @@ param firewallRuleCollectionGroups array = [
       priority: 200
       ruleCollections: [
         {
-          name: 'AVD-AllowMonitorToLAW'
+          name: 'tier3-AllowMonitorToLAW'
           priority: 150
           ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
           action: {
@@ -176,7 +176,7 @@ param firewallRuleCollectionGroups array = [
               ruleType: 'NetworkRule'
               ipProtocols: ['Tcp']
               sourceAddresses: [virtualNetworkAddressPrefix ]
-              destinationAddresses: [operationsVirtualNetworkAddressPrefix] // Network of the Log Analytics Workspace, could be narrowed using parameters file post deployment
+              destinationAddresses: [cidrHost(operationsVirtualNetworkAddressPrefix, 3)] // Network of the Log Analytics Workspace, could be narrowed using parameters file post deployment
               destinationPorts: ['443'] // HTTPS port for Azure Monitor
               sourceIpGroups: []
               destinationIpGroups: []

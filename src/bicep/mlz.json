@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.34.1.11899",
-      "templateHash": "11742263593314978344"
+      "templateHash": "4690584174038918231"
     }
   },
   "parameters": {
@@ -1072,7 +1072,7 @@
                     ],
                     "sourceAddresses": "[concat(createArray(parameters('hubVirtualNetworkAddressPrefix')), createArray(parameters('sharedServicesVirtualNetworkAddressPrefix')), if(empty(parameters('identityVirtualNetworkAddressPrefix')), createArray(), createArray(parameters('identityVirtualNetworkAddressPrefix'))))]",
                     "destinationAddresses": [
-                      "[parameters('operationsVirtualNetworkAddressPrefix')]"
+                      "[cidrHost(parameters('operationsVirtualNetworkAddressPrefix'), 3)]"
                     ],
                     "destinationPorts": [
                       "443"
@@ -2162,7 +2162,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.34.1.11899",
-              "templateHash": "6835169761585320562"
+              "templateHash": "5650050095861095818"
             }
           },
           "parameters": {
@@ -2339,7 +2339,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.34.1.11899",
-                      "templateHash": "9385427372857357933"
+                      "templateHash": "4392246466011504321"
                     }
                   },
                   "parameters": {
@@ -3255,7 +3255,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.34.1.11899",
-                              "templateHash": "8271273453095894098"
+                              "templateHash": "10906930922162280196"
                             }
                           },
                           "parameters": {
@@ -3395,6 +3395,8 @@
                               "type": "Microsoft.Resources/deployments",
                               "apiVersion": "2022-09-01",
                               "name": "defaultRuleCollectionsConfig",
+                              "subscriptionId": "[split(resourceId('Microsoft.Network/firewallPolicies', parameters('firewallPolicyName')), '/')[2]]",
+                              "resourceGroup": "[split(resourceId('Microsoft.Network/firewallPolicies', parameters('firewallPolicyName')), '/')[4]]",
                               "properties": {
                                 "expressionEvaluationOptions": {
                                   "scope": "inner"

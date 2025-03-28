@@ -369,6 +369,55 @@ param workspaceFriendlyName string = ''
 @description('The public network access setting on the AVD workspace either disables public network access or allows both public and private network access.')
 param workspacePublicNetworkAccess string = 'Enabled'
 
+param operationsVirtualNetworkAddressPrefix string = '10.0.131.0/24'
+
+@description('The firewall rules that will be applied to the Azure Firewall.')
+param firewallRuleCollectionGroups array = [
+  {
+    name: 'AVDApplicationCollectionGroup'
+    properties: {
+      priority: 300
+      ruleCollections: [
+        {
+          name: 'AVD-Application-RuleCollection'
+          priority: 110
+          ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
+          action: {
+            type: 'Allow'
+          }
+          rules: [
+            {
+              name: 'AVDManagementEndpoints'
+              ruleType: 'ApplicationRule'
+              protocols: [
+                {
+                  protocolType: 'Https'
+                  port: 443
+                }
+              ]
+              fqdnTags: []
+              webCategories: []
+              targetFqdns: [
+                'rdgateway.microsoftonline.us'
+                'wvd.microsoftonline.us'
+                'login.microsoftonline.us'
+                'graph.microsoft.us'
+                'aadcdn.msftauth.net'
+                'aadcdn.msauth.net'
+              ]
+              targetUrls: []
+              terminateTLS: false
+              sourceAddresses: virtualNetworkAddressPrefixes
+              destinationAddresses: []
+              sourceIpGroups: []
+            }
+          ]
+        }
+      ]
+    }
+  }
+]
+
 //  BATCH SESSION HOSTS
 // The following variables are used to determine the batches to deploy any number of AVD session hosts.
 var maxResourcesPerTemplateDeployment = 88 // This is the max number of session hosts that can be deployed from the sessionHosts.bicep file in each batch / for loop. Math: (800 - <Number of Static Resources>) / <Number of Looped Resources> 
@@ -439,6 +488,18 @@ var subnets = {
         }
       ]
     : []
+}
+
+// Derive the firewall policy name from the hubAzureFirewallResourceId
+var firewallPolicyName = replace(split(hubAzureFirewallResourceId, '/')[8], 'vnet', 'afwp')
+
+module firewallRules '../../modules/firewall-rules.bicep' = if (!(empty(operationsVirtualNetworkAddressPrefix))) {
+  name: 'deploy-firewall-rules-${identifier}-${deploymentNameSuffix}'
+  scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
+  params: {
+    firewallPolicyName: firewallPolicyName
+    firewallRuleCollectionGroups: firewallRuleCollectionGroups
+  }
 }
 
 // Gets the MLZ hub virtual network for its location and tags

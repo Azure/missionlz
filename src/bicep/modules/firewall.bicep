@@ -62,7 +62,8 @@ resource firewallPolicy 'Microsoft.Network/firewallPolicies@2021-02-01' = {
 }
 
 module defaultRuleCollectionsConfig './firewall-rules.bicep' = {
-  name: 'defaultRuleCollectionsConfig'
+    name: 'defaultRuleCollectionsConfig'
+    scope: resourceGroup(split(firewallPolicy.id, '/')[2], split(firewallPolicy.id, '/')[4])
   params: {
     firewallPolicyName: firewallPolicy.name
     firewallRuleCollectionGroups: firewallRuleCollectionGroups
