@@ -1,0 +1,667 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2021-09-09/uiFormDefinition.schema.json",
+  "view": {
+    "kind": "Form",
+    "properties": {
+      "title": "Mission Landing Zone Add-On: Azure NetApp Files",
+      "steps": [
+        {
+          "name": "basics",
+          "label": "Basics",
+          "elements": [
+            {
+              "name": "scope",
+              "type": "Microsoft.Common.ResourceScope",
+              "instanceDetailsLabel": "",
+              "location": {
+                "resourceTypes": [
+                  "Microsoft.Compute/diskEncryptionSets",
+                  "Microsoft.KeyVault/vaults",
+                  "Microsoft.ManagedIdentity/userAssignedIdentities",
+                  "Microsoft.NetApp/netAppAccounts",
+                  "Microsoft.Network/networkSecurityGroups",
+                  "Microsoft.Network/networkWatchers",
+                  "Microsoft.Network/privateEndpoints",
+                  "Microsoft.Network/routeTables",
+                  "Microsoft.Network/virtualNetworks",
+                  "Microsoft.Resources/resourceGroups",
+                  "Microsoft.Storage/storageAccounts"
+                ]
+              }
+            },
+            {
+              "name": "hub",
+              "label": "Hub Resources",
+              "type": "Microsoft.Common.Section",
+              "elements": [
+                {
+                  "name": "api",
+                  "type": "Microsoft.Solutions.ArmApiControl",
+                  "request": {
+                    "method": "GET",
+                    "path": "subscriptions?api-version=2020-01-01"
+                  }
+                },
+                {
+                  "name": "subscription",
+                  "label": "Subscription",
+                  "type": "Microsoft.Common.DropDown",
+                  "defaultValue": "[steps('basics').scope.subscription.displayName]",
+                  "toolTip": "Select the subscription for your Mission Landing Zone Hub network, firewall, and remote access resources.",
+                  "filter": true,
+                  "constraints": {
+                    "allowedValues": "[map(steps('basics').hub.api.value, (item) => parse(concat('{\"label\":\"', item.displayName, '\",\"value\":\"', item.id, '\",\"description\":\"', 'ID: ', item.subscriptionId, '\"}')))]",
+                    "required": true
+                  }
+                },
+                {
+                  "name": "virtualNetworksApi",
+                  "type": "Microsoft.Solutions.ArmApiControl",
+                  "request": {
+                    "method": "GET",
+                    "path": "[concat(steps('basics').hub.subscription, '/providers/Microsoft.Network/virtualNetworks?api-version=2023-05-01')]"
+                  }
+                },
+                {
+                  "name": "virtualNetwork",
+                  "type": "Microsoft.Common.DropDown",
+                  "visible": true,
+                  "label": "Virtual network",
+                  "defaultValue": "[filter(map(steps('basics').hub.virtualNetworksApi.value, (item) => item.name), (item) => contains(item, 'hub'))]",
+                  "filter": true,
+                  "toolTip": "Select the existing Hub virtual network.",
+                  "constraints": {
+                    "required": true,
+                    "allowedValues": "[map(steps('basics').hub.virtualNetworksApi.value, (item) => parse(concat('{\"label\":\"', item.name, '\",\"value\":\"', item.id, '\"}')))]"
+                  }
+                },
+                {
+                  "name": "azureFirewallsApi",
+                  "type": "Microsoft.Solutions.ArmApiControl",
+                  "request": {
+                    "method": "GET",
+                    "path": "[concat(steps('basics').hub.subscription, '/resourceGroups/', first(skip(split(steps('basics').hub.virtualNetwork, '/'), 4)), '/providers/Microsoft.Network/azureFirewalls?api-version=2023-09-01')]"
+                  }
+                },
+                {
+                  "name": "azureFirewall",
+                  "type": "Microsoft.Common.DropDown",
+                  "visible": true,
+                  "label": "Azure firewall",
+                  "defaultValue": "[first(map(steps('basics').hub.azureFirewallsApi.value, (item) => item.name))]",
+                  "filter": true,
+                  "toolTip": "Select the existing Hub Azure firewall.",
+                  "constraints": {
+                    "required": true,
+                    "allowedValues": "[map(steps('basics').hub.azureFirewallsApi.value, (item) => parse(concat('{\"label\":\"', item.name, '\",\"value\":\"', item.id, '\"}')))]"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "naming",
+              "type": "Microsoft.Common.Section",
+              "label": "Naming Components",
+              "elements": [
+                {
+                  "name": "description",
+                  "type": "Microsoft.Common.TextBlock",
+                  "options": {
+                    "text": "The values selected below will be used as components in your naming convention to name your Azure resource groups and resources. For more information on the naming convention used in this solution, refer to the documentation.",
+                    "link": {}
+                  }
+                },
+                {
+                  "name": "identifier",
+                  "type": "Microsoft.Common.TextBox",
+                  "label": "Identifier",
+                  "toolTip": "Input a 3 character identifier for the resource group and resource names created with this solution. The identifier should represent a unique value within your organization, such as a business unit or project.",
+                  "placeholder": "Example: ms",
+                  "constraints": {
+                    "required": true,
+                    "regex": "^[a-z0-9A-Z]{1,3}$",
+                    "validationMessage": "The value must be 1 - 3 characters in length and must be alphanumeric."
+                  }
+                },
+                {
+                  "name": "environment",
+                  "type": "Microsoft.Common.DropDown",
+                  "visible": true,
+                  "label": "Environment Abbreviation",
+                  "defaultValue": "Development (dev)",
+                  "toolTip": "Select the target environment for the solution. The single letter environment abbreviation will be used as part of the naming convention for the resoure groups and resources.",
+                  "constraints": {
+                    "required": true,
+                    "allowedValues": [
+                      {
+                        "label": "Development (dev)",
+                        "value": "dev"
+                      },
+                      {
+                        "label": "Production (prod)",
+                        "value": "prod"
+                      },
+                      {
+                        "label": "Test (test)",
+                        "value": "test"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "workloadName",
+                  "type": "Microsoft.Common.TextBox",
+                  "label": "Workload Name",
+                  "toolTip": "Input a 10 character workload name for the resource group and resource names created with this solution. The workload should represent the name of the service the tier 3 deployment will support.",
+                  "placeholder": "Example: tier3",
+                  "constraints": {
+                    "required": true,
+                    "regex": "^[a-z0-9A-Z]{1,10}$",
+                    "validationMessage": "The value must be 1 - 10 characters in length and must be alphanumeric."
+                  }
+                },
+                {
+                  "name": "workloadShortName",
+                  "type": "Microsoft.Common.TextBox",
+                  "label": "Workload Short Name",
+                  "toolTip": "Input a 3 character workload short name for the resource group and resource names created with this solution. The workload short name should be an abbreviation of the workload name.",
+                  "placeholder": "Example: t3",
+                  "constraints": {
+                    "required": true,
+                    "regex": "^[a-z0-9A-Z]{1,3}$",
+                    "validationMessage": "The value must be 1 - 3 characters in length and must be alphanumeric."
+                  }
+                }
+              ]
+            },
+            {
+              "name": "networkWatchersApi",
+              "type": "Microsoft.Solutions.ArmApiControl",
+              "request": {
+                "method": "GET",
+                "path": "[concat(steps('basics').scope.subscription.id, '/providers/Microsoft.Network/networkWatchers?api-version=2023-09-01')]"
+              }
+            }
+          ]
+        },
+        {
+          "name": "settings",
+          "label": "Settings",
+          "elements": [
+            {
+              "name": "storage",
+              "type": "Microsoft.Common.Section",
+              "label": "Storage",
+              "visible": true,
+              "elements": [
+                {
+                  "name": "sku",
+                  "type": "Microsoft.Common.DropDown",
+                  "label": "SKU",
+                  "filter": false,
+                  "defaultValue": "Premium",
+                  "toolTip": "Select the performance SKU for Azure NetApp Files.",
+                  "constraints": {
+                    "required": true,
+                    "allowedValues": [
+                      {
+                        "label": "Premium",
+                        "value": "Premium"
+                      },
+                      {
+                        "label": "Standard",
+                        "value": "Standard"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "fileShareName",
+                  "type": "Microsoft.Common.TextBox",
+                  "label": "File Share Name",
+                  "toolTip": "The name of the file share to be created in the Azure NetApp Files account.",
+                  "defaultValue": "",
+                  "constraints": {
+                    "required": true,
+                    "regex": "[a-z][a-z0-9-]{2,63}$",
+                    "validationMessage": "Must be 1-64 characters, start with a letter, and contain only alphanumerics and hyphens."
+                  }
+                }
+              ]
+            },
+            {
+              "name": "identity",
+              "type": "Microsoft.Common.Section",
+              "label": "Identity",
+              "visible": true,
+              "elements": [
+                {
+                  "name": "domainName",
+                  "type": "Microsoft.Common.TextBox",
+                  "visible": true,
+                  "label": "Domain Name",
+                  "toolTip": "Provide domain name for the selected Active Directory solution.",
+                  "placeholder": "Example: contoso.com",
+                  "constraints": {
+                    "required": true
+                  }
+                },
+                {
+                  "name": "ouPath",
+                  "type": "Microsoft.Common.TextBox",
+                  "visible": true,
+                  "label": "OU Path",
+                  "toolTip": "Input the distinguished name of the desired organization unit for the AVD session hosts.",
+                  "defaultValue": "",
+                  "placeholder": "Example: OU=pooled,OU=avd,DC=contoso,DC=com",
+                  "constraints": {
+                    "required": false
+                  }
+                }
+              ]
+            },
+            {
+              "name": "domainJoinCredentials",
+              "type": "Microsoft.Common.Section",
+              "label": "Domain Join Credentials",
+              "visible": true,
+              "elements": [
+                {
+                  "name": "domainUserPrincipalName",
+                  "type": "Microsoft.Common.TextBox",
+                  "label": "User Principal Name",
+                  "toolTip": "Enter the user principal name with domain join privileges.",
+                  "placeholder": "Example: xadmin@contoso.com",
+                  "constraints": {
+                    "required": true,
+                    "regex": "^[a-z0-9A-Z_.-]+@(?:[a-z0-9]+\\.)+[a-z]+$",
+                    "validationMessage": "The value must be a valid user principal name."
+                  }
+                },
+                {
+                  "name": "domainPassword",
+                  "type": "Microsoft.Common.PasswordBox",
+                  "label": {
+                    "password": "Password"
+                  },
+                  "toolTip": "Enter a password that is alphanumeric, contains at least 12 characters, 1 letter, 1 number and 1 special character.",
+                  "constraints": {
+                    "required": true
+                  },
+                  "options": {
+                    "hideConfirmation": true
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "networking",
+          "label": "Networking",
+          "elements": [
+            {
+              "name": "networkingSection",
+              "label": "Networking",
+              "type": "Microsoft.Common.Section",
+              "elements": [
+                {
+                  "name": "virtualNetworkAddressCidrRange",
+                  "label": "Virtual network CIDR range",
+                  "type": "Microsoft.Common.TextBox",
+                  "defaultValue": "10.0.160.0/23",
+                  "toolTip": "Specify an address CIDR range within the range [10,24].",
+                  "constraints": {
+                    "required": true,
+                    "validations": [
+                      {
+                        "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(1[0-9]|2[0-4]))$",
+                        "message": "Invalid CIDR range. The address prefix must be in the range [10,24]."
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "subnetAddressCidrRange",
+                  "label": "Subnet CIDR range",
+                  "type": "Microsoft.Common.TextBox",
+                  "defaultValue": "10.0.160.0/24",
+                  "toolTip": "Specify a CIDR range for the subnet within the virtual network [24].",
+                  "constraints": {
+                    "required": true,
+                    "validations": [
+                      {
+                        "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(2[4-8]))$",
+                        "message": "Invalid CIDR range. The address prefix must be in the range [24,28]."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').networkingSection.virtualNetworkAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('networking').networkingSection.virtualNetworkAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('networking').networkingSection.subnetAddressCidrRange, '/')), '.'), 1))), true)]",
+                        "message": "CIDR range not within virtual network CIDR range (first octet)."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').networkingSection.virtualNetworkAddressCidrRange, '/')), 16), equals(last(take(split(first(split(steps('networking').networkingSection.virtualNetworkAddressCidrRange, '/')), '.'), 2)), last(take(split(first(split(steps('networking').networkingSection.subnetAddressCidrRange, '/')), '.'), 2))), true)]",
+                        "message": "CIDR range not within virtual network CIDR range (second octet)."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').networkingSection.virtualNetworkAddressCidrRange, '/')), 24), equals(last(take(split(first(split(steps('networking').networkingSection.virtualNetworkAddressCidrRange, '/')), '.'), 3)), last(take(split(first(split(steps('networking').networkingSection.subnetAddressCidrRange, '/')), '.'), 3))), true)]",
+                        "message": "CIDR range not within virtual network CIDR range (third octet)."
+                      },
+                      {
+                        "isValid": "[lessOrEquals(last(split(steps('networking').networkingSection.virtualNetworkAddressCidrRange, '/')), last(split(steps('networking').networkingSection.subnetAddressCidrRange, '/')))]",
+                        "message": "CIDR range not within virtual network CIDR range (subnet mask)."
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "azureNetAppFilesSubnetAddressPrefix",
+                  "label": "Azure NetApp Files Subnet CIDR range",
+                  "type": "Microsoft.Common.TextBox",
+                  "defaultValue": "10.0.161.0/24",
+                  "toolTip": "Specify a CIDR range for the delegated subnet within the virtual network for Azure NetApp Files [24].",
+                  "constraints": {
+                    "required": true,
+                    "validations": [
+                      {
+                        "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(2[4-8]))$",
+                        "message": "Invalid CIDR range. The address prefix must be in the range [24,28]."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').networkingSection.virtualNetworkAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('networking').networkingSection.virtualNetworkAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('networking').networkingSection.subnetAddressCidrRange, '/')), '.'), 1))), true)]",
+                        "message": "CIDR range not within virtual network CIDR range (first octet)."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').networkingSection.virtualNetworkAddressCidrRange, '/')), 16), equals(last(take(split(first(split(steps('networking').networkingSection.virtualNetworkAddressCidrRange, '/')), '.'), 2)), last(take(split(first(split(steps('networking').networkingSection.subnetAddressCidrRange, '/')), '.'), 2))), true)]",
+                        "message": "CIDR range not within virtual network CIDR range (second octet)."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('networking').networkingSection.virtualNetworkAddressCidrRange, '/')), 24), equals(last(take(split(first(split(steps('networking').networkingSection.virtualNetworkAddressCidrRange, '/')), '.'), 3)), last(take(split(first(split(steps('networking').networkingSection.subnetAddressCidrRange, '/')), '.'), 3))), true)]",
+                        "message": "CIDR range not within virtual network CIDR range (third octet)."
+                      },
+                      {
+                        "isValid": "[lessOrEquals(last(split(steps('networking').networkingSection.virtualNetworkAddressCidrRange, '/')), last(split(steps('networking').networkingSection.subnetAddressCidrRange, '/')))]",
+                        "message": "CIDR range not within virtual network CIDR range (subnet mask)."
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "flowLogsSection",
+              "label": "Network Watcher Flow Logs",
+              "type": "Microsoft.Common.Section",
+              "elements": [
+                {
+                  "name": "flowLogsDescription",
+                  "type": "Microsoft.Common.TextBlock",
+                  "options": {
+                    "text": "To support the on-going security and compliance of your landing zone, MLZ configures network watcher flow logs for virtual networks by default. Flow logs capture information about IP traffic flowing through your virtual Networks or network security groups. Flow log data can be used to troubleshoot network connectivity issues, monitor network traffic, and detect and diagnose security threats.",
+                    "link": {
+                      "label": "Click here to learn more about network watcher flow logs",
+                      "uri": "https://learn.microsoft.com/azure/network-watcher/network-watcher-overview#flow-logs"
+                    }
+                  }
+                },
+                {
+                  "name": "flowLogsType",
+                  "label": "Flow Logs Type",
+                  "type": "Microsoft.Common.DropDown",
+                  "defaultValue": "Virtual Network (recommended)",
+                  "toolTip": "Select the type of flow logs to deploy.",
+                  "constraints": {
+                    "allowedValues": [
+                      {
+                        "label": "Virtual Network (recommended)",
+                        "value": "VirtualNetwork"
+                      },
+                      {
+                        "label": "Network Security Group",
+                        "value": "NetworkSecurityGroup"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "nsgFlowLogsRetirementWarning",
+                  "type": "Microsoft.Common.InfoBox",
+                  "visible": "[equals(steps('networking').flowLogsSection.flowLogsType, 'deployNetworkSecurityGroupFlowLogs')]",
+                  "options": {
+                    "style": "Warning",
+                    "text": "NSG flow logs are scheduled for retirement on June 30, 2025. All customers should move to VNet flow logs which offer more logging and visibility. Click here learn more about NSG flow log retirement",
+                    "uri": "https://learn.microsoft.com/azure/network-watcher/nsg-flow-logs-overview"
+                  }
+                },
+                {
+                  "name": "retentionDays",
+                  "label": "Retention Days",
+                  "type": "Microsoft.Common.TextBox",
+                  "defaultValue": "30",
+                  "toolTip": "Enter the number of days to retain the network watcher flow logs. If you want to retain the data forever and do not want to apply any retention policy, set retention (days) to 0.",
+                  "constraints": {
+                    "required": true,
+                    "regex": "^36[0-5]$|^3[0-5][0-9]$|^[1-2][0-9][0-9]$|^[0-9][0-9]$|^[0-9]$",
+                    "message": "The value must be between 0 and 365."
+                  }
+                },
+                {
+                  "name": "deployTrafficAnalytics",
+                  "label": "Enable Traffic Analytics",
+                  "type": "Microsoft.Common.CheckBox",
+                  "defaultValue": false,
+                  "toolTip": "Enable this option to deploy Network Watcher Traffic Analytics."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "compliance",
+          "label": "Compliance",
+          "elements": [
+            {
+              "name": "defenderForCloud",
+              "label": "Defender for Cloud",
+              "type": "Microsoft.Common.Section",
+              "elements": [
+                {
+                  "name": "workspaceSettingsApi",
+                  "type": "Microsoft.Solutions.ArmApiControl",
+                  "request": {
+                    "method": "GET",
+                    "path": "[concat(steps('basics').scope.subscription.id, '/providers/Microsoft.Security/workspaceSettings?api-version=2017-08-01-preview')]"
+                  }
+                },
+                {
+                  "name": "deployDefender",
+                  "type": "Microsoft.Common.CheckBox",
+                  "label": "Enable Defender for Cloud?",
+                  "toolTip": "Check here to to deploy defender for cloud to the target subscription.",
+                  "constraints": {
+                    "required": false
+                  }
+                },
+                {
+                  "name": "emailSecurityContact",
+                  "type": "Microsoft.Common.TextBox",
+                  "label": "Email Address for Security Notifications",
+                  "defaultValue": "",
+                  "toolTip": "Please enter a valid email address for the security team.",
+                  "constraints": {
+                    "required": true,
+                    "regex": "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$",
+                    "validationMessage": "Email is not valid. Please re-enter."
+                  },
+                  "visible": "[steps('compliance').defenderForCloud.deployDefender]"
+                }
+              ]
+            },
+            {
+              "name": "policySection",
+              "label": "Azure Policy",
+              "type": "Microsoft.Common.Section",
+              "elements": [
+                {
+                  "name": "policySubsetDetailsTextBlock",
+                  "type": "Microsoft.Common.TextBlock",
+                  "options": {
+                    "text": "Mission Landing Zone comes bundled with a relevant subset of available Azure policies."
+                  }
+                },
+                {
+                  "name": "policyOptionalTextBlock",
+                  "type": "Microsoft.Common.TextBlock",
+                  "options": {
+                    "text": "Enabling policies is optional, but recommended."
+                  }
+                },
+                {
+                  "name": "deployPolicy",
+                  "type": "Microsoft.Common.CheckBox",
+                  "label": "Deploy policy assignments?",
+                  "toolTip": "Check here to create policy assignments for the resources created by Mission Landing Zone.",
+                  "constraints": {
+                    "required": false
+                  }
+                },
+                {
+                  "name": "policy",
+                  "type": "Microsoft.Common.DropDown",
+                  "label": "Policy Assignment",
+                  "placeholder": "",
+                  "defaultValue": "NIST SP 800-53",
+                  "toolTip": "DoD IL5 is only available in AzureUsGovernment and will switch to NISTRev4 if tried in AzureCloud.",
+                  "multiselect": false,
+                  "selectAll": false,
+                  "filter": true,
+                  "filterPlaceholder": "Filter items ...",
+                  "multiLine": true,
+                  "defaultDescription": "Select one of the bundled built-in policy assignments.",
+                  "constraints": {
+                    "allowedValues": [
+                      {
+                        "label": "NIST SP 800-53 Rev4",
+                        "description": "The US National Institute of Standards and Technology (NIST) publishes a catalog of security and privacy controls, Special Publication (SP) 800-53, for all federal information systems in the United States (except those related to national security).",
+                        "value": "NISTRev4"
+                      },
+                      {
+                        "label": "NIST SP 800-53 Rev5",
+                        "description": "The US National Institute of Standards and Technology (NIST) publishes a catalog of security and privacy controls, Special Publication (SP) 800-53, for all federal information systems in the United States (except those related to national security).",
+                        "value": "NISTRev5"
+                      },
+                      {
+                        "label": "DoD IL5",
+                        "description": "The Defense Information Systems Agency (DISA) is an agency of the US Department of Defense (DoD) that is responsible for developing and maintaining the DoD Cloud Computing Security Requirements Guide (SRG). These policies are only available for AzureUsGovernment and will switch to NISTRev4 if tried in AzureCloud.",
+                        "value": "IL5"
+                      },
+                      {
+                        "label": "CMMC",
+                        "description": "The Cybersecurity Maturity Model Certification (CMMC) is a new framework developed by the US Department of Defense (DoD) that requires formal third-party audits of defense industrial base (DIB) contractor cybersecurity practices.",
+                        "value": "CMMC"
+                      }
+                    ]
+                  },
+                  "visible": "[steps('compliance').policySection.deployPolicy]"
+                }
+              ]
+            },
+            {
+              "name": "virtualNetworkApi",
+              "type": "Microsoft.Solutions.ArmApiControl",
+              "request": {
+                "method": "GET",
+                "path": "[concat(steps('basics').hub.virtualNetwork, '?api-version=2023-09-01')]"
+              }
+            },
+            {
+              "name": "logAnalyticsWorkspacesApi",
+              "type": "Microsoft.Solutions.ArmApiControl",
+              "request": {
+                "method": "GET",
+                "path": "[concat('/subscriptions/', first(skip(split(first(map(filter(steps('compliance').virtualNetworkApi.properties.virtualNetworkPeerings, (item) => contains(item.properties.remoteVirtualNetwork.id, 'operations')), (item) => item.properties.remoteVirtualNetwork.id)), '/'), 2)), '/resourcegroups/', first(skip(split(first(map(filter(steps('compliance').virtualNetworkApi.properties.virtualNetworkPeerings, (item) => contains(item.properties.remoteVirtualNetwork.id, 'operations')), (item) => item.properties.remoteVirtualNetwork.id)), '/'), 4)), '/providers/Microsoft.OperationalInsights/workspaces?api-version=2023-09-01')]"
+              }
+            },
+            {
+              "name": "logAnalyticsWorkspace",
+              "type": "Microsoft.Common.DropDown",
+              "visible": true,
+              "label": "Existing Log Analytics Workspace for Central Logging",
+              "defaultValue": "[first(map(steps('compliance').logAnalyticsWorkspacesApi.value, (item) => item.name))]",
+              "filter": true,
+              "toolTip": "Select the existing Hub Azure firewall.",
+              "constraints": {
+                "required": true,
+                "allowedValues": "[map(steps('compliance').logAnalyticsWorkspacesApi.value, (item) => parse(concat('{\"label\":\"', item.name, '\",\"value\":\"', item.id, '\"}')))]"
+              }
+            },
+            {
+              "name": "diagnosticSettingsApi",
+              "type": "Microsoft.Solutions.ArmApiControl",
+              "request": {
+                "method": "GET",
+                "path": "[concat(steps('basics').scope.subscription.id, '/providers/Microsoft.Insights/diagnosticSettings?api-version=2021-05-01-preview')]"
+              }
+            }
+          ]
+        },
+        {
+          "name": "tags",
+          "label": "Tags",
+          "elements": [
+            {
+              "name": "tags",
+              "type": "Microsoft.Common.TagsByResource",
+              "resources": [
+                "Microsoft.Compute/diskEncryptionSets",
+                "Microsoft.KeyVault/vaults",
+                "Microsoft.ManagedIdentity/userAssignedIdentities",
+                "Microsoft.NetApp/netAppAccounts",
+                "Microsoft.Network/networkSecurityGroups",
+                "Microsoft.Network/networkWatchers",
+                "Microsoft.Network/privateEndpoints",
+                "Microsoft.Network/routeTables",
+                "Microsoft.Network/virtualNetworks",
+                "Microsoft.Resources/resourceGroups",
+                "Microsoft.Storage/storageAccounts"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "outputs": {
+      "parameters": {
+        "azureFirewallResourceId": "[steps('basics').hub.azureFirewall]",
+        "azureNetAppFilesSubnetAddressPrefix": "[steps('networking').networkingSection.azureNetAppFilesSubnetAddressPrefix]",
+        "deployActivityLogDiagnosticSetting": "[empty(steps('compliance').diagnosticSettingsApi.value)]",
+        "deployDefender": "[and(steps('compliance').defenderForCloud.deployDefender, empty(steps('compliance').defenderForCloud.workspaceSettingsApi.value))]",
+        "deployNetworkWatcherTrafficAnalytics": "[steps('networking').flowLogsSection.deployTrafficAnalytics]",
+        "deployPolicy": "[steps('compliance').policySection.deployPolicy]",
+        "domainJoinPassword": "[steps('settings').domainJoinCredentials.domainPassword]",
+        "domainJoinUserPrincipalName": "[steps('settings').domainJoinCredentials.domainUserPrincipalName]",
+        "domainName": "[steps('settings').identity.domainName]",
+        "emailSecurityContact": "[if(and(steps('compliance').defenderForCloud.deployDefender, empty(steps('compliance').defenderForCloud.workspaceSettingsApi.value)), steps('compliance').defenderForCloud.emailSecurityContact, '')]",
+        "environmentAbbreviation": "[steps('basics').naming.environment]",
+        "fileShareName": "[steps('settings').storage.fileShareName]",
+        "hubVirtualNetworkResourceId": "[steps('basics').hub.virtualNetwork]",
+        "identifier": "[steps('basics').naming.identifier]",
+        "location": "[steps('basics').scope.location.name]",
+        "logAnalyticsWorkspaceResourceId": "[steps('compliance').logAnalyticsWorkspace]",
+        "networkWatcherFlowLogsRetentionDays": "[steps('networking').flowLogsSection.retentionDays]",
+        "networkWatcherFlowLogsType": "[steps('networking').flowLogsSection.flowLogsType]",
+        "networkWatcherResourceId": "[if(not(empty(filter(steps('basics').networkWatchersApi.value, (item) => equals(item.location, steps('basics').scope.location.name)))), first(map(filter(steps('basics').networkWatchersApi.value, (item) => equals(item.location, steps('basics').scope.location.name)), (item) => item.id)), '')]",
+        "organizationalUnitPath": "[steps('settings').identity.ouPath]",
+        "policy": "[if(steps('compliance').policySection.deployPolicy, steps('compliance').policySection.policy, '')]",
+        "sku": "[steps('settings').storage.sku]",
+        "subnetAddressPrefix": "[steps('networking').networkingSection.subnetAddressCidrRange]",
+        "tags": "[steps('tags').tags]",
+        "virtualNetworkAddressPrefix": "[steps('networking').networkingSection.virtualNetworkAddressCidrRange]",
+        "workloadName": "[steps('basics').naming.workloadName]",
+        "workloadShortName": "[steps('basics').naming.workloadShortName]"
+      },
+      "kind": "Subscription",
+      "location": "[steps('basics').scope.location.name]",
+      "subscriptionId": "[steps('basics').scope.subscription.id]"
+    }
+  }
+}
