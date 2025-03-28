@@ -1,3 +1,8 @@
+/*
+Copyright (c) Microsoft Corporation.
+Licensed under the MIT License.
+*/
+
 param azureFirewallSku string
 param deploymentNameSuffix string
 param privateDnsZoneNames array
