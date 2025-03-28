@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.34.1.11899",
-      "templateHash": "11176121511800811550"
+      "templateHash": "9632906631321619433"
     }
   },
   "parameters": {
@@ -721,9 +721,7 @@
                     ],
                     "targetUrls": [],
                     "terminateTLS": false,
-                    "sourceAddresses": [
-                      "*"
-                    ],
+                    "sourceAddresses": "[parameters('virtualNetworkAddressPrefixes')]",
                     "destinationAddresses": [],
                     "sourceIpGroups": []
                   }
@@ -783,7 +781,7 @@
       "azureNetAppFiles": "[if(and(contains(parameters('fslogixStorageService'), 'AzureNetAppFiles'), not(empty(parameters('azureNetAppFilesSubnetAddressPrefix')))), createArray(createObject('name', 'AzureNetAppFiles', 'properties', createObject('addressPrefix', parameters('azureNetAppFilesSubnetAddressPrefix')))), createArray())]",
       "functionApp": "[if(equals(parameters('fslogixStorageService'), 'AzureFiles Premium'), createArray(createObject('name', 'FunctionAppOutbound', 'properties', createObject('addressPrefix', parameters('functionAppSubnetAddressPrefix')))), createArray())]"
     },
-    "firewallPolicyName": "[replace(split(parameters('hubAzureFirewallResourceId'), '/')[8], 'vnet', 'afwp')]"
+    "firewallPolicyName": "[replace(split(parameters('hubAzureFirewallResourceId'), '/')[8], 'afw', 'afwp')]"
   },
   "resources": [
     {
@@ -806,8 +804,8 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('deploy-firewall-rules-{0}-{1}', parameters('identifier'), parameters('deploymentNameSuffix'))]",
-      "subscriptionId": "[split(parameters('hubAzureFirewallResourceId'), '/')[2]]",
-      "resourceGroup": "[split(parameters('hubAzureFirewallResourceId'), '/')[4]]",
+      "subscriptionId": "[split(parameters('hubVirtualNetworkResourceId'), '/')[2]]",
+      "resourceGroup": "[split(parameters('hubVirtualNetworkResourceId'), '/')[4]]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"

@@ -491,7 +491,7 @@ var subnets = {
 }
 
 // Derive the firewall policy name from the hubAzureFirewallResourceId
-var firewallPolicyName = replace(split(hubAzureFirewallResourceId, '/')[8], 'vnet', 'afwp')
+var firewallPolicyName = replace(split(hubAzureFirewallResourceId, '/')[8], 'afw', 'afwp')
 
 module firewallRules '../../modules/firewall-rules.bicep' = if (!(empty(operationsVirtualNetworkAddressPrefix))) {
   name: 'deploy-firewall-rules-${identifier}-${deploymentNameSuffix}'
