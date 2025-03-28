@@ -218,7 +218,7 @@ module tier3 '../tier3/solution.bicep' = {
 
 // Resource group
 module rg '../../modules/resource-group.bicep' = {
-  name: 'deploy-rg-vdws-global-${deploymentNameSuffix}'
+  name: 'deploy-rg-${deploymentNameSuffix}'
   params: {
     location: location
     mlzTags: tier3.outputs.mlzTags

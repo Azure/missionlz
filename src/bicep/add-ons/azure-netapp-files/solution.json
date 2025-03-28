@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.34.44.8038",
-      "templateHash": "1559453158857761916"
+      "templateHash": "2523211654047035288"
     }
   },
   "parameters": {
@@ -5439,7 +5439,7 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
-      "name": "[format('deploy-rg-vdws-global-{0}', parameters('deploymentNameSuffix'))]",
+      "name": "[format('deploy-rg-{0}', parameters('deploymentNameSuffix'))]",
       "location": "[deployment().location]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -5566,7 +5566,7 @@
             "value": "[parameters('organizationalUnitPath')]"
           },
           "resourceGroupName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-vdws-global-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
           },
           "smbServerName": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.namingConvention.value.netAppAccountSmbServer]"
@@ -5854,7 +5854,7 @@
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-vdws-global-{0}', parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}', parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix')))]"
       ]
     }
