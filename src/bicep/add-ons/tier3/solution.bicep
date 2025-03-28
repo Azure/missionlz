@@ -170,6 +170,16 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-11-01' existing 
   scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
 }
 
+// Virtual Network Peers
+// This module outputs all the subscription IDs from the virtual network peerings of the 
+// hub virtual network to determine if the target subscription for this deployment is unique.
+module virtualNetworkPeerings 'modules/virtual-network-peerings.bicep' = {
+  name: 'get-vnet-peerings-${workloadShortName}-${deploymentNameSuffix}'
+  params: {
+    virtualNetworkPeerings: virtualNetwork.properties.virtualNetworkPeerings
+  }
+}
+
 module logic '../../modules/logic.bicep' = {
   name: 'get-logic-${workloadShortName}-${deploymentNameSuffix}'
   params: {
@@ -180,7 +190,7 @@ module logic '../../modules/logic.bicep' = {
       {
         name: workloadName
         shortName: workloadShortName
-        deployUniqueResources: false
+        deployUniqueResources: contains(virtualNetworkPeerings.outputs.subscriptionIds, subscriptionId) ? false : true
         subscriptionId: subscriptionId
         networkWatcherResourceId: networkWatcherResourceId
         nsgDiagLogs: networkSecurityGroupDiagnosticsLogs
