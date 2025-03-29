@@ -3,12 +3,12 @@ param
     [String]$ActiveDirectorySolution,
     [String]$DomainJoinPassword,
     [String]$DomainJoinUserPrincipalName,
-    [String]$FslogixContainerType,
+    [String]$FileShares,
     [String]$Netbios,
     [String]$OrganizationalUnitPath,
     [string]$ResourceManagerUri,
     [String]$SecurityPrincipalNames,
-    [String]$SmbServerLocation,
+    [String]$SmbServerNamePrefix,
     [String]$StorageAccountPrefix,
     [String]$StorageAccountResourceGroupName,
     [Int]$StorageCount,
@@ -38,17 +38,9 @@ if($StorageService -eq 'AzureNetAppFiles' -or ($StorageService -eq 'AzureFiles' 
 ##############################################################
 #  Variables
 ##############################################################
-# Convert Security Principal Names from a JSON array to a PowerShell array
+# Convert parameters values from JSON array to a PowerShell array
 [array]$SecurityPrincipalNames = $SecurityPrincipalNames.Replace('\','') | ConvertFrom-Json
-
-# Selects the appropraite share names based on the FslogixContainerType param from the deployment
-$Shares = switch($FslogixContainerType)
-{
-    'CloudCacheProfileContainer' {@('profile-containers')}
-    'CloudCacheProfileOfficeContainer' {@('office-containers','profile-containers')}
-    'ProfileContainer' {@('profile-containers')}
-    'ProfileOfficeContainer' {@('office-containers','profile-containers')}
-}
+[array]$Shares = $FileShares.Replace('\','') | ConvertFrom-Json
 
 if($StorageService -eq 'AzureNetAppFiles' -or ($StorageService -eq 'AzureFiles' -and $ActiveDirectorySolution -eq 'ActiveDirectoryDomainServices'))
 {
@@ -95,7 +87,7 @@ for($i = 0; $i -lt $StorageCount; $i++)
     {
         'AzureNetAppFiles' {
             $Credential = $DomainCredential
-            $SmbServerName = (Get-ADComputer -Filter "Name -like 'anf-$SmbServerLocation*'" -Credential $DomainCredential).Name
+            $SmbServerName = (Get-ADComputer -Filter "Name -like '$SmbServerNamePrefix*'" -Credential $DomainCredential).Name
             $FileServer = '\\' + $SmbServerName + '.' + $Domain.DNSRoot
         }
         'AzureFiles' {

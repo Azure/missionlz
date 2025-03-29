@@ -29,3 +29,4 @@ This repository has carefully planned default address prefixes configured throug
 | Add-On   | Azure Virtual Desktop, Stamp Index 7 | 10.0.154.0/23  |
 | Add-On   | Azure Virtual Desktop, Stamp Index 8 | 10.0.156.0/23  |
 | Add-On   | Azure Virtual Desktop, Stamp Index 9 | 10.0.158.0/23  |
+| Add-On   | Azure NetApp Files                   | 10.0.160.0/23  |

@@ -1,43 +1,40 @@
 param delegatedSubnetResourceId string
-param deploymentNameSuffix string
 param dnsServers string
 @secure()
 param domainJoinPassword string
 @secure()
 param domainJoinUserPrincipalName string
 param domainName string
-param existingSharedActiveDirectoryConnection bool
+param hostPoolResourceId string = ''
 param fileShares array
-param fslogixContainerType string
 param location string
-param managementVirtualMachineName string
+param mlzTags object
 param netAppAccountName string
 param netAppCapacityPoolName string
 param organizationalUnitPath string
-param resourceGroupManagement string
-param securityPrincipalNames array
-param smbServerLocation string
+param smbServerName string
 param storageSku string
-param storageService string
-param tagsNetAppAccount object
-param tagsVirtualMachines object
+param tags object
+
+var tagsNetAppAccount = union(empty(hostPoolResourceId) ? {} : {'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.NetApp/netAppAccounts'] ?? {}, mlzTags)
 
 resource netAppAccount 'Microsoft.NetApp/netAppAccounts@2021-06-01' = {
   name: netAppAccountName
   location: location
   tags: tagsNetAppAccount
   properties: {
-    activeDirectories: existingSharedActiveDirectoryConnection ? [
+    activeDirectories: [
       {
         aesEncryption: true
         domain: domainName
         dns: dnsServers
-        organizationalUnit: organizationalUnitPath
+        // domainGuid: 'string'
+        organizationalUnit: empty(organizationalUnitPath) ? 'CN=Computers' : organizationalUnitPath
         password: domainJoinPassword
-        smbServerName: 'anf-${smbServerLocation}'
+        smbServerName: smbServerName
         username: split(domainJoinUserPrincipalName, '@')[0]
       }
-    ] : null
+    ]
     encryption: {
       keySource: 'Microsoft.NetApp'
     }
@@ -129,48 +126,5 @@ resource volumes 'Microsoft.NetApp/netAppAccounts/capacityPools/volumes@2021-06-
   }
 }]
 
-module ntfsPermissions 'runCommand.bicep' = {
-  name: 'deploy-fslogix-ntfs-permissions-${deploymentNameSuffix}'
-  scope: resourceGroup(resourceGroupManagement)
-  params: {
-    domainJoinPassword: domainJoinPassword
-    domainJoinUserPrincipalName: domainJoinUserPrincipalName
-    location: location
-    name: 'Set-NtfsPermissions.ps1'
-    parameters: [
-      {
-        name: 'FslogixContainerType'
-        value:fslogixContainerType
-      }
-      {
-        name: 'ResourceManagerUri'
-        value: environment().resourceManager
-      }
-      {
-        name: 'SecurityPrincipalNames'
-        value: securityPrincipalNames
-      }
-      {
-        name: 'SmbServerLocation'
-        value: smbServerLocation
-      }
-      {
-        name: 'StorageService'
-        value: storageService
-      }
-    ]
-    script: loadTextContent('../../artifacts/Set-NtfsPermissions.ps1')
-    tags: tagsVirtualMachines
-    virtualMachineName: managementVirtualMachineName
-  }
-  dependsOn: [
-    volumes
-  ]
-}
-
-output fileShares array = contains(fslogixContainerType, 'Office') ? [
-  volumes[0].properties.mountTargets[0].smbServerFqdn
-  volumes[1].properties.mountTargets[0].smbServerFqdn
-] : [
-  volumes[0].properties.mountTargets[0].smbServerFqdn
-]
+output fileShares array = [for (fileshare, i) in fileShares: volumes[i].properties.mountTargets[0].smbServerFqdn]
+output smbServerNamePrefix string = smbServerName

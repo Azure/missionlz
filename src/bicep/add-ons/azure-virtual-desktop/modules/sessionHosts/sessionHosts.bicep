@@ -167,48 +167,6 @@ module disableAutoscale '../common/runCommand.bicep' = {
   }
 }
 
-// Set MarketPlace Terms for ESRI's ArcGIS Pro image
-module setMarketplaceTerms '../common/runCommand.bicep' = if (profile == 'ArcGISPro') {
-  name: 'set-marketplaceTerms-${deploymentNameSuffix}'
-  scope: resourceGroup(resourceGroupManagement)
-  params: {
-    location: location
-    name: 'Set-AzureMarketplaceTerms'
-    parameters: [
-      {
-        name: 'ImageOffer'
-        value: imageOffer
-      }
-      {
-        name: 'ImagePublisher'
-        value: imagePublisher
-      }
-      {
-        name: 'ImageSku'
-        value: imageSku
-      }
-      {
-        name: 'ResourceManagerUri'
-        value: environment().resourceManager
-      }
-      {
-        name: 'SubscriptionId' 
-        value: subscription().subscriptionId
-      }
-      {
-        name: 'UserAssignedidentityClientId' 
-        value: deploymentUserAssignedIdentityClientId
-      }
-    ]
-    script: loadTextContent('../../artifacts/Set-AzureMarketplaceTerms.ps1')
-    tags: tagsVirtualMachines
-    virtualMachineName: managementVirtualMachineName
-  }
-  dependsOn: [
-    disableAutoscale
-  ]
-}
-
 @batchSize(1)
 module virtualMachines 'virtualMachines.bicep' = [for i in range(1, sessionHostBatchCount): {
   name: 'deploy-vms-${i - 1}-${deploymentNameSuffix}'
@@ -267,9 +225,7 @@ module virtualMachines 'virtualMachines.bicep' = [for i in range(1, sessionHostB
   }
   dependsOn: [
     availabilitySets
-    disableAutoscale
-    setMarketplaceTerms
-  ]
+    disableAutoscale  ]
 }]
 
 module recoveryServices 'recoveryServices.bicep' = if (enableRecoveryServices && hostPoolType == 'Personal') {

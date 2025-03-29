@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.34.44.8038",
-      "templateHash": "5852423871717616438"
+      "templateHash": "4596713830579436718"
     }
   },
   "parameters": {
@@ -972,7 +972,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.34.44.8038",
-              "templateHash": "16182588157013041427"
+              "templateHash": "7231240451025538993"
             }
           },
           "parameters": {
@@ -1261,6 +1261,60 @@
             {
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
+              "name": "[format('get-vnet-peerings-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))]",
+              "location": "[deployment().location]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "virtualNetworkPeerings": {
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01').virtualNetworkPeerings]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.34.44.8038",
+                      "templateHash": "8750757346223030511"
+                    }
+                  },
+                  "parameters": {
+                    "virtualNetworkPeerings": {
+                      "type": "array"
+                    }
+                  },
+                  "variables": {
+                    "copy": [
+                      {
+                        "name": "resourceIds",
+                        "count": "[length(parameters('virtualNetworkPeerings'))]",
+                        "input": "[parameters('virtualNetworkPeerings')[copyIndex('resourceIds')].properties.remoteVirtualNetwork.id]"
+                      },
+                      {
+                        "name": "subscriptionIds",
+                        "count": "[length(variables('resourceIds'))]",
+                        "input": "[split(variables('resourceIds')[copyIndex('subscriptionIds')], '/')[2]]"
+                      }
+                    ]
+                  },
+                  "resources": [],
+                  "outputs": {
+                    "subscriptionIds": {
+                      "type": "array",
+                      "value": "[variables('subscriptionIds')]"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2022-09-01",
               "name": "[format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))]",
               "location": "[deployment().location]",
               "properties": {
@@ -1283,7 +1337,7 @@
                       {
                         "name": "[parameters('workloadName')]",
                         "shortName": "[parameters('workloadShortName')]",
-                        "deployUniqueResources": false,
+                        "deployUniqueResources": "[if(contains(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-vnet-peerings-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subscriptionIds.value, variables('subscriptionId')), false(), true())]",
                         "subscriptionId": "[variables('subscriptionId')]",
                         "networkWatcherResourceId": "[parameters('networkWatcherResourceId')]",
                         "nsgDiagLogs": "[parameters('networkSecurityGroupDiagnosticsLogs')]",
@@ -1309,7 +1363,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.34.44.8038",
-                      "templateHash": "1480438041570891919"
+                      "templateHash": "175142638699807532"
                     }
                   },
                   "parameters": {
@@ -1389,7 +1443,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.34.44.8038",
-                              "templateHash": "9228782132572352624"
+                              "templateHash": "16731041833664826355"
                             }
                           },
                           "parameters": {
@@ -1898,8 +1952,9 @@
                               "keyVaultPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').privateEndpoints), parameters('tokens').service, format('{0}-{1}', variables('resourceAbbreviations').keyVaults, parameters('tokens').service))]",
                               "logAnalyticsWorkspace": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').logAnalyticsWorkspaces)]",
                               "logAnalyticsWorkspaceDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, variables('resourceAbbreviations').logAnalyticsWorkspaces)]",
-                              "netAppAccountCapacityPool": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').netAppCapacityPools)]",
                               "netAppAccount": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').netAppAccounts)]",
+                              "netAppAccountCapacityPool": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').netAppCapacityPools)]",
+                              "netAppAccountSmbServer": "[replace(replace(replace(replace(variables('namingConvention'), parameters('tokens').resource, ''), parameters('environmentAbbreviation'), first(parameters('environmentAbbreviation'))), parameters('networkName'), ''), '-', '')]",
                               "networkSecurityGroup": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').networkSecurityGroups)]",
                               "networkSecurityGroupDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), parameters('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), parameters('tokens').service, variables('resourceAbbreviations').networkSecurityGroups)]",
                               "networkWatcher": "[replace(variables('namingConvention'), parameters('tokens').resource, variables('resourceAbbreviations').networkWatchers)]",
@@ -2093,7 +2148,10 @@
                     }
                   }
                 }
-              }
+              },
+              "dependsOn": [
+                "[subscriptionResourceId('Microsoft.Resources/deployments', format('get-vnet-peerings-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix')))]"
+              ]
             },
             {
               "condition": "[not(empty(parameters('virtualNetworkAddressPrefix')))]",

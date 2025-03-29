@@ -1,0 +1,149 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "azureFirewallResourceId": {
+            "value": ""
+        },
+        "deployActivityLogDiagnosticSetting": {
+            "value": false
+        },
+        "deployDefender": {
+            "value": false
+        },
+        "deploymentNameSuffix": {
+            "value": ""
+        },
+        "deployNetworkWatcherTrafficAnalytics": {
+            "value": false
+        },
+        "deployPolicy": {
+            "value": false
+        },
+        "domainJoinPassword": {
+            "value": ""
+        },
+        "domainJoinUserPrincipalName": {
+            "value": ""
+        },
+        "domainName": {
+            "value": ""
+        },
+        "emailSecurityContact": {
+            "value": ""
+        },
+        "environmentAbbreviation": {
+            "value": "dev"
+        },
+        "fileShareName": {
+            "value": ""
+        },
+        "hubVirtualNetworkResourceId": {
+            "value": ""
+        },
+        "identifier": {
+            "value": ""
+        },
+        "keyVaultDiagnosticLogs": {
+            "value": [
+              {
+                "category": "AuditEvent",
+                "enabled": true
+              },
+              {
+                "category": "AzurePolicyEvaluationDetails",
+                "enabled": true
+              }
+            ]
+        },
+        "keyVaultDiagnosticMetrics": {
+            "value": [
+              {
+                "category": "AllMetrics",
+                "enabled": true
+              }
+            ]
+        },
+        "location": {
+            "value": ""
+        },
+        "logAnalyticsWorkspaceResourceId": {
+            "value": ""
+        },
+        "logStorageSkuName": {
+            "value": "Standard_GRS"
+        },
+        "networkInterfaceDiagnosticsMetrics": {
+            "value": [
+              {
+                "category": "AllMetrics",
+                "enabled": true
+              }
+            ]
+        },
+        "networkSecurityGroupDiagnosticsLogs": {
+            "value": [
+              {
+                "category": "NetworkSecurityGroupEvent",
+                "enabled": true
+              },
+              {
+                "category": "NetworkSecurityGroupRuleCounter",
+                "enabled": true
+              }
+            ]
+        },
+        "networkSecurityGroupRules": {
+            "value": []
+        },
+        "networkWatcherFlowLogsRetentionDays": {
+            "value": 30
+        },
+        "networkWatcherFlowLogsType": {
+            "value": "VirtualNetwork"
+        },
+        "networkWatcherResourceId": {
+            "value": ""
+        },
+        "organizationalUnitPath": {
+            "value": ""
+        },
+        "policy": {
+            "value": "NISTRev4"
+        },
+        "sku": {
+            "value": ""
+        },
+        "subnetAddressPrefix": {
+            "value": ""
+        },
+        "tags": {
+            "value": {}
+        },
+        "virtualNetworkAddressPrefix": {
+            "value": ""
+        },
+        "virtualNetworkDiagnosticsLogs": {
+            "value": [
+              {
+                "category": "VMProtectionAlerts",
+                "enabled": true
+              }
+            ]
+        },
+        "virtualNetworkDiagnosticsMetrics": {
+            "value": [
+              {
+                "category": "AllMetrics",
+                "enabled": true
+              }
+            ]
+        },
+        "workloadName": {
+            "value": "tier3"
+        },
+        "workloadShortName": {
+            "value": "t3"
+        }
+    }
+}
