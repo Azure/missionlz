@@ -2,34 +2,23 @@ param activeDirectorySolution string
 param availability string
 param azureFilesPrivateDnsZoneResourceId string
 param deploymentNameSuffix string
-param deploymentUserAssignedIdentityClientId string
-@secure()
-param domainJoinPassword string
-@secure()
-param domainJoinUserPrincipalName string
 param enableRecoveryServices bool
 param encryptionUserAssignedIdentityResourceId string
 param fileShares array
 param fslogixShareSizeInGB int
-param fslogixContainerType string
 param hostPoolResourceId string
 param keyVaultUri string
 param location string
-param managementVirtualMachineName string
 param mlzTags object
 param namingConvention object
-param netbios string
-param organizationalUnitPath string
 param recoveryServicesVaultName string
 param resourceGroupManagement string
 param securityPrincipalObjectIds array
-param securityPrincipalNames array
 param serviceToken string
 param storageCount int
 param storageEncryptionKeyName string
 param storageIndex int
 param storageSku string
-param storageService string
 param subnetResourceId string
 param tags object
 
@@ -50,7 +39,6 @@ var storageRedundancy = availability == 'availabilityZones' ? '_ZRS' : '_LRS'
 var tagsPrivateEndpoints = union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Network/privateEndpoints'] ?? {}, mlzTags)
 var tagsStorageAccounts = union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Storage/storageAccounts'] ?? {}, mlzTags)
 var tagsRecoveryServicesVault = union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.recoveryServices/vaults'] ?? {}, mlzTags)
-var tagsVirtualMachines = union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Compute/virtualMachines'] ?? {}, mlzTags)
 
 resource storageAccounts 'Microsoft.Storage/storageAccounts@2022-09-01' = [for i in range(0, storageCount): {
   name: take('${storageAccountNamePrefix}${padLeft(i + storageIndex, 2, '0')}', 15)
@@ -202,84 +190,6 @@ resource privateDnsZoneGroups 'Microsoft.Network/privateEndpoints/privateDnsZone
   ]
 }]
 
-// Sets NTFS permissions on the file shares
-module ntfsPermissions '../runCommand.bicep' = {
-  name: 'set-ntfs-permissions-${deploymentNameSuffix}'
-  scope: resourceGroup(resourceGroupManagement)
-  params: {
-    domainJoinPassword: domainJoinPassword
-    domainJoinUserPrincipalName: domainJoinUserPrincipalName
-    location: location
-    name: 'Set-NtfsPermissions.ps1'
-    parameters: [
-      {
-        name: 'ActiveDirectorySolution'
-        value: activeDirectorySolution
-      }
-      {
-        name: 'FslogixContainerType'
-        value: fslogixContainerType
-      }
-      {
-        name: 'Netbios'
-        value: netbios
-      }
-      {
-        name: 'OrganizationalUnitPath'
-        value: organizationalUnitPath
-      }
-      {
-        name: 'ResourceManagerUri'
-        value: environment().resourceManager
-      }
-      {
-        name: 'SecurityPrincipalNames'
-        value: string(securityPrincipalNames)
-      }
-      {
-        name: 'StorageAccountPrefix'
-        value: storageAccountNamePrefix
-      }
-      {
-        name: 'StorageAccountResourceGroupName'
-        value: resourceGroup().name
-      }
-      {
-        name: 'StorageCount'
-        value: storageCount
-      }
-      {
-        name: 'StorageIndex'
-        value: storageIndex
-      }
-      {
-        name: 'StorageService'
-        value: storageService
-      }
-      {
-        name: 'StorageSuffix'
-        value: environment().suffixes.storage
-      }
-      {
-        name: 'SubscriptionId'
-        value: subscription().subscriptionId
-      }
-      {
-        name: 'UserAssignedIdentityClientId'
-        value: deploymentUserAssignedIdentityClientId
-      }
-    ]
-    script: loadTextContent('../../../artifacts/Set-NtfsPermissions.ps1')
-    tags: tagsVirtualMachines
-    virtualMachineName: managementVirtualMachineName
-  }
-  dependsOn: [
-    privateDnsZoneGroups
-    privateEndpoints
-    shares
-  ]
-}
-
 // Deploys backup items for Azure Files
 module recoveryServices 'recoveryServices.bicep' = if (enableRecoveryServices) {
   name: 'deploy-backup-${deploymentNameSuffix}'
@@ -295,9 +205,6 @@ module recoveryServices 'recoveryServices.bicep' = if (enableRecoveryServices) {
     storageIndex: storageIndex
     tagsRecoveryServicesVault: tagsRecoveryServicesVault
   }
-  dependsOn: [
-    ntfsPermissions
-  ]
 }
 
 output storageAccountNamePrefix string = storageAccountNamePrefix

@@ -14,7 +14,6 @@ param domainJoinPassword string
 param domainJoinUserPrincipalName string
 param domainName string
 param encryptionUserAssignedIdentityResourceId string
-param existingSharedActiveDirectoryConnection bool
 param fileShares array
 param fslogixContainerType string
 param fslogixShareSizeInGB int
@@ -34,7 +33,6 @@ param resourceGroupName string
 param securityPrincipalObjectIds array
 param securityPrincipalNames array
 param serviceToken string
-param smbServerLocation string
 param storageCount int
 param storageEncryptionKeyName string
 param storageIndex int
@@ -42,9 +40,6 @@ param storageSku string
 param storageService string
 param subnetResourceId string
 param tags object
-
-var tagsNetAppAccount = union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.NetApp/netAppAccounts'] ?? {}, mlzTags)
-var tagsVirtualMachines = union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Compute/virtualMachines'] ?? {}, mlzTags)
 
 resource resourceGroup 'Microsoft.Resources/resourceGroups@2023-07-01' = {
   name: resourceGroupName
@@ -81,27 +76,21 @@ module azureNetAppFiles 'azureNetAppFiles.bicep' = if (storageService == 'AzureN
   name: 'deploy-anf-${deploymentNameSuffix}'
   scope: resourceGroup
   params: {
-    existingSharedActiveDirectoryConnection: existingSharedActiveDirectoryConnection
     delegatedSubnetResourceId: filter(subnets, subnet => contains(subnet.name, 'AzureNetAppFiles'))[0].id
-    deploymentNameSuffix: deploymentNameSuffix
     dnsServers: dnsServers
     domainJoinPassword: domainJoinPassword
     domainJoinUserPrincipalName: domainJoinUserPrincipalName
     domainName: domainName
     fileShares: fileShares
-    fslogixContainerType: fslogixContainerType
+    hostPoolResourceId: hostPoolResourceId
     location: location
-    managementVirtualMachineName: managementVirtualMachineName
+    mlzTags: mlzTags
     netAppAccountName: namingConvention.netAppAccount
     netAppCapacityPoolName: namingConvention.netAppAccountCapacityPool
     organizationalUnitPath: organizationalUnitPath
-    resourceGroupManagement: resourceGroupManagement
-    securityPrincipalNames: securityPrincipalNames
-    smbServerLocation: smbServerLocation
-    storageService: storageService
+    smbServerName: namingConvention.netAppAccountSmbServer
     storageSku: storageSku
-    tagsNetAppAccount: tagsNetAppAccount
-    tagsVirtualMachines: tagsVirtualMachines
+    tags: tags
   }
 }
 
@@ -114,34 +103,117 @@ module azureFiles 'azureFiles/azureFiles.bicep' = if (storageService == 'AzureFi
     availability: availability
     azureFilesPrivateDnsZoneResourceId: azureFilesPrivateDnsZoneResourceId
     deploymentNameSuffix: deploymentNameSuffix
-    deploymentUserAssignedIdentityClientId: deploymentUserAssignedIdentityClientId
-    domainJoinPassword: domainJoinPassword
-    domainJoinUserPrincipalName: domainJoinUserPrincipalName
     enableRecoveryServices: recoveryServices
     encryptionUserAssignedIdentityResourceId: encryptionUserAssignedIdentityResourceId
     fileShares: fileShares
-    fslogixContainerType: fslogixContainerType
     fslogixShareSizeInGB: fslogixShareSizeInGB
     hostPoolResourceId: hostPoolResourceId
     keyVaultUri: keyVaultUri
     location: location
-    managementVirtualMachineName: managementVirtualMachineName
     namingConvention: namingConvention
-    netbios: netbios
-    organizationalUnitPath: organizationalUnitPath
     recoveryServicesVaultName: namingConvention.recoveryServicesVault
     resourceGroupManagement: resourceGroupManagement
-    securityPrincipalNames: securityPrincipalNames
     securityPrincipalObjectIds: securityPrincipalObjectIds
     serviceToken: serviceToken
     storageCount: storageCount
     storageEncryptionKeyName: storageEncryptionKeyName
     storageIndex: storageIndex
-    storageService: storageService
     storageSku: storageSku
     subnetResourceId: subnetResourceId
     tags: tags
     mlzTags: mlzTags
+  }
+}
+
+module ntfsPermissions 'ntfsPermissions.bicep' = {
+  scope: resourceGroup
+  params: {
+    deploymentNameSuffix: deploymentNameSuffix
+    domainJoinPassword: domainJoinPassword
+    domainJoinUserPrincipalName: domainJoinUserPrincipalName
+    location: location
+    parameters: storageService == 'AzureNetAppFiles' ? [
+      {
+        name: 'FileShares'
+        value: string(fileShares)
+      }
+      {
+        name: 'ResourceManagerUri'
+        value: environment().resourceManager
+      }
+      {
+        name: 'SecurityPrincipalNames'
+        value: string(securityPrincipalNames)
+      }
+      {
+        name: 'SmbServerNamePrefix'
+        value: azureNetAppFiles.outputs.smbServerNamePrefix
+      }
+      {
+        name: 'StorageService'
+        value: storageService
+      }
+    ] : [
+      {
+        name: 'ActiveDirectorySolution'
+        value: activeDirectorySolution
+      }
+      {
+        name: 'FslogixContainerType'
+        value: fslogixContainerType
+      }
+      {
+        name: 'Netbios'
+        value: netbios
+      }
+      {
+        name: 'OrganizationalUnitPath'
+        value: organizationalUnitPath
+      }
+      {
+        name: 'ResourceManagerUri'
+        value: environment().resourceManager
+      }
+      {
+        name: 'SecurityPrincipalNames'
+        value: string(securityPrincipalNames)
+      }
+      {
+        name: 'StorageAccountPrefix'
+        value: azureFiles.outputs.storageAccountNamePrefix
+      }
+      {
+        name: 'StorageAccountResourceGroupName'
+        value: resourceGroupName
+      }
+      {
+        name: 'StorageCount'
+        value: storageCount
+      }
+      {
+        name: 'StorageIndex'
+        value: storageIndex
+      }
+      {
+        name: 'StorageService'
+        value: storageService
+      }
+      {
+        name: 'StorageSuffix'
+        value: environment().suffixes.storage
+      }
+      {
+        name: 'SubscriptionId'
+        value: subscription().subscriptionId
+      }
+      {
+        name: 'UserAssignedIdentityClientId'
+        value: deploymentUserAssignedIdentityClientId
+      }
+    ]
+    resourceGroupName: resourceGroupManagement
+    tags: tags
+    virtualMachineName: managementVirtualMachineName
   }
 }
 

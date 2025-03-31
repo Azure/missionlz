@@ -860,6 +860,7 @@
                       "Standard_NC4as_T4_v3",
                       "Standard_NC8as_T4_v3",
                       "Standard_NV6ads_A10_v5",
+                      "Standard_NV12s_v3",
                       "Standard_NV16as_v4"
                     ],
                     "numAvailabilityZonesRequired": "[if(equals(steps('hosts').virtualMachines.availability, 'AvailabilityZones'), 3, 1)]"
@@ -894,7 +895,8 @@
                     "allowedSizes": [
                       "Standard_NC16as_T4_v3",
                       "Standard_NV12ads_A10_v5",
-                      "Standard_NV18ads_A10_v5"
+                      "Standard_NV18ads_A10_v5",
+                      "Standard_NV24s_v3"
                     ],
                     "numAvailabilityZonesRequired": "[if(equals(steps('hosts').virtualMachines.availability, 'AvailabilityZones'), 3, 1)]"
                   },
@@ -925,7 +927,9 @@
                   "constraints": {
                     "allowedSizes": [
                       "Standard_NC16as_T4_v3",
+                      "Standard_NV12s_v3",
                       "Standard_NV18ads_A10_v5",
+                      "Standard_NV24s_v3",
                       "Standard_NV32as_v4"
                     ],
                     "numAvailabilityZonesRequired": "[if(equals(steps('hosts').virtualMachines.availability, 'AvailabilityZones'), 3, 1)]"
@@ -1017,9 +1021,10 @@
                   "visible": "[not(equals(steps('hosts').identity.solution, 'MicrosoftEntraId'))]",
                   "label": "OU Path",
                   "toolTip": "Input the distinguished name of the desired organization unit for the AVD session hosts.",
+                  "defaultValue": "",
                   "placeholder": "Example: OU=pooled,OU=avd,DC=contoso,DC=com",
                   "constraints": {
-                    "required": true
+                    "required": false
                   }
                 }
               ]
@@ -1141,16 +1146,6 @@
                   "constraints": {
                     "required": true,
                     "allowedValues": "[if(equals(steps('hosts').identity.solution, 'MicrosoftEntraId'), parse('[{\"label\":\"Azure Files Premium (100K IOPS)\",\"value\":\"AzureFiles Premium\"},{\"label\":\"Azure Files Standard (20K IOPS)\",\"value\":\"AzureFiles Standard\"}]'), parse('[{\"label\":\"Azure Files Premium (100K IOPS)\",\"value\":\"AzureFiles Premium\"},{\"label\":\"Azure Files Standard (20K IOPS)\",\"value\":\"AzureFiles Standard\"},{\"label\":\"Azure NetApp Files Premium (450K IOPS)\",\"value\":\"AzureNetAppFiles Premium\"},{\"label\":\"Azure NetApp Files Standard (320K IOPS)\",\"value\":\"AzureNetAppFiles Standard\"}]'))]"
-                  }
-                },
-                {
-                  "name": "existingSharedActiveDirectoryConnection",
-                  "type": "Microsoft.Common.CheckBox",
-                  "label": "Existing shared Active Directory connection",
-                  "visible": "[contains(steps('profiles').storage.service, 'AzureNetAppFiles')]",
-                  "toolTip": "Choose whether a Shared AD Connection for Azure NetApp File exists.",
-                  "constraints": {
-                    "required": false
                   }
                 },
                 {
@@ -1771,7 +1766,6 @@
         "enableAvdInsights": "[steps('management').monitoring.enableAvdInsights]",
         "enableTelemetry": "[steps('basics').scenario.enablePartnerTelemetry]",
         "environmentAbbreviation": "[steps('basics').naming.environment]",
-        "existingSharedActiveDirectoryConnection": "[steps('profiles').storage.existingSharedActiveDirectoryConnection]",
         "existingFeedWorkspaceResourceId": "[if(empty(steps('controlPlane').workspacesApi.value), '', first(map(filter(steps('controlPlane').workspacesApi.value, (item) => and(contains(item.name, steps('basics').naming.identifier), contains(item.name, 'feed'), contains(item.name, steps('basics').naming.environment), equals(item.location, steps('basics').hub.azureFirewallApi.location))), (item) => item.id)))]",
         "fslogixShareSizeInGB": "[if(equals(steps('profiles').profileSolution, 'local'), 100, steps('profiles').storage.fileShareSize)]",
         "fslogixContainerType": "[steps('profiles').storage.fslogixContainerType]",

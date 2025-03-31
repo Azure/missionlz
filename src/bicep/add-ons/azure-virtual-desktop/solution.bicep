@@ -94,9 +94,6 @@ param enableTelemetry bool = false
 @description('The abbreviation for the target environment.')
 param environmentAbbreviation string = 'dev'
 
-@description('Determine whether the Shared Active Directory Connection for Azure NetApp Files already exists.')
-param existingSharedActiveDirectoryConnection bool = false
-
 @description('The resource ID for the existing feed workspace within a business unit or project.')
 param existingFeedWorkspaceResourceId string = ''
 
@@ -654,12 +651,11 @@ module fslogix 'modules/fslogix/fslogix.bicep' = if (deployFslogix) {
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedIdentityClientId: management.outputs.deploymentUserAssignedIdentityClientId
     deploymentUserAssignedIdentityPrincipalId: management.outputs.deploymentUserAssignedIdentityPrincipalId
-    dnsServers: string(tier3_hosts.outputs.dnsServers)
+    dnsServers: join(tier3_hosts.outputs.dnsServers, ',')
     domainJoinPassword: domainJoinPassword
     domainJoinUserPrincipalName: domainJoinUserPrincipalName
     domainName: domainName
     encryptionUserAssignedIdentityResourceId: tier3_hosts.outputs.userAssignedIdentityResourceId
-    existingSharedActiveDirectoryConnection: existingSharedActiveDirectoryConnection
     fileShares: fileShares
     fslogixContainerType: fslogixContainerType
     fslogixShareSizeInGB: fslogixShareSizeInGB
@@ -679,7 +675,6 @@ module fslogix 'modules/fslogix/fslogix.bicep' = if (deployFslogix) {
     securityPrincipalNames: map(securityPrincipals, item => item.displayName)
     securityPrincipalObjectIds: map(securityPrincipals, item => item.objectId)
     serviceToken: tier3_hosts.outputs.tokens.service
-    smbServerLocation: tier3_hosts.outputs.locationProperties.timeZone
     storageCount: storageCount
     storageEncryptionKeyName: tier3_hosts.outputs.storageEncryptionKeyName
     storageIndex: storageIndex
