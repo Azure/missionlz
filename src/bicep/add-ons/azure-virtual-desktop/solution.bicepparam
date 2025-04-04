@@ -21,11 +21,10 @@ param enableApplicationInsights = true
 param enableAvdInsights = true
 param enableTelemetry = true
 param environmentAbbreviation = 'dev'
-param existingSharedActiveDirectoryConnection = false
 param hostPoolPublicNetworkAccess = 'Enabled'
 param hostPoolType = 'Pooled'
-param hubAzureFirewallResourceId = '/subscriptions/afb59830-1fc9-44c9-bba3-04f657483578/resourceGroups/firew-rg-hub-network-va-dev/providers/Microsoft.Network/azureFirewalls/firew-afw-hub-va-dev'
-param hubVirtualNetworkResourceId = '/subscriptions/afb59830-1fc9-44c9-bba3-04f657483578/resourceGroups/firew-rg-hub-network-va-dev/providers/Microsoft.Network/virtualNetworks/firew-vnet-hub-va-dev'
+param hubAzureFirewallResourceId = 'NEEDSOMETHINGHERE'
+param hubVirtualNetworkResourceId = 'NEEDSOMETHINGHERE'
 param identifier = 'fw'
 param imageOffer = 'office-365'
 param imagePublisher = 'MicrosoftWindowsDesktop'
@@ -73,6 +72,7 @@ param policy = 'NISTRev4'
 param profile = 'Generic'
 param sessionHostCount = 3
 param sessionHostIndex = 0
+param stampIndex = 0
 param sharedServicesSubnetResourceId = '/subscriptions/3a8f043c-c15c-4a67-9410-a585a85f2109/resourceGroups/firew-rg-sharedServices-network-va-dev/providers/Microsoft.Network/virtualNetworks/firew-vnet-sharedServices-va-dev/subnets/firew-snet-sharedServices-va-dev'
 param validationEnvironment = false
 param virtualMachineAdminUsername = 'xadmin'
@@ -88,7 +88,11 @@ param virtualMachineVirtualCpuCount = 2
 param workspaceFriendlyName = 'workspace'
 param workspacePublicNetworkAccess = 'Enabled'
 param virtualNetworkAddressPrefixes = [
-  '10.0.140.0/23'
+  '10.0.1${40 + (2 * stampIndex)}.0/23'
+]
+param subnetAddressPrefixes = [
+  '10.0.1${40 + (2 * stampIndex)}.0/24'
+  '10.0.1${41 + (2 * stampIndex)}.0/26'
 ]
 param identityVirtualNetworkAddressPrefix = '10.0.130.0/24'
 param firewallRuleCollectionGroups = concat(
@@ -125,6 +129,7 @@ param firewallRuleCollectionGroups = concat(
                   '*.aadcdn.msftauth.net'
                   '*.aadcdn.msauth.net'
                   'enterpriseregistration.windows.net'
+                  'wvdstorageblob.blob.core.usgovcloudapi.net'
                 ]
                 targetUrls: []
                 terminateTLS: false
