@@ -366,6 +366,135 @@ param workspaceFriendlyName string = ''
 @description('The public network access setting on the AVD workspace either disables public network access or allows both public and private network access.')
 param workspacePublicNetworkAccess string = 'Enabled'
 
+@description('The address prefix for the operations network, to be used to allow firewall access for the AVD session hosts.')
+param operationsVirtualNetworkAddressPrefix string = '10.0.131.0/24'
+
+@description('The address prefix for the identity network, assumed network where domain controllers are deployed.   Used in firewall rule if domain services is used.')
+param identityVirtualNetworkAddressPrefix string = '10.0.130.0/24'
+
+@description('The firewall rules that will be applied to the Azure Firewall.')
+param firewallRuleCollectionGroups array = concat(
+  [ 
+    {
+      name: 'AVD-ApplicationCollectionGroup'
+      properties: {
+        priority: 300
+        ruleCollections: [
+          {
+            name: 'AVD-Endpoints'
+            priority: 110
+            ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
+            action: {
+              type: 'Allow'
+            }
+            rules: [
+              {
+                name: 'AVDManagementEndpoints'
+                ruleType: 'ApplicationRule'
+                protocols: [
+                  {
+                    protocolType: 'Https'
+                    port: 443
+                  }
+                ]
+                fqdnTags: []
+                webCategories: []
+                targetFqdns: [
+                  '*.microsoftonline.us'
+                  '*.wvd.microsoftonline.us'
+                  '*.microsoftonline.us'
+                  '*.graph.microsoft.us'
+                  '*.aadcdn.msftauth.net'
+                  '*.aadcdn.msauth.net'
+                  'enterpriseregistration.windows.net'
+                ]
+                targetUrls: []
+                terminateTLS: false
+                sourceAddresses: virtualNetworkAddressPrefixes
+                destinationAddresses: []
+                sourceIpGroups: []
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  // Conditionally add the IdentityCommunicationCollectionGroup
+  contains(activeDirectorySolution, 'DomainServices') ? [
+    {
+      name: 'IdentityCommunicationCollectionGroup'
+      properties: {
+        priority: 310
+        ruleCollections: [
+          {
+            name: 'IdentityCommunication'
+            priority: 120
+            ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
+            action: {
+              type: 'Allow'
+            }
+            rules: [
+              {
+                name: 'IdentityCommunicationRule'
+                ruleType: 'NetworkRule'
+                protocols: [
+                  {
+                    protocolType: 'Tcp'
+                    port: 53
+                  }
+                  {
+                    protocolType: 'Udp'
+                    port: 53
+                  }
+                  {
+                    protocolType: 'Tcp'
+                    port: 88
+                  }
+                  {
+                    protocolType: 'Tcp'
+                    port: 389
+                  }
+                  {
+                    protocolType: 'Udp'
+                    port: 389
+                  }
+                  {
+                    protocolType: 'Tcp'
+                    port: 445
+                  }
+                  {
+                    protocolType: 'Tcp'
+                    port: 139
+                  }
+                  {
+                    protocolType: 'Tcp'
+                    port: 135
+                  }
+                  {
+                    protocolType: 'Tcp'
+                    port: 89
+                  }
+                  {
+                    protocolType: 'Tcp'
+                    startport: 49512
+                    endport: 65535
+                  }
+                ]
+                sourceAddresses: virtualNetworkAddressPrefixes
+                destinationAddresses: [
+                  identityVirtualNetworkAddressPrefix
+                ]
+                sourceIpGroups: []
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ] : []
+)
+
 //  BATCH SESSION HOSTS
 // The following variables are used to determine the batches to deploy any number of AVD session hosts.
 var maxResourcesPerTemplateDeployment = 88 // This is the max number of session hosts that can be deployed from the sessionHosts.bicep file in each batch / for loop. Math: (800 - <Number of Static Resources>) / <Number of Looped Resources> 
@@ -438,6 +567,17 @@ var subnets = {
     : []
 }
 
+// Derive the firewall policy name from the hubAzureFirewallResourceId
+var firewallPolicyName = replace(split(hubAzureFirewallResourceId, '/')[8], 'afw', 'afwp')
+
+module firewallRules '../../modules/firewall-rules.bicep' = if (!(empty(operationsVirtualNetworkAddressPrefix))) {
+  name: 'deploy-firewall-rules-${identifier}-${deploymentNameSuffix}'
+  scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
+  params: {
+    firewallPolicyName: firewallPolicyName
+    firewallRuleCollectionGroups: firewallRuleCollectionGroups
+  }
+}
 // Gets the MLZ hub virtual network for its location and tags
 resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-11-01' existing = {
   name: split(hubVirtualNetworkResourceId, '/')[8]
