@@ -518,9 +518,12 @@ resource extension_NvidiaGpuDriverWindows 'Microsoft.Compute/virtualMachines/ext
   properties: {
     publisher: 'Microsoft.HpcCompute'
     type: 'NvidiaGpuDriverWindows'
-    typeHandlerVersion: '1.2'
+    typeHandlerVersion: '1.9'
     autoUpgradeMinorVersion: true
-    settings: {}
+    // NVv3 VM sizes require a specific driver version: https://learn.microsoft.com/azure/virtual-machines/extensions/hpccompute-gpu-windows#known-issues
+    settings: startsWith(virtualMachineSize, 'Standard_NV') && endsWith(virtualMachineSize, 's_v3') ? {
+      driverVersion: '538.46'
+    } : {}
   }
   dependsOn: [
     extension_AADLoginForWindows
