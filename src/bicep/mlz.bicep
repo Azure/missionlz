@@ -596,12 +596,12 @@ param windowsVmVersion string = 'latest'
 @description('The firewall rules that will be applied to the Azure Firewall.')
 param firewallRuleCollectionGroups array = [
   {
-    name: 'defaultApplicationCollectionGroup'
+    name: 'MLZ-ApplicationCollectionGroup'
     properties: {
       priority: 300
       ruleCollections: [
         {
-          name: 'AzureAuth'
+          name: 'MLZ-AzureAuth'
           priority: 110
           ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
           action: {
@@ -625,7 +625,15 @@ param firewallRuleCollectionGroups array = [
               ]
               targetUrls: []
               terminateTLS: false
-              sourceAddresses: ['*']
+              sourceAddresses: concat(
+                [
+                  hubVirtualNetworkAddressPrefix // Hub network
+                ],
+                [
+                  sharedServicesVirtualNetworkAddressPrefix // Shared network
+                ],
+                empty(identityVirtualNetworkAddressPrefix) ? [] : [identityVirtualNetworkAddressPrefix] // Include Identity network only if it has a value
+              )
               destinationAddresses: []
               sourceIpGroups: []
             }
@@ -635,33 +643,12 @@ param firewallRuleCollectionGroups array = [
     }
   }
   {
-    name: 'defaultNetworkCollectionGroup'
+    name: 'MLZ-NetworkCollectionGroup'
     properties: {
       priority: 200
       ruleCollections: [
         {
-          name: 'AllowAzureCloud'
-          priority: 100
-          ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
-          action: {
-            type: 'Allow'
-          }
-          rules: [
-            {
-              name: 'AzureCloud'
-              ruleType: 'NetworkRule'
-              ipProtocols: ['Any']
-              sourceAddresses: ['*']
-              sourceIpGroups: []
-              destinationAddresses: ['AzureCloud']
-              destinationIpGroups: []
-              destinationFqdns: []
-              destinationPorts: ['*']
-            }
-          ]
-        }
-        {
-          name: 'AllowMonitorToLAW'
+          name: 'MLZ-AllowMonitorToLAW'
           priority: 150
           ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
           action: {
@@ -681,7 +668,7 @@ param firewallRuleCollectionGroups array = [
                 ],
                 empty(identityVirtualNetworkAddressPrefix) ? [] : [identityVirtualNetworkAddressPrefix] // Include Identity network only if it has a value
               )
-              destinationAddresses: [cidrHost(operationsVirtualNetworkAddressPrefix, 3)] // LAW private endpoint
+              destinationAddresses: [cidrHost(operationsVirtualNetworkAddressPrefix, 3)] // LAW private endpoint network
               destinationPorts: ['443'] // HTTPS port for Azure Monitor
               sourceIpGroups: []
               destinationIpGroups: []

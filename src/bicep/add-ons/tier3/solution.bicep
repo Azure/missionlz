@@ -158,12 +158,12 @@ param workloadShortName string = 't3'
 param operationsVirtualNetworkAddressPrefix string = '10.0.131.0/24'
 param firewallRuleCollectionGroups array = [
   {
-    name: 'tier3NetworkCollectionGroup'
+    name: 'Tier3-NetworkCollectionGroup'
     properties: {
       priority: 200
       ruleCollections: [
         {
-          name: 'tier3-AllowMonitorToLAW'
+          name: 'Tier3-AllowMonitorToLAW'
           priority: 150
           ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
           action: {

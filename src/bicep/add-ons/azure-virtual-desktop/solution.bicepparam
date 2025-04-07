@@ -23,9 +23,9 @@ param enableTelemetry = true
 param environmentAbbreviation = 'dev'
 param hostPoolPublicNetworkAccess = 'Enabled'
 param hostPoolType = 'Pooled'
-param hubAzureFirewallResourceId = 'NEEDSOMETHINGHERE'
-param hubVirtualNetworkResourceId = 'NEEDSOMETHINGHERE'
-param identifier = 'fw'
+param hubAzureFirewallResourceId = '/subscriptions/afb59830-1fc9-44c9-bba3-04f657483578/resourceGroups/cln-rg-hub-network-va-dev/providers/Microsoft.Network/azureFirewalls/cln-afw-hub-va-dev'
+param hubVirtualNetworkResourceId = '/subscriptions/afb59830-1fc9-44c9-bba3-04f657483578/resourceGroups/cln-rg-hub-network-va-dev/providers/Microsoft.Network/virtualNetworks/cln-vnet-hub-va-dev'
+param identifier = 'cln'
 param imageOffer = 'office-365'
 param imagePublisher = 'MicrosoftWindowsDesktop'
 param imageSku = 'win11-22h2-avd-m365'
@@ -66,14 +66,14 @@ param networkSecurityGroupDiagnosticsLogs = [
 ]
 param networkWatcherFlowLogsRetentionDays = 30
 param networkWatcherFlowLogsType = 'VirtualNetwork'
-param networkWatcherResourceId = '/subscriptions/afb59830-1fc9-44c9-bba3-04f657483578/resourceGroups/firew-rg-hub-network-va-dev/providers/Microsoft.Network/networkWatchers/firew-nw-hub-va-dev'
-param operationsLogAnalyticsWorkspaceResourceId = '/subscriptions/6d2cdf2f-3fbe-4679-95ba-4e8b7d9aed24/resourceGroups/firew-rg-operations-network-va-dev/providers/Microsoft.OperationalInsights/workspaces/firew-log-operations-va-dev'
+param networkWatcherResourceId = '/subscriptions/afb59830-1fc9-44c9-bba3-04f657483578/resourceGroups/cln-rg-hub-network-va-dev/providers/Microsoft.Network/networkWatchers/cln-nw-hub-va-dev'
+param operationsLogAnalyticsWorkspaceResourceId = '/subscriptions/6d2cdf2f-3fbe-4679-95ba-4e8b7d9aed24/resourceGroups/cln-rg-operations-network-va-dev/providers/Microsoft.OperationalInsights/workspaces/cln-log-operations-va-dev'
 param policy = 'NISTRev4'
 param profile = 'Generic'
 param sessionHostCount = 3
 param sessionHostIndex = 0
 param stampIndex = 0
-param sharedServicesSubnetResourceId = '/subscriptions/3a8f043c-c15c-4a67-9410-a585a85f2109/resourceGroups/firew-rg-sharedServices-network-va-dev/providers/Microsoft.Network/virtualNetworks/firew-vnet-sharedServices-va-dev/subnets/firew-snet-sharedServices-va-dev'
+param sharedServicesSubnetResourceId = '/subscriptions/3a8f043c-c15c-4a67-9410-a585a85f2109/resourceGroups/cln-rg-sharedServices-network-va-dev/providers/Microsoft.Network/virtualNetworks/cln-vnet-sharedServices-va-dev/subnets/cln-snet-sharedServices-va-dev'
 param validationEnvironment = false
 param virtualMachineAdminUsername = 'xadmin'
 param virtualMachineAdminPassword = ''
@@ -83,7 +83,7 @@ param securityPrincipals = [
     objectId: '07fbc372-4ad5-4bbb-847e-b19366b6bf9d'
   }
 ]
-param privateLinkScopeResourceId = '/subscriptions/6d2cdf2f-3fbe-4679-95ba-4e8b7d9aed24/resourceGroups/firew-rg-operations-network-va-dev/providers/microsoft.insights/privateLinkScopes/firew-pls-operations-va-dev'
+param privateLinkScopeResourceId = '/subscriptions/6d2cdf2f-3fbe-4679-95ba-4e8b7d9aed24/resourceGroups/cln-rg-operations-network-va-dev/providers/microsoft.insights/privateLinkScopes/cln-pls-operations-va-dev'
 param virtualMachineVirtualCpuCount = 2
 param workspaceFriendlyName = 'workspace'
 param workspacePublicNetworkAccess = 'Enabled'
@@ -95,125 +95,115 @@ param subnetAddressPrefixes = [
   '10.0.1${41 + (2 * stampIndex)}.0/26'
 ]
 param identityVirtualNetworkAddressPrefix = '10.0.130.0/24'
-param firewallRuleCollectionGroups = concat(
-  [ 
-    {
-      name: 'AVD-ApplicationCollectionGroup'
-      properties: {
-        priority: 300
-        ruleCollections: [
-          {
-            name: 'AVD-Endpoints'
-            priority: 110
-            ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
-            action: {
-              type: 'Allow'
+param firewallRuleCollectionGroups = [
+  {
+    name: 'AVD-ApplicationCollectionGroup'
+    properties: {
+      priority: 300
+      ruleCollections: [
+        {
+          name: 'ApplicationRules'
+          priority: 110
+          ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
+          action: {
+            type: 'Allow'
+          }
+          rules: [
+            {
+              name: 'AVD-RequiredEndpoints'
+              ruleType: 'ApplicationRule'
+              protocols: [
+                {
+                  protocolType: 'Https'
+                  port: 443
+                }
+              ]
+              fqdnTags: []
+              webCategories: []
+              targetFqdns: [
+                '*.microsoftonline.us'
+                '*.wvd.azure.us'
+                '*.microsoftonline.us'
+                '*.graph.microsoft.us'
+                '*.aadcdn.msftauth.net'
+                '*.aadcdn.msauth.net'
+                'enterpriseregistration.windows.net'
+                'wvdportalstorageblob.blob.core.usgovcloudapi.net'
+                'management.usgovcloudapi.net'
+                'gcs.monitoring.core.usgovcloudapi.net'
+                'mrsglobalstugviffx.blob.core.usgovcloudapi.net'
+              ]
+              targetUrls: []
+              terminateTLS: false
+              sourceAddresses: virtualNetworkAddressPrefixes
+              destinationAddresses: []
+              sourceIpGroups: []
             }
-            rules: [
+          ]
+        }
+      ]
+    }
+  }
+  {
+    name: 'AVD-NetworkCollectionGroup'
+    properties: {
+      priority: 310
+      ruleCollections: [
+        {
+          name: 'NetworkRules'
+          priority: 120
+          ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
+          action: {
+            type: 'Allow'
+          }
+          rules: concat(
+            [
               {
-                name: 'AVDManagementEndpoints'
-                ruleType: 'ApplicationRule'
-                protocols: [
-                  {
-                    protocolType: 'Https'
-                    port: 443
-                  }
+                name: 'KMS-Endpoint'
+                ruleType: 'NetworkRule'
+                ipProtocols: [
+                  'Tcp'
                 ]
-                fqdnTags: []
-                webCategories: []
-                targetFqdns: [
-                  '*.microsoftonline.us'
-                  '*.wvd.microsoftonline.us'
-                  '*.microsoftonline.us'
-                  '*.graph.microsoft.us'
-                  '*.aadcdn.msftauth.net'
-                  '*.aadcdn.msauth.net'
-                  'enterpriseregistration.windows.net'
-                  'wvdstorageblob.blob.core.usgovcloudapi.net'
-                ]
-                targetUrls: []
-                terminateTLS: false
                 sourceAddresses: virtualNetworkAddressPrefixes
                 destinationAddresses: []
+                destinationFqdns: [
+                  'azkms.core.usgovcloudapi.net'
+                ]
+                destinationPorts: [
+                  '1688'
+                ]
                 sourceIpGroups: []
+                destinationIpGroups: []
               }
-            ]
-          }
-        ]
-      }
-    }
-  ],
-  // Conditionally add the IdentityCommunicationCollectionGroup
-  contains(activeDirectorySolution, 'DomainServices') ? [
-    {
-      name: 'IdentityCommunicationCollectionGroup'
-      properties: {
-        priority: 310
-        ruleCollections: [
-          {
-            name: 'IdentityCommunication'
-            priority: 120
-            ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
-            action: {
-              type: 'Allow'
-            }
-            rules: [
+            ],
+            contains(activeDirectorySolution, 'DomainServices') ? [
               {
-                name: 'IdentityCommunicationRule'
+                name: 'ADCommunicationRule'
                 ruleType: 'NetworkRule'
-                protocols: [
-                  {
-                    protocolType: 'Tcp'
-                    port: 53
-                  }
-                  {
-                    protocolType: 'Udp'
-                    port: 53
-                  }
-                  {
-                    protocolType: 'Tcp'
-                    port: 88
-                  }
-                  {
-                    protocolType: 'Tcp'
-                    port: 389
-                  }
-                  {
-                    protocolType: 'Udp'
-                    port: 389
-                  }
-                  {
-                    protocolType: 'Tcp'
-                    port: 445
-                  }
-                  {
-                    protocolType: 'Tcp'
-                    port: 139
-                  }
-                  {
-                    protocolType: 'Tcp'
-                    port: 135
-                  }
-                  {
-                    protocolType: 'Tcp'
-                    port: 89
-                  }
-                  {
-                    protocolType: 'Tcp'
-                    startport: 49512
-                    endport: 65535
-                  }
+                ipProtocols: [
+                  'Tcp'
+                  'Udp'
                 ]
                 sourceAddresses: virtualNetworkAddressPrefixes
                 destinationAddresses: [
                   identityVirtualNetworkAddressPrefix
                 ]
+                destinationPorts: [
+                  '53'
+                  '88'
+                  '389'
+                  '445'
+                  '139'
+                  '135'
+                  '89'
+                ]
                 sourceIpGroups: []
+                destinationIpGroups: []
               }
-            ]
-          }
-        ]
-      }
+            ] : []
+          )
+        }
+      ]
     }
-  ] : [] 
-)
+  }
+]

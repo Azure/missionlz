@@ -18,7 +18,7 @@ param identitySubscriptionId = 'd9cb6670-f9bf-416f-aa7b-2d6936edcaeb'
 param location = 'usgovvirginia'
 param operationsSubscriptionId = '6d2cdf2f-3fbe-4679-95ba-4e8b7d9aed24'
 param policy = 'NISTRev5'
-param resourcePrefix = 'firew'
+param resourcePrefix = 'cln'
 param sharedServicesSubscriptionId = '3a8f043c-c15c-4a67-9410-a585a85f2109'
 param windowsVmAdminUsername = 'xadmin'
 param windowsVmCreateOption = 'FromImage'
@@ -35,12 +35,12 @@ param hubVirtualNetworkAddressPrefix = '10.0.128.0/23'
 param sharedServicesVirtualNetworkAddressPrefix = '10.0.132.0/24'
 param firewallRuleCollectionGroups = [
   {
-    name: 'MLZApplicationCollectionGroup'
+    name: 'MLZ-ApplicationCollectionGroup'
     properties: {
       priority: 300
       ruleCollections: [
         {
-          name: 'AzureAuth'
+          name: 'MLZ-AzureAuth'
           priority: 110
           ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
           action: {
@@ -64,7 +64,15 @@ param firewallRuleCollectionGroups = [
               ]
               targetUrls: []
               terminateTLS: false
-              sourceAddresses: ['*']
+              sourceAddresses: concat(
+                [
+                  hubVirtualNetworkAddressPrefix // Hub network
+                ],
+                [
+                  sharedServicesVirtualNetworkAddressPrefix // Shared network
+                ],
+                empty(identityVirtualNetworkAddressPrefix) ? [] : [identityVirtualNetworkAddressPrefix] // Include Identity network only if it has a value
+              )
               destinationAddresses: []
               sourceIpGroups: []
             }
@@ -74,12 +82,12 @@ param firewallRuleCollectionGroups = [
     }
   }
   {
-    name: 'MLZNetworkCollectionGroup'
+    name: 'MLZ-NetworkCollectionGroup'
     properties: {
       priority: 200
       ruleCollections: [
         {
-          name: 'AllowMonitorToLAW'
+          name: 'MLZ-AllowMonitorToLAW'
           priority: 150
           ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
           action: {
@@ -87,7 +95,7 @@ param firewallRuleCollectionGroups = [
           }
           rules: [
             {
-              name: 'AllowMonitorToLAW'
+              name: 'MLZ-AllowMonitorToLAW'
               ruleType: 'NetworkRule'
               ipProtocols: ['Tcp']
               sourceAddresses: concat(
