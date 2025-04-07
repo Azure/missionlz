@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.34.44.8038",
-      "templateHash": "15201061606525776429"
+      "templateHash": "12889805163406974965"
     }
   },
   "parameters": {
@@ -46,7 +46,7 @@
     },
     "avdConfigurationZipFileName": {
       "type": "string",
-      "defaultValue": "Configuration_1.0.02790.438.zip",
+      "defaultValue": "Configuration_1.0.02990.697.zip",
       "metadata": {
         "description": "The file name for the ZIP file containing the AVD agents and DSC configuration."
       }
@@ -12361,7 +12361,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.34.44.8038",
-              "templateHash": "9348818253539384386"
+              "templateHash": "1585180554903568356"
             }
           },
           "parameters": {
@@ -13080,7 +13080,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.34.44.8038",
-                      "templateHash": "2092488379835814829"
+                      "templateHash": "14609002523514408540"
                     }
                   },
                   "parameters": {
@@ -13627,9 +13627,9 @@
                       "properties": {
                         "publisher": "Microsoft.HpcCompute",
                         "type": "NvidiaGpuDriverWindows",
-                        "typeHandlerVersion": "1.2",
+                        "typeHandlerVersion": "1.9",
                         "autoUpgradeMinorVersion": true,
-                        "settings": {}
+                        "settings": "[if(and(startsWith(parameters('virtualMachineSize'), 'Standard_NV'), endsWith(parameters('virtualMachineSize'), 's_v3')), createObject('driverVersion', '538.46'), createObject())]"
                       },
                       "dependsOn": [
                         "extension_AADLoginForWindows",
