@@ -163,7 +163,7 @@ param firewallRuleCollectionGroups array = [
       priority: 200
       ruleCollections: [
         {
-          name: 'Tier3-AllowMonitorToLAW'
+          name: 'AllowMonitorToLAW'
           priority: 150
           ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
           action: {
