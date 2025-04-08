@@ -601,7 +601,7 @@ param firewallRuleCollectionGroups array = [
       priority: 300
       ruleCollections: [
         {
-          name: 'MLZ-AzureAuth'
+          name: 'AzureAuth'
           priority: 110
           ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
           action: {
@@ -648,7 +648,7 @@ param firewallRuleCollectionGroups array = [
       priority: 200
       ruleCollections: [
         {
-          name: 'MLZ-AllowMonitorToLAW'
+          name: 'AllowMonitorToLAW'
           priority: 150
           ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
           action: {
