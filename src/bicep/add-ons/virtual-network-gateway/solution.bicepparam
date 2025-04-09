@@ -30,7 +30,7 @@ param vnetResourceIdList = [
 param azureFirewallResourceId = '/subscriptions/afb59830-1fc9-44c9-bba3-04f657483578/resourceGroups/cln-rg-hub-network-va-dev/providers/Microsoft.Network/azureFirewalls/cln-afw-hub-va-dev'
 param vgwRouteTableName = 'cln-vgw-rt-hub-va-dev'
 param gatewaySubnetName = 'GatewaySubnet'
-param hubVnetRouteTableResourceId = '/subscriptions/afb59830-1fc9-44c9-bba3-04f657483578/resourceGroups/cln-rg-hub-network-va-dev/providers/Microsoft.Network/virtualNetworks/cln-vnet-hub-va-dev'
+param hubVnetRouteTableResourceId = '/subscriptions/afb59830-1fc9-44c9-bba3-04f657483578/resourceGroups/cln-rg-hub-network-va-dev/providers/Microsoft.Network/routeTables/cln-vgw-rt-hub-va-dev'
 param firewallRuleCollectionGroups = [
   {
     name: 'VGW-NetworkCollectionGroup'
