@@ -25,7 +25,7 @@ param vnetResourceIdList = [
   '/subscriptions/6d2cdf2f-3fbe-4679-95ba-4e8b7d9aed24/resourceGroups/cln-rg-operations-network-va-dev/providers/Microsoft.Network/virtualNetworks/cln-vnet-operations-va-dev'
   '/subscriptions/3a8f043c-c15c-4a67-9410-a585a85f2109/resourceGroups/cln-rg-sharedServices-network-va-dev/providers/Microsoft.Network/virtualNetworks/cln-vnet-sharedServices-va-dev'
 ]
-param azureFirewallResourceId = '/subscriptions/afb59830-1fc9-44c9-bba3-04f657483578/resourceGroups/cln-rg-hub-network-va-dev/providers/Microsoft.Network/firewallPolicies/cln-afwp-hub-va-dev'
+param azureFirewallResourceId = '/subscriptions/afb59830-1fc9-44c9-bba3-04f657483578/resourceGroups/cln-rg-hub-network-va-dev/providers/Microsoft.Network/azureFirewalls/cln-afw-hub-va-dev'
 param vgwRouteTableName = 'cln-vgw-rt-hub-va-dev'
 param gatewaySubnetName = 'GatewaySubnet'
 param hubVnetRouteTableResourceId = '/subscriptions/afb59830-1fc9-44c9-bba3-04f657483578/resourceGroups/cln-rg-hub-network-va-dev/providers/Microsoft.Network/virtualNetworks/cln-vnet-hub-va-dev'
