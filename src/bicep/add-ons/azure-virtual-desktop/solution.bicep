@@ -301,7 +301,7 @@ param sharedServicesSubnetResourceId string
 @maxValue(9)
 @minValue(0)
 @description('The stamp index allows for multiple AVD stamps with the same business unit or project to support different use cases. For example, "0" could be used for an office workers host pool and "1" could be used for a developers host pool within the "finance" business unit.')
-param stampIndex int = 0
+param stampIndex int = 1
 
 @maxValue(100)
 @minValue(0)

@@ -40,7 +40,7 @@ param firewallRuleCollectionGroups = [
       priority: 300
       ruleCollections: [
         {
-          name: 'MLZ-AzureAuth'
+          name: 'AzureAuth'
           priority: 110
           ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
           action: {
@@ -87,7 +87,7 @@ param firewallRuleCollectionGroups = [
       priority: 200
       ruleCollections: [
         {
-          name: 'MLZ-AllowMonitorToLAW'
+          name: 'AzureMonitor'
           priority: 150
           ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
           action: {
@@ -95,7 +95,7 @@ param firewallRuleCollectionGroups = [
           }
           rules: [
             {
-              name: 'MLZ-AllowMonitorToLAW'
+              name: 'AllowMonitorToLAW'
               ruleType: 'NetworkRule'
               ipProtocols: ['Tcp']
               sourceAddresses: concat(

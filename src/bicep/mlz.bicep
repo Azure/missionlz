@@ -648,7 +648,7 @@ param firewallRuleCollectionGroups array = [
       priority: 200
       ruleCollections: [
         {
-          name: 'AllowMonitorToLAW'
+          name: 'AzureMonitor'
           priority: 150
           ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
           action: {
@@ -680,6 +680,7 @@ param firewallRuleCollectionGroups array = [
     }
   }
 ]
+
 
 var firewallClientPrivateIpAddress = firewallClientUsableIpAddresses[3]
 var firewallClientUsableIpAddresses = [for i in range(0, 4): cidrHost(firewallClientSubnetAddressPrefix, i)]
