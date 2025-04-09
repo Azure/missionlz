@@ -122,16 +122,17 @@ param firewallRuleCollectionGroups = [
               webCategories: []
               targetFqdns: [
                 '*.microsoftonline.us'
-                '*.wvd.azure.us'
-                '*.microsoftonline.us'
-                '*.graph.microsoft.us'
-                '*.aadcdn.msftauth.net'
-                '*.aadcdn.msauth.net'
-                'enterpriseregistration.windows.net'
-                'wvdportalstorageblob.blob.core.usgovcloudapi.net'
-                'management.usgovcloudapi.net'
-                'gcs.monitoring.core.usgovcloudapi.net'
-                'mrsglobalstugviffx.blob.core.usgovcloudapi.net'
+                  '*.graph.microsoft.us'
+                  '*.aadcdn.msftauth.net'
+                  '*.aadcdn.msauth.net'
+                  'enterpriseregistration.windows.net'
+                  'management.usgovcloudapi.net'
+                  '*.blob.core.usgovcloudapi.net'
+                  '*.monitoring.core.usgovcloudapi.net'
+                  '*.monitor.core.usgovcloudapi.net'
+                  '*.guestconfiguration.azure.us'
+                  '*.digicert.com'
+                  '*.monitor.azure.us'
               ]
               targetUrls: []
               terminateTLS: false
@@ -171,6 +172,42 @@ param firewallRuleCollectionGroups = [
                 ]
                 destinationPorts: [
                   '1688'
+                ]
+                sourceIpGroups: []
+                destinationIpGroups: []
+              }
+            ],
+            [
+              {
+                name: 'TimeSync'
+                ruleType: 'NetworkRule'
+                ipProtocols: [
+                  'Udp'
+                ]
+                sourceAddresses: virtualNetworkAddressPrefixes
+                destinationAddresses: []
+                destinationFqdns: [
+                  'time.windows.com'
+                ]
+                destinationPorts: [
+                  '123'
+                ]
+                sourceIpGroups: []
+                destinationIpGroups: []
+              }
+            ],
+            [
+              {
+                name: 'AzureCloudforLogin'
+                ruleType: 'NetworkRule'
+                ipProtocols: [
+                  'Tcp'
+                ]
+                sourceAddresses: virtualNetworkAddressPrefixes
+                destinationAddresses: ['AzureActiveDirectory']
+                destinationFqdns: []
+                destinationPorts: [
+                  '443'
                 ]
                 sourceIpGroups: []
                 destinationIpGroups: []

@@ -20,7 +20,12 @@ param localNetworkGatewayName string
 param localGatewayIpAddress string
 
 @description('Azure address prefixes allowed to communicate to VPN Gateway to on-premises network')
-param allowedAzureAddressPrefixes array
+param allowedAzureAddressPrefixes array = [
+  '10.0.130.0/24'
+  '10.0.131.0/24'
+  '10.0.132.0/24'
+  '10.0.128.0/23'
+]
 
 @description('Address prefixes of the Local Network which will be routable through the VPN Gateway')
 param localAddressPrefixes array
@@ -59,6 +64,51 @@ param gatewaySubnetName string = 'GatewaySubnet'
 
 @description('The name of the hub virtual network route table')
 param hubVnetRouteTableResourceId string
+
+param firewallRuleCollectionGroups array = [
+  {
+    name: 'VGW-NetworkCollectionGroup'
+    properties: {
+      priority: 200
+      ruleCollections: [
+        {
+          name: 'AllowAllTraffic'
+          priority: 150
+          ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
+          action: {
+            type: 'Allow'
+          }
+          rules: [
+            {
+              name: 'AllowAzureToOnPrem'
+              ruleType: 'NetworkRule'
+              ipProtocols: ['Any']
+              sourceAddresses: [localAddressPrefixes]
+              destinationAddresses: [allowedAzureAddressPrefixes]
+              destinationPorts: ['*']
+              sourceIpGroups: []
+              destinationIpGroups: []
+              destinationFqdns: []
+            }
+            {
+              name: 'AllowOnPremToAzure'
+              ruleType: 'NetworkRule'
+              ipProtocols: ['Any']
+              sourceAddresses: [allowedAzureAddressPrefixes]
+              destinationAddresses: [localAddressPrefixes]
+              destinationPorts: ['*']
+              sourceIpGroups: []
+              destinationIpGroups: []
+              destinationFqdns: []
+            }
+          ]
+        }
+      ]
+    }
+  }
+]
+
+//get the hub vnet route table name from the resource id
 var hubVnetRouteTableName = split(hubVnetRouteTableResourceId, '/')[8]
 
 // Conditional parameter assignment for VPN connection module
@@ -67,6 +117,22 @@ var vpnKeyVaultUri = !useSharedKey ? keyVaultCertificateUri : ''
 
 // Parameter validation
 var isValidUri = contains(keyVaultCertificateUri, 'https://') && contains(keyVaultCertificateUri, '/secrets/')
+
+resource azureFirewall 'Microsoft.Network/azureFirewalls@2020-11-01' existing = {
+  name: split(azureFirewallResourceId, '/')[8]
+  scope: resourceGroup(split(azureFirewallResourceId, '/')[2], split(azureFirewallResourceId, '/')[4])
+}
+
+// Retrieve the Firewall Policy Resource ID
+var firewallPolicyResourceId = azureFirewall.properties.firewallPolicy.id
+module firewallRules '../../modules/firewall-rules.bicep' = {
+  name: 'deploy-vgw-firewall-rules-${deploymentNameSuffix}'
+  scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
+  params: {
+    firewallPolicyName: split(firewallPolicyResourceId, '/')[8]
+    firewallRuleCollectionGroups: firewallRuleCollectionGroups
+  }
+}
 
 // Conditional validation to ensure either sharedKey or keyVaultCertificateUri is used correctly
 resource validateKeyOrUri 'Microsoft.Resources/deployments@2021-04-01' = if (!useSharedKey && !isValidUri) {
@@ -176,7 +242,6 @@ module updateHubPeerings 'modules/vnet-peerings.bicep' = {
     peeringsList: retrieveHubVnetInfo.outputs.peeringsData.peeringsList
   }
   dependsOn: [
-    retrieveHubVnetInfo
     retrieveVnetInfo
   ]
 }
@@ -254,23 +319,5 @@ module associateRouteTable 'modules/associate-route-table.bicep' = {
     subnetName: gatewaySubnetName
     subnetAddressPrefix: retrieveRouteTableInfo.outputs.subnetAddressPrefix
   }
-  dependsOn: [
-    createRouteTable
-  ]
 }
 
-
-// Create the firewall rules
-module firewallRules 'modules/firewall-rules.bicep' = {
-  name: 'firewallRules-${deploymentNameSuffix}'
-  scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
-  params: {
-    allowVnetAddressSpaces: allowedAzureAddressPrefixes
-    onPremAddressSpaces: localAddressPrefixes
-    firewallPolicyId: retrieveRouteTableInfo.outputs.firewallPolicyId
-    priorityValue: 300
-  }
-  dependsOn: [
-    associateRouteTable
-  ]
-}

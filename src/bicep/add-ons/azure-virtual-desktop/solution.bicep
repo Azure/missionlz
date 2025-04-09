@@ -373,129 +373,155 @@ param operationsVirtualNetworkAddressPrefix string = '10.0.131.0/24'
 param identityVirtualNetworkAddressPrefix string = '10.0.130.0/24'
 
 @description('The firewall rules that will be applied to the Azure Firewall.')
-param firewallRuleCollectionGroups array = concat(
-  [ 
-    {
-      name: 'AVD-ApplicationCollectionGroup'
-      properties: {
-        priority: 300
-        ruleCollections: [
-          {
-            name: 'AVD-Endpoints'
-            priority: 110
-            ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
-            action: {
-              type: 'Allow'
-            }
-            rules: [
-              {
-                name: 'AVDManagementEndpoints'
-                ruleType: 'ApplicationRule'
-                protocols: [
-                  {
-                    protocolType: 'Https'
-                    port: 443
-                  }
-                ]
-                fqdnTags: []
-                webCategories: []
-                targetFqdns: [
-                  '*.microsoftonline.us'
-                  '*.wvd.microsoftonline.us'
-                  '*.microsoftonline.us'
+param firewallRuleCollectionGroups array = [
+  {
+    name: 'AVD-ApplicationCollectionGroup'
+    properties: {
+      priority: 300
+      ruleCollections: [
+        {
+          name: 'ApplicationRules'
+          priority: 110
+          ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
+          action: {
+            type: 'Allow'
+          }
+          rules: [
+            {
+              name: 'AVD-RequiredEndpoints'
+              ruleType: 'ApplicationRule'
+              protocols: [
+                {
+                  protocolType: 'Https'
+                  port: 443
+                }
+              ]
+              fqdnTags: []
+              webCategories: []
+              targetFqdns: [
+                '*.microsoftonline.us'
                   '*.graph.microsoft.us'
                   '*.aadcdn.msftauth.net'
                   '*.aadcdn.msauth.net'
                   'enterpriseregistration.windows.net'
-                  'wvdstorageblob.blob.core.usgovcloudapi.net'
                   'management.usgovcloudapi.net'
+                  '*.blob.core.usgovcloudapi.net'
+                  '*.monitoring.core.usgovcloudapi.net'
+                  '*.monitor.core.usgovcloudapi.net'
+                  '*.guestconfiguration.azure.us'
+                  '*.digicert.com'
+                  '*.monitor.azure.us'
+              ]
+              targetUrls: []
+              terminateTLS: false
+              sourceAddresses: virtualNetworkAddressPrefixes
+              destinationAddresses: []
+              sourceIpGroups: []
+            }
+          ]
+        }
+      ]
+    }
+  }
+  {
+    name: 'AVD-NetworkCollectionGroup'
+    properties: {
+      priority: 310
+      ruleCollections: [
+        {
+          name: 'NetworkRules'
+          priority: 120
+          ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
+          action: {
+            type: 'Allow'
+          }
+          rules: concat(
+            [
+              {
+                name: 'KMS-Endpoint'
+                ruleType: 'NetworkRule'
+                ipProtocols: [
+                  'Tcp'
                 ]
-                targetUrls: []
-                terminateTLS: false
                 sourceAddresses: virtualNetworkAddressPrefixes
                 destinationAddresses: []
+                destinationFqdns: [
+                  'azkms.core.usgovcloudapi.net'
+                ]
+                destinationPorts: [
+                  '1688'
+                ]
                 sourceIpGroups: []
+                destinationIpGroups: []
               }
-            ]
-          }
-        ]
-      }
-    }
-  ],
-  // Conditionally add the IdentityCommunicationCollectionGroup
-  contains(activeDirectorySolution, 'DomainServices') ? [
-    {
-      name: 'IdentityCommunicationCollectionGroup'
-      properties: {
-        priority: 310
-        ruleCollections: [
-          {
-            name: 'IdentityCommunication'
-            priority: 120
-            ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
-            action: {
-              type: 'Allow'
-            }
-            rules: [
+            ],
+            [
               {
-                name: 'IdentityCommunicationRule'
+                name: 'TimeSync'
                 ruleType: 'NetworkRule'
-                protocols: [
-                  {
-                    protocolType: 'Tcp'
-                    port: 53
-                  }
-                  {
-                    protocolType: 'Udp'
-                    port: 53
-                  }
-                  {
-                    protocolType: 'Tcp'
-                    port: 88
-                  }
-                  {
-                    protocolType: 'Tcp'
-                    port: 389
-                  }
-                  {
-                    protocolType: 'Udp'
-                    port: 389
-                  }
-                  {
-                    protocolType: 'Tcp'
-                    port: 445
-                  }
-                  {
-                    protocolType: 'Tcp'
-                    port: 139
-                  }
-                  {
-                    protocolType: 'Tcp'
-                    port: 135
-                  }
-                  {
-                    protocolType: 'Tcp'
-                    port: 89
-                  }
-                  {
-                    protocolType: 'Tcp'
-                    startport: 49512
-                    endport: 65535
-                  }
+                ipProtocols: [
+                  'Udp'
+                ]
+                sourceAddresses: virtualNetworkAddressPrefixes
+                destinationAddresses: []
+                destinationFqdns: [
+                  'time.windows.com'
+                ]
+                destinationPorts: [
+                  '123'
+                ]
+                sourceIpGroups: []
+                destinationIpGroups: []
+              }
+            ],
+            contains(activeDirectorySolution, 'MicrosoftEntraId') ? [
+              {
+                name: 'AzureCloudforLogin'
+                ruleType: 'NetworkRule'
+                ipProtocols: [
+                  'Tcp'
+                ]
+                sourceAddresses: virtualNetworkAddressPrefixes
+                destinationAddresses: ['AzureActiveDirectory']
+                destinationFqdns: []
+                destinationPorts: [
+                  '443'
+                ]
+                sourceIpGroups: []
+                destinationIpGroups: []
+              }
+            ] : [],
+            contains(activeDirectorySolution, 'DomainServices') ? [
+              {
+                name: 'ADCommunicationRule'
+                ruleType: 'NetworkRule'
+                ipProtocols: [
+                  'Tcp'
+                  'Udp'
                 ]
                 sourceAddresses: virtualNetworkAddressPrefixes
                 destinationAddresses: [
                   identityVirtualNetworkAddressPrefix
                 ]
+                destinationPorts: [
+                  '53'
+                  '88'
+                  '389'
+                  '445'
+                  '139'
+                  '135'
+                  '89'
+                ]
                 sourceIpGroups: []
+                destinationIpGroups: []
               }
-            ]
-          }
-        ]
-      }
+            ] : []
+          )
+        }
+      ]
     }
-  ] : []
-)
+  }
+]
 
 //  BATCH SESSION HOSTS
 // The following variables are used to determine the batches to deploy any number of AVD session hosts.
