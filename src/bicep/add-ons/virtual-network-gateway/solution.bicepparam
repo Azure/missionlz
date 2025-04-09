@@ -16,7 +16,9 @@ param allowedAzureAddressPrefixes = [
   '10.0.132.0/24'
   '10.0.128.0/23'
 ]
-param localAddressPrefixes = ['10.1.0.0/16']
+param localAddressPrefixes = [
+  '10.1.0.0/16'
+]
 param useSharedKey = true
 param hubVirtualNetworkResourceId = '/subscriptions/afb59830-1fc9-44c9-bba3-04f657483578/resourceGroups/cln-rg-hub-network-va-dev/providers/Microsoft.Network/virtualNetworks/cln-vnet-hub-va-dev'
 param vnetResourceIdList = [
@@ -47,8 +49,8 @@ param firewallRuleCollectionGroups = [
               name: 'AllowAzureToOnPrem'
               ruleType: 'NetworkRule'
               ipProtocols: ['Any']
-              sourceAddresses: [localAddressPrefixes]
-              destinationAddresses: [allowedAzureAddressPrefixes]
+              sourceAddresses: localAddressPrefixes
+              destinationAddresses: allowedAzureAddressPrefixes
               destinationPorts: ['*']
               sourceIpGroups: []
               destinationIpGroups: []
@@ -58,8 +60,8 @@ param firewallRuleCollectionGroups = [
               name: 'AllowOnPremToAzure'
               ruleType: 'NetworkRule'
               ipProtocols: ['Any']
-              sourceAddresses: [allowedAzureAddressPrefixes]
-              destinationAddresses: [localAddressPrefixes]
+              sourceAddresses: allowedAzureAddressPrefixes
+              destinationAddresses: localAddressPrefixes
               destinationPorts: ['*']
               sourceIpGroups: []
               destinationIpGroups: []

@@ -83,8 +83,8 @@ param firewallRuleCollectionGroups array = [
               name: 'AllowAzureToOnPrem'
               ruleType: 'NetworkRule'
               ipProtocols: ['Any']
-              sourceAddresses: [localAddressPrefixes]
-              destinationAddresses: [allowedAzureAddressPrefixes]
+              sourceAddresses: localAddressPrefixes
+              destinationAddresses: allowedAzureAddressPrefixes
               destinationPorts: ['*']
               sourceIpGroups: []
               destinationIpGroups: []
@@ -94,8 +94,8 @@ param firewallRuleCollectionGroups array = [
               name: 'AllowOnPremToAzure'
               ruleType: 'NetworkRule'
               ipProtocols: ['Any']
-              sourceAddresses: [allowedAzureAddressPrefixes]
-              destinationAddresses: [localAddressPrefixes]
+              sourceAddresses: allowedAzureAddressPrefixes
+              destinationAddresses: localAddressPrefixes
               destinationPorts: ['*']
               sourceIpGroups: []
               destinationIpGroups: []
