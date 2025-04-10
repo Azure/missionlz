@@ -94,6 +94,7 @@ param subnetAddressPrefixes = [
   '10.0.1${40 + (2 * stampIndex)}.0/24'
   '10.0.1${41 + (2 * stampIndex)}.0/26'
 ]
+param operationsVirtualNetworkAddressPrefix = '10.0.131.0/24'
 param identityVirtualNetworkAddressPrefix = '10.0.130.0/24'
 param firewallRuleCollectionGroups = [
   {
@@ -175,6 +176,19 @@ param firewallRuleCollectionGroups = [
                 ]
                 sourceIpGroups: []
                 destinationIpGroups: []
+              }
+            ],
+            [
+              {
+                name: 'AllowMonitorToLAW'
+                ruleType: 'NetworkRule'
+                ipProtocols: ['Tcp']
+                sourceAddresses: virtualNetworkAddressPrefixes
+                destinationAddresses: [cidrHost(operationsVirtualNetworkAddressPrefix, 3)] // Network of the Log Analytics Workspace, could be narrowed using parameters file post deployment
+                destinationPorts: ['443'] // HTTPS port for Azure Monitor
+                sourceIpGroups: []
+                destinationIpGroups: []
+                destinationFqdns: []
               }
             ],
             [

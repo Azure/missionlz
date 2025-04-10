@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.34.44.8038",
-      "templateHash": "15201061606525776429"
+      "templateHash": "5852364952453887494"
     }
   },
   "parameters": {
@@ -46,7 +46,7 @@
     },
     "avdConfigurationZipFileName": {
       "type": "string",
-      "defaultValue": "Configuration_1.0.02790.438.zip",
+      "defaultValue": "Configuration_1.0.02990.697.zip",
       "metadata": {
         "description": "The file name for the ZIP file containing the AVD agents and DSC configuration."
       }
@@ -575,8 +575,8 @@
     "subnetAddressPrefixes": {
       "type": "array",
       "defaultValue": [
-        "10.0.140.0/24",
-        "10.0.141.0/26"
+        "[format('10.0.1{0}.0/24', add(40, mul(2, parameters('stampIndex'))))]",
+        "[format('10.0.1{0}.0/26', add(41, mul(2, parameters('stampIndex'))))]"
       ],
       "minLength": 1,
       "maxLength": 2,
@@ -633,7 +633,7 @@
     "virtualNetworkAddressPrefixes": {
       "type": "array",
       "defaultValue": [
-        "10.0.140.0/23"
+        "[format('10.0.1{0}.0/23', add(40, mul(2, parameters('stampIndex'))))]"
       ],
       "minLength": 1,
       "maxLength": 2,
@@ -662,6 +662,10 @@
         "description": "The friendly name for the AVD workspace that is displayed in the end-user client."
       }
     },
+    "operationsVirtualNetworkAddressPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.131.0/24"
+    },
     "workspacePublicNetworkAccess": {
       "type": "string",
       "defaultValue": "Enabled",
@@ -671,6 +675,87 @@
       ],
       "metadata": {
         "description": "The public network access setting on the AVD workspace either disables public network access or allows both public and private network access."
+      }
+    },
+    "identityVirtualNetworkAddressPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.130.0/24",
+      "metadata": {
+        "description": "The address prefix for the identity network, assumed network where domain controllers are deployed.   Used in firewall rule if domain services is used."
+      }
+    },
+    "firewallRuleCollectionGroups": {
+      "type": "array",
+      "defaultValue": [
+        {
+          "name": "AVD-ApplicationCollectionGroup",
+          "properties": {
+            "priority": 300,
+            "ruleCollections": [
+              {
+                "name": "ApplicationRules",
+                "priority": 110,
+                "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                "action": {
+                  "type": "Allow"
+                },
+                "rules": [
+                  {
+                    "name": "AVD-RequiredEndpoints",
+                    "ruleType": "ApplicationRule",
+                    "protocols": [
+                      {
+                        "protocolType": "Https",
+                        "port": 443
+                      }
+                    ],
+                    "fqdnTags": [],
+                    "webCategories": [],
+                    "targetFqdns": [
+                      "*.microsoftonline.us",
+                      "*.graph.microsoft.us",
+                      "*.aadcdn.msftauth.net",
+                      "*.aadcdn.msauth.net",
+                      "enterpriseregistration.windows.net",
+                      "management.usgovcloudapi.net",
+                      "*.blob.core.usgovcloudapi.net",
+                      "*.monitoring.core.usgovcloudapi.net",
+                      "*.monitor.core.usgovcloudapi.net",
+                      "*.guestconfiguration.azure.us",
+                      "*.digicert.com",
+                      "*.monitor.azure.us"
+                    ],
+                    "targetUrls": [],
+                    "terminateTLS": false,
+                    "sourceAddresses": "[parameters('virtualNetworkAddressPrefixes')]",
+                    "destinationAddresses": [],
+                    "sourceIpGroups": []
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "AVD-NetworkCollectionGroup",
+          "properties": {
+            "priority": 310,
+            "ruleCollections": [
+              {
+                "name": "NetworkRules",
+                "priority": 120,
+                "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                "action": {
+                  "type": "Allow"
+                },
+                "rules": "[concat(createArray(createObject('name', 'KMS-Endpoint', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Tcp'), 'sourceAddresses', parameters('virtualNetworkAddressPrefixes'), 'destinationAddresses', createArray(), 'destinationFqdns', createArray('azkms.core.usgovcloudapi.net'), 'destinationPorts', createArray('1688'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray())), createArray(createObject('name', 'AllowMonitorToLAW', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Tcp'), 'sourceAddresses', parameters('virtualNetworkAddressPrefixes'), 'destinationAddresses', createArray(cidrHost(parameters('operationsVirtualNetworkAddressPrefix'), 3)), 'destinationPorts', createArray('443'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray(), 'destinationFqdns', createArray())), createArray(createObject('name', 'TimeSync', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Udp'), 'sourceAddresses', parameters('virtualNetworkAddressPrefixes'), 'destinationAddresses', createArray(), 'destinationFqdns', createArray('time.windows.com'), 'destinationPorts', createArray('123'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray())), if(contains(parameters('activeDirectorySolution'), 'MicrosoftEntraId'), createArray(createObject('name', 'AADForAvdLogin', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Tcp'), 'sourceAddresses', parameters('virtualNetworkAddressPrefixes'), 'destinationAddresses', createArray('AzureActiveDirectory'), 'destinationFqdns', createArray(), 'destinationPorts', createArray('443'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray())), createArray()), if(contains(parameters('activeDirectorySolution'), 'DomainServices'), createArray(createObject('name', 'ADCommunicationRule', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Tcp', 'Udp'), 'sourceAddresses', parameters('virtualNetworkAddressPrefixes'), 'destinationAddresses', createArray(parameters('identityVirtualNetworkAddressPrefix')), 'destinationPorts', createArray('53', '88', '389', '445', '139', '135', '89'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray())), createArray()))]"
+              }
+            ]
+          }
+        }
+      ],
+      "metadata": {
+        "description": "The firewall rules that will be applied to the Azure Firewall."
       }
     }
   },
@@ -1388,6 +1473,9 @@
           "firewallResourceId": {
             "value": "[parameters('hubAzureFirewallResourceId')]"
           },
+          "firewallRuleCollectionGroups": {
+            "value": "[parameters('firewallRuleCollectionGroups')]"
+          },
           "hubVirtualNetworkResourceId": {
             "value": "[parameters('hubVirtualNetworkResourceId')]"
           },
@@ -1468,7 +1556,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.34.44.8038",
-              "templateHash": "7231240451025538993"
+              "templateHash": "12491254575791742894"
             }
           },
           "parameters": {
@@ -1746,6 +1834,52 @@
               "metadata": {
                 "description": "The short name for the workload."
               }
+            },
+            "operationsVirtualNetworkAddressPrefix": {
+              "type": "string",
+              "defaultValue": "10.0.131.0/24"
+            },
+            "firewallRuleCollectionGroups": {
+              "type": "array",
+              "defaultValue": [
+                {
+                  "name": "Tier3-NetworkCollectionGroup",
+                  "properties": {
+                    "priority": 200,
+                    "ruleCollections": [
+                      {
+                        "name": "AllowMonitorToLAW",
+                        "priority": 150,
+                        "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                        "action": {
+                          "type": "Allow"
+                        },
+                        "rules": [
+                          {
+                            "name": "AllowMonitorToLAW",
+                            "ruleType": "NetworkRule",
+                            "ipProtocols": [
+                              "Tcp"
+                            ],
+                            "sourceAddresses": [
+                              "[parameters('virtualNetworkAddressPrefix')]"
+                            ],
+                            "destinationAddresses": [
+                              "[cidrHost(parameters('operationsVirtualNetworkAddressPrefix'), 3)]"
+                            ],
+                            "destinationPorts": [
+                              "443"
+                            ],
+                            "sourceIpGroups": [],
+                            "destinationIpGroups": [],
+                            "destinationFqdns": []
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ]
             }
           },
           "variables": {
@@ -1754,6 +1888,61 @@
             "subscriptionId": "[subscription().subscriptionId]"
           },
           "resources": [
+            {
+              "condition": "[not(empty(parameters('operationsVirtualNetworkAddressPrefix')))]",
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2022-09-01",
+              "name": "[format('deploy-firewall-rules-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))]",
+              "subscriptionId": "[variables('hubSubscriptionId')]",
+              "resourceGroup": "[variables('hubResourceGroupName')]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "firewallPolicyName": {
+                    "value": "[split(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('firewallResourceId'), '/')[2], split(parameters('firewallResourceId'), '/')[4]), 'Microsoft.Network/azureFirewalls', split(parameters('firewallResourceId'), '/')[8]), '2020-11-01').firewallPolicy.id, '/')[8]]"
+                  },
+                  "firewallRuleCollectionGroups": {
+                    "value": "[parameters('firewallRuleCollectionGroups')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.34.44.8038",
+                      "templateHash": "17220450159496698959"
+                    }
+                  },
+                  "parameters": {
+                    "firewallPolicyName": {
+                      "type": "string"
+                    },
+                    "firewallRuleCollectionGroups": {
+                      "type": "array"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "copy": {
+                        "name": "ruleCreate",
+                        "count": "[length(parameters('firewallRuleCollectionGroups'))]",
+                        "mode": "serial",
+                        "batchSize": 1
+                      },
+                      "type": "Microsoft.Network/firewallPolicies/ruleCollectionGroups",
+                      "apiVersion": "2024-03-01",
+                      "name": "[format('{0}/{1}', parameters('firewallPolicyName'), parameters('firewallRuleCollectionGroups')[copyIndex()].name)]",
+                      "properties": "[parameters('firewallRuleCollectionGroups')[copyIndex()].properties]"
+                    }
+                  ]
+                }
+              }
+            },
             {
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",

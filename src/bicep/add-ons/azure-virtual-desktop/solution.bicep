@@ -359,15 +359,14 @@ param virtualNetworkDiagnosticsMetrics array = []
 @description('The friendly name for the AVD workspace that is displayed in the end-user client.')
 param workspaceFriendlyName string = ''
 
+param operationsVirtualNetworkAddressPrefix string = '10.0.131.0/24'
+
 @allowed([
   'Disabled'
   'Enabled'
 ])
 @description('The public network access setting on the AVD workspace either disables public network access or allows both public and private network access.')
 param workspacePublicNetworkAccess string = 'Enabled'
-
-@description('The address prefix for the operations network, to be used to allow firewall access for the AVD session hosts.')
-param operationsVirtualNetworkAddressPrefix string = '10.0.131.0/24'
 
 @description('The address prefix for the identity network, assumed network where domain controllers are deployed.   Used in firewall rule if domain services is used.')
 param identityVirtualNetworkAddressPrefix string = '10.0.130.0/24'
@@ -457,6 +456,19 @@ param firewallRuleCollectionGroups array = [
             ],
             [
               {
+                name: 'AllowMonitorToLAW'
+                ruleType: 'NetworkRule'
+                ipProtocols: ['Tcp']
+                sourceAddresses: virtualNetworkAddressPrefixes
+                destinationAddresses: [cidrHost(operationsVirtualNetworkAddressPrefix, 3)] // Network of the Log Analytics Workspace, could be narrowed using parameters file post deployment
+                destinationPorts: ['443'] // HTTPS port for Azure Monitor
+                sourceIpGroups: []
+                destinationIpGroups: []
+                destinationFqdns: []
+              }
+            ],
+            [
+              {
                 name: 'TimeSync'
                 ruleType: 'NetworkRule'
                 ipProtocols: [
@@ -476,7 +488,7 @@ param firewallRuleCollectionGroups array = [
             ],
             contains(activeDirectorySolution, 'MicrosoftEntraId') ? [
               {
-                name: 'AzureCloudforLogin'
+                name: 'AADForAvdLogin'
                 ruleType: 'NetworkRule'
                 ipProtocols: [
                   'Tcp'
@@ -595,17 +607,6 @@ var subnets = {
     : []
 }
 
-// Derive the firewall policy name from the hubAzureFirewallResourceId
-var firewallPolicyName = replace(split(hubAzureFirewallResourceId, '/')[8], 'afw', 'afwp')
-
-module firewallRules '../../modules/firewall-rules.bicep' = if (!(empty(operationsVirtualNetworkAddressPrefix))) {
-  name: 'deploy-firewall-rules-${identifier}-${deploymentNameSuffix}'
-  scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
-  params: {
-    firewallPolicyName: firewallPolicyName
-    firewallRuleCollectionGroups: firewallRuleCollectionGroups
-  }
-}
 // Gets the MLZ hub virtual network for its location and tags
 resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-11-01' existing = {
   name: split(hubVirtualNetworkResourceId, '/')[8]
@@ -658,6 +659,7 @@ module tier3_hosts '../tier3/solution.bicep' = {
     emailSecurityContact: emailSecurityContact
     environmentAbbreviation: environmentAbbreviation
     firewallResourceId: hubAzureFirewallResourceId
+    firewallRuleCollectionGroups: firewallRuleCollectionGroups
     hubVirtualNetworkResourceId: hubVirtualNetworkResourceId
     identifier: identifier
     keyVaultDiagnosticLogs: keyVaultDiagnosticsLogs

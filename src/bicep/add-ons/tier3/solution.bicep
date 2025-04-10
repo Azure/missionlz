@@ -174,7 +174,7 @@ param firewallRuleCollectionGroups array = [
               name: 'AllowMonitorToLAW'
               ruleType: 'NetworkRule'
               ipProtocols: ['Tcp']
-              sourceAddresses: [virtualNetworkAddressPrefix ]
+              sourceAddresses: [virtualNetworkAddressPrefix]
               destinationAddresses: [cidrHost(operationsVirtualNetworkAddressPrefix, 3)] // Network of the Log Analytics Workspace, could be narrowed using parameters file post deployment
               destinationPorts: ['443'] // HTTPS port for Azure Monitor
               sourceIpGroups: []
