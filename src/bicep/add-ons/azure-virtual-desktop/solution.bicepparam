@@ -111,7 +111,7 @@ param firewallRuleCollectionGroups = [
           }
           rules: [
             {
-              name: 'AVD-RequiredEndpoints'
+              name: 'AVD-RequiredEndpoints-Stamp-${stampIndex}'
               ruleType: 'ApplicationRule'
               protocols: [
                 {
@@ -161,7 +161,7 @@ param firewallRuleCollectionGroups = [
           rules: concat(
             [
               {
-                name: 'KMS-Endpoint'
+                name: 'KMS-Endpoint-Stamp-${stampIndex}'
                 ruleType: 'NetworkRule'
                 ipProtocols: [
                   'Tcp'
@@ -180,7 +180,7 @@ param firewallRuleCollectionGroups = [
             ],
             [
               {
-                name: 'AllowMonitorToLAW'
+                name: 'AllowMonitorToLAW-Stamp-${stampIndex}'
                 ruleType: 'NetworkRule'
                 ipProtocols: ['Tcp']
                 sourceAddresses: virtualNetworkAddressPrefixes
@@ -193,7 +193,7 @@ param firewallRuleCollectionGroups = [
             ],
             [
               {
-                name: 'TimeSync'
+                name: 'TimeSync-Stamp-${stampIndex}'
                 ruleType: 'NetworkRule'
                 ipProtocols: [
                   'Udp'
@@ -212,7 +212,7 @@ param firewallRuleCollectionGroups = [
             ],
             [
               {
-                name: 'AzureCloudforLogin'
+                name: 'AzureCloudforLogin-Stamp-${stampIndex}'
                 ruleType: 'NetworkRule'
                 ipProtocols: [
                   'Tcp'
@@ -229,7 +229,7 @@ param firewallRuleCollectionGroups = [
             ],
             contains(activeDirectorySolution, 'DomainServices') ? [
               {
-                name: 'ADCommunicationRule'
+                name: 'ADCommunicationRule-Stamp-${stampIndex}'
                 ruleType: 'NetworkRule'
                 ipProtocols: [
                   'Tcp'

@@ -387,7 +387,7 @@ param firewallRuleCollectionGroups array = [
           }
           rules: [
             {
-              name: 'AVD-RequiredEndpoints'
+              name: 'AVD-RequiredEndpoints-Stamp-${stampIndex}'
               ruleType: 'ApplicationRule'
               protocols: [
                 {
@@ -437,7 +437,7 @@ param firewallRuleCollectionGroups array = [
           rules: concat(
             [
               {
-                name: 'KMS-Endpoint'
+                name: 'KMS-Endpoint-Stamp-${stampIndex}'
                 ruleType: 'NetworkRule'
                 ipProtocols: [
                   'Tcp'
@@ -456,7 +456,7 @@ param firewallRuleCollectionGroups array = [
             ],
             [
               {
-                name: 'AllowMonitorToLAW'
+                name: 'AllowMonitorToLAW-Stamp-${stampIndex}'
                 ruleType: 'NetworkRule'
                 ipProtocols: ['Tcp']
                 sourceAddresses: virtualNetworkAddressPrefixes
@@ -469,7 +469,7 @@ param firewallRuleCollectionGroups array = [
             ],
             [
               {
-                name: 'TimeSync'
+                name: 'TimeSync-Stamp-${stampIndex}'
                 ruleType: 'NetworkRule'
                 ipProtocols: [
                   'Udp'
@@ -486,9 +486,9 @@ param firewallRuleCollectionGroups array = [
                 destinationIpGroups: []
               }
             ],
-            contains(activeDirectorySolution, 'MicrosoftEntraId') ? [
+            [
               {
-                name: 'AADForAvdLogin'
+                name: 'AzureCloudforLogin-Stamp-${stampIndex}'
                 ruleType: 'NetworkRule'
                 ipProtocols: [
                   'Tcp'
@@ -502,10 +502,10 @@ param firewallRuleCollectionGroups array = [
                 sourceIpGroups: []
                 destinationIpGroups: []
               }
-            ] : [],
+            ],
             contains(activeDirectorySolution, 'DomainServices') ? [
               {
-                name: 'ADCommunicationRule'
+                name: 'ADCommunicationRule-Stamp-${stampIndex}'
                 ruleType: 'NetworkRule'
                 ipProtocols: [
                   'Tcp'
