@@ -98,7 +98,7 @@ param operationsVirtualNetworkAddressPrefix = '10.0.131.0/24'
 param identityVirtualNetworkAddressPrefix = '10.0.130.0/24'
 param firewallRuleCollectionGroups = [
   {
-    name: 'AVD-ApplicationCollectionGroup'
+    name: 'AVD-ApplicationCollectionGroup-Stamp-${stampIndex}'
     properties: {
       priority: 300
       ruleCollections: [
@@ -111,7 +111,7 @@ param firewallRuleCollectionGroups = [
           }
           rules: [
             {
-              name: 'AVD-RequiredEndpoints-Stamp-${stampIndex}'
+              name: 'AVD-RequiredEndpoints'
               ruleType: 'ApplicationRule'
               protocols: [
                 {
@@ -147,7 +147,7 @@ param firewallRuleCollectionGroups = [
     }
   }
   {
-    name: 'AVD-NetworkCollectionGroup'
+    name: 'AVD-NetworkCollectionGroup-Stamp-${stampIndex}'
     properties: {
       priority: 310
       ruleCollections: [
@@ -161,7 +161,7 @@ param firewallRuleCollectionGroups = [
           rules: concat(
             [
               {
-                name: 'KMS-Endpoint-Stamp-${stampIndex}'
+                name: 'KMS-Endpoint'
                 ruleType: 'NetworkRule'
                 ipProtocols: [
                   'Tcp'
@@ -180,7 +180,7 @@ param firewallRuleCollectionGroups = [
             ],
             [
               {
-                name: 'AllowMonitorToLAW-Stamp-${stampIndex}'
+                name: 'AllowMonitorToLAW'
                 ruleType: 'NetworkRule'
                 ipProtocols: ['Tcp']
                 sourceAddresses: virtualNetworkAddressPrefixes
@@ -193,7 +193,7 @@ param firewallRuleCollectionGroups = [
             ],
             [
               {
-                name: 'TimeSync-Stamp-${stampIndex}'
+                name: 'TimeSync'
                 ruleType: 'NetworkRule'
                 ipProtocols: [
                   'Udp'
@@ -212,7 +212,7 @@ param firewallRuleCollectionGroups = [
             ],
             [
               {
-                name: 'AzureCloudforLogin-Stamp-${stampIndex}'
+                name: 'AzureCloudforLogin'
                 ruleType: 'NetworkRule'
                 ipProtocols: [
                   'Tcp'
@@ -229,7 +229,7 @@ param firewallRuleCollectionGroups = [
             ],
             contains(activeDirectorySolution, 'DomainServices') ? [
               {
-                name: 'ADCommunicationRule-Stamp-${stampIndex}'
+                name: 'ADCommunicationRule'
                 ruleType: 'NetworkRule'
                 ipProtocols: [
                   'Tcp'
