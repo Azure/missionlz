@@ -98,12 +98,12 @@ param operationsVirtualNetworkAddressPrefix = '10.0.131.0/24'
 param identityVirtualNetworkAddressPrefix = '10.0.130.0/24'
 param firewallRuleCollectionGroups = [
   {
-    name: 'AVD-ApplicationCollectionGroup-Stamp-${stampIndex}'
+    name: 'AVD-ApplicationCollectionGroup'
     properties: {
       priority: 300
       ruleCollections: [
         {
-          name: 'ApplicationRules'
+          name: 'ApplicationRules-Stamp-${stampIndex}'
           priority: 110
           ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
           action: {
@@ -147,12 +147,12 @@ param firewallRuleCollectionGroups = [
     }
   }
   {
-    name: 'AVD-NetworkCollectionGroup-Stamp-${stampIndex}'
+    name: 'AVD-NetworkCollectionGroup'
     properties: {
       priority: 310
       ruleCollections: [
         {
-          name: 'NetworkRules'
+          name: 'NetworkRules-Stamp-${stampIndex}'
           priority: 120
           ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
           action: {

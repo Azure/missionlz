@@ -374,12 +374,12 @@ param identityVirtualNetworkAddressPrefix string = '10.0.130.0/24'
 @description('The firewall rules that will be applied to the Azure Firewall.')
 param firewallRuleCollectionGroups array = [
   {
-    name: 'AVD-ApplicationCollectionGroup-Stamp-${stampIndex}'
+    name: 'AVD-ApplicationCollectionGroup'
     properties: {
       priority: 300
       ruleCollections: [
         {
-          name: 'ApplicationRules'
+          name: 'ApplicationRules-Stamp-${stampIndex}'
           priority: 110
           ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
           action: {
@@ -423,12 +423,12 @@ param firewallRuleCollectionGroups array = [
     }
   }
   {
-    name: 'AVD-NetworkCollectionGroup-Stamp-${stampIndex}'
+    name: 'AVD-NetworkCollectionGroup'
     properties: {
       priority: 310
       ruleCollections: [
         {
-          name: 'NetworkRules'
+          name: 'NetworkRules-Stamp-${stampIndex}'
           priority: 120
           ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
           action: {
