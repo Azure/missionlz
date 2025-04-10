@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.34.44.8038",
-      "templateHash": "5852364952453887494"
+      "templateHash": "5824668023216091500"
     }
   },
   "parameters": {
@@ -701,7 +701,7 @@
                 },
                 "rules": [
                   {
-                    "name": "AVD-RequiredEndpoints",
+                    "name": "[format('AVD-RequiredEndpoints-Stamp-{0}', parameters('stampIndex'))]",
                     "ruleType": "ApplicationRule",
                     "protocols": [
                       {
@@ -748,7 +748,7 @@
                 "action": {
                   "type": "Allow"
                 },
-                "rules": "[concat(createArray(createObject('name', 'KMS-Endpoint', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Tcp'), 'sourceAddresses', parameters('virtualNetworkAddressPrefixes'), 'destinationAddresses', createArray(), 'destinationFqdns', createArray('azkms.core.usgovcloudapi.net'), 'destinationPorts', createArray('1688'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray())), createArray(createObject('name', 'AllowMonitorToLAW', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Tcp'), 'sourceAddresses', parameters('virtualNetworkAddressPrefixes'), 'destinationAddresses', createArray(cidrHost(parameters('operationsVirtualNetworkAddressPrefix'), 3)), 'destinationPorts', createArray('443'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray(), 'destinationFqdns', createArray())), createArray(createObject('name', 'TimeSync', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Udp'), 'sourceAddresses', parameters('virtualNetworkAddressPrefixes'), 'destinationAddresses', createArray(), 'destinationFqdns', createArray('time.windows.com'), 'destinationPorts', createArray('123'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray())), if(contains(parameters('activeDirectorySolution'), 'MicrosoftEntraId'), createArray(createObject('name', 'AADForAvdLogin', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Tcp'), 'sourceAddresses', parameters('virtualNetworkAddressPrefixes'), 'destinationAddresses', createArray('AzureActiveDirectory'), 'destinationFqdns', createArray(), 'destinationPorts', createArray('443'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray())), createArray()), if(contains(parameters('activeDirectorySolution'), 'DomainServices'), createArray(createObject('name', 'ADCommunicationRule', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Tcp', 'Udp'), 'sourceAddresses', parameters('virtualNetworkAddressPrefixes'), 'destinationAddresses', createArray(parameters('identityVirtualNetworkAddressPrefix')), 'destinationPorts', createArray('53', '88', '389', '445', '139', '135', '89'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray())), createArray()))]"
+                "rules": "[concat(createArray(createObject('name', format('KMS-Endpoint-Stamp-{0}', parameters('stampIndex')), 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Tcp'), 'sourceAddresses', parameters('virtualNetworkAddressPrefixes'), 'destinationAddresses', createArray(), 'destinationFqdns', createArray('azkms.core.usgovcloudapi.net'), 'destinationPorts', createArray('1688'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray())), createArray(createObject('name', format('AllowMonitorToLAW-Stamp-{0}', parameters('stampIndex')), 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Tcp'), 'sourceAddresses', parameters('virtualNetworkAddressPrefixes'), 'destinationAddresses', createArray(cidrHost(parameters('operationsVirtualNetworkAddressPrefix'), 3)), 'destinationPorts', createArray('443'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray(), 'destinationFqdns', createArray())), createArray(createObject('name', format('TimeSync-Stamp-{0}', parameters('stampIndex')), 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Udp'), 'sourceAddresses', parameters('virtualNetworkAddressPrefixes'), 'destinationAddresses', createArray(), 'destinationFqdns', createArray('time.windows.com'), 'destinationPorts', createArray('123'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray())), createArray(createObject('name', format('AzureCloudforLogin-Stamp-{0}', parameters('stampIndex')), 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Tcp'), 'sourceAddresses', parameters('virtualNetworkAddressPrefixes'), 'destinationAddresses', createArray('AzureActiveDirectory'), 'destinationFqdns', createArray(), 'destinationPorts', createArray('443'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray())), if(contains(parameters('activeDirectorySolution'), 'DomainServices'), createArray(createObject('name', format('ADCommunicationRule-Stamp-{0}', parameters('stampIndex')), 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Tcp', 'Udp'), 'sourceAddresses', parameters('virtualNetworkAddressPrefixes'), 'destinationAddresses', createArray(parameters('identityVirtualNetworkAddressPrefix')), 'destinationPorts', createArray('53', '88', '389', '445', '139', '135', '89'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray())), createArray()))]"
               }
             ]
           }
