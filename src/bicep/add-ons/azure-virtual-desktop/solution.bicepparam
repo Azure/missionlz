@@ -72,7 +72,7 @@ param policy = 'NISTRev4'
 param profile = 'Generic'
 param sessionHostCount = 3
 param sessionHostIndex = 0
-param stampIndex = 1
+param stampIndex = 5
 param sharedServicesSubnetResourceId = '/subscriptions/3a8f043c-c15c-4a67-9410-a585a85f2109/resourceGroups/cln-rg-sharedServices-network-va-dev/providers/Microsoft.Network/virtualNetworks/cln-vnet-sharedServices-va-dev/subnets/cln-snet-sharedServices-va-dev'
 param validationEnvironment = false
 param virtualMachineAdminUsername = 'xadmin'
@@ -98,12 +98,12 @@ param operationsVirtualNetworkAddressPrefix = '10.0.131.0/24'
 param identityVirtualNetworkAddressPrefix = '10.0.130.0/24'
 param firewallRuleCollectionGroups = [
   {
-    name: 'AVD-ApplicationCollectionGroup'
+    name: 'AVD-ApplicationCollectionGroup-Stamp-${stampIndex}'
     properties: {
       priority: 300
       ruleCollections: [
         {
-          name: 'ApplicationRules-Stamp-${stampIndex}'
+          name: 'ApplicationRules'
           priority: 110
           ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
           action: {
@@ -147,12 +147,12 @@ param firewallRuleCollectionGroups = [
     }
   }
   {
-    name: 'AVD-NetworkCollectionGroup'
+    name: 'AVD-NetworkCollectionGroup-Stamp-${stampIndex}'
     properties: {
       priority: 310
       ruleCollections: [
         {
-          name: 'NetworkRules-Stamp-${stampIndex}'
+          name: 'NetworkRules-Stamp'
           priority: 120
           ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
           action: {
