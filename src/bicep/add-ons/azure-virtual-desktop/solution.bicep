@@ -428,7 +428,7 @@ param firewallRuleCollectionGroups array = [
       priority: 310
       ruleCollections: [
         {
-          name: 'NetworkRules-Stamp'
+          name: 'NetworkRules'
           priority: 120
           ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
           action: {
