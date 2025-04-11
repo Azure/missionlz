@@ -25,3 +25,174 @@ With this solution you can scale up to Azure's subscription limitations. This so
 To add storage capacity to an AVD stamp, the "StorageIndex" and "StorageCount" parameters should be modified to your desired capacity. The last two digits in the name for the chosen storage solution will be incremented between each deployment.
 
 The "VHDLocations" setting will include all the file shares. The "SecurityPrincipalIds" and "SecurityPrincipalNames" will have an RBAC assignment and NTFS permissions set on one storage shard per stamp. Each user in the stamp should only have access to one file share. When the user accesses a session host, their profile will load from their respective file share.
+
+## Firewall rules to improve security
+
+The deployment has a set of firewall rules that use the **firewallRulesCollectionGroups** parameter to pass in firewall rule collection group configurations.   The default value for this variable creates two collection groups per AVD stamp deployed.   Additionally, the rules are conditional upon the identity selection, Entra ID or Active Directory based.
+
+The rule set can be overridden, but should include the default set regardless.
+Please review [Command Line Tools](../../../../../docs/deployment-guides/command-line-tools.md) for the basics of constructing a parameter file and command line usage for deployment.
+
+```bicep
+param firewallRuleCollectionGroups array = [
+  {
+    name: 'AVD-ApplicationCollectionGroup-Stamp-${stampIndex}'
+    properties: {
+      priority: 200
+      ruleCollections: [
+        {
+          name: 'ApplicationRules'
+          priority: 150
+          ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
+          action: {
+            type: 'Allow'
+          }
+          rules: [
+            {
+              name: 'AVD-RequiredEndpoints'
+              ruleType: 'ApplicationRule'
+              protocols: [
+                {
+                  protocolType: 'Https'
+                  port: 443
+                }
+              ]
+              fqdnTags: []
+              webCategories: []
+              targetFqdns: [
+                '*.microsoftonline.us'
+                  '*.graph.microsoft.us'
+                  '*.aadcdn.msftauth.net'
+                  '*.aadcdn.msauth.net'
+                  'enterpriseregistration.windows.net'
+                  'management.usgovcloudapi.net'
+                  '*.blob.core.usgovcloudapi.net'
+                  '*.monitoring.core.usgovcloudapi.net'
+                  '*.monitor.core.usgovcloudapi.net'
+                  '*.guestconfiguration.azure.us'
+                  '*.digicert.com'
+                  '*.monitor.azure.us'
+              ]
+              targetUrls: []
+              terminateTLS: false
+              sourceAddresses: virtualNetworkAddressPrefixes
+              destinationAddresses: []
+              sourceIpGroups: []
+            }
+          ]
+        }
+      ]
+    }
+  }
+  {
+    name: 'AVD-NetworkCollectionGroup-Stamp-${stampIndex}'
+    properties: {
+      priority: 200
+      ruleCollections: [
+        {
+          name: 'NetworkRules'
+          priority: 150
+          ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
+          action: {
+            type: 'Allow'
+          }
+          rules: concat(
+            [
+              {
+                name: 'KMS-Endpoint'
+                ruleType: 'NetworkRule'
+                ipProtocols: [
+                  'Tcp'
+                ]
+                sourceAddresses: virtualNetworkAddressPrefixes
+                destinationAddresses: []
+                destinationFqdns: [
+                  'azkms.core.usgovcloudapi.net'
+                ]
+                destinationPorts: [
+                  '1688'
+                ]
+                sourceIpGroups: []
+                destinationIpGroups: []
+              }
+            ],
+            [
+              {
+                name: 'AllowMonitorToLAW'
+                ruleType: 'NetworkRule'
+                ipProtocols: ['Tcp']
+                sourceAddresses: virtualNetworkAddressPrefixes
+                destinationAddresses: [cidrHost(operationsVirtualNetworkAddressPrefix, 3)] // Network of the Log Analytics Workspace, could be narrowed using parameters file post deployment
+                destinationPorts: ['443'] // HTTPS port for Azure Monitor
+                sourceIpGroups: []
+                destinationIpGroups: []
+                destinationFqdns: []
+              }
+            ],
+            [
+              {
+                name: 'TimeSync'
+                ruleType: 'NetworkRule'
+                ipProtocols: [
+                  'Udp'
+                ]
+                sourceAddresses: virtualNetworkAddressPrefixes
+                destinationAddresses: []
+                destinationFqdns: [
+                  'time.windows.com'
+                ]
+                destinationPorts: [
+                  '123'
+                ]
+                sourceIpGroups: []
+                destinationIpGroups: []
+              }
+            ],
+            [
+              {
+                name: 'AzureCloudforLogin'
+                ruleType: 'NetworkRule'
+                ipProtocols: [
+                  'Tcp'
+                ]
+                sourceAddresses: virtualNetworkAddressPrefixes
+                destinationAddresses: ['AzureActiveDirectory']
+                destinationFqdns: []
+                destinationPorts: [
+                  '443'
+                ]
+                sourceIpGroups: []
+                destinationIpGroups: []
+              }
+            ],
+            contains(activeDirectorySolution, 'DomainServices') ? [
+              {
+                name: 'ADCommunicationRule'
+                ruleType: 'NetworkRule'
+                ipProtocols: [
+                  'Tcp'
+                  'Udp'
+                ]
+                sourceAddresses: virtualNetworkAddressPrefixes
+                destinationAddresses: [
+                  identityVirtualNetworkAddressPrefix
+                ]
+                destinationPorts: [
+                  '53'
+                  '88'
+                  '389'
+                  '445'
+                  '139'
+                  '135'
+                  '89'
+                ]
+                sourceIpGroups: []
+                destinationIpGroups: []
+              }
+            ] : []
+          )
+        }
+      ]
+    }
+  }
+]
