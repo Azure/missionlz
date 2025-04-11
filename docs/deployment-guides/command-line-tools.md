@@ -9,6 +9,7 @@
 - [Deploy MLZ](#deploy-mlz)
 - [Remove MLZ](#remove-mlz)
 - [References](#references)
+- [Examples](../deployment-guides/command-line-examples.md)
 
 This guide describes how to deploy Mission Landing Zone (MLZ) using the ARM template at [src/bicep/mlz.json](../../src/bicep/mlz.json) using either Azure CLI or Azure PowerShell. The supported clouds for this guide include the Azure Commercial, Azure Government, Azure Government Secret, and Azure Government Top Secret.
 
@@ -85,6 +86,8 @@ By default, MLZ deploys **[Azure Firewall Premium](https://docs.microsoft.com/en
 
 You can manually specify which SKU of Azure Firewall to use for your deployment by specifying the `firewallSkuTier` parameter. This parameter only accepts values of `Premium`, `Standard`, or `Basic`.
 
+Additionally, you can specify  `firewallRuleCollectionGroups`  parameter with a set of firewall rule collection groups that can define the firewall rules used.
+
 Parameter Name    | Default Value | Description
 :---------------- | :------------ | :----------
 `enableProxy` | true | The Azure Firewall DNS Proxy will forward all DNS traffic.
@@ -96,6 +99,7 @@ Parameter Name    | Default Value | Description
 `firewallSkuTier` | Premium | The SKU for Azure Firewall. Selecting a value other than Premium is not recommended for environments that are required to be SCCA compliant.
 `firewallSupernetIPAddress` | 10.0.128.0/18 | Supernet CIDR address for the entire network of vnets, this address allows for communication between spokes. Recommended to use a Supernet calculator if modifying vnet addresses.
 `firewallThreatIntelMode` | Alert | [Alert/Deny/Off] The Azure Firewall Threat Intelligence Rule triggered logging behavior.
+`firewallRuleCollectionGroups` | Firewall collection group definition | Firewall rules associated with the MLZ deployment.  
 
 ### Monitoring
 
