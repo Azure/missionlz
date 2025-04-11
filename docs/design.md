@@ -44,13 +44,12 @@ All network traffic is directed through the firewall residing in the Network Hub
 
 The default firewall configured for MLZ is [Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features). The Azure Firewall Premium SKU includes the IDPS feature necessary to satisfy the SCCA VDSS requirement. However, if you do not require IDPS, you can optionally deploy Azure Firewall Standard by settings the `firewallSkuTier` parameter to `Standard`.
 
-Presently, there are two firewall rules configured to ensure access to the Azure Portal and to facilitate interactive logon via PowerShell and Azure CLI, all other traffic is restricted by default. Below are the collection of rules configured for Azure Commercial and Azure Government clouds:
+Presently, there are two firewall collection groups configured to ensure access to authenticate with Azure and allow spoke access to the log analytics workspace in the operations spoke. Below are the collection of rules configured for Azure Commercial and Azure Government clouds:
 
-| Rule Collection Priority | Rule Collection Name      | Rule Name       | Source        | Port      | Protocol                               |
-|--------------------------|---------------------------|-----------------|---------------|-----------|----------------------------------------|
-| 100                      | AllowAzureCloud           | AzureCloud      | *             | *         | Any                                    |
-| 110                      | AzureAuth                 | msftauth        | *             | Https:443 | aadcdn.msftauth.net, aadcdn.msauth.net |
-| 200                      | AllowTrafficBetweenSpokes | AllSpokeTraffic | 10.0.128.0/18 | *         | Any                                    |
+| Collection Group          | Rule Collection Priority | Rule Collection Name      | Rule Name       | Source                                   | Destination                            | Port      | Protocol |
+|---------------------------|--------------------------|---------------------------|-----------------|-----------------------------------------|----------------------------------------|-----------|----------|
+| MLZ-ApplicationCollectionGroup | 110                  | AzureAuth                 | msftauth        | 10.0.128.0/23, 10.0.132.0/24, 10.0.130.0/24 (Identity spoke, if present) | aadcdn.msftauth.net, aadcdn.msauth.net | Https:443 | Tcp      |
+| MLZ-NetworkCollectionGroup | 150                  | AzureMonitor              | AllowMonitorToLAW| 10.0.128.0/23, 10.0.132.0/24, 10.0.130.0/24 (Identity spoke, if present) | Log Analytics Workspace               | 443       | Tcp      |
 
 To deploy Mission LZ using Azure Stack Hub and an F5 BIG-IP Virtual Edition instead of Azure Firewall Premium, there is an alternate repository with instructions [found here](https://github.com/Azure/missionlz-edge).
 

@@ -596,53 +596,6 @@ param windowsVmVersion string = 'latest'
 @description('The firewall rules that will be applied to the Azure Firewall.')
 param firewallRuleCollectionGroups array = [
   {
-    name: 'MLZ-ApplicationCollectionGroup'
-    properties: {
-      priority: 300
-      ruleCollections: [
-        {
-          name: 'AzureAuth'
-          priority: 110
-          ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
-          action: {
-            type: 'Allow'
-          }
-          rules: [
-            {
-              name: 'msftauth'
-              ruleType: 'ApplicationRule'
-              protocols: [
-                {
-                  protocolType: 'Https'
-                  port: 443
-                }
-              ]
-              fqdnTags: []
-              webCategories: []
-              targetFqdns: [
-                'aadcdn.msftauth.net'
-                'aadcdn.msauth.net'
-              ]
-              targetUrls: []
-              terminateTLS: false
-              sourceAddresses: concat(
-                [
-                  hubVirtualNetworkAddressPrefix // Hub network
-                ],
-                [
-                  sharedServicesVirtualNetworkAddressPrefix // Shared network
-                ],
-                empty(identityVirtualNetworkAddressPrefix) ? [] : [identityVirtualNetworkAddressPrefix] // Include Identity network only if it has a value
-              )
-              destinationAddresses: []
-              sourceIpGroups: []
-            }
-          ]
-        }
-      ]
-    }
-  }
-  {
     name: 'MLZ-NetworkCollectionGroup'
     properties: {
       priority: 200

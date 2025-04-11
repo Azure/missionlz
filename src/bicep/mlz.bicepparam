@@ -35,53 +35,6 @@ param hubVirtualNetworkAddressPrefix = '10.0.128.0/23'
 param sharedServicesVirtualNetworkAddressPrefix = '10.0.132.0/24'
 param firewallRuleCollectionGroups = [
   {
-    name: 'MLZ-ApplicationCollectionGroup'
-    properties: {
-      priority: 300
-      ruleCollections: [
-        {
-          name: 'AzureAuth'
-          priority: 110
-          ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
-          action: {
-            type: 'Allow'
-          }
-          rules: [
-            {
-              name: 'msftauth'
-              ruleType: 'ApplicationRule'
-              protocols: [
-                {
-                  protocolType: 'Https'
-                  port: 443
-                }
-              ]
-              fqdnTags: []
-              webCategories: []
-              targetFqdns: [
-                'aadcdn.msftauth.net'
-                'aadcdn.msauth.net'
-              ]
-              targetUrls: []
-              terminateTLS: false
-              sourceAddresses: concat(
-                [
-                  hubVirtualNetworkAddressPrefix // Hub network
-                ],
-                [
-                  sharedServicesVirtualNetworkAddressPrefix // Shared network
-                ],
-                empty(identityVirtualNetworkAddressPrefix) ? [] : [identityVirtualNetworkAddressPrefix] // Include Identity network only if it has a value
-              )
-              destinationAddresses: []
-              sourceIpGroups: []
-            }
-          ]
-        }
-      ]
-    }
-  }
-  {
     name: 'MLZ-NetworkCollectionGroup'
     properties: {
       priority: 200
