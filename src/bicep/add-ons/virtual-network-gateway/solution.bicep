@@ -69,7 +69,7 @@ param firewallRuleCollectionGroups array = [
   {
     name: 'VGW-NetworkCollectionGroup'
     properties: {
-      priority: 200
+      priority: 300
       ruleCollections: [
         {
           name: 'AllowAllTraffic'

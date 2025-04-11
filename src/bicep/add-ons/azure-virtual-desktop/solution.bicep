@@ -376,11 +376,11 @@ param firewallRuleCollectionGroups array = [
   {
     name: 'AVD-ApplicationCollectionGroup-Stamp-${stampIndex}'
     properties: {
-      priority: 300
+      priority: 200
       ruleCollections: [
         {
           name: 'ApplicationRules'
-          priority: 110
+          priority: 150
           ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
           action: {
             type: 'Allow'
@@ -425,11 +425,11 @@ param firewallRuleCollectionGroups array = [
   {
     name: 'AVD-NetworkCollectionGroup-Stamp-${stampIndex}'
     properties: {
-      priority: 310
+      priority: 200
       ruleCollections: [
         {
           name: 'NetworkRules'
-          priority: 120
+          priority: 150
           ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
           action: {
             type: 'Allow'

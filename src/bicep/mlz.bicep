@@ -598,7 +598,7 @@ param firewallRuleCollectionGroups array = [
   {
     name: 'MLZ-NetworkCollectionGroup'
     properties: {
-      priority: 200
+      priority: 150
       ruleCollections: [
         {
           name: 'AzureMonitor'
