@@ -385,39 +385,63 @@ param firewallRuleCollectionGroups array = [
           action: {
             type: 'Allow'
           }
-          rules: [
-            {
-              name: 'AVD-RequiredEndpoints'
-              ruleType: 'ApplicationRule'
-              protocols: [
-                {
-                  protocolType: 'Https'
-                  port: 443
-                }
-              ]
-              fqdnTags: []
-              webCategories: []
-              targetFqdns: [
-                '*.microsoftonline.us'
-                  '*.graph.microsoft.us'
-                  '*.aadcdn.msftauth.net'
-                  '*.aadcdn.msauth.net'
-                  'enterpriseregistration.windows.net'
-                  'management.usgovcloudapi.net'
-                  '*.blob.core.usgovcloudapi.net'
-                  '*.monitoring.core.usgovcloudapi.net'
-                  '*.monitor.core.usgovcloudapi.net'
-                  '*.guestconfiguration.azure.us'
-                  '*.digicert.com'
-                  '*.monitor.azure.us'
-              ]
-              targetUrls: []
-              terminateTLS: false
-              sourceAddresses: virtualNetworkAddressPrefixes
-              destinationAddresses: []
-              sourceIpGroups: []
-            }
-          ]
+          rules: concat(
+            [
+              {
+                name: 'AVD-RequiredDeploymentEndpoints'
+                ruleType: 'ApplicationRule'
+                protocols: [
+                  {
+                    protocolType: 'Https'
+                    port: 443
+                  }
+                ]
+                fqdnTags: []
+                webCategories: []
+                targetFqdns: [
+                    'management.usgovcloudapi.net'
+                    '*.blob.core.usgovcloudapi.net'
+                    '*.monitoring.core.usgovcloudapi.net'
+                    '*.monitor.core.usgovcloudapi.net'
+                    '*.guestconfiguration.azure.us'
+                    '*.digicert.com'
+                    '*.monitor.azure.us'
+                ]
+                targetUrls: []
+                terminateTLS: false
+                sourceAddresses: virtualNetworkAddressPrefixes
+                destinationAddresses: []
+                sourceIpGroups: []
+              }
+            ],
+            contains(activeDirectorySolution, 'MicrosoftEntraId') ? [
+              {
+                name: 'AVD-EntraAuthEndpoints'
+                ruleType: 'ApplicationRule'
+                protocols: [
+                  {
+                    protocolType: 'Https'
+                    port: 443
+                  }
+                ]
+                fqdnTags: []
+                webCategories: []
+                targetFqdns: [
+                  '*.microsoftonline.us'
+                    '*.graph.microsoft.us'
+                    '*.aadcdn.msftauth.net'
+                    '*.aadcdn.msauth.net'
+                    'enterpriseregistration.windows.net'
+                    '*.monitor.azure.us'
+                ]
+                targetUrls: []
+                terminateTLS: false
+                sourceAddresses: virtualNetworkAddressPrefixes
+                destinationAddresses: []
+                sourceIpGroups: []
+              }
+            ]  : []
+          )
         }
       ]
     }
