@@ -539,6 +539,7 @@ param firewallRuleCollectionGroups array = [
                   '139'
                   '135'
                   '89'
+                  '1024-65535'
                 ]
                 sourceIpGroups: []
                 destinationIpGroups: []
