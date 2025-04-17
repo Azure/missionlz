@@ -445,7 +445,7 @@ param firewallRuleCollectionGroups array = [
         }
         {
           name: 'NetworkRules'
-          priority: 150
+          priority: 140
           ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
           action: {
             type: 'Allow'
