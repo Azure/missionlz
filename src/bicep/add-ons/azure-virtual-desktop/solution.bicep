@@ -374,7 +374,7 @@ param identityVirtualNetworkAddressPrefix string = '10.0.130.0/24'
 @description('The firewall rules that will be applied to the Azure Firewall.')
 param firewallRuleCollectionGroups array = [
   {
-    name: 'AVD-ApplicationCollectionGroup-Stamp-${stampIndex}'
+    name: 'AVD-CollapsedCollectionGroup-Stamp-${stampIndex}'
     properties: {
       priority: 200
       ruleCollections: [
@@ -399,13 +399,13 @@ param firewallRuleCollectionGroups array = [
                 fqdnTags: []
                 webCategories: []
                 targetFqdns: [
-                    'management.usgovcloudapi.net'
-                    '*.blob.core.usgovcloudapi.net'
-                    '*.monitoring.core.usgovcloudapi.net'
-                    '*.monitor.core.usgovcloudapi.net'
-                    '*.guestconfiguration.azure.us'
-                    '*.digicert.com'
-                    '*.monitor.azure.us'
+                  'management.usgovcloudapi.net'
+                  '*.blob.core.usgovcloudapi.net'
+                  '*.monitoring.core.usgovcloudapi.net'
+                  '*.monitor.core.usgovcloudapi.net'
+                  '*.guestconfiguration.azure.us'
+                  '*.digicert.com'
+                  '*.monitor.azure.us'
                 ]
                 targetUrls: []
                 terminateTLS: false
@@ -428,11 +428,11 @@ param firewallRuleCollectionGroups array = [
                 webCategories: []
                 targetFqdns: [
                   '*.microsoftonline.us'
-                    '*.graph.microsoft.us'
-                    '*.aadcdn.msftauth.net'
-                    '*.aadcdn.msauth.net'
-                    'enterpriseregistration.windows.net'
-                    '*.monitor.azure.us'
+                  '*.graph.microsoft.us'
+                  '*.aadcdn.msftauth.net'
+                  '*.aadcdn.msauth.net'
+                  'enterpriseregistration.windows.net'
+                  '*.monitor.azure.us'
                 ]
                 targetUrls: []
                 terminateTLS: false
@@ -440,17 +440,9 @@ param firewallRuleCollectionGroups array = [
                 destinationAddresses: []
                 sourceIpGroups: []
               }
-            ]  : []
+            ] : []
           )
         }
-      ]
-    }
-  }
-  {
-    name: 'AVD-NetworkCollectionGroup-Stamp-${stampIndex}'
-    properties: {
-      priority: 200
-      ruleCollections: [
         {
           name: 'NetworkRules'
           priority: 150
