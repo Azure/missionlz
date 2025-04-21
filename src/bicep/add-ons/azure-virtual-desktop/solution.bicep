@@ -371,6 +371,9 @@ param workspacePublicNetworkAccess string = 'Enabled'
 @description('The address prefix for the identity network, assumed network where domain controllers are deployed.   Used in firewall rule if domain services is used.')
 param identityVirtualNetworkAddressPrefix string = '10.0.130.0/24'
 
+@description('Enables windows update services access through firewall.')
+param enableWindowsUpdateFwRules bool = false
+
 @description('The firewall rules that will be applied to the Azure Firewall.')
 param firewallRuleCollectionGroups array = [
   {
@@ -434,6 +437,32 @@ param firewallRuleCollectionGroups array = [
                   'enterpriseregistration.windows.net'
                   '*.monitor.azure.us'
                 ]
+                targetUrls: []
+                terminateTLS: false
+                sourceAddresses: virtualNetworkAddressPrefixes
+                destinationAddresses: []
+                sourceIpGroups: []
+              }
+            ] : [],
+            enableWindowsUpdateFwRules ? [
+              {
+                name: 'WindowsUpdateEndpoints'
+                ruleType: 'ApplicationRule'
+                protocols: [
+                  {
+                    protocolType: 'Https'
+                    port: 443
+                  }
+                  {
+                    protocolType: 'Http'
+                    port: 80
+                  }
+                ]
+                fqdnTags: [
+                  'WindowsUpdate'
+                ]
+                webCategories: []
+                targetFqdns: []
                 targetUrls: []
                 terminateTLS: false
                 sourceAddresses: virtualNetworkAddressPrefixes
