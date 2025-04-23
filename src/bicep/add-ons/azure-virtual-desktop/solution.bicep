@@ -86,6 +86,9 @@ param enableAvdInsights bool = true
 @description('Enable the partner telemetry deployment. This will allow ESRI to see data around the ArcGIS Pro deployments. https://learn.microsoft.com/en-us/partner-center/marketplace-offers/azure-partner-customer-usage-attribution')
 param enableTelemetry bool = false
 
+@description('Enables windows update services access through firewall.')
+param enableWindowsUpdate bool = false
+
 @allowed([
   'dev' // Development
   'prod' // Production
@@ -96,283 +99,6 @@ param environmentAbbreviation string = 'dev'
 
 @description('The resource ID for the existing feed workspace within a business unit or project.')
 param existingFeedWorkspaceResourceId string = ''
-
-@description('The file share size(s) in GB for the Fslogix storage solution.')
-param fslogixShareSizeInGB int = 100
-
-@allowed([
-  'CloudCacheProfileContainer' // FSLogix Cloud Cache Profile Container
-  'CloudCacheProfileOfficeContainer' // FSLogix Cloud Cache Profile & Office Container
-  'ProfileContainer' // FSLogix Profile Container
-  'ProfileOfficeContainer' // FSLogix Profile & Office Container
-])
-@description('If deploying FSLogix, select the desired type of container for user profiles. https://learn.microsoft.com/en-us/fslogix/concepts-container-types')
-param fslogixContainerType string = 'ProfileContainer'
-
-@allowed([
-  'AzureNetAppFiles Premium' // ANF with the Premium SKU, 450,000 IOPS
-  'AzureNetAppFiles Standard' // ANF with the Standard SKU, 320,000 IOPS
-  'AzureFiles Premium' // Azure Files Premium with a Private Endpoint, 100,000 IOPS
-  'AzureFiles Standard' // Azure Files Standard with the Large File Share option and a Private Endpoint, 20,000 IOPS
-  'None' // Local Profiles
-])
-@description('Enable an Fslogix storage option to manage user profiles for the AVD session hosts. The selected service & SKU should provide sufficient IOPS for all of your users. https://docs.microsoft.com/en-us/azure/architecture/example-scenario/wvd/windows-virtual-desktop-fslogix#performance-requirements')
-param fslogixStorageService string = 'AzureFiles Standard'
-
-@description('The subnet address prefix for the delegated subnet for the Azure Function App. This subnet is required for the Auto Increase Premium File Share Quotas tool.')
-param functionAppSubnetAddressPrefix string = ''
-
-@allowed([
-  'Disabled'
-  'Enabled'
-  'EnabledForClientsOnly'
-  'EnabledForSessionHostsOnly'
-])
-@description('The type of public network access for the host pool.')
-param hostPoolPublicNetworkAccess string = 'Enabled'
-
-@allowed([
-  'Pooled'
-  'Personal'
-])
-@description('The type of AVD host pool.')
-param hostPoolType string = 'Pooled'
-
-@description('The resource ID for the Azure Firewall in the HUB subscription')
-param hubAzureFirewallResourceId string
-
-@description('The resource ID for the Azure Virtual Network in the HUB subscription.')
-param hubVirtualNetworkResourceId string
-
-@maxLength(3)
-@description('The unique identifier between each business unit or project supporting AVD in your tenant. This is the unique naming component between each AVD stamp.')
-param identifier string = 'avd'
-
-@description('Offer for the virtual machine image')
-param imageOffer string = 'office-365'
-
-@description('Publisher for the virtual machine image')
-param imagePublisher string = 'MicrosoftWindowsDesktop'
-
-@description('SKU for the virtual machine image')
-param imageSku string = 'win11-22h2-avd-m365'
-
-@description('The resource ID for the Compute Gallery Image Version. Do not set this value if using a marketplace image.')
-param imageVersionResourceId string = ''
-
-@description('An array of Key Vault Diagnostic Logs categories to collect. See "https://learn.microsoft.com/en-us/azure/key-vault/general/logging?tabs=Vault" for valid values.')
-param keyVaultDiagnosticsLogs array = [
-  {
-    category: 'AuditEvent'
-    enabled: true
-  }
-  {
-    category: 'AzurePolicyEvaluationDetails'
-    enabled: true
-  }
-]
-
-@description('The Key Vault Diagnostic Metrics to collect. See the following URL for valid settings: "https://learn.microsoft.com/azure/key-vault/general/logging?tabs=Vault".')
-param keyVaultDiagnosticMetrics array = [
-  {
-    category: 'AllMetrics'
-    enabled: true
-  }
-]
-
-@description('The deployment location for the AVD sessions hosts. This is necessary when the users are closer to a different location than the control plane location.')
-param locationVirtualMachines string = deployment().location
-
-@maxValue(730)
-@minValue(30)
-@description('The retention for the Log Analytics Workspace to setup the AVD monitoring solution')
-param logAnalyticsWorkspaceRetention int = 30
-
-@allowed([
-  'Free'
-  'Standard'
-  'Premium'
-  'PerNode'
-  'PerGB2018'
-  'Standalone'
-  'CapacityReservation'
-])
-@description('The SKU for the Log Analytics Workspace to setup the AVD monitoring solution')
-param logAnalyticsWorkspaceSku string = 'PerGB2018'
-
-@description('The Storage Account SKU to use for log storage. It defaults to "Standard_GRS". See https://docs.microsoft.com/en-us/rest/api/storagerp/srp_sku_types for valid settings.')
-param logStorageSkuName string = 'Standard_GRS'
-
-@description('An array of metrics to enable on the diagnostic setting for network interfaces.')
-param networkInterfaceDiagnosticsMetrics array = [
-  {
-    category: 'AllMetrics'
-    enabled: true
-  }
-]
-
-@description('An array of Network Security Group diagnostic logs to apply to the workload Virtual Network. See https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-nsg-manage-log#log-categories for valid settings.')
-param networkSecurityGroupDiagnosticsLogs array = [
-  {
-    category: 'NetworkSecurityGroupEvent'
-    enabled: true
-  }
-  {
-    category: 'NetworkSecurityGroupRuleCounter'
-    enabled: true
-  }
-]
-
-@description('The rules to apply to the Network Security Group.')
-param networkSecurityGroupRules array = []
-
-@description('The number of days to retain Network Watcher Flow Logs. It defaults to "30".')  
-param networkWatcherFlowLogsRetentionDays int = 30
-
-@allowed([
-  'NetworkSecurityGroup'
-  'VirtualNetwork'
-])
-@description('When set to "true", enables Virtual Network Flow Logs. It defaults to "true" as its required by MCSB.')
-param networkWatcherFlowLogsType string = 'VirtualNetwork'
-
-@description('The resource ID for an existing network watcher for the desired deployment location. Only one network watcher per location can exist in a subscription. The value can be left empty to create a new network watcher resource.')
-param networkWatcherResourceId string = ''
-
-@description('The resource ID of the Log Analytics Workspace to use for log storage.')
-param operationsLogAnalyticsWorkspaceResourceId string
-
-@description('The distinguished name for the target Organization Unit in Active Directory Domain Services.')
-param organizationalUnitPath string = ''
-
-@description('The policy to assign to the workload.')
-param policy string = 'NISTRev4'
-
-@description('The resource ID for the Azure Monitor Private Link Scope in the Operations subscription / resource group.')
-param privateLinkScopeResourceId string
-
-@allowed([
-  'ArcGISPro'
-  'Generic'
-])
-@description('The profile of the workload for the AVD session hosts. When ArcGISPro is selected, telemetry data is collected for ESRI in the Partner Center.')
-param profile string = 'Generic'
-
-@description('Enable backups to an Azure Recovery Services vault.  For a pooled host pool this will enable backups on the Azure file share.  For a personal host pool this will enable backups on the AVD sessions hosts.')
-param recoveryServices bool = false
-
-@description('Off peak start time for weekdays in HH:mm format.')
-param scalingWeekdaysOffPeakStartTime string = '17:00'
-
-@description('Off peak start time for weekends in HH:mm format.')
-param scalingWeekdaysPeakStartTime string = '09:00'
-
-@description('Peak start time for weekdays in HH:mm format.')
-param scalingWeekendsOffPeakStartTime string = '17:00'
-
-@description('Peak start time for weekends in HH:mm format.')
-param scalingWeekendsPeakStartTime string = '09:00'
-
-@description('The array of Security Principals with their object IDs and display names to assign to the AVD Application Group and FSLogix Storage.')
-param securityPrincipals array
-
-/* Example of a security principal
-[
-  {
-    displayName: 'AVD'
-    objectId: '00000000-0000-0000-0000-000000000000'
-  }
-]
-*/
-
-@maxValue(5000)
-@minValue(0)
-@description('The number of session hosts to deploy in the host pool. Ensure you have the approved quota to deploy the desired count.')
-param sessionHostCount int = 1
-
-@maxValue(4999)
-@minValue(0)
-@description('The starting number for the session hosts. This is important when adding virtual machines to ensure an update deployment is not performed on an existing, active session host.')
-param sessionHostIndex int = 0
-
-@description('The resource ID for the subnet in the Shared Services subscription. This is required for the private endpoint on the AVD Global Workspace.')
-param sharedServicesSubnetResourceId string
-
-@maxValue(9)
-@minValue(0)
-@description('The stamp index allows for multiple AVD stamps with the same business unit or project to support different use cases. For example, "0" could be used for an office workers host pool and "1" could be used for a developers host pool within the "finance" business unit.')
-param stampIndex int = 0
-
-@maxValue(100)
-@minValue(0)
-@description('The number of storage accounts to deploy to support sharding across multiple storage accounts. https://docs.microsoft.com/en-us/azure/architecture/patterns/sharding')
-param storageCount int = 1
-
-@maxValue(99)
-@minValue(0)
-@description('The starting number for the names of the storage accounts to support sharding across multiple storage accounts. https://docs.microsoft.com/en-us/azure/architecture/patterns/sharding')
-param storageIndex int = 0
-
-@minLength(1)
-@maxLength(2)
-@description('The address prefix(es) for the new subnet(s) that will be created in the spoke virtual network(s). Specify only one address prefix in the array if the session hosts location and the control plan location are the same. If different locations are specified, add a second address prefix for the hosts virtual network.')
-param subnetAddressPrefixes array = [
-  '10.0.1${40 + (2 * stampIndex)}.0/24'
-  '10.0.1${41 + (2 * stampIndex)}.0/26'
-]
-
-@description('The Key / value pairs of metadata for the Azure resource groups and resources.')
-param tags object = {}
-
-@description('The number of users per core is used to determine the maximum number of users per session host.')
-param usersPerCore int = 1
-
-@description('The validation environment setting on the AVD host pool determines whether the hostpool should receive AVD preview features for testing.')
-param validationEnvironment bool = false
-
-@secure()
-@description('The local administrator password for the AVD session hosts')
-param virtualMachineAdminPassword string
-
-@description('The local administrator username for the AVD session hosts')
-param virtualMachineAdminUsername string
-
-@description('The virtual machine SKU for the AVD session hosts.')
-param virtualMachineSize string = 'Standard_D4ads_v5'
-
-@description('The number of virtual CPUs per virtual machine for the selected virtual machine size.')
-param virtualMachineVirtualCpuCount int
-
-@minLength(1)
-@maxLength(2)
-@description('The address prefix for the new spoke virtual network(s). Specify only one address prefix in the array if the session hosts location and the control plan location are the same. If different locations are specified, add a second address prefix for the hosts virtual network.')
-param virtualNetworkAddressPrefixes array = [
-  '10.0.1${40 + (2 * stampIndex)}.0/23'
-]
-
-@description('The diagnostic logs to apply to the workload Virtual Network.')
-param virtualNetworkDiagnosticsLogs array = []
-
-@description('The metrics to monitor for the workload Virtual Network.')
-param virtualNetworkDiagnosticsMetrics array = []
-
-@description('The friendly name for the AVD workspace that is displayed in the end-user client.')
-param workspaceFriendlyName string = ''
-
-param operationsVirtualNetworkAddressPrefix string = '10.0.131.0/24'
-
-@allowed([
-  'Disabled'
-  'Enabled'
-])
-@description('The public network access setting on the AVD workspace either disables public network access or allows both public and private network access.')
-param workspacePublicNetworkAccess string = 'Enabled'
-
-@description('The address prefix for the identity network, assumed network where domain controllers are deployed.   Used in firewall rule if domain services is used.')
-param identityVirtualNetworkAddressPrefix string = '10.0.130.0/24'
-
-@description('Enables windows update services access through firewall.')
-param enableWindowsUpdateFwRules bool = false
 
 @description('The firewall rules that will be applied to the Azure Firewall.')
 param firewallRuleCollectionGroups array = [
@@ -444,7 +170,7 @@ param firewallRuleCollectionGroups array = [
                 sourceIpGroups: []
               }
             ] : [],
-            enableWindowsUpdateFwRules ? [
+            enableWindowsUpdate ? [
               {
                 name: 'WindowsUpdateEndpoints'
                 ruleType: 'ApplicationRule'
@@ -581,6 +307,281 @@ param firewallRuleCollectionGroups array = [
     }
   }
 ]
+
+@description('The file share size(s) in GB for the Fslogix storage solution.')
+param fslogixShareSizeInGB int = 100
+
+@allowed([
+  'CloudCacheProfileContainer' // FSLogix Cloud Cache Profile Container
+  'CloudCacheProfileOfficeContainer' // FSLogix Cloud Cache Profile & Office Container
+  'ProfileContainer' // FSLogix Profile Container
+  'ProfileOfficeContainer' // FSLogix Profile & Office Container
+])
+@description('If deploying FSLogix, select the desired type of container for user profiles. https://learn.microsoft.com/en-us/fslogix/concepts-container-types')
+param fslogixContainerType string = 'ProfileContainer'
+
+@allowed([
+  'AzureNetAppFiles Premium' // ANF with the Premium SKU, 450,000 IOPS
+  'AzureNetAppFiles Standard' // ANF with the Standard SKU, 320,000 IOPS
+  'AzureFiles Premium' // Azure Files Premium with a Private Endpoint, 100,000 IOPS
+  'AzureFiles Standard' // Azure Files Standard with the Large File Share option and a Private Endpoint, 20,000 IOPS
+  'None' // Local Profiles
+])
+@description('Enable an Fslogix storage option to manage user profiles for the AVD session hosts. The selected service & SKU should provide sufficient IOPS for all of your users. https://docs.microsoft.com/en-us/azure/architecture/example-scenario/wvd/windows-virtual-desktop-fslogix#performance-requirements')
+param fslogixStorageService string = 'AzureFiles Standard'
+
+@description('The subnet address prefix for the delegated subnet for the Azure Function App. This subnet is required for the Auto Increase Premium File Share Quotas tool.')
+param functionAppSubnetAddressPrefix string = ''
+
+@allowed([
+  'Disabled'
+  'Enabled'
+  'EnabledForClientsOnly'
+  'EnabledForSessionHostsOnly'
+])
+@description('The type of public network access for the host pool.')
+param hostPoolPublicNetworkAccess string = 'Enabled'
+
+@allowed([
+  'Pooled'
+  'Personal'
+])
+@description('The type of AVD host pool.')
+param hostPoolType string = 'Pooled'
+
+@description('The resource ID for the Azure Firewall in the HUB subscription')
+param hubAzureFirewallResourceId string
+
+@description('The resource ID for the Azure Virtual Network in the HUB subscription.')
+param hubVirtualNetworkResourceId string
+
+@maxLength(3)
+@description('The unique identifier between each business unit or project supporting AVD in your tenant. This is the unique naming component between each AVD stamp.')
+param identifier string = 'avd'
+
+@description('The address prefix for the identity network, assumed network where domain controllers are deployed.   Used in firewall rule if domain services is used.')
+param identityVirtualNetworkAddressPrefix string = '10.0.130.0/24'
+
+@description('Offer for the virtual machine image')
+param imageOffer string = 'office-365'
+
+@description('Publisher for the virtual machine image')
+param imagePublisher string = 'MicrosoftWindowsDesktop'
+
+@description('SKU for the virtual machine image')
+param imageSku string = 'win11-22h2-avd-m365'
+
+@description('The resource ID for the Compute Gallery Image Version. Do not set this value if using a marketplace image.')
+param imageVersionResourceId string = ''
+
+@description('An array of Key Vault Diagnostic Logs categories to collect. See "https://learn.microsoft.com/en-us/azure/key-vault/general/logging?tabs=Vault" for valid values.')
+param keyVaultDiagnosticsLogs array = [
+  {
+    category: 'AuditEvent'
+    enabled: true
+  }
+  {
+    category: 'AzurePolicyEvaluationDetails'
+    enabled: true
+  }
+]
+
+@description('The Key Vault Diagnostic Metrics to collect. See the following URL for valid settings: "https://learn.microsoft.com/azure/key-vault/general/logging?tabs=Vault".')
+param keyVaultDiagnosticMetrics array = [
+  {
+    category: 'AllMetrics'
+    enabled: true
+  }
+]
+
+@description('The deployment location for the AVD sessions hosts. This is necessary when the users are closer to a different location than the control plane location.')
+param locationVirtualMachines string = deployment().location
+
+@maxValue(730)
+@minValue(30)
+@description('The retention for the Log Analytics Workspace to setup the AVD monitoring solution')
+param logAnalyticsWorkspaceRetention int = 30
+
+@allowed([
+  'Free'
+  'Standard'
+  'Premium'
+  'PerNode'
+  'PerGB2018'
+  'Standalone'
+  'CapacityReservation'
+])
+@description('The SKU for the Log Analytics Workspace to setup the AVD monitoring solution')
+param logAnalyticsWorkspaceSku string = 'PerGB2018'
+
+@description('The Storage Account SKU to use for log storage. It defaults to "Standard_GRS". See https://docs.microsoft.com/en-us/rest/api/storagerp/srp_sku_types for valid settings.')
+param logStorageSkuName string = 'Standard_GRS'
+
+@description('An array of metrics to enable on the diagnostic setting for network interfaces.')
+param networkInterfaceDiagnosticsMetrics array = [
+  {
+    category: 'AllMetrics'
+    enabled: true
+  }
+]
+
+@description('An array of Network Security Group diagnostic logs to apply to the workload Virtual Network. See https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-nsg-manage-log#log-categories for valid settings.')
+param networkSecurityGroupDiagnosticsLogs array = [
+  {
+    category: 'NetworkSecurityGroupEvent'
+    enabled: true
+  }
+  {
+    category: 'NetworkSecurityGroupRuleCounter'
+    enabled: true
+  }
+]
+
+@description('The rules to apply to the Network Security Group.')
+param networkSecurityGroupRules array = []
+
+@description('The number of days to retain Network Watcher Flow Logs. It defaults to "30".')  
+param networkWatcherFlowLogsRetentionDays int = 30
+
+@allowed([
+  'NetworkSecurityGroup'
+  'VirtualNetwork'
+])
+@description('When set to "true", enables Virtual Network Flow Logs. It defaults to "true" as its required by MCSB.')
+param networkWatcherFlowLogsType string = 'VirtualNetwork'
+
+@description('The resource ID for an existing network watcher for the desired deployment location. Only one network watcher per location can exist in a subscription. The value can be left empty to create a new network watcher resource.')
+param networkWatcherResourceId string = ''
+
+@description('The resource ID of the Log Analytics Workspace to use for log storage.')
+param operationsLogAnalyticsWorkspaceResourceId string
+
+@description('The CIDR Virtual Network Address Prefix for the Operations Virtual Network.')
+param operationsVirtualNetworkAddressPrefix string = '10.0.131.0/24'
+
+@description('The distinguished name for the target Organization Unit in Active Directory Domain Services.')
+param organizationalUnitPath string = ''
+
+@description('The policy to assign to the workload.')
+param policy string = 'NISTRev4'
+
+@description('The resource ID for the Azure Monitor Private Link Scope in the Operations subscription / resource group.')
+param privateLinkScopeResourceId string
+
+@allowed([
+  'ArcGISPro'
+  'Generic'
+])
+@description('The profile of the workload for the AVD session hosts. When ArcGISPro is selected, telemetry data is collected for ESRI in the Partner Center.')
+param profile string = 'Generic'
+
+@description('Enable backups to an Azure Recovery Services vault.  For a pooled host pool this will enable backups on the Azure file share.  For a personal host pool this will enable backups on the AVD sessions hosts.')
+param recoveryServices bool = false
+
+@description('Off peak start time for weekdays in HH:mm format.')
+param scalingWeekdaysOffPeakStartTime string = '17:00'
+
+@description('Off peak start time for weekends in HH:mm format.')
+param scalingWeekdaysPeakStartTime string = '09:00'
+
+@description('Peak start time for weekdays in HH:mm format.')
+param scalingWeekendsOffPeakStartTime string = '17:00'
+
+@description('Peak start time for weekends in HH:mm format.')
+param scalingWeekendsPeakStartTime string = '09:00'
+
+@description('The array of Security Principals with their object IDs and display names to assign to the AVD Application Group and FSLogix Storage.')
+param securityPrincipals array
+
+/* Example of a security principal
+[
+  {
+    displayName: 'AVD'
+    objectId: '00000000-0000-0000-0000-000000000000'
+  }
+]
+*/
+
+@maxValue(5000)
+@minValue(0)
+@description('The number of session hosts to deploy in the host pool. Ensure you have the approved quota to deploy the desired count.')
+param sessionHostCount int = 1
+
+@maxValue(4999)
+@minValue(0)
+@description('The starting number for the session hosts. This is important when adding virtual machines to ensure an update deployment is not performed on an existing, active session host.')
+param sessionHostIndex int = 0
+
+@description('The resource ID for the subnet in the Shared Services subscription. This is required for the private endpoint on the AVD Global Workspace.')
+param sharedServicesSubnetResourceId string
+
+@maxValue(9)
+@minValue(0)
+@description('The stamp index allows for multiple AVD stamps with the same business unit or project to support different use cases. For example, "0" could be used for an office workers host pool and "1" could be used for a developers host pool within the "finance" business unit.')
+param stampIndex int = 0
+
+@maxValue(100)
+@minValue(0)
+@description('The number of storage accounts to deploy to support sharding across multiple storage accounts. https://docs.microsoft.com/en-us/azure/architecture/patterns/sharding')
+param storageCount int = 1
+
+@maxValue(99)
+@minValue(0)
+@description('The starting number for the names of the storage accounts to support sharding across multiple storage accounts. https://docs.microsoft.com/en-us/azure/architecture/patterns/sharding')
+param storageIndex int = 0
+
+@minLength(1)
+@maxLength(2)
+@description('The address prefix(es) for the new subnet(s) that will be created in the spoke virtual network(s). Specify only one address prefix in the array if the session hosts location and the control plan location are the same. If different locations are specified, add a second address prefix for the hosts virtual network.')
+param subnetAddressPrefixes array = [
+  '10.0.1${40 + (2 * stampIndex)}.0/24'
+  '10.0.1${41 + (2 * stampIndex)}.0/26'
+]
+
+@description('The Key / value pairs of metadata for the Azure resource groups and resources.')
+param tags object = {}
+
+@description('The number of users per core is used to determine the maximum number of users per session host.')
+param usersPerCore int = 1
+
+@description('The validation environment setting on the AVD host pool determines whether the hostpool should receive AVD preview features for testing.')
+param validationEnvironment bool = false
+
+@secure()
+@description('The local administrator password for the AVD session hosts')
+param virtualMachineAdminPassword string
+
+@description('The local administrator username for the AVD session hosts')
+param virtualMachineAdminUsername string
+
+@description('The virtual machine SKU for the AVD session hosts.')
+param virtualMachineSize string = 'Standard_D4ads_v5'
+
+@description('The number of virtual CPUs per virtual machine for the selected virtual machine size.')
+param virtualMachineVirtualCpuCount int
+
+@minLength(1)
+@maxLength(2)
+@description('The address prefix for the new spoke virtual network(s). Specify only one address prefix in the array if the session hosts location and the control plan location are the same. If different locations are specified, add a second address prefix for the hosts virtual network.')
+param virtualNetworkAddressPrefixes array = [
+  '10.0.1${40 + (2 * stampIndex)}.0/23'
+]
+
+@description('The diagnostic logs to apply to the workload Virtual Network.')
+param virtualNetworkDiagnosticsLogs array = []
+
+@description('The metrics to monitor for the workload Virtual Network.')
+param virtualNetworkDiagnosticsMetrics array = []
+
+@description('The friendly name for the AVD workspace that is displayed in the end-user client.')
+param workspaceFriendlyName string = ''
+
+@allowed([
+  'Disabled'
+  'Enabled'
+])
+@description('The public network access setting on the AVD workspace either disables public network access or allows both public and private network access.')
+param workspacePublicNetworkAccess string = 'Enabled'
 
 //  BATCH SESSION HOSTS
 // The following variables are used to determine the batches to deploy any number of AVD session hosts.
@@ -930,6 +931,7 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     enableAcceleratedNetworking: enableAcceleratedNetworking
     enableAvdInsights: enableAvdInsights
     enableRecoveryServices: recoveryServices
+    enableWindowsUpdate: enableWindowsUpdate
     environmentAbbreviation: environmentAbbreviation
     fslogixContainerType: fslogixContainerType
     hostPoolName: management.outputs.hostPoolName

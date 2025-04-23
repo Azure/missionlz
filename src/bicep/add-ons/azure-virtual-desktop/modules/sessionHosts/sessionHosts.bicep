@@ -25,6 +25,7 @@ param drainMode bool
 param enableAcceleratedNetworking bool
 param enableAvdInsights bool
 param enableRecoveryServices bool
+param enableWindowsUpdate bool
 param environmentAbbreviation string
 param fslogixContainerType string
 param hostPoolName string
@@ -192,6 +193,7 @@ module virtualMachines 'virtualMachines.bicep' = [for i in range(1, sessionHostB
     enableAcceleratedNetworking: enableAcceleratedNetworking
     enableAvdInsights: enableAvdInsights
     enableDrainMode: drainMode
+    enableWindowsUpdate: enableWindowsUpdate
     fslogixContainerType: fslogixContainerType
     hostPoolName: hostPoolName
     imageVersionResourceId: imageVersionResourceId

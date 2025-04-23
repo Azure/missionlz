@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.34.44.8038",
-      "templateHash": "18082163909048131606"
+      "templateHash": "4984104116702941247"
     }
   },
   "parameters": {
@@ -184,6 +184,13 @@
         "description": "Enable the partner telemetry deployment. This will allow ESRI to see data around the ArcGIS Pro deployments. https://learn.microsoft.com/en-us/partner-center/marketplace-offers/azure-partner-customer-usage-attribution"
       }
     },
+    "enableWindowsUpdate": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Enables windows update services access through firewall."
+      }
+    },
     "environmentAbbreviation": {
       "type": "string",
       "defaultValue": "dev",
@@ -201,6 +208,40 @@
       "defaultValue": "",
       "metadata": {
         "description": "The resource ID for the existing feed workspace within a business unit or project."
+      }
+    },
+    "firewallRuleCollectionGroups": {
+      "type": "array",
+      "defaultValue": [
+        {
+          "name": "[format('AVD-CollapsedCollectionGroup-Stamp-{0}', parameters('stampIndex'))]",
+          "properties": {
+            "priority": 200,
+            "ruleCollections": [
+              {
+                "name": "ApplicationRules",
+                "priority": 150,
+                "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                "action": {
+                  "type": "Allow"
+                },
+                "rules": "[concat(createArray(createObject('name', 'AVD-RequiredDeploymentEndpoints', 'ruleType', 'ApplicationRule', 'protocols', createArray(createObject('protocolType', 'Https', 'port', 443)), 'fqdnTags', createArray(), 'webCategories', createArray(), 'targetFqdns', createArray('management.usgovcloudapi.net', '*.blob.core.usgovcloudapi.net', '*.monitoring.core.usgovcloudapi.net', '*.monitor.core.usgovcloudapi.net', '*.guestconfiguration.azure.us', '*.digicert.com', '*.monitor.azure.us'), 'targetUrls', createArray(), 'terminateTLS', false(), 'sourceAddresses', parameters('virtualNetworkAddressPrefixes'), 'destinationAddresses', createArray(), 'sourceIpGroups', createArray())), if(contains(parameters('activeDirectorySolution'), 'MicrosoftEntraId'), createArray(createObject('name', 'AVD-EntraAuthEndpoints', 'ruleType', 'ApplicationRule', 'protocols', createArray(createObject('protocolType', 'Https', 'port', 443)), 'fqdnTags', createArray(), 'webCategories', createArray(), 'targetFqdns', createArray('*.microsoftonline.us', '*.graph.microsoft.us', '*.aadcdn.msftauth.net', '*.aadcdn.msauth.net', 'enterpriseregistration.windows.net', '*.monitor.azure.us'), 'targetUrls', createArray(), 'terminateTLS', false(), 'sourceAddresses', parameters('virtualNetworkAddressPrefixes'), 'destinationAddresses', createArray(), 'sourceIpGroups', createArray())), createArray()), if(parameters('enableWindowsUpdate'), createArray(createObject('name', 'WindowsUpdateEndpoints', 'ruleType', 'ApplicationRule', 'protocols', createArray(createObject('protocolType', 'Https', 'port', 443), createObject('protocolType', 'Http', 'port', 80)), 'fqdnTags', createArray('WindowsUpdate'), 'webCategories', createArray(), 'targetFqdns', createArray(), 'targetUrls', createArray(), 'terminateTLS', false(), 'sourceAddresses', parameters('virtualNetworkAddressPrefixes'), 'destinationAddresses', createArray(), 'sourceIpGroups', createArray())), createArray()))]"
+              },
+              {
+                "name": "NetworkRules",
+                "priority": 140,
+                "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                "action": {
+                  "type": "Allow"
+                },
+                "rules": "[concat(createArray(createObject('name', 'KMS-Endpoint', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Tcp'), 'sourceAddresses', parameters('virtualNetworkAddressPrefixes'), 'destinationAddresses', createArray(), 'destinationFqdns', createArray('azkms.core.usgovcloudapi.net'), 'destinationPorts', createArray('1688'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray())), createArray(createObject('name', 'AllowMonitorToLAW', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Tcp'), 'sourceAddresses', parameters('virtualNetworkAddressPrefixes'), 'destinationAddresses', createArray(cidrHost(parameters('operationsVirtualNetworkAddressPrefix'), 3)), 'destinationPorts', createArray('443'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray(), 'destinationFqdns', createArray())), createArray(createObject('name', 'TimeSync', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Udp'), 'sourceAddresses', parameters('virtualNetworkAddressPrefixes'), 'destinationAddresses', createArray(), 'destinationFqdns', createArray('time.windows.com'), 'destinationPorts', createArray('123'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray())), createArray(createObject('name', 'AzureCloudforLogin', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Tcp'), 'sourceAddresses', parameters('virtualNetworkAddressPrefixes'), 'destinationAddresses', createArray('AzureActiveDirectory'), 'destinationFqdns', createArray(), 'destinationPorts', createArray('443'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray())), if(contains(parameters('activeDirectorySolution'), 'DomainServices'), createArray(createObject('name', 'ADCommunicationRule', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Tcp', 'Udp'), 'sourceAddresses', parameters('virtualNetworkAddressPrefixes'), 'destinationAddresses', createArray(parameters('identityVirtualNetworkAddressPrefix')), 'destinationPorts', createArray('53', '88', '389', '445', '139', '135', '89', '123', '1024-65535'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray())), createArray()))]"
+              }
+            ]
+          }
+        }
+      ],
+      "metadata": {
+        "description": "The firewall rules that will be applied to the Azure Firewall."
       }
     },
     "fslogixShareSizeInGB": {
@@ -286,6 +327,13 @@
       "maxLength": 3,
       "metadata": {
         "description": "The unique identifier between each business unit or project supporting AVD in your tenant. This is the unique naming component between each AVD stamp."
+      }
+    },
+    "identityVirtualNetworkAddressPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.130.0/24",
+      "metadata": {
+        "description": "The address prefix for the identity network, assumed network where domain controllers are deployed.   Used in firewall rule if domain services is used."
       }
     },
     "imageOffer": {
@@ -447,6 +495,13 @@
       "type": "string",
       "metadata": {
         "description": "The resource ID of the Log Analytics Workspace to use for log storage."
+      }
+    },
+    "operationsVirtualNetworkAddressPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.131.0/24",
+      "metadata": {
+        "description": "The CIDR Virtual Network Address Prefix for the Operations Virtual Network."
       }
     },
     "organizationalUnitPath": {
@@ -662,10 +717,6 @@
         "description": "The friendly name for the AVD workspace that is displayed in the end-user client."
       }
     },
-    "operationsVirtualNetworkAddressPrefix": {
-      "type": "string",
-      "defaultValue": "10.0.131.0/24"
-    },
     "workspacePublicNetworkAccess": {
       "type": "string",
       "defaultValue": "Enabled",
@@ -675,87 +726,6 @@
       ],
       "metadata": {
         "description": "The public network access setting on the AVD workspace either disables public network access or allows both public and private network access."
-      }
-    },
-    "identityVirtualNetworkAddressPrefix": {
-      "type": "string",
-      "defaultValue": "10.0.130.0/24",
-      "metadata": {
-        "description": "The address prefix for the identity network, assumed network where domain controllers are deployed.   Used in firewall rule if domain services is used."
-      }
-    },
-    "firewallRuleCollectionGroups": {
-      "type": "array",
-      "defaultValue": [
-        {
-          "name": "AVD-ApplicationCollectionGroup",
-          "properties": {
-            "priority": 300,
-            "ruleCollections": [
-              {
-                "name": "[format('ApplicationRules-Stamp-{0}', parameters('stampIndex'))]",
-                "priority": 110,
-                "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
-                "action": {
-                  "type": "Allow"
-                },
-                "rules": [
-                  {
-                    "name": "AVD-RequiredEndpoints",
-                    "ruleType": "ApplicationRule",
-                    "protocols": [
-                      {
-                        "protocolType": "Https",
-                        "port": 443
-                      }
-                    ],
-                    "fqdnTags": [],
-                    "webCategories": [],
-                    "targetFqdns": [
-                      "*.microsoftonline.us",
-                      "*.graph.microsoft.us",
-                      "*.aadcdn.msftauth.net",
-                      "*.aadcdn.msauth.net",
-                      "enterpriseregistration.windows.net",
-                      "management.usgovcloudapi.net",
-                      "*.blob.core.usgovcloudapi.net",
-                      "*.monitoring.core.usgovcloudapi.net",
-                      "*.monitor.core.usgovcloudapi.net",
-                      "*.guestconfiguration.azure.us",
-                      "*.digicert.com",
-                      "*.monitor.azure.us"
-                    ],
-                    "targetUrls": [],
-                    "terminateTLS": false,
-                    "sourceAddresses": "[parameters('virtualNetworkAddressPrefixes')]",
-                    "destinationAddresses": [],
-                    "sourceIpGroups": []
-                  }
-                ]
-              }
-            ]
-          }
-        },
-        {
-          "name": "AVD-NetworkCollectionGroup",
-          "properties": {
-            "priority": 310,
-            "ruleCollections": [
-              {
-                "name": "[format('NetworkRules-Stamp-{0}', parameters('stampIndex'))]",
-                "priority": 120,
-                "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
-                "action": {
-                  "type": "Allow"
-                },
-                "rules": "[concat(createArray(createObject('name', 'KMS-Endpoint', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Tcp'), 'sourceAddresses', parameters('virtualNetworkAddressPrefixes'), 'destinationAddresses', createArray(), 'destinationFqdns', createArray('azkms.core.usgovcloudapi.net'), 'destinationPorts', createArray('1688'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray())), createArray(createObject('name', 'AllowMonitorToLAW', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Tcp'), 'sourceAddresses', parameters('virtualNetworkAddressPrefixes'), 'destinationAddresses', createArray(cidrHost(parameters('operationsVirtualNetworkAddressPrefix'), 3)), 'destinationPorts', createArray('443'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray(), 'destinationFqdns', createArray())), createArray(createObject('name', 'TimeSync', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Udp'), 'sourceAddresses', parameters('virtualNetworkAddressPrefixes'), 'destinationAddresses', createArray(), 'destinationFqdns', createArray('time.windows.com'), 'destinationPorts', createArray('123'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray())), createArray(createObject('name', 'AzureCloudforLogin', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Tcp'), 'sourceAddresses', parameters('virtualNetworkAddressPrefixes'), 'destinationAddresses', createArray('AzureActiveDirectory'), 'destinationFqdns', createArray(), 'destinationPorts', createArray('443'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray())), if(contains(parameters('activeDirectorySolution'), 'DomainServices'), createArray(createObject('name', 'ADCommunicationRule', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Tcp', 'Udp'), 'sourceAddresses', parameters('virtualNetworkAddressPrefixes'), 'destinationAddresses', createArray(parameters('identityVirtualNetworkAddressPrefix')), 'destinationPorts', createArray('53', '88', '389', '445', '139', '135', '89'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray())), createArray()))]"
-              }
-            ]
-          }
-        }
-      ],
-      "metadata": {
-        "description": "The firewall rules that will be applied to the Azure Firewall."
       }
     }
   },
@@ -12420,6 +12390,9 @@
           "enableRecoveryServices": {
             "value": "[parameters('recoveryServices')]"
           },
+          "enableWindowsUpdate": {
+            "value": "[parameters('enableWindowsUpdate')]"
+          },
           "environmentAbbreviation": {
             "value": "[parameters('environmentAbbreviation')]"
           },
@@ -12550,7 +12523,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.34.44.8038",
-              "templateHash": "9348818253539384386"
+              "templateHash": "2417125836478234010"
             }
           },
           "parameters": {
@@ -12624,6 +12597,9 @@
               "type": "bool"
             },
             "enableRecoveryServices": {
+              "type": "bool"
+            },
+            "enableWindowsUpdate": {
               "type": "bool"
             },
             "environmentAbbreviation": {
@@ -13181,6 +13157,9 @@
                   "enableDrainMode": {
                     "value": "[parameters('drainMode')]"
                   },
+                  "enableWindowsUpdate": {
+                    "value": "[parameters('enableWindowsUpdate')]"
+                  },
                   "fslogixContainerType": {
                     "value": "[parameters('fslogixContainerType')]"
                   },
@@ -13269,7 +13248,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.34.44.8038",
-                      "templateHash": "2092488379835814829"
+                      "templateHash": "13441059121425651612"
                     }
                   },
                   "parameters": {
@@ -13331,6 +13310,9 @@
                       "type": "bool"
                     },
                     "enableDrainMode": {
+                      "type": "bool"
+                    },
+                    "enableWindowsUpdate": {
                       "type": "bool"
                     },
                     "fslogixContainerType": {
@@ -13543,7 +13525,7 @@
                           "computerName": "[format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[copyIndex()], parameters('sessionHostIndex')), 4, '0'))]",
                           "windowsConfiguration": {
                             "provisionVMAgent": true,
-                            "enableAutomaticUpdates": false
+                            "enableAutomaticUpdates": "[if(and(parameters('enableWindowsUpdate'), equals(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.DesktopVirtualization/hostPools', parameters('hostPoolName')), '2023-09-05').hostPoolType, 'Personal')), true(), false())]"
                           },
                           "secrets": [],
                           "allowExtensionOperations": true
