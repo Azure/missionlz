@@ -87,7 +87,7 @@ param enableAvdInsights bool = true
 param enableTelemetry bool = false
 
 @description('Enables windows update services access through firewall.')
-param enableWindowsUpdate bool = false
+param enableWindowsUpdateFwRules bool = false
 
 @allowed([
   'dev' // Development
@@ -100,213 +100,8 @@ param environmentAbbreviation string = 'dev'
 @description('The resource ID for the existing feed workspace within a business unit or project.')
 param existingFeedWorkspaceResourceId string = ''
 
-@description('The firewall rules that will be applied to the Azure Firewall.')
-param firewallRuleCollectionGroups array = [
-  {
-    name: 'AVD-CollapsedCollectionGroup-Stamp-${stampIndex}'
-    properties: {
-      priority: 200
-      ruleCollections: [
-        {
-          name: 'ApplicationRules'
-          priority: 150
-          ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
-          action: {
-            type: 'Allow'
-          }
-          rules: concat(
-            [
-              {
-                name: 'AVD-RequiredDeploymentEndpoints'
-                ruleType: 'ApplicationRule'
-                protocols: [
-                  {
-                    protocolType: 'Https'
-                    port: 443
-                  }
-                ]
-                fqdnTags: []
-                webCategories: []
-                targetFqdns: [
-                  'management.usgovcloudapi.net'
-                  '*.blob.core.usgovcloudapi.net'
-                  '*.monitoring.core.usgovcloudapi.net'
-                  '*.monitor.core.usgovcloudapi.net'
-                  '*.guestconfiguration.azure.us'
-                  '*.digicert.com'
-                  '*.monitor.azure.us'
-                ]
-                targetUrls: []
-                terminateTLS: false
-                sourceAddresses: virtualNetworkAddressPrefixes
-                destinationAddresses: []
-                sourceIpGroups: []
-              }
-            ],
-            contains(activeDirectorySolution, 'MicrosoftEntraId') ? [
-              {
-                name: 'AVD-EntraAuthEndpoints'
-                ruleType: 'ApplicationRule'
-                protocols: [
-                  {
-                    protocolType: 'Https'
-                    port: 443
-                  }
-                ]
-                fqdnTags: []
-                webCategories: []
-                targetFqdns: [
-                  '*.microsoftonline.us'
-                  '*.graph.microsoft.us'
-                  '*.aadcdn.msftauth.net'
-                  '*.aadcdn.msauth.net'
-                  'enterpriseregistration.windows.net'
-                  '*.monitor.azure.us'
-                ]
-                targetUrls: []
-                terminateTLS: false
-                sourceAddresses: virtualNetworkAddressPrefixes
-                destinationAddresses: []
-                sourceIpGroups: []
-              }
-            ] : [],
-            enableWindowsUpdate ? [
-              {
-                name: 'WindowsUpdateEndpoints'
-                ruleType: 'ApplicationRule'
-                protocols: [
-                  {
-                    protocolType: 'Https'
-                    port: 443
-                  }
-                  {
-                    protocolType: 'Http'
-                    port: 80
-                  }
-                ]
-                fqdnTags: [
-                  'WindowsUpdate'
-                ]
-                webCategories: []
-                targetFqdns: []
-                targetUrls: []
-                terminateTLS: false
-                sourceAddresses: virtualNetworkAddressPrefixes
-                destinationAddresses: []
-                sourceIpGroups: []
-              }
-            ] : []
-          )
-        }
-        {
-          name: 'NetworkRules'
-          priority: 140
-          ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
-          action: {
-            type: 'Allow'
-          }
-          rules: concat(
-            [
-              {
-                name: 'KMS-Endpoint'
-                ruleType: 'NetworkRule'
-                ipProtocols: [
-                  'Tcp'
-                ]
-                sourceAddresses: virtualNetworkAddressPrefixes
-                destinationAddresses: []
-                destinationFqdns: [
-                  'azkms.core.usgovcloudapi.net'
-                ]
-                destinationPorts: [
-                  '1688'
-                ]
-                sourceIpGroups: []
-                destinationIpGroups: []
-              }
-            ],
-            [
-              {
-                name: 'AllowMonitorToLAW'
-                ruleType: 'NetworkRule'
-                ipProtocols: ['Tcp']
-                sourceAddresses: virtualNetworkAddressPrefixes
-                destinationAddresses: [cidrHost(operationsVirtualNetworkAddressPrefix, 3)] // Network of the Log Analytics Workspace, could be narrowed using parameters file post deployment
-                destinationPorts: ['443'] // HTTPS port for Azure Monitor
-                sourceIpGroups: []
-                destinationIpGroups: []
-                destinationFqdns: []
-              }
-            ],
-            [
-              {
-                name: 'TimeSync'
-                ruleType: 'NetworkRule'
-                ipProtocols: [
-                  'Udp'
-                ]
-                sourceAddresses: virtualNetworkAddressPrefixes
-                destinationAddresses: []
-                destinationFqdns: [
-                  'time.windows.com'
-                ]
-                destinationPorts: [
-                  '123'
-                ]
-                sourceIpGroups: []
-                destinationIpGroups: []
-              }
-            ],
-            [
-              {
-                name: 'AzureCloudforLogin'
-                ruleType: 'NetworkRule'
-                ipProtocols: [
-                  'Tcp'
-                ]
-                sourceAddresses: virtualNetworkAddressPrefixes
-                destinationAddresses: ['AzureActiveDirectory']
-                destinationFqdns: []
-                destinationPorts: [
-                  '443'
-                ]
-                sourceIpGroups: []
-                destinationIpGroups: []
-              }
-            ],
-            contains(activeDirectorySolution, 'DomainServices') ? [
-              {
-                name: 'ADCommunicationRule'
-                ruleType: 'NetworkRule'
-                ipProtocols: [
-                  'Tcp'
-                  'Udp'
-                ]
-                sourceAddresses: virtualNetworkAddressPrefixes
-                destinationAddresses: [
-                  identityVirtualNetworkAddressPrefix
-                ]
-                destinationPorts: [
-                  '53'
-                  '88'
-                  '389'
-                  '445'
-                  '139'
-                  '135'
-                  '89'
-                  '123'
-                  '1024-65535'
-                ]
-                sourceIpGroups: []
-                destinationIpGroups: []
-              }
-            ] : []
-          )
-        }
-      ]
-    }
-  }
-]
+@description('The override for the custom firewall rule collection groups.')
+param customFirewallRuleCollectionGroups array = []
 
 @description('The file share size(s) in GB for the Fslogix storage solution.')
 param fslogixShareSizeInGB int = 100
@@ -348,9 +143,6 @@ param hostPoolPublicNetworkAccess string = 'Enabled'
 ])
 @description('The type of AVD host pool.')
 param hostPoolType string = 'Pooled'
-
-@description('The resource ID for the Azure Firewall in the HUB subscription')
-param hubAzureFirewallResourceId string
 
 @description('The resource ID for the Azure Virtual Network in the HUB subscription.')
 param hubVirtualNetworkResourceId string
@@ -654,6 +446,233 @@ var subnets = {
       ]
     : []
 }
+// setting the firewall resource id
+var hubAzureFirewallResourceId = replace(
+  replace(hubVirtualNetworkResourceId, '/virtualNetworks/', '/azureFirewalls/'),
+  '-vnet-',
+  '-afw-'
+)
+
+// setting default firewall rules and the effective rules based on the custom rules passed in
+var cloudSuffix = replace(replace(environment().resourceManager, 'https://management.', ''), '/', '')
+
+var avdFwDeploymentTargetFqdns = [
+  replace(environment().resourceManager, 'https://', '')
+  'mrsglobalsteus2prod.blob.${environment().suffixes.storage}'
+  'wvdportalstorageblob.blob.${environment().suffixes.storage}'
+  'gcs.prod.monitoring.${environment().suffixes.storage}'
+  '*.prod.warm.ingest.monitor.${environment().suffixes.storage}'
+  '*.guestconfiguration.${privateDnsZoneSuffixes_AzureVirtualDesktop[environment().name] ?? cloudSuffix}'
+  '*.wvd.${privateDnsZoneSuffixes_AzureVirtualDesktop[environment().name] ?? cloudSuffix}'
+]
+
+var avdFwEntraIdAuthTargetFqdns = [
+  replace(environment().authentication.loginEndpoint, 'https://', '')
+  replace(environment().graph, 'https://', '')
+  'enterpriseregistration.windows.net'
+]
+
+var avdKmsDestinationFqdns = [
+  'azkms.${environment().suffixes.storage}'
+]
+var privateDnsZoneSuffixes_AzureVirtualDesktop = {
+  AzureCloud: 'microsoft.com'
+  AzureUSGovernment: 'azure.us'
+  USNat: null
+  USSec: null
+}
+var defaultFirewallRuleCollectionGroups = [
+  {
+    name: 'AVD-CollapsedCollectionGroup-Stamp-${stampIndex}'
+    properties: {
+      priority: 200
+      ruleCollections: [
+        {
+          name: 'ApplicationRules'
+          priority: 150
+          ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
+          action: {
+            type: 'Allow'
+          }
+          rules: concat(
+            [
+              {
+                name: 'AVD-RequiredDeploymentEndpoints'
+                ruleType: 'ApplicationRule'
+                protocols: [
+                  {
+                    protocolType: 'Https'
+                    port: 443
+                  }
+                ]
+                fqdnTags: []
+                webCategories: []
+                targetFqdns:avdFwDeploymentTargetFqdns
+                targetUrls: []
+                terminateTLS: false
+                sourceAddresses: virtualNetworkAddressPrefixes
+                destinationAddresses: []
+                sourceIpGroups: []
+              }
+            ],
+            contains(activeDirectorySolution, 'MicrosoftEntraId') ? [
+              {
+                name: 'AVD-EntraAuthEndpoints'
+                ruleType: 'ApplicationRule'
+                protocols: [
+                  {
+                    protocolType: 'Https'
+                    port: 443
+                  }
+                ]
+                fqdnTags: []
+                webCategories: []
+                targetFqdns: avdFwEntraIdAuthTargetFqdns
+                targetUrls: []
+                terminateTLS: false
+                sourceAddresses: virtualNetworkAddressPrefixes
+                destinationAddresses: []
+                sourceIpGroups: []
+              }
+            ] : [],
+            enableWindowsUpdateFwRules ? [
+              {
+                name: 'WindowsUpdateEndpoints'
+                ruleType: 'ApplicationRule'
+                protocols: [
+                  {
+                    protocolType: 'Https'
+                    port: 443
+                  }
+                  {
+                    protocolType: 'Http'
+                    port: 80
+                  }
+                ]
+                fqdnTags: [
+                  'WindowsUpdate'
+                ]
+                webCategories: []
+                targetFqdns: []
+                targetUrls: []
+                terminateTLS: false
+                sourceAddresses: virtualNetworkAddressPrefixes
+                destinationAddresses: []
+                sourceIpGroups: []
+              }
+            ] : []
+          )
+        }
+        {
+          name: 'NetworkRules'
+          priority: 140
+          ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
+          action: {
+            type: 'Allow'
+          }
+          rules: concat(
+            [
+              {
+                name: 'KMS-Endpoint'
+                ruleType: 'NetworkRule'
+                ipProtocols: [
+                  'Tcp'
+                ]
+                sourceAddresses: virtualNetworkAddressPrefixes
+                destinationAddresses: []
+                destinationFqdns: avdKmsDestinationFqdns
+                destinationPorts: [
+                  '1688'
+                ]
+                sourceIpGroups: []
+                destinationIpGroups: []
+              }
+            ],
+            [
+              {
+                name: 'AllowMonitorToLAW'
+                ruleType: 'NetworkRule'
+                ipProtocols: ['Tcp']
+                sourceAddresses: virtualNetworkAddressPrefixes
+                destinationAddresses: [cidrHost(operationsVirtualNetworkAddressPrefix, 3)] // Network of the Log Analytics Workspace, could be narrowed using parameters file post deployment
+                destinationPorts: ['443'] // HTTPS port for Azure Monitor
+                sourceIpGroups: []
+                destinationIpGroups: []
+                destinationFqdns: []
+              }
+            ],
+            [
+              {
+                name: 'TimeSync'
+                ruleType: 'NetworkRule'
+                ipProtocols: [
+                  'Udp'
+                ]
+                sourceAddresses: virtualNetworkAddressPrefixes
+                destinationAddresses: []
+                destinationFqdns: [
+                  'time.windows.com'
+                ]
+                destinationPorts: [
+                  '123'
+                ]
+                sourceIpGroups: []
+                destinationIpGroups: []
+              }
+            ],
+            [
+              {
+                name: 'AzureCloudforLogin'
+                ruleType: 'NetworkRule'
+                ipProtocols: [
+                  'Tcp'
+                ]
+                sourceAddresses: virtualNetworkAddressPrefixes
+                destinationAddresses: ['AzureActiveDirectory']
+                destinationFqdns: []
+                destinationPorts: [
+                  '443'
+                ]
+                sourceIpGroups: []
+                destinationIpGroups: []
+              }
+            ],
+            contains(activeDirectorySolution, 'DomainServices') ? [
+              {
+                name: 'ADCommunicationRule'
+                ruleType: 'NetworkRule'
+                ipProtocols: [
+                  'Tcp'
+                  'Udp'
+                ]
+                sourceAddresses: virtualNetworkAddressPrefixes
+                destinationAddresses: [
+                  identityVirtualNetworkAddressPrefix
+                ]
+                destinationPorts: [
+                  '53'
+                  '88'
+                  '389'
+                  '445'
+                  '139'
+                  '135'
+                  '89'
+                  '123'
+                  '1024-65535'
+                ]
+                sourceIpGroups: []
+                destinationIpGroups: []
+              }
+            ] : []
+          )
+        }
+      ]
+    }
+  }
+]
+var effectiveFirewallRuleCollectionGroups = empty(customFirewallRuleCollectionGroups) ? defaultFirewallRuleCollectionGroups : customFirewallRuleCollectionGroups
+
+
 
 // Gets the MLZ hub virtual network for its location and tags
 resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-11-01' existing = {
@@ -707,7 +726,7 @@ module tier3_hosts '../tier3/solution.bicep' = {
     emailSecurityContact: emailSecurityContact
     environmentAbbreviation: environmentAbbreviation
     firewallResourceId: hubAzureFirewallResourceId
-    firewallRuleCollectionGroups: firewallRuleCollectionGroups
+    firewallRuleCollectionGroups: effectiveFirewallRuleCollectionGroups
     hubVirtualNetworkResourceId: hubVirtualNetworkResourceId
     identifier: identifier
     keyVaultDiagnosticLogs: keyVaultDiagnosticsLogs
@@ -931,7 +950,7 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     enableAcceleratedNetworking: enableAcceleratedNetworking
     enableAvdInsights: enableAvdInsights
     enableRecoveryServices: recoveryServices
-    enableWindowsUpdate: enableWindowsUpdate
+    enableWindowsUpdate: enableWindowsUpdateFwRules
     environmentAbbreviation: environmentAbbreviation
     fslogixContainerType: fslogixContainerType
     hostPoolName: management.outputs.hostPoolName

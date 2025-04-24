@@ -594,7 +594,9 @@ param windowsVmStorageAccountType string = 'StandardSSD_LRS'
 param windowsVmVersion string = 'latest'
 
 @description('The firewall rules that will be applied to the Azure Firewall.')
-param firewallRuleCollectionGroups array = [
+param customFirewallRuleCollectionGroups array = []
+
+var defaultFirewallRuleCollectionGroups = [
   {
     name: 'MLZ-NetworkCollectionGroup'
     properties: {
@@ -634,6 +636,7 @@ param firewallRuleCollectionGroups array = [
   }
 ]
 
+var effectiveFirewallRuleCollectionGroups = empty(customFirewallRuleCollectionGroups) ? defaultFirewallRuleCollectionGroups : customFirewallRuleCollectionGroups
 
 var firewallClientPrivateIpAddress = firewallClientUsableIpAddresses[3]
 var firewallClientUsableIpAddresses = [for i in range(0, 4): cidrHost(firewallClientSubnetAddressPrefix, i)]
@@ -745,7 +748,7 @@ module networking 'modules/networking.bicep' = {
       supernetIPAddress: firewallSupernetIPAddress
       threatIntelMode: firewallThreatIntelMode
     }
-    firewallRuleCollectionGroups: firewallRuleCollectionGroups
+    firewallRuleCollectionGroups: effectiveFirewallRuleCollectionGroups
     location: location
     mlzTags: logic.outputs.mlzTags
     privateDnsZoneNames: logic.outputs.privateDnsZones

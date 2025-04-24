@@ -65,7 +65,10 @@ param gatewaySubnetName string = 'GatewaySubnet'
 @description('The name of the hub virtual network route table')
 param hubVnetRouteTableResourceId string
 
-param firewallRuleCollectionGroups array = [
+@description('The firewall rules that will be applied to the Azure Firewall.')
+param customFirewallRuleCollectionGroups array = []
+
+var defaultFirewallRuleCollectionGroups = [
   {
     name: 'VGW-NetworkCollectionGroup'
     properties: {
@@ -107,6 +110,7 @@ param firewallRuleCollectionGroups array = [
     }
   }
 ]
+var effectiveFirewallRuleCollectionGroups = empty(customFirewallRuleCollectionGroups) ? defaultFirewallRuleCollectionGroups : customFirewallRuleCollectionGroups
 
 //get the hub vnet route table name from the resource id
 var hubVnetRouteTableName = split(hubVnetRouteTableResourceId, '/')[8]
@@ -130,7 +134,7 @@ module firewallRules '../../modules/firewall-rules.bicep' = {
   scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
   params: {
     firewallPolicyName: split(firewallPolicyResourceId, '/')[8]
-    firewallRuleCollectionGroups: firewallRuleCollectionGroups
+    firewallRuleCollectionGroups: effectiveFirewallRuleCollectionGroups
   }
 }
 
