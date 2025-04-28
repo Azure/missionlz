@@ -50,7 +50,11 @@ Presently, there one rule collection group configured to allow spoke access to t
 |---------------------------|--------------------------|---------------------------|-----------------|-----------------------------------------|----------------------------------------|-----------|----------|
 | MLZ-NetworkCollectionGroup | 150                  | AzureMonitor              | AllowMonitorToLAW| 10.0.128.0/23, 10.0.132.0/24, 10.0.130.0/24 (Identity spoke, if present) | 10.0.131.4                            | 443       | Tcp      |
 
-Rules can be added, removed, changed during deployment by passing in a parameters file via command line deployment, or modifying the bicep directly.   The param name that carries the collection groups is named **`firewallRulesCollectionGroups`**.  Multiple collection groups can be defined as needed.  
+Rules can be added, removed, or changed during deployment by passing in a parameters file 
+via command line deployment, or modifying the bicep directly. The param name that carries 
+the collection groups is named **`customFirewallRulesCollectionGroups`**. Multiple collection 
+groups can be defined as needed. If the custom param has no value, the bicep code will 
+generate the firewall rules necessary for the deployment.
 
 Please review [Command Line Tools](./deployment-guides/command-line-tools.md) for more on how to use command line deployments.  
 

@@ -34,9 +34,12 @@ The rule set can be overridden, but should include the default set regardless.
 Please review [Command Line Tools](../../../../../docs/deployment-guides/command-line-tools.md) for the basics of constructing a parameter file and command line usage for deployment.
 
 ```bicep
-param firewallRuleCollectionGroups array = [
+
+param customFirewallRuleCollectionGroups array = []
+
+var defaultFirewallRuleCollectionGroups = [
   {
-    name: 'AVD-ApplicationCollectionGroup-Stamp-${stampIndex}'
+    name: 'AVD-CollapsedCollectionGroup-Stamp-${stampIndex}'
     properties: {
       priority: 200
       ruleCollections: [
@@ -47,51 +50,78 @@ param firewallRuleCollectionGroups array = [
           action: {
             type: 'Allow'
           }
-          rules: [
-            {
-              name: 'AVD-RequiredEndpoints'
-              ruleType: 'ApplicationRule'
-              protocols: [
-                {
-                  protocolType: 'Https'
-                  port: 443
-                }
-              ]
-              fqdnTags: []
-              webCategories: []
-              targetFqdns: [
-                '*.microsoftonline.us'
-                  '*.graph.microsoft.us'
-                  '*.aadcdn.msftauth.net'
-                  '*.aadcdn.msauth.net'
-                  'enterpriseregistration.windows.net'
-                  'management.usgovcloudapi.net'
-                  '*.blob.core.usgovcloudapi.net'
-                  '*.monitoring.core.usgovcloudapi.net'
-                  '*.monitor.core.usgovcloudapi.net'
-                  '*.guestconfiguration.azure.us'
-                  '*.digicert.com'
-                  '*.monitor.azure.us'
-              ]
-              targetUrls: []
-              terminateTLS: false
-              sourceAddresses: virtualNetworkAddressPrefixes
-              destinationAddresses: []
-              sourceIpGroups: []
-            }
-          ]
+          rules: concat(
+            [
+              {
+                name: 'AVD-RequiredDeploymentEndpoints'
+                ruleType: 'ApplicationRule'
+                protocols: [
+                  {
+                    protocolType: 'Https'
+                    port: 443
+                  }
+                ]
+                fqdnTags: []
+                webCategories: []
+                targetFqdns:avdFwDeploymentTargetFqdns
+                targetUrls: []
+                terminateTLS: false
+                sourceAddresses: virtualNetworkAddressPrefixes
+                destinationAddresses: []
+                sourceIpGroups: []
+              }
+            ],
+            contains(activeDirectorySolution, 'MicrosoftEntraId') ? [
+              {
+                name: 'AVD-EntraAuthEndpoints'
+                ruleType: 'ApplicationRule'
+                protocols: [
+                  {
+                    protocolType: 'Https'
+                    port: 443
+                  }
+                ]
+                fqdnTags: []
+                webCategories: []
+                targetFqdns: avdFwEntraIdAuthTargetFqdns
+                targetUrls: []
+                terminateTLS: false
+                sourceAddresses: virtualNetworkAddressPrefixes
+                destinationAddresses: []
+                sourceIpGroups: []
+              }
+            ] : [],
+            enableWindowsUpdateFwRules ? [
+              {
+                name: 'WindowsUpdateEndpoints'
+                ruleType: 'ApplicationRule'
+                protocols: [
+                  {
+                    protocolType: 'Https'
+                    port: 443
+                  }
+                  {
+                    protocolType: 'Http'
+                    port: 80
+                  }
+                ]
+                fqdnTags: [
+                  'WindowsUpdate'
+                ]
+                webCategories: []
+                targetFqdns: []
+                targetUrls: []
+                terminateTLS: false
+                sourceAddresses: virtualNetworkAddressPrefixes
+                destinationAddresses: []
+                sourceIpGroups: []
+              }
+            ] : []
+          )
         }
-      ]
-    }
-  }
-  {
-    name: 'AVD-NetworkCollectionGroup-Stamp-${stampIndex}'
-    properties: {
-      priority: 200
-      ruleCollections: [
         {
           name: 'NetworkRules'
-          priority: 150
+          priority: 140
           ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
           action: {
             type: 'Allow'
@@ -106,9 +136,7 @@ param firewallRuleCollectionGroups array = [
                 ]
                 sourceAddresses: virtualNetworkAddressPrefixes
                 destinationAddresses: []
-                destinationFqdns: [
-                  'azkms.core.usgovcloudapi.net'
-                ]
+                destinationFqdns: avdKmsDestinationFqdns
                 destinationPorts: [
                   '1688'
                 ]
@@ -185,6 +213,8 @@ param firewallRuleCollectionGroups array = [
                   '139'
                   '135'
                   '89'
+                  '123'
+                  '1024-65535'
                 ]
                 sourceIpGroups: []
                 destinationIpGroups: []
@@ -196,3 +226,6 @@ param firewallRuleCollectionGroups array = [
     }
   }
 ]
+var effectiveFirewallRuleCollectionGroups = empty(customFirewallRuleCollectionGroups) ? defaultFirewallRuleCollectionGroups : customFirewallRuleCollectionGroups
+
+

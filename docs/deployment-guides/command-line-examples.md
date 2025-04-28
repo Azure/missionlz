@@ -535,7 +535,7 @@ param windowsVmStorageAccountType = 'StandardSSD_LRS'
 param windowsVmVersion = 'latest'
 
 // Define new collection groups or add rules to existing. The rules provided in this default need to remain for allowing any Azure Monitor agents deployed later in spoke networks to connect to the Log Analytics Workspace.
-param firewallRuleCollectionGroups = [
+param customFirewallRuleCollectionGroups = [
   {
     name: 'MLZ-NetworkCollectionGroup'
     properties: {
