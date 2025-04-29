@@ -50,13 +50,9 @@ Presently, there is one rule collection group configured to allow spoke access t
 |---------------------------|--------------------------|---------------------------|-----------------|-----------------------------------------|----------------------------------------|-----------|----------|
 | MLZ-NetworkCollectionGroup | 150                  | AzureMonitor              | AllowMonitorToLAW| 10.0.128.0/23, 10.0.132.0/24, 10.0.130.0/24 (Identity spoke, if present) | 10.0.131.4                            | 443       | Tcp      |
 
-Rules can be added, removed, or changed during deployment by passing in a parameters file 
-via command line deployment, or modifying the bicep directly. The param name that carries 
-the collection groups is named **`customFirewallRulesCollectionGroups`**. Multiple collection 
-groups can be defined as needed. If the custom param has no value, the bicep code will 
-generate the firewall rules necessary for the deployment.
+Rules can be added, removed, or changed during deployment by passing in a value to the **`customFirewallRulesCollectionGroups`** parameter. Multiple collection groups can be defined as needed. If the parameter has no value, the template will use the default firewall rules for a secure by default configuration.
 
-Please review [Command Line Tools](./deployment-guides/command-line-tools.md) for more on how to use command line deployments.  
+Please review [Command Line Tools](./deployment-guides/command-line-tools.md) for more on how to use command line deployments.
 
 To deploy Mission LZ using Azure Stack Hub and an F5 BIG-IP Virtual Edition instead of Azure Firewall Premium, there is an alternate repository with instructions [found here](https://github.com/Azure/missionlz-edge).
 
