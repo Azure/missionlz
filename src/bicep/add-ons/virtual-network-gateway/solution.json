@@ -5,14 +5,96 @@
     "_generator": {
       "name": "bicep",
       "version": "0.34.44.8038",
-      "templateHash": "17037266905563021329"
+      "templateHash": "4950361473269821689"
     }
   },
   "parameters": {
-    "vgwName": {
+    "allowedAzureAddressPrefixes": {
+      "type": "array",
+      "defaultValue": [
+        "10.0.130.0/24",
+        "10.0.131.0/24",
+        "10.0.132.0/24",
+        "10.0.128.0/23"
+      ],
+      "metadata": {
+        "description": "Azure address prefixes allowed to communicate to VPN Gateway to on-premises network"
+      }
+    },
+    "azureFirewallResourceId": {
       "type": "string",
       "metadata": {
-        "description": "The name of the VPN Gateway."
+        "description": "The name of the Azure Firewall to retrieve the internal IP address from."
+      }
+    },
+    "customFirewallRuleCollectionGroups": {
+      "type": "array",
+      "defaultValue": [],
+      "metadata": {
+        "description": "The firewall rules that will be applied to the Azure Firewall."
+      }
+    },
+    "deploymentNameSuffix": {
+      "type": "string",
+      "defaultValue": "[utcNow()]",
+      "metadata": {
+        "description": "A suffix to use for naming deployments uniquely."
+      }
+    },
+    "gatewaySubnetName": {
+      "type": "string",
+      "defaultValue": "GatewaySubnet",
+      "metadata": {
+        "description": "The name of the gateway subnet"
+      }
+    },
+    "hubVirtualNetworkResourceId": {
+      "type": "string",
+      "metadata": {
+        "description": "The resource ID of the hub virtual network."
+      }
+    },
+    "hubVnetRouteTableResourceId": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the hub virtual network route table"
+      }
+    },
+    "localAddressPrefixes": {
+      "type": "array",
+      "metadata": {
+        "description": "Address prefixes of the Local Network which will be routable through the VPN Gateway"
+      }
+    },
+    "localGatewayIpAddress": {
+      "type": "string",
+      "metadata": {
+        "description": "IP Address of the Local Network Gateway, must be a public IP address or be able to be connected to from MLZ network"
+      }
+    },
+    "localNetworkGatewayName": {
+      "type": "string",
+      "metadata": {
+        "description": "Local Network Gateway Name"
+      }
+    },
+    "keyVaultCertificateUri": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The URI of the Key Vault certificate to use for the VPN connection. If using a Key Vault certificate, this must be a valid URI."
+      }
+    },
+    "sharedKey": {
+      "type": "securestring",
+      "metadata": {
+        "description": "The shared key to use for the VPN connection. If using the shared key, this must be provided."
+      }
+    },
+    "useSharedKey": {
+      "type": "bool",
+      "metadata": {
+        "description": "Choose whether to use a shared key or Key Vault certificate URI for the VPN connection."
       }
     },
     "vgwLocation": {
@@ -21,10 +103,22 @@
         "description": "The Azure region location of the VPN Gateway."
       }
     },
+    "vgwName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the VPN Gateway."
+      }
+    },
     "vgwPublicIpAddressNames": {
       "type": "array",
       "metadata": {
         "description": "The names of the public IP addresses to use for the VPN Gateway."
+      }
+    },
+    "vgwRouteTableName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the vgw route table to create"
       }
     },
     "vgwSku": {
@@ -39,115 +133,21 @@
         "description": "The SKU of the VPN Gateway."
       }
     },
-    "localNetworkGatewayName": {
-      "type": "string",
-      "metadata": {
-        "description": "Local Network Gateway Name"
-      }
-    },
-    "localGatewayIpAddress": {
-      "type": "string",
-      "metadata": {
-        "description": "IP Address of the Local Network Gateway, must be a public IP address or be able to be connected to from MLZ network"
-      }
-    },
-    "allowedAzureAddressPrefixes": {
-      "type": "array",
-      "defaultValue": [
-        "10.0.130.0/24",
-        "10.0.131.0/24",
-        "10.0.132.0/24",
-        "10.0.128.0/23"
-      ],
-      "metadata": {
-        "description": "Azure address prefixes allowed to communicate to VPN Gateway to on-premises network"
-      }
-    },
-    "localAddressPrefixes": {
-      "type": "array",
-      "metadata": {
-        "description": "Address prefixes of the Local Network which will be routable through the VPN Gateway"
-      }
-    },
-    "useSharedKey": {
-      "type": "bool",
-      "metadata": {
-        "description": "Choose whether to use a shared key or Key Vault certificate URI for the VPN connection."
-      }
-    },
-    "sharedKey": {
-      "type": "securestring",
-      "metadata": {
-        "description": "The shared key to use for the VPN connection. If using the shared key, this must be provided."
-      }
-    },
-    "keyVaultCertificateUri": {
-      "type": "string",
-      "defaultValue": "",
-      "metadata": {
-        "description": "The URI of the Key Vault certificate to use for the VPN connection. If using a Key Vault certificate, this must be a valid URI."
-      }
-    },
-    "deploymentNameSuffix": {
-      "type": "string",
-      "defaultValue": "[utcNow()]",
-      "metadata": {
-        "description": "A suffix to use for naming deployments uniquely."
-      }
-    },
-    "hubVirtualNetworkResourceId": {
-      "type": "string",
-      "metadata": {
-        "description": "The resource ID of the hub virtual network."
-      }
-    },
     "vnetResourceIdList": {
       "type": "array",
       "metadata": {
         "description": "List of peered networks that should use the VPN Gateway once configured."
       }
-    },
-    "azureFirewallResourceId": {
-      "type": "string",
-      "metadata": {
-        "description": "The name of the Azure Firewall to retrieve the internal IP address from."
-      }
-    },
-    "vgwRouteTableName": {
-      "type": "string",
-      "metadata": {
-        "description": "The name of the vgw route table to create"
-      }
-    },
-    "gatewaySubnetName": {
-      "type": "string",
-      "defaultValue": "GatewaySubnet",
-      "metadata": {
-        "description": "The name of the gateway subnet"
-      }
-    },
-    "hubVnetRouteTableResourceId": {
-      "type": "string",
-      "metadata": {
-        "description": "The name of the hub virtual network route table"
-      }
-    },
-    "customFirewallRuleCollectionGroups": {
-      "type": "array",
-      "defaultValue": [],
-      "metadata": {
-        "description": "The firewall rules that will be applied to the Azure Firewall."
-      }
     }
   },
   "variables": {
+    "azureFirewallName": "[split(parameters('azureFirewallResourceId'), '/')[8]]",
     "hubResourceGroupName": "[split(parameters('hubVirtualNetworkResourceId'), '/')[4]]",
     "hubVnetName": "[split(parameters('hubVirtualNetworkResourceId'), '/')[8]]",
-    "azureFirewallName": "[split(parameters('azureFirewallResourceId'), '/')[8]]",
     "hubVnetRouteTableName": "[split(parameters('hubVnetRouteTableResourceId'), '/')[8]]",
-    "vpnSharedKey": "[if(parameters('useSharedKey'), parameters('sharedKey'), '')]",
+    "isValidUri": "[and(contains(parameters('keyVaultCertificateUri'), 'https://'), contains(parameters('keyVaultCertificateUri'), '/secrets/'))]",
     "vpnKeyVaultUri": "[if(not(parameters('useSharedKey')), parameters('keyVaultCertificateUri'), '')]",
-    "isValidUri": "[and(contains(parameters('keyVaultCertificateUri'), 'https://'), contains(parameters('keyVaultCertificateUri'), '/secrets/'))]"
+    "vpnSharedKey": "[if(parameters('useSharedKey'), parameters('sharedKey'), '')]"
   },
   "resources": [
     {
