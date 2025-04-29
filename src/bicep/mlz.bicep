@@ -30,6 +30,9 @@ param bastionHostPublicIPAddressAvailabilityZones array = []
 @description('The CIDR Subnet Address Prefix for the Azure Bastion Subnet. It must be in the Hub Virtual Network space "hubVirtualNetworkAddressPrefix" parameter value. It must be /27 or larger.')
 param bastionHostSubnetAddressPrefix string = '10.0.128.192/26'
 
+@description('The firewall rules that will be applied to the Azure Firewall.')
+param customFirewallRuleCollectionGroups array = []
+
 @allowed([
   'Standard'
   'Free'
@@ -592,9 +595,6 @@ param windowsVmStorageAccountType string = 'StandardSSD_LRS'
 
 @description('The version of the Windows Virtual Machine for remote access. Default value = "latest".')
 param windowsVmVersion string = 'latest'
-
-@description('The firewall rules that will be applied to the Azure Firewall.')
-param customFirewallRuleCollectionGroups array = []
 
 var defaultFirewallRuleCollectionGroups = [
   {

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.34.44.8038",
-      "templateHash": "5273559981220325431"
+      "templateHash": "3595640267301335185"
     }
   },
   "parameters": {
@@ -52,6 +52,13 @@
       "defaultValue": "10.0.128.192/26",
       "metadata": {
         "description": "The CIDR Subnet Address Prefix for the Azure Bastion Subnet. It must be in the Hub Virtual Network space \"hubVirtualNetworkAddressPrefix\" parameter value. It must be /27 or larger."
+      }
+    },
+    "customFirewallRuleCollectionGroups": {
+      "type": "array",
+      "defaultValue": [],
+      "metadata": {
+        "description": "The firewall rules that will be applied to the Azure Firewall."
       }
     },
     "defenderSkuTier": {
@@ -977,49 +984,6 @@
       "metadata": {
         "description": "The version of the Windows Virtual Machine for remote access. Default value = \"latest\"."
       }
-    },
-    "firewallRuleCollectionGroups": {
-      "type": "array",
-      "defaultValue": [
-        {
-          "name": "MLZ-NetworkCollectionGroup",
-          "properties": {
-            "priority": 150,
-            "ruleCollections": [
-              {
-                "name": "AzureMonitor",
-                "priority": 150,
-                "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
-                "action": {
-                  "type": "Allow"
-                },
-                "rules": [
-                  {
-                    "name": "AllowMonitorToLAW",
-                    "ruleType": "NetworkRule",
-                    "ipProtocols": [
-                      "Tcp"
-                    ],
-                    "sourceAddresses": "[concat(createArray(parameters('hubVirtualNetworkAddressPrefix')), createArray(parameters('sharedServicesVirtualNetworkAddressPrefix')), if(empty(parameters('identityVirtualNetworkAddressPrefix')), createArray(), createArray(parameters('identityVirtualNetworkAddressPrefix'))))]",
-                    "destinationAddresses": [
-                      "[cidrHost(parameters('operationsVirtualNetworkAddressPrefix'), 3)]"
-                    ],
-                    "destinationPorts": [
-                      "443"
-                    ],
-                    "sourceIpGroups": [],
-                    "destinationIpGroups": [],
-                    "destinationFqdns": []
-                  }
-                ]
-              }
-            ]
-          }
-        }
-      ],
-      "metadata": {
-        "description": "The firewall rules that will be applied to the Azure Firewall."
-      }
     }
   },
   "variables": {
@@ -1030,6 +994,44 @@
         "input": "[cidrHost(parameters('firewallClientSubnetAddressPrefix'), range(0, 4)[copyIndex('firewallClientUsableIpAddresses')])]"
       }
     ],
+    "defaultFirewallRuleCollectionGroups": [
+      {
+        "name": "MLZ-NetworkCollectionGroup",
+        "properties": {
+          "priority": 150,
+          "ruleCollections": [
+            {
+              "name": "AzureMonitor",
+              "priority": 150,
+              "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+              "action": {
+                "type": "Allow"
+              },
+              "rules": [
+                {
+                  "name": "AllowMonitorToLAW",
+                  "ruleType": "NetworkRule",
+                  "ipProtocols": [
+                    "Tcp"
+                  ],
+                  "sourceAddresses": "[concat(createArray(parameters('hubVirtualNetworkAddressPrefix')), createArray(parameters('sharedServicesVirtualNetworkAddressPrefix')), if(empty(parameters('identityVirtualNetworkAddressPrefix')), createArray(), createArray(parameters('identityVirtualNetworkAddressPrefix'))))]",
+                  "destinationAddresses": [
+                    "[cidrHost(parameters('operationsVirtualNetworkAddressPrefix'), 3)]"
+                  ],
+                  "destinationPorts": [
+                    "443"
+                  ],
+                  "sourceIpGroups": [],
+                  "destinationIpGroups": [],
+                  "destinationFqdns": []
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "effectiveFirewallRuleCollectionGroups": "[if(empty(parameters('customFirewallRuleCollectionGroups')), variables('defaultFirewallRuleCollectionGroups'), parameters('customFirewallRuleCollectionGroups'))]",
     "firewallClientPrivateIpAddress": "[variables('firewallClientUsableIpAddresses')[3]]",
     "networks": "[union(createArray(createObject('name', 'hub', 'shortName', 'hub', 'deployUniqueResources', true(), 'subscriptionId', parameters('hubSubscriptionId'), 'networkWatcherResourceId', parameters('existingHubNetworkWatcherResourceId'), 'nsgDiagLogs', parameters('hubNetworkSecurityGroupDiagnosticsLogs'), 'nsgRules', parameters('hubNetworkSecurityGroupRules'), 'vnetAddressPrefix', parameters('hubVirtualNetworkAddressPrefix'), 'vnetDiagLogs', parameters('hubVirtualNetworkDiagnosticsLogs'), 'vnetDiagMetrics', parameters('hubVirtualNetworkDiagnosticsMetrics'), 'subnetAddressPrefix', parameters('hubSubnetAddressPrefix')), createObject('name', 'operations', 'shortName', 'ops', 'deployUniqueResources', if(contains(createArray(parameters('hubSubscriptionId')), parameters('operationsSubscriptionId')), false(), true()), 'subscriptionId', parameters('operationsSubscriptionId'), 'networkWatcherResourceId', parameters('existingOperationsNetworkWatcherResourceId'), 'nsgDiagLogs', parameters('operationsNetworkSecurityGroupDiagnosticsLogs'), 'nsgRules', parameters('operationsNetworkSecurityGroupRules'), 'vnetAddressPrefix', parameters('operationsVirtualNetworkAddressPrefix'), 'vnetDiagLogs', parameters('operationsVirtualNetworkDiagnosticsLogs'), 'vnetDiagMetrics', parameters('operationsVirtualNetworkDiagnosticsMetrics'), 'subnetAddressPrefix', parameters('operationsSubnetAddressPrefix')), createObject('name', 'sharedServices', 'shortName', 'svcs', 'deployUniqueResources', if(contains(createArray(parameters('hubSubscriptionId'), parameters('operationsSubscriptionId')), parameters('sharedServicesSubscriptionId')), false(), true()), 'subscriptionId', parameters('sharedServicesSubscriptionId'), 'networkWatcherResourceId', parameters('existingSharedServicesNetworkWatcherResourceId'), 'nsgDiagLogs', parameters('sharedServicesNetworkSecurityGroupDiagnosticsLogs'), 'nsgRules', parameters('sharedServicesNetworkSecurityGroupRules'), 'vnetAddressPrefix', parameters('sharedServicesVirtualNetworkAddressPrefix'), 'vnetDiagLogs', parameters('sharedServicesVirtualNetworkDiagnosticsLogs'), 'vnetDiagMetrics', parameters('sharedServicesVirtualNetworkDiagnosticsMetrics'), 'subnetAddressPrefix', parameters('sharedServicesSubnetAddressPrefix'))), if(parameters('deployIdentity'), createArray(createObject('name', 'identity', 'shortName', 'id', 'deployUniqueResources', if(contains(createArray(parameters('hubSubscriptionId'), parameters('operationsSubscriptionId'), parameters('sharedServicesSubscriptionId')), parameters('identitySubscriptionId')), false(), true()), 'subscriptionId', parameters('identitySubscriptionId'), 'networkWatcherResourceId', parameters('existingIdentityNetworkWatcherResourceId'), 'nsgDiagLogs', parameters('identityNetworkSecurityGroupDiagnosticsLogs'), 'nsgRules', parameters('identityNetworkSecurityGroupRules'), 'vnetAddressPrefix', parameters('identityVirtualNetworkAddressPrefix'), 'vnetDiagLogs', parameters('identityVirtualNetworkDiagnosticsLogs'), 'vnetDiagMetrics', parameters('identityVirtualNetworkDiagnosticsMetrics'), 'subnetAddressPrefix', parameters('identitySubnetAddressPrefix'))), createArray()))]"
   },
@@ -2065,7 +2067,7 @@
             }
           },
           "firewallRuleCollectionGroups": {
-            "value": "[parameters('firewallRuleCollectionGroups')]"
+            "value": "[variables('effectiveFirewallRuleCollectionGroups')]"
           },
           "location": {
             "value": "[parameters('location')]"
