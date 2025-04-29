@@ -68,51 +68,7 @@ param hubVnetRouteTableResourceId string
 @description('The firewall rules that will be applied to the Azure Firewall.')
 param customFirewallRuleCollectionGroups array = []
 
-var defaultFirewallRuleCollectionGroups = [
-  {
-    name: 'VGW-NetworkCollectionGroup'
-    properties: {
-      priority: 300
-      ruleCollections: [
-        {
-          name: 'AllowAllTraffic'
-          priority: 150
-          ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
-          action: {
-            type: 'Allow'
-          }
-          rules: [
-            {
-              name: 'AllowAzureToOnPrem'
-              ruleType: 'NetworkRule'
-              ipProtocols: ['Any']
-              sourceAddresses: localAddressPrefixes
-              destinationAddresses: allowedAzureAddressPrefixes
-              destinationPorts: ['*']
-              sourceIpGroups: []
-              destinationIpGroups: []
-              destinationFqdns: []
-            }
-            {
-              name: 'AllowOnPremToAzure'
-              ruleType: 'NetworkRule'
-              ipProtocols: ['Any']
-              sourceAddresses: allowedAzureAddressPrefixes
-              destinationAddresses: localAddressPrefixes
-              destinationPorts: ['*']
-              sourceIpGroups: []
-              destinationIpGroups: []
-              destinationFqdns: []
-            }
-          ]
-        }
-      ]
-    }
-  }
-]
-var effectiveFirewallRuleCollectionGroups = empty(customFirewallRuleCollectionGroups) ? defaultFirewallRuleCollectionGroups : customFirewallRuleCollectionGroups
-
-//get the hub vnet route table name from the resource id
+// Get the hub vnet route table name from the resource id
 var hubVnetRouteTableName = split(hubVnetRouteTableResourceId, '/')[8]
 
 // Conditional parameter assignment for VPN connection module
@@ -134,7 +90,48 @@ module firewallRules '../../modules/firewall-rules.bicep' = {
   scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
   params: {
     firewallPolicyName: split(firewallPolicyResourceId, '/')[8]
-    firewallRuleCollectionGroups: effectiveFirewallRuleCollectionGroups
+    firewallRuleCollectionGroups: empty(customFirewallRuleCollectionGroups) ? [
+      {
+        name: 'VGW-NetworkCollectionGroup'
+        properties: {
+          priority: 300
+          ruleCollections: [
+            {
+              name: 'AllowAllTraffic'
+              priority: 150
+              ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
+              action: {
+                type: 'Allow'
+              }
+              rules: [
+                {
+                  name: 'AllowAzureToOnPrem'
+                  ruleType: 'NetworkRule'
+                  ipProtocols: ['Any']
+                  sourceAddresses: localAddressPrefixes
+                  destinationAddresses: allowedAzureAddressPrefixes
+                  destinationPorts: ['*']
+                  sourceIpGroups: []
+                  destinationIpGroups: []
+                  destinationFqdns: []
+                }
+                {
+                  name: 'AllowOnPremToAzure'
+                  ruleType: 'NetworkRule'
+                  ipProtocols: ['Any']
+                  sourceAddresses: allowedAzureAddressPrefixes
+                  destinationAddresses: localAddressPrefixes
+                  destinationPorts: ['*']
+                  sourceIpGroups: []
+                  destinationIpGroups: []
+                  destinationFqdns: []
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ] : customFirewallRuleCollectionGroups
   }
 }
 
