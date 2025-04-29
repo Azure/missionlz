@@ -44,7 +44,7 @@ All network traffic is directed through the firewall residing in the Network Hub
 
 The default firewall configured for MLZ is [Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features). The Azure Firewall Premium SKU includes the IDPS feature necessary to satisfy the SCCA VDSS requirement. However, if you do not require IDPS, you can optionally deploy Azure Firewall Standard by settings the `firewallSkuTier` parameter to `Standard`.
 
-Presently, there one rule collection group configured to allow spoke access to the log analytics workspace in the operations spoke. Below is the default collection group configured for Azure Commercial and Azure Government clouds:
+Presently, there is one rule collection group configured to allow spoke access to the log analytics workspace in the operations spoke. Below is the default collection group configured for Azure Commercial and Azure Government clouds:
 
 | Collection Group          | Rule Collection Priority | Rule Collection Name      | Rule Name       | Source                                   | Destination                            | Port      | Protocol |
 |---------------------------|--------------------------|---------------------------|-----------------|-----------------------------------------|----------------------------------------|-----------|----------|
