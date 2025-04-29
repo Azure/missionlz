@@ -8,6 +8,9 @@ targetScope = 'subscription'
 @description('An array of additional subnets to support the tier3 workload.')
 param additionalSubnets array = []
 
+@description('The custom firewall rule collection groups that override the default firewall rule collection groups.')
+param customFirewallRuleCollectionGroups array = []
+
 @description('Choose whether to deploy a diagnostic setting for the Activity Log.')
 param deployActivityLogDiagnosticSetting bool
 
@@ -155,38 +158,6 @@ param workloadName string = 'tier3'
 @maxLength(3)
 @description('The short name for the workload.')
 param workloadShortName string = 't3'
-param operationsVirtualNetworkAddressPrefix string = '10.0.131.0/24'
-param firewallRuleCollectionGroups array = [
-  {
-    name: 'Tier3-NetworkCollectionGroup'
-    properties: {
-      priority: 200
-      ruleCollections: [
-        {
-          name: 'AllowMonitorToLAW'
-          priority: 150
-          ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
-          action: {
-            type: 'Allow'
-          }
-          rules: [
-            {
-              name: 'AllowMonitorToLAW'
-              ruleType: 'NetworkRule'
-              ipProtocols: ['Tcp']
-              sourceAddresses: [virtualNetworkAddressPrefix]
-              destinationAddresses: [cidrHost(operationsVirtualNetworkAddressPrefix, 3)] // Network of the Log Analytics Workspace, could be narrowed using parameters file post deployment
-              destinationPorts: ['443'] // HTTPS port for Azure Monitor
-              sourceIpGroups: []
-              destinationIpGroups: []
-              destinationFqdns: []
-            }
-          ]
-        }
-      ]
-    }
-  }
-]
 
 var hubResourceGroupName = split(hubVirtualNetworkResourceId, '/')[4]
 var hubSubscriptionId = split(hubVirtualNetworkResourceId, '/')[2]
@@ -197,19 +168,55 @@ resource azureFirewall 'Microsoft.Network/azureFirewalls@2020-11-01' existing = 
   scope: resourceGroup(split(firewallResourceId, '/')[2], split(firewallResourceId, '/')[4])
 }
 
-resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-11-01' existing = {
+resource virtualNetwork_hub 'Microsoft.Network/virtualNetworks@2023-11-01' existing = {
   name: split(hubVirtualNetworkResourceId, '/')[8]
   scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
 }
-// Retrieve the Firewall Policy Resource ID
-var firewallPolicyResourceId = azureFirewall.properties.firewallPolicy.id
 
-module firewallRules '../../modules/firewall-rules.bicep' = if (!(empty(operationsVirtualNetworkAddressPrefix))) {
+module virtualNetwork_operations '../../modules/existing-vnet-address-prefix.bicep' = {
+  name: 'get-ops-vnet-${deploymentNameSuffix}'
+  params: {
+    networkName: 'operations'
+    peerings: virtualNetwork_hub.properties.virtualNetworkPeerings
+  }
+}
+
+module firewallRules '../../modules/firewall-rules.bicep' = {
   name: 'deploy-firewall-rules-${workloadShortName}-${deploymentNameSuffix}'
   scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
   params: {
-    firewallPolicyName: split(firewallPolicyResourceId, '/')[8]
-    firewallRuleCollectionGroups: firewallRuleCollectionGroups
+    firewallPolicyName: split(azureFirewall.properties.firewallPolicy.id, '/')[8]
+    firewallRuleCollectionGroups: empty(customFirewallRuleCollectionGroups) ? [
+      {
+        name: 'Tier3-NetworkCollectionGroup'
+        properties: {
+          priority: 200
+          ruleCollections: [
+            {
+              name: 'AllowMonitorToLAW'
+              priority: 150
+              ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
+              action: {
+                type: 'Allow'
+              }
+              rules: [
+                {
+                  name: 'AllowMonitorToLAW'
+                  ruleType: 'NetworkRule'
+                  ipProtocols: ['Tcp']
+                  sourceAddresses: [virtualNetworkAddressPrefix]
+                  destinationAddresses: [cidrHost(virtualNetwork_operations.outputs.addressPrefix, 3)] // Network of the Log Analytics Workspace, could be narrowed using parameters file post deployment
+                  destinationPorts: ['443'] // HTTPS port for Azure Monitor
+                  sourceIpGroups: []
+                  destinationIpGroups: []
+                  destinationFqdns: []
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ] : customFirewallRuleCollectionGroups
   }
 }
 
@@ -219,7 +226,7 @@ module firewallRules '../../modules/firewall-rules.bicep' = if (!(empty(operatio
 module virtualNetworkPeerings 'modules/virtual-network-peerings.bicep' = {
   name: 'get-vnet-peerings-${workloadShortName}-${deploymentNameSuffix}'
   params: {
-    virtualNetworkPeerings: virtualNetwork.properties.virtualNetworkPeerings
+    virtualNetworkPeerings: virtualNetwork_hub.properties.virtualNetworkPeerings
   }
 }
 
@@ -281,7 +288,7 @@ module networking 'modules/networking.bicep' = if (!(empty(virtualNetworkAddress
     tags: tags
     virtualNetworkAddressPrefix: virtualNetworkAddressPrefix
     virtualNetworkName: logic.outputs.tiers[0].namingConvention.virtualNetwork
-    vNetDnsServers: virtualNetwork.properties.?dhcpOptions.dnsServers ?? [] 
+    vNetDnsServers: virtualNetwork_hub.properties.?dhcpOptions.dnsServers ?? [] 
     workloadShortName: workloadShortName
   }
 }
@@ -400,7 +407,7 @@ module defenderForCloud '../../modules/defender-for-cloud.bicep' =
   }
 
 output diskEncryptionSetResourceId string = !(empty(virtualNetworkAddressPrefix)) ? customerManagedKeys.outputs.diskEncryptionSetResourceId : ''
-output dnsServers array = !(empty(virtualNetworkAddressPrefix)) ? virtualNetwork.properties.?dhcpOptions.dnsServers ?? [] : []
+output dnsServers array = !(empty(virtualNetworkAddressPrefix)) ? virtualNetwork_hub.properties.?dhcpOptions.dnsServers ?? [] : []
 output keyVaultUri string = !(empty(virtualNetworkAddressPrefix)) ? customerManagedKeys.outputs.keyVaultUri : ''
 output locationProperties object = logic.outputs.locationProperties
 output logAnalyticsWorkspaceResourceId string = logAnalyticsWorkspaceResourceId
