@@ -100,7 +100,7 @@ param environmentAbbreviation string = 'dev'
 @description('The resource ID for the existing feed workspace within a business unit or project.')
 param existingFeedWorkspaceResourceId string = ''
 
-@description('The override for the custom firewall rule collection groups.')
+@description('The custom firewall rule collection groups that override the default firewall rule collection groups.')
 param customFirewallRuleCollectionGroups array = []
 
 @description('The file share size(s) in GB for the Fslogix storage solution.')
@@ -143,6 +143,9 @@ param hostPoolPublicNetworkAccess string = 'Enabled'
 ])
 @description('The type of AVD host pool.')
 param hostPoolType string = 'Pooled'
+
+@description('The resource ID for the Azure Firewall in the HUB subscription')
+param hubAzureFirewallResourceId string
 
 @description('The resource ID for the Azure Virtual Network in the HUB subscription.')
 param hubVirtualNetworkResourceId string
@@ -384,6 +387,7 @@ var endAvSetRange = (sessionHostCount + sessionHostIndex) / maxAvSetMembers // T
 var availabilitySetsCount = length(range(beginAvSetRange, (endAvSetRange - beginAvSetRange) + 1))
 
 // OTHER LOGIC & COMPUTED VALUES
+var cloudSuffix = replace(replace(environment().resourceManager, 'https://management.', ''), '/', '')
 var customImageId = empty(imageVersionResourceId) ? 'null' : '"${imageVersionResourceId}"'
 var deployFslogix = contains(fslogixStorageService, 'Azure') && contains(activeDirectorySolution, 'DomainServices')
   ? true
@@ -407,6 +411,10 @@ var fileShareNames = {
 var fileShares = fileShareNames[fslogixContainerType]
 var netbios = split(domainName, '.')[0]
 var privateDnsZoneResourceIdPrefix = '/subscriptions/${split(hubVirtualNetworkResourceId, '/')[2]}/resourceGroups/${split(hubVirtualNetworkResourceId, '/')[4]}/providers/Microsoft.Network/privateDnsZones/'
+var privateDnsZoneSuffixes_AzureVirtualDesktop = {
+  AzureCloud: 'microsoft.com'
+  AzureUSGovernment: 'azure.us'
+}
 var storageSku = fslogixStorageService == 'None' ? 'None' : split(fslogixStorageService, ' ')[1]
 var storageService = split(fslogixStorageService, ' ')[0]
 var storageSuffix = environment().suffixes.storage
@@ -439,41 +447,6 @@ var subnets = {
         }
       ]
     : []
-}
-// setting the firewall resource id
-var hubAzureFirewallResourceId = replace(
-  replace(hubVirtualNetworkResourceId, '/virtualNetworks/', '/azureFirewalls/'),
-  '-vnet-',
-  '-afw-'
-)
-
-// setting default firewall rules and the effective rules based on the custom rules passed in
-var cloudSuffix = replace(replace(environment().resourceManager, 'https://management.', ''), '/', '')
-
-var avdFwDeploymentTargetFqdns = [
-  replace(environment().resourceManager, 'https://', '')
-  'mrsglobalsteus2prod.blob.${environment().suffixes.storage}'
-  'wvdportalstorageblob.blob.${environment().suffixes.storage}'
-  'gcs.prod.monitoring.${environment().suffixes.storage}'
-  '*.prod.warm.ingest.monitor.${environment().suffixes.storage}'
-  '*.guestconfiguration.${privateDnsZoneSuffixes_AzureVirtualDesktop[environment().name] ?? cloudSuffix}'
-  '*.wvd.${privateDnsZoneSuffixes_AzureVirtualDesktop[environment().name] ?? cloudSuffix}'
-]
-
-var avdFwEntraIdAuthTargetFqdns = [
-  replace(environment().authentication.loginEndpoint, 'https://', '')
-  replace(environment().graph, 'https://', '')
-  'enterpriseregistration.windows.net'
-]
-
-var avdKmsDestinationFqdns = [
-  'azkms.${environment().suffixes.storage}'
-]
-var privateDnsZoneSuffixes_AzureVirtualDesktop = {
-  AzureCloud: 'microsoft.com'
-  AzureUSGovernment: 'azure.us'
-  USNat: null
-  USSec: null
 }
 
 // Gets the MLZ hub virtual network for its location and tags
@@ -536,15 +509,7 @@ module tier3_hosts '../tier3/solution.bicep' = {
   name: 'deploy-tier3-avd-${deploymentNameSuffix}'
   params: {
     additionalSubnets: union(subnets.avdControlPlane, subnets.azureNetAppFiles, subnets.functionApp)
-    deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
-    deployDefender: deployDefender
-    deploymentNameSuffix: deploymentNameSuffix
-    deployNetworkWatcherTrafficAnalytics: deployNetworkWatcherTrafficAnalytics
-    deployPolicy: deployPolicy
-    emailSecurityContact: emailSecurityContact
-    environmentAbbreviation: environmentAbbreviation
-    firewallResourceId: hubAzureFirewallResourceId
-    firewallRuleCollectionGroups: empty(customFirewallRuleCollectionGroups) ? [
+    customFirewallRuleCollectionGroups: empty(customFirewallRuleCollectionGroups) ? [
       {
         name: 'AVD-CollapsedCollectionGroup-Stamp-${stampIndex}'
         properties: {
@@ -570,7 +535,15 @@ module tier3_hosts '../tier3/solution.bicep' = {
                     ]
                     fqdnTags: []
                     webCategories: []
-                    targetFqdns:avdFwDeploymentTargetFqdns
+                    targetFqdns: [
+                      replace(environment().resourceManager, 'https://', '')
+                      'mrsglobalsteus2prod.blob.${environment().suffixes.storage}'
+                      'wvdportalstorageblob.blob.${environment().suffixes.storage}'
+                      'gcs.prod.monitoring.${environment().suffixes.storage}'
+                      '*.prod.warm.ingest.monitor.${environment().suffixes.storage}'
+                      '*.guestconfiguration.${privateDnsZoneSuffixes_AzureVirtualDesktop[?environment().name] ?? cloudSuffix}'
+                      '*.wvd.${privateDnsZoneSuffixes_AzureVirtualDesktop[?environment().name] ?? cloudSuffix}'
+                    ]
                     targetUrls: []
                     terminateTLS: false
                     sourceAddresses: virtualNetworkAddressPrefixes
@@ -590,7 +563,11 @@ module tier3_hosts '../tier3/solution.bicep' = {
                     ]
                     fqdnTags: []
                     webCategories: []
-                    targetFqdns: avdFwEntraIdAuthTargetFqdns
+                    targetFqdns: [
+                      replace(environment().authentication.loginEndpoint, 'https://', '')
+                      replace(environment().graph, 'https://', '')
+                      'enterpriseregistration.windows.net'
+                    ]
                     targetUrls: []
                     terminateTLS: false
                     sourceAddresses: virtualNetworkAddressPrefixes
@@ -643,7 +620,9 @@ module tier3_hosts '../tier3/solution.bicep' = {
                     ]
                     sourceAddresses: virtualNetworkAddressPrefixes
                     destinationAddresses: []
-                    destinationFqdns: avdKmsDestinationFqdns
+                    destinationFqdns: [
+                      'azkms.${environment().suffixes.storage}'
+                    ]
                     destinationPorts: [
                       '1688'
                     ]
@@ -733,6 +712,14 @@ module tier3_hosts '../tier3/solution.bicep' = {
         }
       }
     ] : customFirewallRuleCollectionGroups
+    deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
+    deployDefender: deployDefender
+    deploymentNameSuffix: deploymentNameSuffix
+    deployNetworkWatcherTrafficAnalytics: deployNetworkWatcherTrafficAnalytics
+    deployPolicy: deployPolicy
+    emailSecurityContact: emailSecurityContact
+    environmentAbbreviation: environmentAbbreviation
+    firewallResourceId: hubAzureFirewallResourceId
     hubVirtualNetworkResourceId: hubVirtualNetworkResourceId
     identifier: identifier
     keyVaultDiagnosticLogs: keyVaultDiagnosticsLogs
