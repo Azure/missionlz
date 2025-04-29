@@ -482,7 +482,7 @@ resource virtualNetwork_hub 'Microsoft.Network/virtualNetworks@2023-11-01' exist
   scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
 }
 
-module virtualNetwork_identity 'modules/common/existingVirtualNetworkAddressPrefix.bicep' = if (contains(activeDirectorySolution, 'DomainServices')) {
+module virtualNetwork_identity '../../modules/existing-vnet-address-prefix.bicep' = if (contains(activeDirectorySolution, 'DomainServices')) {
   name: 'get-id-vnet-${deploymentNameSuffix}'
   params: {
     networkName: 'identity'
@@ -490,7 +490,7 @@ module virtualNetwork_identity 'modules/common/existingVirtualNetworkAddressPref
   }
 }
 
-module virtualNetwork_operations 'modules/common/existingVirtualNetworkAddressPrefix.bicep' = {
+module virtualNetwork_operations '../../modules/existing-vnet-address-prefix.bicep' = {
   name: 'get-ops-vnet-${deploymentNameSuffix}'
   params: {
     networkName: 'operations'
