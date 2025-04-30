@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.34.44.8038",
-      "templateHash": "16402320682986063272"
+      "templateHash": "11106575118064586815"
     }
   },
   "parameters": {
@@ -52,6 +52,13 @@
       "defaultValue": "10.0.128.192/26",
       "metadata": {
         "description": "The CIDR Subnet Address Prefix for the Azure Bastion Subnet. It must be in the Hub Virtual Network space \"hubVirtualNetworkAddressPrefix\" parameter value. It must be /27 or larger."
+      }
+    },
+    "customFirewallRuleCollectionGroups": {
+      "type": "array",
+      "defaultValue": [],
+      "metadata": {
+        "description": "The firewall rules that will be applied to the Azure Firewall."
       }
     },
     "defenderSkuTier": {
@@ -987,8 +994,7 @@
         "input": "[cidrHost(parameters('firewallClientSubnetAddressPrefix'), range(0, 4)[copyIndex('firewallClientUsableIpAddresses')])]"
       }
     ],
-    "firewallClientPrivateIpAddress": "[variables('firewallClientUsableIpAddresses')[3]]",
-    "networks": "[union(createArray(createObject('name', 'hub', 'shortName', 'hub', 'deployUniqueResources', true(), 'subscriptionId', parameters('hubSubscriptionId'), 'networkWatcherResourceId', parameters('existingHubNetworkWatcherResourceId'), 'nsgDiagLogs', parameters('hubNetworkSecurityGroupDiagnosticsLogs'), 'nsgRules', parameters('hubNetworkSecurityGroupRules'), 'vnetAddressPrefix', parameters('hubVirtualNetworkAddressPrefix'), 'vnetDiagLogs', parameters('hubVirtualNetworkDiagnosticsLogs'), 'vnetDiagMetrics', parameters('hubVirtualNetworkDiagnosticsMetrics'), 'subnetAddressPrefix', parameters('hubSubnetAddressPrefix')), createObject('name', 'operations', 'shortName', 'ops', 'deployUniqueResources', if(contains(createArray(parameters('hubSubscriptionId')), parameters('operationsSubscriptionId')), false(), true()), 'subscriptionId', parameters('operationsSubscriptionId'), 'networkWatcherResourceId', parameters('existingOperationsNetworkWatcherResourceId'), 'nsgDiagLogs', parameters('operationsNetworkSecurityGroupDiagnosticsLogs'), 'nsgRules', parameters('operationsNetworkSecurityGroupRules'), 'vnetAddressPrefix', parameters('operationsVirtualNetworkAddressPrefix'), 'vnetDiagLogs', parameters('operationsVirtualNetworkDiagnosticsLogs'), 'vnetDiagMetrics', parameters('operationsVirtualNetworkDiagnosticsMetrics'), 'subnetAddressPrefix', parameters('operationsSubnetAddressPrefix')), createObject('name', 'sharedServices', 'shortName', 'svcs', 'deployUniqueResources', if(contains(createArray(parameters('hubSubscriptionId'), parameters('operationsSubscriptionId')), parameters('sharedServicesSubscriptionId')), false(), true()), 'subscriptionId', parameters('sharedServicesSubscriptionId'), 'networkWatcherResourceId', parameters('existingSharedServicesNetworkWatcherResourceId'), 'nsgDiagLogs', parameters('sharedServicesNetworkSecurityGroupDiagnosticsLogs'), 'nsgRules', parameters('sharedServicesNetworkSecurityGroupRules'), 'vnetAddressPrefix', parameters('sharedServicesVirtualNetworkAddressPrefix'), 'vnetDiagLogs', parameters('sharedServicesVirtualNetworkDiagnosticsLogs'), 'vnetDiagMetrics', parameters('sharedServicesVirtualNetworkDiagnosticsMetrics'), 'subnetAddressPrefix', parameters('sharedServicesSubnetAddressPrefix'))), if(parameters('deployIdentity'), createArray(createObject('name', 'identity', 'shortName', 'id', 'deployUniqueResources', if(contains(createArray(parameters('hubSubscriptionId'), parameters('operationsSubscriptionId'), parameters('sharedServicesSubscriptionId')), parameters('identitySubscriptionId')), false(), true()), 'subscriptionId', parameters('identitySubscriptionId'), 'networkWatcherResourceId', parameters('existingIdentityNetworkWatcherResourceId'), 'nsgDiagLogs', parameters('identityNetworkSecurityGroupDiagnosticsLogs'), 'nsgRules', parameters('identityNetworkSecurityGroupRules'), 'vnetAddressPrefix', parameters('identityVirtualNetworkAddressPrefix'), 'vnetDiagLogs', parameters('identityVirtualNetworkDiagnosticsLogs'), 'vnetDiagMetrics', parameters('identityVirtualNetworkDiagnosticsMetrics'), 'subnetAddressPrefix', parameters('identitySubnetAddressPrefix'))), createArray()))]"
+    "firewallClientPrivateIpAddress": "[variables('firewallClientUsableIpAddresses')[3]]"
   },
   "resources": [
     {
@@ -1012,7 +1018,7 @@
             "value": "[parameters('location')]"
           },
           "networks": {
-            "value": "[variables('networks')]"
+            "value": "[union(createArray(createObject('name', 'hub', 'shortName', 'hub', 'deployUniqueResources', true(), 'subscriptionId', parameters('hubSubscriptionId'), 'networkWatcherResourceId', parameters('existingHubNetworkWatcherResourceId'), 'nsgDiagLogs', parameters('hubNetworkSecurityGroupDiagnosticsLogs'), 'nsgRules', parameters('hubNetworkSecurityGroupRules'), 'vnetAddressPrefix', parameters('hubVirtualNetworkAddressPrefix'), 'vnetDiagLogs', parameters('hubVirtualNetworkDiagnosticsLogs'), 'vnetDiagMetrics', parameters('hubVirtualNetworkDiagnosticsMetrics'), 'subnetAddressPrefix', parameters('hubSubnetAddressPrefix')), createObject('name', 'operations', 'shortName', 'ops', 'deployUniqueResources', if(contains(createArray(parameters('hubSubscriptionId')), parameters('operationsSubscriptionId')), false(), true()), 'subscriptionId', parameters('operationsSubscriptionId'), 'networkWatcherResourceId', parameters('existingOperationsNetworkWatcherResourceId'), 'nsgDiagLogs', parameters('operationsNetworkSecurityGroupDiagnosticsLogs'), 'nsgRules', parameters('operationsNetworkSecurityGroupRules'), 'vnetAddressPrefix', parameters('operationsVirtualNetworkAddressPrefix'), 'vnetDiagLogs', parameters('operationsVirtualNetworkDiagnosticsLogs'), 'vnetDiagMetrics', parameters('operationsVirtualNetworkDiagnosticsMetrics'), 'subnetAddressPrefix', parameters('operationsSubnetAddressPrefix')), createObject('name', 'sharedServices', 'shortName', 'svcs', 'deployUniqueResources', if(contains(createArray(parameters('hubSubscriptionId'), parameters('operationsSubscriptionId')), parameters('sharedServicesSubscriptionId')), false(), true()), 'subscriptionId', parameters('sharedServicesSubscriptionId'), 'networkWatcherResourceId', parameters('existingSharedServicesNetworkWatcherResourceId'), 'nsgDiagLogs', parameters('sharedServicesNetworkSecurityGroupDiagnosticsLogs'), 'nsgRules', parameters('sharedServicesNetworkSecurityGroupRules'), 'vnetAddressPrefix', parameters('sharedServicesVirtualNetworkAddressPrefix'), 'vnetDiagLogs', parameters('sharedServicesVirtualNetworkDiagnosticsLogs'), 'vnetDiagMetrics', parameters('sharedServicesVirtualNetworkDiagnosticsMetrics'), 'subnetAddressPrefix', parameters('sharedServicesSubnetAddressPrefix'))), if(parameters('deployIdentity'), createArray(createObject('name', 'identity', 'shortName', 'id', 'deployUniqueResources', if(contains(createArray(parameters('hubSubscriptionId'), parameters('operationsSubscriptionId'), parameters('sharedServicesSubscriptionId')), parameters('identitySubscriptionId')), false(), true()), 'subscriptionId', parameters('identitySubscriptionId'), 'networkWatcherResourceId', parameters('existingIdentityNetworkWatcherResourceId'), 'nsgDiagLogs', parameters('identityNetworkSecurityGroupDiagnosticsLogs'), 'nsgRules', parameters('identityNetworkSecurityGroupRules'), 'vnetAddressPrefix', parameters('identityVirtualNetworkAddressPrefix'), 'vnetDiagLogs', parameters('identityVirtualNetworkDiagnosticsLogs'), 'vnetDiagMetrics', parameters('identityVirtualNetworkDiagnosticsMetrics'), 'subnetAddressPrefix', parameters('identitySubnetAddressPrefix'))), createArray()))]"
           },
           "resourcePrefix": {
             "value": "[parameters('resourcePrefix')]"
@@ -1993,6 +1999,7 @@
               "threatIntelMode": "[parameters('firewallThreatIntelMode')]"
             }
           },
+          "firewallRuleCollectionGroups": "[if(empty(parameters('customFirewallRuleCollectionGroups')), createObject('value', createArray(createObject('name', 'MLZ-NetworkCollectionGroup', 'properties', createObject('priority', 150, 'ruleCollections', createArray(createObject('name', 'AzureMonitor', 'priority', 150, 'ruleCollectionType', 'FirewallPolicyFilterRuleCollection', 'action', createObject('type', 'Allow'), 'rules', createArray(createObject('name', 'AllowMonitorToLAW', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Tcp'), 'sourceAddresses', concat(createArray(parameters('hubVirtualNetworkAddressPrefix')), createArray(parameters('sharedServicesVirtualNetworkAddressPrefix')), if(empty(parameters('identityVirtualNetworkAddressPrefix')), createArray(), createArray(parameters('identityVirtualNetworkAddressPrefix')))), 'destinationAddresses', createArray(cidrHost(parameters('operationsVirtualNetworkAddressPrefix'), 3)), 'destinationPorts', createArray('443'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray(), 'destinationFqdns', createArray())))))))), createObject('value', parameters('customFirewallRuleCollectionGroups')))]",
           "location": {
             "value": "[parameters('location')]"
           },
@@ -2019,7 +2026,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.34.44.8038",
-              "templateHash": "11299168854437106702"
+              "templateHash": "10592962260545720930"
             }
           },
           "parameters": {
@@ -2049,6 +2056,9 @@
             },
             "firewallSettings": {
               "type": "object"
+            },
+            "firewallRuleCollectionGroups": {
+              "type": "array"
             },
             "location": {
               "type": "string"
@@ -2142,11 +2152,11 @@
                   "firewallSkuTier": {
                     "value": "[parameters('firewallSettings').skuTier]"
                   },
-                  "firewallSupernetIPAddress": {
-                    "value": "[parameters('firewallSettings').supernetIPAddress]"
-                  },
                   "firewallThreatIntelMode": {
                     "value": "[parameters('firewallSettings').threatIntelMode]"
+                  },
+                  "firewallRuleCollectionGroups": {
+                    "value": "[parameters('firewallRuleCollectionGroups')]"
                   },
                   "location": {
                     "value": "[parameters('location')]"
@@ -2193,7 +2203,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.34.44.8038",
-                      "templateHash": "1815656228071823973"
+                      "templateHash": "10788137489439352733"
                     }
                   },
                   "parameters": {
@@ -2256,9 +2266,6 @@
                     "firewallSkuTier": {
                       "type": "string"
                     },
-                    "firewallSupernetIPAddress": {
-                      "type": "string"
-                    },
                     "firewallThreatIntelMode": {
                       "type": "string",
                       "allowedValues": [
@@ -2304,6 +2311,9 @@
                       "type": "string"
                     },
                     "vNetDnsServers": {
+                      "type": "array"
+                    },
+                    "firewallRuleCollectionGroups": {
                       "type": "array"
                     }
                   },
@@ -3071,9 +3081,6 @@
                           "firewallPolicyName": {
                             "value": "[parameters('firewallPolicyName')]"
                           },
-                          "firewallSupernetIPAddress": {
-                            "value": "[parameters('firewallSupernetIPAddress')]"
-                          },
                           "intrusionDetectionMode": {
                             "value": "[parameters('firewallIntrusionDetectionMode')]"
                           },
@@ -3100,6 +3107,9 @@
                           },
                           "threatIntelMode": {
                             "value": "[parameters('firewallThreatIntelMode')]"
+                          },
+                          "firewallRuleCollectionGroups": {
+                            "value": "[parameters('firewallRuleCollectionGroups')]"
                           }
                         },
                         "template": {
@@ -3109,7 +3119,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.34.44.8038",
-                              "templateHash": "15224121761141238240"
+                              "templateHash": "2227085978101848547"
                             }
                           },
                           "parameters": {
@@ -3126,9 +3136,6 @@
                               "type": "bool"
                             },
                             "firewallPolicyName": {
-                              "type": "string"
-                            },
-                            "firewallSupernetIPAddress": {
                               "type": "string"
                             },
                             "intrusionDetectionMode": {
@@ -3173,6 +3180,9 @@
                                 "Deny",
                                 "Off"
                               ]
+                            },
+                            "firewallRuleCollectionGroups": {
+                              "type": "array"
                             }
                           },
                           "variables": {
@@ -3198,125 +3208,10 @@
                                   "tier": "[parameters('skuTier')]"
                                 },
                                 "dnsSettings": "[if(or(equals(parameters('skuTier'), 'Premium'), equals(parameters('skuTier'), 'Standard')), variables('dnsSettings'), null())]"
+                              },
+                              "metadata": {
+                                "description": "Azure Firewall Policy"
                               }
-                            },
-                            {
-                              "type": "Microsoft.Network/firewallPolicies/ruleCollectionGroups",
-                              "apiVersion": "2021-02-01",
-                              "name": "[format('{0}/{1}', parameters('firewallPolicyName'), 'DefaultApplicationRuleCollectionGroup')]",
-                              "properties": {
-                                "priority": 300,
-                                "ruleCollections": [
-                                  {
-                                    "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
-                                    "action": {
-                                      "type": "Allow"
-                                    },
-                                    "rules": [
-                                      {
-                                        "ruleType": "ApplicationRule",
-                                        "name": "msftauth",
-                                        "protocols": [
-                                          {
-                                            "protocolType": "Https",
-                                            "port": 443
-                                          }
-                                        ],
-                                        "fqdnTags": [],
-                                        "webCategories": [],
-                                        "targetFqdns": [
-                                          "aadcdn.msftauth.net",
-                                          "aadcdn.msauth.net"
-                                        ],
-                                        "targetUrls": [],
-                                        "terminateTLS": false,
-                                        "sourceAddresses": [
-                                          "*"
-                                        ],
-                                        "destinationAddresses": [],
-                                        "sourceIpGroups": []
-                                      }
-                                    ],
-                                    "name": "AzureAuth",
-                                    "priority": 110
-                                  }
-                                ]
-                              },
-                              "dependsOn": [
-                                "[resourceId('Microsoft.Network/firewallPolicies', parameters('firewallPolicyName'))]"
-                              ]
-                            },
-                            {
-                              "type": "Microsoft.Network/firewallPolicies/ruleCollectionGroups",
-                              "apiVersion": "2021-02-01",
-                              "name": "[format('{0}/{1}', parameters('firewallPolicyName'), 'DefaultNetworkRuleCollectionGroup')]",
-                              "properties": {
-                                "priority": 200,
-                                "ruleCollections": [
-                                  {
-                                    "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
-                                    "action": {
-                                      "type": "Allow"
-                                    },
-                                    "rules": [
-                                      {
-                                        "ruleType": "NetworkRule",
-                                        "name": "AzureCloud",
-                                        "ipProtocols": [
-                                          "Any"
-                                        ],
-                                        "sourceAddresses": [
-                                          "*"
-                                        ],
-                                        "sourceIpGroups": [],
-                                        "destinationAddresses": [
-                                          "AzureCloud"
-                                        ],
-                                        "destinationIpGroups": [],
-                                        "destinationFqdns": [],
-                                        "destinationPorts": [
-                                          "*"
-                                        ]
-                                      }
-                                    ],
-                                    "name": "AllowAzureCloud",
-                                    "priority": 100
-                                  },
-                                  {
-                                    "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
-                                    "action": {
-                                      "type": "Allow"
-                                    },
-                                    "rules": [
-                                      {
-                                        "ruleType": "NetworkRule",
-                                        "name": "AllSpokeTraffic",
-                                        "ipProtocols": [
-                                          "Any"
-                                        ],
-                                        "sourceAddresses": [
-                                          "[parameters('firewallSupernetIPAddress')]"
-                                        ],
-                                        "sourceIpGroups": [],
-                                        "destinationAddresses": [
-                                          "*"
-                                        ],
-                                        "destinationIpGroups": [],
-                                        "destinationFqdns": [],
-                                        "destinationPorts": [
-                                          "*"
-                                        ]
-                                      }
-                                    ],
-                                    "name": "AllowTrafficBetweenSpokes",
-                                    "priority": 200
-                                  }
-                                ]
-                              },
-                              "dependsOn": [
-                                "[resourceId('Microsoft.Network/firewallPolicies/ruleCollectionGroups', parameters('firewallPolicyName'), 'DefaultApplicationRuleCollectionGroup')]",
-                                "[resourceId('Microsoft.Network/firewallPolicies', parameters('firewallPolicyName'))]"
-                              ]
                             },
                             {
                               "type": "Microsoft.Network/azureFirewalls",
@@ -3357,8 +3252,64 @@
                                 }
                               },
                               "dependsOn": [
-                                "[resourceId('Microsoft.Network/firewallPolicies/ruleCollectionGroups', parameters('firewallPolicyName'), 'DefaultApplicationRuleCollectionGroup')]",
-                                "[resourceId('Microsoft.Network/firewallPolicies/ruleCollectionGroups', parameters('firewallPolicyName'), 'DefaultNetworkRuleCollectionGroup')]",
+                                "[resourceId('Microsoft.Network/firewallPolicies', parameters('firewallPolicyName'))]"
+                              ]
+                            },
+                            {
+                              "type": "Microsoft.Resources/deployments",
+                              "apiVersion": "2022-09-01",
+                              "name": "defaultRuleCollectionsConfig",
+                              "subscriptionId": "[split(resourceId('Microsoft.Network/firewallPolicies', parameters('firewallPolicyName')), '/')[2]]",
+                              "resourceGroup": "[split(resourceId('Microsoft.Network/firewallPolicies', parameters('firewallPolicyName')), '/')[4]]",
+                              "properties": {
+                                "expressionEvaluationOptions": {
+                                  "scope": "inner"
+                                },
+                                "mode": "Incremental",
+                                "parameters": {
+                                  "firewallPolicyName": {
+                                    "value": "[parameters('firewallPolicyName')]"
+                                  },
+                                  "firewallRuleCollectionGroups": {
+                                    "value": "[parameters('firewallRuleCollectionGroups')]"
+                                  }
+                                },
+                                "template": {
+                                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                                  "contentVersion": "1.0.0.0",
+                                  "metadata": {
+                                    "_generator": {
+                                      "name": "bicep",
+                                      "version": "0.34.44.8038",
+                                      "templateHash": "17220450159496698959"
+                                    }
+                                  },
+                                  "parameters": {
+                                    "firewallPolicyName": {
+                                      "type": "string"
+                                    },
+                                    "firewallRuleCollectionGroups": {
+                                      "type": "array"
+                                    }
+                                  },
+                                  "resources": [
+                                    {
+                                      "copy": {
+                                        "name": "ruleCreate",
+                                        "count": "[length(parameters('firewallRuleCollectionGroups'))]",
+                                        "mode": "serial",
+                                        "batchSize": 1
+                                      },
+                                      "type": "Microsoft.Network/firewallPolicies/ruleCollectionGroups",
+                                      "apiVersion": "2024-03-01",
+                                      "name": "[format('{0}/{1}', parameters('firewallPolicyName'), parameters('firewallRuleCollectionGroups')[copyIndex()].name)]",
+                                      "properties": "[parameters('firewallRuleCollectionGroups')[copyIndex()].properties]"
+                                    }
+                                  ]
+                                }
+                              },
+                              "dependsOn": [
+                                "[resourceId('Microsoft.Network/azureFirewalls', parameters('name'))]",
                                 "[resourceId('Microsoft.Network/firewallPolicies', parameters('firewallPolicyName'))]"
                               ]
                             }
@@ -7586,7 +7537,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.34.44.8038",
-              "templateHash": "3279781057471075172"
+              "templateHash": "10322241432970654391"
             }
           },
           "parameters": {
@@ -7852,7 +7803,9 @@
             {
               "copy": {
                 "name": "networkSecurityGroupDiagnostics",
-                "count": "[length(variables('networkSecurityGroups'))]"
+                "count": "[length(variables('networkSecurityGroups'))]",
+                "mode": "serial",
+                "batchSize": 1
               },
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
@@ -8086,7 +8039,9 @@
             {
               "copy": {
                 "name": "virtualNetworkDiagnostics",
-                "count": "[length(parameters('tiers'))]"
+                "count": "[length(parameters('tiers'))]",
+                "mode": "serial",
+                "batchSize": 1
               },
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",

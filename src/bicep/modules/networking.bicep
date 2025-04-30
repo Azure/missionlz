@@ -14,6 +14,7 @@ param deploymentNameSuffix string
 param dnsServers array
 param enableProxy bool
 param firewallSettings object
+param firewallRuleCollectionGroups array
 param location string
 param mlzTags object
 param privateDnsZoneNames array
@@ -48,8 +49,8 @@ module hubNetwork 'hub-network.bicep' = {
     firewallName: hub.namingConvention.azureFirewall
     firewallPolicyName: hub.namingConvention.azureFirewallPolicy
     firewallSkuTier: firewallSettings.skuTier
-    firewallSupernetIPAddress: firewallSettings.supernetIPAddress
     firewallThreatIntelMode: firewallSettings.threatIntelMode
+    firewallRuleCollectionGroups: firewallRuleCollectionGroups
     location: location
     mlzTags: mlzTags
     networkSecurityGroupName: hub.namingConvention.networkSecurityGroup

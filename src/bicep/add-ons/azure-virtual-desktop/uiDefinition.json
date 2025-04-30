@@ -131,7 +131,7 @@
                   "condition": "[not(empty(steps('basics').operations.subscription))]",
                   "request": {
                     "method": "GET",
-                    "path": "[concat(steps('basics').operations.subscription, '/providers/microsoft.insights/privateLinkScopes?api-version=2019-10-17-preview')]"
+                    "path": "[concat(steps('basics').operations.subscription, '/providers/microsoft.insights/privateLinkScopes?api-version=2021-09-01')]"
                   }
                 },
                 {

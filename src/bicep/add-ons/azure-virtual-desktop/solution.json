@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.34.44.8038",
-      "templateHash": "12889805163406974965"
+      "templateHash": "5076974267356442433"
     }
   },
   "parameters": {
@@ -184,6 +184,13 @@
         "description": "Enable the partner telemetry deployment. This will allow ESRI to see data around the ArcGIS Pro deployments. https://learn.microsoft.com/en-us/partner-center/marketplace-offers/azure-partner-customer-usage-attribution"
       }
     },
+    "enableWindowsUpdateFwRules": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Enables windows update services access through firewall."
+      }
+    },
     "environmentAbbreviation": {
       "type": "string",
       "defaultValue": "dev",
@@ -201,6 +208,13 @@
       "defaultValue": "",
       "metadata": {
         "description": "The resource ID for the existing feed workspace within a business unit or project."
+      }
+    },
+    "customFirewallRuleCollectionGroups": {
+      "type": "array",
+      "defaultValue": [],
+      "metadata": {
+        "description": "The custom firewall rule collection groups that override the default firewall rule collection groups."
       }
     },
     "fslogixShareSizeInGB": {
@@ -575,8 +589,8 @@
     "subnetAddressPrefixes": {
       "type": "array",
       "defaultValue": [
-        "10.0.140.0/24",
-        "10.0.141.0/26"
+        "[format('10.0.1{0}.0/24', add(40, mul(2, parameters('stampIndex'))))]",
+        "[format('10.0.1{0}.0/26', add(41, mul(2, parameters('stampIndex'))))]"
       ],
       "minLength": 1,
       "maxLength": 2,
@@ -633,7 +647,7 @@
     "virtualNetworkAddressPrefixes": {
       "type": "array",
       "defaultValue": [
-        "10.0.140.0/23"
+        "[format('10.0.1{0}.0/23', add(40, mul(2, parameters('stampIndex'))))]"
       ],
       "minLength": 1,
       "maxLength": 2,
@@ -683,6 +697,7 @@
     "beginAvSetRange": "[div(parameters('sessionHostIndex'), variables('maxAvSetMembers'))]",
     "endAvSetRange": "[div(add(parameters('sessionHostCount'), parameters('sessionHostIndex')), variables('maxAvSetMembers'))]",
     "availabilitySetsCount": "[length(range(variables('beginAvSetRange'), add(sub(variables('endAvSetRange'), variables('beginAvSetRange')), 1)))]",
+    "cloudSuffix": "[replace(replace(environment().resourceManager, 'https://management.', ''), '/', '')]",
     "customImageId": "[if(empty(parameters('imageVersionResourceId')), 'null', format('\"{0}\"', parameters('imageVersionResourceId')))]",
     "deployFslogix": "[if(and(contains(parameters('fslogixStorageService'), 'Azure'), contains(parameters('activeDirectorySolution'), 'DomainServices')), true(), false())]",
     "fileShareNames": {
@@ -704,6 +719,10 @@
     "fileShares": "[variables('fileShareNames')[parameters('fslogixContainerType')]]",
     "netbios": "[split(parameters('domainName'), '.')[0]]",
     "privateDnsZoneResourceIdPrefix": "[format('/subscriptions/{0}/resourceGroups/{1}/providers/Microsoft.Network/privateDnsZones/', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4])]",
+    "privateDnsZoneSuffixes_AzureVirtualDesktop": {
+      "AzureCloud": "microsoft.com",
+      "AzureUSGovernment": "azure.us"
+    },
     "storageSku": "[if(equals(parameters('fslogixStorageService'), 'None'), 'None', split(parameters('fslogixStorageService'), ' ')[1])]",
     "storageService": "[split(parameters('fslogixStorageService'), ' ')[0]]",
     "storageSuffix": "[environment().suffixes.storage]",
@@ -733,6 +752,105 @@
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
           "resources": []
+        }
+      }
+    },
+    {
+      "condition": "[contains(parameters('activeDirectorySolution'), 'DomainServices')]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[format('get-id-vnet-{0}', parameters('deploymentNameSuffix'))]",
+      "location": "[deployment().location]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "networkName": {
+            "value": "identity"
+          },
+          "peerings": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01').virtualNetworkPeerings]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.34.44.8038",
+              "templateHash": "8430011223033725316"
+            }
+          },
+          "parameters": {
+            "networkName": {
+              "type": "string"
+            },
+            "peerings": {
+              "type": "array"
+            }
+          },
+          "variables": {
+            "virtualNetworkResourceId": "[filter(parameters('peerings'), lambda('peer', contains(lambdaVariables('peer').name, format('-{0}-', parameters('networkName')))))[0].properties.remoteVirtualNetwork.id]"
+          },
+          "resources": [],
+          "outputs": {
+            "addressPrefix": {
+              "type": "string",
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(variables('virtualNetworkResourceId'), '/')[2], split(variables('virtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(variables('virtualNetworkResourceId'), '/')[8]), '2023-11-01').addressSpace.addressPrefixes[0]]"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[format('get-ops-vnet-{0}', parameters('deploymentNameSuffix'))]",
+      "location": "[deployment().location]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "networkName": {
+            "value": "operations"
+          },
+          "peerings": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01').virtualNetworkPeerings]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.34.44.8038",
+              "templateHash": "8430011223033725316"
+            }
+          },
+          "parameters": {
+            "networkName": {
+              "type": "string"
+            },
+            "peerings": {
+              "type": "array"
+            }
+          },
+          "variables": {
+            "virtualNetworkResourceId": "[filter(parameters('peerings'), lambda('peer', contains(lambdaVariables('peer').name, format('-{0}-', parameters('networkName')))))[0].properties.remoteVirtualNetwork.id]"
+          },
+          "resources": [],
+          "outputs": {
+            "addressPrefix": {
+              "type": "string",
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(variables('virtualNetworkResourceId'), '/')[2], split(variables('virtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(variables('virtualNetworkResourceId'), '/')[8]), '2023-11-01').addressSpace.addressPrefixes[0]]"
+            }
+          }
         }
       }
     },
@@ -1364,6 +1482,7 @@
           "additionalSubnets": {
             "value": "[union(variables('subnets').avdControlPlane, variables('subnets').azureNetAppFiles, variables('subnets').functionApp)]"
           },
+          "customFirewallRuleCollectionGroups": "[if(empty(parameters('customFirewallRuleCollectionGroups')), createObject('value', createArray(createObject('name', format('AVD-CollapsedCollectionGroup-Stamp-{0}', parameters('stampIndex')), 'properties', createObject('priority', 200, 'ruleCollections', createArray(createObject('name', 'ApplicationRules', 'priority', 150, 'ruleCollectionType', 'FirewallPolicyFilterRuleCollection', 'action', createObject('type', 'Allow'), 'rules', concat(createArray(createObject('name', 'AVD-RequiredDeploymentEndpoints', 'ruleType', 'ApplicationRule', 'protocols', createArray(createObject('protocolType', 'Https', 'port', 443)), 'fqdnTags', createArray(), 'webCategories', createArray(), 'targetFqdns', createArray(replace(environment().resourceManager, 'https://', ''), format('mrsglobalsteus2prod.blob.{0}', environment().suffixes.storage), format('wvdportalstorageblob.blob.{0}', environment().suffixes.storage), format('gcs.prod.monitoring.{0}', environment().suffixes.storage), format('*.prod.warm.ingest.monitor.{0}', environment().suffixes.storage), format('*.guestconfiguration.{0}', coalesce(tryGet(variables('privateDnsZoneSuffixes_AzureVirtualDesktop'), environment().name), variables('cloudSuffix'))), format('*.wvd.{0}', coalesce(tryGet(variables('privateDnsZoneSuffixes_AzureVirtualDesktop'), environment().name), variables('cloudSuffix')))), 'targetUrls', createArray(), 'terminateTLS', false(), 'sourceAddresses', parameters('virtualNetworkAddressPrefixes'), 'destinationAddresses', createArray(), 'sourceIpGroups', createArray())), if(contains(parameters('activeDirectorySolution'), 'MicrosoftEntraId'), createArray(createObject('name', 'AVD-EntraAuthEndpoints', 'ruleType', 'ApplicationRule', 'protocols', createArray(createObject('protocolType', 'Https', 'port', 443)), 'fqdnTags', createArray(), 'webCategories', createArray(), 'targetFqdns', createArray(replace(environment().authentication.loginEndpoint, 'https://', ''), replace(environment().graph, 'https://', ''), 'enterpriseregistration.windows.net'), 'targetUrls', createArray(), 'terminateTLS', false(), 'sourceAddresses', parameters('virtualNetworkAddressPrefixes'), 'destinationAddresses', createArray(), 'sourceIpGroups', createArray())), createArray()), if(parameters('enableWindowsUpdateFwRules'), createArray(createObject('name', 'WindowsUpdateEndpoints', 'ruleType', 'ApplicationRule', 'protocols', createArray(createObject('protocolType', 'Https', 'port', 443), createObject('protocolType', 'Http', 'port', 80)), 'fqdnTags', createArray('WindowsUpdate'), 'webCategories', createArray(), 'targetFqdns', createArray(), 'targetUrls', createArray(), 'terminateTLS', false(), 'sourceAddresses', parameters('virtualNetworkAddressPrefixes'), 'destinationAddresses', createArray(), 'sourceIpGroups', createArray())), createArray()))), createObject('name', 'NetworkRules', 'priority', 140, 'ruleCollectionType', 'FirewallPolicyFilterRuleCollection', 'action', createObject('type', 'Allow'), 'rules', concat(createArray(createObject('name', 'KMS-Endpoint', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Tcp'), 'sourceAddresses', parameters('virtualNetworkAddressPrefixes'), 'destinationAddresses', createArray(), 'destinationFqdns', createArray(format('azkms.{0}', environment().suffixes.storage)), 'destinationPorts', createArray('1688'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray())), createArray(createObject('name', 'AllowMonitorToLAW', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Tcp'), 'sourceAddresses', parameters('virtualNetworkAddressPrefixes'), 'destinationAddresses', createArray(cidrHost(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-ops-vnet-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.addressPrefix.value, 3)), 'destinationPorts', createArray('443'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray(), 'destinationFqdns', createArray())), createArray(createObject('name', 'TimeSync', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Udp'), 'sourceAddresses', parameters('virtualNetworkAddressPrefixes'), 'destinationAddresses', createArray(), 'destinationFqdns', createArray('time.windows.com'), 'destinationPorts', createArray('123'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray())), createArray(createObject('name', 'AzureCloudforLogin', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Tcp'), 'sourceAddresses', parameters('virtualNetworkAddressPrefixes'), 'destinationAddresses', createArray('AzureActiveDirectory'), 'destinationFqdns', createArray(), 'destinationPorts', createArray('443'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray())), if(contains(parameters('activeDirectorySolution'), 'DomainServices'), createArray(createObject('name', 'ADCommunicationRule', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Tcp', 'Udp'), 'sourceAddresses', parameters('virtualNetworkAddressPrefixes'), 'destinationAddresses', createArray(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-id-vnet-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.addressPrefix.value), 'destinationPorts', createArray('53', '88', '389', '445', '139', '135', '89', '123', '1024-65535'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray())), createArray())))))))), createObject('value', parameters('customFirewallRuleCollectionGroups')))]",
           "deployActivityLogDiagnosticSetting": {
             "value": "[parameters('deployActivityLogDiagnosticSetting')]"
           },
@@ -1468,7 +1587,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.34.44.8038",
-              "templateHash": "7231240451025538993"
+              "templateHash": "4485272861006281618"
             }
           },
           "parameters": {
@@ -1477,6 +1596,13 @@
               "defaultValue": [],
               "metadata": {
                 "description": "An array of additional subnets to support the tier3 workload."
+              }
+            },
+            "customFirewallRuleCollectionGroups": {
+              "type": "array",
+              "defaultValue": [],
+              "metadata": {
+                "description": "The custom firewall rule collection groups that override the default firewall rule collection groups."
               }
             },
             "deployActivityLogDiagnosticSetting": {
@@ -1754,6 +1880,110 @@
             "subscriptionId": "[subscription().subscriptionId]"
           },
           "resources": [
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2022-09-01",
+              "name": "[format('get-ops-vnet-{0}', parameters('deploymentNameSuffix'))]",
+              "location": "[deployment().location]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "networkName": {
+                    "value": "operations"
+                  },
+                  "peerings": {
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01').virtualNetworkPeerings]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.34.44.8038",
+                      "templateHash": "8430011223033725316"
+                    }
+                  },
+                  "parameters": {
+                    "networkName": {
+                      "type": "string"
+                    },
+                    "peerings": {
+                      "type": "array"
+                    }
+                  },
+                  "variables": {
+                    "virtualNetworkResourceId": "[filter(parameters('peerings'), lambda('peer', contains(lambdaVariables('peer').name, format('-{0}-', parameters('networkName')))))[0].properties.remoteVirtualNetwork.id]"
+                  },
+                  "resources": [],
+                  "outputs": {
+                    "addressPrefix": {
+                      "type": "string",
+                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(variables('virtualNetworkResourceId'), '/')[2], split(variables('virtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(variables('virtualNetworkResourceId'), '/')[8]), '2023-11-01').addressSpace.addressPrefixes[0]]"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2022-09-01",
+              "name": "[format('deploy-firewall-rules-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))]",
+              "subscriptionId": "[variables('hubSubscriptionId')]",
+              "resourceGroup": "[variables('hubResourceGroupName')]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "firewallPolicyName": {
+                    "value": "[split(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('firewallResourceId'), '/')[2], split(parameters('firewallResourceId'), '/')[4]), 'Microsoft.Network/azureFirewalls', split(parameters('firewallResourceId'), '/')[8]), '2020-11-01').firewallPolicy.id, '/')[8]]"
+                  },
+                  "firewallRuleCollectionGroups": "[if(empty(parameters('customFirewallRuleCollectionGroups')), createObject('value', createArray(createObject('name', 'Tier3-NetworkCollectionGroup', 'properties', createObject('priority', 200, 'ruleCollections', createArray(createObject('name', 'AllowMonitorToLAW', 'priority', 150, 'ruleCollectionType', 'FirewallPolicyFilterRuleCollection', 'action', createObject('type', 'Allow'), 'rules', createArray(createObject('name', 'AllowMonitorToLAW', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Tcp'), 'sourceAddresses', createArray(parameters('virtualNetworkAddressPrefix')), 'destinationAddresses', createArray(cidrHost(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-ops-vnet-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.addressPrefix.value, 3)), 'destinationPorts', createArray('443'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray(), 'destinationFqdns', createArray())))))))), createObject('value', parameters('customFirewallRuleCollectionGroups')))]"
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.34.44.8038",
+                      "templateHash": "17220450159496698959"
+                    }
+                  },
+                  "parameters": {
+                    "firewallPolicyName": {
+                      "type": "string"
+                    },
+                    "firewallRuleCollectionGroups": {
+                      "type": "array"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "copy": {
+                        "name": "ruleCreate",
+                        "count": "[length(parameters('firewallRuleCollectionGroups'))]",
+                        "mode": "serial",
+                        "batchSize": 1
+                      },
+                      "type": "Microsoft.Network/firewallPolicies/ruleCollectionGroups",
+                      "apiVersion": "2024-03-01",
+                      "name": "[format('{0}/{1}', parameters('firewallPolicyName'), parameters('firewallRuleCollectionGroups')[copyIndex()].name)]",
+                      "properties": "[parameters('firewallRuleCollectionGroups')[copyIndex()].properties]"
+                    }
+                  ]
+                }
+              },
+              "dependsOn": [
+                "[subscriptionResourceId('Microsoft.Resources/deployments', format('get-ops-vnet-{0}', parameters('deploymentNameSuffix')))]"
+              ]
+            },
             {
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
@@ -6480,7 +6710,11 @@
             }
           }
         }
-      }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('get-id-vnet-{0}', parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('get-ops-vnet-{0}', parameters('deploymentNameSuffix')))]"
+      ]
     },
     {
       "type": "Microsoft.Resources/deployments",
@@ -12231,6 +12465,9 @@
           "enableRecoveryServices": {
             "value": "[parameters('recoveryServices')]"
           },
+          "enableWindowsUpdate": {
+            "value": "[parameters('enableWindowsUpdateFwRules')]"
+          },
           "environmentAbbreviation": {
             "value": "[parameters('environmentAbbreviation')]"
           },
@@ -12361,7 +12598,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.34.44.8038",
-              "templateHash": "1585180554903568356"
+              "templateHash": "2417125836478234010"
             }
           },
           "parameters": {
@@ -12435,6 +12672,9 @@
               "type": "bool"
             },
             "enableRecoveryServices": {
+              "type": "bool"
+            },
+            "enableWindowsUpdate": {
               "type": "bool"
             },
             "environmentAbbreviation": {
@@ -12992,6 +13232,9 @@
                   "enableDrainMode": {
                     "value": "[parameters('drainMode')]"
                   },
+                  "enableWindowsUpdate": {
+                    "value": "[parameters('enableWindowsUpdate')]"
+                  },
                   "fslogixContainerType": {
                     "value": "[parameters('fslogixContainerType')]"
                   },
@@ -13080,7 +13323,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.34.44.8038",
-                      "templateHash": "14609002523514408540"
+                      "templateHash": "13441059121425651612"
                     }
                   },
                   "parameters": {
@@ -13142,6 +13385,9 @@
                       "type": "bool"
                     },
                     "enableDrainMode": {
+                      "type": "bool"
+                    },
+                    "enableWindowsUpdate": {
                       "type": "bool"
                     },
                     "fslogixContainerType": {
@@ -13354,7 +13600,7 @@
                           "computerName": "[format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[copyIndex()], parameters('sessionHostIndex')), 4, '0'))]",
                           "windowsConfiguration": {
                             "provisionVMAgent": true,
-                            "enableAutomaticUpdates": false
+                            "enableAutomaticUpdates": "[if(and(parameters('enableWindowsUpdate'), equals(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.DesktopVirtualization/hostPools', parameters('hostPoolName')), '2023-09-05').hostPoolType, 'Personal')), true(), false())]"
                           },
                           "secrets": [],
                           "allowExtensionOperations": true

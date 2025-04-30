@@ -19,6 +19,7 @@ param domainName string
 param enableAcceleratedNetworking bool
 param enableAvdInsights bool
 param enableDrainMode bool
+param enableWindowsUpdate bool
 param fslogixContainerType string
 param hostPoolName string
 param imageOffer string
@@ -172,7 +173,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-03-01' = [for i 
       computerName: '${sessionHostNamePrefix}${padLeft((i + sessionHostIndex), 4, '0')}'
       windowsConfiguration: {
         provisionVMAgent: true
-        enableAutomaticUpdates: false
+        enableAutomaticUpdates: enableWindowsUpdate && hostPool.properties.hostPoolType == 'Personal' ? true : false
       }
       secrets: []
       allowExtensionOperations: true

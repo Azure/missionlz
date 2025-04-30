@@ -4,15 +4,97 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.31.34.60546",
-      "templateHash": "7891133147346503241"
+      "version": "0.34.44.8038",
+      "templateHash": "4950361473269821689"
     }
   },
   "parameters": {
-    "vgwName": {
+    "allowedAzureAddressPrefixes": {
+      "type": "array",
+      "defaultValue": [
+        "10.0.130.0/24",
+        "10.0.131.0/24",
+        "10.0.132.0/24",
+        "10.0.128.0/23"
+      ],
+      "metadata": {
+        "description": "Azure address prefixes allowed to communicate to VPN Gateway to on-premises network"
+      }
+    },
+    "azureFirewallResourceId": {
       "type": "string",
       "metadata": {
-        "description": "The name of the VPN Gateway."
+        "description": "The name of the Azure Firewall to retrieve the internal IP address from."
+      }
+    },
+    "customFirewallRuleCollectionGroups": {
+      "type": "array",
+      "defaultValue": [],
+      "metadata": {
+        "description": "The firewall rules that will be applied to the Azure Firewall."
+      }
+    },
+    "deploymentNameSuffix": {
+      "type": "string",
+      "defaultValue": "[utcNow()]",
+      "metadata": {
+        "description": "A suffix to use for naming deployments uniquely."
+      }
+    },
+    "gatewaySubnetName": {
+      "type": "string",
+      "defaultValue": "GatewaySubnet",
+      "metadata": {
+        "description": "The name of the gateway subnet"
+      }
+    },
+    "hubVirtualNetworkResourceId": {
+      "type": "string",
+      "metadata": {
+        "description": "The resource ID of the hub virtual network."
+      }
+    },
+    "hubVnetRouteTableResourceId": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the hub virtual network route table"
+      }
+    },
+    "localAddressPrefixes": {
+      "type": "array",
+      "metadata": {
+        "description": "Address prefixes of the Local Network which will be routable through the VPN Gateway"
+      }
+    },
+    "localGatewayIpAddress": {
+      "type": "string",
+      "metadata": {
+        "description": "IP Address of the Local Network Gateway, must be a public IP address or be able to be connected to from MLZ network"
+      }
+    },
+    "localNetworkGatewayName": {
+      "type": "string",
+      "metadata": {
+        "description": "Local Network Gateway Name"
+      }
+    },
+    "keyVaultCertificateUri": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The URI of the Key Vault certificate to use for the VPN connection. If using a Key Vault certificate, this must be a valid URI."
+      }
+    },
+    "sharedKey": {
+      "type": "securestring",
+      "metadata": {
+        "description": "The shared key to use for the VPN connection. If using the shared key, this must be provided."
+      }
+    },
+    "useSharedKey": {
+      "type": "bool",
+      "metadata": {
+        "description": "Choose whether to use a shared key or Key Vault certificate URI for the VPN connection."
       }
     },
     "vgwLocation": {
@@ -21,10 +103,22 @@
         "description": "The Azure region location of the VPN Gateway."
       }
     },
+    "vgwName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the VPN Gateway."
+      }
+    },
     "vgwPublicIpAddressNames": {
       "type": "array",
       "metadata": {
         "description": "The names of the public IP addresses to use for the VPN Gateway."
+      }
+    },
+    "vgwRouteTableName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the vgw route table to create"
       }
     },
     "vgwSku": {
@@ -39,102 +133,21 @@
         "description": "The SKU of the VPN Gateway."
       }
     },
-    "localNetworkGatewayName": {
-      "type": "string",
-      "metadata": {
-        "description": "Local Network Gateway Name"
-      }
-    },
-    "localGatewayIpAddress": {
-      "type": "string",
-      "metadata": {
-        "description": "IP Address of the Local Network Gateway, must be a public IP address or be able to be connected to from MLZ network"
-      }
-    },
-    "allowedAzureAddressPrefixes": {
-      "type": "array",
-      "metadata": {
-        "description": "Azure address prefixes allowed to communicate to VPN Gateway to on-premises network"
-      }
-    },
-    "localAddressPrefixes": {
-      "type": "array",
-      "metadata": {
-        "description": "Address prefixes of the Local Network which will be routable through the VPN Gateway"
-      }
-    },
-    "useSharedKey": {
-      "type": "bool",
-      "metadata": {
-        "description": "Choose whether to use a shared key or Key Vault certificate URI for the VPN connection."
-      }
-    },
-    "sharedKey": {
-      "type": "securestring",
-      "metadata": {
-        "description": "The shared key to use for the VPN connection. If using the shared key, this must be provided."
-      }
-    },
-    "keyVaultCertificateUri": {
-      "type": "string",
-      "defaultValue": "",
-      "metadata": {
-        "description": "The URI of the Key Vault certificate to use for the VPN connection. If using a Key Vault certificate, this must be a valid URI."
-      }
-    },
-    "deploymentNameSuffix": {
-      "type": "string",
-      "defaultValue": "[utcNow()]",
-      "metadata": {
-        "description": "A suffix to use for naming deployments uniquely."
-      }
-    },
-    "hubVirtualNetworkResourceId": {
-      "type": "string",
-      "metadata": {
-        "description": "The resource ID of the hub virtual network."
-      }
-    },
     "vnetResourceIdList": {
       "type": "array",
       "metadata": {
         "description": "List of peered networks that should use the VPN Gateway once configured."
       }
-    },
-    "azureFirewallResourceId": {
-      "type": "string",
-      "metadata": {
-        "description": "The name of the Azure Firewall to retrieve the internal IP address from."
-      }
-    },
-    "vgwRouteTableName": {
-      "type": "string",
-      "metadata": {
-        "description": "The name of the vgw route table to create"
-      }
-    },
-    "gatewaySubnetName": {
-      "type": "string",
-      "defaultValue": "GatewaySubnet",
-      "metadata": {
-        "description": "The name of the gateway subnet"
-      }
-    },
-    "hubVnetRouteTableResourceId": {
-      "type": "string",
-      "metadata": {
-        "description": "The name of the hub virtual network route table"
-      }
     }
   },
   "variables": {
+    "azureFirewallName": "[split(parameters('azureFirewallResourceId'), '/')[8]]",
     "hubResourceGroupName": "[split(parameters('hubVirtualNetworkResourceId'), '/')[4]]",
     "hubVnetName": "[split(parameters('hubVirtualNetworkResourceId'), '/')[8]]",
-    "azureFirewallName": "[split(parameters('azureFirewallResourceId'), '/')[8]]",
     "hubVnetRouteTableName": "[split(parameters('hubVnetRouteTableResourceId'), '/')[8]]",
-    "vpnSharedKey": "[if(parameters('useSharedKey'), parameters('sharedKey'), '')]",
+    "isValidUri": "[and(contains(parameters('keyVaultCertificateUri'), 'https://'), contains(parameters('keyVaultCertificateUri'), '/secrets/'))]",
     "vpnKeyVaultUri": "[if(not(parameters('useSharedKey')), parameters('keyVaultCertificateUri'), '')]",
-    "isValidUri": "[and(contains(parameters('keyVaultCertificateUri'), 'https://'), contains(parameters('keyVaultCertificateUri'), '/secrets/'))]"
+    "vpnSharedKey": "[if(parameters('useSharedKey'), parameters('sharedKey'), '')]"
   },
   "resources": [
     {
@@ -151,6 +164,58 @@
         },
         "templateLink": {
           "uri": "https://validatemessage.com"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[format('deploy-vgw-firewall-rules-{0}', parameters('deploymentNameSuffix'))]",
+      "subscriptionId": "[split(parameters('hubVirtualNetworkResourceId'), '/')[2]]",
+      "resourceGroup": "[split(parameters('hubVirtualNetworkResourceId'), '/')[4]]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "firewallPolicyName": {
+            "value": "[split(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('azureFirewallResourceId'), '/')[2], split(parameters('azureFirewallResourceId'), '/')[4]), 'Microsoft.Network/azureFirewalls', split(parameters('azureFirewallResourceId'), '/')[8]), '2020-11-01').firewallPolicy.id, '/')[8]]"
+          },
+          "firewallRuleCollectionGroups": "[if(empty(parameters('customFirewallRuleCollectionGroups')), createObject('value', createArray(createObject('name', 'VGW-NetworkCollectionGroup', 'properties', createObject('priority', 300, 'ruleCollections', createArray(createObject('name', 'AllowAllTraffic', 'priority', 150, 'ruleCollectionType', 'FirewallPolicyFilterRuleCollection', 'action', createObject('type', 'Allow'), 'rules', createArray(createObject('name', 'AllowAzureToOnPrem', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Any'), 'sourceAddresses', parameters('localAddressPrefixes'), 'destinationAddresses', parameters('allowedAzureAddressPrefixes'), 'destinationPorts', createArray('*'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray(), 'destinationFqdns', createArray()), createObject('name', 'AllowOnPremToAzure', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Any'), 'sourceAddresses', parameters('allowedAzureAddressPrefixes'), 'destinationAddresses', parameters('localAddressPrefixes'), 'destinationPorts', createArray('*'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray(), 'destinationFqdns', createArray())))))))), createObject('value', parameters('customFirewallRuleCollectionGroups')))]"
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.34.44.8038",
+              "templateHash": "17220450159496698959"
+            }
+          },
+          "parameters": {
+            "firewallPolicyName": {
+              "type": "string"
+            },
+            "firewallRuleCollectionGroups": {
+              "type": "array"
+            }
+          },
+          "resources": [
+            {
+              "copy": {
+                "name": "ruleCreate",
+                "count": "[length(parameters('firewallRuleCollectionGroups'))]",
+                "mode": "serial",
+                "batchSize": 1
+              },
+              "type": "Microsoft.Network/firewallPolicies/ruleCollectionGroups",
+              "apiVersion": "2024-03-01",
+              "name": "[format('{0}/{1}', parameters('firewallPolicyName'), parameters('firewallRuleCollectionGroups')[copyIndex()].name)]",
+              "properties": "[parameters('firewallRuleCollectionGroups')[copyIndex()].properties]"
+            }
+          ]
         }
       }
     },
@@ -187,8 +252,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.31.34.60546",
-              "templateHash": "3589752526565849732"
+              "version": "0.34.44.8038",
+              "templateHash": "11432980066834994535"
             }
           },
           "parameters": {
@@ -313,8 +378,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.31.34.60546",
-              "templateHash": "17093542793626818819"
+              "version": "0.34.44.8038",
+              "templateHash": "2585913059482913825"
             }
           },
           "parameters": {
@@ -388,8 +453,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.31.34.60546",
-              "templateHash": "17808641870371981197"
+              "version": "0.34.44.8038",
+              "templateHash": "10328606096874066662"
             }
           },
           "parameters": {
@@ -479,8 +544,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.31.34.60546",
-              "templateHash": "8229271046057649788"
+              "version": "0.34.44.8038",
+              "templateHash": "5027054065866683761"
             }
           },
           "parameters": {
@@ -568,8 +633,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.31.34.60546",
-              "templateHash": "8229271046057649788"
+              "version": "0.34.44.8038",
+              "templateHash": "5027054065866683761"
             }
           },
           "parameters": {
@@ -663,8 +728,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.31.34.60546",
-              "templateHash": "8229271046057649788"
+              "version": "0.34.44.8038",
+              "templateHash": "5027054065866683761"
             }
           },
           "parameters": {
@@ -755,8 +820,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.31.34.60546",
-              "templateHash": "10372783504892384694"
+              "version": "0.34.44.8038",
+              "templateHash": "9208579266478077748"
             }
           },
           "parameters": {
@@ -839,8 +904,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.31.34.60546",
-              "templateHash": "10372783504892384694"
+              "version": "0.34.44.8038",
+              "templateHash": "9208579266478077748"
             }
           },
           "parameters": {
@@ -916,8 +981,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.31.34.60546",
-              "templateHash": "13855829966458352"
+              "version": "0.34.44.8038",
+              "templateHash": "12104556429771295484"
             }
           },
           "parameters": {
@@ -992,8 +1057,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.31.34.60546",
-              "templateHash": "280047033181845191"
+              "version": "0.34.44.8038",
+              "templateHash": "1895934930745038592"
             }
           },
           "parameters": {
@@ -1086,8 +1151,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.31.34.60546",
-              "templateHash": "280047033181845191"
+              "version": "0.34.44.8038",
+              "templateHash": "1895934930745038592"
             }
           },
           "parameters": {
@@ -1176,8 +1241,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.31.34.60546",
-              "templateHash": "17439321293785150273"
+              "version": "0.34.44.8038",
+              "templateHash": "7446327890594026078"
             }
           },
           "parameters": {
@@ -1223,219 +1288,6 @@
       },
       "dependsOn": [
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('createVgwRouteTable-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('retrieveRouteTableInfo-{0}', parameters('deploymentNameSuffix')))]"
-      ]
-    },
-    {
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
-      "name": "[format('createHubRoute-{0}', parameters('deploymentNameSuffix'))]",
-      "subscriptionId": "[split(parameters('hubVirtualNetworkResourceId'), '/')[2]]",
-      "resourceGroup": "[split(parameters('hubVirtualNetworkResourceId'), '/')[4]]",
-      "properties": {
-        "expressionEvaluationOptions": {
-          "scope": "inner"
-        },
-        "mode": "Incremental",
-        "parameters": {
-          "routeTableName": {
-            "value": "[variables('hubVnetRouteTableName')]"
-          },
-          "addressSpace": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('retrieveRouteTableInfo-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.vnetAddressSpace.value]"
-          },
-          "routeName": {
-            "value": "route-hubvnet"
-          },
-          "nextHopType": {
-            "value": "VirtualAppliance"
-          },
-          "nextHopIpAddress": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('retrieveRouteTableInfo-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.firewallPrivateIp.value]"
-          }
-        },
-        "template": {
-          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "contentVersion": "1.0.0.0",
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "0.31.34.60546",
-              "templateHash": "280047033181845191"
-            }
-          },
-          "parameters": {
-            "routeTableName": {
-              "type": "string",
-              "metadata": {
-                "description": "Name of the route table to create"
-              }
-            },
-            "routeName": {
-              "type": "string",
-              "metadata": {
-                "description": "Name of the route"
-              }
-            },
-            "addressSpace": {
-              "type": "array",
-              "metadata": {
-                "description": "CIDR prefixes for the route"
-              }
-            },
-            "nextHopType": {
-              "type": "string",
-              "metadata": {
-                "description": "The next hop type for the route"
-              }
-            },
-            "nextHopIpAddress": {
-              "type": "string",
-              "metadata": {
-                "description": "The next hop IP address for the route"
-              }
-            }
-          },
-          "resources": [
-            {
-              "copy": {
-                "name": "routes",
-                "count": "[length(parameters('addressSpace'))]"
-              },
-              "type": "Microsoft.Network/routeTables/routes",
-              "apiVersion": "2023-04-01",
-              "name": "[format('{0}/{1}', parameters('routeTableName'), format('{0}-{1}', parameters('routeName'), copyIndex()))]",
-              "properties": {
-                "addressPrefix": "[parameters('addressSpace')[copyIndex()]]",
-                "nextHopType": "[parameters('nextHopType')]",
-                "nextHopIpAddress": "[if(not(equals(parameters('nextHopIpAddress'), '')), parameters('nextHopIpAddress'), null())]"
-              }
-            }
-          ]
-        }
-      },
-      "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('createVgwRouteTable-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('retrieveRouteTableInfo-{0}', parameters('deploymentNameSuffix')))]"
-      ]
-    },
-    {
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
-      "name": "[format('firewallRules-{0}', parameters('deploymentNameSuffix'))]",
-      "subscriptionId": "[split(parameters('hubVirtualNetworkResourceId'), '/')[2]]",
-      "resourceGroup": "[split(parameters('hubVirtualNetworkResourceId'), '/')[4]]",
-      "properties": {
-        "expressionEvaluationOptions": {
-          "scope": "inner"
-        },
-        "mode": "Incremental",
-        "parameters": {
-          "allowVnetAddressSpaces": {
-            "value": "[parameters('allowedAzureAddressPrefixes')]"
-          },
-          "onPremAddressSpaces": {
-            "value": "[parameters('localAddressPrefixes')]"
-          },
-          "firewallPolicyId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('retrieveRouteTableInfo-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.firewallPolicyId.value]"
-          },
-          "priorityValue": {
-            "value": 300
-          }
-        },
-        "template": {
-          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "contentVersion": "1.0.0.0",
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "0.31.34.60546",
-              "templateHash": "17390602903085657580"
-            }
-          },
-          "parameters": {
-            "allowVnetAddressSpaces": {
-              "type": "array",
-              "metadata": {
-                "description": "The list of virtual network resource IDs to be used as the source IP groups"
-              }
-            },
-            "onPremAddressSpaces": {
-              "type": "array",
-              "metadata": {
-                "description": "Address prefixes of the on-premises network"
-              }
-            },
-            "firewallPolicyId": {
-              "type": "string",
-              "metadata": {
-                "description": "Name of the firewall policy"
-              }
-            },
-            "priorityValue": {
-              "type": "int",
-              "minValue": 300,
-              "maxValue": 65000,
-              "metadata": {
-                "description": "The priority value for the rule collection"
-              }
-            }
-          },
-          "variables": {
-            "outboundRules": {
-              "name": "AllowAzureToOnPremRule",
-              "ruleType": "NetworkRule",
-              "sourceAddresses": "[parameters('allowVnetAddressSpaces')]",
-              "destinationAddresses": "[parameters('onPremAddressSpaces')]",
-              "destinationPorts": [
-                "*"
-              ],
-              "ipProtocols": [
-                "Any"
-              ]
-            },
-            "inboundRules": {
-              "name": "AllowOnPremToAzureRule",
-              "ruleType": "NetworkRule",
-              "sourceAddresses": "[parameters('onPremAddressSpaces')]",
-              "destinationAddresses": "[parameters('allowVnetAddressSpaces')]",
-              "destinationPorts": [
-                "*"
-              ],
-              "ipProtocols": [
-                "Any"
-              ]
-            }
-          },
-          "resources": [
-            {
-              "type": "Microsoft.Network/firewallPolicies/ruleCollectionGroups",
-              "apiVersion": "2023-04-01",
-              "name": "[format('{0}/{1}', last(split(parameters('firewallPolicyId'), '/')), 'VgwNetworkRuleCollectionGroup')]",
-              "properties": {
-                "priority": "[parameters('priorityValue')]",
-                "ruleCollections": [
-                  {
-                    "name": "AllowVgw",
-                    "priority": "[parameters('priorityValue')]",
-                    "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
-                    "action": {
-                      "type": "Allow"
-                    },
-                    "rules": [
-                      "[variables('outboundRules')]",
-                      "[variables('inboundRules')]"
-                    ]
-                  }
-                ]
-              }
-            }
-          ]
-        }
-      },
-      "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('associateRouteTable-{0}', parameters('deploymentNameSuffix')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('retrieveRouteTableInfo-{0}', parameters('deploymentNameSuffix')))]"
       ]
     }

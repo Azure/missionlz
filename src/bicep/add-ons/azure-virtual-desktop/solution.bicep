@@ -86,6 +86,9 @@ param enableAvdInsights bool = true
 @description('Enable the partner telemetry deployment. This will allow ESRI to see data around the ArcGIS Pro deployments. https://learn.microsoft.com/en-us/partner-center/marketplace-offers/azure-partner-customer-usage-attribution')
 param enableTelemetry bool = false
 
+@description('Enables windows update services access through firewall.')
+param enableWindowsUpdateFwRules bool = false
+
 @allowed([
   'dev' // Development
   'prod' // Production
@@ -96,6 +99,9 @@ param environmentAbbreviation string = 'dev'
 
 @description('The resource ID for the existing feed workspace within a business unit or project.')
 param existingFeedWorkspaceResourceId string = ''
+
+@description('The custom firewall rule collection groups that override the default firewall rule collection groups.')
+param customFirewallRuleCollectionGroups array = []
 
 @description('The file share size(s) in GB for the Fslogix storage solution.')
 param fslogixShareSizeInGB int = 100
@@ -317,8 +323,8 @@ param storageIndex int = 0
 @maxLength(2)
 @description('The address prefix(es) for the new subnet(s) that will be created in the spoke virtual network(s). Specify only one address prefix in the array if the session hosts location and the control plan location are the same. If different locations are specified, add a second address prefix for the hosts virtual network.')
 param subnetAddressPrefixes array = [
-  '10.0.140.0/24'
-  '10.0.141.0/26'
+  '10.0.1${40 + (2 * stampIndex)}.0/24'
+  '10.0.1${41 + (2 * stampIndex)}.0/26'
 ]
 
 @description('The Key / value pairs of metadata for the Azure resource groups and resources.')
@@ -347,7 +353,7 @@ param virtualMachineVirtualCpuCount int
 @maxLength(2)
 @description('The address prefix for the new spoke virtual network(s). Specify only one address prefix in the array if the session hosts location and the control plan location are the same. If different locations are specified, add a second address prefix for the hosts virtual network.')
 param virtualNetworkAddressPrefixes array = [
-  '10.0.140.0/23'
+  '10.0.1${40 + (2 * stampIndex)}.0/23'
 ]
 
 @description('The diagnostic logs to apply to the workload Virtual Network.')
@@ -381,6 +387,7 @@ var endAvSetRange = (sessionHostCount + sessionHostIndex) / maxAvSetMembers // T
 var availabilitySetsCount = length(range(beginAvSetRange, (endAvSetRange - beginAvSetRange) + 1))
 
 // OTHER LOGIC & COMPUTED VALUES
+var cloudSuffix = replace(replace(environment().resourceManager, 'https://management.', ''), '/', '')
 var customImageId = empty(imageVersionResourceId) ? 'null' : '"${imageVersionResourceId}"'
 var deployFslogix = contains(fslogixStorageService, 'Azure') && contains(activeDirectorySolution, 'DomainServices')
   ? true
@@ -404,6 +411,10 @@ var fileShareNames = {
 var fileShares = fileShareNames[fslogixContainerType]
 var netbios = split(domainName, '.')[0]
 var privateDnsZoneResourceIdPrefix = '/subscriptions/${split(hubVirtualNetworkResourceId, '/')[2]}/resourceGroups/${split(hubVirtualNetworkResourceId, '/')[4]}/providers/Microsoft.Network/privateDnsZones/'
+var privateDnsZoneSuffixes_AzureVirtualDesktop = {
+  AzureCloud: 'microsoft.com'
+  AzureUSGovernment: 'azure.us'
+}
 var storageSku = fslogixStorageService == 'None' ? 'None' : split(fslogixStorageService, ' ')[1]
 var storageService = split(fslogixStorageService, ' ')[0]
 var storageSuffix = environment().suffixes.storage
@@ -439,9 +450,25 @@ var subnets = {
 }
 
 // Gets the MLZ hub virtual network for its location and tags
-resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-11-01' existing = {
+resource virtualNetwork_hub 'Microsoft.Network/virtualNetworks@2023-11-01' existing = {
   name: split(hubVirtualNetworkResourceId, '/')[8]
   scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
+}
+
+module virtualNetwork_identity '../../modules/existing-vnet-address-prefix.bicep' = if (contains(activeDirectorySolution, 'DomainServices')) {
+  name: 'get-id-vnet-${deploymentNameSuffix}'
+  params: {
+    networkName: 'identity'
+    peerings: virtualNetwork_hub.properties.virtualNetworkPeerings
+  }
+}
+
+module virtualNetwork_operations '../../modules/existing-vnet-address-prefix.bicep' = {
+  name: 'get-ops-vnet-${deploymentNameSuffix}'
+  params: {
+    networkName: 'operations'
+    peerings: virtualNetwork_hub.properties.virtualNetworkPeerings
+  }
 }
 
 // Gets the application group references if the AVD feed workspace already exists
@@ -470,7 +497,7 @@ module naming_management '../../modules/naming-convention.bicep' = {
   name: 'get-naming-mgmt-${deploymentNameSuffix}'
   params: {
     environmentAbbreviation: environmentAbbreviation
-    location: virtualNetwork.location
+    location: virtualNetwork_hub.location
     networkName: 'avd'
     networkShortName: 'avd'
     resourcePrefix: identifier
@@ -482,6 +509,209 @@ module tier3_hosts '../tier3/solution.bicep' = {
   name: 'deploy-tier3-avd-${deploymentNameSuffix}'
   params: {
     additionalSubnets: union(subnets.avdControlPlane, subnets.azureNetAppFiles, subnets.functionApp)
+    customFirewallRuleCollectionGroups: empty(customFirewallRuleCollectionGroups) ? [
+      {
+        name: 'AVD-CollapsedCollectionGroup-Stamp-${stampIndex}'
+        properties: {
+          priority: 200
+          ruleCollections: [
+            {
+              name: 'ApplicationRules'
+              priority: 150
+              ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
+              action: {
+                type: 'Allow'
+              }
+              rules: concat(
+                [
+                  {
+                    name: 'AVD-RequiredDeploymentEndpoints'
+                    ruleType: 'ApplicationRule'
+                    protocols: [
+                      {
+                        protocolType: 'Https'
+                        port: 443
+                      }
+                    ]
+                    fqdnTags: []
+                    webCategories: []
+                    targetFqdns: [
+                      replace(environment().resourceManager, 'https://', '')
+                      'mrsglobalsteus2prod.blob.${environment().suffixes.storage}'
+                      'wvdportalstorageblob.blob.${environment().suffixes.storage}'
+                      'gcs.prod.monitoring.${environment().suffixes.storage}'
+                      '*.prod.warm.ingest.monitor.${environment().suffixes.storage}'
+                      '*.guestconfiguration.${privateDnsZoneSuffixes_AzureVirtualDesktop[?environment().name] ?? cloudSuffix}'
+                      '*.wvd.${privateDnsZoneSuffixes_AzureVirtualDesktop[?environment().name] ?? cloudSuffix}'
+                    ]
+                    targetUrls: []
+                    terminateTLS: false
+                    sourceAddresses: virtualNetworkAddressPrefixes
+                    destinationAddresses: []
+                    sourceIpGroups: []
+                  }
+                ],
+                contains(activeDirectorySolution, 'MicrosoftEntraId') ? [
+                  {
+                    name: 'AVD-EntraAuthEndpoints'
+                    ruleType: 'ApplicationRule'
+                    protocols: [
+                      {
+                        protocolType: 'Https'
+                        port: 443
+                      }
+                    ]
+                    fqdnTags: []
+                    webCategories: []
+                    targetFqdns: [
+                      replace(environment().authentication.loginEndpoint, 'https://', '')
+                      replace(environment().graph, 'https://', '')
+                      'enterpriseregistration.windows.net'
+                    ]
+                    targetUrls: []
+                    terminateTLS: false
+                    sourceAddresses: virtualNetworkAddressPrefixes
+                    destinationAddresses: []
+                    sourceIpGroups: []
+                  }
+                ] : [],
+                enableWindowsUpdateFwRules ? [
+                  {
+                    name: 'WindowsUpdateEndpoints'
+                    ruleType: 'ApplicationRule'
+                    protocols: [
+                      {
+                        protocolType: 'Https'
+                        port: 443
+                      }
+                      {
+                        protocolType: 'Http'
+                        port: 80
+                      }
+                    ]
+                    fqdnTags: [
+                      'WindowsUpdate'
+                    ]
+                    webCategories: []
+                    targetFqdns: []
+                    targetUrls: []
+                    terminateTLS: false
+                    sourceAddresses: virtualNetworkAddressPrefixes
+                    destinationAddresses: []
+                    sourceIpGroups: []
+                  }
+                ] : []
+              )
+            }
+            {
+              name: 'NetworkRules'
+              priority: 140
+              ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
+              action: {
+                type: 'Allow'
+              }
+              rules: concat(
+                [
+                  {
+                    name: 'KMS-Endpoint'
+                    ruleType: 'NetworkRule'
+                    ipProtocols: [
+                      'Tcp'
+                    ]
+                    sourceAddresses: virtualNetworkAddressPrefixes
+                    destinationAddresses: []
+                    destinationFqdns: [
+                      'azkms.${environment().suffixes.storage}'
+                    ]
+                    destinationPorts: [
+                      '1688'
+                    ]
+                    sourceIpGroups: []
+                    destinationIpGroups: []
+                  }
+                ],
+                [
+                  {
+                    name: 'AllowMonitorToLAW'
+                    ruleType: 'NetworkRule'
+                    ipProtocols: ['Tcp']
+                    sourceAddresses: virtualNetworkAddressPrefixes
+                    destinationAddresses: [cidrHost(virtualNetwork_operations.outputs.addressPrefix, 3)] // Network of the Log Analytics Workspace, could be narrowed using parameters file post deployment
+                    destinationPorts: ['443'] // HTTPS port for Azure Monitor
+                    sourceIpGroups: []
+                    destinationIpGroups: []
+                    destinationFqdns: []
+                  }
+                ],
+                [
+                  {
+                    name: 'TimeSync'
+                    ruleType: 'NetworkRule'
+                    ipProtocols: [
+                      'Udp'
+                    ]
+                    sourceAddresses: virtualNetworkAddressPrefixes
+                    destinationAddresses: []
+                    destinationFqdns: [
+                      'time.windows.com'
+                    ]
+                    destinationPorts: [
+                      '123'
+                    ]
+                    sourceIpGroups: []
+                    destinationIpGroups: []
+                  }
+                ],
+                [
+                  {
+                    name: 'AzureCloudforLogin'
+                    ruleType: 'NetworkRule'
+                    ipProtocols: [
+                      'Tcp'
+                    ]
+                    sourceAddresses: virtualNetworkAddressPrefixes
+                    destinationAddresses: ['AzureActiveDirectory']
+                    destinationFqdns: []
+                    destinationPorts: [
+                      '443'
+                    ]
+                    sourceIpGroups: []
+                    destinationIpGroups: []
+                  }
+                ],
+                contains(activeDirectorySolution, 'DomainServices') ? [
+                  {
+                    name: 'ADCommunicationRule'
+                    ruleType: 'NetworkRule'
+                    ipProtocols: [
+                      'Tcp'
+                      'Udp'
+                    ]
+                    sourceAddresses: virtualNetworkAddressPrefixes
+                    destinationAddresses: [
+                      virtualNetwork_identity.outputs.addressPrefix
+                    ]
+                    destinationPorts: [
+                      '53'
+                      '88'
+                      '389'
+                      '445'
+                      '139'
+                      '135'
+                      '89'
+                      '123'
+                      '1024-65535'
+                    ]
+                    sourceIpGroups: []
+                    destinationIpGroups: []
+                  }
+                ] : []
+              )
+            }
+          ]
+        }
+      }
+    ] : customFirewallRuleCollectionGroups
     deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
     deployDefender: deployDefender
     deploymentNameSuffix: deploymentNameSuffix
@@ -544,7 +774,7 @@ module management 'modules/management/management.bicep' = {
     imagePublisher: imagePublisher
     imageSku: imageSku
     imageVersionResourceId: imageVersionResourceId
-    locationControlPlane: virtualNetwork.location
+    locationControlPlane: virtualNetwork_hub.location
     locationVirtualMachines: locationVirtualMachines
     logAnalyticsWorkspaceRetention: logAnalyticsWorkspaceRetention
     logAnalyticsWorkspaceSku: logAnalyticsWorkspaceSku
@@ -597,7 +827,7 @@ module workspaces 'modules/sharedServices/sharedServices.bicep' = {
     existingFeedWorkspaceResourceId: existingFeedWorkspaceResourceId
     existingWorkspace: !empty(existingFeedWorkspaceResourceId)
     hostPoolName: management.outputs.hostPoolName
-    locationControlPlane: virtualNetwork.location
+    locationControlPlane: virtualNetwork_hub.location
     locationVirtualMachines: locationVirtualMachines
     logAnalyticsWorkspaceResourceId: management.outputs.logAnalyticsWorkspaceResourceId
     managementVirtualMachineName: management.outputs.virtualMachineName
@@ -620,11 +850,11 @@ module workspaces 'modules/sharedServices/sharedServices.bicep' = {
     )
     workspaceFriendlyName: empty(workspaceFriendlyName)
       ? replace(naming_management.outputs.names.workspaceFeed, '-${naming_management.outputs.tokens.service}', '')
-      : '${workspaceFriendlyName} (${virtualNetwork.location})'
-    workspaceGlobalName: replace(naming_management.outputs.names.workspaceGlobal, identifier, virtualNetwork.tags.resourcePrefix)
-    workspaceGlobalNetworkInterfaceName: replace(naming_management.outputs.names.workspaceGlobalNetworkInterface, identifier, virtualNetwork.tags.resourcePrefix)
+      : '${workspaceFriendlyName} (${virtualNetwork_hub.location})'
+    workspaceGlobalName: replace(naming_management.outputs.names.workspaceGlobal, identifier, virtualNetwork_hub.tags.resourcePrefix)
+    workspaceGlobalNetworkInterfaceName: replace(naming_management.outputs.names.workspaceGlobalNetworkInterface, identifier, virtualNetwork_hub.tags.resourcePrefix)
     workspaceGlobalPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3_hosts.outputs.privateDnsZones, name => startsWith(name, 'privatelink-global.wvd'))[0]}'
-    workspaceGlobalPrivateEndpointName: replace(naming_management.outputs.names.workspaceGlobalPrivateEndpoint, identifier, virtualNetwork.tags.resourcePrefix)
+    workspaceGlobalPrivateEndpointName: replace(naming_management.outputs.names.workspaceGlobalPrivateEndpoint, identifier, virtualNetwork_hub.tags.resourcePrefix)
     workspaceGlobalResourceGroupName: replace(
       replace(
         replace(
@@ -636,7 +866,7 @@ module workspaces 'modules/sharedServices/sharedServices.bicep' = {
         ''
       ),
       identifier,
-      virtualNetwork.tags.resourcePrefix
+      virtualNetwork_hub.tags.resourcePrefix
     )
     workspacePublicNetworkAccess: workspacePublicNetworkAccess
   }
@@ -713,6 +943,7 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     enableAcceleratedNetworking: enableAcceleratedNetworking
     enableAvdInsights: enableAvdInsights
     enableRecoveryServices: recoveryServices
+    enableWindowsUpdate: enableWindowsUpdateFwRules
     environmentAbbreviation: environmentAbbreviation
     fslogixContainerType: fslogixContainerType
     hostPoolName: management.outputs.hostPoolName

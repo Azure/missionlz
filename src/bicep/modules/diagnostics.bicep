@@ -97,6 +97,7 @@ module logAnalyticsWorkspaceDiagnosticSetting 'log-analytics-diagnostic-setting.
   }
 }
 
+@batchSize(1)
 module networkSecurityGroupDiagnostics '../modules/network-security-group-diagnostics.bicep' = [for (nsg, i) in networkSecurityGroups: {
   name: 'deploy-nsg-diags-${nsg.tierName}-${deploymentNameSuffix}'
   scope: resourceGroup(nsg.subscriptionId, nsg.resourceGroupName)
@@ -119,6 +120,7 @@ module networkSecurityGroupDiagnostics '../modules/network-security-group-diagno
   }
 }]
 
+@batchSize(1)
 module virtualNetworkDiagnostics '../modules/virtual-network-diagnostics.bicep' = [for (tier, i) in tiers: {
   name: 'deploy-vnet-diags-${tier.name}-${deploymentNameSuffix}'
   scope: resourceGroup(tier.subscriptionId, resourceGroupNames[i])

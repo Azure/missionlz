@@ -1,72 +1,133 @@
 targetScope = 'subscription'
 
-@description('The name of the VPN Gateway.')
-param vgwName string
-
-@description('The Azure region location of the VPN Gateway.')
-param vgwLocation string
-
-@description('The names of the public IP addresses to use for the VPN Gateway.')
-param vgwPublicIpAddressNames array
-
-@description('The SKU of the VPN Gateway.')
-@allowed(['VpnGw2', 'VpnGw3', 'VpnGw4', 'VpnGw5'])
-param vgwSku string
-
-@description('Local Network Gateway Name')
-param localNetworkGatewayName string
-
-@description('IP Address of the Local Network Gateway, must be a public IP address or be able to be connected to from MLZ network')
-param localGatewayIpAddress string
-
 @description('Azure address prefixes allowed to communicate to VPN Gateway to on-premises network')
-param allowedAzureAddressPrefixes array
+param allowedAzureAddressPrefixes array = [
+  '10.0.130.0/24'
+  '10.0.131.0/24'
+  '10.0.132.0/24'
+  '10.0.128.0/23'
+]
+
+@description('The name of the Azure Firewall to retrieve the internal IP address from.')
+param azureFirewallResourceId string
+
+@description('The firewall rules that will be applied to the Azure Firewall.')
+param customFirewallRuleCollectionGroups array = []
+
+@description('A suffix to use for naming deployments uniquely.')
+param deploymentNameSuffix string = utcNow()
+
+@description('The name of the gateway subnet')
+param gatewaySubnetName string = 'GatewaySubnet'
+
+@description('The resource ID of the hub virtual network.')
+param hubVirtualNetworkResourceId string
+
+@description('The name of the hub virtual network route table')
+param hubVnetRouteTableResourceId string
 
 @description('Address prefixes of the Local Network which will be routable through the VPN Gateway')
 param localAddressPrefixes array
 
-@description('Choose whether to use a shared key or Key Vault certificate URI for the VPN connection.')
-param useSharedKey bool
+@description('IP Address of the Local Network Gateway, must be a public IP address or be able to be connected to from MLZ network')
+param localGatewayIpAddress string
+
+@description('Local Network Gateway Name')
+param localNetworkGatewayName string
+
+@description('The URI of the Key Vault certificate to use for the VPN connection. If using a Key Vault certificate, this must be a valid URI.')
+param keyVaultCertificateUri string = ''
 
 @description('The shared key to use for the VPN connection. If using the shared key, this must be provided.')
 @secure()
 param sharedKey string
 
-@description('The URI of the Key Vault certificate to use for the VPN connection. If using a Key Vault certificate, this must be a valid URI.')
-param keyVaultCertificateUri string = ''
+@description('Choose whether to use a shared key or Key Vault certificate URI for the VPN connection.')
+param useSharedKey bool
 
-@description('A suffix to use for naming deployments uniquely.')
-param deploymentNameSuffix string = utcNow()
+@description('The Azure region location of the VPN Gateway.')
+param vgwLocation string
 
-@description('The resource ID of the hub virtual network.')
-param hubVirtualNetworkResourceId string
-// Extracting the resource group name and virtual network name from the hub virtual network resource ID
-var hubResourceGroupName = split(hubVirtualNetworkResourceId, '/')[4]
-var hubVnetName = split(hubVirtualNetworkResourceId, '/')[8]
+@description('The name of the VPN Gateway.')
+param vgwName string
 
-@description('List of peered networks that should use the VPN Gateway once configured.')
-param vnetResourceIdList array
-
-@description('The name of the Azure Firewall to retrieve the internal IP address from.')
-param azureFirewallResourceId string
-var azureFirewallName = split(azureFirewallResourceId, '/')[8]
+@description('The names of the public IP addresses to use for the VPN Gateway.')
+param vgwPublicIpAddressNames array
 
 @description('The name of the vgw route table to create')
 param vgwRouteTableName string
 
-@description('The name of the gateway subnet')
-param gatewaySubnetName string = 'GatewaySubnet'
+@description('The SKU of the VPN Gateway.')
+@allowed(['VpnGw2', 'VpnGw3', 'VpnGw4', 'VpnGw5'])
+param vgwSku string
 
-@description('The name of the hub virtual network route table')
-param hubVnetRouteTableResourceId string
+@description('List of peered networks that should use the VPN Gateway once configured.')
+param vnetResourceIdList array
+
+var azureFirewallName = split(azureFirewallResourceId, '/')[8]
+var hubResourceGroupName = split(hubVirtualNetworkResourceId, '/')[4]
+var hubVnetName = split(hubVirtualNetworkResourceId, '/')[8]
 var hubVnetRouteTableName = split(hubVnetRouteTableResourceId, '/')[8]
-
-// Conditional parameter assignment for VPN connection module
-var vpnSharedKey = useSharedKey ? sharedKey : ''
-var vpnKeyVaultUri = !useSharedKey ? keyVaultCertificateUri : ''
-
-// Parameter validation
 var isValidUri = contains(keyVaultCertificateUri, 'https://') && contains(keyVaultCertificateUri, '/secrets/')
+var vpnKeyVaultUri = !useSharedKey ? keyVaultCertificateUri : ''
+var vpnSharedKey = useSharedKey ? sharedKey : ''
+
+resource azureFirewall 'Microsoft.Network/azureFirewalls@2020-11-01' existing = {
+  name: split(azureFirewallResourceId, '/')[8]
+  scope: resourceGroup(split(azureFirewallResourceId, '/')[2], split(azureFirewallResourceId, '/')[4])
+}
+
+// Retrieve the Firewall Policy Resource ID
+var firewallPolicyResourceId = azureFirewall.properties.firewallPolicy.id
+module firewallRules '../../modules/firewall-rules.bicep' = {
+  name: 'deploy-vgw-firewall-rules-${deploymentNameSuffix}'
+  scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
+  params: {
+    firewallPolicyName: split(firewallPolicyResourceId, '/')[8]
+    firewallRuleCollectionGroups: empty(customFirewallRuleCollectionGroups) ? [
+      {
+        name: 'VGW-NetworkCollectionGroup'
+        properties: {
+          priority: 300
+          ruleCollections: [
+            {
+              name: 'AllowAllTraffic'
+              priority: 150
+              ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
+              action: {
+                type: 'Allow'
+              }
+              rules: [
+                {
+                  name: 'AllowAzureToOnPrem'
+                  ruleType: 'NetworkRule'
+                  ipProtocols: ['Any']
+                  sourceAddresses: localAddressPrefixes
+                  destinationAddresses: allowedAzureAddressPrefixes
+                  destinationPorts: ['*']
+                  sourceIpGroups: []
+                  destinationIpGroups: []
+                  destinationFqdns: []
+                }
+                {
+                  name: 'AllowOnPremToAzure'
+                  ruleType: 'NetworkRule'
+                  ipProtocols: ['Any']
+                  sourceAddresses: allowedAzureAddressPrefixes
+                  destinationAddresses: localAddressPrefixes
+                  destinationPorts: ['*']
+                  sourceIpGroups: []
+                  destinationIpGroups: []
+                  destinationFqdns: []
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ] : customFirewallRuleCollectionGroups
+  }
+}
 
 // Conditional validation to ensure either sharedKey or keyVaultCertificateUri is used correctly
 resource validateKeyOrUri 'Microsoft.Resources/deployments@2021-04-01' = if (!useSharedKey && !isValidUri) {
@@ -176,7 +237,6 @@ module updateHubPeerings 'modules/vnet-peerings.bicep' = {
     peeringsList: retrieveHubVnetInfo.outputs.peeringsData.peeringsList
   }
   dependsOn: [
-    retrieveHubVnetInfo
     retrieveVnetInfo
   ]
 }
@@ -254,23 +314,5 @@ module associateRouteTable 'modules/associate-route-table.bicep' = {
     subnetName: gatewaySubnetName
     subnetAddressPrefix: retrieveRouteTableInfo.outputs.subnetAddressPrefix
   }
-  dependsOn: [
-    createRouteTable
-  ]
 }
 
-
-// Create the firewall rules
-module firewallRules 'modules/firewall-rules.bicep' = {
-  name: 'firewallRules-${deploymentNameSuffix}'
-  scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
-  params: {
-    allowVnetAddressSpaces: allowedAzureAddressPrefixes
-    onPremAddressSpaces: localAddressPrefixes
-    firewallPolicyId: retrieveRouteTableInfo.outputs.firewallPolicyId
-    priorityValue: 300
-  }
-  dependsOn: [
-    associateRouteTable
-  ]
-}

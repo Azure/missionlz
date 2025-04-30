@@ -26,7 +26,7 @@ param firewallManagementSubnetAddressPrefix string
 param firewallName string
 param firewallPolicyName string
 param firewallSkuTier string
-param firewallSupernetIPAddress string
+
 @allowed([
   'Alert'
   'Deny'
@@ -46,6 +46,7 @@ param tags object
 param virtualNetworkAddressPrefix string
 param virtualNetworkName string
 param vNetDnsServers array
+param firewallRuleCollectionGroups array
 
 var subnets = union([
   {
@@ -309,7 +310,6 @@ module firewall '../modules/firewall.bicep' = {
     dnsServers: dnsServers
     enableProxy: enableProxy
     firewallPolicyName: firewallPolicyName
-    firewallSupernetIPAddress: firewallSupernetIPAddress
     intrusionDetectionMode: firewallIntrusionDetectionMode
     location: location
     managementIpConfigurationPublicIPAddressResourceId: firewallManagementPublicIPAddress.outputs.id
@@ -319,6 +319,7 @@ module firewall '../modules/firewall.bicep' = {
     skuTier: firewallSkuTier
     tags: tags
     threatIntelMode: firewallThreatIntelMode
+    firewallRuleCollectionGroups: firewallRuleCollectionGroups
   }
 }
 
