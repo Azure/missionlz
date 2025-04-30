@@ -7,9 +7,9 @@
 - [Prerequisites](#prerequisites)
 - [Planning](#planning)
 - [Deploy MLZ](#deploy-mlz)
+- [Deployment Output](#deployment-output)
 - [Remove MLZ](#remove-mlz)
 - [References](#references)
-- [Examples](../deployment-guides/command-line-examples.md)
 
 This guide describes how to deploy Mission Landing Zone (MLZ) using the ARM template at [src/bicep/mlz.json](../../src/bicep/mlz.json) using either Azure CLI or Azure PowerShell. The supported clouds for this guide include the Azure Commercial, Azure Government, Azure Government Secret, and Azure Government Top Secret.
 
