@@ -31,6 +31,11 @@ The following prerequisites are required on the target Azure subscription(s):
 
 ## Planning
 
+Determine the values for the parameters in your deployment. Consider using a [parameters file](https://learn.microsoft.com/azure/azure-resource-manager/templates/template-tutorial-use-parameter-file?tabs=azure-powershell) to capture those details.
+
+> [!WARNING]
+> Secrets should never be stored in a parameters files. Be sure to exclude those parameters and you will be prompted for their values during deployment time.
+
 ### Naming Convention
 
 Resource group and resource names are derived from the following parameters:
@@ -249,11 +254,11 @@ When modifying the naming conventions, be sure to only reorder the components or
 
 ## Deploy MLZ
 
-Use the `New-AzSubscriptionDeployment` PowerShell cmdlet or the `az deployment sub` AZ CLI command to deploy MLZ across one or many subscriptions.
+Use the `New-AzSubscriptionDeployment` PowerShell cmdlet or the `az deployment sub` AZ CLI command to deploy MLZ across one or many subscriptions. CI/CD pipelines can be wrapped around these deployment methods to support DevOps enivronments. Details on this topic are not covered by the MLZ documentation.
 
 ### Connect to Azure
 
-Before executing an Azure deployment, first ensure you are connected. Use the following examples to connect to any of the supported Azure clouds:
+Before executing an deployment, first ensure you are connected to Azure. Use the following examples to connect to any of the supported Azure clouds:
 
 ```PowerShell
 # PowerShell
@@ -266,16 +271,16 @@ az cloud set -n '<Azure Cloud Name>'
 az login
 ```
 
-### Single Subscription Deployment
+### Deployment
 
-To deploy MLZ into a single subscription, specify the values for the resource prefix, location, and template file.
+To deploy MLZ, specify the values for the location, parameters file, and template file.
 
 ```PowerShell
 # PowerShell
 New-AzSubscriptionDeployment `
   -Location 'eastus' `
-  -TemplateFile '.\mlz.json' `
-  -resourcePrefix 'mlz' 
+  -TemplateFile 'mlz.json' `
+  -TemplateParametersFile 'mlz.parameters.json'
 ```
 
 ```BASH
@@ -283,40 +288,13 @@ New-AzSubscriptionDeployment `
 az deployment sub create \
   --location 'eastus' \
   --template-file './mlz.json' \
-  --parameters resourcePrefix='mlz'
+  --parameters @mlz.parameters.json
 ```
 
-### Multiple Subscription Deployment
+> [!TIP]
+> MLZ can be deployed into one or more subscriptions. To deploy into a single subscription, ensure the same subscription ID is used for the following parameters: `hubSubscriptionId`, `identitySubscriptionId`, `operationsSubscriptionId`, and `sharedServicesSubscriptionId`. Use unique values for each parameter to spread the deployment to multiple subscriptions.
 
-To deploy MLZ into multiple subscriptions, specifiy the value for the resource prefix, location, template file, and each tier's subscription ID:
-
-```PowerShell
-# PowerShell
-New-AzSubscriptionDeployment `
-  -Location 'eastus' `
-  -TemplateFile '.\mlz.json' `
-  -resourcePrefix 'mlz' `
-  -hubSubscriptionId $hubSubscriptionId `
-  -identitySubscriptionId $identitySubscriptionId `
-  -operationsSubscriptionId $operationsSubscriptionId `
-  -sharedServicesSubscriptionId $sharedServicesSubscriptionId
-```
-
-```Bash
-# AZ CLI
-az deployment sub create \
-  --subscription $deploymentSubscription \
-  --location 'eastus' \
-  --template-file './mlz.json' \
-  --parameters \
-      resourcePrefix='mlz' \
-      hubSubscriptionId=$hubSubscriptionId \
-      identitySubscriptionId=$identitySubscriptionId \
-      operationsSubscriptionId=$operationsSubscriptionId \
-      sharedServicesSubscriptionId=$sharedServicesSubscriptionId
-```
-
-#### Reference Deployment Output
+## Deployment Output
 
 After you've deployed Mission Landing Zone you can integrate [add-ons](../../src/bicep/add-ons/README.md) with the output of MLZ. PowerShell, Azure CLI, and JMESpath queries allow you to retrieve outputs from a deployment and pass them as parameters into another deployment.
 
