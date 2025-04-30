@@ -1031,7 +1031,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.34.44.8038",
-              "templateHash": "175142638699807532"
+              "templateHash": "1973157580079839353"
             }
           },
           "parameters": {
@@ -1111,7 +1111,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.34.44.8038",
-                      "templateHash": "16731041833664826355"
+                      "templateHash": "16855480708401971601"
                     }
                   },
                   "parameters": {
@@ -1497,34 +1497,6 @@
                           "recoveryServicesGeo": "ugv",
                           "timeDifference": "-5:00",
                           "timeZone": "Eastern Standard Time"
-                        }
-                      },
-                      "USNat": {
-                        "usnateast": {
-                          "abbreviation": "east",
-                          "recoveryServicesGeo": "exe",
-                          "timeDifference": "-5:00",
-                          "timeZone": "Eastern Standard Time"
-                        },
-                        "usnatwest": {
-                          "abbreviation": "west",
-                          "recoveryServicesGeo": "exw",
-                          "timeDifference": "-8:00",
-                          "timeZone": "Pacific Standard Time"
-                        }
-                      },
-                      "USSec": {
-                        "usseceast": {
-                          "abbreviation": "east",
-                          "recoveryServicesGeo": "rxe",
-                          "timeDifference": "-5:00",
-                          "timeZone": "Eastern Standard Time"
-                        },
-                        "ussecwest": {
-                          "abbreviation": "west",
-                          "recoveryServicesGeo": "rxw",
-                          "timeDifference": "-8:00",
-                          "timeZone": "Pacific Standard Time"
                         }
                       }
                     },

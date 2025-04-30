@@ -13873,9 +13873,9 @@
                       "properties": {
                         "publisher": "Microsoft.HpcCompute",
                         "type": "NvidiaGpuDriverWindows",
-                        "typeHandlerVersion": "1.2",
+                        "typeHandlerVersion": "1.9",
                         "autoUpgradeMinorVersion": true,
-                        "settings": {}
+                        "settings": "[if(and(startsWith(parameters('virtualMachineSize'), 'Standard_NV'), endsWith(parameters('virtualMachineSize'), 's_v3')), createObject('driverVersion', '538.46'), createObject())]"
                       },
                       "dependsOn": [
                         "extension_AADLoginForWindows",
