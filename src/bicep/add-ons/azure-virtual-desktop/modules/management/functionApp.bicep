@@ -13,7 +13,7 @@ param privateDnsZones array
 param privateLinkScopeResourceId string
 param resourceAbbreviations object
 param resourceGroupProfiles string
-param serviceToken string
+param purposeToken string
 param subnetResourceId string
 param tags object
 
@@ -49,13 +49,13 @@ var storageSubResources = [
 ]
 
 resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
-  name: replace(namingConvention.userAssignedIdentity, serviceToken, service)
+  name: replace(namingConvention.userAssignedIdentity, purposeToken, service)
   location: location
   tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.ManagedIdentity/userAssignedIdentities'] ?? {}, mlzTags)
 }
 
 resource vault 'Microsoft.KeyVault/vaults@2022-07-01' = {
-  name: '${resourceAbbreviations.keyVaults}${uniqueString(replace(namingConvention.keyVault, serviceToken, service), resourceGroup().id)}'
+  name: '${resourceAbbreviations.keyVaults}${uniqueString(replace(namingConvention.keyVault, purposeToken, service), resourceGroup().id)}'
   location: location
   tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.KeyVault/vaults'] ?? {}, mlzTags)
   properties: {
@@ -92,14 +92,14 @@ resource roleAssignment_Encryption 'Microsoft.Authorization/roleAssignments@2020
 }
 
 resource privateEndpoint_vault 'Microsoft.Network/privateEndpoints@2023-04-01' = {
-  name: replace(namingConvention.keyVaultPrivateEndpoint, serviceToken, service)
+  name: replace(namingConvention.keyVaultPrivateEndpoint, purposeToken, service)
   location: location
   tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Network/privateEndpoints'] ?? {}, mlzTags)
   properties: {
-    customNetworkInterfaceName: replace(namingConvention.keyVaultNetworkInterface, serviceToken, service)
+    customNetworkInterfaceName: replace(namingConvention.keyVaultNetworkInterface, purposeToken, service)
     privateLinkServiceConnections: [
       {
-        name: replace(namingConvention.keyVaultPrivateEndpoint, serviceToken, service)
+        name: replace(namingConvention.keyVaultPrivateEndpoint, purposeToken, service)
         properties: {
           privateLinkServiceId: vault.id
           groupIds: [
@@ -166,7 +166,7 @@ resource key_storageAccount 'Microsoft.KeyVault/vaults/keys@2022-07-01' = {
 }
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
-  name: uniqueString(replace(namingConvention.storageAccount, serviceToken, service), resourceGroup().id)
+  name: uniqueString(replace(namingConvention.storageAccount, purposeToken, service), resourceGroup().id)
   location: location
   tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Storage/storageAccounts'] ?? {}, mlzTags)
   sku: {
@@ -244,14 +244,14 @@ resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2021-09-01'
 
 resource privateEndpoints_storage 'Microsoft.Network/privateEndpoints@2023-04-01' = [
   for resource in storageSubResources: {
-    name: replace(resource.pe, serviceToken, service)
+    name: replace(resource.pe, purposeToken, service)
     location: location
     tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Network/privateEndpoints'] ?? {}, mlzTags)
     properties: {
-      customNetworkInterfaceName: replace(resource.nic, serviceToken, service)
+      customNetworkInterfaceName: replace(resource.nic, purposeToken, service)
       privateLinkServiceConnections: [
         {
-          name: replace(resource.pe, serviceToken, service)
+          name: replace(resource.pe, purposeToken, service)
           properties: {
             privateLinkServiceId: storageAccount.id
             groupIds: [
@@ -289,7 +289,7 @@ resource diagnosticSetting_storage_blob 'Microsoft.Insights/diagnosticsettings@2
   scope: blobService
   name: replace(
     namingConvention.storageAccountDiagnosticSetting,
-    '${serviceToken}-${resourceAbbreviations.storageAccounts}',
+    '${purposeToken}-${resourceAbbreviations.storageAccounts}',
     'blob-${resourceAbbreviations.storageAccounts}-scale'
   )
   properties: {
@@ -310,7 +310,7 @@ resource diagnosticSetting_storage_blob 'Microsoft.Insights/diagnosticsettings@2
 }
 
 resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = if (enableApplicationInsights) {
-  name: replace(namingConvention.applicationInsights, serviceToken, service)
+  name: replace(namingConvention.applicationInsights, purposeToken, service)
   location: location
   tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Insights/components'] ?? {}, mlzTags)
   properties: {
@@ -331,7 +331,7 @@ module privateLinkScope 'privateLinkScope.bicep' = if (enableApplicationInsights
 }
 
 resource appServicePlan 'Microsoft.Web/serverfarms@2023-01-01' = {
-  name: replace(namingConvention.appServicePlan, serviceToken, service)
+  name: replace(namingConvention.appServicePlan, purposeToken, service)
   location: location
   tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Web/serverfarms'] ?? {}, mlzTags)
   sku: {
@@ -345,7 +345,7 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2023-01-01' = {
 }
 
 resource functionApp 'Microsoft.Web/sites@2023-01-01' = {
-  name: uniqueString(replace(namingConvention.functionApp, serviceToken, service), resourceGroup().id)
+  name: uniqueString(replace(namingConvention.functionApp, purposeToken, service), resourceGroup().id)
   location: location
   tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Web/sites'] ?? {}, mlzTags)
   kind: 'functionapp'
@@ -438,14 +438,14 @@ resource functionApp 'Microsoft.Web/sites@2023-01-01' = {
 }
 
 resource privateEndpoint_functionApp 'Microsoft.Network/privateEndpoints@2023-04-01' = {
-  name: replace(namingConvention.functionAppPrivateEndpoint, serviceToken, service)
+  name: replace(namingConvention.functionAppPrivateEndpoint, purposeToken, service)
   location: location
   tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Network/privateEndpoints'] ?? {}, mlzTags)
   properties: {
-    customNetworkInterfaceName: replace(namingConvention.functionAppNetworkInterface, serviceToken, service)
+    customNetworkInterfaceName: replace(namingConvention.functionAppNetworkInterface, purposeToken, service)
     privateLinkServiceConnections: [
       {
-        name: replace(namingConvention.functionAppPrivateEndpoint, serviceToken, service)
+        name: replace(namingConvention.functionAppPrivateEndpoint, purposeToken, service)
         properties: {
           privateLinkServiceId: functionApp.id
           groupIds: [

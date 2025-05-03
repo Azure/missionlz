@@ -23,8 +23,8 @@ param networkWatcherFlowLogsRetentionDays int
 param networkWatcherFlowLogsType string
 param publicIPAddressDiagnosticsLogs array
 param publicIPAddressDiagnosticsMetrics array
+param purposeToken string
 param resourceGroupNames array
-param serviceToken string
 param storageAccountResourceIds array
 param supportedClouds array
 param tiers array
@@ -174,7 +174,7 @@ module keyVaultDiagnostics '../modules/key-vault-diagnostics.bicep' = {
   name: 'deploy-kv-diags-${deploymentNameSuffix}'
   scope: resourceGroup(hub.subscriptionId, hubResourceGroupName)
   params: {
-    keyVaultDiagnosticSettingName: replace(hub.namingConvention.keyVaultDiagnosticSetting, serviceToken, '')
+    keyVaultDiagnosticSettingName: replace(hub.namingConvention.keyVaultDiagnosticSetting, purposeToken, 'cmk')
     keyVaultName: keyVaultName
     keyVaultStorageAccountId: storageAccountResourceIds[0]
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
@@ -187,7 +187,7 @@ module bastionDiagnostics '../modules/bastion-diagnostics.bicep' = if (deployBas
   name: 'deploy-bastion-diags-${deploymentNameSuffix}'
   scope: resourceGroup(hub.subscriptionId, hubResourceGroupName)
   params: {
-    diagnosticSettingName: replace(hub.namingConvention.bastionHostPublicIPAddressDiagnosticSetting, serviceToken, '')
+    diagnosticSettingName: hub.namingConvention.bastionHostDiagnosticSetting
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     logs: bastionDiagnosticsLogs
     metrics: bastionDiagnosticsMetrics

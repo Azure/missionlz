@@ -222,7 +222,7 @@ module rg '../../modules/resource-group.bicep' = {
   params: {
     location: location
     mlzTags: tier3.outputs.mlzTags
-    name: replace(tier3.outputs.namingConvention.resourceGroup, tier3.outputs.tokens.service, 'netAppFiles')
+    name: replace(tier3.outputs.namingConvention.resourceGroup, tier3.outputs.tokens.purpose, 'netAppFiles')
     tags: tags
   }
 }

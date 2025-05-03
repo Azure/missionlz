@@ -57,7 +57,7 @@ module userAssignedIdentity 'user-assigned-identity.bicep' = {
     location: location
     mlzTags: mlzTags
     tags: tags
-    userAssignedIdentityName: replace(tier.namingConvention.userAssignedIdentity, '-${tokens.service}', '')
+    userAssignedIdentityName: replace(tier.namingConvention.userAssignedIdentity, tokens.purpose, 'cmk')
   }
 }
 

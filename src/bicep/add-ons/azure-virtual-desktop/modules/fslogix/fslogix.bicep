@@ -27,12 +27,12 @@ param mlzTags object
 param namingConvention object
 param netbios string
 param organizationalUnitPath string
+param purposeToken string
 param recoveryServices bool
 param resourceGroupManagement string
 param resourceGroupName string
-param securityPrincipalObjectIds array
 param securityPrincipalNames array
-param serviceToken string
+param securityPrincipalObjectIds array
 param storageCount int
 param storageEncryptionKeyName string
 param storageIndex int
@@ -114,7 +114,7 @@ module azureFiles 'azureFiles/azureFiles.bicep' = if (storageService == 'AzureFi
     recoveryServicesVaultName: namingConvention.recoveryServicesVault
     resourceGroupManagement: resourceGroupManagement
     securityPrincipalObjectIds: securityPrincipalObjectIds
-    serviceToken: serviceToken
+    purposeToken: purposeToken
     storageCount: storageCount
     storageEncryptionKeyName: storageEncryptionKeyName
     storageIndex: storageIndex

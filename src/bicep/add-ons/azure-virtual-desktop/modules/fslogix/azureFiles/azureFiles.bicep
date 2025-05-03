@@ -11,10 +11,10 @@ param keyVaultUri string
 param location string
 param mlzTags object
 param namingConvention object
+param purposeToken string
 param recoveryServicesVaultName string
 param resourceGroupManagement string
 param securityPrincipalObjectIds array
-param serviceToken string
 param storageCount int
 param storageEncryptionKeyName string
 param storageIndex int
@@ -34,7 +34,7 @@ var smbSettings = {
   kerberosTicketEncryption: 'AES-256;'
   channelEncryption: 'AES-128-GCM;AES-256-GCM;'
 }
-var storageAccountNamePrefix = uniqueString(replace(namingConvention.storageAccount, serviceToken, 'file-fslogix'), resourceGroup().id)
+var storageAccountNamePrefix = uniqueString(replace(namingConvention.storageAccount, purposeToken, 'fslogix'), resourceGroup().id)
 var storageRedundancy = availability == 'availabilityZones' ? '_ZRS' : '_LRS'
 var tagsPrivateEndpoints = union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Network/privateEndpoints'] ?? {}, mlzTags)
 var tagsStorageAccounts = union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Storage/storageAccounts'] ?? {}, mlzTags)

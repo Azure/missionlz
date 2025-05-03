@@ -41,13 +41,13 @@ param resourceAbbreviations object
 param resourceGroupName string
 param resourceGroupProfiles string
 param securityPrincipalObjectIds array
-param serviceToken string
 param sessionHostNamePrefix string
 param storageService string
 param subnetResourceId string
 param subnets array
 param tags object
 param timeZone string
+param tokens object
 param validationEnvironment bool
 @secure()
 param virtualMachineAdminPassword string
@@ -94,7 +94,7 @@ module monitoring 'monitoring.bicep' = if (enableApplicationInsights || enableAv
     mlzTags: mlzTags
     namingConvention: namingConvention
     privateLinkScopeResourceId: privateLinkScopeResourceId
-    serviceToken: serviceToken
+    purposeToken: tokens.purpose
     tags: tags
   }
 }
@@ -162,7 +162,7 @@ module deploymentUserAssignedIdentity 'userAssignedIdentity.bicep' = {
   name: 'deploy-id-deployment-${deploymentNameSuffix}'
   params: {
     location: locationVirtualMachines
-    name: replace(userAssignedIdentityNamePrefix, serviceToken, 'deployment')
+    name: replace(userAssignedIdentityNamePrefix, tokens.purpose, 'deployment')
     tags: union({'cm-resource-parent': hostPool.outputs.resourceId}, tags[?'Microsoft.ManagedIdentity/userAssignedIdentities'] ?? {}, mlzTags)
   }
 }
@@ -189,7 +189,7 @@ module virtualMachine 'virtualMachine.bicep' = {
     deploymentUserAssignedIdentityPrincipalId: deploymentUserAssignedIdentity.outputs.principalId
     deploymentUserAssignedIdentityResourceId: deploymentUserAssignedIdentity.outputs.resourceId
     diskEncryptionSetResourceId: diskEncryptionSetResourceId
-    diskName: replace(namingConvention.virtualMachineDisk, serviceToken, 'mgt')
+    diskName: replace(namingConvention.virtualMachineDisk, tokens.purpose, 'mgt')
     diskSku: diskSku
     domainJoinPassword: domainJoinPassword
     domainJoinUserPrincipalName: domainJoinUserPrincipalName
@@ -197,11 +197,11 @@ module virtualMachine 'virtualMachine.bicep' = {
     hostPoolResourceId: hostPool.outputs.resourceId
     location: locationVirtualMachines
     mlzTags: mlzTags
-    networkInterfaceName: replace(namingConvention.virtualMachineNetworkInterface, serviceToken, 'mgt')
+    networkInterfaceName: replace(namingConvention.virtualMachineNetworkInterface, tokens.purpose, 'mgt')
     organizationalUnitPath: organizationalUnitPath
     subnetResourceId: subnetResourceId
     tags: tags
-    virtualMachineName: replace(namingConvention.virtualMachine, serviceToken, 'mgt')
+    virtualMachineName: replace(namingConvention.virtualMachine, tokens.purpose, 'mgt')
     virtualMachineAdminPassword: virtualMachineAdminPassword
     virtualMachineAdminUsername: virtualMachineAdminUsername
   }
@@ -264,7 +264,7 @@ module functionApp '../management/functionApp.bicep' = if (fslogixStorageService
     privateLinkScopeResourceId: privateLinkScopeResourceId
     resourceAbbreviations: resourceAbbreviations
     resourceGroupProfiles: resourceGroupProfiles
-    serviceToken: serviceToken
+    purposeToken: tokens.purpose
     subnetResourceId: subnetResourceId
     tags: tags
   }

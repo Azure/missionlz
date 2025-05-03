@@ -14,7 +14,7 @@ param mlzTags object
 param network object
 param queuesPrivateDnsZoneResourceId string
 param resourceGroupName string
-param serviceToken string
+param purposeToken string
 param storageEncryptionKeyName string
 param subnetResourceId string
 param tablesPrivateDnsZoneResourceId string
@@ -32,7 +32,7 @@ module storageAccount '../../../modules/storage-account.bicep' = {
     location: location
     mlzTags: mlzTags
     queuesPrivateDnsZoneResourceId: queuesPrivateDnsZoneResourceId
-    serviceToken: serviceToken
+    purposeToken: purposeToken
     skuName: logStorageSkuName
     storageEncryptionKeyName: storageEncryptionKeyName
     subnetResourceId: subnetResourceId
