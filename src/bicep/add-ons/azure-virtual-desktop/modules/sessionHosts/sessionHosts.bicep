@@ -46,6 +46,7 @@ param netAppFileShares array
 param networkSecurityGroupResourceId string
 param organizationalUnitPath string
 param profile string
+param purposeToken string
 param recoveryServicesVaultName string
 param resourceGroupManagement string
 param resourceGroupName string
@@ -54,9 +55,9 @@ param scalingWeekdaysPeakStartTime string
 param scalingWeekendsOffPeakStartTime string
 param scalingWeekendsPeakStartTime string
 param securityPrincipalObjectIds array
-param serviceToken string
 param sessionHostBatchCount int
 param sessionHostIndex int
+param stampIndexFull string
 param storageAccountNamePrefix string
 param storageCount int
 param storageIndex int
@@ -73,7 +74,7 @@ param virtualMachineSize string
 var availabilitySetNamePrefix = namingConvention.availabilitySet
 var tagsVirtualMachines = union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Compute/virtualMachines'] ?? {}, mlzTags)
 var uniqueToken = uniqueString(identifier, environmentAbbreviation, subscription().subscriptionId)
-var virtualMachineNamePrefix = replace(namingConvention.virtualMachine, serviceToken, '')
+var virtualMachineNamePrefix = replace(namingConvention.virtualMachine, purposeToken, stampIndexFull)
 
 resource rg 'Microsoft.Resources/resourceGroups@2023-07-01' = {
   name: resourceGroupName
@@ -207,10 +208,11 @@ module virtualMachines 'virtualMachines.bicep' = [for i in range(1, sessionHostB
     networkSecurityGroupResourceId: networkSecurityGroupResourceId
     organizationalUnitPath: organizationalUnitPath
     profile: profile
+    purposeToken: purposeToken
     resourceGroupManagement: resourceGroupManagement
-    serviceToken: serviceToken
     sessionHostCount: i == sessionHostBatchCount && divisionRemainderValue > 0 ? divisionRemainderValue : maxResourcesPerTemplateDeployment
     sessionHostIndex: i == 1 ? sessionHostIndex : ((i - 1) * maxResourcesPerTemplateDeployment) + sessionHostIndex
+    stampIndexFull: stampIndexFull
     storageAccountPrefix: storageAccountNamePrefix
     storageCount: storageCount
     storageIndex: storageIndex

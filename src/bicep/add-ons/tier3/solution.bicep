@@ -115,9 +115,6 @@ param networkWatcherResourceId string = ''
 @description('The policy to assign to the workload.')
 param policy string = 'NISTRev4'
 
-@description('The stamp index allows for multiple AVD stamps with the same business unit or project to support different use cases.')
-param stampIndex string = ''
-
 @description('The address prefix for the workload subnet.')
 param subnetAddressPrefix string = ''
 
@@ -235,6 +232,7 @@ module logic '../../modules/logic.bicep' = {
   params: {
     deploymentNameSuffix: deploymentNameSuffix
     environmentAbbreviation: environmentAbbreviation
+    identifier: identifier
     location: location
     networks: [
       {
@@ -251,8 +249,6 @@ module logic '../../modules/logic.bicep' = {
         subnetAddressPrefix: subnetAddressPrefix
       }
     ]
-    resourcePrefix: identifier
-    stampIndex: stampIndex
   }
 }
 
@@ -261,7 +257,7 @@ module rg '../../modules/resource-group.bicep' = if (!(empty(virtualNetworkAddre
   params: {
     location: location
     mlzTags: logic.outputs.mlzTags
-    name: replace(logic.outputs.tiers[0].namingConvention.resourceGroup, logic.outputs.tokens.service, 'network')
+    name: replace(logic.outputs.tiers[0].namingConvention.resourceGroup, logic.outputs.tokens.purpose, 'network')
     tags: tags
   }
 }
@@ -341,9 +337,9 @@ module storage 'modules/storage.bicep' = if (!(empty(virtualNetworkAddressPrefix
     logStorageSkuName: logStorageSkuName
     mlzTags: logic.outputs.mlzTags
     network: logic.outputs.tiers[0]
+    purposeToken: logic.outputs.tokens.purpose
     queuesPrivateDnsZoneResourceId: resourceId(hubSubscriptionId, hubResourceGroupName, 'Microsoft.Network/privateDnsZones', 'privatelink.queue.${environment().suffixes.storage}')
     resourceGroupName: rg.outputs.name
-    serviceToken: logic.outputs.tokens.service
     storageEncryptionKeyName: customerManagedKeys.outputs.storageKeyName
     subnetResourceId: networking.outputs.subnets[0].id
     tablesPrivateDnsZoneResourceId: resourceId(hubSubscriptionId, hubResourceGroupName, 'Microsoft.Network/privateDnsZones', 'privatelink.table.${environment().suffixes.storage}')
@@ -371,8 +367,8 @@ module diagnostics 'modules/diagnostics.bicep' = if (!(empty(virtualNetworkAddre
     networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
     networkWatcherFlowLogsType: networkWatcherFlowLogsType
     networkWatcherResourceId: networkWatcherResourceId
+    purposeToken: logic.outputs.tokens.purpose
     resourceGroupName: rg.outputs.name
-    serviceToken: logic.outputs.tokens.service
     storageAccountResourceId: storage.outputs.storageAccountResourceId
     tiers: logic.outputs.tiers
     virtualNetworkDiagnosticsLogs: virtualNetworkDiagnosticsLogs
@@ -389,10 +385,10 @@ module policyAssignments '../../modules/policy-assignments.bicep' =
       location: location
       logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
       policy: policy
+      purposeToken: logic.outputs.tokens.purpose
       resourceGroupNames: [
         rg.outputs.name
       ]
-      serviceToken: logic.outputs.tokens.service
       tiers: logic.outputs.tiers
       windowsAdministratorsGroupMembership: windowsAdministratorsGroupMembership
     }

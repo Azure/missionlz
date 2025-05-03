@@ -276,6 +276,11 @@ param hubVirtualNetworkDiagnosticsMetrics array = [
 @description('The hybrid use benefit provides a discount on virtual machines when a customer has an on-premises Windows Server license with Software Assurance. Default value = "false".')
 param hybridUseBenefit bool = false
 
+@minLength(1)
+@maxLength(6)
+@description('1-6 alphanumeric characters without whitespace, used to name resources and generate uniqueness for resources within your subscription. Ideally, the value should represent an organization, department, or business unit.')
+param identifier string
+
 @description('An array of Network Security Group diagnostic logs to apply to the Identity Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-network/virtual-network-nsg-manage-log#log-categories.')
 param identityNetworkSecurityGroupDiagnosticsLogs array = [
   {
@@ -502,11 +507,6 @@ param publicIPAddressDiagnosticsMetrics array = [
   }
 ]
 
-@minLength(1)
-@maxLength(6)
-@description('A prefix, 1-6 alphanumeric characters without whitespace, used to prefix resources and generate uniqueness for resources within your subscription. Ideally, the value should represent department or project within your organization.')
-param resourcePrefix string
-
 @description('An array of Network Security Group diagnostic logs to apply to the SharedServices Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-network/virtual-network-nsg-manage-log#log-categories.')
 param sharedServicesNetworkSecurityGroupDiagnosticsLogs array = [
   {
@@ -607,6 +607,7 @@ module logic 'modules/logic.bicep' = {
   params: {
     deploymentNameSuffix: deploymentNameSuffix
     environmentAbbreviation: environmentAbbreviation
+    identifier: identifier
     location: location
     networks: union([
       {
@@ -663,7 +664,6 @@ module logic 'modules/logic.bicep' = {
         subnetAddressPrefix: identitySubnetAddressPrefix
       }
     ] : [])
-    resourcePrefix: resourcePrefix
   }
 }
 
@@ -675,7 +675,7 @@ module resourceGroups 'modules/resource-groups.bicep' = {
     deploymentNameSuffix: deploymentNameSuffix
     location: location
     mlzTags: logic.outputs.mlzTags
-    serviceToken: logic.outputs.tokens.service
+    purposeToken: logic.outputs.tokens.purpose
     tiers: logic.outputs.tiers
     tags: tags
   }
@@ -824,9 +824,9 @@ module remoteAccess 'modules/remote-access.bicep' = {
     location: location
     logAnalyticsWorkspaceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
     mlzTags: logic.outputs.mlzTags
-    serviceToken: logic.outputs.tokens.service
     supportedClouds: supportedClouds
     tags: tags
+    tokens: logic.outputs.tokens
     windowsVmAdminPassword: windowsVmAdminPassword
     windowsVmAdminUsername: windowsVmAdminUsername
     windowsVmCreateOption: windowsVmCreateOption
@@ -853,9 +853,9 @@ module storage 'modules/storage.bicep' = {
     location: location
     logStorageSkuName: logStorageSkuName
     mlzTags: logic.outputs.mlzTags
+    purposeToken: logic.outputs.tokens.purpose
     queuesPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.queue
     resourceGroupNames: resourceGroups.outputs.names
-    serviceToken: logic.outputs.tokens.service
     storageEncryptionKeyName: customerManagedKeys.outputs.storageKeyName
     tablesPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.table
     tags: tags
@@ -890,8 +890,8 @@ module diagnostics 'modules/diagnostics.bicep' = {
     networkWatcherFlowLogsType: networkWatcherFlowLogsType
     publicIPAddressDiagnosticsLogs: publicIPAddressDiagnosticsLogs
     publicIPAddressDiagnosticsMetrics: publicIPAddressDiagnosticsMetrics
+    purposeToken: logic.outputs.tokens.purpose
     resourceGroupNames: resourceGroups.outputs.names
-    serviceToken: logic.outputs.tokens.service
     storageAccountResourceIds: storage.outputs.storageAccountResourceIds
     supportedClouds: supportedClouds
     tiers: logic.outputs.tiers
@@ -909,7 +909,7 @@ module policyAssignments 'modules/policy-assignments.bicep' =
       logAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
       policy: policy
       resourceGroupNames: resourceGroups.outputs.names
-      serviceToken: logic.outputs.tokens.service
+      purposeToken: logic.outputs.tokens.purpose
       tiers: logic.outputs.tiers
       windowsAdministratorsGroupMembership: windowsVmAdminUsername
     }

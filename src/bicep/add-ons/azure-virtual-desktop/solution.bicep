@@ -499,9 +499,7 @@ module naming_management '../../modules/naming-convention.bicep' = {
     environmentAbbreviation: environmentAbbreviation
     location: virtualNetwork_hub.location
     networkName: 'avd'
-    networkShortName: 'avd'
-    resourcePrefix: identifier
-    stampIndex: string(stampIndex)
+    identifier: identifier
   }
 }
 
@@ -734,7 +732,6 @@ module tier3_hosts '../tier3/solution.bicep' = {
     networkWatcherFlowLogsType: networkWatcherFlowLogsType
     networkWatcherResourceId: networkWatcherResourceId
     policy: policy
-    stampIndex: string(stampIndex)
     subnetAddressPrefix: subnetAddressPrefixes[0]
     subnetName: 'AvdSessionHosts'
     tags: tags
@@ -788,20 +785,16 @@ module management 'modules/management/management.bicep' = {
     recoveryServices: recoveryServices
     recoveryServicesGeo: tier3_hosts.outputs.locationProperties.recoveryServicesGeo
     resourceAbbreviations: tier3_hosts.outputs.resourceAbbreviations
-    resourceGroupName: replace(naming_management.outputs.names.resourceGroup, naming_management.outputs.tokens.service, 'management')
-    resourceGroupProfiles: replace(tier3_hosts.outputs.namingConvention.resourceGroup, tier3_hosts.outputs.tokens.service, 'profiles')
+    resourceGroupName: replace(naming_management.outputs.names.resourceGroup, naming_management.outputs.tokens.purpose, 'management')
+    resourceGroupProfiles: replace(tier3_hosts.outputs.namingConvention.resourceGroup, tier3_hosts.outputs.tokens.purpose, 'profiles')
     securityPrincipalObjectIds: map(securityPrincipals, item => item.objectId)
-    serviceToken: tier3_hosts.outputs.tokens.service
-    sessionHostNamePrefix: replace(
-      tier3_hosts.outputs.namingConvention.virtualMachine,
-      tier3_hosts.outputs.tokens.service,
-      ''
-    )
+    sessionHostNamePrefix: tier3_hosts.outputs.namingConvention.virtualMachine
     storageService: storageService
     subnetResourceId: tier3_hosts.outputs.subnets[0].id
     subnets: tier3_hosts.outputs.subnets
     tags: tags
     timeZone: tier3_hosts.outputs.locationProperties.timeZone
+    tokens: tier3_hosts.outputs.tokens
     validationEnvironment: validationEnvironment
     virtualMachineAdminPassword: virtualMachineAdminPassword
     virtualMachineAdminUsername: virtualMachineAdminUsername
@@ -839,17 +832,9 @@ module workspaces 'modules/sharedServices/sharedServices.bicep' = {
     workspaceFeedName: naming_management.outputs.names.workspaceFeed
     workspaceFeedNetworkInterfaceName: naming_management.outputs.names.workspaceFeedNetworkInterface
     workspaceFeedPrivateEndpointName: naming_management.outputs.names.workspaceFeedPrivateEndpoint
-    workspaceFeedResourceGroupName: replace(
-      replace(
-        naming_management.outputs.names.resourceGroup,
-        naming_management.outputs.tokens.service,
-        'feedWorkspace'
-      ),
-      '-${stampIndex}',
-      ''
-    )
+    workspaceFeedResourceGroupName: replace(naming_management.outputs.names.resourceGroup, naming_management.outputs.tokens.purpose, 'feedWorkspace')
     workspaceFriendlyName: empty(workspaceFriendlyName)
-      ? replace(naming_management.outputs.names.workspaceFeed, '-${naming_management.outputs.tokens.service}', '')
+      ? naming_management.outputs.names.workspaceFeed
       : '${workspaceFriendlyName} (${virtualNetwork_hub.location})'
     workspaceGlobalName: replace(naming_management.outputs.names.workspaceGlobal, identifier, virtualNetwork_hub.tags.resourcePrefix)
     workspaceGlobalNetworkInterfaceName: replace(naming_management.outputs.names.workspaceGlobalNetworkInterface, identifier, virtualNetwork_hub.tags.resourcePrefix)
@@ -859,7 +844,7 @@ module workspaces 'modules/sharedServices/sharedServices.bicep' = {
       replace(
         replace(
           naming_management.outputs.names.resourceGroup,
-          naming_management.outputs.tokens.service,
+          naming_management.outputs.tokens.purpose,
           'globalWorkspace'
         ),
         '-${stampIndex}',
@@ -899,12 +884,12 @@ module fslogix 'modules/fslogix/fslogix.bicep' = if (deployFslogix) {
     namingConvention: tier3_hosts.outputs.namingConvention
     netbios: netbios
     organizationalUnitPath: organizationalUnitPath
+    purposeToken: tier3_hosts.outputs.tokens.purpose
     recoveryServices: recoveryServices
     resourceGroupManagement: management.outputs.resourceGroupName
-    resourceGroupName: replace(tier3_hosts.outputs.namingConvention.resourceGroup, tier3_hosts.outputs.tokens.service, 'profiles')
+    resourceGroupName: replace(tier3_hosts.outputs.namingConvention.resourceGroup, tier3_hosts.outputs.tokens.purpose, 'profiles')
     securityPrincipalNames: map(securityPrincipals, item => item.displayName)
     securityPrincipalObjectIds: map(securityPrincipals, item => item.objectId)
-    serviceToken: tier3_hosts.outputs.tokens.service
     storageCount: storageCount
     storageEncryptionKeyName: tier3_hosts.outputs.storageEncryptionKeyName
     storageIndex: storageIndex
@@ -966,17 +951,18 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     networkSecurityGroupResourceId: tier3_hosts.outputs.networkSecurityGroupResourceId
     organizationalUnitPath: organizationalUnitPath
     profile: profile
+    purposeToken: tier3_hosts.outputs.tokens.purpose
     recoveryServicesVaultName: management.outputs.recoveryServicesVaultName
     resourceGroupManagement: management.outputs.resourceGroupName
-    resourceGroupName: replace(tier3_hosts.outputs.namingConvention.resourceGroup, tier3_hosts.outputs.tokens.service, 'hosts')
+    resourceGroupName: replace(tier3_hosts.outputs.namingConvention.resourceGroup, tier3_hosts.outputs.tokens.purpose, 'hosts')
     scalingWeekdaysOffPeakStartTime: scalingWeekdaysOffPeakStartTime
     scalingWeekdaysPeakStartTime: scalingWeekdaysPeakStartTime
     scalingWeekendsOffPeakStartTime: scalingWeekendsOffPeakStartTime
     scalingWeekendsPeakStartTime: scalingWeekendsPeakStartTime
     securityPrincipalObjectIds: map(securityPrincipals, item => item.objectId)
-    serviceToken: tier3_hosts.outputs.tokens.service
     sessionHostBatchCount: sessionHostBatchCount
     sessionHostIndex: sessionHostIndex
+    stampIndexFull: padLeft(stampIndex, 2)
     storageAccountNamePrefix: deployFslogix ? fslogix.outputs.storageAccountNamePrefix : ''
     storageCount: storageCount
     storageIndex: storageIndex

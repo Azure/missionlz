@@ -33,10 +33,11 @@ param networkInterfaceNamePrefix string
 param networkSecurityGroupResourceId string
 param organizationalUnitPath string
 param profile string
+param purposeToken string
 param resourceGroupManagement string
-param serviceToken string
 param sessionHostCount int
 param sessionHostIndex int
+param stampIndexFull string
 param storageAccountPrefix string
 param storageCount int
 param storageIndex int
@@ -94,7 +95,7 @@ var nvidiaVmSizes = [
   'Standard_NV36adms_A10_v5'
   'Standard_NV72ads_A10_v5'
 ]
-var sessionHostNamePrefix = replace(virtualMachineNamePrefix, serviceToken, '')
+var sessionHostNamePrefix = replace(virtualMachineNamePrefix, purposeToken, stampIndexFull)
 var storageAccountToken = '${storageAccountPrefix}??' // The token is used for AntiVirus exclusions. The '??' represents the two digits at the end of each storage account name.
 
 resource hostPool 'Microsoft.DesktopVirtualization/hostPools@2023-09-05' existing = {
@@ -103,7 +104,7 @@ resource hostPool 'Microsoft.DesktopVirtualization/hostPools@2023-09-05' existin
 }
 
 resource networkInterface 'Microsoft.Network/networkInterfaces@2020-05-01' = [for i in range(0, sessionHostCount): {
-  name: '${replace(networkInterfaceNamePrefix, '-${serviceToken}', '')}-${padLeft((i + sessionHostIndex), 4, '0')}'
+  name: '${replace(networkInterfaceNamePrefix, purposeToken, stampIndexFull)}-${padLeft((i + sessionHostIndex), 4, '0')}'
   location: location
   tags: tagsNetworkInterfaces
   properties: {
@@ -153,7 +154,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-03-01' = [for i 
     storageProfile: {
       imageReference: imageReference
       osDisk: {
-        name: '${replace(diskNamePrefix, '-${serviceToken}', '')}-${padLeft((i + sessionHostIndex), 4, '0')}'
+        name: '${replace(diskNamePrefix, purposeToken, stampIndexFull)}-${padLeft((i + sessionHostIndex), 4, '0')}'
         osType: 'Windows'
         createOption: 'FromImage'
         caching: 'ReadWrite'
