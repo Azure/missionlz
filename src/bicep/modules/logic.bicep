@@ -7,10 +7,9 @@ targetScope = 'subscription'
 
 param deploymentNameSuffix string
 param environmentAbbreviation string
+param identifier string
 param location string
 param networks array
-param resourcePrefix string
-param stampIndex string = ''
 
 var environmentName = {
   dev: 'Development'
@@ -19,9 +18,9 @@ var environmentName = {
 }
 var mlzTags = {
   environment: environmentName[environmentAbbreviation]
+  identifier: identifier
   landingZoneName: 'MissionLandingZone'
   landingZoneVersion: loadTextContent('../data/version.txt')
-  resourcePrefix: resourcePrefix
 }
 
 /*
@@ -36,9 +35,7 @@ module namingConventions 'naming-convention.bicep' = [for network in networks: {
     environmentAbbreviation: environmentAbbreviation
     location: location
     networkName: network.name
-    networkShortName: network.shortName
-    resourcePrefix: resourcePrefix
-    stampIndex: stampIndex
+    identifier: identifier
   }
 }]
 
