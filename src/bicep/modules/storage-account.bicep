@@ -8,8 +8,8 @@ param filesPrivateDnsZoneResourceId string
 param keyVaultUri string
 param location string
 param mlzTags object
+param purposeToken string
 param queuesPrivateDnsZoneResourceId string
-param serviceToken string
 param skuName string
 param storageEncryptionKeyName string
 param subnetResourceId string
@@ -42,7 +42,7 @@ var  subResources = [
 ]
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
-  name: uniqueString(replace(tier.namingConvention.storageAccount, serviceToken, 'log'), resourceGroup().id)
+  name: uniqueString(replace(tier.namingConvention.storageAccount, purposeToken, 'log'), resourceGroup().id)
   location: location
   tags: union(tags[?'Microsoft.Storage/storageAccounts'] ?? {}, mlzTags)
   identity: {

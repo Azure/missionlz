@@ -8,7 +8,7 @@ targetScope = 'subscription'
 param deploymentNameSuffix string
 param location string
 param mlzTags object
-param serviceToken string
+param purposeToken string
 param tiers array
 param tags object
 
@@ -17,7 +17,7 @@ module resourceGroups 'resource-group.bicep' = [for tier in tiers: {
   scope: subscription(tier.subscriptionId)
   params: {
     mlzTags: mlzTags
-    name: replace(tier.namingConvention.resourceGroup, serviceToken, 'network')
+    name: replace(tier.namingConvention.resourceGroup, purposeToken, 'network')
     location: location
     tags: tags
   }

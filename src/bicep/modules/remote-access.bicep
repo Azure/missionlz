@@ -37,7 +37,7 @@ param linuxVmOsDiskType string
 param location string
 param logAnalyticsWorkspaceId string
 param mlzTags object
-param serviceToken string
+param tokens object
 param supportedClouds array
 param tags object
 
@@ -80,12 +80,12 @@ module linuxVirtualMachine '../modules/linux-virtual-machine.bicep' =
       adminUsername: linuxVmAdminUsername
       authenticationType: linuxVmAuthenticationType
       diskEncryptionSetResourceId: diskEncryptionSetResourceId
-      diskName: replace(hub.namingConvention.virtualMachineDisk, serviceToken, 'remoteAccess-linux')
+      diskName: replace(hub.namingConvention.virtualMachineDisk, tokens.purpose, 'lra') // lra = Linux Remote Access
       location: location
       logAnalyticsWorkspaceId: logAnalyticsWorkspaceId
       mlzTags: mlzTags
-      name: replace(hub.namingConvention.virtualMachine, serviceToken, 'ral')
-      networkInterfaceName: replace(hub.namingConvention.virtualMachineNetworkInterface, serviceToken, 'remoteAccess-linux')
+      name: replace(hub.namingConvention.virtualMachine, tokens.purpose, 'lra') // lra = Linux Remote Access
+      networkInterfaceName: replace(hub.namingConvention.virtualMachineNetworkInterface, tokens.purpose, 'lra') // lra = Linux Remote Access
       networkSecurityGroupResourceId: hubNetworkSecurityGroupResourceId
       osDiskCreateOption: linuxVmOsDiskCreateOption
       osDiskType: linuxVmOsDiskType
@@ -109,13 +109,13 @@ module windowsVirtualMachine '../modules/windows-virtual-machine.bicep' =
       adminUsername: windowsVmAdminUsername
       createOption: windowsVmCreateOption
       diskEncryptionSetResourceId: diskEncryptionSetResourceId
-      diskName: replace(hub.namingConvention.virtualMachineDisk, serviceToken, 'remoteAccess-windows')
+      diskName: replace(hub.namingConvention.virtualMachineDisk, tokens.purpose, 'wra') // wra = Windows Remote Access
       hybridUseBenefit: hybridUseBenefit
       location: location
       logAnalyticsWorkspaceId: logAnalyticsWorkspaceId
       mlzTags: mlzTags
-      name: replace(hub.namingConvention.virtualMachine, serviceToken, 'raw')
-      networkInterfaceName: replace(hub.namingConvention.virtualMachineNetworkInterface, serviceToken, 'remoteAccess-windows')
+      name: replace(hub.namingConvention.virtualMachine, tokens.purpose, 'wra') // wra = Windows Remote Access
+      networkInterfaceName: replace(hub.namingConvention.virtualMachineNetworkInterface, tokens.purpose, 'wra') // wra = Windows Remote Access
       networkSecurityGroupResourceId: hubNetworkSecurityGroupResourceId
       offer: windowsVmImageOffer
       privateIPAddressAllocationMethod: windowsVmNetworkInterfacePrivateIPAddressAllocationMethod

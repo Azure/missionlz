@@ -9,8 +9,8 @@ param deploymentNameSuffix string
 param location string
 param logAnalyticsWorkspaceResourceId string
 param policy string
+param purposeToken string
 param resourceGroupNames array
-param serviceToken string
 param tiers array
 param windowsAdministratorsGroupMembership string
 
@@ -28,7 +28,7 @@ module policyAssignment 'policy-assignment.bicep' = [for (tier, i) in tiers: {
     // If the networkWatcherResourceId parameter is not provided, the deployUniquesResources bool 
     // is used to determine if the MLZ deployment is spread across multiple subscriptions. 
     // If so, the tier's resource group is used. If neither of those conditions are met, the hub resource group is used.
-    networkWatcherResourceGroupName: !empty(tier.networkWatcherResourceId) ? split(tier.networkWatcherResourceId, '/')[4] : tier.deployUniqueResources ? replace(tier.namingConvention.resourceGroup, serviceToken, 'network') : replace(tiers[0].namingConvention.resourceGroup, serviceToken, 'network')
+    networkWatcherResourceGroupName: !empty(tier.networkWatcherResourceId) ? split(tier.networkWatcherResourceId, '/')[4] : tier.deployUniqueResources ? replace(tier.namingConvention.resourceGroup, purposeToken, 'network') : replace(tiers[0].namingConvention.resourceGroup, purposeToken, 'network')
     windowsAdministratorsGroupMembership: windowsAdministratorsGroupMembership
   }
 }]
