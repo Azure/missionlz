@@ -239,11 +239,11 @@
               "type": "Microsoft.Common.Section",
               "elements": [
                 {
-                  "name": "resourcePrefix",
-                  "label": "Resource Naming Prefix",
+                  "name": "identifier",
+                  "label": "Resource Naming Identifier",
                   "type": "Microsoft.Common.TextBox",
                   "defaultValue": "",
-                  "toolTip": "Specify a prefix (min 1 and max 6 lowercase characters and numbers) to prepend to all resources.",
+                  "toolTip": "Specify a value (min 1 and max 6 lowercase characters and numbers) to uniquely name resources.",
                   "constraints": {
                     "required": true,
                     "validations": [
@@ -1533,7 +1533,7 @@
         "operationsSubscriptionId": "[replace(steps('basics').operationsSection.operationsSubscriptionId, '/subscriptions/', '')]",
         "operationsVirtualNetworkAddressPrefix": "[steps('networking').operationsVirtualNetwork.virtualNetworkAddressCidrRange]",
         "policy": "[steps('compliance').policySection.policy]",
-        "resourcePrefix": "[steps('basics').namingSection.resourcePrefix]",
+        "identifier": "[steps('basics').namingSection.identifier]",
         "sharedServicesSubnetAddressPrefix": "[steps('networking').sharedServicesVirtualNetwork.subnetAddressCidrRange]",
         "sharedServicesSubscriptionId": "[replace(steps('basics').sharedServicesSection.sharedServicesSubscriptionId, '/subscriptions/', '')]",
         "sharedServicesVirtualNetworkAddressPrefix": "[steps('networking').sharedServicesVirtualNetwork.virtualNetworkAddressCidrRange]",
