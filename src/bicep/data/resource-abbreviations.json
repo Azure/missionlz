@@ -1,14 +1,11 @@
 {
   "actionGroups": "ag",
   "applicationGroups": "vdag",
-  "applicationGroupsDesktop": "desktop",
   "applicationInsights": "appi",
   "appServicePlans": "asp",
   "automationAccounts": "aa",
   "availabilitySets": "avail",
   "azureFirewalls": "afw",
-  "azureFirewallsClient": "client",
-  "azureFirewallsManagement": "mgmt",
   "bastionHosts": "bas",
   "computeGallieries": "cg",
   "dataCollectionEndpoints": "dce",
@@ -39,15 +36,9 @@
   "routeTables": "rt",
   "scalingPlans": "vdscaling",
   "storageAccounts": "st",
-  "storageAccountsBlobServices": "blob",
-  "storageAccountsFileServices": "file",
-  "storageAccountsQueueServices": "queue",
-  "storageAccountsTableServices": "table",
   "subnets": "snet",
   "userAssignedIdentities": "id",
   "virtualMachines": "vm",
   "virtualNetworks": "vnet",
-  "workspaces": "vdws",
-  "workspacesFeed": "feed",
-  "workspacesGlobal": "global"
+  "workspaces": "vdws"
 }
