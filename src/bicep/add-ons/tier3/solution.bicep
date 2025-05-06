@@ -317,6 +317,7 @@ module customerManagedKeys '../../modules/customer-managed-keys.bicep' = if (!(e
     )
     location: location
     mlzTags: logic.outputs.mlzTags
+    resourceAbbreviations: logic.outputs.resourceAbbreviations
     resourceGroupName: rg.outputs.name
     subnetResourceId: networking.outputs.subnets[0].id
     tags: tags
@@ -329,12 +330,12 @@ module storage 'modules/storage.bicep' = if (!(empty(virtualNetworkAddressPrefix
   name: 'deploy-storage-${workloadShortName}-${deploymentNameSuffix}'
   params: {
     blobsPrivateDnsZoneResourceId: resourceId(hubSubscriptionId, hubResourceGroupName, 'Microsoft.Network/privateDnsZones', 'privatelink.blob.${environment().suffixes.storage}')
+    delimiter: logic.outputs.tiers[0].delimiter
     filesPrivateDnsZoneResourceId: resourceId(hubSubscriptionId, hubResourceGroupName, 'Microsoft.Network/privateDnsZones', 'privatelink.file.${environment().suffixes.storage}')
     keyVaultUri: customerManagedKeys.outputs.keyVaultUri
     location: location
     logStorageSkuName: logStorageSkuName
     mlzTags: logic.outputs.mlzTags
-    network: logic.outputs.tiers[0]
     queuesPrivateDnsZoneResourceId: resourceId(hubSubscriptionId, hubResourceGroupName, 'Microsoft.Network/privateDnsZones', 'privatelink.queue.${environment().suffixes.storage}')
     resourceGroupName: rg.outputs.name
     storageEncryptionKeyName: customerManagedKeys.outputs.storageKeyName
