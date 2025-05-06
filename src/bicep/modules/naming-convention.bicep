@@ -15,9 +15,19 @@ param location string
 param networkName string
 param identifier string
 
+var directionShortNames = {
+  east: 'e'
+  eastcentral: 'ec'
+  north: 'n'
+  northcentral: 'nc'
+  south: 's'
+  southcentral: 'sc'
+  west: 'w'
+  westcentral: 'wc'
+}
 var locations = loadJsonContent('../data/locations.json')[?environment().name] ?? {
   '${location}': {
-    abbreviation: skip(location, length(location) - 5)
+    abbreviation: directionShortNames[skip(location, length(location) - 5)]
     timeDifference: contains(location, 'east') ? '-5:00' : contains(location, 'west') ? '-8:00' : '0:00'
     timeZone: contains(location, 'east') ? 'Eastern Standard Time' : contains(location, 'west') ? 'Pacific Standard Time' : 'GMT Standard Time'
   }

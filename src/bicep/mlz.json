@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "14062726238140801"
+      "templateHash": "3889498231113191607"
     }
   },
   "parameters": {
@@ -1031,7 +1031,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.35.1.17967",
-              "templateHash": "14101985355256277195"
+              "templateHash": "5934929405338074034"
             }
           },
           "parameters": {
@@ -1101,7 +1101,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.35.1.17967",
-                      "templateHash": "18363920474559413747"
+                      "templateHash": "13661043292085718432"
                     }
                   },
                   "parameters": {
@@ -1527,7 +1527,17 @@
                       "virtualNetworks": "vnet",
                       "workspaces": "vdws"
                     },
-                    "locations": "[coalesce(tryGet(variables('$fxv#0'), environment().name), createObject(format('{0}', parameters('location')), createObject('abbreviation', skip(parameters('location'), sub(length(parameters('location')), 5)), 'timeDifference', if(contains(parameters('location'), 'east'), '-5:00', if(contains(parameters('location'), 'west'), '-8:00', '0:00')), 'timeZone', if(contains(parameters('location'), 'east'), 'Eastern Standard Time', if(contains(parameters('location'), 'west'), 'Pacific Standard Time', 'GMT Standard Time')))))]",
+                    "directionShortNames": {
+                      "east": "e",
+                      "eastcentral": "ec",
+                      "north": "n",
+                      "northcentral": "nc",
+                      "south": "s",
+                      "southcentral": "sc",
+                      "west": "w",
+                      "westcentral": "wc"
+                    },
+                    "locations": "[coalesce(tryGet(variables('$fxv#0'), environment().name), createObject(format('{0}', parameters('location')), createObject('abbreviation', variables('directionShortNames')[skip(parameters('location'), sub(length(parameters('location')), 5))], 'timeDifference', if(contains(parameters('location'), 'east'), '-5:00', if(contains(parameters('location'), 'west'), '-8:00', '0:00')), 'timeZone', if(contains(parameters('location'), 'east'), 'Eastern Standard Time', if(contains(parameters('location'), 'west'), 'Pacific Standard Time', 'GMT Standard Time')))))]",
                     "locationAbbreviation": "[variables('locations')[parameters('location')].abbreviation]",
                     "resourceAbbreviations": "[variables('$fxv#1')]",
                     "tokens": {
