@@ -5,7 +5,8 @@ param avdObjectId string
 param avdPrivateDnsZoneResourceId string
 param customImageId string
 param customRdpProperty string
-param deployFslogix bool
+param delimiter string
+// param deployFslogix bool
 param deploymentNameSuffix string
 param desktopFriendlyName string
 param diskEncryptionSetResourceId string
@@ -35,19 +36,17 @@ param organizationalUnitPath string
 param privateDnsZoneResourceIdPrefix string
 param privateDnsZones array
 param privateLinkScopeResourceId string
-param recoveryServices bool
-param recoveryServicesGeo string
-param resourceAbbreviations object
-param resourceGroupName string
-param resourceGroupProfiles string
+// param recoveryServices bool
+// param recoveryServicesGeo string
+param resourceGroupFslogix string
+param resourceGroupManagement string
 param securityPrincipalObjectIds array
 param sessionHostNamePrefix string
-param storageService string
+// param storageService string
 param subnetResourceId string
 param subnets array
 param tags object
-param timeZone string
-param tokens object
+// param timeZone string
 param validationEnvironment bool
 @secure()
 param virtualMachineAdminPassword string
@@ -63,9 +62,9 @@ var imageType = empty(imageVersionResourceId) ? '"Gallery"' : '"CustomImage"'
 var userAssignedIdentityNamePrefix = namingConvention.userAssignedIdentity
 
 resource resourceGroup 'Microsoft.Resources/resourceGroups@2023-07-01' = {
-  name: resourceGroupName
+  name: resourceGroupManagement
   location: locationControlPlane
-  tags: union({'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupName}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'}, tags[?'Microsoft.Resources/resourceGroups'] ?? {}, mlzTags)
+  tags: union({'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupManagement}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'}, tags[?'Microsoft.Resources/resourceGroups'] ?? {}, mlzTags)
 }
 
 // Role Assignment for Autoscale
@@ -85,6 +84,7 @@ module monitoring 'monitoring.bicep' = if (enableApplicationInsights || enableAv
   name: 'deploy-monitoring-${deploymentNameSuffix}'
   scope: resourceGroup
   params: {
+    delimiter: delimiter
     deploymentNameSuffix: deploymentNameSuffix
     enableAvdInsights: enableAvdInsights
     hostPoolResourceId: '${subscription().id}}/resourceGroups/${resourceGroup.name}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'
@@ -94,7 +94,6 @@ module monitoring 'monitoring.bicep' = if (enableApplicationInsights || enableAv
     mlzTags: mlzTags
     namingConvention: namingConvention
     privateLinkScopeResourceId: privateLinkScopeResourceId
-    purposeToken: tokens.purpose
     tags: tags
   }
 }
@@ -162,7 +161,7 @@ module deploymentUserAssignedIdentity 'userAssignedIdentity.bicep' = {
   name: 'deploy-id-deployment-${deploymentNameSuffix}'
   params: {
     location: locationVirtualMachines
-    name: replace(userAssignedIdentityNamePrefix, tokens.purpose, 'deployment')
+    name: '${userAssignedIdentityNamePrefix}${delimiter}deployment'
     tags: union({'cm-resource-parent': hostPool.outputs.resourceId}, tags[?'Microsoft.ManagedIdentity/userAssignedIdentities'] ?? {}, mlzTags)
   }
 }
@@ -189,7 +188,7 @@ module virtualMachine 'virtualMachine.bicep' = {
     deploymentUserAssignedIdentityPrincipalId: deploymentUserAssignedIdentity.outputs.principalId
     deploymentUserAssignedIdentityResourceId: deploymentUserAssignedIdentity.outputs.resourceId
     diskEncryptionSetResourceId: diskEncryptionSetResourceId
-    diskName: replace(namingConvention.virtualMachineDisk, tokens.purpose, 'mgt')
+    diskName: '${namingConvention.virtualMachineDisk}${delimiter}mgt'
     diskSku: diskSku
     domainJoinPassword: domainJoinPassword
     domainJoinUserPrincipalName: domainJoinUserPrincipalName
@@ -197,11 +196,11 @@ module virtualMachine 'virtualMachine.bicep' = {
     hostPoolResourceId: hostPool.outputs.resourceId
     location: locationVirtualMachines
     mlzTags: mlzTags
-    networkInterfaceName: replace(namingConvention.virtualMachineNetworkInterface, tokens.purpose, 'mgt')
+    networkInterfaceName: '${namingConvention.virtualMachineNetworkInterface}${delimiter}mgt'
     organizationalUnitPath: organizationalUnitPath
     subnetResourceId: subnetResourceId
     tags: tags
-    virtualMachineName: replace(namingConvention.virtualMachine, tokens.purpose, 'mgt')
+    virtualMachineName: '${namingConvention.virtualMachine}${delimiter}mgt'
     virtualMachineAdminPassword: virtualMachineAdminPassword
     virtualMachineAdminUsername: virtualMachineAdminUsername
   }
@@ -225,7 +224,7 @@ module applicationGroup 'applicationGroup.bicep' = {
   }
 }
 
-module recoveryServicesVault 'recoveryServicesVault.bicep' = if (recoveryServices) {
+/* module recoveryServicesVault 'recoveryServicesVault.bicep' = if (recoveryServices) {
   name: 'deploy-rsv-${deploymentNameSuffix}'
   scope: resourceGroup
   params: {
@@ -244,7 +243,7 @@ module recoveryServicesVault 'recoveryServicesVault.bicep' = if (recoveryService
     tags: tags
     timeZone: timeZone
   }
-}
+} */
 
 // Deploys the Auto Increase Premium File Share Quota solution on an Azure Function App
 module functionApp '../management/functionApp.bicep' = if (fslogixStorageService == 'AzureFiles Premium') {
@@ -252,6 +251,7 @@ module functionApp '../management/functionApp.bicep' = if (fslogixStorageService
   scope: resourceGroup
   params: {
     delegatedSubnetResourceId: filter(subnets, subnet => contains(subnet.name, 'FunctionAppOutbound'))[0].id
+    delimiter: delimiter
     deploymentNameSuffix: deploymentNameSuffix
     enableApplicationInsights: enableApplicationInsights
     environmentAbbreviation: environmentAbbreviation
@@ -262,9 +262,7 @@ module functionApp '../management/functionApp.bicep' = if (fslogixStorageService
     privateDnsZoneResourceIdPrefix: privateDnsZoneResourceIdPrefix
     privateDnsZones: privateDnsZones
     privateLinkScopeResourceId: privateLinkScopeResourceId
-    resourceAbbreviations: resourceAbbreviations
-    resourceGroupProfiles: resourceGroupProfiles
-    purposeToken: tokens.purpose
+    resourceGroupFslogix: resourceGroupFslogix
     subnetResourceId: subnetResourceId
     tags: tags
   }
@@ -283,7 +281,7 @@ output hostPoolName string = hostPool.outputs.name
 output hostPoolResourceId string = hostPool.outputs.resourceId
 output logAnalyticsWorkspaceName string = enableApplicationInsights || enableAvdInsights ? monitoring.outputs.logAnalyticsWorkspaceName : ''
 output logAnalyticsWorkspaceResourceId string = enableApplicationInsights || enableAvdInsights ? monitoring.outputs.logAnalyticsWorkspaceResourceId : ''
-output recoveryServicesVaultName string = recoveryServices ? recoveryServicesVault.outputs.name : ''
+// output recoveryServicesVaultName string = recoveryServices ? recoveryServicesVault.outputs.name : ''
 output resourceGroupName string = resourceGroup.name
 output virtualMachineName string = virtualMachine.outputs.name
 output virtualMachineResourceId string = virtualMachine.outputs.resourceId

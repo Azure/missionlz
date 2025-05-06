@@ -12,7 +12,7 @@ param namingConvention object
 param privateDnsZoneResourceIdPrefix string
 param privateDnsZones array
 param privateLinkScopeResourceId string
-param resourceGroupProfiles string
+param resourceGroupFslogix string
 param subnetResourceId string
 param tags object
 
@@ -389,7 +389,7 @@ resource functionApp 'Microsoft.Web/sites@2023-01-01' = {
         }
         {
           name: 'ResourceGroupName'
-          value: resourceGroupProfiles
+          value: resourceGroupFslogix
         }
         {
           name: 'ResourceManagerUrl'

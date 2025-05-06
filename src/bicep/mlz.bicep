@@ -672,10 +672,10 @@ module logic 'modules/logic.bicep' = {
 module resourceGroups 'modules/resource-groups.bicep' = {
   name: 'deploy-resource-groups-${deploymentNameSuffix}'
   params: {
+    delimiter: logic.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
     location: location
     mlzTags: logic.outputs.mlzTags
-    purposeToken: logic.outputs.tokens.purpose
     tiers: logic.outputs.tiers
     tags: tags
   }
@@ -688,6 +688,7 @@ module networking 'modules/networking.bicep' = {
   params: {
     bastionHostSubnetAddressPrefix: bastionHostSubnetAddressPrefix
     azureGatewaySubnetAddressPrefix: azureGatewaySubnetAddressPrefix
+    delimiter: logic.outputs.delimiter
     deployIdentity: deployIdentity
     deploymentNameSuffix: deploymentNameSuffix
     deployBastion: deployBastion
@@ -768,7 +769,6 @@ module customerManagedKeys 'modules/customer-managed-keys.bicep' = {
     subnetResourceId: networking.outputs.hubSubnetResourceId
     tags: tags
     tier: filter(logic.outputs.tiers, tier => tier.name == 'hub')[0]
-    tokens: logic.outputs.tokens
     workloadShortName: 'ops'
   }
 }
@@ -802,6 +802,7 @@ module remoteAccess 'modules/remote-access.bicep' = {
     bastionHostPublicIPAddressAvailabilityZones: bastionHostPublicIPAddressAvailabilityZones
     bastionHostPublicIPAddressSkuName: 'Standard'
     bastionHostSubnetResourceId: networking.outputs.bastionHostSubnetResourceId
+    delimiter: logic.outputs.delimiter
     deployBastion: deployBastion
     deployLinuxVirtualMachine: deployLinuxVirtualMachine
     deployWindowsVirtualMachine: deployWindowsVirtualMachine
@@ -826,7 +827,6 @@ module remoteAccess 'modules/remote-access.bicep' = {
     mlzTags: logic.outputs.mlzTags
     supportedClouds: supportedClouds
     tags: tags
-    tokens: logic.outputs.tokens
     windowsVmAdminPassword: windowsVmAdminPassword
     windowsVmAdminUsername: windowsVmAdminUsername
     windowsVmCreateOption: windowsVmCreateOption
@@ -846,6 +846,7 @@ module storage 'modules/storage.bicep' = {
   name: 'deploy-log-storage-${deploymentNameSuffix}'
   params: {
     blobsPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.blob
+    delimiter: logic.outputs.delimiter
     //deployIdentity: deployIdentity
     deploymentNameSuffix: deploymentNameSuffix
     filesPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.file
@@ -853,7 +854,6 @@ module storage 'modules/storage.bicep' = {
     location: location
     logStorageSkuName: logStorageSkuName
     mlzTags: logic.outputs.mlzTags
-    purposeToken: logic.outputs.tokens.purpose
     queuesPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.queue
     resourceGroupNames: resourceGroups.outputs.names
     storageEncryptionKeyName: customerManagedKeys.outputs.storageKeyName
@@ -874,6 +874,7 @@ module diagnostics 'modules/diagnostics.bicep' = {
   params: {
     bastionDiagnosticsLogs: bastionDiagnosticsLogs
     bastionDiagnosticsMetrics: bastionDiagnosticsMetrics
+    delimiter: logic.outputs.delimiter
     deployBastion: deployBastion
     deployNetworkWatcherTrafficAnalytics: deployNetworkWatcherTrafficAnalytics
     deploymentNameSuffix: deploymentNameSuffix
@@ -890,7 +891,6 @@ module diagnostics 'modules/diagnostics.bicep' = {
     networkWatcherFlowLogsType: networkWatcherFlowLogsType
     publicIPAddressDiagnosticsLogs: publicIPAddressDiagnosticsLogs
     publicIPAddressDiagnosticsMetrics: publicIPAddressDiagnosticsMetrics
-    purposeToken: logic.outputs.tokens.purpose
     resourceGroupNames: resourceGroups.outputs.names
     storageAccountResourceIds: storage.outputs.storageAccountResourceIds
     supportedClouds: supportedClouds
@@ -909,7 +909,6 @@ module policyAssignments 'modules/policy-assignments.bicep' =
       logAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
       policy: policy
       resourceGroupNames: resourceGroups.outputs.names
-      purposeToken: logic.outputs.tokens.purpose
       tiers: logic.outputs.tiers
       windowsAdministratorsGroupMembership: windowsVmAdminUsername
     }

@@ -42,10 +42,11 @@ module namingConventions 'naming-convention.bicep' = [for network in networks: {
 module privateDnsZones 'private-dns-zones.bicep' = {
   name: 'private-dns-zones-${deploymentNameSuffix}'
   params: {
-    locations: namingConventions[0].outputs.locations
+    // locations: namingConventions[0].outputs.locations // This is only needed for Recovery Services which has been disabled for now.
   }
 }
 
+output delimiter string = namingConventions[0].outputs.delimiter
 output locationProperties object = namingConventions[0].outputs.locations[location]
 output mlzTags object = mlzTags
 output privateDnsZones array = privateDnsZones.outputs.names
@@ -64,4 +65,3 @@ output tiers array = [for (network, i) in networks: {
   subnetAddressPrefix: network.?subnetAddressPrefix ?? ''
   namingConvention: namingConventions[i].outputs.names
 }]
-output tokens object = namingConventions[0].outputs.tokens

@@ -7,6 +7,7 @@ param availabilitySetsIndex int
 param availabilityZones array
 param avdConfigurationZipFileName string
 param dataCollectionRuleResourceId string
+param delimiter string
 param deployFslogix bool
 param deploymentNameSuffix string
 param deploymentUserAssignedIdentityClientId string
@@ -24,7 +25,7 @@ param domainName string
 param drainMode bool
 param enableAcceleratedNetworking bool
 param enableAvdInsights bool
-param enableRecoveryServices bool
+// param enableRecoveryServices bool
 param enableWindowsUpdate bool
 param environmentAbbreviation string
 param fslogixContainerType string
@@ -46,8 +47,7 @@ param netAppFileShares array
 param networkSecurityGroupResourceId string
 param organizationalUnitPath string
 param profile string
-param purposeToken string
-param recoveryServicesVaultName string
+// param recoveryServicesVaultName string
 param resourceGroupManagement string
 param resourceGroupName string
 param scalingWeekdaysOffPeakStartTime string
@@ -74,7 +74,7 @@ param virtualMachineSize string
 var availabilitySetNamePrefix = namingConvention.availabilitySet
 var tagsVirtualMachines = union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Compute/virtualMachines'] ?? {}, mlzTags)
 var uniqueToken = uniqueString(identifier, environmentAbbreviation, subscription().subscriptionId)
-var virtualMachineNamePrefix = replace(namingConvention.virtualMachine, purposeToken, stampIndexFull)
+var virtualMachineNamePrefix = '${namingConvention.virtualMachine}${stampIndexFull}'
 
 resource rg 'Microsoft.Resources/resourceGroups@2023-07-01' = {
   name: resourceGroupName
@@ -180,8 +180,9 @@ module virtualMachines 'virtualMachines.bicep' = [for i in range(1, sessionHostB
     availabilityZones: availabilityZones
     avdConfigurationZipFileName: avdConfigurationZipFileName
     batchCount: i
-    dataCollectionRuleAssociationName: namingConvention.dataCollectionRuleAssociation
+    dataCollectionRuleAssociationNamePrefix: namingConvention.dataCollectionRuleAssociation
     dataCollectionRuleResourceId: dataCollectionRuleResourceId
+    delimiter: delimiter
     deployFslogix: deployFslogix
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedidentityClientId: deploymentUserAssignedIdentityClientId
@@ -208,7 +209,6 @@ module virtualMachines 'virtualMachines.bicep' = [for i in range(1, sessionHostB
     networkSecurityGroupResourceId: networkSecurityGroupResourceId
     organizationalUnitPath: organizationalUnitPath
     profile: profile
-    purposeToken: purposeToken
     resourceGroupManagement: resourceGroupManagement
     sessionHostCount: i == sessionHostBatchCount && divisionRemainderValue > 0 ? divisionRemainderValue : maxResourcesPerTemplateDeployment
     sessionHostIndex: i == 1 ? sessionHostIndex : ((i - 1) * maxResourcesPerTemplateDeployment) + sessionHostIndex
@@ -232,7 +232,7 @@ module virtualMachines 'virtualMachines.bicep' = [for i in range(1, sessionHostB
     disableAutoscale  ]
 }]
 
-module recoveryServices 'recoveryServices.bicep' = if (enableRecoveryServices && hostPoolType == 'Personal') {
+/* module recoveryServices 'recoveryServices.bicep' = if (enableRecoveryServices && hostPoolType == 'Personal') {
   name: 'deploy-recoveryServices-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupManagement)
   params: {
@@ -252,7 +252,7 @@ module recoveryServices 'recoveryServices.bicep' = if (enableRecoveryServices &&
   dependsOn: [
     virtualMachines
   ]
-}
+} */
 
 module scalingPlan '../management/scalingPlan.bicep' = {
   name: 'deploy-scalingPlan-${deploymentNameSuffix}'
@@ -264,8 +264,8 @@ module scalingPlan '../management/scalingPlan.bicep' = {
     hostPoolType: hostPoolType
     location: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
-    scalingPlanDiagnosticSettingName: namingConvention.scalingPlanDiagnosticSetting
-    scalingPlanName: namingConvention.scalingPlan
+    scalingPlanDiagnosticSettingName: '${namingConvention.scalingPlanDiagnosticSetting}${delimiter}${stampIndexFull}'
+    scalingPlanName: '${namingConvention.scalingPlan}${delimiter}${stampIndexFull}'
     tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.DesktopVirtualization/scalingPlans'] ?? {}, mlzTags)
     timeZone: timeZone
     weekdaysOffPeakStartTime: scalingWeekdaysOffPeakStartTime
@@ -274,7 +274,7 @@ module scalingPlan '../management/scalingPlan.bicep' = {
     weekendsPeakStartTime: scalingWeekendsPeakStartTime
   }
   dependsOn: [
-    recoveryServices
+    // recoveryServices
     virtualMachines
   ]
 }

@@ -4,6 +4,7 @@ param activeDirectorySolution string
 param availability string
 param azureFilesPrivateDnsZoneResourceId string
 param subnets array
+param delimiter string
 param deploymentNameSuffix string
 param deploymentUserAssignedIdentityClientId string
 param deploymentUserAssignedIdentityPrincipalId string
@@ -27,12 +28,12 @@ param mlzTags object
 param namingConvention object
 param netbios string
 param organizationalUnitPath string
-param purposeToken string
-param recoveryServices bool
+// param recoveryServices bool
 param resourceGroupManagement string
 param resourceGroupName string
 param securityPrincipalNames array
 param securityPrincipalObjectIds array
+param stampIndexFull string
 param storageCount int
 param storageEncryptionKeyName string
 param storageIndex int
@@ -42,7 +43,7 @@ param subnetResourceId string
 param tags object
 
 resource resourceGroup 'Microsoft.Resources/resourceGroups@2023-07-01' = {
-  name: resourceGroupName
+  name: '${resourceGroupName}${delimiter}fslogix${delimiter}${stampIndexFull}'
   location: location
   tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Resources/resourceGroups'] ?? {}, mlzTags)
 }
@@ -77,6 +78,7 @@ module azureNetAppFiles 'azureNetAppFiles.bicep' = if (storageService == 'AzureN
   scope: resourceGroup
   params: {
     delegatedSubnetResourceId: filter(subnets, subnet => contains(subnet.name, 'AzureNetAppFiles'))[0].id
+    delimiter: delimiter
     dnsServers: dnsServers
     domainJoinPassword: domainJoinPassword
     domainJoinUserPrincipalName: domainJoinUserPrincipalName
@@ -85,10 +87,11 @@ module azureNetAppFiles 'azureNetAppFiles.bicep' = if (storageService == 'AzureN
     hostPoolResourceId: hostPoolResourceId
     location: location
     mlzTags: mlzTags
-    netAppAccountName: namingConvention.netAppAccount
-    netAppCapacityPoolName: namingConvention.netAppAccountCapacityPool
+    netAppAccountNamePrefix: namingConvention.netAppAccount
+    netAppCapacityPoolNamePrefix: namingConvention.netAppAccountCapacityPool
     organizationalUnitPath: organizationalUnitPath
     smbServerName: namingConvention.netAppAccountSmbServer
+    stampIndexFull: stampIndexFull
     storageSku: storageSku
     tags: tags
   }
@@ -102,8 +105,9 @@ module azureFiles 'azureFiles/azureFiles.bicep' = if (storageService == 'AzureFi
     activeDirectorySolution: activeDirectorySolution
     availability: availability
     azureFilesPrivateDnsZoneResourceId: azureFilesPrivateDnsZoneResourceId
+    delimiter: delimiter
     deploymentNameSuffix: deploymentNameSuffix
-    enableRecoveryServices: recoveryServices
+    // enableRecoveryServices: recoveryServices
     encryptionUserAssignedIdentityResourceId: encryptionUserAssignedIdentityResourceId
     fileShares: fileShares
     fslogixShareSizeInGB: fslogixShareSizeInGB
@@ -111,10 +115,10 @@ module azureFiles 'azureFiles/azureFiles.bicep' = if (storageService == 'AzureFi
     keyVaultUri: keyVaultUri
     location: location
     namingConvention: namingConvention
-    recoveryServicesVaultName: namingConvention.recoveryServicesVault
-    resourceGroupManagement: resourceGroupManagement
+    // recoveryServicesVaultName: namingConvention.recoveryServicesVault
+    // resourceGroupManagement: resourceGroupManagement
     securityPrincipalObjectIds: securityPrincipalObjectIds
-    purposeToken: purposeToken
+    stampIndexFull: stampIndexFull
     storageCount: storageCount
     storageEncryptionKeyName: storageEncryptionKeyName
     storageIndex: storageIndex
@@ -184,7 +188,7 @@ module ntfsPermissions 'ntfsPermissions.bicep' = {
       }
       {
         name: 'StorageAccountResourceGroupName'
-        value: resourceGroupName
+        value: resourceGroup.name
       }
       {
         name: 'StorageCount'

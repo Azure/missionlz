@@ -264,8 +264,8 @@ param privateLinkScopeResourceId string
 @description('The profile of the workload for the AVD session hosts. When ArcGISPro is selected, telemetry data is collected for ESRI in the Partner Center.')
 param profile string = 'Generic'
 
-@description('Enable backups to an Azure Recovery Services vault.  For a pooled host pool this will enable backups on the Azure file share.  For a personal host pool this will enable backups on the AVD sessions hosts.')
-param recoveryServices bool = false
+// @description('Enable backups to an Azure Recovery Services vault.  For a pooled host pool this will enable backups on the Azure file share.  For a personal host pool this will enable backups on the AVD sessions hosts.')
+// param recoveryServices bool = false
 
 @description('Off peak start time for weekdays in HH:mm format.')
 param scalingWeekdaysOffPeakStartTime string = '17:00'
@@ -415,6 +415,7 @@ var privateDnsZoneSuffixes_AzureVirtualDesktop = {
   AzureCloud: 'microsoft.com'
   AzureUSGovernment: 'azure.us'
 }
+var stampIndexFull = padLeft(stampIndex, 2, '0')
 var storageSku = fslogixStorageService == 'None' ? 'None' : split(fslogixStorageService, ' ')[1]
 var storageService = split(fslogixStorageService, ' ')[0]
 var storageSuffix = environment().suffixes.storage
@@ -753,7 +754,8 @@ module management 'modules/management/management.bicep' = {
     avdPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3_hosts.outputs.privateDnsZones, name => startsWith(name, 'privatelink.wvd'))[0]}'
     customImageId: customImageId
     customRdpProperty: customRdpProperty
-    deployFslogix: deployFslogix
+    delimiter: tier3_hosts.outputs.delimiter
+    // deployFslogix: deployFslogix
     deploymentNameSuffix: deploymentNameSuffix
     desktopFriendlyName: empty(desktopFriendlyName) ? string(stampIndex) : desktopFriendlyName
     diskEncryptionSetResourceId: tier3_hosts.outputs.diskEncryptionSetResourceId
@@ -782,19 +784,17 @@ module management 'modules/management/management.bicep' = {
     privateDnsZoneResourceIdPrefix: privateDnsZoneResourceIdPrefix
     privateDnsZones: tier3_hosts.outputs.privateDnsZones
     privateLinkScopeResourceId: privateLinkScopeResourceId
-    recoveryServices: recoveryServices
-    recoveryServicesGeo: tier3_hosts.outputs.locationProperties.recoveryServicesGeo
-    resourceAbbreviations: tier3_hosts.outputs.resourceAbbreviations
-    resourceGroupName: replace(naming_management.outputs.names.resourceGroup, naming_management.outputs.tokens.purpose, 'management')
-    resourceGroupProfiles: replace(tier3_hosts.outputs.namingConvention.resourceGroup, tier3_hosts.outputs.tokens.purpose, 'profiles')
+    // recoveryServices: recoveryServices
+    // recoveryServicesGeo: tier3_hosts.outputs.locationProperties.recoveryServicesGeo
+    resourceGroupFslogix: '${tier3_hosts.outputs.namingConvention.resourceGroup}${naming_management.outputs.delimiter}fslogix'
+    resourceGroupManagement: '${naming_management.outputs.names.resourceGroup}${naming_management.outputs.delimiter}management'
     securityPrincipalObjectIds: map(securityPrincipals, item => item.objectId)
     sessionHostNamePrefix: tier3_hosts.outputs.namingConvention.virtualMachine
-    storageService: storageService
+    // storageService: storageService
     subnetResourceId: tier3_hosts.outputs.subnets[0].id
     subnets: tier3_hosts.outputs.subnets
     tags: tags
-    timeZone: tier3_hosts.outputs.locationProperties.timeZone
-    tokens: tier3_hosts.outputs.tokens
+    // timeZone: tier3_hosts.outputs.locationProperties.timeZone
     validationEnvironment: validationEnvironment
     virtualMachineAdminPassword: virtualMachineAdminPassword
     virtualMachineAdminUsername: virtualMachineAdminUsername
@@ -810,6 +810,7 @@ module workspaces 'modules/sharedServices/sharedServices.bicep' = {
   params: {
     applicationGroupResourceId: management.outputs.applicationGroupResourceId
     avdPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3_hosts.outputs.privateDnsZones, name => startsWith(name, 'privatelink.wvd'))[0]}'
+    delimiter: naming_management.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedIdentityClientId: management.outputs.deploymentUserAssignedIdentityClientId
     deploymentUserAssignedIdentityPrincipalId: management.outputs.deploymentUserAssignedIdentityPrincipalId
@@ -820,39 +821,20 @@ module workspaces 'modules/sharedServices/sharedServices.bicep' = {
     existingFeedWorkspaceResourceId: existingFeedWorkspaceResourceId
     existingWorkspace: !empty(existingFeedWorkspaceResourceId)
     hostPoolName: management.outputs.hostPoolName
+    identifier: identifier
+    identifierHub: virtualNetwork_hub.tags.identifier
     locationControlPlane: virtualNetwork_hub.location
+    locationHub: virtualNetwork_hub.location
     locationVirtualMachines: locationVirtualMachines
     logAnalyticsWorkspaceResourceId: management.outputs.logAnalyticsWorkspaceResourceId
     managementVirtualMachineName: management.outputs.virtualMachineName
     mlzTags: tier3_hosts.outputs.mlzTags
+    names: naming_management.outputs.names
     resourceGroupManagement: management.outputs.resourceGroupName
     sharedServicesSubnetResourceId: sharedServicesSubnetResourceId
     tags: tags
-    workspaceFeedDiagnoticSettingName: naming_management.outputs.names.workspaceFeedDiagnosticSetting
-    workspaceFeedName: naming_management.outputs.names.workspaceFeed
-    workspaceFeedNetworkInterfaceName: naming_management.outputs.names.workspaceFeedNetworkInterface
-    workspaceFeedPrivateEndpointName: naming_management.outputs.names.workspaceFeedPrivateEndpoint
-    workspaceFeedResourceGroupName: replace(naming_management.outputs.names.resourceGroup, naming_management.outputs.tokens.purpose, 'feedWorkspace')
-    workspaceFriendlyName: empty(workspaceFriendlyName)
-      ? naming_management.outputs.names.workspaceFeed
-      : '${workspaceFriendlyName} (${virtualNetwork_hub.location})'
-    workspaceGlobalName: replace(naming_management.outputs.names.workspaceGlobal, identifier, virtualNetwork_hub.tags.resourcePrefix)
-    workspaceGlobalNetworkInterfaceName: replace(naming_management.outputs.names.workspaceGlobalNetworkInterface, identifier, virtualNetwork_hub.tags.resourcePrefix)
+    workspaceFriendlyName: workspaceFriendlyName
     workspaceGlobalPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3_hosts.outputs.privateDnsZones, name => startsWith(name, 'privatelink-global.wvd'))[0]}'
-    workspaceGlobalPrivateEndpointName: replace(naming_management.outputs.names.workspaceGlobalPrivateEndpoint, identifier, virtualNetwork_hub.tags.resourcePrefix)
-    workspaceGlobalResourceGroupName: replace(
-      replace(
-        replace(
-          naming_management.outputs.names.resourceGroup,
-          naming_management.outputs.tokens.purpose,
-          'globalWorkspace'
-        ),
-        '-${stampIndex}',
-        ''
-      ),
-      identifier,
-      virtualNetwork_hub.tags.resourcePrefix
-    )
     workspacePublicNetworkAccess: workspacePublicNetworkAccess
   }
 }
@@ -863,6 +845,7 @@ module fslogix 'modules/fslogix/fslogix.bicep' = if (deployFslogix) {
     activeDirectorySolution: activeDirectorySolution
     availability: availability
     azureFilesPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3_hosts.outputs.privateDnsZones, name => contains(name, 'file'))[0]}'
+    delimiter: tier3_hosts.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedIdentityClientId: management.outputs.deploymentUserAssignedIdentityClientId
     deploymentUserAssignedIdentityPrincipalId: management.outputs.deploymentUserAssignedIdentityPrincipalId
@@ -884,12 +867,12 @@ module fslogix 'modules/fslogix/fslogix.bicep' = if (deployFslogix) {
     namingConvention: tier3_hosts.outputs.namingConvention
     netbios: netbios
     organizationalUnitPath: organizationalUnitPath
-    purposeToken: tier3_hosts.outputs.tokens.purpose
-    recoveryServices: recoveryServices
+    // recoveryServices: recoveryServices
     resourceGroupManagement: management.outputs.resourceGroupName
-    resourceGroupName: replace(tier3_hosts.outputs.namingConvention.resourceGroup, tier3_hosts.outputs.tokens.purpose, 'profiles')
+    resourceGroupName: tier3_hosts.outputs.namingConvention.resourceGroup
     securityPrincipalNames: map(securityPrincipals, item => item.displayName)
     securityPrincipalObjectIds: map(securityPrincipals, item => item.objectId)
+    stampIndexFull: stampIndexFull
     storageCount: storageCount
     storageEncryptionKeyName: tier3_hosts.outputs.storageEncryptionKeyName
     storageIndex: storageIndex
@@ -911,6 +894,7 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     availabilityZones: availabilityZones
     avdConfigurationZipFileName: avdConfigurationZipFileName
     dataCollectionRuleResourceId: management.outputs.dataCollectionRuleResourceId
+    delimiter: tier3_hosts.outputs.delimiter
     deployFslogix: deployFslogix
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedIdentityClientId: management.outputs.deploymentUserAssignedIdentityClientId
@@ -927,7 +911,7 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     drainMode: drainMode
     enableAcceleratedNetworking: enableAcceleratedNetworking
     enableAvdInsights: enableAvdInsights
-    enableRecoveryServices: recoveryServices
+    // enableRecoveryServices: recoveryServices
     enableWindowsUpdate: enableWindowsUpdateFwRules
     environmentAbbreviation: environmentAbbreviation
     fslogixContainerType: fslogixContainerType
@@ -951,10 +935,9 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     networkSecurityGroupResourceId: tier3_hosts.outputs.networkSecurityGroupResourceId
     organizationalUnitPath: organizationalUnitPath
     profile: profile
-    purposeToken: tier3_hosts.outputs.tokens.purpose
-    recoveryServicesVaultName: management.outputs.recoveryServicesVaultName
+    // recoveryServicesVaultName: management.outputs.recoveryServicesVaultName
     resourceGroupManagement: management.outputs.resourceGroupName
-    resourceGroupName: replace(tier3_hosts.outputs.namingConvention.resourceGroup, tier3_hosts.outputs.tokens.purpose, 'hosts')
+    resourceGroupName: '${tier3_hosts.outputs.namingConvention.resourceGroup}${tier3_hosts.outputs.delimiter}hosts'
     scalingWeekdaysOffPeakStartTime: scalingWeekdaysOffPeakStartTime
     scalingWeekdaysPeakStartTime: scalingWeekdaysPeakStartTime
     scalingWeekendsOffPeakStartTime: scalingWeekendsOffPeakStartTime
@@ -962,7 +945,7 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     securityPrincipalObjectIds: map(securityPrincipals, item => item.objectId)
     sessionHostBatchCount: sessionHostBatchCount
     sessionHostIndex: sessionHostIndex
-    stampIndexFull: padLeft(stampIndex, 2)
+    stampIndexFull: stampIndexFull
     storageAccountNamePrefix: deployFslogix ? fslogix.outputs.storageAccountNamePrefix : ''
     storageCount: storageCount
     storageIndex: storageIndex
