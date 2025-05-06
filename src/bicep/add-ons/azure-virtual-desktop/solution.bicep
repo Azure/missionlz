@@ -493,7 +493,7 @@ resource partnerTelemetry 'Microsoft.Resources/deployments@2021-04-01' = if (ena
   }
 }
 
-// Gets the naming convention and tokens for the resource groups and resources
+// Gets the naming convention for the resource groups and resources
 module naming_management '../../modules/naming-convention.bicep' = {
   name: 'get-naming-mgmt-${deploymentNameSuffix}'
   params: {
