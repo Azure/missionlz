@@ -7,6 +7,7 @@ targetScope = 'subscription'
 
 param azureGatewaySubnetAddressPrefix string
 param bastionHostSubnetAddressPrefix string
+param delimiter string
 param deployAzureGatewaySubnet bool
 param deployBastion bool
 param deployIdentity bool
@@ -40,11 +41,11 @@ module hubNetwork 'hub-network.bicep' = {
     enableProxy: enableProxy
     firewallClientPrivateIpAddress: firewallSettings.clientPrivateIpAddress
     firewallClientPublicIPAddressAvailabilityZones: firewallSettings.clientPublicIPAddressAvailabilityZones
-    firewallClientPublicIPAddressName: hub.namingConvention.azureFirewallClientPublicIPAddress
+    firewallClientPublicIPAddressName: '${hub.namingConvention.azureFirewallPublicIPAddress}${delimiter}client'
     firewallClientSubnetAddressPrefix: firewallSettings.clientSubnetAddressPrefix
     firewallIntrusionDetectionMode: firewallSettings.intrusionDetectionMode
     firewallManagementPublicIPAddressAvailabilityZones: firewallSettings.managementPublicIPAddressAvailabilityZones
-    firewallManagementPublicIPAddressName: hub.namingConvention.azureFirewallManagementPublicIPAddress
+    firewallManagementPublicIPAddressName: '${hub.namingConvention.azureFirewallPublicIPAddress}${delimiter}management'
     firewallManagementSubnetAddressPrefix: firewallSettings.managementSubnetAddressPrefix
     firewallName: hub.namingConvention.azureFirewall
     firewallPolicyName: hub.namingConvention.azureFirewallPolicy

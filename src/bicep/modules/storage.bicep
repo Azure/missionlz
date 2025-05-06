@@ -6,6 +6,7 @@ Licensed under the MIT License.
 targetScope = 'subscription'
 
 param blobsPrivateDnsZoneResourceId string
+param delimiter string
 //param deployIdentity bool
 param deploymentNameSuffix string
 param filesPrivateDnsZoneResourceId string
@@ -13,7 +14,6 @@ param keyVaultUri string
 param location string
 param logStorageSkuName string
 param mlzTags object
-param purposeToken string
 param queuesPrivateDnsZoneResourceId string
 param resourceGroupNames array
 param storageEncryptionKeyName string
@@ -27,12 +27,12 @@ module storageAccount 'storage-account.bicep' = [for (tier, i) in tiers: {
   scope: resourceGroup(tier.subscriptionId, resourceGroupNames[i])
   params: {
     blobsPrivateDnsZoneResourceId: blobsPrivateDnsZoneResourceId
+    delimiter: delimiter
     filesPrivateDnsZoneResourceId: filesPrivateDnsZoneResourceId
     keyVaultUri: keyVaultUri
     location: location
     mlzTags: mlzTags
     queuesPrivateDnsZoneResourceId: queuesPrivateDnsZoneResourceId
-    purposeToken: purposeToken
     skuName: logStorageSkuName
     storageEncryptionKeyName: storageEncryptionKeyName
     subnetResourceId: resourceId(tier.subscriptionId, resourceGroupNames[i], 'Microsoft.Network/virtualNetworks/subnets', tier.namingConvention.virtualNetwork, tier.namingConvention.subnet)

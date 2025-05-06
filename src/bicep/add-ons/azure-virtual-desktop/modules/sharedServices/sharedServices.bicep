@@ -2,6 +2,7 @@ targetScope = 'subscription'
 
 param applicationGroupResourceId string
 param avdPrivateDnsZoneResourceId string
+param delimiter string
 param deploymentNameSuffix string
 param deploymentUserAssignedIdentityClientId string
 param deploymentUserAssignedIdentityPrincipalId string
@@ -10,26 +11,25 @@ param existingApplicationGroupReferences array
 param existingFeedWorkspaceResourceId string
 param existingWorkspace bool
 param hostPoolName string
+param identifier string
+param identifierHub string
+param locationHub string
 param locationControlPlane string
 param locationVirtualMachines string
 param logAnalyticsWorkspaceResourceId string
 param managementVirtualMachineName string
 param mlzTags object
+param names object
 param resourceGroupManagement string
 param sharedServicesSubnetResourceId string
 param tags object
-param workspaceFeedDiagnoticSettingName string
-param workspaceFeedName string
-param workspaceFeedNetworkInterfaceName string
-param workspaceFeedPrivateEndpointName string
-param workspaceFeedResourceGroupName string
 param workspaceFriendlyName string
-param workspaceGlobalName string
-param workspaceGlobalNetworkInterfaceName string
 param workspaceGlobalPrivateDnsZoneResourceId string
-param workspaceGlobalPrivateEndpointName string
-param workspaceGlobalResourceGroupName string
 param workspacePublicNetworkAccess string
+
+var workspaceFeedResourceGroupName = '${names.resourceGroup}${delimiter}workspace${delimiter}feed'
+var workspaceGlobalResourceGroupName = replace('${names.resourceGroup}${delimiter}workspace${delimiter}global', identifier, identifierHub)
+
 
 // Resource group for the global workspace
 module rg_workspace_global '../../../../modules/resource-group.bicep' = {
@@ -52,9 +52,9 @@ module workspace_global 'workspaceGlobal.bicep' = {
     location: locationControlPlane
     subnetResourceId: sharedServicesSubnetResourceId
     tags: mlzTags
-    workspaceGlobalName: workspaceGlobalName
-    workspaceGlobalNetworkInterfaceName: workspaceGlobalNetworkInterfaceName
-    workspaceGlobalPrivateEndpointName: workspaceGlobalPrivateEndpointName
+    workspaceGlobalName: replace('${names.workspaceGlobal}${delimiter}global', identifier, identifierHub)
+    workspaceGlobalNetworkInterfaceName: replace('${names.workspaceGlobalNetworkInterface}${delimiter}global', identifier, identifierHub)
+    workspaceGlobalPrivateEndpointName: replace('${names.workspaceGlobalPrivateEndpoint}${delimiter}global', identifier, identifierHub)
   }
   dependsOn: [
     rg_workspace_global
@@ -119,11 +119,11 @@ module workspace_feed 'workspaceFeed.bicep' = {
     subnetResourceId: sharedServicesSubnetResourceId
     tags: tags
     virtualMachineName: managementVirtualMachineName
-    workspaceFeedDiagnoticSettingName: workspaceFeedDiagnoticSettingName
-    workspaceFeedName: workspaceFeedName
-    workspaceFeedNetworkInterfaceName: workspaceFeedNetworkInterfaceName
-    workspaceFeedPrivateEndpointName: workspaceFeedPrivateEndpointName
-    workspaceFriendlyName: workspaceFriendlyName
+    workspaceFeedDiagnoticSettingName: '${names.workspaceDiagnosticSetting}${delimiter}feed'
+    workspaceFeedName: '${names.workspace}${delimiter}feed'
+    workspaceFeedNetworkInterfaceName: '${names.workspaceNetworkInterface}${delimiter}feed'
+    workspaceFeedPrivateEndpointName: '${names.workspacePrivateEndpoint}${delimiter}feed'
+    workspaceFriendlyName: empty(workspaceFriendlyName) ? names.workspaceFeed : '${workspaceFriendlyName} (${locationHub})'
     workspacePublicNetworkAccess: workspacePublicNetworkAccess
   }
   dependsOn: [

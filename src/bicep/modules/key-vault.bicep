@@ -12,12 +12,11 @@ param resourceAbbreviations object
 param subnetResourceId string
 param tags object
 param tier object
-param tokens object
 
-var keyVaultPrivateEndpointName = replace(tier.namingConvention.keyVaultPrivateEndpoint, tokens.purpose, 'cmk')
+var keyVaultPrivateEndpointName = tier.namingConvention.keyVaultPrivateEndpoint
 
 resource vault 'Microsoft.KeyVault/vaults@2022-07-01' = {
-  name: '${resourceAbbreviations.keyVaults}${uniqueString(replace(tier.namingConvention.keyVault, tokens.purpose, 'cmk'), resourceGroup().id)}'
+  name: '${resourceAbbreviations.keyVaults}${uniqueString(tier.namingConvention.keyVault, resourceGroup().id)}'
   location: location
   tags: union(tags[?'Microsoft.KeyVault/vaults'] ?? {}, mlzTags)
   properties: {
@@ -48,7 +47,7 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = {
   location: location
   tags: union(tags[?'Microsoft.Network/privateEndpoints'] ?? {}, mlzTags)
   properties: {
-    customNetworkInterfaceName: replace(tier.namingConvention.keyVaultNetworkInterface, tokens.purpose, 'cmk')
+    customNetworkInterfaceName: tier.namingConvention.keyVaultNetworkInterface
     privateLinkServiceConnections: [
       {
         name: keyVaultPrivateEndpointName

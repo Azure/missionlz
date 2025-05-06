@@ -21,7 +21,6 @@ param networkWatcherFlowLogsRetentionDays int
 param networkWatcherFlowLogsType string
 param networkWatcherResourceId string
 param resourceGroupName string
-param purposeToken string
 param storageAccountResourceId string
 param tiers array
 param virtualNetworkDiagnosticsLogs array
@@ -41,7 +40,7 @@ module keyvaultDiagnostics '../../../modules/key-vault-diagnostics.bicep' = {
   name: 'deploy-kv-diags-${tiers[0].shortName}-${deploymentNameSuffix}'
   scope: resourceGroup(tiers[0].subscriptionId, resourceGroupName)
   params: {
-    keyVaultDiagnosticSettingName: replace(tiers[0].namingConvention.keyVaultDiagnosticSetting, purposeToken, 'cmk')
+    keyVaultDiagnosticSettingName: tiers[0].namingConvention.keyVaultDiagnosticSetting
     keyVaultName: keyVaultName
     keyVaultStorageAccountId: storageAccountResourceId
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId

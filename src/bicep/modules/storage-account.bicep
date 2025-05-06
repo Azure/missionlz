@@ -4,11 +4,11 @@ Licensed under the MIT License.
 */
 
 param blobsPrivateDnsZoneResourceId string
+param delimiter string
 param filesPrivateDnsZoneResourceId string
 param keyVaultUri string
 param location string
 param mlzTags object
-param purposeToken string
 param queuesPrivateDnsZoneResourceId string
 param skuName string
 param storageEncryptionKeyName string
@@ -21,28 +21,28 @@ param userAssignedIdentityResourceId string
 var  subResources = [
   {
     id: blobsPrivateDnsZoneResourceId
-    nic: tier.namingConvention.storageAccountBlobNetworkInterface
-    pe: tier.namingConvention.storageAccountBlobPrivateEndpoint
+    nic: '${tier.namingConvention.storageAccountNetworkInterface}${delimiter}blob'
+    pe: '${tier.namingConvention.storageAccountPrivateEndpoint}${delimiter}blob'
   }
   {
     id: filesPrivateDnsZoneResourceId
-    nic: tier.namingConvention.storageAccountFileNetworkInterface
-    pe: tier.namingConvention.storageAccountFilePrivateEndpoint
+    nic: '${tier.namingConvention.storageAccountNetworkInterface}${delimiter}file'
+    pe: '${tier.namingConvention.storageAccountPrivateEndpoint}${delimiter}file'
   }
   {
     id: queuesPrivateDnsZoneResourceId
-    nic: tier.namingConvention.storageAccountQueueNetworkInterface
-    pe: tier.namingConvention.storageAccountQueuePrivateEndpoint
+    nic: '${tier.namingConvention.storageAccountNetworkInterface}${delimiter}queue'
+    pe: '${tier.namingConvention.storageAccountPrivateEndpoint}${delimiter}queue'
   }
   {
     id: tablesPrivateDnsZoneResourceId
-    nic: tier.namingConvention.storageAccountTableNetworkInterface
-    pe: tier.namingConvention.storageAccountTablePrivateEndpoint
+    nic: '${tier.namingConvention.storageAccountNetworkInterface}${delimiter}table'
+    pe: '${tier.namingConvention.storageAccountPrivateEndpoint}${delimiter}table'
   }
 ]
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
-  name: uniqueString(replace(tier.namingConvention.storageAccount, purposeToken, 'log'), resourceGroup().id)
+  name: uniqueString(tier.namingConvention.storageAccount, resourceGroup().id)
   location: location
   tags: union(tags[?'Microsoft.Storage/storageAccounts'] ?? {}, mlzTags)
   identity: {

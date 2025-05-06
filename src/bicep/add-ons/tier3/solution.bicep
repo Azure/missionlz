@@ -257,7 +257,7 @@ module rg '../../modules/resource-group.bicep' = if (!(empty(virtualNetworkAddre
   params: {
     location: location
     mlzTags: logic.outputs.mlzTags
-    name: replace(logic.outputs.tiers[0].namingConvention.resourceGroup, logic.outputs.tokens.purpose, 'network')
+    name: '${logic.outputs.tiers[0].namingConvention.resourceGroup}${logic.outputs.tiers[0].delimiter}network'
     tags: tags
   }
 }
@@ -317,12 +317,10 @@ module customerManagedKeys '../../modules/customer-managed-keys.bicep' = if (!(e
     )
     location: location
     mlzTags: logic.outputs.mlzTags
-    resourceAbbreviations: logic.outputs.resourceAbbreviations
     resourceGroupName: rg.outputs.name
     subnetResourceId: networking.outputs.subnets[0].id
     tags: tags
     tier: logic.outputs.tiers[0]
-    tokens: logic.outputs.tokens
     workloadShortName: workloadShortName
   }
 }
@@ -337,7 +335,6 @@ module storage 'modules/storage.bicep' = if (!(empty(virtualNetworkAddressPrefix
     logStorageSkuName: logStorageSkuName
     mlzTags: logic.outputs.mlzTags
     network: logic.outputs.tiers[0]
-    purposeToken: logic.outputs.tokens.purpose
     queuesPrivateDnsZoneResourceId: resourceId(hubSubscriptionId, hubResourceGroupName, 'Microsoft.Network/privateDnsZones', 'privatelink.queue.${environment().suffixes.storage}')
     resourceGroupName: rg.outputs.name
     storageEncryptionKeyName: customerManagedKeys.outputs.storageKeyName
@@ -367,7 +364,6 @@ module diagnostics 'modules/diagnostics.bicep' = if (!(empty(virtualNetworkAddre
     networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
     networkWatcherFlowLogsType: networkWatcherFlowLogsType
     networkWatcherResourceId: networkWatcherResourceId
-    purposeToken: logic.outputs.tokens.purpose
     resourceGroupName: rg.outputs.name
     storageAccountResourceId: storage.outputs.storageAccountResourceId
     tiers: logic.outputs.tiers
@@ -385,7 +381,6 @@ module policyAssignments '../../modules/policy-assignments.bicep' =
       location: location
       logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
       policy: policy
-      purposeToken: logic.outputs.tokens.purpose
       resourceGroupNames: [
         rg.outputs.name
       ]
@@ -402,6 +397,7 @@ module defenderForCloud '../../modules/defender-for-cloud.bicep' =
     }
   }
 
+output delimiter string = logic.outputs.tiers[0].delimiter
 output diskEncryptionSetResourceId string = !(empty(virtualNetworkAddressPrefix)) ? customerManagedKeys.outputs.diskEncryptionSetResourceId : ''
 output dnsServers array = !(empty(virtualNetworkAddressPrefix)) ? virtualNetwork_hub.properties.?dhcpOptions.dnsServers ?? [] : []
 output keyVaultUri string = !(empty(virtualNetworkAddressPrefix)) ? customerManagedKeys.outputs.keyVaultUri : ''
@@ -417,5 +413,4 @@ output storageAccountResourceId string = !(empty(virtualNetworkAddressPrefix)) ?
 output storageEncryptionKeyName string = !(empty(virtualNetworkAddressPrefix)) ? customerManagedKeys.outputs.storageKeyName: ''
 output subnets array = !(empty(virtualNetworkAddressPrefix)) ? networking.outputs.subnets : []
 output tier object = logic.outputs.tiers[0]
-output tokens object = logic.outputs.tokens
 output userAssignedIdentityResourceId string = !(empty(virtualNetworkAddressPrefix)) ? customerManagedKeys.outputs.userAssignedIdentityResourceId : ''

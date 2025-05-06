@@ -4,8 +4,9 @@ param availabilitySetNamePrefix string
 param availabilityZones array
 param avdConfigurationZipFileName string
 param batchCount int
-param dataCollectionRuleAssociationName string
+param dataCollectionRuleAssociationNamePrefix string
 param dataCollectionRuleResourceId string
+param delimiter string
 param deployFslogix bool
 param deploymentNameSuffix string
 param deploymentUserAssignedidentityClientId string
@@ -33,7 +34,6 @@ param networkInterfaceNamePrefix string
 param networkSecurityGroupResourceId string
 param organizationalUnitPath string
 param profile string
-param purposeToken string
 param resourceGroupManagement string
 param sessionHostCount int
 param sessionHostIndex int
@@ -95,7 +95,7 @@ var nvidiaVmSizes = [
   'Standard_NV36adms_A10_v5'
   'Standard_NV72ads_A10_v5'
 ]
-var sessionHostNamePrefix = replace(virtualMachineNamePrefix, purposeToken, stampIndexFull)
+var sessionHostNamePrefix = '${virtualMachineNamePrefix}${stampIndexFull}'
 var storageAccountToken = '${storageAccountPrefix}??' // The token is used for AntiVirus exclusions. The '??' represents the two digits at the end of each storage account name.
 
 resource hostPool 'Microsoft.DesktopVirtualization/hostPools@2023-09-05' existing = {
@@ -104,7 +104,7 @@ resource hostPool 'Microsoft.DesktopVirtualization/hostPools@2023-09-05' existin
 }
 
 resource networkInterface 'Microsoft.Network/networkInterfaces@2020-05-01' = [for i in range(0, sessionHostCount): {
-  name: '${replace(networkInterfaceNamePrefix, purposeToken, stampIndexFull)}-${padLeft((i + sessionHostIndex), 4, '0')}'
+  name: '${networkInterfaceNamePrefix}${delimiter}${stampIndexFull}${delimiter}${padLeft((i + sessionHostIndex), 4, '0')}'
   location: location
   tags: tagsNetworkInterfaces
   properties: {
@@ -146,7 +146,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-03-01' = [for i 
   ] : null
   properties: {
     availabilitySet: availability == 'AvailabilitySets' ? {
-      id: resourceId('Microsoft.Compute/availabilitySets', '${availabilitySetNamePrefix}-${padLeft((i + sessionHostIndex) / 200, 2, '0')}')
+      id: resourceId('Microsoft.Compute/availabilitySets', '${availabilitySetNamePrefix}${delimiter}${padLeft((i + sessionHostIndex) / 200, 2, '0')}')
     } : null
     hardwareProfile: {
       vmSize: virtualMachineSize
@@ -154,7 +154,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-03-01' = [for i 
     storageProfile: {
       imageReference: imageReference
       osDisk: {
-        name: '${replace(diskNamePrefix, purposeToken, stampIndexFull)}-${padLeft((i + sessionHostIndex), 4, '0')}'
+        name: '${diskNamePrefix}${delimiter}${stampIndexFull}${delimiter}${padLeft((i + sessionHostIndex), 4, '0')}'
         osType: 'Windows'
         createOption: 'FromImage'
         caching: 'ReadWrite'
@@ -278,7 +278,7 @@ resource extension_AzureMonitorWindowsAgent 'Microsoft.Compute/virtualMachines/e
 
 resource dataCollectionRuleAssociation 'Microsoft.Insights/dataCollectionRuleAssociations@2022-06-01' = [for i in range(0, sessionHostCount): if (enableAvdInsights) {
   scope: virtualMachine[i]
-  name: dataCollectionRuleAssociationName
+  name: '${dataCollectionRuleAssociationNamePrefix}${delimiter}${stampIndexFull}'
   properties: {
     dataCollectionRuleId: dataCollectionRuleResourceId
     description: 'AVD Insights data collection rule association'

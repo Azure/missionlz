@@ -7,6 +7,7 @@ targetScope = 'subscription'
 
 param bastionDiagnosticsLogs array
 param bastionDiagnosticsMetrics array
+param delimiter string
 param deployBastion bool
 param deploymentNameSuffix string
 param deployNetworkWatcherTrafficAnalytics bool
@@ -23,7 +24,6 @@ param networkWatcherFlowLogsRetentionDays int
 param networkWatcherFlowLogsType string
 param publicIPAddressDiagnosticsLogs array
 param publicIPAddressDiagnosticsMetrics array
-param purposeToken string
 param resourceGroupNames array
 param storageAccountResourceIds array
 param supportedClouds array
@@ -50,26 +50,26 @@ var networkSecurityGroup_Bastion = deployBastion ? [
     deployUniqueResources: hub.deployUniqueResources
     diagnosticLogs: hub.nsgDiagLogs
     diagnosticSettingName: hub.namingConvention.bastionHostNetworkSecurityGroupDiagnosticSetting
-    flowLogsName: replace(hub.namingConvention.networkWatcherFlowLogsNetworkSecurityGroup, '-nsg-', '-nsg-bastion-')
+    flowLogsName: '${hub.namingConvention.networkWatcherFlowLogsNetworkSecurityGroup}${delimiter}bastion'
     name: hub.namingConvention.bastionHostNetworkSecurityGroup
     namingConvention: hub.namingConvention
     networkWatcherResourceId: hub.networkWatcherResourceId
     resourceGroupName: hubResourceGroupName
     storageAccountResourceId: storageAccountResourceIds[0]
     subscriptionId: hub.subscriptionId
-    tierName: 'hub-bas'
+    tierName: 'hub${delimiter}bas'
   }
 ] : []
 var operations = first(filter(tiers, tier => tier.name == 'operations'))
 var operationsResourceGroupName = filter(resourceGroupNames, name => contains(name, 'operations'))[0]
 var publicIPAddresses = union([
   {
-    name: hub.namingConvention.azureFirewallClientPublicIPAddress
-    diagName: hub.namingConvention.azureFirewallClientPublicIPAddressDiagnosticSetting
+    name: '${hub.namingConvention.azureFirewallPublicIPAddress}${delimiter}client'
+    diagName: '${hub.namingConvention.azureFirewallPublicIPAddressDiagnosticSetting}${delimiter}client'
   }
   {
-    name: hub.namingConvention.azureFirewallManagementPublicIPAddress
-    diagName: hub.namingConvention.azureFirewallManagementPublicIPAddressDiagnosticSetting
+    name: '${hub.namingConvention.azureFirewallPublicIPAddress}${delimiter}management'
+    diagName: '${hub.namingConvention.azureFirewallPublicIPAddressDiagnosticSetting}${delimiter}management'
   }
 ], deployBastion ? [
   {
@@ -144,8 +144,8 @@ module virtualNetworkDiagnostics '../modules/virtual-network-diagnostics.bicep' 
   }
 }]
 
-module publicIpAddressDiagnostics '../modules/public-ip-address-diagnostics.bicep' = [for publicIPAddress in publicIPAddresses: {
-  name: 'deploy-pip-diags-${split(publicIPAddress.name, '-')[2]}-${split(publicIPAddress.name, '-')[3]}-${deploymentNameSuffix}'
+module publicIpAddressDiagnostics '../modules/public-ip-address-diagnostics.bicep' = [for (publicIPAddress, i) in publicIPAddresses: {
+  name: 'deploy-pip-diags-${i}-${deploymentNameSuffix}'
   scope: resourceGroup(hub.subscriptionId, hubResourceGroupName)
   params: {
     hubStorageAccountResourceId: storageAccountResourceIds[0]
@@ -174,7 +174,7 @@ module keyVaultDiagnostics '../modules/key-vault-diagnostics.bicep' = {
   name: 'deploy-kv-diags-${deploymentNameSuffix}'
   scope: resourceGroup(hub.subscriptionId, hubResourceGroupName)
   params: {
-    keyVaultDiagnosticSettingName: replace(hub.namingConvention.keyVaultDiagnosticSetting, purposeToken, 'cmk')
+    keyVaultDiagnosticSettingName: hub.namingConvention.keyVaultDiagnosticSetting
     keyVaultName: keyVaultName
     keyVaultStorageAccountId: storageAccountResourceIds[0]
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
