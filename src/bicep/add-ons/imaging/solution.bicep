@@ -356,7 +356,7 @@ module baseline 'modules/baseline.bicep' = {
     exemptPolicyAssignmentIds: exemptPolicyAssignmentIds
     location: location
     mlzTags: tier3.outputs.mlzTags
-    resourceGroupName: replace(tier3.outputs.namingConvention.resourceGroup, tier3.outputs.tokens.purpose, 'network')
+    resourceGroupName: '${tier3.outputs.namingConvention.resourceGroup}${tier3.outputs.delimiter}network'
     storageAccountResourceId: storageAccountResourceId
     subscriptionId: subscriptionId
     tags: tags
@@ -388,7 +388,7 @@ module buildAutomation 'modules/buildAutomation.bicep' = if (enableBuildAutomati
     imageMajorVersion: imageMajorVersion
     imageMinorVersion: imageMinorVersion
     imagePatchVersion: imagePatchVersion
-    imageVirtualMachineName: replace(tier3.outputs.namingConvention.virtualMachine, tier3.outputs.tokens.purpose, 'wb')
+    imageVirtualMachineName: '${tier3.outputs.namingConvention.virtualMachine}wb'
     installAccess: installAccess
     installArcGisPro: installArcGisPro
     installExcel: installExcel
@@ -410,7 +410,7 @@ module buildAutomation 'modules/buildAutomation.bicep' = if (enableBuildAutomati
     virtualMachineAdminUsername: virtualMachineAdminUsername
     location: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
-    managementVirtualMachineName: replace(tier3.outputs.namingConvention.virtualMachine, tier3.outputs.tokens.purpose, 'wm')
+    managementVirtualMachineName: '${tier3.outputs.namingConvention.virtualMachine}wm'
     marketplaceImageOffer: marketplaceImageOffer
     marketplaceImagePublisher: marketplaceImagePublisher
     marketplaceImageSKU: marketplaceImageSKU
@@ -419,7 +419,7 @@ module buildAutomation 'modules/buildAutomation.bicep' = if (enableBuildAutomati
     officeInstaller: officeInstaller
     oUPath: oUPath
     replicaCount: replicaCount
-    resourceGroupName: replace(tier3.outputs.namingConvention.resourceGroup, tier3.outputs.tokens.purpose, 'network')
+    resourceGroupName: '${tier3.outputs.namingConvention.resourceGroup}${tier3.outputs.delimiter}network'
     sourceImageType: sourceImageType
     storageAccountResourceId: storageAccountResourceId
     subnetResourceId: tier3.outputs.subnets[0].id
@@ -455,7 +455,7 @@ module imageBuild 'modules/imageBuild.bicep' = {
     imageMajorVersion: imageMajorVersion
     imageMinorVersion: imageMinorVersion
     imagePatchVersion: imagePatchVersion
-    imageVirtualMachineName: replace(tier3.outputs.namingConvention.virtualMachine, tier3.outputs.tokens.purpose, 'wb')
+    imageVirtualMachineName: '${tier3.outputs.namingConvention.virtualMachine}wb'
     installAccess: installAccess
     installArcGisPro: installArcGisPro
     installExcel: installExcel
@@ -475,7 +475,7 @@ module imageBuild 'modules/imageBuild.bicep' = {
     virtualMachineAdminPassword: virtualMachineAdminPassword
     virtualMachineAdminUsername: virtualMachineAdminUsername
     location: location
-    managementVirtualMachineName: replace(tier3.outputs.namingConvention.virtualMachine, tier3.outputs.tokens.purpose, 'wm')
+    managementVirtualMachineName: '${tier3.outputs.namingConvention.virtualMachine}wm'
     marketplaceImageOffer: marketplaceImageOffer
     marketplaceImagePublisher: marketplaceImagePublisher
     marketplaceImageSKU: marketplaceImageSKU
@@ -483,7 +483,7 @@ module imageBuild 'modules/imageBuild.bicep' = {
     msrdcwebrtcsvcInstaller: msrdcwebrtcsvcInstaller
     officeInstaller: officeInstaller
     replicaCount: replicaCount
-    resourceGroupName: replace(tier3.outputs.namingConvention.resourceGroup, tier3.outputs.tokens.purpose, 'network')
+    resourceGroupName: '${tier3.outputs.namingConvention.resourceGroup}network'
     sourceImageType: sourceImageType
     storageAccountResourceId: storageAccountResourceId
     subnetResourceId: tier3.outputs.subnets[0].id
