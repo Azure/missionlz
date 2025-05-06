@@ -222,7 +222,7 @@ module rg '../../modules/resource-group.bicep' = {
   params: {
     location: location
     mlzTags: tier3.outputs.mlzTags
-    name: replace(tier3.outputs.namingConvention.resourceGroup, tier3.outputs.tokens.purpose, 'netAppFiles')
+    name: '${tier3.outputs.namingConvention.resourceGroup}${tier3.outputs.delimiter}netAppFiles'
     tags: tags
   }
 }
@@ -232,6 +232,7 @@ module netAppFiles 'modules/azureNetAppFiles.bicep' = {
   name: 'deploy-netapp-files-${deploymentNameSuffix}'
   params: {
     delegatedSubnetResourceId: filter(tier3.outputs.subnets, subnet => contains(subnet.name, 'AzureNetAppFiles'))[0].id
+    delimiter: tier3.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
     dnsServers: join(tier3.outputs.dnsServers, ',')
     domainJoinPassword: domainJoinPassword
