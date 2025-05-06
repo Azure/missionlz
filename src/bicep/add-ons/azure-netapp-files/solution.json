@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "13942558768578503630"
+      "templateHash": "18131683904686027701"
     }
   },
   "parameters": {
@@ -422,7 +422,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.35.1.17967",
-              "templateHash": "1204376699942702391"
+              "templateHash": "5519081665639847264"
             }
           },
           "parameters": {
@@ -914,7 +914,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.35.1.17967",
-                      "templateHash": "11553566772192962526"
+                      "templateHash": "11593880246312949551"
                     }
                   },
                   "parameters": {
@@ -984,7 +984,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.35.1.17967",
-                              "templateHash": "6255801293497750069"
+                              "templateHash": "15241172786992673690"
                             }
                           },
                           "parameters": {
@@ -993,8 +993,7 @@
                               "defaultValue": "-",
                               "allowedValues": [
                                 "",
-                                "-",
-                                "_"
+                                "-"
                               ]
                             },
                             "environmentAbbreviation": {
@@ -1370,14 +1369,11 @@
                             "$fxv#1": {
                               "actionGroups": "ag",
                               "applicationGroups": "vdag",
-                              "applicationGroupsDesktop": "desktop",
                               "applicationInsights": "appi",
                               "appServicePlans": "asp",
                               "automationAccounts": "aa",
                               "availabilitySets": "avail",
                               "azureFirewalls": "afw",
-                              "azureFirewallsClient": "client",
-                              "azureFirewallsManagement": "mgmt",
                               "bastionHosts": "bas",
                               "computeGallieries": "cg",
                               "dataCollectionEndpoints": "dce",
@@ -1392,6 +1388,7 @@
                               "hostPools": "vdpool",
                               "ipConfigurations": "ipconf",
                               "keyVaults": "kv",
+                              "localNetworkGateways": "lgw",
                               "logAnalyticsWorkspaces": "log",
                               "netAppAccounts": "naa",
                               "netAppCapacityPools": "nacp",
@@ -1408,31 +1405,35 @@
                               "routeTables": "rt",
                               "scalingPlans": "vdscaling",
                               "storageAccounts": "st",
-                              "storageAccountsBlobServices": "blob",
-                              "storageAccountsFileServices": "file",
-                              "storageAccountsQueueServices": "queue",
-                              "storageAccountsTableServices": "table",
                               "subnets": "snet",
                               "userAssignedIdentities": "id",
                               "virtualMachines": "vm",
+                              "virtualNetworkGateways": "vgw",
                               "virtualNetworks": "vnet",
-                              "workspaces": "vdws",
-                              "workspacesFeed": "feed",
-                              "workspacesGlobal": "global"
+                              "workspaces": "vdws"
                             },
-                            "locations": "[variables('$fxv#0')[environment().name]]",
+                            "directionShortNames": {
+                              "east": "e",
+                              "eastcentral": "ec",
+                              "north": "n",
+                              "northcentral": "nc",
+                              "south": "s",
+                              "southcentral": "sc",
+                              "west": "w",
+                              "westcentral": "wc"
+                            },
+                            "locations": "[coalesce(tryGet(variables('$fxv#0'), environment().name), createObject(format('{0}', parameters('location')), createObject('abbreviation', variables('directionShortNames')[skip(parameters('location'), sub(length(parameters('location')), 5))], 'timeDifference', if(contains(parameters('location'), 'east'), '-5:00', if(contains(parameters('location'), 'west'), '-8:00', '0:00')), 'timeZone', if(contains(parameters('location'), 'east'), 'Eastern Standard Time', if(contains(parameters('location'), 'west'), 'Pacific Standard Time', 'GMT Standard Time')))))]",
                             "locationAbbreviation": "[variables('locations')[parameters('location')].abbreviation]",
                             "resourceAbbreviations": "[variables('$fxv#1')]",
                             "tokens": {
-                              "purpose": "purpose_token",
                               "resource": "resource_token",
                               "service": "service_token"
                             },
-                            "namingConvention": "[format('{0}{1}{2}{3}{4}{5}{6}{7}{8}{9}{10}', toLower(parameters('identifier')), parameters('delimiter'), parameters('environmentAbbreviation'), parameters('delimiter'), variables('locationAbbreviation'), parameters('delimiter'), parameters('networkName'), parameters('delimiter'), variables('tokens').resource, parameters('delimiter'), variables('tokens').purpose)]",
-                            "namingConvention_Service": "[format('{0}{1}{2}{3}{4}{5}{6}{7}{8}{9}{10}{11}{12}', toLower(parameters('identifier')), parameters('delimiter'), parameters('environmentAbbreviation'), parameters('delimiter'), variables('locationAbbreviation'), parameters('delimiter'), parameters('networkName'), parameters('delimiter'), variables('tokens').resource, parameters('delimiter'), variables('tokens').service, parameters('delimiter'), variables('tokens').purpose)]",
+                            "namingConvention": "[format('{0}{1}{2}{3}{4}{5}{6}{7}{8}', toLower(parameters('identifier')), parameters('delimiter'), parameters('environmentAbbreviation'), parameters('delimiter'), variables('locationAbbreviation'), parameters('delimiter'), parameters('networkName'), parameters('delimiter'), variables('tokens').resource)]",
+                            "namingConvention_Service": "[format('{0}{1}{2}{3}{4}{5}{6}{7}{8}{9}{10}', toLower(parameters('identifier')), parameters('delimiter'), parameters('environmentAbbreviation'), parameters('delimiter'), variables('locationAbbreviation'), parameters('delimiter'), parameters('networkName'), parameters('delimiter'), variables('tokens').resource, parameters('delimiter'), variables('tokens').service)]",
                             "names": {
                               "actionGroup": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').actionGroups)]",
-                              "applicationGroup": "[replace(variables('namingConvention'), variables('tokens').resource, format('{0}{1}{2}', variables('resourceAbbreviations').applicationGroups, parameters('delimiter'), variables('resourceAbbreviations').applicationGroupsDesktop))]",
+                              "applicationGroup": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').applicationGroups)]",
                               "applicationInsights": "[replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').applicationInsights)]",
                               "appServicePlan": "[replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').appServicePlans)]",
                               "automationAccount": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').automationAccounts)]",
@@ -1441,11 +1442,9 @@
                               "automationAccountPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').privateEndpoints), variables('tokens').service, variables('resourceAbbreviations').automationAccounts)]",
                               "availabilitySet": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').availabilitySets)]",
                               "azureFirewall": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').azureFirewalls)]",
-                              "azureFirewallClientPublicIPAddress": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').publicIPAddresses), variables('tokens').service, format('{0}{1}{2}', variables('resourceAbbreviations').azureFirewalls, parameters('delimiter'), variables('resourceAbbreviations').azureFirewallsClient))]",
-                              "azureFirewallClientPublicIPAddressDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, format('{0}{1}{2}{3}{4}', variables('resourceAbbreviations').publicIPAddresses, parameters('delimiter'), variables('resourceAbbreviations').azureFirewalls, parameters('delimiter'), variables('resourceAbbreviations').azureFirewallsClient))]",
+                              "azureFirewallPublicIPAddress": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').publicIPAddresses), variables('tokens').service, variables('resourceAbbreviations').azureFirewalls)]",
+                              "azureFirewallPublicIPAddressDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, format('{0}{1}{2}', variables('resourceAbbreviations').publicIPAddresses, parameters('delimiter'), variables('resourceAbbreviations').azureFirewalls))]",
                               "azureFirewallDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, variables('resourceAbbreviations').azureFirewalls)]",
-                              "azureFirewallManagementPublicIPAddress": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').publicIPAddresses), variables('tokens').service, format('{0}{1}{2}', variables('resourceAbbreviations').azureFirewalls, parameters('delimiter'), variables('resourceAbbreviations').azureFirewallsManagement))]",
-                              "azureFirewallManagementPublicIPAddressDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, format('{0}{1}{2}{3}{4}', variables('resourceAbbreviations').publicIPAddresses, parameters('delimiter'), variables('resourceAbbreviations').azureFirewalls, parameters('delimiter'), variables('resourceAbbreviations').azureFirewallsManagement))]",
                               "azureFirewallPolicy": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').firewallPolicies)]",
                               "bastionHost": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').bastionHosts)]",
                               "bastionHostDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, variables('resourceAbbreviations').bastionHosts)]",
@@ -1462,20 +1461,21 @@
                               "diskAccessPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').privateEndpoints), variables('tokens').service, variables('resourceAbbreviations').diskAccesses)]",
                               "diskEncryptionSet": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').diskEncryptionSets)]",
                               "functionApp": "[replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').functionApps)]",
-                              "functionAppNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').networkInterfaces), variables('tokens').service, format('{0}{1}{2}', variables('resourceAbbreviations').functionApps, parameters('delimiter'), variables('tokens').service))]",
-                              "functionAppPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').privateEndpoints), variables('tokens').service, format('{0}{1}{2}', variables('resourceAbbreviations').functionApps, parameters('delimiter'), variables('tokens').service))]",
+                              "functionAppNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').networkInterfaces), variables('tokens').service, variables('resourceAbbreviations').functionApps)]",
+                              "functionAppPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').privateEndpoints), variables('tokens').service, variables('resourceAbbreviations').functionApps)]",
                               "hostPool": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').hostPools)]",
                               "hostPoolDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, variables('resourceAbbreviations').hostPools)]",
                               "hostPoolNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').networkInterfaces), variables('tokens').service, variables('resourceAbbreviations').hostPools)]",
                               "hostPoolPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').privateEndpoints), variables('tokens').service, variables('resourceAbbreviations').hostPools)]",
                               "keyVault": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').keyVaults)]",
-                              "keyVaultDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, format('{0}', variables('resourceAbbreviations').keyVaults))]",
-                              "keyVaultNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').networkInterfaces), variables('tokens').service, format('{0}{1}{2}', variables('resourceAbbreviations').keyVaults, parameters('delimiter'), variables('tokens').service))]",
-                              "keyVaultPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').privateEndpoints), variables('tokens').service, format('{0}{1}{2}', variables('resourceAbbreviations').keyVaults, parameters('delimiter'), variables('tokens').service))]",
+                              "keyVaultDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, variables('resourceAbbreviations').keyVaults)]",
+                              "keyVaultNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').networkInterfaces), variables('tokens').service, variables('resourceAbbreviations').keyVaults)]",
+                              "keyVaultPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').privateEndpoints), variables('tokens').service, variables('resourceAbbreviations').keyVaults)]",
+                              "localNetworkGateway": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').localNetworkGateways)]",
                               "logAnalyticsWorkspace": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').logAnalyticsWorkspaces)]",
                               "logAnalyticsWorkspaceDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, variables('resourceAbbreviations').logAnalyticsWorkspaces)]",
                               "netAppAccount": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').netAppAccounts)]",
-                              "netAppAccountCapacityPool": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').netAppCapacityPools)]",
+                              "netAppAccountCapacityPool": "[replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').netAppCapacityPools)]",
                               "netAppAccountSmbServer": "[replace(replace(replace(replace(variables('namingConvention'), variables('tokens').resource, ''), parameters('environmentAbbreviation'), first(parameters('environmentAbbreviation'))), parameters('networkName'), ''), parameters('delimiter'), '')]",
                               "networkSecurityGroup": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').networkSecurityGroups)]",
                               "networkSecurityGroupDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, variables('resourceAbbreviations').networkSecurityGroups)]",
@@ -1493,35 +1493,30 @@
                               "scalingPlan": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').scalingPlans)]",
                               "scalingPlanDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, variables('resourceAbbreviations').scalingPlans)]",
                               "storageAccount": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').storageAccounts)]",
-                              "storageAccountDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, format('{0}{1}{2}', variables('tokens').service, parameters('delimiter'), variables('resourceAbbreviations').storageAccounts))]",
-                              "storageAccountBlobNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').networkInterfaces), variables('tokens').service, format('{0}{1}{2}', variables('resourceAbbreviations').storageAccounts, parameters('delimiter'), variables('resourceAbbreviations').storageAccountsBlobServices))]",
-                              "storageAccountFileNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').networkInterfaces), variables('tokens').service, format('{0}{1}{2}', variables('resourceAbbreviations').storageAccounts, parameters('delimiter'), variables('resourceAbbreviations').storageAccountsFileServices))]",
-                              "storageAccountQueueNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').networkInterfaces), variables('tokens').service, format('{0}{1}{2}', variables('resourceAbbreviations').storageAccounts, parameters('delimiter'), variables('resourceAbbreviations').storageAccountsQueueServices))]",
-                              "storageAccountTableNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').networkInterfaces), variables('tokens').service, format('{0}{1}{2}', variables('resourceAbbreviations').storageAccounts, parameters('delimiter'), variables('resourceAbbreviations').storageAccountsTableServices))]",
-                              "storageAccountBlobPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').privateEndpoints), variables('tokens').service, format('{0}{1}{2}', variables('resourceAbbreviations').storageAccounts, parameters('delimiter'), variables('resourceAbbreviations').storageAccountsBlobServices))]",
-                              "storageAccountFilePrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').privateEndpoints), variables('tokens').service, format('{0}{1}{2}', variables('resourceAbbreviations').storageAccounts, parameters('delimiter'), variables('resourceAbbreviations').storageAccountsFileServices))]",
-                              "storageAccountQueuePrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').privateEndpoints), variables('tokens').service, format('{0}{1}{2}', variables('resourceAbbreviations').storageAccounts, parameters('delimiter'), variables('resourceAbbreviations').storageAccountsQueueServices))]",
-                              "storageAccountTablePrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').privateEndpoints), variables('tokens').service, format('{0}{1}{2}', variables('resourceAbbreviations').storageAccounts, parameters('delimiter'), variables('resourceAbbreviations').storageAccountsTableServices))]",
+                              "storageAccountDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, variables('resourceAbbreviations').storageAccounts)]",
+                              "storageAccountNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').networkInterfaces), variables('tokens').service, variables('resourceAbbreviations').storageAccounts)]",
+                              "storageAccountPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').privateEndpoints), variables('tokens').service, variables('resourceAbbreviations').storageAccounts)]",
                               "subnet": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').subnets)]",
                               "userAssignedIdentity": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').userAssignedIdentities)]",
                               "virtualMachine": "[replace(replace(replace(replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').virtualMachines), parameters('environmentAbbreviation'), first(parameters('environmentAbbreviation'))), parameters('networkName'), ''), parameters('delimiter'), '')]",
                               "virtualMachineDisk": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').disks), variables('tokens').service, format('{0}', variables('resourceAbbreviations').virtualMachines))]",
-                              "virtualMachineNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').networkInterfaces), variables('tokens').service, format('{0}{1}{2}', variables('tokens').service, parameters('delimiter'), variables('resourceAbbreviations').virtualMachines))]",
-                              "virtualMachineNetworkInterfaceDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, format('{0}{1}{2}{3}{4}', variables('tokens').service, parameters('delimiter'), variables('resourceAbbreviations').networkInterfaces, parameters('delimiter'), variables('resourceAbbreviations').virtualMachines))]",
+                              "virtualMachineNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').networkInterfaces), variables('tokens').service, variables('resourceAbbreviations').virtualMachines)]",
+                              "virtualMachineNetworkInterfaceDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, format('{0}{1}{2}', variables('resourceAbbreviations').networkInterfaces, parameters('delimiter'), variables('resourceAbbreviations').virtualMachines))]",
                               "virtualNetwork": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').virtualNetworks)]",
                               "virtualNetworkDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, variables('resourceAbbreviations').virtualNetworks)]",
-                              "workspaceFeed": "[replace(replace(variables('namingConvention'), variables('tokens').resource, format('{0}{1}{2}', variables('resourceAbbreviations').workspaces, parameters('delimiter'), variables('resourceAbbreviations').workspacesFeed)), format('{0}{1}', parameters('delimiter'), variables('tokens').purpose), '')]",
-                              "workspaceFeedDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, format('{0}{1}{2}', variables('resourceAbbreviations').workspaces, parameters('delimiter'), variables('resourceAbbreviations').workspacesFeed))]",
-                              "workspaceFeedNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').networkInterfaces), variables('tokens').service, format('{0}{1}{2}', variables('resourceAbbreviations').workspaces, parameters('delimiter'), variables('resourceAbbreviations').workspacesFeed))]",
-                              "workspaceFeedPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').privateEndpoints), variables('tokens').service, format('{0}{1}{2}', variables('resourceAbbreviations').workspaces, parameters('delimiter'), variables('resourceAbbreviations').workspacesFeed))]",
-                              "workspaceGlobal": "[replace(replace(variables('namingConvention'), variables('tokens').resource, format('{0}{1}{2}', variables('resourceAbbreviations').workspaces, parameters('delimiter'), variables('resourceAbbreviations').workspacesGlobal)), format('{0}{1}', parameters('delimiter'), variables('tokens').purpose), '')]",
-                              "workspaceGlobalDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, format('{0}{1}{2}', variables('resourceAbbreviations').workspaces, parameters('delimiter'), variables('resourceAbbreviations').workspacesGlobal))]",
-                              "workspaceGlobalNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').networkInterfaces), variables('tokens').service, format('{0}{1}{2}', variables('resourceAbbreviations').workspaces, parameters('delimiter'), variables('resourceAbbreviations').workspacesGlobal))]",
-                              "workspaceGlobalPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').privateEndpoints), variables('tokens').service, format('{0}{1}{2}', variables('resourceAbbreviations').workspaces, parameters('delimiter'), variables('resourceAbbreviations').workspacesGlobal))]"
+                              "virtualNetworkGateway": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').virtualNetworkGateways)]",
+                              "workspace": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').workspaces)]",
+                              "workspaceDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, variables('resourceAbbreviations').workspaces)]",
+                              "workspaceNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').networkInterfaces), variables('tokens').service, variables('resourceAbbreviations').workspaces)]",
+                              "workspacePrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').privateEndpoints), variables('tokens').service, variables('resourceAbbreviations').workspaces)]"
                             }
                           },
                           "resources": [],
                           "outputs": {
+                            "delimiter": {
+                              "type": "string",
+                              "value": "[parameters('delimiter')]"
+                            },
                             "locations": {
                               "type": "object",
                               "value": "[variables('locations')]"
@@ -1533,10 +1528,6 @@
                             "resourceAbbreviations": {
                               "type": "object",
                               "value": "[variables('resourceAbbreviations')]"
-                            },
-                            "tokens": {
-                              "type": "object",
-                              "value": "[variables('tokens')]"
                             }
                           }
                         }
@@ -1552,11 +1543,7 @@
                           "scope": "inner"
                         },
                         "mode": "Incremental",
-                        "parameters": {
-                          "locations": {
-                            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-convention-{0}-{1}', parameters('networks')[0].shortName, parameters('deploymentNameSuffix'))), '2022-09-01').outputs.locations.value]"
-                          }
-                        },
+                        "parameters": {},
                         "template": {
                           "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
                           "contentVersion": "1.0.0.0",
@@ -1564,53 +1551,27 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.35.1.17967",
-                              "templateHash": "7712220075928213899"
-                            }
-                          },
-                          "parameters": {
-                            "locations": {
-                              "type": "object"
+                              "templateHash": "12115812372137973423"
                             }
                           },
                           "variables": {
-                            "copy": [
-                              {
-                                "name": "privateDnsZoneNames_Backup",
-                                "count": "[length(items(parameters('locations')))]",
-                                "input": "[format('privatelink.{0}.backup.windowsazure.{1}', items(parameters('locations'))[copyIndex('privateDnsZoneNames_Backup')].value.recoveryServicesGeo, coalesce(variables('privateDnsZoneSuffixes_Backup')[environment().name], variables('cloudSuffix')))]"
-                              }
-                            ],
                             "cloudSuffix": "[replace(replace(environment().resourceManager, 'https://management.', ''), '/', '')]",
-                            "privateDnsZoneNames": "[union(createArray(format('privatelink.agentsvc.azure-automation.{0}', coalesce(variables('privateDnsZoneSuffixes_AzureAutomation')[environment().name], variables('cloudSuffix'))), format('privatelink.azure-automation.{0}', coalesce(variables('privateDnsZoneSuffixes_AzureAutomation')[environment().name], variables('cloudSuffix'))), format('privatelink.{0}', coalesce(variables('privateDnsZoneSuffixes_AzureWebSites')[environment().name], format('appservice.{0}', variables('cloudSuffix')))), format('scm.privatelink.{0}', coalesce(variables('privateDnsZoneSuffixes_AzureWebSites')[environment().name], format('appservice.{0}', variables('cloudSuffix')))), format('privatelink.wvd.{0}', coalesce(variables('privateDnsZoneSuffixes_AzureVirtualDesktop')[environment().name], variables('cloudSuffix'))), format('privatelink-global.wvd.{0}', coalesce(variables('privateDnsZoneSuffixes_AzureVirtualDesktop')[environment().name], variables('cloudSuffix'))), format('privatelink.file.{0}', environment().suffixes.storage), format('privatelink.queue.{0}', environment().suffixes.storage), format('privatelink.table.{0}', environment().suffixes.storage), format('privatelink.blob.{0}', environment().suffixes.storage), format('privatelink{0}', replace(environment().suffixes.keyvaultDns, 'vault', 'vaultcore')), format('privatelink.monitor.{0}', coalesce(variables('privateDnsZoneSuffixes_Monitor')[environment().name], variables('cloudSuffix'))), format('privatelink.ods.opinsights.{0}', coalesce(variables('privateDnsZoneSuffixes_Monitor')[environment().name], variables('cloudSuffix'))), format('privatelink.oms.opinsights.{0}', coalesce(variables('privateDnsZoneSuffixes_Monitor')[environment().name], variables('cloudSuffix'))), format('privatelink{0}', environment().suffixes.sqlServerHostname)), variables('privateDnsZoneNames_Backup'))]",
+                            "privateDnsZoneNames": "[union(createArray(format('privatelink.agentsvc.azure-automation.{0}', coalesce(tryGet(variables('privateDnsZoneSuffixes_AzureAutomation'), environment().name), variables('cloudSuffix'))), format('privatelink.azure-automation.{0}', coalesce(tryGet(variables('privateDnsZoneSuffixes_AzureAutomation'), environment().name), variables('cloudSuffix'))), format('privatelink.{0}', coalesce(tryGet(variables('privateDnsZoneSuffixes_AzureWebSites'), environment().name), format('appservice.{0}', variables('cloudSuffix')))), format('scm.privatelink.{0}', coalesce(tryGet(variables('privateDnsZoneSuffixes_AzureWebSites'), environment().name), format('appservice.{0}', variables('cloudSuffix')))), format('privatelink.wvd.{0}', coalesce(tryGet(variables('privateDnsZoneSuffixes_AzureVirtualDesktop'), environment().name), variables('cloudSuffix'))), format('privatelink-global.wvd.{0}', coalesce(tryGet(variables('privateDnsZoneSuffixes_AzureVirtualDesktop'), environment().name), variables('cloudSuffix'))), format('privatelink.file.{0}', environment().suffixes.storage), format('privatelink.queue.{0}', environment().suffixes.storage), format('privatelink.table.{0}', environment().suffixes.storage), format('privatelink.blob.{0}', environment().suffixes.storage), format('privatelink{0}', replace(environment().suffixes.keyvaultDns, 'vault', 'vaultcore')), format('privatelink.monitor.{0}', coalesce(tryGet(variables('privateDnsZoneSuffixes_Monitor'), environment().name), variables('cloudSuffix'))), format('privatelink.ods.opinsights.{0}', coalesce(tryGet(variables('privateDnsZoneSuffixes_Monitor'), environment().name), variables('cloudSuffix'))), format('privatelink.oms.opinsights.{0}', coalesce(tryGet(variables('privateDnsZoneSuffixes_Monitor'), environment().name), variables('cloudSuffix'))), format('privatelink{0}', environment().suffixes.sqlServerHostname)), createArray())]",
                             "privateDnsZoneSuffixes_AzureAutomation": {
                               "AzureCloud": "net",
-                              "AzureUSGovernment": "us",
-                              "USNat": null,
-                              "USSec": null
+                              "AzureUSGovernment": "us"
                             },
                             "privateDnsZoneSuffixes_AzureVirtualDesktop": {
                               "AzureCloud": "microsoft.com",
-                              "AzureUSGovernment": "azure.us",
-                              "USNat": null,
-                              "USSec": null
+                              "AzureUSGovernment": "azure.us"
                             },
                             "privateDnsZoneSuffixes_AzureWebSites": {
                               "AzureCloud": "azurewebsites.net",
-                              "AzureUSGovernment": "azurewebsites.us",
-                              "USNat": null,
-                              "USSec": null
-                            },
-                            "privateDnsZoneSuffixes_Backup": {
-                              "AzureCloud": "com",
-                              "AzureUSGovernment": "us",
-                              "USNat": null,
-                              "USSec": null
+                              "AzureUSGovernment": "azurewebsites.us"
                             },
                             "privateDnsZoneSuffixes_Monitor": {
                               "AzureCloud": "azure.com",
-                              "AzureUSGovernment": "azure.us",
-                              "USNat": null,
-                              "USSec": null
+                              "AzureUSGovernment": "azure.us"
                             }
                           },
                           "resources": [],
@@ -1621,13 +1582,14 @@
                             }
                           }
                         }
-                      },
-                      "dependsOn": [
-                        "[subscriptionResourceId('Microsoft.Resources/deployments', format('naming-convention-{0}-{1}', parameters('networks')[0].shortName, parameters('deploymentNameSuffix')))]"
-                      ]
+                      }
                     }
                   ],
                   "outputs": {
+                    "delimiter": {
+                      "type": "string",
+                      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-convention-{0}-{1}', parameters('networks')[0].shortName, parameters('deploymentNameSuffix'))), '2022-09-01').outputs.delimiter.value]"
+                    },
                     "locationProperties": {
                       "type": "object",
                       "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-convention-{0}-{1}', parameters('networks')[0].shortName, parameters('deploymentNameSuffix'))), '2022-09-01').outputs.locations.value[parameters('location')]]"
@@ -1663,10 +1625,6 @@
                           "namingConvention": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-convention-{0}-{1}', parameters('networks')[copyIndex()].shortName, parameters('deploymentNameSuffix'))), '2022-09-01').outputs.names.value]"
                         }
                       }
-                    },
-                    "tokens": {
-                      "type": "object",
-                      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-convention-{0}-{1}', parameters('networks')[0].shortName, parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value]"
                     }
                   }
                 }
@@ -1694,7 +1652,7 @@
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
                   },
                   "name": {
-                    "value": "[replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tiers.value[0].namingConvention.resourceGroup, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.purpose, 'network')]"
+                    "value": "[format('{0}{1}network', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tiers.value[0].namingConvention.resourceGroup, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tiers.value[0].delimiter)]"
                   },
                   "tags": {
                     "value": "[parameters('tags')]"
@@ -2938,9 +2896,6 @@
                   "tier": {
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tiers.value[0]]"
                   },
-                  "tokens": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value]"
-                  },
                   "workloadShortName": {
                     "value": "[parameters('workloadShortName')]"
                   }
@@ -2952,7 +2907,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.35.1.17967",
-                      "templateHash": "2577242539735527585"
+                      "templateHash": "17875424644189676247"
                     }
                   },
                   "parameters": {
@@ -2984,9 +2939,6 @@
                       "type": "object"
                     },
                     "tier": {
-                      "type": "object"
-                    },
-                    "tokens": {
                       "type": "object"
                     },
                     "workloadShortName": {
@@ -3029,9 +2981,6 @@
                           },
                           "tier": {
                             "value": "[parameters('tier')]"
-                          },
-                          "tokens": {
-                            "value": "[parameters('tokens')]"
                           }
                         },
                         "template": {
@@ -3041,7 +2990,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.35.1.17967",
-                              "templateHash": "1843583618952485737"
+                              "templateHash": "5025690535359493482"
                             }
                           },
                           "parameters": {
@@ -3072,19 +3021,16 @@
                             },
                             "tier": {
                               "type": "object"
-                            },
-                            "tokens": {
-                              "type": "object"
                             }
                           },
                           "variables": {
-                            "keyVaultPrivateEndpointName": "[replace(parameters('tier').namingConvention.keyVaultPrivateEndpoint, parameters('tokens').purpose, 'cmk')]"
+                            "keyVaultPrivateEndpointName": "[parameters('tier').namingConvention.keyVaultPrivateEndpoint]"
                           },
                           "resources": [
                             {
                               "type": "Microsoft.KeyVault/vaults",
                               "apiVersion": "2022-07-01",
-                              "name": "[format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, 'cmk'), resourceGroup().id))]",
+                              "name": "[format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id))]",
                               "location": "[parameters('location')]",
                               "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.KeyVault/vaults'), createObject()), parameters('mlzTags'))]",
                               "properties": {
@@ -3116,12 +3062,12 @@
                               "location": "[parameters('location')]",
                               "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/privateEndpoints'), createObject()), parameters('mlzTags'))]",
                               "properties": {
-                                "customNetworkInterfaceName": "[replace(parameters('tier').namingConvention.keyVaultNetworkInterface, parameters('tokens').purpose, 'cmk')]",
+                                "customNetworkInterfaceName": "[parameters('tier').namingConvention.keyVaultNetworkInterface]",
                                 "privateLinkServiceConnections": [
                                   {
                                     "name": "[variables('keyVaultPrivateEndpointName')]",
                                     "properties": {
-                                      "privateLinkServiceId": "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, 'cmk'), resourceGroup().id)))]",
+                                      "privateLinkServiceId": "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id)))]",
                                       "groupIds": [
                                         "vault"
                                       ]
@@ -3133,13 +3079,13 @@
                                 }
                               },
                               "dependsOn": [
-                                "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, 'cmk'), resourceGroup().id)))]"
+                                "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id)))]"
                               ]
                             },
                             {
                               "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                               "apiVersion": "2021-08-01",
-                              "name": "[format('{0}/{1}', variables('keyVaultPrivateEndpointName'), format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, 'cmk'), resourceGroup().id)))]",
+                              "name": "[format('{0}/{1}', variables('keyVaultPrivateEndpointName'), format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id)))]",
                               "properties": {
                                 "privateDnsZoneConfigs": [
                                   {
@@ -3152,13 +3098,13 @@
                               },
                               "dependsOn": [
                                 "[resourceId('Microsoft.Network/privateEndpoints', variables('keyVaultPrivateEndpointName'))]",
-                                "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, 'cmk'), resourceGroup().id)))]"
+                                "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id)))]"
                               ]
                             },
                             {
                               "type": "Microsoft.KeyVault/vaults/keys",
                               "apiVersion": "2022-07-01",
-                              "name": "[format('{0}/{1}', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, 'cmk'), resourceGroup().id)), 'DiskEncryptionKey')]",
+                              "name": "[format('{0}/{1}', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id)), 'DiskEncryptionKey')]",
                               "properties": {
                                 "attributes": {
                                   "enabled": true
@@ -3190,15 +3136,15 @@
                                 }
                               },
                               "dependsOn": [
-                                "[resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups', variables('keyVaultPrivateEndpointName'), format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, 'cmk'), resourceGroup().id)))]",
+                                "[resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups', variables('keyVaultPrivateEndpointName'), format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id)))]",
                                 "[resourceId('Microsoft.Network/privateEndpoints', variables('keyVaultPrivateEndpointName'))]",
-                                "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, 'cmk'), resourceGroup().id)))]"
+                                "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id)))]"
                               ]
                             },
                             {
                               "type": "Microsoft.KeyVault/vaults/keys",
                               "apiVersion": "2022-07-01",
-                              "name": "[format('{0}/{1}', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, 'cmk'), resourceGroup().id)), 'StorageEncryptionKey')]",
+                              "name": "[format('{0}/{1}', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id)), 'StorageEncryptionKey')]",
                               "properties": {
                                 "attributes": {
                                   "enabled": true
@@ -3230,28 +3176,28 @@
                                 }
                               },
                               "dependsOn": [
-                                "[resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups', variables('keyVaultPrivateEndpointName'), format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, 'cmk'), resourceGroup().id)))]",
+                                "[resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups', variables('keyVaultPrivateEndpointName'), format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id)))]",
                                 "[resourceId('Microsoft.Network/privateEndpoints', variables('keyVaultPrivateEndpointName'))]",
-                                "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, 'cmk'), resourceGroup().id)))]"
+                                "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id)))]"
                               ]
                             }
                           ],
                           "outputs": {
                             "keyUriWithVersion": {
                               "type": "string",
-                              "value": "[reference(resourceId('Microsoft.KeyVault/vaults/keys', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, 'cmk'), resourceGroup().id)), 'DiskEncryptionKey'), '2022-07-01').keyUriWithVersion]"
+                              "value": "[reference(resourceId('Microsoft.KeyVault/vaults/keys', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id)), 'DiskEncryptionKey'), '2022-07-01').keyUriWithVersion]"
                             },
                             "keyVaultResourceId": {
                               "type": "string",
-                              "value": "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, 'cmk'), resourceGroup().id)))]"
+                              "value": "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id)))]"
                             },
                             "keyVaultName": {
                               "type": "string",
-                              "value": "[format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, 'cmk'), resourceGroup().id))]"
+                              "value": "[format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id))]"
                             },
                             "keyVaultUri": {
                               "type": "string",
-                              "value": "[reference(resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, 'cmk'), resourceGroup().id))), '2022-07-01').vaultUri]"
+                              "value": "[reference(resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id))), '2022-07-01').vaultUri]"
                             },
                             "networkInterfaceResourceId": {
                               "type": "string",
@@ -3474,7 +3420,7 @@
                             "value": "[parameters('tags')]"
                           },
                           "userAssignedIdentityName": {
-                            "value": "[replace(parameters('tier').namingConvention.userAssignedIdentity, parameters('tokens').purpose, 'cmk')]"
+                            "value": "[parameters('tier').namingConvention.userAssignedIdentity]"
                           }
                         },
                         "template": {
@@ -3595,6 +3541,9 @@
                   "blobsPrivateDnsZoneResourceId": {
                     "value": "[resourceId(variables('hubSubscriptionId'), variables('hubResourceGroupName'), 'Microsoft.Network/privateDnsZones', format('privatelink.blob.{0}', environment().suffixes.storage))]"
                   },
+                  "delimiter": {
+                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tiers.value[0].delimiter]"
+                  },
                   "filesPrivateDnsZoneResourceId": {
                     "value": "[resourceId(variables('hubSubscriptionId'), variables('hubResourceGroupName'), 'Microsoft.Network/privateDnsZones', format('privatelink.file.{0}', environment().suffixes.storage))]"
                   },
@@ -3609,12 +3558,6 @@
                   },
                   "mlzTags": {
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
-                  },
-                  "network": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tiers.value[0]]"
-                  },
-                  "purposeToken": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.purpose]"
                   },
                   "queuesPrivateDnsZoneResourceId": {
                     "value": "[resourceId(variables('hubSubscriptionId'), variables('hubResourceGroupName'), 'Microsoft.Network/privateDnsZones', format('privatelink.queue.{0}', environment().suffixes.storage))]"
@@ -3648,11 +3591,14 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.35.1.17967",
-                      "templateHash": "7737826935904244150"
+                      "templateHash": "2846375732338215860"
                     }
                   },
                   "parameters": {
                     "blobsPrivateDnsZoneResourceId": {
+                      "type": "string"
+                    },
+                    "delimiter": {
                       "type": "string"
                     },
                     "filesPrivateDnsZoneResourceId": {
@@ -3670,16 +3616,10 @@
                     "mlzTags": {
                       "type": "object"
                     },
-                    "network": {
-                      "type": "object"
-                    },
                     "queuesPrivateDnsZoneResourceId": {
                       "type": "string"
                     },
                     "resourceGroupName": {
-                      "type": "string"
-                    },
-                    "purposeToken": {
                       "type": "string"
                     },
                     "storageEncryptionKeyName": {
@@ -3706,7 +3646,7 @@
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2022-09-01",
                       "name": "storage",
-                      "subscriptionId": "[parameters('network').subscriptionId]",
+                      "subscriptionId": "[parameters('tier').subscriptionId]",
                       "resourceGroup": "[parameters('resourceGroupName')]",
                       "properties": {
                         "expressionEvaluationOptions": {
@@ -3716,6 +3656,9 @@
                         "parameters": {
                           "blobsPrivateDnsZoneResourceId": {
                             "value": "[parameters('blobsPrivateDnsZoneResourceId')]"
+                          },
+                          "delimiter": {
+                            "value": "[parameters('delimiter')]"
                           },
                           "filesPrivateDnsZoneResourceId": {
                             "value": "[parameters('filesPrivateDnsZoneResourceId')]"
@@ -3731,9 +3674,6 @@
                           },
                           "queuesPrivateDnsZoneResourceId": {
                             "value": "[parameters('queuesPrivateDnsZoneResourceId')]"
-                          },
-                          "purposeToken": {
-                            "value": "[parameters('purposeToken')]"
                           },
                           "skuName": {
                             "value": "[parameters('logStorageSkuName')]"
@@ -3764,11 +3704,14 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.35.1.17967",
-                              "templateHash": "16054950090565813687"
+                              "templateHash": "14042209681173139334"
                             }
                           },
                           "parameters": {
                             "blobsPrivateDnsZoneResourceId": {
+                              "type": "string"
+                            },
+                            "delimiter": {
                               "type": "string"
                             },
                             "filesPrivateDnsZoneResourceId": {
@@ -3782,9 +3725,6 @@
                             },
                             "mlzTags": {
                               "type": "object"
-                            },
-                            "purposeToken": {
-                              "type": "string"
                             },
                             "queuesPrivateDnsZoneResourceId": {
                               "type": "string"
@@ -3815,23 +3755,23 @@
                             "subResources": [
                               {
                                 "id": "[parameters('blobsPrivateDnsZoneResourceId')]",
-                                "nic": "[parameters('tier').namingConvention.storageAccountBlobNetworkInterface]",
-                                "pe": "[parameters('tier').namingConvention.storageAccountBlobPrivateEndpoint]"
+                                "nic": "[format('{0}{1}blob', parameters('tier').namingConvention.storageAccountNetworkInterface, parameters('delimiter'))]",
+                                "pe": "[format('{0}{1}blob', parameters('tier').namingConvention.storageAccountPrivateEndpoint, parameters('delimiter'))]"
                               },
                               {
                                 "id": "[parameters('filesPrivateDnsZoneResourceId')]",
-                                "nic": "[parameters('tier').namingConvention.storageAccountFileNetworkInterface]",
-                                "pe": "[parameters('tier').namingConvention.storageAccountFilePrivateEndpoint]"
+                                "nic": "[format('{0}{1}file', parameters('tier').namingConvention.storageAccountNetworkInterface, parameters('delimiter'))]",
+                                "pe": "[format('{0}{1}file', parameters('tier').namingConvention.storageAccountPrivateEndpoint, parameters('delimiter'))]"
                               },
                               {
                                 "id": "[parameters('queuesPrivateDnsZoneResourceId')]",
-                                "nic": "[parameters('tier').namingConvention.storageAccountQueueNetworkInterface]",
-                                "pe": "[parameters('tier').namingConvention.storageAccountQueuePrivateEndpoint]"
+                                "nic": "[format('{0}{1}queue', parameters('tier').namingConvention.storageAccountNetworkInterface, parameters('delimiter'))]",
+                                "pe": "[format('{0}{1}queue', parameters('tier').namingConvention.storageAccountPrivateEndpoint, parameters('delimiter'))]"
                               },
                               {
                                 "id": "[parameters('tablesPrivateDnsZoneResourceId')]",
-                                "nic": "[parameters('tier').namingConvention.storageAccountTableNetworkInterface]",
-                                "pe": "[parameters('tier').namingConvention.storageAccountTablePrivateEndpoint]"
+                                "nic": "[format('{0}{1}table', parameters('tier').namingConvention.storageAccountNetworkInterface, parameters('delimiter'))]",
+                                "pe": "[format('{0}{1}table', parameters('tier').namingConvention.storageAccountPrivateEndpoint, parameters('delimiter'))]"
                               }
                             ]
                           },
@@ -3839,7 +3779,7 @@
                             {
                               "type": "Microsoft.Storage/storageAccounts",
                               "apiVersion": "2023-01-01",
-                              "name": "[uniqueString(replace(parameters('tier').namingConvention.storageAccount, parameters('purposeToken'), 'log'), resourceGroup().id)]",
+                              "name": "[uniqueString(parameters('tier').namingConvention.storageAccount, resourceGroup().id)]",
                               "location": "[parameters('location')]",
                               "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Storage/storageAccounts'), createObject()), parameters('mlzTags'))]",
                               "identity": {
@@ -3916,7 +3856,7 @@
                                   {
                                     "name": "[variables('subResources')[copyIndex()].pe]",
                                     "properties": {
-                                      "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(replace(parameters('tier').namingConvention.storageAccount, parameters('purposeToken'), 'log'), resourceGroup().id))]",
+                                      "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(parameters('tier').namingConvention.storageAccount, resourceGroup().id))]",
                                       "groupIds": [
                                         "[split(split(variables('subResources')[copyIndex()].id, '/')[8], '.')[1]]"
                                       ]
@@ -3928,7 +3868,7 @@
                                 }
                               },
                               "dependsOn": [
-                                "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(replace(parameters('tier').namingConvention.storageAccount, parameters('purposeToken'), 'log'), resourceGroup().id))]"
+                                "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(parameters('tier').namingConvention.storageAccount, resourceGroup().id))]"
                               ]
                             },
                             {
@@ -3938,7 +3878,7 @@
                               },
                               "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                               "apiVersion": "2021-08-01",
-                              "name": "[format('{0}/{1}', variables('subResources')[copyIndex()].pe, uniqueString(replace(parameters('tier').namingConvention.storageAccount, parameters('purposeToken'), 'log'), resourceGroup().id))]",
+                              "name": "[format('{0}/{1}', variables('subResources')[copyIndex()].pe, uniqueString(parameters('tier').namingConvention.storageAccount, resourceGroup().id))]",
                               "properties": {
                                 "privateDnsZoneConfigs": [
                                   {
@@ -3951,14 +3891,14 @@
                               },
                               "dependsOn": [
                                 "[resourceId('Microsoft.Network/privateEndpoints', variables('subResources')[copyIndex()].pe)]",
-                                "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(replace(parameters('tier').namingConvention.storageAccount, parameters('purposeToken'), 'log'), resourceGroup().id))]"
+                                "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(parameters('tier').namingConvention.storageAccount, resourceGroup().id))]"
                               ]
                             }
                           ],
                           "outputs": {
                             "id": {
                               "type": "string",
-                              "value": "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(replace(parameters('tier').namingConvention.storageAccount, parameters('purposeToken'), 'log'), resourceGroup().id))]"
+                              "value": "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(parameters('tier').namingConvention.storageAccount, resourceGroup().id))]"
                             },
                             "networkInterfaceResourceIds": {
                               "type": "array",
@@ -3975,11 +3915,11 @@
                   "outputs": {
                     "networkInterfaceResourceIds": {
                       "type": "array",
-                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('network').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'storage'), '2022-09-01').outputs.networkInterfaceResourceIds.value]"
+                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'storage'), '2022-09-01').outputs.networkInterfaceResourceIds.value]"
                     },
                     "storageAccountResourceId": {
                       "type": "string",
-                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('network').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'storage'), '2022-09-01').outputs.id.value]"
+                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'storage'), '2022-09-01').outputs.id.value]"
                     }
                   }
                 }
@@ -4048,9 +3988,6 @@
                   "networkWatcherResourceId": {
                     "value": "[parameters('networkWatcherResourceId')]"
                   },
-                  "purposeToken": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.purpose]"
-                  },
                   "resourceGroupName": {
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
                   },
@@ -4077,7 +4014,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.35.1.17967",
-                      "templateHash": "12837835245980540563"
+                      "templateHash": "7838135464323576477"
                     }
                   },
                   "parameters": {
@@ -4127,9 +4064,6 @@
                       "type": "string"
                     },
                     "resourceGroupName": {
-                      "type": "string"
-                    },
-                    "purposeToken": {
                       "type": "string"
                     },
                     "storageAccountResourceId": {
@@ -4241,7 +4175,7 @@
                         "mode": "Incremental",
                         "parameters": {
                           "keyVaultDiagnosticSettingName": {
-                            "value": "[replace(parameters('tiers')[0].namingConvention.keyVaultDiagnosticSetting, parameters('purposeToken'), 'cmk')]"
+                            "value": "[parameters('tiers')[0].namingConvention.keyVaultDiagnosticSetting]"
                           },
                           "keyVaultName": {
                             "value": "[parameters('keyVaultName')]"
@@ -4902,9 +4836,6 @@
                   "policy": {
                     "value": "[parameters('policy')]"
                   },
-                  "purposeToken": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.purpose]"
-                  },
                   "resourceGroupNames": {
                     "value": [
                       "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
@@ -4924,7 +4855,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.35.1.17967",
-                      "templateHash": "12175227191068422958"
+                      "templateHash": "8451322145890169094"
                     }
                   },
                   "parameters": {
@@ -4938,9 +4869,6 @@
                       "type": "string"
                     },
                     "policy": {
-                      "type": "string"
-                    },
-                    "purposeToken": {
                       "type": "string"
                     },
                     "resourceGroupNames": {
@@ -4982,7 +4910,7 @@
                           "deployRemediation": {
                             "value": false
                           },
-                          "networkWatcherResourceGroupName": "[if(not(empty(parameters('tiers')[copyIndex()].networkWatcherResourceId)), createObject('value', split(parameters('tiers')[copyIndex()].networkWatcherResourceId, '/')[4]), if(parameters('tiers')[copyIndex()].deployUniqueResources, createObject('value', replace(parameters('tiers')[copyIndex()].namingConvention.resourceGroup, parameters('purposeToken'), 'network')), createObject('value', replace(parameters('tiers')[0].namingConvention.resourceGroup, parameters('purposeToken'), 'network'))))]",
+                          "networkWatcherResourceGroupName": "[if(not(empty(parameters('tiers')[copyIndex()].networkWatcherResourceId)), createObject('value', split(parameters('tiers')[copyIndex()].networkWatcherResourceId, '/')[4]), if(parameters('tiers')[copyIndex()].deployUniqueResources, createObject('value', format('{0}{1}network', parameters('tiers')[copyIndex()].namingConvention.resourceGroup, parameters('tiers')[copyIndex()].delimiter)), createObject('value', format('{0}{1}network', parameters('tiers')[0].namingConvention.resourceGroup, parameters('tiers')[copyIndex()].delimiter))))]",
                           "windowsAdministratorsGroupMembership": {
                             "value": "[parameters('windowsAdministratorsGroupMembership')]"
                           }
@@ -5436,6 +5364,10 @@
             }
           ],
           "outputs": {
+            "delimiter": {
+              "type": "string",
+              "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tiers.value[0].delimiter]"
+            },
             "diskEncryptionSetResourceId": {
               "type": "string",
               "value": "[if(not(empty(parameters('virtualNetworkAddressPrefix'))), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.diskEncryptionSetResourceId.value, '')]"
@@ -5496,10 +5428,6 @@
               "type": "object",
               "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tiers.value[0]]"
             },
-            "tokens": {
-              "type": "object",
-              "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value]"
-            },
             "userAssignedIdentityResourceId": {
               "type": "string",
               "value": "[if(not(empty(parameters('virtualNetworkAddressPrefix'))), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.userAssignedIdentityResourceId.value, '')]"
@@ -5526,7 +5454,7 @@
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
           },
           "name": {
-            "value": "[replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.namingConvention.value.resourceGroup, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tokens.value.purpose, 'netAppFiles')]"
+            "value": "[format('{0}{1}netAppFiles', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.namingConvention.value.resourceGroup, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.delimiter.value)]"
           },
           "tags": {
             "value": "[parameters('tags')]"
@@ -5604,6 +5532,9 @@
           "delegatedSubnetResourceId": {
             "value": "[filter(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnets.value, lambda('subnet', contains(lambdaVariables('subnet').name, 'AzureNetAppFiles')))[0].id]"
           },
+          "delimiter": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.delimiter.value]"
+          },
           "deploymentNameSuffix": {
             "value": "[parameters('deploymentNameSuffix')]"
           },
@@ -5657,11 +5588,14 @@
             "_generator": {
               "name": "bicep",
               "version": "0.35.1.17967",
-              "templateHash": "3037289855583597598"
+              "templateHash": "11757997067311116015"
             }
           },
           "parameters": {
             "delegatedSubnetResourceId": {
+              "type": "string"
+            },
+            "delimiter": {
               "type": "string"
             },
             "deploymentNameSuffix": {
@@ -5725,6 +5659,9 @@
                   "delegatedSubnetResourceId": {
                     "value": "[parameters('delegatedSubnetResourceId')]"
                   },
+                  "delimiter": {
+                    "value": "[parameters('delimiter')]"
+                  },
                   "dnsServers": {
                     "value": "[parameters('dnsServers')]"
                   },
@@ -5748,10 +5685,10 @@
                   "mlzTags": {
                     "value": "[parameters('mlzTags')]"
                   },
-                  "netAppAccountName": {
+                  "netAppAccountNamePrefix": {
                     "value": "[parameters('netAppAccountName')]"
                   },
-                  "netAppCapacityPoolName": {
+                  "netAppCapacityPoolNamePrefix": {
                     "value": "[parameters('netAppCapacityPoolName')]"
                   },
                   "organizationalUnitPath": {
@@ -5774,11 +5711,14 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.35.1.17967",
-                      "templateHash": "17919015180727311128"
+                      "templateHash": "8347499720340509816"
                     }
                   },
                   "parameters": {
                     "delegatedSubnetResourceId": {
+                      "type": "string"
+                    },
+                    "delimiter": {
                       "type": "string"
                     },
                     "dnsServers": {
@@ -5806,10 +5746,10 @@
                     "mlzTags": {
                       "type": "object"
                     },
-                    "netAppAccountName": {
+                    "netAppAccountNamePrefix": {
                       "type": "string"
                     },
-                    "netAppCapacityPoolName": {
+                    "netAppCapacityPoolNamePrefix": {
                       "type": "string"
                     },
                     "organizationalUnitPath": {
@@ -5817,6 +5757,10 @@
                     },
                     "smbServerName": {
                       "type": "string"
+                    },
+                    "stampIndexFull": {
+                      "type": "string",
+                      "defaultValue": ""
                     },
                     "storageSku": {
                       "type": "string"
@@ -5826,13 +5770,14 @@
                     }
                   },
                   "variables": {
+                    "nameSuffix": "[if(empty(parameters('stampIndexFull')), '', format('{0}fslogix{1}{2}', parameters('delimiter'), parameters('delimiter'), parameters('stampIndexFull')))]",
                     "tagsNetAppAccount": "[union(if(empty(parameters('hostPoolResourceId')), createObject(), createObject('cm-resource-parent', parameters('hostPoolResourceId'))), coalesce(tryGet(parameters('tags'), 'Microsoft.NetApp/netAppAccounts'), createObject()), parameters('mlzTags'))]"
                   },
                   "resources": [
                     {
                       "type": "Microsoft.NetApp/netAppAccounts",
                       "apiVersion": "2021-06-01",
-                      "name": "[parameters('netAppAccountName')]",
+                      "name": "[format('{0}{1}', parameters('netAppAccountNamePrefix'), variables('nameSuffix'))]",
                       "location": "[parameters('location')]",
                       "tags": "[variables('tagsNetAppAccount')]",
                       "properties": {
@@ -5855,7 +5800,7 @@
                     {
                       "type": "Microsoft.NetApp/netAppAccounts/capacityPools",
                       "apiVersion": "2021-06-01",
-                      "name": "[format('{0}/{1}', parameters('netAppAccountName'), parameters('netAppCapacityPoolName'))]",
+                      "name": "[format('{0}/{1}', format('{0}{1}', parameters('netAppAccountNamePrefix'), variables('nameSuffix')), format('{0}{1}', parameters('netAppCapacityPoolNamePrefix'), variables('nameSuffix')))]",
                       "location": "[parameters('location')]",
                       "tags": "[variables('tagsNetAppAccount')]",
                       "properties": {
@@ -5866,7 +5811,7 @@
                         "size": 4398046511104
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.NetApp/netAppAccounts', parameters('netAppAccountName'))]"
+                        "[resourceId('Microsoft.NetApp/netAppAccounts', format('{0}{1}', parameters('netAppAccountNamePrefix'), variables('nameSuffix')))]"
                       ]
                     },
                     {
@@ -5876,7 +5821,7 @@
                       },
                       "type": "Microsoft.NetApp/netAppAccounts/capacityPools/volumes",
                       "apiVersion": "2021-06-01",
-                      "name": "[format('{0}/{1}/{2}', parameters('netAppAccountName'), parameters('netAppCapacityPoolName'), parameters('fileShares')[range(0, length(parameters('fileShares')))[copyIndex()]])]",
+                      "name": "[format('{0}/{1}/{2}', format('{0}{1}', parameters('netAppAccountNamePrefix'), variables('nameSuffix')), format('{0}{1}', parameters('netAppCapacityPoolNamePrefix'), variables('nameSuffix')), parameters('fileShares')[range(0, length(parameters('fileShares')))[copyIndex()]])]",
                       "location": "[parameters('location')]",
                       "tags": "[variables('tagsNetAppAccount')]",
                       "properties": {
@@ -5902,7 +5847,7 @@
                         "usageThreshold": 107374182400
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.NetApp/netAppAccounts/capacityPools', parameters('netAppAccountName'), parameters('netAppCapacityPoolName'))]"
+                        "[resourceId('Microsoft.NetApp/netAppAccounts/capacityPools', format('{0}{1}', parameters('netAppAccountNamePrefix'), variables('nameSuffix')), format('{0}{1}', parameters('netAppCapacityPoolNamePrefix'), variables('nameSuffix')))]"
                       ]
                     }
                   ],
@@ -5911,7 +5856,7 @@
                       "type": "array",
                       "copy": {
                         "count": "[length(parameters('fileShares'))]",
-                        "input": "[reference(resourceId('Microsoft.NetApp/netAppAccounts/capacityPools/volumes', parameters('netAppAccountName'), parameters('netAppCapacityPoolName'), parameters('fileShares')[range(0, length(parameters('fileShares')))[copyIndex()]]), '2021-06-01').mountTargets[0].smbServerFqdn]"
+                        "input": "[reference(resourceId('Microsoft.NetApp/netAppAccounts/capacityPools/volumes', format('{0}{1}', parameters('netAppAccountNamePrefix'), variables('nameSuffix')), format('{0}{1}', parameters('netAppCapacityPoolNamePrefix'), variables('nameSuffix')), parameters('fileShares')[range(0, length(parameters('fileShares')))[copyIndex()]]), '2021-06-01').mountTargets[0].smbServerFqdn]"
                       }
                     },
                     "smbServerNamePrefix": {

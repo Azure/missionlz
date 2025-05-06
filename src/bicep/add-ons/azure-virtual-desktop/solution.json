@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "3379038093984056885"
+      "templateHash": "1627286245112139343"
     }
   },
   "parameters": {
@@ -879,7 +879,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.35.1.17967",
-              "templateHash": "13661043292085718432"
+              "templateHash": "15241172786992673690"
             }
           },
           "parameters": {
@@ -1283,6 +1283,7 @@
               "hostPools": "vdpool",
               "ipConfigurations": "ipconf",
               "keyVaults": "kv",
+              "localNetworkGateways": "lgw",
               "logAnalyticsWorkspaces": "log",
               "netAppAccounts": "naa",
               "netAppCapacityPools": "nacp",
@@ -1302,6 +1303,7 @@
               "subnets": "snet",
               "userAssignedIdentities": "id",
               "virtualMachines": "vm",
+              "virtualNetworkGateways": "vgw",
               "virtualNetworks": "vnet",
               "workspaces": "vdws"
             },
@@ -1364,6 +1366,7 @@
               "keyVaultDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, variables('resourceAbbreviations').keyVaults)]",
               "keyVaultNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').networkInterfaces), variables('tokens').service, variables('resourceAbbreviations').keyVaults)]",
               "keyVaultPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').privateEndpoints), variables('tokens').service, variables('resourceAbbreviations').keyVaults)]",
+              "localNetworkGateway": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').localNetworkGateways)]",
               "logAnalyticsWorkspace": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').logAnalyticsWorkspaces)]",
               "logAnalyticsWorkspaceDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, variables('resourceAbbreviations').logAnalyticsWorkspaces)]",
               "netAppAccount": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').netAppAccounts)]",
@@ -1396,6 +1399,7 @@
               "virtualMachineNetworkInterfaceDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, format('{0}{1}{2}', variables('resourceAbbreviations').networkInterfaces, parameters('delimiter'), variables('resourceAbbreviations').virtualMachines))]",
               "virtualNetwork": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').virtualNetworks)]",
               "virtualNetworkDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, variables('resourceAbbreviations').virtualNetworks)]",
+              "virtualNetworkGateway": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').virtualNetworkGateways)]",
               "workspace": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').workspaces)]",
               "workspaceDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, variables('resourceAbbreviations').workspaces)]",
               "workspaceNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').networkInterfaces), variables('tokens').service, variables('resourceAbbreviations').workspaces)]",
@@ -1540,7 +1544,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.35.1.17967",
-              "templateHash": "5599607147592004586"
+              "templateHash": "5519081665639847264"
             }
           },
           "parameters": {
@@ -2032,7 +2036,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.35.1.17967",
-                      "templateHash": "5934929405338074034"
+                      "templateHash": "11593880246312949551"
                     }
                   },
                   "parameters": {
@@ -2102,7 +2106,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.35.1.17967",
-                              "templateHash": "13661043292085718432"
+                              "templateHash": "15241172786992673690"
                             }
                           },
                           "parameters": {
@@ -2506,6 +2510,7 @@
                               "hostPools": "vdpool",
                               "ipConfigurations": "ipconf",
                               "keyVaults": "kv",
+                              "localNetworkGateways": "lgw",
                               "logAnalyticsWorkspaces": "log",
                               "netAppAccounts": "naa",
                               "netAppCapacityPools": "nacp",
@@ -2525,6 +2530,7 @@
                               "subnets": "snet",
                               "userAssignedIdentities": "id",
                               "virtualMachines": "vm",
+                              "virtualNetworkGateways": "vgw",
                               "virtualNetworks": "vnet",
                               "workspaces": "vdws"
                             },
@@ -2587,6 +2593,7 @@
                               "keyVaultDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, variables('resourceAbbreviations').keyVaults)]",
                               "keyVaultNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').networkInterfaces), variables('tokens').service, variables('resourceAbbreviations').keyVaults)]",
                               "keyVaultPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').privateEndpoints), variables('tokens').service, variables('resourceAbbreviations').keyVaults)]",
+                              "localNetworkGateway": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').localNetworkGateways)]",
                               "logAnalyticsWorkspace": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').logAnalyticsWorkspaces)]",
                               "logAnalyticsWorkspaceDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, variables('resourceAbbreviations').logAnalyticsWorkspaces)]",
                               "netAppAccount": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').netAppAccounts)]",
@@ -2619,6 +2626,7 @@
                               "virtualMachineNetworkInterfaceDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, format('{0}{1}{2}', variables('resourceAbbreviations').networkInterfaces, parameters('delimiter'), variables('resourceAbbreviations').virtualMachines))]",
                               "virtualNetwork": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').virtualNetworks)]",
                               "virtualNetworkDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, variables('resourceAbbreviations').virtualNetworks)]",
+                              "virtualNetworkGateway": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').virtualNetworkGateways)]",
                               "workspace": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').workspaces)]",
                               "workspaceDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, variables('resourceAbbreviations').workspaces)]",
                               "workspaceNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').networkInterfaces), variables('tokens').service, variables('resourceAbbreviations').workspaces)]",
@@ -10611,7 +10619,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.35.1.17967",
-              "templateHash": "17725741060514646332"
+              "templateHash": "15258903515918742439"
             }
           },
           "parameters": {
@@ -10930,7 +10938,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.35.1.17967",
-                      "templateHash": "15539250618046377062"
+                      "templateHash": "8347499720340509816"
                     }
                   },
                   "parameters": {
@@ -10978,7 +10986,8 @@
                       "type": "string"
                     },
                     "stampIndexFull": {
-                      "type": "string"
+                      "type": "string",
+                      "defaultValue": ""
                     },
                     "storageSku": {
                       "type": "string"
@@ -10988,13 +10997,14 @@
                     }
                   },
                   "variables": {
+                    "nameSuffix": "[if(empty(parameters('stampIndexFull')), '', format('{0}fslogix{1}{2}', parameters('delimiter'), parameters('delimiter'), parameters('stampIndexFull')))]",
                     "tagsNetAppAccount": "[union(if(empty(parameters('hostPoolResourceId')), createObject(), createObject('cm-resource-parent', parameters('hostPoolResourceId'))), coalesce(tryGet(parameters('tags'), 'Microsoft.NetApp/netAppAccounts'), createObject()), parameters('mlzTags'))]"
                   },
                   "resources": [
                     {
                       "type": "Microsoft.NetApp/netAppAccounts",
                       "apiVersion": "2021-06-01",
-                      "name": "[format('{0}{1}fslogix{2}{3}', parameters('netAppAccountNamePrefix'), parameters('delimiter'), parameters('delimiter'), parameters('stampIndexFull'))]",
+                      "name": "[format('{0}{1}', parameters('netAppAccountNamePrefix'), variables('nameSuffix'))]",
                       "location": "[parameters('location')]",
                       "tags": "[variables('tagsNetAppAccount')]",
                       "properties": {
@@ -11017,7 +11027,7 @@
                     {
                       "type": "Microsoft.NetApp/netAppAccounts/capacityPools",
                       "apiVersion": "2021-06-01",
-                      "name": "[format('{0}/{1}', format('{0}{1}fslogix{2}{3}', parameters('netAppAccountNamePrefix'), parameters('delimiter'), parameters('delimiter'), parameters('stampIndexFull')), format('{0}{1}fslogix{2}{3}', parameters('netAppCapacityPoolNamePrefix'), parameters('delimiter'), parameters('delimiter'), parameters('stampIndexFull')))]",
+                      "name": "[format('{0}/{1}', format('{0}{1}', parameters('netAppAccountNamePrefix'), variables('nameSuffix')), format('{0}{1}', parameters('netAppCapacityPoolNamePrefix'), variables('nameSuffix')))]",
                       "location": "[parameters('location')]",
                       "tags": "[variables('tagsNetAppAccount')]",
                       "properties": {
@@ -11028,7 +11038,7 @@
                         "size": 4398046511104
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.NetApp/netAppAccounts', format('{0}{1}fslogix{2}{3}', parameters('netAppAccountNamePrefix'), parameters('delimiter'), parameters('delimiter'), parameters('stampIndexFull')))]"
+                        "[resourceId('Microsoft.NetApp/netAppAccounts', format('{0}{1}', parameters('netAppAccountNamePrefix'), variables('nameSuffix')))]"
                       ]
                     },
                     {
@@ -11038,7 +11048,7 @@
                       },
                       "type": "Microsoft.NetApp/netAppAccounts/capacityPools/volumes",
                       "apiVersion": "2021-06-01",
-                      "name": "[format('{0}/{1}/{2}', format('{0}{1}fslogix{2}{3}', parameters('netAppAccountNamePrefix'), parameters('delimiter'), parameters('delimiter'), parameters('stampIndexFull')), format('{0}{1}fslogix{2}{3}', parameters('netAppCapacityPoolNamePrefix'), parameters('delimiter'), parameters('delimiter'), parameters('stampIndexFull')), parameters('fileShares')[range(0, length(parameters('fileShares')))[copyIndex()]])]",
+                      "name": "[format('{0}/{1}/{2}', format('{0}{1}', parameters('netAppAccountNamePrefix'), variables('nameSuffix')), format('{0}{1}', parameters('netAppCapacityPoolNamePrefix'), variables('nameSuffix')), parameters('fileShares')[range(0, length(parameters('fileShares')))[copyIndex()]])]",
                       "location": "[parameters('location')]",
                       "tags": "[variables('tagsNetAppAccount')]",
                       "properties": {
@@ -11064,7 +11074,7 @@
                         "usageThreshold": 107374182400
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.NetApp/netAppAccounts/capacityPools', format('{0}{1}fslogix{2}{3}', parameters('netAppAccountNamePrefix'), parameters('delimiter'), parameters('delimiter'), parameters('stampIndexFull')), format('{0}{1}fslogix{2}{3}', parameters('netAppCapacityPoolNamePrefix'), parameters('delimiter'), parameters('delimiter'), parameters('stampIndexFull')))]"
+                        "[resourceId('Microsoft.NetApp/netAppAccounts/capacityPools', format('{0}{1}', parameters('netAppAccountNamePrefix'), variables('nameSuffix')), format('{0}{1}', parameters('netAppCapacityPoolNamePrefix'), variables('nameSuffix')))]"
                       ]
                     }
                   ],
@@ -11073,7 +11083,7 @@
                       "type": "array",
                       "copy": {
                         "count": "[length(parameters('fileShares'))]",
-                        "input": "[reference(resourceId('Microsoft.NetApp/netAppAccounts/capacityPools/volumes', format('{0}{1}fslogix{2}{3}', parameters('netAppAccountNamePrefix'), parameters('delimiter'), parameters('delimiter'), parameters('stampIndexFull')), format('{0}{1}fslogix{2}{3}', parameters('netAppCapacityPoolNamePrefix'), parameters('delimiter'), parameters('delimiter'), parameters('stampIndexFull')), parameters('fileShares')[range(0, length(parameters('fileShares')))[copyIndex()]]), '2021-06-01').mountTargets[0].smbServerFqdn]"
+                        "input": "[reference(resourceId('Microsoft.NetApp/netAppAccounts/capacityPools/volumes', format('{0}{1}', parameters('netAppAccountNamePrefix'), variables('nameSuffix')), format('{0}{1}', parameters('netAppCapacityPoolNamePrefix'), variables('nameSuffix')), parameters('fileShares')[range(0, length(parameters('fileShares')))[copyIndex()]]), '2021-06-01').mountTargets[0].smbServerFqdn]"
                       }
                     },
                     "smbServerNamePrefix": {
