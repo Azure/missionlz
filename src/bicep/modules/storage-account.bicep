@@ -4,7 +4,6 @@ Licensed under the MIT License.
 */
 
 param blobsPrivateDnsZoneResourceId string
-param delimiter string
 param filesPrivateDnsZoneResourceId string
 param keyVaultUri string
 param location string
@@ -21,23 +20,23 @@ param userAssignedIdentityResourceId string
 var  subResources = [
   {
     id: blobsPrivateDnsZoneResourceId
-    nic: '${tier.namingConvention.storageAccountBlobNetworkInterface}${delimiter}blob'
-    pe: '${tier.namingConvention.storageAccountBlobPrivateEndpoint}${delimiter}blob'
+    nic: '${tier.namingConvention.storageAccountBlobNetworkInterface}'
+    pe: '${tier.namingConvention.storageAccountBlobPrivateEndpoint}'
   }
   {
     id: filesPrivateDnsZoneResourceId
-    nic: '${tier.namingConvention.storageAccountFileNetworkInterface}${delimiter}file'
-    pe: '${tier.namingConvention.storageAccountFilePrivateEndpoint}${delimiter}file'
+    nic: '${tier.namingConvention.storageAccountFileNetworkInterface}'
+    pe: '${tier.namingConvention.storageAccountFilePrivateEndpoint}'
   }
   {
     id: queuesPrivateDnsZoneResourceId
-    nic: '${tier.namingConvention.storageAccountQueueNetworkInterface}${delimiter}queue'
-    pe: '${tier.namingConvention.storageAccountQueuePrivateEndpoint}${delimiter}queue'
+    nic: '${tier.namingConvention.storageAccountQueueNetworkInterface}'
+    pe: '${tier.namingConvention.storageAccountQueuePrivateEndpoint}'
   }
   {
     id: tablesPrivateDnsZoneResourceId
-    nic: '${tier.namingConvention.storageAccountTableNetworkInterface}${delimiter}table'
-    pe: '${tier.namingConvention.storageAccountTablePrivateEndpoint}${delimiter}table'
+    nic: '${tier.namingConvention.storageAccountTableNetworkInterface}'
+    pe: '${tier.namingConvention.storageAccountTablePrivateEndpoint}'
   }
 ]
 
