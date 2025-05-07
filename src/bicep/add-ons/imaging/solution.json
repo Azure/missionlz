@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "16080659819268783590"
+      "templateHash": "1407248160518395536"
     }
   },
   "parameters": {
@@ -691,7 +691,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.35.1.17967",
-              "templateHash": "5037226243085012521"
+              "templateHash": "14923350531482758439"
             }
           },
           "parameters": {
@@ -3819,9 +3819,6 @@
                   "blobsPrivateDnsZoneResourceId": {
                     "value": "[resourceId(variables('hubSubscriptionId'), variables('hubResourceGroupName'), 'Microsoft.Network/privateDnsZones', format('privatelink.blob.{0}', environment().suffixes.storage))]"
                   },
-                  "delimiter": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tiers.value[0].delimiter]"
-                  },
                   "filesPrivateDnsZoneResourceId": {
                     "value": "[resourceId(variables('hubSubscriptionId'), variables('hubResourceGroupName'), 'Microsoft.Network/privateDnsZones', format('privatelink.file.{0}', environment().suffixes.storage))]"
                   },
@@ -3869,14 +3866,11 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.35.1.17967",
-                      "templateHash": "17898653294342938873"
+                      "templateHash": "15266859505449194876"
                     }
                   },
                   "parameters": {
                     "blobsPrivateDnsZoneResourceId": {
-                      "type": "string"
-                    },
-                    "delimiter": {
                       "type": "string"
                     },
                     "filesPrivateDnsZoneResourceId": {
@@ -3935,9 +3929,6 @@
                           "blobsPrivateDnsZoneResourceId": {
                             "value": "[parameters('blobsPrivateDnsZoneResourceId')]"
                           },
-                          "delimiter": {
-                            "value": "[parameters('delimiter')]"
-                          },
                           "filesPrivateDnsZoneResourceId": {
                             "value": "[parameters('filesPrivateDnsZoneResourceId')]"
                           },
@@ -3982,14 +3973,11 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.35.1.17967",
-                              "templateHash": "5917588950028622585"
+                              "templateHash": "1051848627278772577"
                             }
                           },
                           "parameters": {
                             "blobsPrivateDnsZoneResourceId": {
-                              "type": "string"
-                            },
-                            "delimiter": {
                               "type": "string"
                             },
                             "filesPrivateDnsZoneResourceId": {
@@ -4033,23 +4021,23 @@
                             "subResources": [
                               {
                                 "id": "[parameters('blobsPrivateDnsZoneResourceId')]",
-                                "nic": "[format('{0}{1}blob', parameters('tier').namingConvention.storageAccountBlobNetworkInterface, parameters('delimiter'))]",
-                                "pe": "[format('{0}{1}blob', parameters('tier').namingConvention.storageAccountBlobPrivateEndpoint, parameters('delimiter'))]"
+                                "nic": "[format('{0}', parameters('tier').namingConvention.storageAccountBlobNetworkInterface)]",
+                                "pe": "[format('{0}', parameters('tier').namingConvention.storageAccountBlobPrivateEndpoint)]"
                               },
                               {
                                 "id": "[parameters('filesPrivateDnsZoneResourceId')]",
-                                "nic": "[format('{0}{1}file', parameters('tier').namingConvention.storageAccountFileNetworkInterface, parameters('delimiter'))]",
-                                "pe": "[format('{0}{1}file', parameters('tier').namingConvention.storageAccountFilePrivateEndpoint, parameters('delimiter'))]"
+                                "nic": "[format('{0}', parameters('tier').namingConvention.storageAccountFileNetworkInterface)]",
+                                "pe": "[format('{0}', parameters('tier').namingConvention.storageAccountFilePrivateEndpoint)]"
                               },
                               {
                                 "id": "[parameters('queuesPrivateDnsZoneResourceId')]",
-                                "nic": "[format('{0}{1}queue', parameters('tier').namingConvention.storageAccountQueueNetworkInterface, parameters('delimiter'))]",
-                                "pe": "[format('{0}{1}queue', parameters('tier').namingConvention.storageAccountQueuePrivateEndpoint, parameters('delimiter'))]"
+                                "nic": "[format('{0}', parameters('tier').namingConvention.storageAccountQueueNetworkInterface)]",
+                                "pe": "[format('{0}', parameters('tier').namingConvention.storageAccountQueuePrivateEndpoint)]"
                               },
                               {
                                 "id": "[parameters('tablesPrivateDnsZoneResourceId')]",
-                                "nic": "[format('{0}{1}table', parameters('tier').namingConvention.storageAccountTableNetworkInterface, parameters('delimiter'))]",
-                                "pe": "[format('{0}{1}table', parameters('tier').namingConvention.storageAccountTablePrivateEndpoint, parameters('delimiter'))]"
+                                "nic": "[format('{0}', parameters('tier').namingConvention.storageAccountTableNetworkInterface)]",
+                                "pe": "[format('{0}', parameters('tier').namingConvention.storageAccountTablePrivateEndpoint)]"
                               }
                             ]
                           },
