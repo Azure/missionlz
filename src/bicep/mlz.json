@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "3889498231113191607"
+      "templateHash": "13039901843768393524"
     }
   },
   "parameters": {
@@ -1031,7 +1031,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.35.1.17967",
-              "templateHash": "5934929405338074034"
+              "templateHash": "14785040201525541203"
             }
           },
           "parameters": {
@@ -1101,7 +1101,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.35.1.17967",
-                      "templateHash": "13661043292085718432"
+                      "templateHash": "13287936924172099599"
                     }
                   },
                   "parameters": {
@@ -1505,6 +1505,7 @@
                       "hostPools": "vdpool",
                       "ipConfigurations": "ipconf",
                       "keyVaults": "kv",
+                      "localNetworkGateways": "lgw",
                       "logAnalyticsWorkspaces": "log",
                       "netAppAccounts": "naa",
                       "netAppCapacityPools": "nacp",
@@ -1524,6 +1525,7 @@
                       "subnets": "snet",
                       "userAssignedIdentities": "id",
                       "virtualMachines": "vm",
+                      "virtualNetworkGateways": "vgw",
                       "virtualNetworks": "vnet",
                       "workspaces": "vdws"
                     },
@@ -1545,7 +1547,7 @@
                       "service": "service_token"
                     },
                     "namingConvention": "[format('{0}{1}{2}{3}{4}{5}{6}{7}{8}', toLower(parameters('identifier')), parameters('delimiter'), parameters('environmentAbbreviation'), parameters('delimiter'), variables('locationAbbreviation'), parameters('delimiter'), parameters('networkName'), parameters('delimiter'), variables('tokens').resource)]",
-                    "namingConvention_Service": "[format('{0}{1}{2}{3}{4}{5}{6}{7}{8}{9}{10}', toLower(parameters('identifier')), parameters('delimiter'), parameters('environmentAbbreviation'), parameters('delimiter'), variables('locationAbbreviation'), parameters('delimiter'), parameters('networkName'), parameters('delimiter'), variables('tokens').resource, parameters('delimiter'), variables('tokens').service)]",
+                    "namingConvention_Service": "[format('{0}{1}{2}{3}{4}{5}{6}{7}{8}{9}{10}', toLower(parameters('identifier')), parameters('delimiter'), parameters('environmentAbbreviation'), parameters('delimiter'), variables('locationAbbreviation'), parameters('delimiter'), parameters('networkName'), parameters('delimiter'), variables('tokens').service, parameters('delimiter'), variables('tokens').resource)]",
                     "names": {
                       "actionGroup": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').actionGroups)]",
                       "applicationGroup": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').applicationGroups)]",
@@ -1586,6 +1588,7 @@
                       "keyVaultDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, variables('resourceAbbreviations').keyVaults)]",
                       "keyVaultNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').networkInterfaces), variables('tokens').service, variables('resourceAbbreviations').keyVaults)]",
                       "keyVaultPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').privateEndpoints), variables('tokens').service, variables('resourceAbbreviations').keyVaults)]",
+                      "localNetworkGateway": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').localNetworkGateways)]",
                       "logAnalyticsWorkspace": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').logAnalyticsWorkspaces)]",
                       "logAnalyticsWorkspaceDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, variables('resourceAbbreviations').logAnalyticsWorkspaces)]",
                       "netAppAccount": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').netAppAccounts)]",
@@ -1607,9 +1610,18 @@
                       "scalingPlan": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').scalingPlans)]",
                       "scalingPlanDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, variables('resourceAbbreviations').scalingPlans)]",
                       "storageAccount": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').storageAccounts)]",
-                      "storageAccountDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, variables('resourceAbbreviations').storageAccounts)]",
-                      "storageAccountNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').networkInterfaces), variables('tokens').service, variables('resourceAbbreviations').storageAccounts)]",
-                      "storageAccountPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').privateEndpoints), variables('tokens').service, variables('resourceAbbreviations').storageAccounts)]",
+                      "storageAccountBlobDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, format('{0}{1}blob', variables('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
+                      "storageAccountBlobNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').networkInterfaces), variables('tokens').service, format('{0}{1}blob', variables('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
+                      "storageAccountBlobPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').privateEndpoints), variables('tokens').service, format('{0}{1}blob', variables('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
+                      "storageAccountFileDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, format('{0}{1}file', variables('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
+                      "storageAccountFileNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').networkInterfaces), variables('tokens').service, format('{0}{1}file', variables('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
+                      "storageAccountFilePrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').privateEndpoints), variables('tokens').service, format('{0}{1}file', variables('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
+                      "storageAccountQueueDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, format('{0}{1}queue', variables('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
+                      "storageAccountQueueNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').networkInterfaces), variables('tokens').service, format('{0}{1}queue', variables('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
+                      "storageAccountQueuePrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').privateEndpoints), variables('tokens').service, format('{0}{1}queue', variables('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
+                      "storageAccountTableDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, format('{0}{1}table', variables('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
+                      "storageAccountTableNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').networkInterfaces), variables('tokens').service, format('{0}{1}table', variables('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
+                      "storageAccountTablePrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').privateEndpoints), variables('tokens').service, format('{0}{1}table', variables('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
                       "subnet": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').subnets)]",
                       "userAssignedIdentity": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').userAssignedIdentities)]",
                       "virtualMachine": "[replace(replace(replace(replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').virtualMachines), parameters('environmentAbbreviation'), first(parameters('environmentAbbreviation'))), parameters('networkName'), ''), parameters('delimiter'), '')]",
@@ -1618,6 +1630,7 @@
                       "virtualMachineNetworkInterfaceDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, format('{0}{1}{2}', variables('resourceAbbreviations').networkInterfaces, parameters('delimiter'), variables('resourceAbbreviations').virtualMachines))]",
                       "virtualNetwork": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').virtualNetworks)]",
                       "virtualNetworkDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, variables('resourceAbbreviations').virtualNetworks)]",
+                      "virtualNetworkGateway": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').virtualNetworkGateways)]",
                       "workspace": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').workspaces)]",
                       "workspaceDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, variables('resourceAbbreviations').workspaces)]",
                       "workspaceNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').networkInterfaces), variables('tokens').service, variables('resourceAbbreviations').workspaces)]",
@@ -7045,7 +7058,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.35.1.17967",
-              "templateHash": "6324236067008020810"
+              "templateHash": "2033346037658722538"
             }
           },
           "parameters": {
@@ -7162,7 +7175,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.35.1.17967",
-                      "templateHash": "14042209681173139334"
+                      "templateHash": "5917588950028622585"
                     }
                   },
                   "parameters": {
@@ -7213,23 +7226,23 @@
                     "subResources": [
                       {
                         "id": "[parameters('blobsPrivateDnsZoneResourceId')]",
-                        "nic": "[format('{0}{1}blob', parameters('tier').namingConvention.storageAccountNetworkInterface, parameters('delimiter'))]",
-                        "pe": "[format('{0}{1}blob', parameters('tier').namingConvention.storageAccountPrivateEndpoint, parameters('delimiter'))]"
+                        "nic": "[format('{0}{1}blob', parameters('tier').namingConvention.storageAccountBlobNetworkInterface, parameters('delimiter'))]",
+                        "pe": "[format('{0}{1}blob', parameters('tier').namingConvention.storageAccountBlobPrivateEndpoint, parameters('delimiter'))]"
                       },
                       {
                         "id": "[parameters('filesPrivateDnsZoneResourceId')]",
-                        "nic": "[format('{0}{1}file', parameters('tier').namingConvention.storageAccountNetworkInterface, parameters('delimiter'))]",
-                        "pe": "[format('{0}{1}file', parameters('tier').namingConvention.storageAccountPrivateEndpoint, parameters('delimiter'))]"
+                        "nic": "[format('{0}{1}file', parameters('tier').namingConvention.storageAccountFileNetworkInterface, parameters('delimiter'))]",
+                        "pe": "[format('{0}{1}file', parameters('tier').namingConvention.storageAccountFilePrivateEndpoint, parameters('delimiter'))]"
                       },
                       {
                         "id": "[parameters('queuesPrivateDnsZoneResourceId')]",
-                        "nic": "[format('{0}{1}queue', parameters('tier').namingConvention.storageAccountNetworkInterface, parameters('delimiter'))]",
-                        "pe": "[format('{0}{1}queue', parameters('tier').namingConvention.storageAccountPrivateEndpoint, parameters('delimiter'))]"
+                        "nic": "[format('{0}{1}queue', parameters('tier').namingConvention.storageAccountQueueNetworkInterface, parameters('delimiter'))]",
+                        "pe": "[format('{0}{1}queue', parameters('tier').namingConvention.storageAccountQueuePrivateEndpoint, parameters('delimiter'))]"
                       },
                       {
                         "id": "[parameters('tablesPrivateDnsZoneResourceId')]",
-                        "nic": "[format('{0}{1}table', parameters('tier').namingConvention.storageAccountNetworkInterface, parameters('delimiter'))]",
-                        "pe": "[format('{0}{1}table', parameters('tier').namingConvention.storageAccountPrivateEndpoint, parameters('delimiter'))]"
+                        "nic": "[format('{0}{1}table', parameters('tier').namingConvention.storageAccountTableNetworkInterface, parameters('delimiter'))]",
+                        "pe": "[format('{0}{1}table', parameters('tier').namingConvention.storageAccountTablePrivateEndpoint, parameters('delimiter'))]"
                       }
                     ]
                   },
