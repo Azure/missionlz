@@ -846,7 +846,6 @@ module storage 'modules/storage.bicep' = {
   name: 'deploy-log-storage-${deploymentNameSuffix}'
   params: {
     blobsPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.blob
-    delimiter: logic.outputs.delimiter
     //deployIdentity: deployIdentity
     deploymentNameSuffix: deploymentNameSuffix
     filesPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.file

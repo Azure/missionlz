@@ -330,7 +330,6 @@ module storage 'modules/storage.bicep' = if (!(empty(virtualNetworkAddressPrefix
   name: 'deploy-storage-${workloadShortName}-${deploymentNameSuffix}'
   params: {
     blobsPrivateDnsZoneResourceId: resourceId(hubSubscriptionId, hubResourceGroupName, 'Microsoft.Network/privateDnsZones', 'privatelink.blob.${environment().suffixes.storage}')
-    delimiter: logic.outputs.tiers[0].delimiter
     filesPrivateDnsZoneResourceId: resourceId(hubSubscriptionId, hubResourceGroupName, 'Microsoft.Network/privateDnsZones', 'privatelink.file.${environment().suffixes.storage}')
     keyVaultUri: customerManagedKeys.outputs.keyVaultUri
     location: location

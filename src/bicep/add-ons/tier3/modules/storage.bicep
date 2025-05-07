@@ -6,7 +6,6 @@ Licensed under the MIT License.
 targetScope = 'subscription'
 
 param blobsPrivateDnsZoneResourceId string
-param delimiter string
 param filesPrivateDnsZoneResourceId string
 param keyVaultUri string
 param logStorageSkuName string
@@ -26,7 +25,6 @@ module storageAccount '../../../modules/storage-account.bicep' = {
   scope: resourceGroup(tier.subscriptionId, resourceGroupName)
   params: {
     blobsPrivateDnsZoneResourceId: blobsPrivateDnsZoneResourceId
-    delimiter: delimiter
     filesPrivateDnsZoneResourceId: filesPrivateDnsZoneResourceId
     keyVaultUri: keyVaultUri
     location: location
