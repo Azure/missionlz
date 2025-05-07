@@ -21,23 +21,23 @@ param userAssignedIdentityResourceId string
 var  subResources = [
   {
     id: blobsPrivateDnsZoneResourceId
-    nic: '${tier.namingConvention.storageAccountNetworkInterface}${delimiter}blob'
-    pe: '${tier.namingConvention.storageAccountPrivateEndpoint}${delimiter}blob'
+    nic: '${tier.namingConvention.storageAccountBlobNetworkInterface}${delimiter}blob'
+    pe: '${tier.namingConvention.storageAccountBlobPrivateEndpoint}${delimiter}blob'
   }
   {
     id: filesPrivateDnsZoneResourceId
-    nic: '${tier.namingConvention.storageAccountNetworkInterface}${delimiter}file'
-    pe: '${tier.namingConvention.storageAccountPrivateEndpoint}${delimiter}file'
+    nic: '${tier.namingConvention.storageAccountFileNetworkInterface}${delimiter}file'
+    pe: '${tier.namingConvention.storageAccountFilePrivateEndpoint}${delimiter}file'
   }
   {
     id: queuesPrivateDnsZoneResourceId
-    nic: '${tier.namingConvention.storageAccountNetworkInterface}${delimiter}queue'
-    pe: '${tier.namingConvention.storageAccountPrivateEndpoint}${delimiter}queue'
+    nic: '${tier.namingConvention.storageAccountQueueNetworkInterface}${delimiter}queue'
+    pe: '${tier.namingConvention.storageAccountQueuePrivateEndpoint}${delimiter}queue'
   }
   {
     id: tablesPrivateDnsZoneResourceId
-    nic: '${tier.namingConvention.storageAccountNetworkInterface}${delimiter}table'
-    pe: '${tier.namingConvention.storageAccountPrivateEndpoint}${delimiter}table'
+    nic: '${tier.namingConvention.storageAccountTableNetworkInterface}${delimiter}table'
+    pe: '${tier.namingConvention.storageAccountTablePrivateEndpoint}${delimiter}table'
   }
 ]
 
