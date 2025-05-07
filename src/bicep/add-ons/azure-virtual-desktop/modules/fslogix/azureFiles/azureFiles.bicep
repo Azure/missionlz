@@ -151,14 +151,14 @@ module shares 'shares.bicep' = [for i in range(0, storageCount): {
 }]
 
 resource privateEndpoints 'Microsoft.Network/privateEndpoints@2023-04-01' = [for i in range(0, storageCount): {
-  name: '${namingConvention.storageAccountPrivateEndpoint}${delimiter}file${delimiter}fslogix${delimiter}${stampIndexFull}${padLeft(i + storageIndex, 2, '0')}'
+  name: '${namingConvention.storageAccountFilePrivateEndpoint}${delimiter}fslogix${delimiter}${stampIndexFull}${padLeft(i + storageIndex, 2, '0')}'
   location: location
   tags: tagsPrivateEndpoints
   properties: {
-    customNetworkInterfaceName: '${namingConvention.storageAccountNetworkInterface}${delimiter}file${delimiter}fslogix${delimiter}${stampIndexFull}${padLeft(i + storageIndex, 2, '0')}'
+    customNetworkInterfaceName: '${namingConvention.storageAccountFileNetworkInterface}${delimiter}fslogix${delimiter}${stampIndexFull}${padLeft(i + storageIndex, 2, '0')}'
     privateLinkServiceConnections: [
       {
-        name: '${namingConvention.storageAccountPrivateEndpoint}${delimiter}file${delimiter}fslogix${delimiter}${stampIndexFull}${padLeft(i + storageIndex, 2, '0')}'
+        name: '${namingConvention.storageAccountFilePrivateEndpoint}${delimiter}fslogix${delimiter}${stampIndexFull}${padLeft(i + storageIndex, 2, '0')}'
         properties: {
           privateLinkServiceId: storageAccounts[i].id
           groupIds: [
