@@ -286,7 +286,7 @@ resource privateDnsZoneGroups_storage 'Microsoft.Network/privateEndpoints/privat
 
 resource diagnosticSetting_storage_blob 'Microsoft.Insights/diagnosticsettings@2017-05-01-preview' = if (enableApplicationInsights) {
   scope: blobService
-  name: '${namingConvention.storageAccountDiagnosticSetting}${delimiter}blob${delimiter}${resourceSuffix}'
+  name: '${namingConvention.storageAccountBlobDiagnosticSetting}${delimiter}${resourceSuffix}'
   properties: {
     logs: [
       {
