@@ -257,7 +257,7 @@ module rg '../../modules/resource-group.bicep' = if (!(empty(virtualNetworkAddre
   params: {
     location: location
     mlzTags: logic.outputs.mlzTags
-    name: '${logic.outputs.tiers[0].namingConvention.resourceGroup}${logic.outputs.tiers[0].delimiter}network'
+    name: '${logic.outputs.tiers[0].namingConvention.resourceGroup}${logic.outputs.delimiter}network'
     tags: tags
   }
 }
@@ -284,22 +284,7 @@ module networking 'modules/networking.bicep' = if (!(empty(virtualNetworkAddress
     tags: tags
     virtualNetworkAddressPrefix: virtualNetworkAddressPrefix
     virtualNetworkName: logic.outputs.tiers[0].namingConvention.virtualNetwork
-    vNetDnsServers: virtualNetwork_hub.properties.?dhcpOptions.dnsServers ?? [] 
-    workloadShortName: workloadShortName
-  }
-}
-
-// This module deploys VNET links when the Azure Firewall SKU is "Basic".
-module virtualNetworkLinks 'modules/virtual-network-links.bicep' = if (!(empty(virtualNetworkAddressPrefix))) {
-  name: 'deploy-vnet-links-${workloadShortName}-sub-${deploymentNameSuffix}'
-  scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
-  params: {
-    azureFirewallSku: azureFirewall.properties.sku.tier
-    deploymentNameSuffix: deploymentNameSuffix
-    privateDnsZoneNames: logic.outputs.privateDnsZones
-    virtualNetworkName: networking.outputs.virtualNetworkName
-    virtualNetworkResourceGroupName: rg.outputs.name
-    virtualNetworkSubscriptionId: subscriptionId
+    vNetDnsServers: virtualNetwork_hub.properties.dhcpOptions.dnsServers
     workloadShortName: workloadShortName
   }
 }
