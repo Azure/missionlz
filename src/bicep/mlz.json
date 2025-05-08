@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "8315391470282289321"
+      "templateHash": "8522358935351506511"
     }
   },
   "parameters": {
@@ -338,12 +338,11 @@
       "type": "string",
       "defaultValue": "Premium",
       "allowedValues": [
-        "Standard",
         "Premium",
-        "Basic"
+        "Standard"
       ],
       "metadata": {
-        "description": "[Standard/Premium/Basic] The SKU for Azure Firewall. Default value = \"Premium\". Selecting a value other than Premium is not recommended for environments that are required to be SCCA compliant."
+        "description": "[Premium/Standard] The SKU for Azure Firewall. Default value = \"Premium\". Selecting a value other than Premium is not recommended for environments that are required to be SCCA compliant."
       }
     },
     "firewallSupernetIPAddress": {
@@ -1995,7 +1994,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.35.1.17967",
-              "templateHash": "7100061568706487034"
+              "templateHash": "3731992784521942800"
             }
           },
           "parameters": {
@@ -2166,7 +2165,11 @@
                   "virtualNetworkName": {
                     "value": "[variables('hub').namingConvention.virtualNetwork]"
                   },
-                  "vNetDnsServers": "[if(or(equals(parameters('firewallSettings').skuTier, 'Premium'), equals(parameters('firewallSettings').skuTier, 'Standard')), createObject('value', createArray(parameters('firewallSettings').clientPrivateIpAddress)), createObject('value', createArray()))]"
+                  "vNetDnsServers": {
+                    "value": [
+                      "[parameters('firewallSettings').clientPrivateIpAddress]"
+                    ]
+                  }
                 },
                 "template": {
                   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -2175,7 +2178,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.35.1.17967",
-                      "templateHash": "12573657235810242297"
+                      "templateHash": "13407216839805027498"
                     }
                   },
                   "parameters": {
@@ -2773,7 +2776,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.35.1.17967",
-                              "templateHash": "8506935914125613538"
+                              "templateHash": "7840386815102120323"
                             }
                           },
                           "parameters": {
@@ -2813,7 +2816,9 @@
                                   ]
                                 },
                                 "subnets": "[parameters('subnets')]",
-                                "dhcpOptions": "[if(empty(parameters('vNetDnsServers')), null(), createObject('dnsServers', parameters('vNetDnsServers')))]"
+                                "dhcpOptions": {
+                                  "dnsServers": "[parameters('vNetDnsServers')]"
+                                }
                               }
                             }
                           ],
@@ -3091,7 +3096,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.35.1.17967",
-                              "templateHash": "13846683168357544936"
+                              "templateHash": "2314857396402576240"
                             }
                           },
                           "parameters": {
@@ -3136,9 +3141,8 @@
                             "skuTier": {
                               "type": "string",
                               "allowedValues": [
-                                "Standard",
                                 "Premium",
-                                "Basic"
+                                "Standard"
                               ]
                             },
                             "tags": {
@@ -3179,7 +3183,7 @@
                                 "sku": {
                                   "tier": "[parameters('skuTier')]"
                                 },
-                                "dnsSettings": "[if(or(equals(parameters('skuTier'), 'Premium'), equals(parameters('skuTier'), 'Standard')), variables('dnsSettings'), null())]"
+                                "dnsSettings": "[variables('dnsSettings')]"
                               },
                               "metadata": {
                                 "description": "Azure Firewall Policy"
@@ -3436,7 +3440,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.35.1.17967",
-                      "templateHash": "14493665036957101147"
+                      "templateHash": "5613499601881528509"
                     }
                   },
                   "parameters": {
@@ -3820,7 +3824,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.35.1.17967",
-                              "templateHash": "8506935914125613538"
+                              "templateHash": "7840386815102120323"
                             }
                           },
                           "parameters": {
@@ -3860,7 +3864,9 @@
                                   ]
                                 },
                                 "subnets": "[parameters('subnets')]",
-                                "dhcpOptions": "[if(empty(parameters('vNetDnsServers')), null(), createObject('dnsServers', parameters('vNetDnsServers')))]"
+                                "dhcpOptions": {
+                                  "dnsServers": "[parameters('vNetDnsServers')]"
+                                }
                               }
                             }
                           ],

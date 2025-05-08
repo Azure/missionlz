@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "14923350531482758439"
+      "templateHash": "13149826751888902667"
     }
   },
   "parameters": {
@@ -1244,7 +1244,7 @@
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
           },
           "name": {
-            "value": "[format('{0}{1}network', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tiers.value[0].namingConvention.resourceGroup, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tiers.value[0].delimiter)]"
+            "value": "[format('{0}{1}network', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tiers.value[0].namingConvention.resourceGroup, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.delimiter.value)]"
           },
           "tags": {
             "value": "[parameters('tags')]"
@@ -1376,7 +1376,7 @@
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tiers.value[0].namingConvention.virtualNetwork]"
           },
           "vNetDnsServers": {
-            "value": "[coalesce(tryGet(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01'), 'dhcpOptions', 'dnsServers'), createArray())]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01').dhcpOptions.dnsServers]"
           },
           "workloadShortName": {
             "value": "[parameters('workloadShortName')]"
@@ -1389,7 +1389,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.35.1.17967",
-              "templateHash": "18206312036694732237"
+              "templateHash": "5052399608564637053"
             }
           },
           "parameters": {
@@ -1531,7 +1531,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.35.1.17967",
-                      "templateHash": "14493665036957101147"
+                      "templateHash": "5613499601881528509"
                     }
                   },
                   "parameters": {
@@ -1915,7 +1915,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.35.1.17967",
-                              "templateHash": "8506935914125613538"
+                              "templateHash": "7840386815102120323"
                             }
                           },
                           "parameters": {
@@ -1955,7 +1955,9 @@
                                   ]
                                 },
                                 "subnets": "[parameters('subnets')]",
-                                "dhcpOptions": "[if(empty(parameters('vNetDnsServers')), null(), createObject('dnsServers', parameters('vNetDnsServers')))]"
+                                "dhcpOptions": {
+                                  "dnsServers": "[parameters('vNetDnsServers')]"
+                                }
                               }
                             }
                           ],
@@ -2296,153 +2298,6 @@
       },
       "dependsOn": [
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix')))]"
-      ]
-    },
-    {
-      "condition": "[not(empty(parameters('virtualNetworkAddressPrefix')))]",
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
-      "name": "[format('deploy-vnet-links-{0}-sub-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))]",
-      "subscriptionId": "[variables('hubSubscriptionId')]",
-      "resourceGroup": "[variables('hubResourceGroupName')]",
-      "properties": {
-        "expressionEvaluationOptions": {
-          "scope": "inner"
-        },
-        "mode": "Incremental",
-        "parameters": {
-          "azureFirewallSku": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('firewallResourceId'), '/')[2], split(parameters('firewallResourceId'), '/')[4]), 'Microsoft.Network/azureFirewalls', split(parameters('firewallResourceId'), '/')[8]), '2020-11-01').sku.tier]"
-          },
-          "deploymentNameSuffix": {
-            "value": "[parameters('deploymentNameSuffix')]"
-          },
-          "privateDnsZoneNames": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.privateDnsZones.value]"
-          },
-          "virtualNetworkName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.virtualNetworkName.value]"
-          },
-          "virtualNetworkResourceGroupName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
-          },
-          "virtualNetworkSubscriptionId": {
-            "value": "[variables('subscriptionId')]"
-          },
-          "workloadShortName": {
-            "value": "[parameters('workloadShortName')]"
-          }
-        },
-        "template": {
-          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "contentVersion": "1.0.0.0",
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "0.35.1.17967",
-              "templateHash": "2322583040502705750"
-            }
-          },
-          "parameters": {
-            "azureFirewallSku": {
-              "type": "string"
-            },
-            "deploymentNameSuffix": {
-              "type": "string"
-            },
-            "privateDnsZoneNames": {
-              "type": "array"
-            },
-            "virtualNetworkName": {
-              "type": "string"
-            },
-            "virtualNetworkResourceGroupName": {
-              "type": "string"
-            },
-            "virtualNetworkSubscriptionId": {
-              "type": "string"
-            },
-            "workloadShortName": {
-              "type": "string"
-            }
-          },
-          "resources": [
-            {
-              "condition": "[equals(parameters('azureFirewallSku'), 'Basic')]",
-              "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2022-09-01",
-              "name": "[format('deploy-vnet-links-{0}-rg-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))]",
-              "properties": {
-                "expressionEvaluationOptions": {
-                  "scope": "inner"
-                },
-                "mode": "Incremental",
-                "parameters": {
-                  "privateDnsZoneNames": {
-                    "value": "[parameters('privateDnsZoneNames')]"
-                  },
-                  "virtualNetworkName": {
-                    "value": "[parameters('virtualNetworkName')]"
-                  },
-                  "virtualNetworkResourceGroupName": {
-                    "value": "[parameters('virtualNetworkResourceGroupName')]"
-                  },
-                  "virtualNetworkSubscriptionId": {
-                    "value": "[parameters('virtualNetworkSubscriptionId')]"
-                  }
-                },
-                "template": {
-                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                  "contentVersion": "1.0.0.0",
-                  "metadata": {
-                    "_generator": {
-                      "name": "bicep",
-                      "version": "0.35.1.17967",
-                      "templateHash": "9577584589866012463"
-                    }
-                  },
-                  "parameters": {
-                    "privateDnsZoneNames": {
-                      "type": "array"
-                    },
-                    "virtualNetworkName": {
-                      "type": "string"
-                    },
-                    "virtualNetworkResourceGroupName": {
-                      "type": "string"
-                    },
-                    "virtualNetworkSubscriptionId": {
-                      "type": "string"
-                    }
-                  },
-                  "resources": [
-                    {
-                      "copy": {
-                        "name": "virtualNetworkLinks",
-                        "count": "[length(parameters('privateDnsZoneNames'))]"
-                      },
-                      "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
-                      "apiVersion": "2018-09-01",
-                      "name": "[format('{0}/{1}', parameters('privateDnsZoneNames')[copyIndex()], parameters('virtualNetworkName'))]",
-                      "location": "global",
-                      "properties": {
-                        "registrationEnabled": false,
-                        "virtualNetwork": {
-                          "id": "[resourceId(parameters('virtualNetworkSubscriptionId'), parameters('virtualNetworkResourceGroupName'), 'Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
-                        }
-                      }
-                    }
-                  ]
-                }
-              }
-            }
-          ]
-        }
-      },
-      "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix')))]"
       ]
     },
