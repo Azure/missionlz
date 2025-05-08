@@ -20,7 +20,7 @@ param workspaceFeedPrivateEndpointName string
 param workspaceFriendlyName string
 param workspacePublicNetworkAccess string
 
-module addApplicationGroups '../common/runCommand.bicep' = if (!empty(existingFeedWorkspaceResourceId)) {
+module addApplicationGroups '../common/run-command.bicep' = if (!empty(existingFeedWorkspaceResourceId)) {
   scope: resourceGroup(resourceGroupManagement)
   name: 'add-vdag-references-${deploymentNameSuffix}'
   params: {

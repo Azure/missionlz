@@ -82,7 +82,7 @@ resource rg 'Microsoft.Resources/resourceGroups@2023-07-01' = {
 }
 
 // Sets an Azure policy to disable public network access to managed disks
-module policyAssignment '../management/policyAssignment.bicep' = {
+module policyAssignment '../management/policy-assignment.bicep' = {
   name: 'assign-policy-diskAccess-${deploymentNameSuffix}'
   scope: rg
   params: {
@@ -94,7 +94,7 @@ module policyAssignment '../management/policyAssignment.bicep' = {
   }
 }
 
-module availabilitySets 'availabilitySets.bicep' = if (hostPoolType == 'Pooled' && availability == 'AvailabilitySets') {
+module availabilitySets 'availability-sets.bicep' = if (hostPoolType == 'Pooled' && availability == 'AvailabilitySets') {
   name: 'deploy-avSets-${deploymentNameSuffix}'
   scope: rg
   params: {
@@ -109,7 +109,7 @@ module availabilitySets 'availabilitySets.bicep' = if (hostPoolType == 'Pooled' 
 // Role Assignment for Entra Joined Virtual Machines
 // Purpose: assigns the Virtual Machine Login User role on the hosts resource group
 // to enable the login to Entra joined virtual machines
-module roleAssignments '../common/roleAssignments/resourceGroup.bicep' = [for i in range(0, length(securityPrincipalObjectIds)): if (contains(activeDirectorySolution, 'EntraId')) {
+module roleAssignments '../common/role-assignments/resource-group.bicep' = [for i in range(0, length(securityPrincipalObjectIds)): if (contains(activeDirectorySolution, 'EntraId')) {
   name: 'assign-role-${i}-${deploymentNameSuffix}'
   scope: rg
   params: {
@@ -130,7 +130,7 @@ resource image 'Microsoft.Compute/galleries/images@2023-07-03' existing = if (!e
 }
 
 // Disable Autoscale if adding new session hosts to an existing host pool
-module disableAutoscale '../common/runCommand.bicep' = {
+module disableAutoscale '../common/run-command.bicep' = {
   name: 'deploy-disableAutoscale-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupManagement)
   params: {
@@ -169,7 +169,7 @@ module disableAutoscale '../common/runCommand.bicep' = {
 }
 
 @batchSize(1)
-module virtualMachines 'virtualMachines.bicep' = [for i in range(1, sessionHostBatchCount): {
+module virtualMachines 'virtual-machines.bicep' = [for i in range(1, sessionHostBatchCount): {
   name: 'deploy-vms-${i - 1}-${deploymentNameSuffix}'
   scope: rg
   params: {
@@ -253,7 +253,7 @@ module virtualMachines 'virtualMachines.bicep' = [for i in range(1, sessionHostB
   ]
 } */
 
-module scalingPlan '../management/scalingPlan.bicep' = {
+module scalingPlan '../management/scaling-plan.bicep' = {
   name: 'deploy-scalingPlan-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupManagement)
   params: {

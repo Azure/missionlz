@@ -21,7 +21,7 @@ resource backupPolicy_Vm 'Microsoft.RecoveryServices/vaults/backupPolicies@2022-
   name: 'AvdPolicyVm'
 }
 
-module protectedItems_Vm 'protectedItems.bicep' = [for i in range(1, sessionHostBatchCount): if (!deployFslogix) {
+module protectedItems_Vm 'protected-items.bicep' = [for i in range(1, sessionHostBatchCount): if (!deployFslogix) {
   name: 'deploy-backup-protected-items-${i - 1}-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupManagement) // Management Resource Group
   params: {

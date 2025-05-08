@@ -22,7 +22,7 @@ resource applicationGroup 'Microsoft.DesktopVirtualization/applicationGroups@202
 
 // Run Command to update the Application
 // Purpose: executes a script to update the friendly name on the application
-module applicationFriendlyName '../common/runCommand.bicep' = if (!empty(desktopFriendlyName)) {
+module applicationFriendlyName '../common/run-command.bicep' = if (!empty(desktopFriendlyName)) {
   name: 'deploy-vdapp-friendly-name-${deploymentNameSuffix}'
   params: {
     location: locationVirtualMachines

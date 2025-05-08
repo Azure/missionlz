@@ -316,7 +316,7 @@ resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = if (en
   kind: 'web'
 }
 
-module privateLinkScope 'privateLinkScope.bicep' = if (enableApplicationInsights) {
+module privateLinkScope 'private-link-scope.bicep' = if (enableApplicationInsights) {
   name: 'deploy-private-link-scope-appi-${deploymentNameSuffix}'
   scope: resourceGroup(split(privateLinkScopeResourceId, '/')[2], split(privateLinkScopeResourceId, '/')[4])
   params: {
@@ -472,7 +472,7 @@ resource privateDnsZoneGroup_functionApp 'Microsoft.Network/privateEndpoints/pri
 }
 
 // Required role assignment to support the zero trust deployment of a function app
-module roleAssignment_storageAccount '../common/roleAssignments/storageAccount.bicep' = {
+module roleAssignment_storageAccount '../common/role-assignments/storage-account.bicep' = {
   name: 'set-role-assignment-storage-${deploymentNameSuffix}'
   params: {
     principalId: functionApp.identity.principalId
@@ -483,7 +483,7 @@ module roleAssignment_storageAccount '../common/roleAssignments/storageAccount.b
 }
 
 // This module is used to deploy the A record for the SCM site which does not use a dedicated private endpoint
-module scmARecord 'aRecord.bicep' = {
+module scmARecord 'a-record.bicep' = {
   name: 'deploy-scm-a-record-${deploymentNameSuffix}'
   scope: resourceGroup(split(functionAppScmPrivateDnsZoneResourceId, '/')[2], split(functionAppScmPrivateDnsZoneResourceId, '/')[4])
   params: {

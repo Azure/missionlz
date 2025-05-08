@@ -72,7 +72,7 @@ resource policyDefinition 'Microsoft.Authorization/policyDefinitions@2021-06-01'
   }
 }
 
-module policyAssignment 'policyAssignment.bicep' = {
+module policyAssignment 'policy-assignment.bicep' = {
   name: 'assign-policy-disk-network-access'
   scope: resourceGroup(resourceGroupName)
   params: {

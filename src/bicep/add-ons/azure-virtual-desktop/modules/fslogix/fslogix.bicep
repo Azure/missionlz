@@ -51,7 +51,7 @@ resource resourceGroup 'Microsoft.Resources/resourceGroups@2023-07-01' = {
 // Role Assignment for FSLogix
 // Purpose: assigns the Storage Account Contributor role to the managed identity on the
 // management virtual machine  storage resource group to domain join storage account(s) & set NTFS permissions on the file share(s)
-module roleAssignment_Storage '../common/roleAssignments/resourceGroup.bicep' = {
+module roleAssignment_Storage '../common/role-assignments/resource-group.bicep' = {
   name: 'assign-role-storage-${deploymentNameSuffix}'
   scope: resourceGroup
   params: {
@@ -62,7 +62,7 @@ module roleAssignment_Storage '../common/roleAssignments/resourceGroup.bicep' = 
 }
 
 // Required role assignment for the funciton to manage the quota on Azure Files Premium
-module roleAssignments_resourceGroup '../common/roleAssignments/resourceGroup.bicep' = if (fslogixStorageService == 'AzureFiles Premium') {
+module roleAssignments_resourceGroup '../common/role-assignments/resource-group.bicep' = if (fslogixStorageService == 'AzureFiles Premium') {
   name: 'set-role-assignment-${deploymentNameSuffix}'
   scope: resourceGroup
   params: {
@@ -73,7 +73,7 @@ module roleAssignments_resourceGroup '../common/roleAssignments/resourceGroup.bi
 }
 
 // Azure NetApp Files for Fslogix
-module azureNetAppFiles 'azureNetAppFiles.bicep' = if (storageService == 'AzureNetAppFiles') {
+module azureNetAppFiles 'azure-netapp-files.bicep' = if (storageService == 'AzureNetAppFiles') {
   name: 'deploy-anf-${deploymentNameSuffix}'
   scope: resourceGroup
   params: {
@@ -98,7 +98,7 @@ module azureNetAppFiles 'azureNetAppFiles.bicep' = if (storageService == 'AzureN
 }
 
 // Azure Files for FSLogix
-module azureFiles 'azureFiles/azureFiles.bicep' = if (storageService == 'AzureFiles') {
+module azureFiles 'azure-files/azure-files.bicep' = if (storageService == 'AzureFiles') {
   name: 'deploy-azure-files-${deploymentNameSuffix}'
   scope: resourceGroup
   params: {
@@ -129,7 +129,7 @@ module azureFiles 'azureFiles/azureFiles.bicep' = if (storageService == 'AzureFi
   }
 }
 
-module ntfsPermissions 'ntfsPermissions.bicep' = {
+module ntfsPermissions 'ntfs-permissions.bicep' = {
   scope: resourceGroup
   params: {
     deploymentNameSuffix: deploymentNameSuffix

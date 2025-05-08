@@ -288,7 +288,7 @@ resource dataCollectionRuleAssociation 'Microsoft.Insights/dataCollectionRuleAss
   ]
 }]
 
-module setSessionHostConfiguration '../common/runCommand.bicep' = [
+module setSessionHostConfiguration '../common/run-command.bicep' = [
   for i in range(0, sessionHostCount): {
     name: 'set-config-${batchCount}-${i}-${deploymentNameSuffix}'
     params: {
@@ -391,7 +391,7 @@ resource installAvdAgents 'Microsoft.Compute/virtualMachines/extensions@2021-03-
 ]
 
 // Enables drain mode on the session hosts so users cannot login to the hosts immediately after the deployment
-module drainMode '../common/runCommand.bicep' = if (enableDrainMode) {
+module drainMode '../common/run-command.bicep' = if (enableDrainMode) {
   name: 'deploy-drain-mode-${batchCount}-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupManagement)
   params: {
