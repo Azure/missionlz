@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "11650407592474871694"
+      "templateHash": "5619917553189555812"
     }
   },
   "parameters": {
@@ -9485,7 +9485,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.35.1.17967",
-              "templateHash": "13025134390464638525"
+              "templateHash": "12076474013301922722"
             }
           },
           "parameters": {
@@ -10056,7 +10056,7 @@
                   "workspaceFeedPrivateEndpointName": {
                     "value": "[format('{0}{1}feed', parameters('names').workspacePrivateEndpoint, parameters('delimiter'))]"
                   },
-                  "workspaceFriendlyName": "[if(empty(parameters('workspaceFriendlyName')), createObject('value', parameters('names').workspaceFeed), createObject('value', format('{0} ({1})', parameters('workspaceFriendlyName'), parameters('locationHub'))))]",
+                  "workspaceFriendlyName": "[if(empty(parameters('workspaceFriendlyName')), createObject('value', parameters('names').workspace), createObject('value', format('{0} ({1})', parameters('workspaceFriendlyName'), parameters('locationHub'))))]",
                   "workspacePublicNetworkAccess": {
                     "value": "[parameters('workspacePublicNetworkAccess')]"
                   }

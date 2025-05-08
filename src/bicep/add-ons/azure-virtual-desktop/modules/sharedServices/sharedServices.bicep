@@ -123,7 +123,7 @@ module workspace_feed 'workspaceFeed.bicep' = {
     workspaceFeedName: '${names.workspace}${delimiter}feed'
     workspaceFeedNetworkInterfaceName: '${names.workspaceNetworkInterface}${delimiter}feed'
     workspaceFeedPrivateEndpointName: '${names.workspacePrivateEndpoint}${delimiter}feed'
-    workspaceFriendlyName: empty(workspaceFriendlyName) ? names.workspaceFeed : '${workspaceFriendlyName} (${locationHub})'
+    workspaceFriendlyName: empty(workspaceFriendlyName) ? names.workspace : '${workspaceFriendlyName} (${locationHub})'
     workspacePublicNetworkAccess: workspacePublicNetworkAccess
   }
   dependsOn: [
