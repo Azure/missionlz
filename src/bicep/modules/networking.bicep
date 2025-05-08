@@ -64,9 +64,9 @@ module hubNetwork 'hub-network.bicep' = {
     tags: tags
     virtualNetworkAddressPrefix: hub.vnetAddressPrefix
     virtualNetworkName: hub.namingConvention.virtualNetwork
-    vNetDnsServers: firewallSettings.skuTier == 'Premium' || firewallSettings.skuTier == 'Standard' ? [
+    vNetDnsServers: [
       firewallSettings.clientPrivateIpAddress
-    ] : []
+    ]
   }
 }
 

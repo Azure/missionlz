@@ -215,11 +215,10 @@ param firewallManagementPublicIPAddressAvailabilityZones array = []
 param firewallManagementSubnetAddressPrefix string = '10.0.128.64/26'
 
 @allowed([
-  'Standard'
   'Premium'
-  'Basic'
+  'Standard'
 ])
-@description('[Standard/Premium/Basic] The SKU for Azure Firewall. Default value = "Premium". Selecting a value other than Premium is not recommended for environments that are required to be SCCA compliant.')
+@description('[Premium/Standard] The SKU for Azure Firewall. Default value = "Premium". Selecting a value other than Premium is not recommended for environments that are required to be SCCA compliant.')
 param firewallSkuTier string = 'Premium'
 
 @description('Supernet CIDR address for the entire network of vnets, this address allows for communication between spokes. Recommended to use a Supernet calculator if modifying vnet addresses.')
