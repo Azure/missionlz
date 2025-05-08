@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "17921936131334729464"
+      "templateHash": "1361133271195946089"
     }
   },
   "parameters": {
@@ -972,7 +972,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.35.1.17967",
-              "templateHash": "1506114801218375969"
+              "templateHash": "6912208770289795823"
             }
           },
           "parameters": {
@@ -5810,9 +5810,9 @@
               "type": "object",
               "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceAbbreviations.value]"
             },
-            "resourcePrefix": {
+            "identifier": {
               "type": "string",
-              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('firewallResourceId'), '/')[2], split(parameters('firewallResourceId'), '/')[4]), 'Microsoft.Network/azureFirewalls', split(parameters('firewallResourceId'), '/')[8]), '2020-11-01', 'full').tags.resourcePrefix]"
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('firewallResourceId'), '/')[2], split(parameters('firewallResourceId'), '/')[4]), 'Microsoft.Network/azureFirewalls', split(parameters('firewallResourceId'), '/')[8]), '2020-11-01', 'full').tags.identifier]"
             },
             "storageAccountResourceId": {
               "type": "string",
