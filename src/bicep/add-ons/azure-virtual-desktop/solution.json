@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "10161685066633652753"
+      "templateHash": "8457337813351821656"
     }
   },
   "parameters": {
@@ -9485,7 +9485,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.35.1.17967",
-              "templateHash": "12076474013301922722"
+              "templateHash": "8302279534044482375"
             }
           },
           "parameters": {
@@ -9677,13 +9677,13 @@
                     "value": "[parameters('mlzTags')]"
                   },
                   "workspaceGlobalName": {
-                    "value": "[replace(format('{0}{1}global', parameters('names').workspaceGlobal, parameters('delimiter')), parameters('identifier'), parameters('identifierHub'))]"
+                    "value": "[replace(format('{0}{1}global', parameters('names').workspace, parameters('delimiter')), parameters('identifier'), parameters('identifierHub'))]"
                   },
                   "workspaceGlobalNetworkInterfaceName": {
-                    "value": "[replace(format('{0}{1}global', parameters('names').workspaceGlobalNetworkInterface, parameters('delimiter')), parameters('identifier'), parameters('identifierHub'))]"
+                    "value": "[replace(format('{0}{1}global', parameters('names').workspaceNetworkInterface, parameters('delimiter')), parameters('identifier'), parameters('identifierHub'))]"
                   },
                   "workspaceGlobalPrivateEndpointName": {
-                    "value": "[replace(format('{0}{1}global', parameters('names').workspaceGlobalPrivateEndpoint, parameters('delimiter')), parameters('identifier'), parameters('identifierHub'))]"
+                    "value": "[replace(format('{0}{1}global', parameters('names').workspacePrivateEndpoint, parameters('delimiter')), parameters('identifier'), parameters('identifierHub'))]"
                   }
                 },
                 "template": {

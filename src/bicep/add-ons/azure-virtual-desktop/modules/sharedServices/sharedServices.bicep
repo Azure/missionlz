@@ -52,9 +52,9 @@ module workspace_global 'workspaceGlobal.bicep' = {
     location: locationControlPlane
     subnetResourceId: sharedServicesSubnetResourceId
     tags: mlzTags
-    workspaceGlobalName: replace('${names.workspaceGlobal}${delimiter}global', identifier, identifierHub)
-    workspaceGlobalNetworkInterfaceName: replace('${names.workspaceGlobalNetworkInterface}${delimiter}global', identifier, identifierHub)
-    workspaceGlobalPrivateEndpointName: replace('${names.workspaceGlobalPrivateEndpoint}${delimiter}global', identifier, identifierHub)
+    workspaceGlobalName: replace('${names.workspace}${delimiter}global', identifier, identifierHub)
+    workspaceGlobalNetworkInterfaceName: replace('${names.workspaceNetworkInterface}${delimiter}global', identifier, identifierHub)
+    workspaceGlobalPrivateEndpointName: replace('${names.workspacePrivateEndpoint}${delimiter}global', identifier, identifierHub)
   }
   dependsOn: [
     rg_workspace_global
