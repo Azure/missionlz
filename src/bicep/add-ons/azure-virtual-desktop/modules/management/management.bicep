@@ -200,7 +200,7 @@ module virtualMachine 'virtualMachine.bicep' = {
     organizationalUnitPath: organizationalUnitPath
     subnetResourceId: subnetResourceId
     tags: tags
-    virtualMachineName: '${namingConvention.virtualMachine}${delimiter}mgt'
+    virtualMachineName: '${namingConvention.virtualMachine}mgt'
     virtualMachineAdminPassword: virtualMachineAdminPassword
     virtualMachineAdminUsername: virtualMachineAdminUsername
   }
