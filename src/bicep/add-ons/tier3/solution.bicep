@@ -382,7 +382,7 @@ module defenderForCloud '../../modules/defender-for-cloud.bicep' =
     }
   }
 
-output delimiter string = logic.outputs.tiers[0].delimiter
+output delimiter string = logic.outputs.delimiter
 output diskEncryptionSetResourceId string = !(empty(virtualNetworkAddressPrefix)) ? customerManagedKeys.outputs.diskEncryptionSetResourceId : ''
 output dnsServers array = !(empty(virtualNetworkAddressPrefix)) ? virtualNetwork_hub.properties.?dhcpOptions.dnsServers ?? [] : []
 output keyVaultUri string = !(empty(virtualNetworkAddressPrefix)) ? customerManagedKeys.outputs.keyVaultUri : ''

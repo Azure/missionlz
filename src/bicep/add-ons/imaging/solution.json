@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "4275915810667624489"
+      "templateHash": "3987234970179313203"
     }
   },
   "parameters": {
@@ -691,7 +691,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.35.1.17967",
-              "templateHash": "13149826751888902667"
+              "templateHash": "1506114801218375969"
             }
           },
           "parameters": {
@@ -5487,7 +5487,7 @@
           "outputs": {
             "delimiter": {
               "type": "string",
-              "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tiers.value[0].delimiter]"
+              "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}', parameters('workloadShortName'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.delimiter.value]"
             },
             "diskEncryptionSetResourceId": {
               "type": "string",
