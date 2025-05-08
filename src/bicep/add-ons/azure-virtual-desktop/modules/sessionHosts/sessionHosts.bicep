@@ -74,7 +74,6 @@ param virtualMachineSize string
 var availabilitySetNamePrefix = namingConvention.availabilitySet
 var tagsVirtualMachines = union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Compute/virtualMachines'] ?? {}, mlzTags)
 var uniqueToken = uniqueString(identifier, environmentAbbreviation, subscription().subscriptionId)
-var virtualMachineNamePrefix = '${namingConvention.virtualMachine}${stampIndexFull}'
 
 resource rg 'Microsoft.Resources/resourceGroups@2023-07-01' = {
   name: resourceGroupName
@@ -222,7 +221,7 @@ module virtualMachines 'virtualMachines.bicep' = [for i in range(1, sessionHostB
     tagsNetworkInterfaces: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Network/networkInterfaces'] ?? {}, mlzTags)
     tagsVirtualMachines: tagsVirtualMachines
     uniqueToken: uniqueToken
-    virtualMachineNamePrefix: virtualMachineNamePrefix
+    virtualMachineNamePrefix: namingConvention.virtualMachine
     virtualMachineAdminPassword: virtualMachineAdminPassword
     virtualMachineAdminUsername: virtualMachineAdminUsername
     virtualMachineSize: virtualMachineSize

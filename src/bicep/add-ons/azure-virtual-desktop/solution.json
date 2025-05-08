@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "1919371109699940556"
+      "templateHash": "10161685066633652753"
     }
   },
   "parameters": {
@@ -11780,7 +11780,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.35.1.17967",
-              "templateHash": "12903258360668975005"
+              "templateHash": "17620798617298824593"
             }
           },
           "parameters": {
@@ -11987,8 +11987,7 @@
             "$fxv#0": "Param(\r\n    [string]$HostPoolResourceId,\r\n    [string]$ResourceGroupName,\r\n    [string]$ResourceManagerUri,\r\n    [string]$ScalingPlanName,\r\n    [string]$SubscriptionId,\r\n    [string]$UserAssignedIdentityClientId\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n$WarningPreference = 'SilentlyContinue'\r\n\r\n# Fix the resource manager URI since only AzureCloud contains a trailing slash\r\n$ResourceManagerUriFixed = if($ResourceManagerUri[-1] -eq '/'){$ResourceManagerUri} else {$ResourceManagerUri + '/'}\r\n\r\n# Get an access token for Azure resources\r\n$AzureManagementAccessToken = (Invoke-RestMethod `\r\n    -Headers @{Metadata=\"true\"} `\r\n    -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n# Set header for Azure Management API\r\n$AzureManagementHeader = @{\r\n    'Content-Type'='application/json'\r\n    'Authorization'='Bearer ' + $AzureManagementAccessToken\r\n}\r\n\r\n# Check if the scaling plan exists: https://learn.microsoft.com/rest/api/desktopvirtualization/scaling-plans/list-by-resource-group\r\n$ScalingPlanExists = (Invoke-RestMethod `\r\n    -Headers $AzureManagementHeader `\r\n    -Method 'GET' `\r\n    -Uri $($ResourceManagerUriFixed + 'subscriptions/' + $SubscriptionId + '/resourceGroups/' + $ResourceGroupName + '/providers/Microsoft.DesktopVirtualization/scalingPlans?api-version=2023-09-05')).value | Where-Object {$_.name -eq $ScalingPlanName}\r\n\r\n# Disable autoscale for the host pool: https://learn.microsoft.com/rest/api/desktopvirtualization/scaling-plans/update\r\nif ($ScalingPlanExists)\r\n{\r\n    Invoke-RestMethod `\r\n        -Body (@{properties = @{hostPoolReferences = @(@{hostPoolArmPath = $HostPoolResourceId; scalingPlanEnabled = $false})}} | ConvertTo-Json -Depth 3) `\r\n        -Headers $AzureManagementHeader `\r\n        -Method 'PATCH' `\r\n        -Uri $($ResourceManagerUriFixed + 'subscriptions/' + $SubscriptionId + '/resourceGroups/' + $ResourceGroupName + '/providers/Microsoft.DesktopVirtualization/scalingPlans/' + $ScalingPlanName + '?api-version=2023-09-05') | Out-Null\r\n}",
             "availabilitySetNamePrefix": "[parameters('namingConvention').availabilitySet]",
             "tagsVirtualMachines": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/virtualMachines'), createObject()), parameters('mlzTags'))]",
-            "uniqueToken": "[uniqueString(parameters('identifier'), parameters('environmentAbbreviation'), subscription().subscriptionId)]",
-            "virtualMachineNamePrefix": "[format('{0}{1}', parameters('namingConvention').virtualMachine, parameters('stampIndexFull'))]"
+            "uniqueToken": "[uniqueString(parameters('identifier'), parameters('environmentAbbreviation'), subscription().subscriptionId)]"
           },
           "resources": [
             {
@@ -12486,7 +12485,7 @@
                     "value": "[variables('uniqueToken')]"
                   },
                   "virtualMachineNamePrefix": {
-                    "value": "[variables('virtualMachineNamePrefix')]"
+                    "value": "[parameters('namingConvention').virtualMachine]"
                   },
                   "virtualMachineAdminPassword": {
                     "value": "[parameters('virtualMachineAdminPassword')]"
