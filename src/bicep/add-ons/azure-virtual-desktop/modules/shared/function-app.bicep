@@ -316,7 +316,7 @@ resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = if (en
   kind: 'web'
 }
 
-module privateLinkScope 'private-link-scope.bicep' = if (enableApplicationInsights) {
+module privateLinkScope '../common/private-link-scope.bicep' = if (enableApplicationInsights) {
   name: 'deploy-private-link-scope-appi-${deploymentNameSuffix}'
   scope: resourceGroup(split(privateLinkScopeResourceId, '/')[2], split(privateLinkScopeResourceId, '/')[4])
   params: {
