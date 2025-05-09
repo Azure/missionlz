@@ -745,6 +745,44 @@ module tier3_hosts '../tier3/solution.bicep' = {
   }
 }
 
+// Shared
+// This module creates the resources that are be shared across multiple AVD stamps: 
+// - global and feed AVD workspace to support AVD with Private Link
+// - log analytics workspace and data collection rule for AVD Insights
+module shared 'modules/shared/shared.bicep' = {
+  name: 'deploy-workspaces-${deploymentNameSuffix}'
+  scope: subscription(split(sharedServicesSubnetResourceId, '/')[2])
+  params: {
+    delimiter: naming_management.outputs.delimiter
+    deploymentNameSuffix: deploymentNameSuffix
+    enableAvdInsights: enableAvdInsights
+    existingApplicationGroupReferences: empty(existingFeedWorkspaceResourceId)
+      ? []
+      : workspace.properties.applicationGroupReferences
+    existingFeedWorkspaceResourceId: existingFeedWorkspaceResourceId
+    locationControlPlane: virtualNetwork_hub.location
+    locationVirtualMachines: locationVirtualMachines
+    logAnalyticsWorkspaceRetention: logAnalyticsWorkspaceRetention
+    logAnalyticsWorkspaceSku: logAnalyticsWorkspaceSku
+    mlzTags: tier3_hosts.outputs.mlzTags
+    names: naming_management.outputs.names
+    sharedServicesSubnetResourceId: sharedServicesSubnetResourceId
+    tags: tags
+    enableApplicationInsights: enableApplicationInsights
+    environmentAbbreviation: environmentAbbreviation
+    fslogixStorageService: fslogixStorageService
+    existingWorkspace: !empty(existingFeedWorkspaceResourceId)
+    privateDnsZoneResourceIdPrefix: privateDnsZoneResourceIdPrefix
+    privateDnsZones: tier3_hosts.outputs.privateDnsZones
+    privateLinkScopeResourceId: privateLinkScopeResourceId
+    resourceGroupFslogix: '${naming_management.outputs.names.resourceGroup}${naming_management.outputs.delimiter}fslogix'
+    resourceGroupManagement: '${naming_management.outputs.names.resourceGroup}${naming_management.outputs.delimiter}management'
+    stampIndexFull: stampIndexFull
+    subnetResourceId: tier3_hosts.outputs.subnets[0].id
+    subnets: tier3_hosts.outputs.subnets
+  }
+}
+
 // Management: host pool, app group, AVD Insights, File Share Scaling
 module management 'modules/management/management.bicep' = {
   name: 'deploy-management-${deploymentNameSuffix}'
@@ -757,16 +795,19 @@ module management 'modules/management/management.bicep' = {
     delimiter: tier3_hosts.outputs.delimiter
     // deployFslogix: deployFslogix
     deploymentNameSuffix: deploymentNameSuffix
+    deploymentUserAssignedIdentityClientId: shared.outputs.deploymentUserAssignedIdentityClientId
+    deploymentUserAssignedIdentityPrincipalId: shared.outputs.deploymentUserAssignedIdentityPrincipalId
+    deploymentUserAssignedIdentityResourceId: shared.outputs.deploymentUserAssignedIdentityResourceId
     desktopFriendlyName: empty(desktopFriendlyName) ? string(stampIndex) : desktopFriendlyName
+    diskAccessPolicyDefinitionId: shared.outputs.diskAccessPolicyDefinitionId
+    diskAccessPolicyDisplayName: shared.outputs.diskAccessPolicyDisplayName
+    diskAccessResourceId: shared.outputs.diskAccessResourceId
     diskEncryptionSetResourceId: tier3_hosts.outputs.diskEncryptionSetResourceId
     diskSku: diskSku
     domainJoinPassword: domainJoinPassword
     domainJoinUserPrincipalName: domainJoinUserPrincipalName
     domainName: domainName
-    enableApplicationInsights: enableApplicationInsights
     enableAvdInsights: enableAvdInsights
-    environmentAbbreviation: environmentAbbreviation
-    fslogixStorageService: fslogixStorageService
     hostPoolPublicNetworkAccess: hostPoolPublicNetworkAccess
     hostPoolType: hostPoolType
     imageOffer: imageOffer
@@ -775,24 +816,19 @@ module management 'modules/management/management.bicep' = {
     imageVersionResourceId: imageVersionResourceId
     locationControlPlane: virtualNetwork_hub.location
     locationVirtualMachines: locationVirtualMachines
-    logAnalyticsWorkspaceRetention: logAnalyticsWorkspaceRetention
-    logAnalyticsWorkspaceSku: logAnalyticsWorkspaceSku
+    logAnalyticsWorkspaceResourceId: shared.outputs.logAnalyticsWorkspaceResourceId
     maxSessionLimit: usersPerCore * virtualMachineVirtualCpuCount
     mlzTags: tier3_hosts.outputs.mlzTags
     namingConvention: tier3_hosts.outputs.namingConvention
     organizationalUnitPath: organizationalUnitPath
-    privateDnsZoneResourceIdPrefix: privateDnsZoneResourceIdPrefix
-    privateDnsZones: tier3_hosts.outputs.privateDnsZones
-    privateLinkScopeResourceId: privateLinkScopeResourceId
     // recoveryServices: recoveryServices
     // recoveryServicesGeo: tier3_hosts.outputs.locationProperties.recoveryServicesGeo
-    resourceGroupFslogix: '${tier3_hosts.outputs.namingConvention.resourceGroup}${naming_management.outputs.delimiter}fslogix'
     resourceGroupManagement: '${naming_management.outputs.names.resourceGroup}${naming_management.outputs.delimiter}management'
     securityPrincipalObjectIds: map(securityPrincipals, item => item.objectId)
     sessionHostNamePrefix: tier3_hosts.outputs.namingConvention.virtualMachine
+    stampIndexFull: stampIndexFull
     // storageService: storageService
     subnetResourceId: tier3_hosts.outputs.subnets[0].id
-    subnets: tier3_hosts.outputs.subnets
     tags: tags
     // timeZone: tier3_hosts.outputs.locationProperties.timeZone
     validationEnvironment: validationEnvironment
@@ -802,31 +838,23 @@ module management 'modules/management/management.bicep' = {
   }
 }
 
-// AVD Workspaces
-// This module creates the global and feed AVD workspace to support AVD with Private Link
-module workspaces 'modules/sharedServices/sharedServices.bicep' = {
+module workspaces 'modules/shared/workspaces.bicep' = {
   name: 'deploy-workspaces-${deploymentNameSuffix}'
-  scope: subscription(split(sharedServicesSubnetResourceId, '/')[2])
   params: {
     applicationGroupResourceId: management.outputs.applicationGroupResourceId
     avdPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3_hosts.outputs.privateDnsZones, name => startsWith(name, 'privatelink.wvd'))[0]}'
-    delimiter: naming_management.outputs.delimiter
+    delimiter: tier3_hosts.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
-    deploymentUserAssignedIdentityClientId: management.outputs.deploymentUserAssignedIdentityClientId
-    deploymentUserAssignedIdentityPrincipalId: management.outputs.deploymentUserAssignedIdentityPrincipalId
+    deploymentUserAssignedIdentityClientId: shared.outputs.deploymentUserAssignedIdentityClientId
     enableAvdInsights: enableAvdInsights
-    existingApplicationGroupReferences: empty(existingFeedWorkspaceResourceId)
-      ? []
-      : workspace.properties.applicationGroupReferences
     existingFeedWorkspaceResourceId: existingFeedWorkspaceResourceId
-    existingWorkspace: !empty(existingFeedWorkspaceResourceId)
     hostPoolName: management.outputs.hostPoolName
     identifier: identifier
     identifierHub: virtualNetwork_hub.tags.identifier
     locationControlPlane: virtualNetwork_hub.location
     locationHub: virtualNetwork_hub.location
     locationVirtualMachines: locationVirtualMachines
-    logAnalyticsWorkspaceResourceId: management.outputs.logAnalyticsWorkspaceResourceId
+    logAnalyticsWorkspaceResourceId: shared.outputs.logAnalyticsWorkspaceResourceId
     managementVirtualMachineName: management.outputs.virtualMachineName
     mlzTags: tier3_hosts.outputs.mlzTags
     names: naming_management.outputs.names
@@ -847,8 +875,8 @@ module fslogix 'modules/fslogix/fslogix.bicep' = if (deployFslogix) {
     azureFilesPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3_hosts.outputs.privateDnsZones, name => contains(name, 'file'))[0]}'
     delimiter: tier3_hosts.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
-    deploymentUserAssignedIdentityClientId: management.outputs.deploymentUserAssignedIdentityClientId
-    deploymentUserAssignedIdentityPrincipalId: management.outputs.deploymentUserAssignedIdentityPrincipalId
+    deploymentUserAssignedIdentityClientId: shared.outputs.deploymentUserAssignedIdentityClientId
+    deploymentUserAssignedIdentityPrincipalId: shared.outputs.deploymentUserAssignedIdentityPrincipalId
     dnsServers: join(tier3_hosts.outputs.dnsServers, ',')
     domainJoinPassword: domainJoinPassword
     domainJoinUserPrincipalName: domainJoinUserPrincipalName
@@ -858,7 +886,7 @@ module fslogix 'modules/fslogix/fslogix.bicep' = if (deployFslogix) {
     fslogixContainerType: fslogixContainerType
     fslogixShareSizeInGB: fslogixShareSizeInGB
     fslogixStorageService: fslogixStorageService
-    functionAppPrincipalId: management.outputs.functionAppPrincipalId
+    functionAppPrincipalId: shared.outputs.functionAppPrincipalId
     hostPoolResourceId: management.outputs.hostPoolResourceId
     keyVaultUri: tier3_hosts.outputs.keyVaultUri
     location: locationVirtualMachines
@@ -884,7 +912,7 @@ module fslogix 'modules/fslogix/fslogix.bicep' = if (deployFslogix) {
   }
 }
 
-module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
+module sessionHosts 'modules/session-hosts/session-hosts.bicep' = {
   name: 'deploy-session-hosts-${deploymentNameSuffix}'
   params: {
     activeDirectorySolution: activeDirectorySolution
@@ -893,15 +921,15 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     availabilitySetsIndex: beginAvSetRange
     availabilityZones: availabilityZones
     avdConfigurationZipFileName: avdConfigurationZipFileName
-    dataCollectionRuleResourceId: management.outputs.dataCollectionRuleResourceId
+    dataCollectionRuleResourceId: shared.outputs.dataCollectionRuleResourceId
     delimiter: tier3_hosts.outputs.delimiter
     deployFslogix: deployFslogix
     deploymentNameSuffix: deploymentNameSuffix
-    deploymentUserAssignedIdentityClientId: management.outputs.deploymentUserAssignedIdentityClientId
-    deploymentUserAssignedIdentityPrincipalId: management.outputs.deploymentUserAssignedIdentityPrincipalId
-    diskAccessPolicyDefinitionId: management.outputs.diskAccessPolicyDefinitionId
-    diskAccessPolicyDisplayName: management.outputs.diskAccessPolicyDisplayName
-    diskAccessResourceId: management.outputs.diskAccessResourceId
+    deploymentUserAssignedIdentityClientId: shared.outputs.deploymentUserAssignedIdentityClientId
+    deploymentUserAssignedIdentityPrincipalId: shared.outputs.deploymentUserAssignedIdentityPrincipalId
+    diskAccessPolicyDefinitionId: shared.outputs.diskAccessPolicyDefinitionId
+    diskAccessPolicyDisplayName: shared.outputs.diskAccessPolicyDisplayName
+    diskAccessResourceId: shared.outputs.diskAccessResourceId
     diskEncryptionSetResourceId: tier3_hosts.outputs.diskEncryptionSetResourceId
     diskSku: diskSku
     divisionRemainderValue: divisionRemainderValue
@@ -924,7 +952,7 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     imageSku: imageSku
     imageVersionResourceId: imageVersionResourceId
     location: locationVirtualMachines
-    logAnalyticsWorkspaceResourceId: management.outputs.logAnalyticsWorkspaceResourceId
+    logAnalyticsWorkspaceResourceId: shared.outputs.logAnalyticsWorkspaceResourceId
     managementVirtualMachineName: management.outputs.virtualMachineName
     maxResourcesPerTemplateDeployment: maxResourcesPerTemplateDeployment
     mlzTags: tier3_hosts.outputs.mlzTags
@@ -960,13 +988,13 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
   }
 }
 
-module cleanUp 'modules/cleanUp/cleanUp.bicep' = {
+module cleanUp 'modules/clean-up/clean-up.bicep' = {
   name: 'deploy-clean-up-${deploymentNameSuffix}'
   params: {
     deploymentNameSuffix: deploymentNameSuffix
     location: locationVirtualMachines
     resourceGroupManagement: management.outputs.resourceGroupName
-    userAssignedIdentityClientId: management.outputs.deploymentUserAssignedIdentityClientId
+    userAssignedIdentityClientId: shared.outputs.deploymentUserAssignedIdentityClientId
     virtualMachineResourceId: management.outputs.virtualMachineResourceId
   }
   dependsOn: [
