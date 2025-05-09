@@ -82,7 +82,7 @@ resource rg 'Microsoft.Resources/resourceGroups@2023-07-01' = {
 }
 
 // Sets an Azure policy to disable public network access to managed disks
-module policyAssignment '../management/policy-assignment.bicep' = {
+module policyAssignment '../shared/policy-assignment.bicep' = {
   name: 'assign-policy-diskAccess-${deploymentNameSuffix}'
   scope: rg
   params: {
