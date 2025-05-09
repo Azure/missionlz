@@ -823,9 +823,7 @@ module management 'modules/management/management.bicep' = {
     organizationalUnitPath: organizationalUnitPath
     // recoveryServices: recoveryServices
     // recoveryServicesGeo: tier3_hosts.outputs.locationProperties.recoveryServicesGeo
-    resourceGroupManagement: '${naming_management.outputs.names.resourceGroup}${naming_management.outputs.delimiter}management'
     securityPrincipalObjectIds: map(securityPrincipals, item => item.objectId)
-    sessionHostNamePrefix: tier3_hosts.outputs.namingConvention.virtualMachine
     stampIndexFull: stampIndexFull
     // storageService: storageService
     subnetResourceId: tier3_hosts.outputs.subnets[0].id

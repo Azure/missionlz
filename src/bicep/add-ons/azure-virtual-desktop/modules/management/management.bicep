@@ -35,9 +35,7 @@ param maxSessionLimit int
 param mlzTags object
 param namingConvention object
 param organizationalUnitPath string
-param resourceGroupManagement string
 param securityPrincipalObjectIds array
-param sessionHostNamePrefix string
 param stampIndexFull string
 param subnetResourceId string
 param tags object
@@ -53,6 +51,7 @@ var galleryImageSku = empty(imageVersionResourceId) ? '"${imageSku}"' : 'null'
 var galleryItemId = empty(imageVersionResourceId) ? '"${imagePublisher}.${imageOffer}${imageSku}"' : 'null'
 var hostPoolName = '${namingConvention.hostPool}${delimiter}${stampIndexFull}'
 var imageType = empty(imageVersionResourceId) ? '"Gallery"' : '"CustomImage"'
+var resourceGroupManagement = '${namingConvention.resourceGroup}${delimiter}management${stampIndexFull}'
 
 resource resourceGroup 'Microsoft.Resources/resourceGroups@2023-07-01' = {
   name: resourceGroupManagement
@@ -110,7 +109,7 @@ module hostPool 'host-pool.bicep' = {
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     maxSessionLimit: maxSessionLimit
     mlzTags: mlzTags
-    sessionHostNamePrefix: sessionHostNamePrefix
+    sessionHostNamePrefix: '${namingConvention.virtualMachine}${stampIndexFull}'
     subnetResourceId: subnetResourceId
     tags: tags
     validationEnvironment: validationEnvironment
@@ -164,7 +163,7 @@ module applicationGroup 'application-group.bicep' = {
   params: {
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedIdentityClientId: deploymentUserAssignedIdentityClientId
-    desktopApplicationGroupName: namingConvention.applicationGroup
+    desktopApplicationGroupName: '${namingConvention.applicationGroup}${delimiter}${stampIndexFull}'
     hostPoolResourceId: hostPool.outputs.resourceId
     locationControlPlane: locationControlPlane
     locationVirtualMachines: locationVirtualMachines
