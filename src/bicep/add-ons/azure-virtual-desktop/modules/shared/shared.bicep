@@ -20,8 +20,6 @@ param privateDnsZones array
 param privateLinkScopeResourceId string
 // param recoveryServices bool
 // param recoveryServicesGeo string
-param resourceGroupFslogix string
-param resourceGroupManagement string
 param stampIndexFull string
 param sharedServicesSubnetResourceId string
 // param storageService string
@@ -33,6 +31,8 @@ param tags object
 var hostPoolName = '${names.hostPoolName}${delimiter}${stampIndexFull}'
 var hostPoolResourceId = '${subscription().id}}/resourceGroups/${resourceGroupManagement}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'
 var resourceGroupShared = '${names.resourceGroup}${delimiter}shared'
+var resourceGroupFslogix = '${names.resourceGroup}${delimiter}fslogix${delimiter}${stampIndexFull}'
+var resourceGroupManagement = '${names.resourceGroup}${delimiter}management${delimiter}${stampIndexFull}'
 var userAssignedIdentityNamePrefix = names.userAssignedIdentity
 
 // Resource group for the feed workspace

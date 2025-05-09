@@ -775,8 +775,6 @@ module shared 'modules/shared/shared.bicep' = {
     privateDnsZoneResourceIdPrefix: privateDnsZoneResourceIdPrefix
     privateDnsZones: tier3_hosts.outputs.privateDnsZones
     privateLinkScopeResourceId: privateLinkScopeResourceId
-    resourceGroupFslogix: '${naming_management.outputs.names.resourceGroup}${naming_management.outputs.delimiter}fslogix'
-    resourceGroupManagement: '${naming_management.outputs.names.resourceGroup}${naming_management.outputs.delimiter}management'
     stampIndexFull: stampIndexFull
     subnetResourceId: tier3_hosts.outputs.subnets[0].id
     subnets: tier3_hosts.outputs.subnets

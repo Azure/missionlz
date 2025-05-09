@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "11664903852227465629"
+      "templateHash": "4286879947774800692"
     }
   },
   "parameters": {
@@ -6493,12 +6493,6 @@
           "privateLinkScopeResourceId": {
             "value": "[parameters('privateLinkScopeResourceId')]"
           },
-          "resourceGroupFslogix": {
-            "value": "[format('{0}{1}fslogix', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-mgmt-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.names.value.resourceGroup, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-mgmt-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.delimiter.value)]"
-          },
-          "resourceGroupManagement": {
-            "value": "[format('{0}{1}management', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-mgmt-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.names.value.resourceGroup, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-mgmt-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.delimiter.value)]"
-          },
           "stampIndexFull": {
             "value": "[variables('stampIndexFull')]"
           },
@@ -6516,7 +6510,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.35.1.17967",
-              "templateHash": "18094384779544185301"
+              "templateHash": "15253985794437447526"
             }
           },
           "parameters": {
@@ -6574,12 +6568,6 @@
             "privateLinkScopeResourceId": {
               "type": "string"
             },
-            "resourceGroupFslogix": {
-              "type": "string"
-            },
-            "resourceGroupManagement": {
-              "type": "string"
-            },
             "stampIndexFull": {
               "type": "string"
             },
@@ -6598,8 +6586,10 @@
           },
           "variables": {
             "hostPoolName": "[format('{0}{1}{2}', parameters('names').hostPoolName, parameters('delimiter'), parameters('stampIndexFull'))]",
-            "hostPoolResourceId": "[format('{0}}}/resourceGroups/{1}/providers/Microsoft.DesktopVirtualization/hostpools/{2}', subscription().id, parameters('resourceGroupManagement'), variables('hostPoolName'))]",
+            "hostPoolResourceId": "[format('{0}}}/resourceGroups/{1}/providers/Microsoft.DesktopVirtualization/hostpools/{2}', subscription().id, variables('resourceGroupManagement'), variables('hostPoolName'))]",
             "resourceGroupShared": "[format('{0}{1}shared', parameters('names').resourceGroup, parameters('delimiter'))]",
+            "resourceGroupFslogix": "[format('{0}{1}fslogix{2}{3}', parameters('names').resourceGroup, parameters('delimiter'), parameters('delimiter'), parameters('stampIndexFull'))]",
+            "resourceGroupManagement": "[format('{0}{1}management{2}{3}', parameters('names').resourceGroup, parameters('delimiter'), parameters('delimiter'), parameters('stampIndexFull'))]",
             "userAssignedIdentityNamePrefix": "[parameters('names').userAssignedIdentity]"
           },
           "resources": [
@@ -7540,7 +7530,7 @@
                     "value": "[parameters('privateLinkScopeResourceId')]"
                   },
                   "resourceGroupFslogix": {
-                    "value": "[parameters('resourceGroupFslogix')]"
+                    "value": "[variables('resourceGroupFslogix')]"
                   },
                   "subnetResourceId": {
                     "value": "[parameters('subnetResourceId')]"
