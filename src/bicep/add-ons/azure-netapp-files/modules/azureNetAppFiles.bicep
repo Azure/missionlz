@@ -21,7 +21,7 @@ param sku string
 param tags object 
 
 // Azure NetApp Files
-module netAppFiles '../../azure-virtual-desktop/modules/fslogix/azureNetAppFiles.bicep' = {
+module netAppFiles '../../azure-virtual-desktop/modules/fslogix/azure-netapp-files.bicep' = {
   name: 'deploy-netapp-files-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupName)
   params: {
