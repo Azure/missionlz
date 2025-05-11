@@ -95,7 +95,6 @@ var nvidiaVmSizes = [
   'Standard_NV36adms_A10_v5'
   'Standard_NV72ads_A10_v5'
 ]
-var sessionHostNamePrefix = '${virtualMachineNamePrefix}${stampIndexFull}'
 var storageAccountToken = '${storageAccountPrefix}??' // The token is used for AntiVirus exclusions. The '??' represents the two digits at the end of each storage account name.
 
 resource hostPool 'Microsoft.DesktopVirtualization/hostPools@2023-09-05' existing = {
@@ -130,7 +129,7 @@ resource networkInterface 'Microsoft.Network/networkInterfaces@2020-05-01' = [fo
 }]
 
 resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-03-01' = [for i in range(0, sessionHostCount): {
-  name: '${sessionHostNamePrefix}${padLeft((i + sessionHostIndex), 4, '0')}'
+  name: '${virtualMachineNamePrefix}${padLeft((i + sessionHostIndex), 4, '0')}'
   location: location
   tags: tagsVirtualMachines
   identity: {
@@ -171,7 +170,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-03-01' = [for i 
     osProfile: {
       adminPassword: virtualMachineAdminPassword
       adminUsername: virtualMachineAdminUsername
-      computerName: '${sessionHostNamePrefix}${padLeft((i + sessionHostIndex), 4, '0')}'
+      computerName: '${virtualMachineNamePrefix}${padLeft((i + sessionHostIndex), 4, '0')}'
       windowsConfiguration: {
         provisionVMAgent: true
         enableAutomaticUpdates: enableWindowsUpdate && hostPool.properties.hostPoolType == 'Personal' ? true : false
@@ -436,7 +435,7 @@ module drainMode '../common/run-command.bicep' = if (enableDrainMode) {
       }
       {
         name: 'virtualMachineNamePrefix' 
-        value: sessionHostNamePrefix
+        value: virtualMachineNamePrefix
       }
     ]
     script: loadTextContent('../../artifacts/Set-AvdDrainMode.ps1')

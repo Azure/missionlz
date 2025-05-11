@@ -19,13 +19,14 @@ param mlzTags object
 param names object
 param resourceGroupManagement string
 param sharedServicesSubnetResourceId string
+param stampIndexFull string
 param tags object
 param workspaceFriendlyName string
 param workspaceGlobalPrivateDnsZoneResourceId string
 param workspacePublicNetworkAccess string
 
-var resourceGroupShared = '${names.resourceGroup}${delimiter}shared'
-var resourceGroupWorkspaceGlobal = replace('${names.resourceGroup}${delimiter}workspace${delimiter}global', identifier, identifierHub)
+var resourceGroupShared = replace(names.resourceGroup, stampIndexFull, 'shared')
+var resourceGroupWorkspaceGlobal = replace(replace(names.resourceGroup, stampIndexFull, 'workspace${delimiter}global'), identifier, identifierHub)
 
 // Resource group for the global workspace
 module rg_workspace_global '../../../../modules/resource-group.bicep' = {
@@ -48,9 +49,9 @@ module workspace_global 'workspace-global.bicep' = {
     location: locationControlPlane
     subnetResourceId: sharedServicesSubnetResourceId
     tags: mlzTags
-    workspaceGlobalName: replace('${names.workspace}${delimiter}global', identifier, identifierHub)
-    workspaceGlobalNetworkInterfaceName: replace('${names.workspaceNetworkInterface}${delimiter}global', identifier, identifierHub)
-    workspaceGlobalPrivateEndpointName: replace('${names.workspacePrivateEndpoint}${delimiter}global', identifier, identifierHub)
+    workspaceGlobalName: replace(replace(names.workspace, stampIndexFull, 'global'), identifier, identifierHub)
+    workspaceGlobalNetworkInterfaceName: replace(replace(names.workspaceNetworkInterface, stampIndexFull, 'global'), identifier, identifierHub)
+    workspaceGlobalPrivateEndpointName: replace(replace(names.workspacePrivateEndpoint, stampIndexFull, 'global'), identifier, identifierHub)
   }
   dependsOn: [
     rg_workspace_global
@@ -76,11 +77,11 @@ module workspace_feed 'workspace-feed.bicep' = {
     subnetResourceId: sharedServicesSubnetResourceId
     tags: tags
     virtualMachineName: managementVirtualMachineName
-    workspaceFeedDiagnoticSettingName: '${names.workspaceDiagnosticSetting}${delimiter}feed'
-    workspaceFeedName: '${names.workspace}${delimiter}feed'
-    workspaceFeedNetworkInterfaceName: '${names.workspaceNetworkInterface}${delimiter}feed'
-    workspaceFeedPrivateEndpointName: '${names.workspacePrivateEndpoint}${delimiter}feed'
-    workspaceFriendlyName: empty(workspaceFriendlyName) ? names.workspace : '${workspaceFriendlyName} (${locationHub})'
+    workspaceFeedDiagnoticSettingName: replace(names.workspaceDiagnosticSetting, stampIndexFull, 'feed')
+    workspaceFeedName: replace(names.workspace, stampIndexFull, 'feed')
+    workspaceFeedNetworkInterfaceName: replace(names.workspaceNetworkInterface, stampIndexFull, 'feed')
+    workspaceFeedPrivateEndpointName: replace(names.workspacePrivateEndpoint, stampIndexFull, 'feed')
+    workspaceFriendlyName: empty(workspaceFriendlyName) ? replace(names.workspace, stampIndexFull, '') : '${workspaceFriendlyName} (${locationHub})'
     workspacePublicNetworkAccess: workspacePublicNetworkAccess
   }
 }

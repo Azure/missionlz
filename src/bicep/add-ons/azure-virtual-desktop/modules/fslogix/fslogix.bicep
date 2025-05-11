@@ -25,15 +25,13 @@ param keyVaultUri string
 param location string
 param managementVirtualMachineName string
 param mlzTags object
-param namingConvention object
+param names object
 param netbios string
 param organizationalUnitPath string
 // param recoveryServices bool
 param resourceGroupManagement string
-param resourceGroupName string
 param securityPrincipalNames array
 param securityPrincipalObjectIds array
-param stampIndexFull string
 param storageCount int
 param storageEncryptionKeyName string
 param storageIndex int
@@ -43,7 +41,7 @@ param subnetResourceId string
 param tags object
 
 resource resourceGroup 'Microsoft.Resources/resourceGroups@2023-07-01' = {
-  name: '${resourceGroupName}${delimiter}fslogix${delimiter}${stampIndexFull}'
+  name: '${names.resourceGroup}${delimiter}fslogix'
   location: location
   tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Resources/resourceGroups'] ?? {}, mlzTags)
 }
@@ -87,12 +85,12 @@ module azureNetAppFiles 'azure-netapp-files.bicep' = if (storageService == 'Azur
     hostPoolResourceId: hostPoolResourceId
     location: location
     mlzTags: mlzTags
-    netAppAccountNamePrefix: namingConvention.netAppAccount
-    netAppCapacityPoolNamePrefix: namingConvention.netAppAccountCapacityPool
+    netAppAccountNamePrefix: names.netAppAccount
+    netAppCapacityPoolNamePrefix: names.netAppAccountCapacityPool
     organizationalUnitPath: organizationalUnitPath
-    smbServerName: namingConvention.netAppAccountSmbServer
-    stampIndexFull: stampIndexFull
+    smbServerName: names.netAppAccountSmbServer
     storageSku: storageSku
+    suffix: 'fslogix'
     tags: tags
   }
 }
@@ -114,11 +112,10 @@ module azureFiles 'azure-files/azure-files.bicep' = if (storageService == 'Azure
     hostPoolResourceId: hostPoolResourceId
     keyVaultUri: keyVaultUri
     location: location
-    namingConvention: namingConvention
+    names: names
     // recoveryServicesVaultName: namingConvention.recoveryServicesVault
     // resourceGroupManagement: resourceGroupManagement
     securityPrincipalObjectIds: securityPrincipalObjectIds
-    stampIndexFull: stampIndexFull
     storageCount: storageCount
     storageEncryptionKeyName: storageEncryptionKeyName
     storageIndex: storageIndex

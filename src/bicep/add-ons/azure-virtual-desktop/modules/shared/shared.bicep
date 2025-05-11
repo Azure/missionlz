@@ -28,12 +28,11 @@ param subnets array
 param tags object
 // param timeZone string
 
-var hostPoolName = '${names.hostPoolName}${delimiter}${stampIndexFull}'
-var hostPoolResourceId = '${subscription().id}}/resourceGroups/${resourceGroupManagement}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'
-var resourceGroupShared = '${names.resourceGroup}${delimiter}shared'
-var resourceGroupFslogix = '${names.resourceGroup}${delimiter}fslogix${delimiter}${stampIndexFull}'
-var resourceGroupManagement = '${names.resourceGroup}${delimiter}management${delimiter}${stampIndexFull}'
-var userAssignedIdentityNamePrefix = names.userAssignedIdentity
+var hostPoolResourceId = '${subscription().id}}/resourceGroups/${resourceGroupManagement}/providers/Microsoft.DesktopVirtualization/hostpools/${names.hostPoolName}'
+var resourceGroupShared = replace(names.resourceGroup, stampIndexFull, 'shared')
+var resourceGroupFslogix = '${names.resourceGroup}${delimiter}fslogix'
+var resourceGroupManagement = '${names.resourceGroup}${delimiter}management'
+var userAssignedIdentityNamePrefix = replace(names.userAssignedIdentity, stampIndexFull, '')
 
 // Resource group for the feed workspace
 module rg_shared '../../../../modules/resource-group.bicep' = if (!existingWorkspace) {
@@ -61,8 +60,9 @@ module monitoring 'monitoring.bicep' = if (enableApplicationInsights || enableAv
     logAnalyticsWorkspaceRetention: logAnalyticsWorkspaceRetention
     logAnalyticsWorkspaceSku: logAnalyticsWorkspaceSku
     mlzTags: mlzTags
-    namingConvention: names
+    names: names
     privateLinkScopeResourceId: privateLinkScopeResourceId
+    stampIndexFull: stampIndexFull
     tags: tags
   }
   dependsOn: [
@@ -75,10 +75,12 @@ module diskAccess 'disk-access.bicep' = {
   name: 'deploy-disk-access-${deploymentNameSuffix}'
   params: {
     azureBlobsPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(privateDnsZones, name => contains(name, 'blob'))[0]}'
+    delimiter: delimiter
     hostPoolResourceId: hostPoolResourceId
     location: locationVirtualMachines
     mlzTags: mlzTags
-    namingConvention: names
+    names: names
+    stampIndexFull: stampIndexFull
     subnetResourceId: subnetResourceId
     tags: tags
   }
@@ -100,7 +102,7 @@ module deploymentUserAssignedIdentity 'user-assigned-identity.bicep' = {
   name: 'deploy-id-deployment-${deploymentNameSuffix}'
   params: {
     location: locationVirtualMachines
-    name: '${userAssignedIdentityNamePrefix}${delimiter}deployment'
+    name: '${userAssignedIdentityNamePrefix}deployment'
     tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.ManagedIdentity/userAssignedIdentities'] ?? {}, mlzTags)
   }
   dependsOn: [
@@ -162,18 +164,18 @@ module functionApp 'function-app.bicep' = if (fslogixStorageService == 'AzureFil
   scope: resourceGroup(resourceGroupShared)
   params: {
     delegatedSubnetResourceId: filter(subnets, subnet => contains(subnet.name, 'FunctionAppOutbound'))[0].id
-    delimiter: delimiter
     deploymentNameSuffix: deploymentNameSuffix
     enableApplicationInsights: enableApplicationInsights
     environmentAbbreviation: environmentAbbreviation
     hostPoolResourceId: hostPoolResourceId
     logAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
     mlzTags: mlzTags
-    namingConvention: names
+    names: names
     privateDnsZoneResourceIdPrefix: privateDnsZoneResourceIdPrefix
     privateDnsZones: privateDnsZones
     privateLinkScopeResourceId: privateLinkScopeResourceId
     resourceGroupFslogix: resourceGroupFslogix
+    stampIndexFull: stampIndexFull
     subnetResourceId: subnetResourceId
     tags: tags
   }

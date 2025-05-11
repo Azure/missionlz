@@ -733,6 +733,7 @@ module tier3_hosts '../tier3/solution.bicep' = {
     networkWatcherFlowLogsType: networkWatcherFlowLogsType
     networkWatcherResourceId: networkWatcherResourceId
     policy: policy
+    stampIndex: stampIndexFull
     subnetAddressPrefix: subnetAddressPrefixes[0]
     subnetName: 'AvdSessionHosts'
     tags: tags
@@ -817,12 +818,11 @@ module management 'modules/management/management.bicep' = {
     logAnalyticsWorkspaceResourceId: shared.outputs.logAnalyticsWorkspaceResourceId
     maxSessionLimit: usersPerCore * virtualMachineVirtualCpuCount
     mlzTags: tier3_hosts.outputs.mlzTags
-    namingConvention: tier3_hosts.outputs.namingConvention
+    names: tier3_hosts.outputs.namingConvention
     organizationalUnitPath: organizationalUnitPath
     // recoveryServices: recoveryServices
     // recoveryServicesGeo: tier3_hosts.outputs.locationProperties.recoveryServicesGeo
     securityPrincipalObjectIds: map(securityPrincipals, item => item.objectId)
-    stampIndexFull: stampIndexFull
     // storageService: storageService
     subnetResourceId: tier3_hosts.outputs.subnets[0].id
     tags: tags
@@ -856,6 +856,7 @@ module workspaces 'modules/shared/workspaces.bicep' = {
     names: naming_management.outputs.names
     resourceGroupManagement: management.outputs.resourceGroupName
     sharedServicesSubnetResourceId: sharedServicesSubnetResourceId
+    stampIndexFull: stampIndexFull
     tags: tags
     workspaceFriendlyName: workspaceFriendlyName
     workspaceGlobalPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3_hosts.outputs.privateDnsZones, name => startsWith(name, 'privatelink-global.wvd'))[0]}'
@@ -888,15 +889,13 @@ module fslogix 'modules/fslogix/fslogix.bicep' = if (deployFslogix) {
     location: locationVirtualMachines
     managementVirtualMachineName: management.outputs.virtualMachineName
     mlzTags: tier3_hosts.outputs.mlzTags
-    namingConvention: tier3_hosts.outputs.namingConvention
+    names: tier3_hosts.outputs.namingConvention
     netbios: netbios
     organizationalUnitPath: organizationalUnitPath
     // recoveryServices: recoveryServices
     resourceGroupManagement: management.outputs.resourceGroupName
-    resourceGroupName: tier3_hosts.outputs.namingConvention.resourceGroup
     securityPrincipalNames: map(securityPrincipals, item => item.displayName)
     securityPrincipalObjectIds: map(securityPrincipals, item => item.objectId)
-    stampIndexFull: stampIndexFull
     storageCount: storageCount
     storageEncryptionKeyName: tier3_hosts.outputs.storageEncryptionKeyName
     storageIndex: storageIndex
@@ -952,7 +951,7 @@ module sessionHosts 'modules/session-hosts/session-hosts.bicep' = {
     managementVirtualMachineName: management.outputs.virtualMachineName
     maxResourcesPerTemplateDeployment: maxResourcesPerTemplateDeployment
     mlzTags: tier3_hosts.outputs.mlzTags
-    namingConvention: tier3_hosts.outputs.namingConvention
+    names: tier3_hosts.outputs.namingConvention
     netAppFileShares: deployFslogix ? fslogix.outputs.netAppShares : [
       'None'
     ]
@@ -961,7 +960,6 @@ module sessionHosts 'modules/session-hosts/session-hosts.bicep' = {
     profile: profile
     // recoveryServicesVaultName: management.outputs.recoveryServicesVaultName
     resourceGroupManagement: management.outputs.resourceGroupName
-    resourceGroupName: '${tier3_hosts.outputs.namingConvention.resourceGroup}${tier3_hosts.outputs.delimiter}hosts'
     scalingWeekdaysOffPeakStartTime: scalingWeekdaysOffPeakStartTime
     scalingWeekdaysPeakStartTime: scalingWeekdaysPeakStartTime
     scalingWeekendsOffPeakStartTime: scalingWeekendsOffPeakStartTime

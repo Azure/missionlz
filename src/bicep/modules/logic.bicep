@@ -10,6 +10,7 @@ param environmentAbbreviation string
 param identifier string
 param location string
 param networks array
+param stampIndex string = ''
 
 var environmentName = {
   dev: 'Development'
@@ -33,9 +34,10 @@ module namingConventions 'naming-convention.bicep' = [for network in networks: {
   name: 'naming-convention-${network.shortName}-${deploymentNameSuffix}'
   params: {
     environmentAbbreviation: environmentAbbreviation
+    identifier: identifier
     location: location
     networkName: network.name
-    identifier: identifier
+    stampIndex: stampIndex
   }
 }]
 

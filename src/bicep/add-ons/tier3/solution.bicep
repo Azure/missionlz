@@ -115,6 +115,9 @@ param networkWatcherResourceId string = ''
 @description('The policy to assign to the workload.')
 param policy string = 'NISTRev4'
 
+@description('The stamp index allows for multiple deployments of a similar workload without naming conflicts.')
+param stampIndex string = ''
+
 @description('The address prefix for the workload subnet.')
 param subnetAddressPrefix string = ''
 
@@ -249,6 +252,7 @@ module logic '../../modules/logic.bicep' = {
         subnetAddressPrefix: subnetAddressPrefix
       }
     ]
+    stampIndex: stampIndex
   }
 }
 

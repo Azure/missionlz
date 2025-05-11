@@ -14,11 +14,11 @@ param netAppAccountNamePrefix string
 param netAppCapacityPoolNamePrefix string
 param organizationalUnitPath string
 param smbServerName string
-param stampIndexFull string = ''
 param storageSku string
+param suffix string =  ''
 param tags object
 
-var nameSuffix = empty(stampIndexFull) ? '' : '${delimiter}fslogix${delimiter}${stampIndexFull}'
+var nameSuffix = empty(suffix) ? '' : '${delimiter}${suffix}'
 var tagsNetAppAccount = union(empty(hostPoolResourceId) ? {} : {'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.NetApp/netAppAccounts'] ?? {}, mlzTags)
 
 resource netAppAccount 'Microsoft.NetApp/netAppAccounts@2021-06-01' = {

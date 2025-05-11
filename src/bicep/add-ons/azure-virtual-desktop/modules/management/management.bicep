@@ -33,10 +33,9 @@ param locationVirtualMachines string
 param logAnalyticsWorkspaceResourceId string
 param maxSessionLimit int
 param mlzTags object
-param namingConvention object
+param names object
 param organizationalUnitPath string
 param securityPrincipalObjectIds array
-param stampIndexFull string
 param subnetResourceId string
 param tags object
 param validationEnvironment bool
@@ -49,14 +48,14 @@ var galleryImageOffer = empty(imageVersionResourceId) ? '"${imageOffer}"' : 'nul
 var galleryImagePublisher = empty(imageVersionResourceId) ? '"${imagePublisher}"' : 'null'
 var galleryImageSku = empty(imageVersionResourceId) ? '"${imageSku}"' : 'null'
 var galleryItemId = empty(imageVersionResourceId) ? '"${imagePublisher}.${imageOffer}${imageSku}"' : 'null'
-var hostPoolName = '${namingConvention.hostPool}${delimiter}${stampIndexFull}'
+var hostPoolResourceId = resourceId(resourceGroupManagement, 'Microsoft.DesktopVirtualization/hostpools', names.hostPool)
 var imageType = empty(imageVersionResourceId) ? '"Gallery"' : '"CustomImage"'
-var resourceGroupManagement = '${namingConvention.resourceGroup}${delimiter}management${stampIndexFull}'
+var resourceGroupManagement = '${names.resourceGroup}${delimiter}management'
 
 resource resourceGroup 'Microsoft.Resources/resourceGroups@2023-07-01' = {
   name: resourceGroupManagement
   location: locationControlPlane
-  tags: union({'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroupManagement}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'}, tags[?'Microsoft.Resources/resourceGroups'] ?? {}, mlzTags)
+  tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Resources/resourceGroups'] ?? {}, mlzTags)
 }
 
 // Role Assignment for Autoscale
@@ -98,10 +97,10 @@ module hostPool 'host-pool.bicep' = {
     galleryImagePublisher: galleryImagePublisher
     galleryImageSku: galleryImageSku
     galleryItemId: galleryItemId
-    hostPoolDiagnosticSettingName: '${namingConvention.hostPoolDiagnosticSetting}${delimiter}${stampIndexFull}'
-    hostPoolName: hostPoolName
-    hostPoolNetworkInterfaceName: '${namingConvention.hostPoolNetworkInterface}${delimiter}${stampIndexFull}'
-    hostPoolPrivateEndpointName: '${namingConvention.hostPoolPrivateEndpoint}${delimiter}${stampIndexFull}'
+    hostPoolDiagnosticSettingName: names.hostPoolDiagnosticSetting
+    hostPoolName: names.hostPool
+    hostPoolNetworkInterfaceName: names.hostPoolNetworkInterface
+    hostPoolPrivateEndpointName: names.hostPoolPrivateEndpoint
     hostPoolPublicNetworkAccess: hostPoolPublicNetworkAccess
     hostPoolType: hostPoolType
     imageType: imageType
@@ -109,7 +108,7 @@ module hostPool 'host-pool.bicep' = {
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     maxSessionLimit: maxSessionLimit
     mlzTags: mlzTags
-    sessionHostNamePrefix: '${namingConvention.virtualMachine}${stampIndexFull}'
+    sessionHostNamePrefix: names.virtualMachine
     subnetResourceId: subnetResourceId
     tags: tags
     validationEnvironment: validationEnvironment
@@ -139,7 +138,7 @@ module virtualMachine 'virtual-machine.bicep' = {
     deploymentUserAssignedIdentityPrincipalId: deploymentUserAssignedIdentityPrincipalId
     deploymentUserAssignedIdentityResourceId: deploymentUserAssignedIdentityResourceId
     diskEncryptionSetResourceId: diskEncryptionSetResourceId
-    diskName: '${namingConvention.virtualMachineDisk}${delimiter}mgt'
+    diskName: '${names.virtualMachineDisk}${delimiter}mgt'
     diskSku: diskSku
     domainJoinPassword: domainJoinPassword
     domainJoinUserPrincipalName: domainJoinUserPrincipalName
@@ -147,11 +146,11 @@ module virtualMachine 'virtual-machine.bicep' = {
     hostPoolResourceId: hostPool.outputs.resourceId
     location: locationVirtualMachines
     mlzTags: mlzTags
-    networkInterfaceName: '${namingConvention.virtualMachineNetworkInterface}${delimiter}mgt'
+    networkInterfaceName: '${names.virtualMachineNetworkInterface}${delimiter}mgt'
     organizationalUnitPath: organizationalUnitPath
     subnetResourceId: subnetResourceId
     tags: tags
-    virtualMachineName: '${namingConvention.virtualMachine}mgt'
+    virtualMachineName: '${names.virtualMachine}mgt'
     virtualMachineAdminPassword: virtualMachineAdminPassword
     virtualMachineAdminUsername: virtualMachineAdminUsername
   }
@@ -163,7 +162,7 @@ module applicationGroup 'application-group.bicep' = {
   params: {
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedIdentityClientId: deploymentUserAssignedIdentityClientId
-    desktopApplicationGroupName: '${namingConvention.applicationGroup}${delimiter}${stampIndexFull}'
+    desktopApplicationGroupName: names.applicationGroup
     hostPoolResourceId: hostPool.outputs.resourceId
     locationControlPlane: locationControlPlane
     locationVirtualMachines: locationVirtualMachines

@@ -42,14 +42,13 @@ param logAnalyticsWorkspaceResourceId string
 param managementVirtualMachineName string
 param maxResourcesPerTemplateDeployment int
 param mlzTags object
-param namingConvention object
+param names object
 param netAppFileShares array
 param networkSecurityGroupResourceId string
 param organizationalUnitPath string
 param profile string
 // param recoveryServicesVaultName string
 param resourceGroupManagement string
-param resourceGroupName string
 param scalingWeekdaysOffPeakStartTime string
 param scalingWeekdaysPeakStartTime string
 param scalingWeekendsOffPeakStartTime string
@@ -71,12 +70,12 @@ param virtualMachineAdminPassword string
 param virtualMachineAdminUsername string
 param virtualMachineSize string
 
-var availabilitySetNamePrefix = namingConvention.availabilitySet
+var availabilitySetNamePrefix = names.availabilitySet
 var tagsVirtualMachines = union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Compute/virtualMachines'] ?? {}, mlzTags)
 var uniqueToken = uniqueString(identifier, environmentAbbreviation, subscription().subscriptionId)
 
 resource rg 'Microsoft.Resources/resourceGroups@2023-07-01' = {
-  name: resourceGroupName
+  name: '${names.resourceGroup}${delimiter}hosts'
   location: location
   tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Resources/resourceGroups'] ?? {}, mlzTags)
 }
@@ -101,6 +100,7 @@ module availabilitySets 'availability-sets.bicep' = if (hostPoolType == 'Pooled'
     availabilitySetNamePrefix: availabilitySetNamePrefix
     availabilitySetsCount: availabilitySetsCount
     availabilitySetsIndex: availabilitySetsIndex
+    delimiter: delimiter
     location: location
     tagsAvailabilitySets: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Compute/availabilitySets'] ?? {}, mlzTags)
   }
@@ -151,7 +151,7 @@ module disableAutoscale '../common/run-command.bicep' = {
       }
       {
         name: 'ScalingPlanName' 
-        value: namingConvention.scalingPlan
+        value: names.scalingPlan
       }
       {
         name: 'SubscriptionId' 
@@ -179,14 +179,14 @@ module virtualMachines 'virtual-machines.bicep' = [for i in range(1, sessionHost
     availabilityZones: availabilityZones
     avdConfigurationZipFileName: avdConfigurationZipFileName
     batchCount: i
-    dataCollectionRuleAssociationNamePrefix: namingConvention.dataCollectionRuleAssociation
+    dataCollectionRuleAssociationNamePrefix: names.dataCollectionRuleAssociation
     dataCollectionRuleResourceId: dataCollectionRuleResourceId
     delimiter: delimiter
     deployFslogix: deployFslogix
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedidentityClientId: deploymentUserAssignedIdentityClientId
     diskEncryptionSetResourceId: diskEncryptionSetResourceId
-    diskNamePrefix: namingConvention.virtualMachineDisk
+    diskNamePrefix: names.virtualMachineDisk
     diskSku: diskSku
     domainJoinPassword: domainJoinPassword
     domainJoinUserPrincipalName: domainJoinUserPrincipalName
@@ -204,7 +204,7 @@ module virtualMachines 'virtual-machines.bicep' = [for i in range(1, sessionHost
     location: location
     managementVirtualMachineName: managementVirtualMachineName
     netAppFileShares: netAppFileShares
-    networkInterfaceNamePrefix: namingConvention.virtualMachineNetworkInterface
+    networkInterfaceNamePrefix: names.virtualMachineNetworkInterface
     networkSecurityGroupResourceId: networkSecurityGroupResourceId
     organizationalUnitPath: organizationalUnitPath
     profile: profile
@@ -221,7 +221,7 @@ module virtualMachines 'virtual-machines.bicep' = [for i in range(1, sessionHost
     tagsNetworkInterfaces: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Network/networkInterfaces'] ?? {}, mlzTags)
     tagsVirtualMachines: tagsVirtualMachines
     uniqueToken: uniqueToken
-    virtualMachineNamePrefix: namingConvention.virtualMachine
+    virtualMachineNamePrefix: names.virtualMachine
     virtualMachineAdminPassword: virtualMachineAdminPassword
     virtualMachineAdminUsername: virtualMachineAdminUsername
     virtualMachineSize: virtualMachineSize
@@ -263,8 +263,8 @@ module scalingPlan '../management/scaling-plan.bicep' = {
     hostPoolType: hostPoolType
     location: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
-    scalingPlanDiagnosticSettingName: '${namingConvention.scalingPlanDiagnosticSetting}${delimiter}${stampIndexFull}'
-    scalingPlanName: '${namingConvention.scalingPlan}${delimiter}${stampIndexFull}'
+    scalingPlanDiagnosticSettingName: names.scalingPlanDiagnosticSetting
+    scalingPlanName: names.scalingPlan
     tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.DesktopVirtualization/scalingPlans'] ?? {}, mlzTags)
     timeZone: timeZone
     weekdaysOffPeakStartTime: scalingWeekdaysOffPeakStartTime

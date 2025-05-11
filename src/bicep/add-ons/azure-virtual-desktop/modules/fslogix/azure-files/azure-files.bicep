@@ -11,11 +11,10 @@ param hostPoolResourceId string
 param keyVaultUri string
 param location string
 param mlzTags object
-param namingConvention object
+param names object
 // param recoveryServicesVaultName string
 // param resourceGroupManagement string
 param securityPrincipalObjectIds array
-param stampIndexFull string
 param storageCount int
 param storageEncryptionKeyName string
 param storageIndex int
@@ -35,7 +34,7 @@ var smbSettings = {
   kerberosTicketEncryption: 'AES-256;'
   channelEncryption: 'AES-128-GCM;AES-256-GCM;'
 }
-var storageAccountNamePrefix = uniqueString(namingConvention.storageAccount, resourceGroup().id)
+var storageAccountNamePrefix = uniqueString(names.storageAccount, resourceGroup().id)
 var storageRedundancy = availability == 'availabilityZones' ? '_ZRS' : '_LRS'
 var tagsPrivateEndpoints = union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Network/privateEndpoints'] ?? {}, mlzTags)
 var tagsStorageAccounts = union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Storage/storageAccounts'] ?? {}, mlzTags)
@@ -151,14 +150,14 @@ module shares 'shares.bicep' = [for i in range(0, storageCount): {
 }]
 
 resource privateEndpoints 'Microsoft.Network/privateEndpoints@2023-04-01' = [for i in range(0, storageCount): {
-  name: '${namingConvention.storageAccountFilePrivateEndpoint}${delimiter}fslogix${delimiter}${stampIndexFull}${padLeft(i + storageIndex, 2, '0')}'
+  name: '${names.storageAccountFilePrivateEndpoint}${delimiter}fslogix${delimiter}${padLeft(i + storageIndex, 2, '0')}'
   location: location
   tags: tagsPrivateEndpoints
   properties: {
-    customNetworkInterfaceName: '${namingConvention.storageAccountFileNetworkInterface}${delimiter}fslogix${delimiter}${stampIndexFull}${padLeft(i + storageIndex, 2, '0')}'
+    customNetworkInterfaceName: '${names.storageAccountFileNetworkInterface}${delimiter}fslogix${delimiter}${padLeft(i + storageIndex, 2, '0')}'
     privateLinkServiceConnections: [
       {
-        name: '${namingConvention.storageAccountFilePrivateEndpoint}${delimiter}fslogix${delimiter}${stampIndexFull}${padLeft(i + storageIndex, 2, '0')}'
+        name: '${names.storageAccountFilePrivateEndpoint}${delimiter}fslogix${delimiter}${padLeft(i + storageIndex, 2, '0')}'
         properties: {
           privateLinkServiceId: storageAccounts[i].id
           groupIds: [

@@ -14,6 +14,7 @@ param environmentAbbreviation string
 param location string
 param networkName string
 param identifier string
+param stampIndex string = '' // Enables multiple deployments of the same workload within a namespace
 
 var directionShortNames = {
   east: 'e'
@@ -53,11 +54,12 @@ var tokens = {
   - networkName: A name that represents the network tier in which the resource is deployed.
   - tokens.resource: This is a placeholder value for the resource type that is replaced in the "names" var.
   - tokens.service: This is a placeholder value for the service type, typically representing a parent child relationship, that is replaced in the "names" var.
+  - stampIdex: A unique integer value that is used to identify the specific instance of a workload.
 
 */
 
-var namingConvention = '${toLower(identifier)}${delimiter}${environmentAbbreviation}${delimiter}${locationAbbreviation}${delimiter}${networkName}${delimiter}${tokens.resource}'
-var namingConvention_Service = '${toLower(identifier)}${delimiter}${environmentAbbreviation}${delimiter}${locationAbbreviation}${delimiter}${networkName}${delimiter}${tokens.service}${delimiter}${tokens.resource}'
+var namingConvention = '${toLower(identifier)}${delimiter}${environmentAbbreviation}${delimiter}${locationAbbreviation}${delimiter}${networkName}${delimiter}${tokens.resource}${empty(stampIndex) ? '' : '${delimiter}${stampIndex}'}'
+var namingConvention_Service = '${toLower(identifier)}${delimiter}${environmentAbbreviation}${delimiter}${locationAbbreviation}${delimiter}${networkName}${delimiter}${tokens.service}${delimiter}${tokens.resource}${empty(stampIndex) ? '' : '${delimiter}${stampIndex}'}'
 
 /*
 
