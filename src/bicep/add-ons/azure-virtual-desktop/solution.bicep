@@ -751,7 +751,7 @@ module tier3_hosts '../tier3/solution.bicep' = {
 // - global and feed AVD workspace to support AVD with Private Link
 // - log analytics workspace and data collection rule for AVD Insights
 module shared 'modules/shared/shared.bicep' = {
-  name: 'deploy-workspaces-${deploymentNameSuffix}'
+  name: 'deploy-shared-${deploymentNameSuffix}'
   scope: subscription(split(sharedServicesSubnetResourceId, '/')[2])
   params: {
     delimiter: naming_management.outputs.delimiter

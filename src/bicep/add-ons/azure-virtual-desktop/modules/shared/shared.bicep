@@ -28,7 +28,7 @@ param subnets array
 param tags object
 // param timeZone string
 
-var hostPoolResourceId = '${subscription().id}}/resourceGroups/${resourceGroupManagement}/providers/Microsoft.DesktopVirtualization/hostpools/${names.hostPoolName}'
+var hostPoolResourceId = '${subscription().id}}/resourceGroups/${resourceGroupManagement}/providers/Microsoft.DesktopVirtualization/hostpools/${names.hostPool}'
 var resourceGroupShared = replace(names.resourceGroup, stampIndexFull, 'shared')
 var resourceGroupFslogix = '${names.resourceGroup}${delimiter}fslogix'
 var resourceGroupManagement = '${names.resourceGroup}${delimiter}management'
