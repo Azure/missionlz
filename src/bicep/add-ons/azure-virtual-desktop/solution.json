@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "4286879947774800692"
+      "templateHash": "1994444558422847228"
     }
   },
   "parameters": {
@@ -879,7 +879,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.35.1.17967",
-              "templateHash": "13287936924172099599"
+              "templateHash": "2746349065201600109"
             }
           },
           "parameters": {
@@ -902,6 +902,10 @@
             },
             "identifier": {
               "type": "string"
+            },
+            "stampIndex": {
+              "type": "string",
+              "defaultValue": ""
             }
           },
           "variables": {
@@ -1324,8 +1328,8 @@
               "resource": "resource_token",
               "service": "service_token"
             },
-            "namingConvention": "[format('{0}{1}{2}{3}{4}{5}{6}{7}{8}', toLower(parameters('identifier')), parameters('delimiter'), parameters('environmentAbbreviation'), parameters('delimiter'), variables('locationAbbreviation'), parameters('delimiter'), parameters('networkName'), parameters('delimiter'), variables('tokens').resource)]",
-            "namingConvention_Service": "[format('{0}{1}{2}{3}{4}{5}{6}{7}{8}{9}{10}', toLower(parameters('identifier')), parameters('delimiter'), parameters('environmentAbbreviation'), parameters('delimiter'), variables('locationAbbreviation'), parameters('delimiter'), parameters('networkName'), parameters('delimiter'), variables('tokens').service, parameters('delimiter'), variables('tokens').resource)]",
+            "namingConvention": "[format('{0}{1}{2}{3}{4}{5}{6}{7}{8}{9}', toLower(parameters('identifier')), parameters('delimiter'), parameters('environmentAbbreviation'), parameters('delimiter'), variables('locationAbbreviation'), parameters('delimiter'), parameters('networkName'), parameters('delimiter'), variables('tokens').resource, if(empty(parameters('stampIndex')), '', format('{0}{1}', parameters('delimiter'), parameters('stampIndex'))))]",
+            "namingConvention_Service": "[format('{0}{1}{2}{3}{4}{5}{6}{7}{8}{9}{10}{11}', toLower(parameters('identifier')), parameters('delimiter'), parameters('environmentAbbreviation'), parameters('delimiter'), variables('locationAbbreviation'), parameters('delimiter'), parameters('networkName'), parameters('delimiter'), variables('tokens').service, parameters('delimiter'), variables('tokens').resource, if(empty(parameters('stampIndex')), '', format('{0}{1}', parameters('delimiter'), parameters('stampIndex'))))]",
             "names": {
               "actionGroup": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').actionGroups)]",
               "applicationGroup": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').applicationGroups)]",
@@ -1518,6 +1522,9 @@
           "policy": {
             "value": "[parameters('policy')]"
           },
+          "stampIndex": {
+            "value": "[variables('stampIndexFull')]"
+          },
           "subnetAddressPrefix": {
             "value": "[parameters('subnetAddressPrefixes')[0]]"
           },
@@ -1553,7 +1560,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.35.1.17967",
-              "templateHash": "6912208770289795823"
+              "templateHash": "4799893574381281104"
             }
           },
           "parameters": {
@@ -1753,6 +1760,13 @@
               "defaultValue": "NISTRev4",
               "metadata": {
                 "description": "The policy to assign to the workload."
+              }
+            },
+            "stampIndex": {
+              "type": "string",
+              "defaultValue": "",
+              "metadata": {
+                "description": "The stamp index allows for multiple deployments of a similar workload without naming conflicts."
               }
             },
             "subnetAddressPrefix": {
@@ -2036,6 +2050,9 @@
                         "subnetAddressPrefix": "[parameters('subnetAddressPrefix')]"
                       }
                     ]
+                  },
+                  "stampIndex": {
+                    "value": "[parameters('stampIndex')]"
                   }
                 },
                 "template": {
@@ -2045,7 +2062,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.35.1.17967",
-                      "templateHash": "14785040201525541203"
+                      "templateHash": "16801003753570761501"
                     }
                   },
                   "parameters": {
@@ -2063,6 +2080,10 @@
                     },
                     "networks": {
                       "type": "array"
+                    },
+                    "stampIndex": {
+                      "type": "string",
+                      "defaultValue": ""
                     }
                   },
                   "variables": {
@@ -2098,14 +2119,17 @@
                           "environmentAbbreviation": {
                             "value": "[parameters('environmentAbbreviation')]"
                           },
+                          "identifier": {
+                            "value": "[parameters('identifier')]"
+                          },
                           "location": {
                             "value": "[parameters('location')]"
                           },
                           "networkName": {
                             "value": "[parameters('networks')[copyIndex()].name]"
                           },
-                          "identifier": {
-                            "value": "[parameters('identifier')]"
+                          "stampIndex": {
+                            "value": "[parameters('stampIndex')]"
                           }
                         },
                         "template": {
@@ -2115,7 +2139,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.35.1.17967",
-                              "templateHash": "13287936924172099599"
+                              "templateHash": "2746349065201600109"
                             }
                           },
                           "parameters": {
@@ -2138,6 +2162,10 @@
                             },
                             "identifier": {
                               "type": "string"
+                            },
+                            "stampIndex": {
+                              "type": "string",
+                              "defaultValue": ""
                             }
                           },
                           "variables": {
@@ -2560,8 +2588,8 @@
                               "resource": "resource_token",
                               "service": "service_token"
                             },
-                            "namingConvention": "[format('{0}{1}{2}{3}{4}{5}{6}{7}{8}', toLower(parameters('identifier')), parameters('delimiter'), parameters('environmentAbbreviation'), parameters('delimiter'), variables('locationAbbreviation'), parameters('delimiter'), parameters('networkName'), parameters('delimiter'), variables('tokens').resource)]",
-                            "namingConvention_Service": "[format('{0}{1}{2}{3}{4}{5}{6}{7}{8}{9}{10}', toLower(parameters('identifier')), parameters('delimiter'), parameters('environmentAbbreviation'), parameters('delimiter'), variables('locationAbbreviation'), parameters('delimiter'), parameters('networkName'), parameters('delimiter'), variables('tokens').service, parameters('delimiter'), variables('tokens').resource)]",
+                            "namingConvention": "[format('{0}{1}{2}{3}{4}{5}{6}{7}{8}{9}', toLower(parameters('identifier')), parameters('delimiter'), parameters('environmentAbbreviation'), parameters('delimiter'), variables('locationAbbreviation'), parameters('delimiter'), parameters('networkName'), parameters('delimiter'), variables('tokens').resource, if(empty(parameters('stampIndex')), '', format('{0}{1}', parameters('delimiter'), parameters('stampIndex'))))]",
+                            "namingConvention_Service": "[format('{0}{1}{2}{3}{4}{5}{6}{7}{8}{9}{10}{11}', toLower(parameters('identifier')), parameters('delimiter'), parameters('environmentAbbreviation'), parameters('delimiter'), variables('locationAbbreviation'), parameters('delimiter'), parameters('networkName'), parameters('delimiter'), variables('tokens').service, parameters('delimiter'), variables('tokens').resource, if(empty(parameters('stampIndex')), '', format('{0}{1}', parameters('delimiter'), parameters('stampIndex'))))]",
                             "names": {
                               "actionGroup": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').actionGroups)]",
                               "applicationGroup": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').applicationGroups)]",
@@ -6510,7 +6538,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.35.1.17967",
-              "templateHash": "15253985794437447526"
+              "templateHash": "1572061764430490016"
             }
           },
           "parameters": {
@@ -6585,12 +6613,11 @@
             }
           },
           "variables": {
-            "hostPoolName": "[format('{0}{1}{2}', parameters('names').hostPoolName, parameters('delimiter'), parameters('stampIndexFull'))]",
-            "hostPoolResourceId": "[format('{0}}}/resourceGroups/{1}/providers/Microsoft.DesktopVirtualization/hostpools/{2}', subscription().id, variables('resourceGroupManagement'), variables('hostPoolName'))]",
-            "resourceGroupShared": "[format('{0}{1}shared', parameters('names').resourceGroup, parameters('delimiter'))]",
-            "resourceGroupFslogix": "[format('{0}{1}fslogix{2}{3}', parameters('names').resourceGroup, parameters('delimiter'), parameters('delimiter'), parameters('stampIndexFull'))]",
-            "resourceGroupManagement": "[format('{0}{1}management{2}{3}', parameters('names').resourceGroup, parameters('delimiter'), parameters('delimiter'), parameters('stampIndexFull'))]",
-            "userAssignedIdentityNamePrefix": "[parameters('names').userAssignedIdentity]"
+            "hostPoolResourceId": "[format('{0}}}/resourceGroups/{1}/providers/Microsoft.DesktopVirtualization/hostpools/{2}', subscription().id, variables('resourceGroupManagement'), parameters('names').hostPoolName)]",
+            "resourceGroupShared": "[replace(parameters('names').resourceGroup, parameters('stampIndexFull'), 'shared')]",
+            "resourceGroupFslogix": "[format('{0}{1}fslogix', parameters('names').resourceGroup, parameters('delimiter'))]",
+            "resourceGroupManagement": "[format('{0}{1}management', parameters('names').resourceGroup, parameters('delimiter'))]",
+            "userAssignedIdentityNamePrefix": "[replace(parameters('names').userAssignedIdentity, parameters('stampIndexFull'), '')]"
           },
           "resources": [
             {
@@ -6710,11 +6737,14 @@
                   "mlzTags": {
                     "value": "[parameters('mlzTags')]"
                   },
-                  "namingConvention": {
+                  "names": {
                     "value": "[parameters('names')]"
                   },
                   "privateLinkScopeResourceId": {
                     "value": "[parameters('privateLinkScopeResourceId')]"
+                  },
+                  "stampIndexFull": {
+                    "value": "[parameters('stampIndexFull')]"
                   },
                   "tags": {
                     "value": "[parameters('tags')]"
@@ -6727,7 +6757,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.35.1.17967",
-                      "templateHash": "3929063478837930246"
+                      "templateHash": "11733881341348846441"
                     }
                   },
                   "parameters": {
@@ -6755,10 +6785,13 @@
                     "mlzTags": {
                       "type": "object"
                     },
-                    "namingConvention": {
+                    "names": {
                       "type": "object"
                     },
                     "privateLinkScopeResourceId": {
+                      "type": "string"
+                    },
+                    "stampIndexFull": {
                       "type": "string"
                     },
                     "tags": {
@@ -6769,7 +6802,7 @@
                     {
                       "type": "Microsoft.OperationalInsights/workspaces",
                       "apiVersion": "2021-06-01",
-                      "name": "[format('{0}{1}avdi', parameters('namingConvention').logAnalyticsWorkspace, parameters('delimiter'))]",
+                      "name": "[replace(parameters('names').logAnalyticsWorkspace, parameters('stampIndexFull'), 'avdi')]",
                       "location": "[parameters('location')]",
                       "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.OperationalInsights/workspaces'), createObject()), parameters('mlzTags'))]",
                       "properties": {
@@ -6788,7 +6821,7 @@
                       "condition": "[parameters('enableAvdInsights')]",
                       "type": "Microsoft.Insights/dataCollectionRules",
                       "apiVersion": "2022-06-01",
-                      "name": "[format('microsoft-avdi-{0}', parameters('namingConvention').dataCollectionRule)]",
+                      "name": "[format('microsoft-avdi-{0}', replace(parameters('names').dataCollectionRule, format('{0}{1}', parameters('delimiter'), parameters('stampIndexFull')), ''))]",
                       "location": "[parameters('location')]",
                       "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Insights/dataCollectionRules'), createObject()), parameters('mlzTags'))]",
                       "kind": "Windows",
@@ -6849,7 +6882,7 @@
                         "destinations": {
                           "logAnalytics": [
                             {
-                              "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', format('{0}{1}avdi', parameters('namingConvention').logAnalyticsWorkspace, parameters('delimiter')))]",
+                              "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', replace(parameters('names').logAnalyticsWorkspace, parameters('stampIndexFull'), 'avdi'))]",
                               "name": "la-workspace"
                             }
                           ]
@@ -6867,14 +6900,14 @@
                         ]
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.OperationalInsights/workspaces', format('{0}{1}avdi', parameters('namingConvention').logAnalyticsWorkspace, parameters('delimiter')))]"
+                        "[resourceId('Microsoft.OperationalInsights/workspaces', replace(parameters('names').logAnalyticsWorkspace, parameters('stampIndexFull'), 'avdi'))]"
                       ]
                     },
                     {
                       "condition": "[parameters('enableAvdInsights')]",
                       "type": "Microsoft.Insights/dataCollectionEndpoints",
                       "apiVersion": "2021-04-01",
-                      "name": "[format('{0}{1}avdi', parameters('namingConvention').dataCollectionEndpoint, parameters('delimiter'))]",
+                      "name": "[replace(parameters('names').dataCollectionEndpoint, parameters('stampIndexFull'), 'avdi')]",
                       "location": "[parameters('location')]",
                       "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Insights/dataCollectionEndpoints'), createObject()), parameters('mlzTags'))]",
                       "kind": "Windows",
@@ -6897,7 +6930,7 @@
                         "mode": "Incremental",
                         "parameters": {
                           "logAnalyticsWorkspaceResourceId": {
-                            "value": "[resourceId('Microsoft.OperationalInsights/workspaces', format('{0}{1}avdi', parameters('namingConvention').logAnalyticsWorkspace, parameters('delimiter')))]"
+                            "value": "[resourceId('Microsoft.OperationalInsights/workspaces', replace(parameters('names').logAnalyticsWorkspace, parameters('stampIndexFull'), 'avdi'))]"
                           },
                           "privateLinkScopeResourceId": {
                             "value": "[parameters('privateLinkScopeResourceId')]"
@@ -6962,7 +6995,7 @@
                         }
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.OperationalInsights/workspaces', format('{0}{1}avdi', parameters('namingConvention').logAnalyticsWorkspace, parameters('delimiter')))]"
+                        "[resourceId('Microsoft.OperationalInsights/workspaces', replace(parameters('names').logAnalyticsWorkspace, parameters('stampIndexFull'), 'avdi'))]"
                       ]
                     },
                     {
@@ -6979,7 +7012,7 @@
                         "mode": "Incremental",
                         "parameters": {
                           "dataCollectionEndpointResourceId": {
-                            "value": "[resourceId('Microsoft.Insights/dataCollectionEndpoints', format('{0}{1}avdi', parameters('namingConvention').dataCollectionEndpoint, parameters('delimiter')))]"
+                            "value": "[resourceId('Microsoft.Insights/dataCollectionEndpoints', replace(parameters('names').dataCollectionEndpoint, parameters('stampIndexFull'), 'avdi'))]"
                           },
                           "privateLinkScopeResourceId": {
                             "value": "[parameters('privateLinkScopeResourceId')]"
@@ -7044,22 +7077,22 @@
                         }
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Insights/dataCollectionEndpoints', format('{0}{1}avdi', parameters('namingConvention').dataCollectionEndpoint, parameters('delimiter')))]"
+                        "[resourceId('Microsoft.Insights/dataCollectionEndpoints', replace(parameters('names').dataCollectionEndpoint, parameters('stampIndexFull'), 'avdi'))]"
                       ]
                     }
                   ],
                   "outputs": {
                     "logAnalyticsWorkspaceName": {
                       "type": "string",
-                      "value": "[format('{0}{1}avdi', parameters('namingConvention').logAnalyticsWorkspace, parameters('delimiter'))]"
+                      "value": "[replace(parameters('names').logAnalyticsWorkspace, parameters('stampIndexFull'), 'avdi')]"
                     },
                     "logAnalyticsWorkspaceResourceId": {
                       "type": "string",
-                      "value": "[resourceId('Microsoft.OperationalInsights/workspaces', format('{0}{1}avdi', parameters('namingConvention').logAnalyticsWorkspace, parameters('delimiter')))]"
+                      "value": "[resourceId('Microsoft.OperationalInsights/workspaces', replace(parameters('names').logAnalyticsWorkspace, parameters('stampIndexFull'), 'avdi'))]"
                     },
                     "dataCollectionRuleResourceId": {
                       "type": "string",
-                      "value": "[if(parameters('enableAvdInsights'), resourceId('Microsoft.Insights/dataCollectionRules', format('microsoft-avdi-{0}', parameters('namingConvention').dataCollectionRule)), '')]"
+                      "value": "[if(parameters('enableAvdInsights'), resourceId('Microsoft.Insights/dataCollectionRules', format('microsoft-avdi-{0}', replace(parameters('names').dataCollectionRule, format('{0}{1}', parameters('delimiter'), parameters('stampIndexFull')), ''))), '')]"
                     }
                   }
                 }
@@ -7082,6 +7115,9 @@
                   "azureBlobsPrivateDnsZoneResourceId": {
                     "value": "[format('{0}{1}', parameters('privateDnsZoneResourceIdPrefix'), filter(parameters('privateDnsZones'), lambda('name', contains(lambdaVariables('name'), 'blob')))[0])]"
                   },
+                  "delimiter": {
+                    "value": "[parameters('delimiter')]"
+                  },
                   "hostPoolResourceId": {
                     "value": "[variables('hostPoolResourceId')]"
                   },
@@ -7091,8 +7127,11 @@
                   "mlzTags": {
                     "value": "[parameters('mlzTags')]"
                   },
-                  "namingConvention": {
+                  "names": {
                     "value": "[parameters('names')]"
+                  },
+                  "stampIndexFull": {
+                    "value": "[parameters('stampIndexFull')]"
                   },
                   "subnetResourceId": {
                     "value": "[parameters('subnetResourceId')]"
@@ -7108,11 +7147,14 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.35.1.17967",
-                      "templateHash": "7932892490353502241"
+                      "templateHash": "7970535146153468402"
                     }
                   },
                   "parameters": {
                     "azureBlobsPrivateDnsZoneResourceId": {
+                      "type": "string"
+                    },
+                    "delimiter": {
                       "type": "string"
                     },
                     "hostPoolResourceId": {
@@ -7124,8 +7166,11 @@
                     "mlzTags": {
                       "type": "object"
                     },
-                    "namingConvention": {
+                    "names": {
                       "type": "object"
+                    },
+                    "stampIndexFull": {
+                      "type": "string"
                     },
                     "subnetResourceId": {
                       "type": "string"
@@ -7134,11 +7179,16 @@
                       "type": "object"
                     }
                   },
+                  "variables": {
+                    "diskAccessName": "[replace(parameters('names').diskAccess, format('{0}{1}', parameters('delimiter'), parameters('stampIndexFull')), '')]",
+                    "diskAccessNetworkInterface": "[replace(parameters('names').diskAccessNetworkInterface, format('{0}{1}', parameters('delimiter'), parameters('stampIndexFull')), '')]",
+                    "diskAccessPrivateEndpointName": "[replace(parameters('names').diskAccessPrivateEndpoint, format('{0}{1}', parameters('delimiter'), parameters('stampIndexFull')), '')]"
+                  },
                   "resources": [
                     {
                       "type": "Microsoft.Compute/diskAccesses",
                       "apiVersion": "2021-04-01",
-                      "name": "[parameters('namingConvention').diskAccess]",
+                      "name": "[variables('diskAccessName')]",
                       "location": "[parameters('location')]",
                       "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/diskAccesses'), createObject()), parameters('mlzTags'))]",
                       "properties": {}
@@ -7146,16 +7196,16 @@
                     {
                       "type": "Microsoft.Network/privateEndpoints",
                       "apiVersion": "2023-04-01",
-                      "name": "[parameters('namingConvention').diskAccessPrivateEndpoint]",
+                      "name": "[variables('diskAccessPrivateEndpointName')]",
                       "location": "[parameters('location')]",
                       "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Network/privateEndpoints'), createObject()), parameters('mlzTags'))]",
                       "properties": {
-                        "customNetworkInterfaceName": "[parameters('namingConvention').diskAccessNetworkInterface]",
+                        "customNetworkInterfaceName": "[variables('diskAccessNetworkInterface')]",
                         "privateLinkServiceConnections": [
                           {
-                            "name": "[parameters('namingConvention').diskAccessPrivateEndpoint]",
+                            "name": "[variables('diskAccessPrivateEndpointName')]",
                             "properties": {
-                              "privateLinkServiceId": "[resourceId('Microsoft.Compute/diskAccesses', parameters('namingConvention').diskAccess)]",
+                              "privateLinkServiceId": "[resourceId('Microsoft.Compute/diskAccesses', variables('diskAccessName'))]",
                               "groupIds": [
                                 "disks"
                               ]
@@ -7167,13 +7217,13 @@
                         }
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Compute/diskAccesses', parameters('namingConvention').diskAccess)]"
+                        "[resourceId('Microsoft.Compute/diskAccesses', variables('diskAccessName'))]"
                       ]
                     },
                     {
                       "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                       "apiVersion": "2021-08-01",
-                      "name": "[format('{0}/{1}', parameters('namingConvention').diskAccessPrivateEndpoint, parameters('namingConvention').diskAccess)]",
+                      "name": "[format('{0}/{1}', variables('diskAccessPrivateEndpointName'), variables('diskAccessName'))]",
                       "properties": {
                         "privateDnsZoneConfigs": [
                           {
@@ -7185,14 +7235,14 @@
                         ]
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Network/privateEndpoints', parameters('namingConvention').diskAccessPrivateEndpoint)]"
+                        "[resourceId('Microsoft.Network/privateEndpoints', variables('diskAccessPrivateEndpointName'))]"
                       ]
                     }
                   ],
                   "outputs": {
                     "resourceId": {
                       "type": "string",
-                      "value": "[resourceId('Microsoft.Compute/diskAccesses', parameters('namingConvention').diskAccess)]"
+                      "value": "[resourceId('Microsoft.Compute/diskAccesses', variables('diskAccessName'))]"
                     }
                   }
                 }
@@ -7296,7 +7346,7 @@
                     "value": "[parameters('locationVirtualMachines')]"
                   },
                   "name": {
-                    "value": "[format('{0}{1}deployment', variables('userAssignedIdentityNamePrefix'), parameters('delimiter'))]"
+                    "value": "[format('{0}deployment', variables('userAssignedIdentityNamePrefix'))]"
                   },
                   "tags": {
                     "value": "[union(createObject('cm-resource-parent', variables('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.ManagedIdentity/userAssignedIdentities'), createObject()), parameters('mlzTags'))]"
@@ -7496,9 +7546,6 @@
                   "delegatedSubnetResourceId": {
                     "value": "[filter(parameters('subnets'), lambda('subnet', contains(lambdaVariables('subnet').name, 'FunctionAppOutbound')))[0].id]"
                   },
-                  "delimiter": {
-                    "value": "[parameters('delimiter')]"
-                  },
                   "deploymentNameSuffix": {
                     "value": "[parameters('deploymentNameSuffix')]"
                   },
@@ -7517,7 +7564,7 @@
                   "mlzTags": {
                     "value": "[parameters('mlzTags')]"
                   },
-                  "namingConvention": {
+                  "names": {
                     "value": "[parameters('names')]"
                   },
                   "privateDnsZoneResourceIdPrefix": {
@@ -7531,6 +7578,9 @@
                   },
                   "resourceGroupFslogix": {
                     "value": "[variables('resourceGroupFslogix')]"
+                  },
+                  "stampIndexFull": {
+                    "value": "[parameters('stampIndexFull')]"
                   },
                   "subnetResourceId": {
                     "value": "[parameters('subnetResourceId')]"
@@ -7546,13 +7596,10 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.35.1.17967",
-                      "templateHash": "8992748934356170514"
+                      "templateHash": "16058371736667493776"
                     }
                   },
                   "parameters": {
-                    "delimiter": {
-                      "type": "string"
-                    },
                     "delegatedSubnetResourceId": {
                       "type": "string"
                     },
@@ -7582,7 +7629,7 @@
                     "mlzTags": {
                       "type": "object"
                     },
-                    "namingConvention": {
+                    "names": {
                       "type": "object"
                     },
                     "privateDnsZoneResourceIdPrefix": {
@@ -7595,6 +7642,9 @@
                       "type": "string"
                     },
                     "resourceGroupFslogix": {
+                      "type": "string"
+                    },
+                    "stampIndexFull": {
                       "type": "string"
                     },
                     "subnetResourceId": {
@@ -7616,26 +7666,26 @@
                       {
                         "name": "blob",
                         "id": "[format('{0}{1}', parameters('privateDnsZoneResourceIdPrefix'), filter(parameters('privateDnsZones'), lambda('name', contains(lambdaVariables('name'), 'blob')))[0])]",
-                        "nic": "[parameters('namingConvention').storageAccountBlobNetworkInterface]",
-                        "pe": "[parameters('namingConvention').storageAccountBlobPrivateEndpoint]"
+                        "nic": "[replace(parameters('names').storageAccountBlobNetworkInterface, parameters('stampIndexFull'), variables('resourceSuffix'))]",
+                        "pe": "[replace(parameters('names').storageAccountBlobPrivateEndpoint, parameters('stampIndexFull'), variables('resourceSuffix'))]"
                       },
                       {
                         "name": "file",
                         "id": "[format('{0}{1}', parameters('privateDnsZoneResourceIdPrefix'), filter(parameters('privateDnsZones'), lambda('name', contains(lambdaVariables('name'), 'file')))[0])]",
-                        "nic": "[parameters('namingConvention').storageAccountFileNetworkInterface]",
-                        "pe": "[parameters('namingConvention').storageAccountFilePrivateEndpoint]"
+                        "nic": "[replace(parameters('names').storageAccountFileNetworkInterface, parameters('stampIndexFull'), variables('resourceSuffix'))]",
+                        "pe": "[replace(parameters('names').storageAccountFilePrivateEndpoint, parameters('stampIndexFull'), variables('resourceSuffix'))]"
                       },
                       {
                         "name": "queue",
                         "id": "[format('{0}{1}', parameters('privateDnsZoneResourceIdPrefix'), filter(parameters('privateDnsZones'), lambda('name', contains(lambdaVariables('name'), 'queue')))[0])]",
-                        "nic": "[parameters('namingConvention').storageAccountQueueNetworkInterface]",
-                        "pe": "[parameters('namingConvention').storageAccountQueuePrivateEndpoint]"
+                        "nic": "[replace(parameters('names').storageAccountQueueNetworkInterface, parameters('stampIndexFull'), variables('resourceSuffix'))]",
+                        "pe": "[replace(parameters('names').storageAccountQueuePrivateEndpoint, parameters('stampIndexFull'), variables('resourceSuffix'))]"
                       },
                       {
                         "name": "table",
                         "id": "[format('{0}{1}', parameters('privateDnsZoneResourceIdPrefix'), filter(parameters('privateDnsZones'), lambda('name', contains(lambdaVariables('name'), 'table')))[0])]",
-                        "nic": "[parameters('namingConvention').storageAccountTableNetworkInterface]",
-                        "pe": "[parameters('namingConvention').storageAccountTablePrivateEndpoint]"
+                        "nic": "[replace(parameters('names').storageAccountTableNetworkInterface, parameters('stampIndexFull'), variables('resourceSuffix'))]",
+                        "pe": "[replace(parameters('names').storageAccountTablePrivateEndpoint, parameters('stampIndexFull'), variables('resourceSuffix'))]"
                       }
                     ]
                   },
@@ -7643,14 +7693,14 @@
                     {
                       "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
                       "apiVersion": "2023-01-31",
-                      "name": "[format('{0}{1}{2}', parameters('namingConvention').userAssignedIdentity, parameters('delimiter'), variables('resourceSuffix'))]",
+                      "name": "[replace(parameters('names').userAssignedIdentity, parameters('stampIndexFull'), variables('resourceSuffix'))]",
                       "location": "[parameters('location')]",
                       "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.ManagedIdentity/userAssignedIdentities'), createObject()), parameters('mlzTags'))]"
                     },
                     {
                       "type": "Microsoft.KeyVault/vaults",
                       "apiVersion": "2022-07-01",
-                      "name": "[uniqueString(format('{0}{1}{2}', parameters('namingConvention').keyVault, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id)]",
+                      "name": "[uniqueString(replace(parameters('names').keyVault, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id)]",
                       "location": "[parameters('location')]",
                       "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.KeyVault/vaults'), createObject()), parameters('mlzTags'))]",
                       "properties": {
@@ -7678,31 +7728,31 @@
                     {
                       "type": "Microsoft.Authorization/roleAssignments",
                       "apiVersion": "2020-04-01-preview",
-                      "scope": "[format('Microsoft.KeyVault/vaults/{0}', uniqueString(format('{0}{1}{2}', parameters('namingConvention').keyVault, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id))]",
-                      "name": "[guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}{1}{2}', parameters('namingConvention').userAssignedIdentity, parameters('delimiter'), variables('resourceSuffix'))), 'e147488a-f6f5-4113-8e2d-b22465e65bf6', resourceId('Microsoft.KeyVault/vaults', uniqueString(format('{0}{1}{2}', parameters('namingConvention').keyVault, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id)))]",
+                      "scope": "[format('Microsoft.KeyVault/vaults/{0}', uniqueString(replace(parameters('names').keyVault, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id))]",
+                      "name": "[guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', replace(parameters('names').userAssignedIdentity, parameters('stampIndexFull'), variables('resourceSuffix'))), 'e147488a-f6f5-4113-8e2d-b22465e65bf6', resourceId('Microsoft.KeyVault/vaults', uniqueString(replace(parameters('names').keyVault, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id)))]",
                       "properties": {
-                        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}{1}{2}', parameters('namingConvention').userAssignedIdentity, parameters('delimiter'), variables('resourceSuffix'))), '2023-01-31').principalId]",
+                        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', replace(parameters('names').userAssignedIdentity, parameters('stampIndexFull'), variables('resourceSuffix'))), '2023-01-31').principalId]",
                         "principalType": "ServicePrincipal",
                         "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'e147488a-f6f5-4113-8e2d-b22465e65bf6')]"
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}{1}{2}', parameters('namingConvention').userAssignedIdentity, parameters('delimiter'), variables('resourceSuffix')))]",
-                        "[resourceId('Microsoft.KeyVault/vaults', uniqueString(format('{0}{1}{2}', parameters('namingConvention').keyVault, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id))]"
+                        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', replace(parameters('names').userAssignedIdentity, parameters('stampIndexFull'), variables('resourceSuffix')))]",
+                        "[resourceId('Microsoft.KeyVault/vaults', uniqueString(replace(parameters('names').keyVault, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id))]"
                       ]
                     },
                     {
                       "type": "Microsoft.Network/privateEndpoints",
                       "apiVersion": "2023-04-01",
-                      "name": "[format('{0}{1}{2}', parameters('namingConvention').keyVaultPrivateEndpoint, parameters('delimiter'), variables('resourceSuffix'))]",
+                      "name": "[replace(parameters('names').keyVaultPrivateEndpoint, parameters('stampIndexFull'), variables('resourceSuffix'))]",
                       "location": "[parameters('location')]",
                       "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Network/privateEndpoints'), createObject()), parameters('mlzTags'))]",
                       "properties": {
-                        "customNetworkInterfaceName": "[format('{0}{1}{2}', parameters('namingConvention').keyVaultNetworkInterface, parameters('delimiter'), variables('resourceSuffix'))]",
+                        "customNetworkInterfaceName": "[replace(parameters('names').keyVaultNetworkInterface, parameters('stampIndexFull'), variables('resourceSuffix'))]",
                         "privateLinkServiceConnections": [
                           {
-                            "name": "[format('{0}{1}{2}', parameters('namingConvention').keyVaultPrivateEndpoint, parameters('delimiter'), variables('resourceSuffix'))]",
+                            "name": "[replace(parameters('names').keyVaultPrivateEndpoint, parameters('stampIndexFull'), variables('resourceSuffix'))]",
                             "properties": {
-                              "privateLinkServiceId": "[resourceId('Microsoft.KeyVault/vaults', uniqueString(format('{0}{1}{2}', parameters('namingConvention').keyVault, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id))]",
+                              "privateLinkServiceId": "[resourceId('Microsoft.KeyVault/vaults', uniqueString(replace(parameters('names').keyVault, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id))]",
                               "groupIds": [
                                 "vault"
                               ]
@@ -7714,13 +7764,13 @@
                         }
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.KeyVault/vaults', uniqueString(format('{0}{1}{2}', parameters('namingConvention').keyVault, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id))]"
+                        "[resourceId('Microsoft.KeyVault/vaults', uniqueString(replace(parameters('names').keyVault, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id))]"
                       ]
                     },
                     {
                       "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                       "apiVersion": "2021-08-01",
-                      "name": "[format('{0}/{1}', format('{0}{1}{2}', parameters('namingConvention').keyVaultPrivateEndpoint, parameters('delimiter'), variables('resourceSuffix')), uniqueString(format('{0}{1}{2}', parameters('namingConvention').keyVault, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id))]",
+                      "name": "[format('{0}/{1}', replace(parameters('names').keyVaultPrivateEndpoint, parameters('stampIndexFull'), variables('resourceSuffix')), uniqueString(replace(parameters('names').keyVault, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id))]",
                       "properties": {
                         "privateDnsZoneConfigs": [
                           {
@@ -7732,14 +7782,14 @@
                         ]
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}{1}{2}', parameters('namingConvention').keyVaultPrivateEndpoint, parameters('delimiter'), variables('resourceSuffix')))]",
-                        "[resourceId('Microsoft.KeyVault/vaults', uniqueString(format('{0}{1}{2}', parameters('namingConvention').keyVault, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id))]"
+                        "[resourceId('Microsoft.Network/privateEndpoints', replace(parameters('names').keyVaultPrivateEndpoint, parameters('stampIndexFull'), variables('resourceSuffix')))]",
+                        "[resourceId('Microsoft.KeyVault/vaults', uniqueString(replace(parameters('names').keyVault, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id))]"
                       ]
                     },
                     {
                       "type": "Microsoft.KeyVault/vaults/keys",
                       "apiVersion": "2022-07-01",
-                      "name": "[format('{0}/{1}', uniqueString(format('{0}{1}{2}', parameters('namingConvention').keyVault, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id), 'StorageEncryptionKey')]",
+                      "name": "[format('{0}/{1}', uniqueString(replace(parameters('names').keyVault, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id), 'StorageEncryptionKey')]",
                       "properties": {
                         "attributes": {
                           "enabled": true
@@ -7771,13 +7821,13 @@
                         }
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.KeyVault/vaults', uniqueString(format('{0}{1}{2}', parameters('namingConvention').keyVault, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id))]"
+                        "[resourceId('Microsoft.KeyVault/vaults', uniqueString(replace(parameters('names').keyVault, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id))]"
                       ]
                     },
                     {
                       "type": "Microsoft.Storage/storageAccounts",
                       "apiVersion": "2022-09-01",
-                      "name": "[uniqueString(format('{0}{1}{2}', parameters('namingConvention').storageAccount, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id)]",
+                      "name": "[uniqueString(replace(parameters('names').storageAccount, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id)]",
                       "location": "[parameters('location')]",
                       "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Storage/storageAccounts'), createObject()), parameters('mlzTags'))]",
                       "sku": {
@@ -7787,7 +7837,7 @@
                       "identity": {
                         "type": "UserAssigned",
                         "userAssignedIdentities": {
-                          "[format('{0}', resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}{1}{2}', parameters('namingConvention').userAssignedIdentity, parameters('delimiter'), variables('resourceSuffix'))))]": {}
+                          "[format('{0}', resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', replace(parameters('names').userAssignedIdentity, parameters('stampIndexFull'), variables('resourceSuffix'))))]": {}
                         }
                       },
                       "properties": {
@@ -7803,11 +7853,11 @@
                         "dnsEndpointType": "Standard",
                         "encryption": {
                           "identity": {
-                            "userAssignedIdentity": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}{1}{2}', parameters('namingConvention').userAssignedIdentity, parameters('delimiter'), variables('resourceSuffix')))]"
+                            "userAssignedIdentity": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', replace(parameters('names').userAssignedIdentity, parameters('stampIndexFull'), variables('resourceSuffix')))]"
                           },
                           "requireInfrastructureEncryption": true,
                           "keyvaultproperties": {
-                            "keyvaulturi": "[reference(resourceId('Microsoft.KeyVault/vaults', uniqueString(format('{0}{1}{2}', parameters('namingConvention').keyVault, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id)), '2022-07-01').vaultUri]",
+                            "keyvaulturi": "[reference(resourceId('Microsoft.KeyVault/vaults', uniqueString(replace(parameters('names').keyVault, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id)), '2022-07-01').vaultUri]",
                             "keyname": "StorageEncryptionKey"
                           },
                           "services": {
@@ -7842,20 +7892,20 @@
                         "supportsHttpsTrafficOnly": true
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.KeyVault/vaults/keys', uniqueString(format('{0}{1}{2}', parameters('namingConvention').keyVault, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id), 'StorageEncryptionKey')]",
-                        "[resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups', format('{0}{1}{2}', parameters('namingConvention').keyVaultPrivateEndpoint, parameters('delimiter'), variables('resourceSuffix')), uniqueString(format('{0}{1}{2}', parameters('namingConvention').keyVault, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id))]",
-                        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}{1}{2}', parameters('namingConvention').keyVaultPrivateEndpoint, parameters('delimiter'), variables('resourceSuffix')))]",
-                        "[extensionResourceId(resourceId('Microsoft.KeyVault/vaults', uniqueString(format('{0}{1}{2}', parameters('namingConvention').keyVault, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id)), 'Microsoft.Authorization/roleAssignments', guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}{1}{2}', parameters('namingConvention').userAssignedIdentity, parameters('delimiter'), variables('resourceSuffix'))), 'e147488a-f6f5-4113-8e2d-b22465e65bf6', resourceId('Microsoft.KeyVault/vaults', uniqueString(format('{0}{1}{2}', parameters('namingConvention').keyVault, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id))))]",
-                        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}{1}{2}', parameters('namingConvention').userAssignedIdentity, parameters('delimiter'), variables('resourceSuffix')))]",
-                        "[resourceId('Microsoft.KeyVault/vaults', uniqueString(format('{0}{1}{2}', parameters('namingConvention').keyVault, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id))]"
+                        "[resourceId('Microsoft.KeyVault/vaults/keys', uniqueString(replace(parameters('names').keyVault, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id), 'StorageEncryptionKey')]",
+                        "[resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups', replace(parameters('names').keyVaultPrivateEndpoint, parameters('stampIndexFull'), variables('resourceSuffix')), uniqueString(replace(parameters('names').keyVault, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id))]",
+                        "[resourceId('Microsoft.Network/privateEndpoints', replace(parameters('names').keyVaultPrivateEndpoint, parameters('stampIndexFull'), variables('resourceSuffix')))]",
+                        "[extensionResourceId(resourceId('Microsoft.KeyVault/vaults', uniqueString(replace(parameters('names').keyVault, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id)), 'Microsoft.Authorization/roleAssignments', guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', replace(parameters('names').userAssignedIdentity, parameters('stampIndexFull'), variables('resourceSuffix'))), 'e147488a-f6f5-4113-8e2d-b22465e65bf6', resourceId('Microsoft.KeyVault/vaults', uniqueString(replace(parameters('names').keyVault, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id))))]",
+                        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', replace(parameters('names').userAssignedIdentity, parameters('stampIndexFull'), variables('resourceSuffix')))]",
+                        "[resourceId('Microsoft.KeyVault/vaults', uniqueString(replace(parameters('names').keyVault, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id))]"
                       ]
                     },
                     {
                       "type": "Microsoft.Storage/storageAccounts/blobServices",
                       "apiVersion": "2021-09-01",
-                      "name": "[format('{0}/{1}', uniqueString(format('{0}{1}{2}', parameters('namingConvention').storageAccount, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id), 'default')]",
+                      "name": "[format('{0}/{1}', uniqueString(replace(parameters('names').storageAccount, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id), 'default')]",
                       "dependsOn": [
-                        "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(format('{0}{1}{2}', parameters('namingConvention').storageAccount, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id))]"
+                        "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(replace(parameters('names').storageAccount, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id))]"
                       ]
                     },
                     {
@@ -7865,16 +7915,16 @@
                       },
                       "type": "Microsoft.Network/privateEndpoints",
                       "apiVersion": "2023-04-01",
-                      "name": "[format('{0}{1}{2}', variables('storageSubResources')[copyIndex()].pe, parameters('delimiter'), variables('resourceSuffix'))]",
+                      "name": "[variables('storageSubResources')[copyIndex()].pe]",
                       "location": "[parameters('location')]",
                       "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Network/privateEndpoints'), createObject()), parameters('mlzTags'))]",
                       "properties": {
-                        "customNetworkInterfaceName": "[format('{0}{1}{2}', variables('storageSubResources')[copyIndex()].nic, parameters('delimiter'), variables('resourceSuffix'))]",
+                        "customNetworkInterfaceName": "[variables('storageSubResources')[copyIndex()].nic]",
                         "privateLinkServiceConnections": [
                           {
-                            "name": "[format('{0}{1}{2}', variables('storageSubResources')[copyIndex()].pe, parameters('delimiter'), variables('resourceSuffix'))]",
+                            "name": "[variables('storageSubResources')[copyIndex()].pe]",
                             "properties": {
-                              "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(format('{0}{1}{2}', parameters('namingConvention').storageAccount, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id))]",
+                              "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(replace(parameters('names').storageAccount, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id))]",
                               "groupIds": [
                                 "[variables('storageSubResources')[copyIndex()].name]"
                               ]
@@ -7886,7 +7936,7 @@
                         }
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(format('{0}{1}{2}', parameters('namingConvention').storageAccount, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id))]"
+                        "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(replace(parameters('names').storageAccount, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id))]"
                       ]
                     },
                     {
@@ -7896,7 +7946,7 @@
                       },
                       "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                       "apiVersion": "2021-08-01",
-                      "name": "[format('{0}/{1}', format('{0}{1}{2}', variables('storageSubResources')[copyIndex()].pe, parameters('delimiter'), variables('resourceSuffix')), uniqueString(format('{0}{1}{2}', parameters('namingConvention').storageAccount, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id))]",
+                      "name": "[format('{0}/{1}', variables('storageSubResources')[copyIndex()].pe, uniqueString(replace(parameters('names').storageAccount, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id))]",
                       "properties": {
                         "privateDnsZoneConfigs": [
                           {
@@ -7908,16 +7958,16 @@
                         ]
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}{1}{2}', variables('storageSubResources')[copyIndex()].pe, parameters('delimiter'), variables('resourceSuffix')))]",
-                        "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(format('{0}{1}{2}', parameters('namingConvention').storageAccount, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id))]"
+                        "[resourceId('Microsoft.Network/privateEndpoints', variables('storageSubResources')[copyIndex()].pe)]",
+                        "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(replace(parameters('names').storageAccount, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id))]"
                       ]
                     },
                     {
                       "condition": "[parameters('enableApplicationInsights')]",
                       "type": "microsoft.insights/diagnosticSettings",
                       "apiVersion": "2017-05-01-preview",
-                      "scope": "[format('Microsoft.Storage/storageAccounts/{0}/blobServices/{1}', uniqueString(format('{0}{1}{2}', parameters('namingConvention').storageAccount, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id), 'default')]",
-                      "name": "[format('{0}{1}{2}', parameters('namingConvention').storageAccountBlobDiagnosticSetting, parameters('delimiter'), variables('resourceSuffix'))]",
+                      "scope": "[format('Microsoft.Storage/storageAccounts/{0}/blobServices/{1}', uniqueString(replace(parameters('names').storageAccount, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id), 'default')]",
+                      "name": "[replace(parameters('names').storageAccountBlobDiagnosticSetting, parameters('stampIndexFull'), variables('resourceSuffix'))]",
                       "properties": {
                         "logs": [
                           {
@@ -7934,14 +7984,14 @@
                         "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]"
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Storage/storageAccounts/blobServices', uniqueString(format('{0}{1}{2}', parameters('namingConvention').storageAccount, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id), 'default')]"
+                        "[resourceId('Microsoft.Storage/storageAccounts/blobServices', uniqueString(replace(parameters('names').storageAccount, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id), 'default')]"
                       ]
                     },
                     {
                       "condition": "[parameters('enableApplicationInsights')]",
                       "type": "Microsoft.Insights/components",
                       "apiVersion": "2020-02-02",
-                      "name": "[format('{0}{1}{2}', parameters('namingConvention').applicationInsights, parameters('delimiter'), variables('resourceSuffix'))]",
+                      "name": "[replace(parameters('names').applicationInsights, parameters('stampIndexFull'), variables('resourceSuffix'))]",
                       "location": "[parameters('location')]",
                       "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Insights/components'), createObject()), parameters('mlzTags'))]",
                       "properties": {
@@ -7954,7 +8004,7 @@
                     {
                       "type": "Microsoft.Web/serverfarms",
                       "apiVersion": "2023-01-01",
-                      "name": "[format('{0}{1}{2}', parameters('namingConvention').appServicePlan, parameters('delimiter'), variables('resourceSuffix'))]",
+                      "name": "[replace(parameters('names').appServicePlan, parameters('stampIndexFull'), variables('resourceSuffix'))]",
                       "location": "[parameters('location')]",
                       "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Web/serverfarms'), createObject()), parameters('mlzTags'))]",
                       "sku": {
@@ -7969,7 +8019,7 @@
                     {
                       "type": "Microsoft.Web/sites",
                       "apiVersion": "2023-01-01",
-                      "name": "[uniqueString(format('{0}{1}{2}', parameters('namingConvention').functionApp, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id)]",
+                      "name": "[uniqueString(replace(parameters('names').functionApp, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id)]",
                       "location": "[parameters('location')]",
                       "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Web/sites'), createObject()), parameters('mlzTags'))]",
                       "kind": "functionapp",
@@ -7980,10 +8030,10 @@
                         "clientAffinityEnabled": false,
                         "httpsOnly": true,
                         "publicNetworkAccess": "Disabled",
-                        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', format('{0}{1}{2}', parameters('namingConvention').appServicePlan, parameters('delimiter'), variables('resourceSuffix')))]",
+                        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', replace(parameters('names').appServicePlan, parameters('stampIndexFull'), variables('resourceSuffix')))]",
                         "siteConfig": {
                           "alwaysOn": true,
-                          "appSettings": "[union(createArray(createObject('name', 'AzureWebJobsStorage__blobServiceUri', 'value', format('https://{0}.blob.{1}', uniqueString(format('{0}{1}{2}', parameters('namingConvention').storageAccount, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id), environment().suffixes.storage)), createObject('name', 'AzureWebJobsStorage__credential', 'value', 'managedidentity'), createObject('name', 'AzureWebJobsStorage__queueServiceUri', 'value', format('https://{0}.queue.{1}', uniqueString(format('{0}{1}{2}', parameters('namingConvention').storageAccount, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id), environment().suffixes.storage)), createObject('name', 'AzureWebJobsStorage__tableServiceUri', 'value', format('https://{0}.table.{1}', uniqueString(format('{0}{1}{2}', parameters('namingConvention').storageAccount, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id), environment().suffixes.storage)), createObject('name', 'FUNCTIONS_EXTENSION_VERSION', 'value', '~4'), createObject('name', 'FUNCTIONS_WORKER_RUNTIME', 'value', 'powershell'), createObject('name', 'WEBSITE_LOAD_USER_PROFILE', 'value', '1'), createObject('name', 'FileShareName', 'value', 'profile-containers'), createObject('name', 'ResourceGroupName', 'value', parameters('resourceGroupFslogix')), createObject('name', 'ResourceManagerUrl', 'value', if(endsWith(environment().resourceManager, '/'), environment().resourceManager, format('{0}/', environment().resourceManager))), createObject('name', 'StorageSuffix', 'value', environment().suffixes.storage), createObject('name', 'SubscriptionId', 'value', subscription().subscriptionId)), if(parameters('enableApplicationInsights'), createArray(createObject('name', 'APPLICATIONINSIGHTS_CONNECTION_STRING', 'value', reference(resourceId('Microsoft.Insights/components', format('{0}{1}{2}', parameters('namingConvention').applicationInsights, parameters('delimiter'), variables('resourceSuffix'))), '2020-02-02').ConnectionString)), createArray()))]",
+                          "appSettings": "[union(createArray(createObject('name', 'AzureWebJobsStorage__blobServiceUri', 'value', format('https://{0}.blob.{1}', uniqueString(replace(parameters('names').storageAccount, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id), environment().suffixes.storage)), createObject('name', 'AzureWebJobsStorage__credential', 'value', 'managedidentity'), createObject('name', 'AzureWebJobsStorage__queueServiceUri', 'value', format('https://{0}.queue.{1}', uniqueString(replace(parameters('names').storageAccount, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id), environment().suffixes.storage)), createObject('name', 'AzureWebJobsStorage__tableServiceUri', 'value', format('https://{0}.table.{1}', uniqueString(replace(parameters('names').storageAccount, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id), environment().suffixes.storage)), createObject('name', 'FUNCTIONS_EXTENSION_VERSION', 'value', '~4'), createObject('name', 'FUNCTIONS_WORKER_RUNTIME', 'value', 'powershell'), createObject('name', 'WEBSITE_LOAD_USER_PROFILE', 'value', '1'), createObject('name', 'FileShareName', 'value', 'profile-containers'), createObject('name', 'ResourceGroupName', 'value', parameters('resourceGroupFslogix')), createObject('name', 'ResourceManagerUrl', 'value', if(endsWith(environment().resourceManager, '/'), environment().resourceManager, format('{0}/', environment().resourceManager))), createObject('name', 'StorageSuffix', 'value', environment().suffixes.storage), createObject('name', 'SubscriptionId', 'value', subscription().subscriptionId)), if(parameters('enableApplicationInsights'), createArray(createObject('name', 'APPLICATIONINSIGHTS_CONNECTION_STRING', 'value', reference(resourceId('Microsoft.Insights/components', replace(parameters('names').applicationInsights, parameters('stampIndexFull'), variables('resourceSuffix'))), '2020-02-02').ConnectionString)), createArray()))]",
                           "cors": {
                             "allowedOrigins": [
                               "[format('{0}', environment().portal)]",
@@ -8003,24 +8053,24 @@
                         "vnetRouteAllEnabled": true
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Insights/components', format('{0}{1}{2}', parameters('namingConvention').applicationInsights, parameters('delimiter'), variables('resourceSuffix')))]",
-                        "[resourceId('Microsoft.Web/serverfarms', format('{0}{1}{2}', parameters('namingConvention').appServicePlan, parameters('delimiter'), variables('resourceSuffix')))]",
-                        "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(format('{0}{1}{2}', parameters('namingConvention').storageAccount, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id))]"
+                        "[resourceId('Microsoft.Insights/components', replace(parameters('names').applicationInsights, parameters('stampIndexFull'), variables('resourceSuffix')))]",
+                        "[resourceId('Microsoft.Web/serverfarms', replace(parameters('names').appServicePlan, parameters('stampIndexFull'), variables('resourceSuffix')))]",
+                        "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(replace(parameters('names').storageAccount, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id))]"
                       ]
                     },
                     {
                       "type": "Microsoft.Network/privateEndpoints",
                       "apiVersion": "2023-04-01",
-                      "name": "[format('{0}{1}{2}', parameters('namingConvention').functionAppPrivateEndpoint, parameters('delimiter'), variables('resourceSuffix'))]",
+                      "name": "[replace(parameters('names').functionAppPrivateEndpoint, parameters('stampIndexFull'), variables('resourceSuffix'))]",
                       "location": "[parameters('location')]",
                       "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Network/privateEndpoints'), createObject()), parameters('mlzTags'))]",
                       "properties": {
-                        "customNetworkInterfaceName": "[format('{0}{1}{2}', parameters('namingConvention').functionAppNetworkInterface, parameters('delimiter'), variables('resourceSuffix'))]",
+                        "customNetworkInterfaceName": "[replace(parameters('names').functionAppNetworkInterface, parameters('stampIndexFull'), variables('resourceSuffix'))]",
                         "privateLinkServiceConnections": [
                           {
-                            "name": "[format('{0}{1}{2}', parameters('namingConvention').functionAppPrivateEndpoint, parameters('delimiter'), variables('resourceSuffix'))]",
+                            "name": "[replace(parameters('names').functionAppPrivateEndpoint, parameters('stampIndexFull'), variables('resourceSuffix'))]",
                             "properties": {
-                              "privateLinkServiceId": "[resourceId('Microsoft.Web/sites', uniqueString(format('{0}{1}{2}', parameters('namingConvention').functionApp, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id))]",
+                              "privateLinkServiceId": "[resourceId('Microsoft.Web/sites', uniqueString(replace(parameters('names').functionApp, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id))]",
                               "groupIds": [
                                 "sites"
                               ]
@@ -8032,13 +8082,13 @@
                         }
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Web/sites', uniqueString(format('{0}{1}{2}', parameters('namingConvention').functionApp, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id))]"
+                        "[resourceId('Microsoft.Web/sites', uniqueString(replace(parameters('names').functionApp, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id))]"
                       ]
                     },
                     {
                       "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                       "apiVersion": "2021-08-01",
-                      "name": "[format('{0}/{1}', format('{0}{1}{2}', parameters('namingConvention').functionAppPrivateEndpoint, parameters('delimiter'), variables('resourceSuffix')), 'default')]",
+                      "name": "[format('{0}/{1}', replace(parameters('names').functionAppPrivateEndpoint, parameters('stampIndexFull'), variables('resourceSuffix')), 'default')]",
                       "properties": {
                         "privateDnsZoneConfigs": [
                           {
@@ -8050,13 +8100,13 @@
                         ]
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}{1}{2}', parameters('namingConvention').functionAppPrivateEndpoint, parameters('delimiter'), variables('resourceSuffix')))]"
+                        "[resourceId('Microsoft.Network/privateEndpoints', replace(parameters('names').functionAppPrivateEndpoint, parameters('stampIndexFull'), variables('resourceSuffix')))]"
                       ]
                     },
                     {
                       "type": "Microsoft.Web/sites/functions",
                       "apiVersion": "2020-12-01",
-                      "name": "[format('{0}/{1}', uniqueString(format('{0}{1}{2}', parameters('namingConvention').functionApp, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id), 'auto-increase-file-share-quota')]",
+                      "name": "[format('{0}/{1}', uniqueString(replace(parameters('names').functionApp, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id), 'auto-increase-file-share-quota')]",
                       "properties": {
                         "config": {
                           "disabled": false,
@@ -8076,7 +8126,7 @@
                         }
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Web/sites', uniqueString(format('{0}{1}{2}', parameters('namingConvention').functionApp, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id))]"
+                        "[resourceId('Microsoft.Web/sites', uniqueString(replace(parameters('names').functionApp, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id))]"
                       ]
                     },
                     {
@@ -8093,7 +8143,7 @@
                         "mode": "Incremental",
                         "parameters": {
                           "applicationInsightsResourceId": {
-                            "value": "[resourceId('Microsoft.Insights/components', format('{0}{1}{2}', parameters('namingConvention').applicationInsights, parameters('delimiter'), variables('resourceSuffix')))]"
+                            "value": "[resourceId('Microsoft.Insights/components', replace(parameters('names').applicationInsights, parameters('stampIndexFull'), variables('resourceSuffix')))]"
                           },
                           "privateLinkScopeResourceId": {
                             "value": "[parameters('privateLinkScopeResourceId')]"
@@ -8158,7 +8208,7 @@
                         }
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Insights/components', format('{0}{1}{2}', parameters('namingConvention').applicationInsights, parameters('delimiter'), variables('resourceSuffix')))]"
+                        "[resourceId('Microsoft.Insights/components', replace(parameters('names').applicationInsights, parameters('stampIndexFull'), variables('resourceSuffix')))]"
                       ]
                     },
                     {
@@ -8172,7 +8222,7 @@
                         "mode": "Incremental",
                         "parameters": {
                           "principalId": {
-                            "value": "[reference(resourceId('Microsoft.Web/sites', uniqueString(format('{0}{1}{2}', parameters('namingConvention').functionApp, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id)), '2023-01-01', 'full').identity.principalId]"
+                            "value": "[reference(resourceId('Microsoft.Web/sites', uniqueString(replace(parameters('names').functionApp, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id)), '2023-01-01', 'full').identity.principalId]"
                           },
                           "principalType": {
                             "value": "ServicePrincipal"
@@ -8181,7 +8231,7 @@
                             "value": "b7e6dc6d-f1e8-4753-8033-0f276bb0955b"
                           },
                           "storageAccountName": {
-                            "value": "[uniqueString(format('{0}{1}{2}', parameters('namingConvention').storageAccount, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id)]"
+                            "value": "[uniqueString(replace(parameters('names').storageAccount, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id)]"
                           }
                         },
                         "template": {
@@ -8224,8 +8274,8 @@
                         }
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Web/sites', uniqueString(format('{0}{1}{2}', parameters('namingConvention').functionApp, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id))]",
-                        "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(format('{0}{1}{2}', parameters('namingConvention').storageAccount, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id))]"
+                        "[resourceId('Microsoft.Web/sites', uniqueString(replace(parameters('names').functionApp, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id))]",
+                        "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(replace(parameters('names').storageAccount, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id))]"
                       ]
                     },
                     {
@@ -8241,10 +8291,10 @@
                         "mode": "Incremental",
                         "parameters": {
                           "functionAppName": {
-                            "value": "[uniqueString(format('{0}{1}{2}', parameters('namingConvention').functionApp, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id)]"
+                            "value": "[uniqueString(replace(parameters('names').functionApp, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id)]"
                           },
                           "ipv4Address": {
-                            "value": "[filter(reference(resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups', format('{0}{1}{2}', parameters('namingConvention').functionAppPrivateEndpoint, parameters('delimiter'), variables('resourceSuffix')), 'default'), '2021-08-01').privateDnsZoneConfigs[0].properties.recordSets, lambda('record', equals(lambdaVariables('record').recordSetName, uniqueString(format('{0}{1}{2}', parameters('namingConvention').functionApp, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id))))[0].ipAddresses[0]]"
+                            "value": "[filter(reference(resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups', replace(parameters('names').functionAppPrivateEndpoint, parameters('stampIndexFull'), variables('resourceSuffix')), 'default'), '2021-08-01').privateDnsZoneConfigs[0].properties.recordSets, lambda('record', equals(lambdaVariables('record').recordSetName, uniqueString(replace(parameters('names').functionApp, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id))))[0].ipAddresses[0]]"
                           },
                           "privateDnsZoneName": {
                             "value": "[split(variables('functionAppScmPrivateDnsZoneResourceId'), '/')[8]]"
@@ -8289,19 +8339,19 @@
                         }
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Web/sites', uniqueString(format('{0}{1}{2}', parameters('namingConvention').functionApp, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id))]",
-                        "[resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups', format('{0}{1}{2}', parameters('namingConvention').functionAppPrivateEndpoint, parameters('delimiter'), variables('resourceSuffix')), 'default')]"
+                        "[resourceId('Microsoft.Web/sites', uniqueString(replace(parameters('names').functionApp, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id))]",
+                        "[resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups', replace(parameters('names').functionAppPrivateEndpoint, parameters('stampIndexFull'), variables('resourceSuffix')), 'default')]"
                       ]
                     }
                   ],
                   "outputs": {
                     "functionAppName": {
                       "type": "string",
-                      "value": "[uniqueString(format('{0}{1}{2}', parameters('namingConvention').functionApp, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id)]"
+                      "value": "[uniqueString(replace(parameters('names').functionApp, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id)]"
                     },
                     "functionAppPrincipalId": {
                       "type": "string",
-                      "value": "[reference(resourceId('Microsoft.Web/sites', uniqueString(format('{0}{1}{2}', parameters('namingConvention').functionApp, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id)), '2023-01-01', 'full').identity.principalId]"
+                      "value": "[reference(resourceId('Microsoft.Web/sites', uniqueString(replace(parameters('names').functionApp, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id)), '2023-01-01', 'full').identity.principalId]"
                     }
                   }
                 }
@@ -8463,7 +8513,7 @@
           "mlzTags": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
           },
-          "namingConvention": {
+          "names": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.namingConvention.value]"
           },
           "organizationalUnitPath": {
@@ -8471,9 +8521,6 @@
           },
           "securityPrincipalObjectIds": {
             "value": "[map(parameters('securityPrincipals'), lambda('item', lambdaVariables('item').objectId))]"
-          },
-          "stampIndexFull": {
-            "value": "[variables('stampIndexFull')]"
           },
           "subnetResourceId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnets.value[0].id]"
@@ -8501,7 +8548,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.35.1.17967",
-              "templateHash": "15747065702385896404"
+              "templateHash": "180448308962852182"
             }
           },
           "parameters": {
@@ -8598,7 +8645,7 @@
             "mlzTags": {
               "type": "object"
             },
-            "namingConvention": {
+            "names": {
               "type": "object"
             },
             "organizationalUnitPath": {
@@ -8606,9 +8653,6 @@
             },
             "securityPrincipalObjectIds": {
               "type": "array"
-            },
-            "stampIndexFull": {
-              "type": "string"
             },
             "subnetResourceId": {
               "type": "string"
@@ -8634,9 +8678,9 @@
             "galleryImagePublisher": "[if(empty(parameters('imageVersionResourceId')), format('\"{0}\"', parameters('imagePublisher')), 'null')]",
             "galleryImageSku": "[if(empty(parameters('imageVersionResourceId')), format('\"{0}\"', parameters('imageSku')), 'null')]",
             "galleryItemId": "[if(empty(parameters('imageVersionResourceId')), format('\"{0}.{1}{2}\"', parameters('imagePublisher'), parameters('imageOffer'), parameters('imageSku')), 'null')]",
-            "hostPoolName": "[format('{0}{1}{2}', parameters('namingConvention').hostPool, parameters('delimiter'), parameters('stampIndexFull'))]",
+            "hostPoolResourceId": "[resourceId(variables('resourceGroupManagement'), 'Microsoft.DesktopVirtualization/hostpools', parameters('names').hostPool)]",
             "imageType": "[if(empty(parameters('imageVersionResourceId')), '\"Gallery\"', '\"CustomImage\"')]",
-            "resourceGroupManagement": "[format('{0}{1}management{2}', parameters('namingConvention').resourceGroup, parameters('delimiter'), parameters('stampIndexFull'))]"
+            "resourceGroupManagement": "[format('{0}{1}management', parameters('names').resourceGroup, parameters('delimiter'))]"
           },
           "resources": [
             {
@@ -8644,7 +8688,7 @@
               "apiVersion": "2023-07-01",
               "name": "[variables('resourceGroupManagement')]",
               "location": "[parameters('locationControlPlane')]",
-              "tags": "[union(createObject('cm-resource-parent', format('{0}}}/resourceGroups/{1}/providers/Microsoft.DesktopVirtualization/hostpools/{2}', subscription().id, variables('resourceGroupManagement'), variables('hostPoolName'))), coalesce(tryGet(parameters('tags'), 'Microsoft.Resources/resourceGroups'), createObject()), parameters('mlzTags'))]"
+              "tags": "[union(createObject('cm-resource-parent', variables('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Resources/resourceGroups'), createObject()), parameters('mlzTags'))]"
             },
             {
               "type": "Microsoft.Authorization/roleAssignments",
@@ -8760,16 +8804,16 @@
                     "value": "[variables('galleryItemId')]"
                   },
                   "hostPoolDiagnosticSettingName": {
-                    "value": "[format('{0}{1}{2}', parameters('namingConvention').hostPoolDiagnosticSetting, parameters('delimiter'), parameters('stampIndexFull'))]"
+                    "value": "[parameters('names').hostPoolDiagnosticSetting]"
                   },
                   "hostPoolName": {
-                    "value": "[variables('hostPoolName')]"
+                    "value": "[parameters('names').hostPool]"
                   },
                   "hostPoolNetworkInterfaceName": {
-                    "value": "[format('{0}{1}{2}', parameters('namingConvention').hostPoolNetworkInterface, parameters('delimiter'), parameters('stampIndexFull'))]"
+                    "value": "[parameters('names').hostPoolNetworkInterface]"
                   },
                   "hostPoolPrivateEndpointName": {
-                    "value": "[format('{0}{1}{2}', parameters('namingConvention').hostPoolPrivateEndpoint, parameters('delimiter'), parameters('stampIndexFull'))]"
+                    "value": "[parameters('names').hostPoolPrivateEndpoint]"
                   },
                   "hostPoolPublicNetworkAccess": {
                     "value": "[parameters('hostPoolPublicNetworkAccess')]"
@@ -8793,7 +8837,7 @@
                     "value": "[parameters('mlzTags')]"
                   },
                   "sessionHostNamePrefix": {
-                    "value": "[format('{0}{1}', parameters('namingConvention').virtualMachine, parameters('stampIndexFull'))]"
+                    "value": "[parameters('names').virtualMachine]"
                   },
                   "subnetResourceId": {
                     "value": "[parameters('subnetResourceId')]"
@@ -9110,7 +9154,7 @@
                     "value": "[parameters('diskEncryptionSetResourceId')]"
                   },
                   "diskName": {
-                    "value": "[format('{0}{1}mgt', parameters('namingConvention').virtualMachineDisk, parameters('delimiter'))]"
+                    "value": "[format('{0}{1}mgt', parameters('names').virtualMachineDisk, parameters('delimiter'))]"
                   },
                   "diskSku": {
                     "value": "[parameters('diskSku')]"
@@ -9134,7 +9178,7 @@
                     "value": "[parameters('mlzTags')]"
                   },
                   "networkInterfaceName": {
-                    "value": "[format('{0}{1}mgt', parameters('namingConvention').virtualMachineNetworkInterface, parameters('delimiter'))]"
+                    "value": "[format('{0}{1}mgt', parameters('names').virtualMachineNetworkInterface, parameters('delimiter'))]"
                   },
                   "organizationalUnitPath": {
                     "value": "[parameters('organizationalUnitPath')]"
@@ -9146,7 +9190,7 @@
                     "value": "[parameters('tags')]"
                   },
                   "virtualMachineName": {
-                    "value": "[format('{0}mgt', parameters('namingConvention').virtualMachine)]"
+                    "value": "[format('{0}mgt', parameters('names').virtualMachine)]"
                   },
                   "virtualMachineAdminPassword": {
                     "value": "[parameters('virtualMachineAdminPassword')]"
@@ -9465,7 +9509,7 @@
                     "value": "[parameters('deploymentUserAssignedIdentityClientId')]"
                   },
                   "desktopApplicationGroupName": {
-                    "value": "[format('{0}{1}{2}', parameters('namingConvention').applicationGroup, parameters('delimiter'), parameters('stampIndexFull'))]"
+                    "value": "[parameters('names').applicationGroup]"
                   },
                   "hostPoolResourceId": {
                     "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-vdpool-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
@@ -9803,6 +9847,9 @@
           "sharedServicesSubnetResourceId": {
             "value": "[parameters('sharedServicesSubnetResourceId')]"
           },
+          "stampIndexFull": {
+            "value": "[variables('stampIndexFull')]"
+          },
           "tags": {
             "value": "[parameters('tags')]"
           },
@@ -9823,7 +9870,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.35.1.17967",
-              "templateHash": "9118769926127648942"
+              "templateHash": "10768593917026665868"
             }
           },
           "parameters": {
@@ -9884,6 +9931,9 @@
             "sharedServicesSubnetResourceId": {
               "type": "string"
             },
+            "stampIndexFull": {
+              "type": "string"
+            },
             "tags": {
               "type": "object"
             },
@@ -9898,8 +9948,8 @@
             }
           },
           "variables": {
-            "resourceGroupShared": "[format('{0}{1}shared', parameters('names').resourceGroup, parameters('delimiter'))]",
-            "resourceGroupWorkspaceGlobal": "[replace(format('{0}{1}workspace{2}global', parameters('names').resourceGroup, parameters('delimiter'), parameters('delimiter')), parameters('identifier'), parameters('identifierHub'))]"
+            "resourceGroupShared": "[replace(parameters('names').resourceGroup, parameters('stampIndexFull'), 'shared')]",
+            "resourceGroupWorkspaceGlobal": "[replace(replace(parameters('names').resourceGroup, parameters('stampIndexFull'), format('workspace{0}global', parameters('delimiter'))), parameters('identifier'), parameters('identifierHub'))]"
           },
           "resources": [
             {
@@ -10006,13 +10056,13 @@
                     "value": "[parameters('mlzTags')]"
                   },
                   "workspaceGlobalName": {
-                    "value": "[replace(format('{0}{1}global', parameters('names').workspace, parameters('delimiter')), parameters('identifier'), parameters('identifierHub'))]"
+                    "value": "[replace(replace(parameters('names').workspace, parameters('stampIndexFull'), 'global'), parameters('identifier'), parameters('identifierHub'))]"
                   },
                   "workspaceGlobalNetworkInterfaceName": {
-                    "value": "[replace(format('{0}{1}global', parameters('names').workspaceNetworkInterface, parameters('delimiter')), parameters('identifier'), parameters('identifierHub'))]"
+                    "value": "[replace(replace(parameters('names').workspaceNetworkInterface, parameters('stampIndexFull'), 'global'), parameters('identifier'), parameters('identifierHub'))]"
                   },
                   "workspaceGlobalPrivateEndpointName": {
-                    "value": "[replace(format('{0}{1}global', parameters('names').workspacePrivateEndpoint, parameters('delimiter')), parameters('identifier'), parameters('identifierHub'))]"
+                    "value": "[replace(replace(parameters('names').workspacePrivateEndpoint, parameters('stampIndexFull'), 'global'), parameters('identifier'), parameters('identifierHub'))]"
                   }
                 },
                 "template": {
@@ -10166,18 +10216,18 @@
                     "value": "[parameters('managementVirtualMachineName')]"
                   },
                   "workspaceFeedDiagnoticSettingName": {
-                    "value": "[format('{0}{1}feed', parameters('names').workspaceDiagnosticSetting, parameters('delimiter'))]"
+                    "value": "[replace(parameters('names').workspaceDiagnosticSetting, parameters('stampIndexFull'), 'feed')]"
                   },
                   "workspaceFeedName": {
-                    "value": "[format('{0}{1}feed', parameters('names').workspace, parameters('delimiter'))]"
+                    "value": "[replace(parameters('names').workspace, parameters('stampIndexFull'), 'feed')]"
                   },
                   "workspaceFeedNetworkInterfaceName": {
-                    "value": "[format('{0}{1}feed', parameters('names').workspaceNetworkInterface, parameters('delimiter'))]"
+                    "value": "[replace(parameters('names').workspaceNetworkInterface, parameters('stampIndexFull'), 'feed')]"
                   },
                   "workspaceFeedPrivateEndpointName": {
-                    "value": "[format('{0}{1}feed', parameters('names').workspacePrivateEndpoint, parameters('delimiter'))]"
+                    "value": "[replace(parameters('names').workspacePrivateEndpoint, parameters('stampIndexFull'), 'feed')]"
                   },
-                  "workspaceFriendlyName": "[if(empty(parameters('workspaceFriendlyName')), createObject('value', parameters('names').workspace), createObject('value', format('{0} ({1})', parameters('workspaceFriendlyName'), parameters('locationHub'))))]",
+                  "workspaceFriendlyName": "[if(empty(parameters('workspaceFriendlyName')), createObject('value', replace(parameters('names').workspace, parameters('stampIndexFull'), '')), createObject('value', format('{0} ({1})', parameters('workspaceFriendlyName'), parameters('locationHub'))))]",
                   "workspacePublicNetworkAccess": {
                     "value": "[parameters('workspacePublicNetworkAccess')]"
                   }
@@ -10541,7 +10591,7 @@
           "mlzTags": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
           },
-          "namingConvention": {
+          "names": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.namingConvention.value]"
           },
           "netbios": {
@@ -10553,17 +10603,11 @@
           "resourceGroupManagement": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceGroupName.value]"
           },
-          "resourceGroupName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.namingConvention.value.resourceGroup]"
-          },
           "securityPrincipalNames": {
             "value": "[map(parameters('securityPrincipals'), lambda('item', lambdaVariables('item').displayName))]"
           },
           "securityPrincipalObjectIds": {
             "value": "[map(parameters('securityPrincipals'), lambda('item', lambdaVariables('item').objectId))]"
-          },
-          "stampIndexFull": {
-            "value": "[variables('stampIndexFull')]"
           },
           "storageCount": {
             "value": "[parameters('storageCount')]"
@@ -10598,7 +10642,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.35.1.17967",
-              "templateHash": "7388375609923681410"
+              "templateHash": "5974233628490798883"
             }
           },
           "parameters": {
@@ -10671,7 +10715,7 @@
             "mlzTags": {
               "type": "object"
             },
-            "namingConvention": {
+            "names": {
               "type": "object"
             },
             "netbios": {
@@ -10683,17 +10727,11 @@
             "resourceGroupManagement": {
               "type": "string"
             },
-            "resourceGroupName": {
-              "type": "string"
-            },
             "securityPrincipalNames": {
               "type": "array"
             },
             "securityPrincipalObjectIds": {
               "type": "array"
-            },
-            "stampIndexFull": {
-              "type": "string"
             },
             "storageCount": {
               "type": "int"
@@ -10721,7 +10759,7 @@
             "resourceGroup": {
               "type": "Microsoft.Resources/resourceGroups",
               "apiVersion": "2023-07-01",
-              "name": "[format('{0}{1}fslogix{2}{3}', parameters('resourceGroupName'), parameters('delimiter'), parameters('delimiter'), parameters('stampIndexFull'))]",
+              "name": "[format('{0}{1}fslogix', parameters('names').resourceGroup, parameters('delimiter'))]",
               "location": "[parameters('location')]",
               "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Resources/resourceGroups'), createObject()), parameters('mlzTags'))]"
             },
@@ -10729,7 +10767,7 @@
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
               "name": "[format('assign-role-storage-{0}', parameters('deploymentNameSuffix'))]",
-              "resourceGroup": "[format('{0}{1}fslogix{2}{3}', parameters('resourceGroupName'), parameters('delimiter'), parameters('delimiter'), parameters('stampIndexFull'))]",
+              "resourceGroup": "[format('{0}{1}fslogix', parameters('names').resourceGroup, parameters('delimiter'))]",
               "properties": {
                 "expressionEvaluationOptions": {
                   "scope": "inner"
@@ -10790,7 +10828,7 @@
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
               "name": "[format('set-role-assignment-{0}', parameters('deploymentNameSuffix'))]",
-              "resourceGroup": "[format('{0}{1}fslogix{2}{3}', parameters('resourceGroupName'), parameters('delimiter'), parameters('delimiter'), parameters('stampIndexFull'))]",
+              "resourceGroup": "[format('{0}{1}fslogix', parameters('names').resourceGroup, parameters('delimiter'))]",
               "properties": {
                 "expressionEvaluationOptions": {
                   "scope": "inner"
@@ -10851,7 +10889,7 @@
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
               "name": "[format('deploy-anf-{0}', parameters('deploymentNameSuffix'))]",
-              "resourceGroup": "[format('{0}{1}fslogix{2}{3}', parameters('resourceGroupName'), parameters('delimiter'), parameters('delimiter'), parameters('stampIndexFull'))]",
+              "resourceGroup": "[format('{0}{1}fslogix', parameters('names').resourceGroup, parameters('delimiter'))]",
               "properties": {
                 "expressionEvaluationOptions": {
                   "scope": "inner"
@@ -10889,22 +10927,22 @@
                     "value": "[parameters('mlzTags')]"
                   },
                   "netAppAccountNamePrefix": {
-                    "value": "[parameters('namingConvention').netAppAccount]"
+                    "value": "[parameters('names').netAppAccount]"
                   },
                   "netAppCapacityPoolNamePrefix": {
-                    "value": "[parameters('namingConvention').netAppAccountCapacityPool]"
+                    "value": "[parameters('names').netAppAccountCapacityPool]"
                   },
                   "organizationalUnitPath": {
                     "value": "[parameters('organizationalUnitPath')]"
                   },
                   "smbServerName": {
-                    "value": "[parameters('namingConvention').netAppAccountSmbServer]"
-                  },
-                  "stampIndexFull": {
-                    "value": "[parameters('stampIndexFull')]"
+                    "value": "[parameters('names').netAppAccountSmbServer]"
                   },
                   "storageSku": {
                     "value": "[parameters('storageSku')]"
+                  },
+                  "suffix": {
+                    "value": "fslogix"
                   },
                   "tags": {
                     "value": "[parameters('tags')]"
@@ -10917,7 +10955,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.35.1.17967",
-                      "templateHash": "8347499720340509816"
+                      "templateHash": "12241250385102885452"
                     }
                   },
                   "parameters": {
@@ -10964,19 +11002,19 @@
                     "smbServerName": {
                       "type": "string"
                     },
-                    "stampIndexFull": {
-                      "type": "string",
-                      "defaultValue": ""
-                    },
                     "storageSku": {
                       "type": "string"
+                    },
+                    "suffix": {
+                      "type": "string",
+                      "defaultValue": ""
                     },
                     "tags": {
                       "type": "object"
                     }
                   },
                   "variables": {
-                    "nameSuffix": "[if(empty(parameters('stampIndexFull')), '', format('{0}fslogix{1}{2}', parameters('delimiter'), parameters('delimiter'), parameters('stampIndexFull')))]",
+                    "nameSuffix": "[if(empty(parameters('suffix')), '', format('{0}{1}', parameters('delimiter'), parameters('suffix')))]",
                     "tagsNetAppAccount": "[union(if(empty(parameters('hostPoolResourceId')), createObject(), createObject('cm-resource-parent', parameters('hostPoolResourceId'))), coalesce(tryGet(parameters('tags'), 'Microsoft.NetApp/netAppAccounts'), createObject()), parameters('mlzTags'))]"
                   },
                   "resources": [
@@ -11081,7 +11119,7 @@
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
               "name": "[format('deploy-azure-files-{0}', parameters('deploymentNameSuffix'))]",
-              "resourceGroup": "[format('{0}{1}fslogix{2}{3}', parameters('resourceGroupName'), parameters('delimiter'), parameters('delimiter'), parameters('stampIndexFull'))]",
+              "resourceGroup": "[format('{0}{1}fslogix', parameters('names').resourceGroup, parameters('delimiter'))]",
               "properties": {
                 "expressionEvaluationOptions": {
                   "scope": "inner"
@@ -11121,14 +11159,11 @@
                   "location": {
                     "value": "[parameters('location')]"
                   },
-                  "namingConvention": {
-                    "value": "[parameters('namingConvention')]"
+                  "names": {
+                    "value": "[parameters('names')]"
                   },
                   "securityPrincipalObjectIds": {
                     "value": "[parameters('securityPrincipalObjectIds')]"
-                  },
-                  "stampIndexFull": {
-                    "value": "[parameters('stampIndexFull')]"
                   },
                   "storageCount": {
                     "value": "[parameters('storageCount')]"
@@ -11159,7 +11194,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.35.1.17967",
-                      "templateHash": "14475714355272652063"
+                      "templateHash": "6217160170622757393"
                     }
                   },
                   "parameters": {
@@ -11199,14 +11234,11 @@
                     "mlzTags": {
                       "type": "object"
                     },
-                    "namingConvention": {
+                    "names": {
                       "type": "object"
                     },
                     "securityPrincipalObjectIds": {
                       "type": "array"
-                    },
-                    "stampIndexFull": {
-                      "type": "string"
                     },
                     "storageCount": {
                       "type": "int"
@@ -11240,7 +11272,7 @@
                       "kerberosTicketEncryption": "AES-256;",
                       "channelEncryption": "AES-128-GCM;AES-256-GCM;"
                     },
-                    "storageAccountNamePrefix": "[uniqueString(parameters('namingConvention').storageAccount, resourceGroup().id)]",
+                    "storageAccountNamePrefix": "[uniqueString(parameters('names').storageAccount, resourceGroup().id)]",
                     "storageRedundancy": "[if(equals(parameters('availability'), 'availabilityZones'), '_ZRS', '_LRS')]",
                     "tagsPrivateEndpoints": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Network/privateEndpoints'), createObject()), parameters('mlzTags'))]",
                     "tagsStorageAccounts": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Storage/storageAccounts'), createObject()), parameters('mlzTags'))]"
@@ -11346,14 +11378,14 @@
                       },
                       "type": "Microsoft.Network/privateEndpoints",
                       "apiVersion": "2023-04-01",
-                      "name": "[format('{0}{1}fslogix{2}{3}{4}', parameters('namingConvention').storageAccountFilePrivateEndpoint, parameters('delimiter'), parameters('delimiter'), parameters('stampIndexFull'), padLeft(add(range(0, parameters('storageCount'))[copyIndex()], parameters('storageIndex')), 2, '0'))]",
+                      "name": "[format('{0}{1}fslogix{2}{3}', parameters('names').storageAccountFilePrivateEndpoint, parameters('delimiter'), parameters('delimiter'), padLeft(add(range(0, parameters('storageCount'))[copyIndex()], parameters('storageIndex')), 2, '0'))]",
                       "location": "[parameters('location')]",
                       "tags": "[variables('tagsPrivateEndpoints')]",
                       "properties": {
-                        "customNetworkInterfaceName": "[format('{0}{1}fslogix{2}{3}{4}', parameters('namingConvention').storageAccountFileNetworkInterface, parameters('delimiter'), parameters('delimiter'), parameters('stampIndexFull'), padLeft(add(range(0, parameters('storageCount'))[copyIndex()], parameters('storageIndex')), 2, '0'))]",
+                        "customNetworkInterfaceName": "[format('{0}{1}fslogix{2}{3}', parameters('names').storageAccountFileNetworkInterface, parameters('delimiter'), parameters('delimiter'), padLeft(add(range(0, parameters('storageCount'))[copyIndex()], parameters('storageIndex')), 2, '0'))]",
                         "privateLinkServiceConnections": [
                           {
-                            "name": "[format('{0}{1}fslogix{2}{3}{4}', parameters('namingConvention').storageAccountFilePrivateEndpoint, parameters('delimiter'), parameters('delimiter'), parameters('stampIndexFull'), padLeft(add(range(0, parameters('storageCount'))[copyIndex()], parameters('storageIndex')), 2, '0'))]",
+                            "name": "[format('{0}{1}fslogix{2}{3}', parameters('names').storageAccountFilePrivateEndpoint, parameters('delimiter'), parameters('delimiter'), padLeft(add(range(0, parameters('storageCount'))[copyIndex()], parameters('storageIndex')), 2, '0'))]",
                             "properties": {
                               "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', take(format('{0}{1}', variables('storageAccountNamePrefix'), padLeft(add(range(0, parameters('storageCount'))[range(0, parameters('storageCount'))[copyIndex()]], parameters('storageIndex')), 2, '0')), 15))]",
                               "groupIds": [
@@ -11377,7 +11409,7 @@
                       },
                       "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                       "apiVersion": "2021-08-01",
-                      "name": "[format('{0}/{1}', format('{0}{1}fslogix{2}{3}{4}', parameters('namingConvention').storageAccountFilePrivateEndpoint, parameters('delimiter'), parameters('delimiter'), parameters('stampIndexFull'), padLeft(add(range(0, parameters('storageCount'))[range(0, parameters('storageCount'))[copyIndex()]], parameters('storageIndex')), 2, '0')), take(format('{0}{1}', variables('storageAccountNamePrefix'), padLeft(add(range(0, parameters('storageCount'))[range(0, parameters('storageCount'))[copyIndex()]], parameters('storageIndex')), 2, '0')), 15))]",
+                      "name": "[format('{0}/{1}', format('{0}{1}fslogix{2}{3}', parameters('names').storageAccountFilePrivateEndpoint, parameters('delimiter'), parameters('delimiter'), padLeft(add(range(0, parameters('storageCount'))[range(0, parameters('storageCount'))[copyIndex()]], parameters('storageIndex')), 2, '0')), take(format('{0}{1}', variables('storageAccountNamePrefix'), padLeft(add(range(0, parameters('storageCount'))[range(0, parameters('storageCount'))[copyIndex()]], parameters('storageIndex')), 2, '0')), 15))]",
                       "properties": {
                         "privateDnsZoneConfigs": [
                           {
@@ -11389,7 +11421,7 @@
                         ]
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}{1}fslogix{2}{3}{4}', parameters('namingConvention').storageAccountFilePrivateEndpoint, parameters('delimiter'), parameters('delimiter'), parameters('stampIndexFull'), padLeft(add(range(0, parameters('storageCount'))[range(0, parameters('storageCount'))[copyIndex()]], parameters('storageIndex')), 2, '0')))]",
+                        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}{1}fslogix{2}{3}', parameters('names').storageAccountFilePrivateEndpoint, parameters('delimiter'), parameters('delimiter'), padLeft(add(range(0, parameters('storageCount'))[range(0, parameters('storageCount'))[copyIndex()]], parameters('storageIndex')), 2, '0')))]",
                         "storageAccounts"
                       ]
                     },
@@ -11485,7 +11517,7 @@
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
               "name": "[format('ntfsPermissions-{0}', uniqueString('ntfsPermissions', deployment().name))]",
-              "resourceGroup": "[format('{0}{1}fslogix{2}{3}', parameters('resourceGroupName'), parameters('delimiter'), parameters('delimiter'), parameters('stampIndexFull'))]",
+              "resourceGroup": "[format('{0}{1}fslogix', parameters('names').resourceGroup, parameters('delimiter'))]",
               "properties": {
                 "expressionEvaluationOptions": {
                   "scope": "inner"
@@ -11504,7 +11536,7 @@
                   "location": {
                     "value": "[parameters('location')]"
                   },
-                  "parameters": "[if(equals(parameters('storageService'), 'AzureNetAppFiles'), createObject('value', createArray(createObject('name', 'FileShares', 'value', string(parameters('fileShares'))), createObject('name', 'ResourceManagerUri', 'value', environment().resourceManager), createObject('name', 'SecurityPrincipalNames', 'value', string(parameters('securityPrincipalNames'))), createObject('name', 'SmbServerNamePrefix', 'value', reference('azureNetAppFiles').outputs.smbServerNamePrefix.value), createObject('name', 'StorageService', 'value', parameters('storageService')))), createObject('value', createArray(createObject('name', 'ActiveDirectorySolution', 'value', parameters('activeDirectorySolution')), createObject('name', 'FslogixContainerType', 'value', parameters('fslogixContainerType')), createObject('name', 'Netbios', 'value', parameters('netbios')), createObject('name', 'OrganizationalUnitPath', 'value', parameters('organizationalUnitPath')), createObject('name', 'ResourceManagerUri', 'value', environment().resourceManager), createObject('name', 'SecurityPrincipalNames', 'value', string(parameters('securityPrincipalNames'))), createObject('name', 'StorageAccountPrefix', 'value', reference('azureFiles').outputs.storageAccountNamePrefix.value), createObject('name', 'StorageAccountResourceGroupName', 'value', format('{0}{1}fslogix{2}{3}', parameters('resourceGroupName'), parameters('delimiter'), parameters('delimiter'), parameters('stampIndexFull'))), createObject('name', 'StorageCount', 'value', parameters('storageCount')), createObject('name', 'StorageIndex', 'value', parameters('storageIndex')), createObject('name', 'StorageService', 'value', parameters('storageService')), createObject('name', 'StorageSuffix', 'value', environment().suffixes.storage), createObject('name', 'SubscriptionId', 'value', subscription().subscriptionId), createObject('name', 'UserAssignedIdentityClientId', 'value', parameters('deploymentUserAssignedIdentityClientId')))))]",
+                  "parameters": "[if(equals(parameters('storageService'), 'AzureNetAppFiles'), createObject('value', createArray(createObject('name', 'FileShares', 'value', string(parameters('fileShares'))), createObject('name', 'ResourceManagerUri', 'value', environment().resourceManager), createObject('name', 'SecurityPrincipalNames', 'value', string(parameters('securityPrincipalNames'))), createObject('name', 'SmbServerNamePrefix', 'value', reference('azureNetAppFiles').outputs.smbServerNamePrefix.value), createObject('name', 'StorageService', 'value', parameters('storageService')))), createObject('value', createArray(createObject('name', 'ActiveDirectorySolution', 'value', parameters('activeDirectorySolution')), createObject('name', 'FslogixContainerType', 'value', parameters('fslogixContainerType')), createObject('name', 'Netbios', 'value', parameters('netbios')), createObject('name', 'OrganizationalUnitPath', 'value', parameters('organizationalUnitPath')), createObject('name', 'ResourceManagerUri', 'value', environment().resourceManager), createObject('name', 'SecurityPrincipalNames', 'value', string(parameters('securityPrincipalNames'))), createObject('name', 'StorageAccountPrefix', 'value', reference('azureFiles').outputs.storageAccountNamePrefix.value), createObject('name', 'StorageAccountResourceGroupName', 'value', format('{0}{1}fslogix', parameters('names').resourceGroup, parameters('delimiter'))), createObject('name', 'StorageCount', 'value', parameters('storageCount')), createObject('name', 'StorageIndex', 'value', parameters('storageIndex')), createObject('name', 'StorageService', 'value', parameters('storageService')), createObject('name', 'StorageSuffix', 'value', environment().suffixes.storage), createObject('name', 'SubscriptionId', 'value', subscription().subscriptionId), createObject('name', 'UserAssignedIdentityClientId', 'value', parameters('deploymentUserAssignedIdentityClientId')))))]",
                   "resourceGroupName": {
                     "value": "[parameters('resourceGroupManagement')]"
                   },
@@ -11817,7 +11849,7 @@
           "mlzTags": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
           },
-          "namingConvention": {
+          "names": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.namingConvention.value]"
           },
           "netAppFileShares": "[if(variables('deployFslogix'), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-fslogix-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.netAppShares.value), createObject('value', createArray('None')))]",
@@ -11832,9 +11864,6 @@
           },
           "resourceGroupManagement": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceGroupName.value]"
-          },
-          "resourceGroupName": {
-            "value": "[format('{0}{1}hosts', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.namingConvention.value.resourceGroup, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.delimiter.value)]"
           },
           "scalingWeekdaysOffPeakStartTime": {
             "value": "[parameters('scalingWeekdaysOffPeakStartTime')]"
@@ -11899,7 +11928,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.35.1.17967",
-              "templateHash": "17620798617298824593"
+              "templateHash": "8271823036358415323"
             }
           },
           "parameters": {
@@ -12023,7 +12052,7 @@
             "mlzTags": {
               "type": "object"
             },
-            "namingConvention": {
+            "names": {
               "type": "object"
             },
             "netAppFileShares": {
@@ -12039,9 +12068,6 @@
               "type": "string"
             },
             "resourceGroupManagement": {
-              "type": "string"
-            },
-            "resourceGroupName": {
               "type": "string"
             },
             "scalingWeekdaysOffPeakStartTime": {
@@ -12104,7 +12130,7 @@
           },
           "variables": {
             "$fxv#0": "Param(\r\n    [string]$HostPoolResourceId,\r\n    [string]$ResourceGroupName,\r\n    [string]$ResourceManagerUri,\r\n    [string]$ScalingPlanName,\r\n    [string]$SubscriptionId,\r\n    [string]$UserAssignedIdentityClientId\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n$WarningPreference = 'SilentlyContinue'\r\n\r\n# Fix the resource manager URI since only AzureCloud contains a trailing slash\r\n$ResourceManagerUriFixed = if($ResourceManagerUri[-1] -eq '/'){$ResourceManagerUri} else {$ResourceManagerUri + '/'}\r\n\r\n# Get an access token for Azure resources\r\n$AzureManagementAccessToken = (Invoke-RestMethod `\r\n    -Headers @{Metadata=\"true\"} `\r\n    -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n# Set header for Azure Management API\r\n$AzureManagementHeader = @{\r\n    'Content-Type'='application/json'\r\n    'Authorization'='Bearer ' + $AzureManagementAccessToken\r\n}\r\n\r\n# Check if the scaling plan exists: https://learn.microsoft.com/rest/api/desktopvirtualization/scaling-plans/list-by-resource-group\r\n$ScalingPlanExists = (Invoke-RestMethod `\r\n    -Headers $AzureManagementHeader `\r\n    -Method 'GET' `\r\n    -Uri $($ResourceManagerUriFixed + 'subscriptions/' + $SubscriptionId + '/resourceGroups/' + $ResourceGroupName + '/providers/Microsoft.DesktopVirtualization/scalingPlans?api-version=2023-09-05')).value | Where-Object {$_.name -eq $ScalingPlanName}\r\n\r\n# Disable autoscale for the host pool: https://learn.microsoft.com/rest/api/desktopvirtualization/scaling-plans/update\r\nif ($ScalingPlanExists)\r\n{\r\n    Invoke-RestMethod `\r\n        -Body (@{properties = @{hostPoolReferences = @(@{hostPoolArmPath = $HostPoolResourceId; scalingPlanEnabled = $false})}} | ConvertTo-Json -Depth 3) `\r\n        -Headers $AzureManagementHeader `\r\n        -Method 'PATCH' `\r\n        -Uri $($ResourceManagerUriFixed + 'subscriptions/' + $SubscriptionId + '/resourceGroups/' + $ResourceGroupName + '/providers/Microsoft.DesktopVirtualization/scalingPlans/' + $ScalingPlanName + '?api-version=2023-09-05') | Out-Null\r\n}",
-            "availabilitySetNamePrefix": "[parameters('namingConvention').availabilitySet]",
+            "availabilitySetNamePrefix": "[parameters('names').availabilitySet]",
             "tagsVirtualMachines": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/virtualMachines'), createObject()), parameters('mlzTags'))]",
             "uniqueToken": "[uniqueString(parameters('identifier'), parameters('environmentAbbreviation'), subscription().subscriptionId)]"
           },
@@ -12112,7 +12138,7 @@
             {
               "type": "Microsoft.Resources/resourceGroups",
               "apiVersion": "2023-07-01",
-              "name": "[parameters('resourceGroupName')]",
+              "name": "[format('{0}{1}hosts', parameters('names').resourceGroup, parameters('delimiter'))]",
               "location": "[parameters('location')]",
               "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Resources/resourceGroups'), createObject()), parameters('mlzTags'))]"
             },
@@ -12120,7 +12146,7 @@
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
               "name": "[format('assign-policy-diskAccess-{0}', parameters('deploymentNameSuffix'))]",
-              "resourceGroup": "[parameters('resourceGroupName')]",
+              "resourceGroup": "[format('{0}{1}hosts', parameters('names').resourceGroup, parameters('delimiter'))]",
               "properties": {
                 "expressionEvaluationOptions": {
                   "scope": "inner"
@@ -12189,7 +12215,7 @@
                 }
               },
               "dependsOn": [
-                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('resourceGroupName'))]"
+                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}{1}hosts', parameters('names').resourceGroup, parameters('delimiter')))]"
               ]
             },
             {
@@ -12197,7 +12223,7 @@
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
               "name": "[format('deploy-avSets-{0}', parameters('deploymentNameSuffix'))]",
-              "resourceGroup": "[parameters('resourceGroupName')]",
+              "resourceGroup": "[format('{0}{1}hosts', parameters('names').resourceGroup, parameters('delimiter'))]",
               "properties": {
                 "expressionEvaluationOptions": {
                   "scope": "inner"
@@ -12213,6 +12239,9 @@
                   "availabilitySetsIndex": {
                     "value": "[parameters('availabilitySetsIndex')]"
                   },
+                  "delimiter": {
+                    "value": "[parameters('delimiter')]"
+                  },
                   "location": {
                     "value": "[parameters('location')]"
                   },
@@ -12227,7 +12256,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.35.1.17967",
-                      "templateHash": "13579839129984751655"
+                      "templateHash": "11403521343321533857"
                     }
                   },
                   "parameters": {
@@ -12239,6 +12268,9 @@
                     },
                     "availabilitySetsIndex": {
                       "type": "int"
+                    },
+                    "delimiter": {
+                      "type": "string"
                     },
                     "location": {
                       "type": "string"
@@ -12255,7 +12287,7 @@
                       },
                       "type": "Microsoft.Compute/availabilitySets",
                       "apiVersion": "2019-07-01",
-                      "name": "[format('{0}-{1}', parameters('availabilitySetNamePrefix'), padLeft(add(range(0, parameters('availabilitySetsCount'))[copyIndex()], parameters('availabilitySetsIndex')), 2, '0'))]",
+                      "name": "[format('{0}{1}{2}', parameters('availabilitySetNamePrefix'), parameters('delimiter'), padLeft(add(range(0, parameters('availabilitySetsCount'))[copyIndex()], parameters('availabilitySetsIndex')), 2, '0'))]",
                       "location": "[parameters('location')]",
                       "tags": "[parameters('tagsAvailabilitySets')]",
                       "sku": {
@@ -12270,7 +12302,7 @@
                 }
               },
               "dependsOn": [
-                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('resourceGroupName'))]"
+                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}{1}hosts', parameters('names').resourceGroup, parameters('delimiter')))]"
               ]
             },
             {
@@ -12282,7 +12314,7 @@
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
               "name": "[format('assign-role-{0}-{1}', range(0, length(parameters('securityPrincipalObjectIds')))[copyIndex()], parameters('deploymentNameSuffix'))]",
-              "resourceGroup": "[parameters('resourceGroupName')]",
+              "resourceGroup": "[format('{0}{1}hosts', parameters('names').resourceGroup, parameters('delimiter'))]",
               "properties": {
                 "expressionEvaluationOptions": {
                   "scope": "inner"
@@ -12335,7 +12367,7 @@
                 }
               },
               "dependsOn": [
-                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('resourceGroupName'))]"
+                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}{1}hosts', parameters('names').resourceGroup, parameters('delimiter')))]"
               ]
             },
             {
@@ -12371,7 +12403,7 @@
                       },
                       {
                         "name": "ScalingPlanName",
-                        "value": "[parameters('namingConvention').scalingPlan]"
+                        "value": "[parameters('names').scalingPlan]"
                       },
                       {
                         "name": "SubscriptionId",
@@ -12462,7 +12494,7 @@
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
               "name": "[format('deploy-vms-{0}-{1}', sub(range(1, parameters('sessionHostBatchCount'))[copyIndex()], 1), parameters('deploymentNameSuffix'))]",
-              "resourceGroup": "[parameters('resourceGroupName')]",
+              "resourceGroup": "[format('{0}{1}hosts', parameters('names').resourceGroup, parameters('delimiter'))]",
               "properties": {
                 "expressionEvaluationOptions": {
                   "scope": "inner"
@@ -12488,7 +12520,7 @@
                     "value": "[range(1, parameters('sessionHostBatchCount'))[copyIndex()]]"
                   },
                   "dataCollectionRuleAssociationNamePrefix": {
-                    "value": "[parameters('namingConvention').dataCollectionRuleAssociation]"
+                    "value": "[parameters('names').dataCollectionRuleAssociation]"
                   },
                   "dataCollectionRuleResourceId": {
                     "value": "[parameters('dataCollectionRuleResourceId')]"
@@ -12509,7 +12541,7 @@
                     "value": "[parameters('diskEncryptionSetResourceId')]"
                   },
                   "diskNamePrefix": {
-                    "value": "[parameters('namingConvention').virtualMachineDisk]"
+                    "value": "[parameters('names').virtualMachineDisk]"
                   },
                   "diskSku": {
                     "value": "[parameters('diskSku')]"
@@ -12557,7 +12589,7 @@
                     "value": "[parameters('netAppFileShares')]"
                   },
                   "networkInterfaceNamePrefix": {
-                    "value": "[parameters('namingConvention').virtualMachineNetworkInterface]"
+                    "value": "[parameters('names').virtualMachineNetworkInterface]"
                   },
                   "networkSecurityGroupResourceId": {
                     "value": "[parameters('networkSecurityGroupResourceId')]"
@@ -12604,7 +12636,7 @@
                     "value": "[variables('uniqueToken')]"
                   },
                   "virtualMachineNamePrefix": {
-                    "value": "[parameters('namingConvention').virtualMachine]"
+                    "value": "[parameters('names').virtualMachine]"
                   },
                   "virtualMachineAdminPassword": {
                     "value": "[parameters('virtualMachineAdminPassword')]"
@@ -12623,7 +12655,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.35.1.17967",
-                      "templateHash": "3012536498024025403"
+                      "templateHash": "16181909298804161072"
                     }
                   },
                   "parameters": {
@@ -12825,7 +12857,6 @@
                       "Standard_NV36adms_A10_v5",
                       "Standard_NV72ads_A10_v5"
                     ],
-                    "sessionHostNamePrefix": "[format('{0}{1}', parameters('virtualMachineNamePrefix'), parameters('stampIndexFull'))]",
                     "storageAccountToken": "[format('{0}??', parameters('storageAccountPrefix'))]"
                   },
                   "resources": [
@@ -12867,7 +12898,7 @@
                       },
                       "type": "Microsoft.Compute/virtualMachines",
                       "apiVersion": "2021-03-01",
-                      "name": "[format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[copyIndex()], parameters('sessionHostIndex')), 4, '0'))]",
+                      "name": "[format('{0}{1}', parameters('virtualMachineNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[copyIndex()], parameters('sessionHostIndex')), 4, '0'))]",
                       "location": "[parameters('location')]",
                       "tags": "[parameters('tagsVirtualMachines')]",
                       "identity": {
@@ -12900,7 +12931,7 @@
                         "osProfile": {
                           "adminPassword": "[parameters('virtualMachineAdminPassword')]",
                           "adminUsername": "[parameters('virtualMachineAdminUsername')]",
-                          "computerName": "[format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[copyIndex()], parameters('sessionHostIndex')), 4, '0'))]",
+                          "computerName": "[format('{0}{1}', parameters('virtualMachineNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[copyIndex()], parameters('sessionHostIndex')), 4, '0'))]",
                           "windowsConfiguration": {
                             "provisionVMAgent": true,
                             "enableAutomaticUpdates": "[if(and(parameters('enableWindowsUpdate'), equals(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.DesktopVirtualization/hostPools', parameters('hostPoolName')), '2023-09-05').hostPoolType, 'Personal')), true(), false())]"
@@ -12944,7 +12975,7 @@
                       },
                       "type": "Microsoft.Compute/virtualMachines/extensions",
                       "apiVersion": "2021-03-01",
-                      "name": "[format('{0}/{1}', format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')), 'IaaSAntimalware')]",
+                      "name": "[format('{0}/{1}', format('{0}{1}', parameters('virtualMachineNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')), 'IaaSAntimalware')]",
                       "location": "[parameters('location')]",
                       "tags": "[parameters('tagsVirtualMachines')]",
                       "properties": {
@@ -12966,7 +12997,7 @@
                         }
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Compute/virtualMachines', format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')))]"
+                        "[resourceId('Microsoft.Compute/virtualMachines', format('{0}{1}', parameters('virtualMachineNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')))]"
                       ]
                     },
                     {
@@ -12976,7 +13007,7 @@
                       },
                       "type": "Microsoft.Compute/virtualMachines/extensions",
                       "apiVersion": "2021-03-01",
-                      "name": "[format('{0}/{1}', format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')), 'GuestAttestation')]",
+                      "name": "[format('{0}/{1}', format('{0}{1}', parameters('virtualMachineNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')), 'GuestAttestation')]",
                       "location": "[parameters('location')]",
                       "properties": {
                         "publisher": "Microsoft.Azure.Security.WindowsAttestation",
@@ -12999,7 +13030,7 @@
                         }
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Compute/virtualMachines', format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')))]"
+                        "[resourceId('Microsoft.Compute/virtualMachines', format('{0}{1}', parameters('virtualMachineNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')))]"
                       ]
                     },
                     {
@@ -13010,7 +13041,7 @@
                       "condition": "[parameters('enableAvdInsights')]",
                       "type": "Microsoft.Compute/virtualMachines/extensions",
                       "apiVersion": "2023-03-01",
-                      "name": "[format('{0}/{1}', format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')), 'AzureMonitorWindowsAgent')]",
+                      "name": "[format('{0}/{1}', format('{0}{1}', parameters('virtualMachineNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')), 'AzureMonitorWindowsAgent')]",
                       "location": "[parameters('location')]",
                       "tags": "[parameters('tagsVirtualMachines')]",
                       "properties": {
@@ -13021,7 +13052,7 @@
                         "enableAutomaticUpgrade": true
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Compute/virtualMachines', format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')))]"
+                        "[resourceId('Microsoft.Compute/virtualMachines', format('{0}{1}', parameters('virtualMachineNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')))]"
                       ]
                     },
                     {
@@ -13032,7 +13063,7 @@
                       "condition": "[parameters('enableAvdInsights')]",
                       "type": "Microsoft.Insights/dataCollectionRuleAssociations",
                       "apiVersion": "2022-06-01",
-                      "scope": "[format('Microsoft.Compute/virtualMachines/{0}', format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')))]",
+                      "scope": "[format('Microsoft.Compute/virtualMachines/{0}', format('{0}{1}', parameters('virtualMachineNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')))]",
                       "name": "[format('{0}{1}{2}', parameters('dataCollectionRuleAssociationNamePrefix'), parameters('delimiter'), parameters('stampIndexFull'))]",
                       "properties": {
                         "dataCollectionRuleId": "[parameters('dataCollectionRuleResourceId')]",
@@ -13040,7 +13071,7 @@
                       },
                       "dependsOn": [
                         "extension_AzureMonitorWindowsAgent",
-                        "[resourceId('Microsoft.Compute/virtualMachines', format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')))]"
+                        "[resourceId('Microsoft.Compute/virtualMachines', format('{0}{1}', parameters('virtualMachineNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')))]"
                       ]
                     },
                     {
@@ -13050,7 +13081,7 @@
                       },
                       "type": "Microsoft.Compute/virtualMachines/extensions",
                       "apiVersion": "2021-03-01",
-                      "name": "[format('{0}/{1}', format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')), 'DesiredStateConfiguration')]",
+                      "name": "[format('{0}/{1}', format('{0}{1}', parameters('virtualMachineNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')), 'DesiredStateConfiguration')]",
                       "location": "[parameters('location')]",
                       "properties": {
                         "publisher": "Microsoft.Powershell",
@@ -13079,7 +13110,7 @@
                       },
                       "dependsOn": [
                         "setSessionHostConfiguration",
-                        "[resourceId('Microsoft.Compute/virtualMachines', format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')))]"
+                        "[resourceId('Microsoft.Compute/virtualMachines', format('{0}{1}', parameters('virtualMachineNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')))]"
                       ]
                     },
                     {
@@ -13090,7 +13121,7 @@
                       "condition": "[contains(parameters('activeDirectorySolution'), 'DomainServices')]",
                       "type": "Microsoft.Compute/virtualMachines/extensions",
                       "apiVersion": "2021-03-01",
-                      "name": "[format('{0}/{1}', format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')), 'JsonADDomainExtension')]",
+                      "name": "[format('{0}/{1}', format('{0}{1}', parameters('virtualMachineNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')), 'JsonADDomainExtension')]",
                       "location": "[parameters('location')]",
                       "tags": "[parameters('tagsVirtualMachines')]",
                       "properties": {
@@ -13112,7 +13143,7 @@
                       },
                       "dependsOn": [
                         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-drain-mode-{0}-{1}', parameters('batchCount'), parameters('deploymentNameSuffix')))]",
-                        "[resourceId('Microsoft.Compute/virtualMachines', format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')))]"
+                        "[resourceId('Microsoft.Compute/virtualMachines', format('{0}{1}', parameters('virtualMachineNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')))]"
                       ]
                     },
                     {
@@ -13123,7 +13154,7 @@
                       "condition": "[contains(parameters('activeDirectorySolution'), 'EntraId')]",
                       "type": "Microsoft.Compute/virtualMachines/extensions",
                       "apiVersion": "2021-03-01",
-                      "name": "[format('{0}/{1}', format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')), 'AADLoginForWindows')]",
+                      "name": "[format('{0}/{1}', format('{0}{1}', parameters('virtualMachineNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')), 'AADLoginForWindows')]",
                       "location": "[parameters('location')]",
                       "tags": "[parameters('tagsVirtualMachines')]",
                       "properties": {
@@ -13135,7 +13166,7 @@
                       },
                       "dependsOn": [
                         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-drain-mode-{0}-{1}', parameters('batchCount'), parameters('deploymentNameSuffix')))]",
-                        "[resourceId('Microsoft.Compute/virtualMachines', format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')))]"
+                        "[resourceId('Microsoft.Compute/virtualMachines', format('{0}{1}', parameters('virtualMachineNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')))]"
                       ]
                     },
                     {
@@ -13146,7 +13177,7 @@
                       "condition": "[variables('amdVmSize')]",
                       "type": "Microsoft.Compute/virtualMachines/extensions",
                       "apiVersion": "2021-03-01",
-                      "name": "[format('{0}/{1}', format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')), 'AmdGpuDriverWindows')]",
+                      "name": "[format('{0}/{1}', format('{0}{1}', parameters('virtualMachineNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')), 'AmdGpuDriverWindows')]",
                       "location": "[parameters('location')]",
                       "tags": "[parameters('tagsVirtualMachines')]",
                       "properties": {
@@ -13159,7 +13190,7 @@
                       "dependsOn": [
                         "extension_AADLoginForWindows",
                         "extension_JsonADDomainExtension",
-                        "[resourceId('Microsoft.Compute/virtualMachines', format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')))]"
+                        "[resourceId('Microsoft.Compute/virtualMachines', format('{0}{1}', parameters('virtualMachineNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')))]"
                       ]
                     },
                     {
@@ -13170,7 +13201,7 @@
                       "condition": "[variables('nvidiaVmSize')]",
                       "type": "Microsoft.Compute/virtualMachines/extensions",
                       "apiVersion": "2021-03-01",
-                      "name": "[format('{0}/{1}', format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')), 'NvidiaGpuDriverWindows')]",
+                      "name": "[format('{0}/{1}', format('{0}{1}', parameters('virtualMachineNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')), 'NvidiaGpuDriverWindows')]",
                       "location": "[parameters('location')]",
                       "tags": "[parameters('tagsVirtualMachines')]",
                       "properties": {
@@ -13183,7 +13214,7 @@
                       "dependsOn": [
                         "extension_AADLoginForWindows",
                         "extension_JsonADDomainExtension",
-                        "[resourceId('Microsoft.Compute/virtualMachines', format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')))]"
+                        "[resourceId('Microsoft.Compute/virtualMachines', format('{0}{1}', parameters('virtualMachineNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')))]"
                       ]
                     },
                     {
@@ -13265,7 +13296,7 @@
                             "value": "[parameters('tagsVirtualMachines')]"
                           },
                           "virtualMachineName": {
-                            "value": "[format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0'))]"
+                            "value": "[format('{0}{1}', parameters('virtualMachineNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0'))]"
                           }
                         },
                         "template": {
@@ -13328,7 +13359,7 @@
                       },
                       "dependsOn": [
                         "dataCollectionRuleAssociation",
-                        "[resourceId('Microsoft.Compute/virtualMachines', format('{0}{1}', variables('sessionHostNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')))]"
+                        "[resourceId('Microsoft.Compute/virtualMachines', format('{0}{1}', parameters('virtualMachineNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')))]"
                       ]
                     },
                     {
@@ -13389,7 +13420,7 @@
                               },
                               {
                                 "name": "virtualMachineNamePrefix",
-                                "value": "[variables('sessionHostNamePrefix')]"
+                                "value": "[parameters('virtualMachineNamePrefix')]"
                               }
                             ]
                           },
@@ -13469,9 +13500,9 @@
                 }
               },
               "dependsOn": [
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-avSets-{0}', parameters('deploymentNameSuffix')))]",
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}{1}hosts', parameters('names').resourceGroup, parameters('delimiter'))), 'Microsoft.Resources/deployments', format('deploy-avSets-{0}', parameters('deploymentNameSuffix')))]",
                 "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-disableAutoscale-{0}', parameters('deploymentNameSuffix')))]",
-                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('resourceGroupName'))]"
+                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}{1}hosts', parameters('names').resourceGroup, parameters('delimiter')))]"
               ]
             },
             {
@@ -13504,10 +13535,10 @@
                     "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
                   },
                   "scalingPlanDiagnosticSettingName": {
-                    "value": "[format('{0}{1}{2}', parameters('namingConvention').scalingPlanDiagnosticSetting, parameters('delimiter'), parameters('stampIndexFull'))]"
+                    "value": "[parameters('names').scalingPlanDiagnosticSetting]"
                   },
                   "scalingPlanName": {
-                    "value": "[format('{0}{1}{2}', parameters('namingConvention').scalingPlan, parameters('delimiter'), parameters('stampIndexFull'))]"
+                    "value": "[parameters('names').scalingPlan]"
                   },
                   "tags": {
                     "value": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.DesktopVirtualization/scalingPlans'), createObject()), parameters('mlzTags'))]"

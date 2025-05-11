@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "1361133271195946089"
+      "templateHash": "5554634451561446756"
     }
   },
   "parameters": {
@@ -972,7 +972,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.35.1.17967",
-              "templateHash": "6912208770289795823"
+              "templateHash": "4799893574381281104"
             }
           },
           "parameters": {
@@ -1172,6 +1172,13 @@
               "defaultValue": "NISTRev4",
               "metadata": {
                 "description": "The policy to assign to the workload."
+              }
+            },
+            "stampIndex": {
+              "type": "string",
+              "defaultValue": "",
+              "metadata": {
+                "description": "The stamp index allows for multiple deployments of a similar workload without naming conflicts."
               }
             },
             "subnetAddressPrefix": {
@@ -1455,6 +1462,9 @@
                         "subnetAddressPrefix": "[parameters('subnetAddressPrefix')]"
                       }
                     ]
+                  },
+                  "stampIndex": {
+                    "value": "[parameters('stampIndex')]"
                   }
                 },
                 "template": {
@@ -1464,7 +1474,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.35.1.17967",
-                      "templateHash": "14785040201525541203"
+                      "templateHash": "16801003753570761501"
                     }
                   },
                   "parameters": {
@@ -1482,6 +1492,10 @@
                     },
                     "networks": {
                       "type": "array"
+                    },
+                    "stampIndex": {
+                      "type": "string",
+                      "defaultValue": ""
                     }
                   },
                   "variables": {
@@ -1517,14 +1531,17 @@
                           "environmentAbbreviation": {
                             "value": "[parameters('environmentAbbreviation')]"
                           },
+                          "identifier": {
+                            "value": "[parameters('identifier')]"
+                          },
                           "location": {
                             "value": "[parameters('location')]"
                           },
                           "networkName": {
                             "value": "[parameters('networks')[copyIndex()].name]"
                           },
-                          "identifier": {
-                            "value": "[parameters('identifier')]"
+                          "stampIndex": {
+                            "value": "[parameters('stampIndex')]"
                           }
                         },
                         "template": {
@@ -1534,7 +1551,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.35.1.17967",
-                              "templateHash": "13287936924172099599"
+                              "templateHash": "2746349065201600109"
                             }
                           },
                           "parameters": {
@@ -1557,6 +1574,10 @@
                             },
                             "identifier": {
                               "type": "string"
+                            },
+                            "stampIndex": {
+                              "type": "string",
+                              "defaultValue": ""
                             }
                           },
                           "variables": {
@@ -1979,8 +2000,8 @@
                               "resource": "resource_token",
                               "service": "service_token"
                             },
-                            "namingConvention": "[format('{0}{1}{2}{3}{4}{5}{6}{7}{8}', toLower(parameters('identifier')), parameters('delimiter'), parameters('environmentAbbreviation'), parameters('delimiter'), variables('locationAbbreviation'), parameters('delimiter'), parameters('networkName'), parameters('delimiter'), variables('tokens').resource)]",
-                            "namingConvention_Service": "[format('{0}{1}{2}{3}{4}{5}{6}{7}{8}{9}{10}', toLower(parameters('identifier')), parameters('delimiter'), parameters('environmentAbbreviation'), parameters('delimiter'), variables('locationAbbreviation'), parameters('delimiter'), parameters('networkName'), parameters('delimiter'), variables('tokens').service, parameters('delimiter'), variables('tokens').resource)]",
+                            "namingConvention": "[format('{0}{1}{2}{3}{4}{5}{6}{7}{8}{9}', toLower(parameters('identifier')), parameters('delimiter'), parameters('environmentAbbreviation'), parameters('delimiter'), variables('locationAbbreviation'), parameters('delimiter'), parameters('networkName'), parameters('delimiter'), variables('tokens').resource, if(empty(parameters('stampIndex')), '', format('{0}{1}', parameters('delimiter'), parameters('stampIndex'))))]",
+                            "namingConvention_Service": "[format('{0}{1}{2}{3}{4}{5}{6}{7}{8}{9}{10}{11}', toLower(parameters('identifier')), parameters('delimiter'), parameters('environmentAbbreviation'), parameters('delimiter'), variables('locationAbbreviation'), parameters('delimiter'), parameters('networkName'), parameters('delimiter'), variables('tokens').service, parameters('delimiter'), variables('tokens').resource, if(empty(parameters('stampIndex')), '', format('{0}{1}', parameters('delimiter'), parameters('stampIndex'))))]",
                             "names": {
                               "actionGroup": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').actionGroups)]",
                               "applicationGroup": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').applicationGroups)]",
