@@ -74,6 +74,17 @@ var availabilitySetNamePrefix = names.availabilitySet
 var tagsVirtualMachines = union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Compute/virtualMachines'] ?? {}, mlzTags)
 var uniqueToken = uniqueString(identifier, environmentAbbreviation, subscription().subscriptionId)
 
+resource computeGallery 'Microsoft.Compute/galleries@2023-07-03' existing = if (!empty(imageVersionResourceId)) {
+  name: split(imageVersionResourceId, '/')[8]
+  scope: resourceGroup(split(imageVersionResourceId, '/')[2], split(imageVersionResourceId, '/')[4])
+}
+
+resource computeGalleryImage 'Microsoft.Compute/galleries/images@2023-07-03' existing = if (!empty(imageVersionResourceId)) {
+  name: split(imageVersionResourceId, '/')[10]
+  parent: computeGallery
+}
+
+
 resource rg 'Microsoft.Resources/resourceGroups@2023-07-01' = {
   name: '${names.resourceGroup}${delimiter}hosts'
   location: location
@@ -200,6 +211,11 @@ module virtualMachines 'virtual-machines.bicep' = [for i in range(1, sessionHost
     imageVersionResourceId: imageVersionResourceId
     imageOffer: empty(imageVersionResourceId) ? imageOffer : image.properties.identifier.offer
     imagePublisher: empty(imageVersionResourceId) ? imagePublisher : image.properties.identifier.publisher
+    imagePurchasePlan: profile == 'ArcGISPro' && !empty(imageVersionResourceId) ? computeGalleryImage.properties.purchasePlan : profile == 'ArcGISPro' && empty(imageVersionResourceId) ? {
+      name: imageSku
+      publisher: imagePublisher
+      product: imageOffer
+    } : {}
     imageSku: empty(imageVersionResourceId) ? imageSku : image.properties.identifier.sku
     location: location
     managementVirtualMachineName: managementVirtualMachineName

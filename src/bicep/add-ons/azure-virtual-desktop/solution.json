@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "10073839486896359654"
+      "templateHash": "13255890726859530887"
     }
   },
   "parameters": {
@@ -11928,7 +11928,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.35.1.17967",
-              "templateHash": "8271823036358415323"
+              "templateHash": "4387057852899839742"
             }
           },
           "parameters": {
@@ -12578,6 +12578,7 @@
                   },
                   "imageOffer": "[if(empty(parameters('imageVersionResourceId')), createObject('value', parameters('imageOffer')), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('imageVersionResourceId'), '/')[2], split(parameters('imageVersionResourceId'), '/')[4]), 'Microsoft.Compute/galleries/images', split(parameters('imageVersionResourceId'), '/')[8], split(parameters('imageVersionResourceId'), '/')[10]), '2023-07-03').identifier.offer))]",
                   "imagePublisher": "[if(empty(parameters('imageVersionResourceId')), createObject('value', parameters('imagePublisher')), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('imageVersionResourceId'), '/')[2], split(parameters('imageVersionResourceId'), '/')[4]), 'Microsoft.Compute/galleries/images', split(parameters('imageVersionResourceId'), '/')[8], split(parameters('imageVersionResourceId'), '/')[10]), '2023-07-03').identifier.publisher))]",
+                  "imagePurchasePlan": "[if(and(equals(parameters('profile'), 'ArcGISPro'), not(empty(parameters('imageVersionResourceId')))), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('imageVersionResourceId'), '/')[2], split(parameters('imageVersionResourceId'), '/')[4]), 'Microsoft.Compute/galleries/images', split(parameters('imageVersionResourceId'), '/')[8], split(parameters('imageVersionResourceId'), '/')[10]), '2023-07-03').purchasePlan), if(and(equals(parameters('profile'), 'ArcGISPro'), empty(parameters('imageVersionResourceId'))), createObject('value', createObject('name', parameters('imageSku'), 'publisher', parameters('imagePublisher'), 'product', parameters('imageOffer'))), createObject('value', createObject())))]",
                   "imageSku": "[if(empty(parameters('imageVersionResourceId')), createObject('value', parameters('imageSku')), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('imageVersionResourceId'), '/')[2], split(parameters('imageVersionResourceId'), '/')[4]), 'Microsoft.Compute/galleries/images', split(parameters('imageVersionResourceId'), '/')[8], split(parameters('imageVersionResourceId'), '/')[10]), '2023-07-03').identifier.sku))]",
                   "location": {
                     "value": "[parameters('location')]"
@@ -12655,7 +12656,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.35.1.17967",
-                      "templateHash": "16181909298804161072"
+                      "templateHash": "15860916386574887194"
                     }
                   },
                   "parameters": {
@@ -12736,6 +12737,9 @@
                     },
                     "imagePublisher": {
                       "type": "string"
+                    },
+                    "imagePurchasePlan": {
+                      "type": "object"
                     },
                     "imageSku": {
                       "type": "string"
@@ -12904,7 +12908,7 @@
                       "identity": {
                         "type": "SystemAssigned"
                       },
-                      "plan": "[if(equals(parameters('profile'), 'ArcGISPro'), createObject('name', parameters('imageSku'), 'publisher', parameters('imagePublisher'), 'product', parameters('imageOffer')), null())]",
+                      "plan": "[if(equals(parameters('profile'), 'ArcGISPro'), parameters('imagePurchasePlan'), null())]",
                       "zones": "[if(equals(parameters('availability'), 'AvailabilityZones'), createArray(parameters('availabilityZones')[mod(range(0, parameters('sessionHostCount'))[copyIndex()], length(parameters('availabilityZones')))]), null())]",
                       "properties": {
                         "availabilitySet": "[if(equals(parameters('availability'), 'AvailabilitySets'), createObject('id', resourceId('Microsoft.Compute/availabilitySets', format('{0}{1}{2}', parameters('availabilitySetNamePrefix'), parameters('delimiter'), padLeft(div(add(range(0, parameters('sessionHostCount'))[copyIndex()], parameters('sessionHostIndex')), 200), 2, '0')))), null())]",

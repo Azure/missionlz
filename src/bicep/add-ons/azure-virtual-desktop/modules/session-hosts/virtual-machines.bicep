@@ -25,6 +25,7 @@ param fslogixContainerType string
 param hostPoolName string
 param imageOffer string
 param imagePublisher string
+param imagePurchasePlan object
 param imageSku string
 param imageVersionResourceId string
 param location string
@@ -135,11 +136,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-03-01' = [for i 
   identity: {
     type: 'SystemAssigned' // Required for Entra join
   }
-  plan: profile == 'ArcGISPro' ? {
-    name: imageSku
-    publisher: imagePublisher
-    product: imageOffer
-  } : null
+  plan: profile == 'ArcGISPro' ? imagePurchasePlan : null
   zones: availability == 'AvailabilityZones' ? [
     availabilityZones[i % length(availabilityZones)]
   ] : null
