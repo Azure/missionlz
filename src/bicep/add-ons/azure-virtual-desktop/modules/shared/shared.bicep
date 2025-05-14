@@ -28,7 +28,7 @@ param subnets array
 param tags object
 // param timeZone string
 
-var hostPoolResourceId = '${subscription().id}}/resourceGroups/${resourceGroupManagement}/providers/Microsoft.DesktopVirtualization/hostpools/${names.hostPool}'
+var hostPoolResourceId = '${subscription().id}/resourceGroups/${resourceGroupManagement}/providers/Microsoft.DesktopVirtualization/hostpools/${names.hostPool}'
 var resourceGroupShared = replace(names.resourceGroup, stampIndexFull, 'shared')
 var resourceGroupFslogix = '${names.resourceGroup}${delimiter}fslogix'
 var resourceGroupManagement = '${names.resourceGroup}${delimiter}management'
@@ -191,7 +191,7 @@ output deploymentUserAssignedIdentityResourceId string = deploymentUserAssignedI
 output diskAccessPolicyDefinitionId string = policy.outputs.policyDefinitionId
 output diskAccessPolicyDisplayName string = policy.outputs.policyDisplayName
 output diskAccessResourceId string = diskAccess.outputs.resourceId
-output functionAppPrincipalId string = functionApp.outputs.functionAppPrincipalId
+output functionAppPrincipalId string = fslogixStorageService == 'AzureFiles Premium' ? functionApp.outputs.functionAppPrincipalId : ''
 output logAnalyticsWorkspaceName string = enableApplicationInsights || enableAvdInsights ? monitoring.outputs.logAnalyticsWorkspaceName : ''
 output logAnalyticsWorkspaceResourceId string = enableApplicationInsights || enableAvdInsights ? monitoring.outputs.logAnalyticsWorkspaceResourceId : ''
 // output recoveryServicesVaultName string = recoveryServices ? recoveryServicesVault.outputs.name : ''
