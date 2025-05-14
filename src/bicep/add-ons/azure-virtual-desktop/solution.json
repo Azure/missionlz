@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "16928443893535523225"
+      "templateHash": "13881753746820286952"
     }
   },
   "parameters": {
@@ -6538,7 +6538,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.35.1.17967",
-              "templateHash": "2234680783888029262"
+              "templateHash": "3415970425666277694"
             }
           },
           "parameters": {
@@ -7346,7 +7346,7 @@
                     "value": "[parameters('locationVirtualMachines')]"
                   },
                   "name": {
-                    "value": "[format('{0}deployment', variables('userAssignedIdentityNamePrefix'))]"
+                    "value": "[format('{0}{1}deployment', variables('userAssignedIdentityNamePrefix'), parameters('delimiter'))]"
                   },
                   "tags": {
                     "value": "[union(createObject('cm-resource-parent', variables('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.ManagedIdentity/userAssignedIdentities'), createObject()), parameters('mlzTags'))]"

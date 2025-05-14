@@ -102,7 +102,7 @@ module deploymentUserAssignedIdentity 'user-assigned-identity.bicep' = {
   name: 'deploy-id-deployment-${deploymentNameSuffix}'
   params: {
     location: locationVirtualMachines
-    name: '${userAssignedIdentityNamePrefix}deployment'
+    name: '${userAssignedIdentityNamePrefix}${delimiter}deployment'
     tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.ManagedIdentity/userAssignedIdentities'] ?? {}, mlzTags)
   }
   dependsOn: [
