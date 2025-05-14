@@ -902,6 +902,7 @@ module policyAssignments 'modules/policy-assignments.bicep' =
   if (deployPolicy) {
     name: 'assign-policies-${deploymentNameSuffix}'
     params: {
+      delimiter: logic.outputs.delimiter
       deploymentNameSuffix: deploymentNameSuffix
       location: location
       logAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
