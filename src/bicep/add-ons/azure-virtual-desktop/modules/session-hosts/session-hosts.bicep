@@ -29,7 +29,6 @@ param enableAvdInsights bool
 param enableWindowsUpdate bool
 param environmentAbbreviation string
 param fslogixContainerType string
-param hostPoolName string
 param hostPoolResourceId string
 param hostPoolType string
 param identifier string
@@ -92,7 +91,7 @@ resource rg 'Microsoft.Resources/resourceGroups@2023-07-01' = {
 }
 
 // Sets an Azure policy to disable public network access to managed disks
-module policyAssignment '../shared/policy-assignment.bicep' = {
+module policyAssignment '../management/policy-assignment.bicep' = {
   name: 'assign-policy-diskAccess-${deploymentNameSuffix}'
   scope: rg
   params: {
@@ -207,7 +206,7 @@ module virtualMachines 'virtual-machines.bicep' = [for i in range(1, sessionHost
     enableDrainMode: drainMode
     enableWindowsUpdate: enableWindowsUpdate
     fslogixContainerType: fslogixContainerType
-    hostPoolName: hostPoolName
+    hostPoolResourceId: hostPoolResourceId
     imageVersionResourceId: imageVersionResourceId
     imageOffer: empty(imageVersionResourceId) ? imageOffer : image.properties.identifier.offer
     imagePublisher: empty(imageVersionResourceId) ? imagePublisher : image.properties.identifier.publisher
@@ -269,7 +268,7 @@ module virtualMachines 'virtual-machines.bicep' = [for i in range(1, sessionHost
   ]
 } */
 
-module scalingPlan '../management/scaling-plan.bicep' = {
+module scalingPlan '../control-plane/scaling-plan.bicep' = {
   name: 'deploy-scalingPlan-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupManagement)
   params: {
