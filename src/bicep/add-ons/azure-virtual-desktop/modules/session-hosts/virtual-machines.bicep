@@ -22,7 +22,7 @@ param enableAvdInsights bool
 param enableDrainMode bool
 param enableWindowsUpdate bool
 param fslogixContainerType string
-param hostPoolName string
+param hostPoolResourceId string
 param imageOffer string
 param imagePublisher string
 param imagePurchasePlan object
@@ -99,8 +99,8 @@ var nvidiaVmSizes = [
 var storageAccountToken = '${storageAccountPrefix}??' // The token is used for AntiVirus exclusions. The '??' represents the two digits at the end of each storage account name.
 
 resource hostPool 'Microsoft.DesktopVirtualization/hostPools@2023-09-05' existing = {
-  name: hostPoolName
-  scope: resourceGroup(subscription().subscriptionId, resourceGroupManagement)
+  name: split(hostPoolResourceId, '/')[8]
+  scope: resourceGroup(split(hostPoolResourceId, '/')[2], split(hostPoolResourceId, '/')[4])
 }
 
 resource networkInterface 'Microsoft.Network/networkInterfaces@2020-05-01' = [for i in range(0, sessionHostCount): {
@@ -364,7 +364,7 @@ resource installAvdAgents 'Microsoft.Compute/virtualMachines/extensions@2021-03-
         modulesUrl: 'https://wvdportalstorageblob.blob.${environment().suffixes.storage}/galleryartifacts/${avdConfigurationZipFileName}'
         configurationFunction: 'Configuration.ps1\\AddSessionHost'
         properties: {
-          hostPoolName: hostPoolName
+          hostPoolName: split(hostPoolResourceId, '/')[8]
           registrationInfoTokenCredential: {
             UserName: 'PLACEHOLDER_DO_NOT_USE'
             Password: 'PrivateSettingsRef:RegistrationInfoToken'
@@ -400,7 +400,7 @@ module drainMode '../common/run-command.bicep' = if (enableDrainMode) {
       }
       { 
         name: 'hostPoolName' 
-        value: hostPoolName
+        value: split(hostPoolResourceId, '/')[8]
       }
       {
         name: 'HostPoolResourceGroupName' 
