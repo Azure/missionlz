@@ -60,7 +60,7 @@ module applicationFriendlyName '../common/run-command.bicep' = if (!empty(deskto
 }
 
 // Role Assignment for AVD access
-// Purpose: assigns the Desktop Virtualization User role to the application group for the specified security principals
+// Purpose: assigns the Desktop Virtualization User role on the application group for the specified security principals
 resource roleAssignment_ApplicationGroup 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for i in range(0, length(securityPrincipalObjectIds)): {
   name: guid(securityPrincipalObjectIds[i], '1d18fff3-a72a-46b5-b4a9-0b38a3cd7e63', applicationGroup.id)
   scope: applicationGroup
