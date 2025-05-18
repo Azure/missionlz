@@ -1,61 +1,46 @@
 targetScope = 'subscription'
 
-param activeDirectorySolution string
 param avdObjectId string
-param avdPrivateDnsZoneResourceId string
-param customImageId string
-param customRdpProperty string
 param delimiter string
 // param deployFslogix bool
 param deploymentNameSuffix string
-param deploymentUserAssignedIdentityClientId string
-param deploymentUserAssignedIdentityPrincipalId string
-param deploymentUserAssignedIdentityResourceId string
-param desktopFriendlyName string
-param diskAccessPolicyDefinitionId string
-param diskAccessPolicyDisplayName string
-param diskAccessResourceId string
 param diskEncryptionSetResourceId string
 param diskSku string
 @secure()
 param domainJoinPassword string
 param domainJoinUserPrincipalName string
 param domainName string
-param enableAvdInsights bool
-param hostPoolPublicNetworkAccess string
-param hostPoolType string
-param imageOffer string
-param imagePublisher string
-param imageSku string
-param imageVersionResourceId string
 param locationControlPlane string
 param locationVirtualMachines string
-param logAnalyticsWorkspaceResourceId string
-param maxSessionLimit int
 param mlzTags object
 param names object
 param organizationalUnitPath string
-param securityPrincipalObjectIds array
+param privateDnsZoneResourceIdPrefix string
+param privateDnsZones array
+param stampIndexFull string
 param subnetResourceId string
 param tags object
-param validationEnvironment bool
 @secure()
 param virtualMachineAdminPassword string
 param virtualMachineAdminUsername string
-param virtualMachineSize string
 
-var galleryImageOffer = empty(imageVersionResourceId) ? '"${imageOffer}"' : 'null'
-var galleryImagePublisher = empty(imageVersionResourceId) ? '"${imagePublisher}"' : 'null'
-var galleryImageSku = empty(imageVersionResourceId) ? '"${imageSku}"' : 'null'
-var galleryItemId = empty(imageVersionResourceId) ? '"${imagePublisher}.${imageOffer}${imageSku}"' : 'null'
 var hostPoolResourceId = resourceId(resourceGroupManagement, 'Microsoft.DesktopVirtualization/hostpools', names.hostPool)
-var imageType = empty(imageVersionResourceId) ? '"Gallery"' : '"CustomImage"'
 var resourceGroupManagement = '${names.resourceGroup}${delimiter}management'
 
 resource resourceGroup 'Microsoft.Resources/resourceGroups@2023-07-01' = {
   name: resourceGroupManagement
   location: locationControlPlane
   tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Resources/resourceGroups'] ?? {}, mlzTags)
+}
+
+module deploymentUserAssignedIdentity 'user-assigned-identity.bicep' = {
+  scope: resourceGroup
+  name: 'deploy-id-deployment-${deploymentNameSuffix}'
+  params: {
+    location: locationVirtualMachines
+    name: '${names.userAssignedIdentity}${delimiter}deployment'
+    tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.ManagedIdentity/userAssignedIdentities'] ?? {}, mlzTags)
+  }
 }
 
 // Role Assignment for Autoscale
@@ -76,74 +61,65 @@ module roleAssignment_Management '../common/role-assignments/resource-group.bice
   name: 'assign-role-mgmt-${deploymentNameSuffix}'
   scope: resourceGroup
   params: {
-    principalId: deploymentUserAssignedIdentityPrincipalId
+    principalId: deploymentUserAssignedIdentity.outputs.principalId
     principalType: 'ServicePrincipal'
     roleDefinitionId: '082f0a83-3be5-4ba1-904c-961cca79b387'
   }
 }
 
-module hostPool 'host-pool.bicep' = {
-  name: 'deploy-vdpool-${deploymentNameSuffix}'
+
+module diskAccess 'disk-access.bicep' = {
   scope: resourceGroup
+  name: 'deploy-disk-access-${deploymentNameSuffix}'
   params: {
-    activeDirectorySolution: activeDirectorySolution
-    avdPrivateDnsZoneResourceId: avdPrivateDnsZoneResourceId
-    customImageId: customImageId
-    customRdpProperty: customRdpProperty
-    diskSku: diskSku
-    domainName: domainName
-    enableAvdInsights: enableAvdInsights
-    galleryImageOffer: galleryImageOffer
-    galleryImagePublisher: galleryImagePublisher
-    galleryImageSku: galleryImageSku
-    galleryItemId: galleryItemId
-    hostPoolDiagnosticSettingName: names.hostPoolDiagnosticSetting
-    hostPoolName: names.hostPool
-    hostPoolNetworkInterfaceName: names.hostPoolNetworkInterface
-    hostPoolPrivateEndpointName: names.hostPoolPrivateEndpoint
-    hostPoolPublicNetworkAccess: hostPoolPublicNetworkAccess
-    hostPoolType: hostPoolType
-    imageType: imageType
-    location: locationControlPlane
-    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
-    maxSessionLimit: maxSessionLimit
+    azureBlobsPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(privateDnsZones, name => contains(name, 'blob'))[0]}'
+    delimiter: delimiter
+    hostPoolResourceId: hostPoolResourceId
+    location: locationVirtualMachines
     mlzTags: mlzTags
-    sessionHostNamePrefix: names.virtualMachine
+    names: names
+    stampIndexFull: stampIndexFull
     subnetResourceId: subnetResourceId
     tags: tags
-    validationEnvironment: validationEnvironment
-    virtualMachineSize: virtualMachineSize
   }
 }
 
 // Sets an Azure policy to disable public network access to managed disks
-module policyAssignment '../shared/policy-assignment.bicep' = {
+module policy 'policy.bicep' = {
+  name: 'deploy-policy-disks-${deploymentNameSuffix}'
+  params: {
+    diskAccessResourceId: diskAccess.outputs.resourceId
+  }
+}
+
+// Sets an Azure policy to disable public network access to managed disks
+module policyAssignment 'policy-assignment.bicep' = {
   name: 'assign-policy-diskAccess-${deploymentNameSuffix}'
   scope: resourceGroup
   params: {
-    diskAccessResourceId: diskAccessResourceId
+    diskAccessResourceId: diskAccess.outputs.resourceId
     location: resourceGroup.location
-    policyDefinitionId: diskAccessPolicyDefinitionId
-    policyDisplayName: diskAccessPolicyDisplayName
-    policyName: diskAccessPolicyDisplayName
+    policyDefinitionId: policy.outputs.policyDefinitionId
+    policyDisplayName: policy.outputs.policyDisplayName
+    policyName: policy.outputs.policyDisplayName
   }
 }
 
 // Management Virtual Machine
-// Purpose: deploys the management VM is required to execute PowerShell scripts.
+// Purpose: deploys the management VM which is used to execute PowerShell scripts.
 module virtualMachine 'virtual-machine.bicep' = {
   name: 'deploy-mgmt-vm-${deploymentNameSuffix}'
   scope: resourceGroup
   params: {
-    deploymentUserAssignedIdentityPrincipalId: deploymentUserAssignedIdentityPrincipalId
-    deploymentUserAssignedIdentityResourceId: deploymentUserAssignedIdentityResourceId
+    deploymentUserAssignedIdentityPrincipalId: deploymentUserAssignedIdentity.outputs.principalId
+    deploymentUserAssignedIdentityResourceId: deploymentUserAssignedIdentity.outputs.resourceId
     diskEncryptionSetResourceId: diskEncryptionSetResourceId
     diskName: '${names.virtualMachineDisk}${delimiter}mgt'
     diskSku: diskSku
     domainJoinPassword: domainJoinPassword
     domainJoinUserPrincipalName: domainJoinUserPrincipalName
     domainName: domainName
-    hostPoolResourceId: hostPool.outputs.resourceId
+    hostPoolResourceId: hostPoolResourceId
     location: locationVirtualMachines
     mlzTags: mlzTags
     networkInterfaceName: '${names.virtualMachineNetworkInterface}${delimiter}mgt'
@@ -156,27 +132,12 @@ module virtualMachine 'virtual-machine.bicep' = {
   }
 }
 
-module applicationGroup 'application-group.bicep' = {
-  name: 'deploy-vdag-${deploymentNameSuffix}'
-  scope: resourceGroup
-  params: {
-    deploymentNameSuffix: deploymentNameSuffix
-    deploymentUserAssignedIdentityClientId: deploymentUserAssignedIdentityClientId
-    desktopApplicationGroupName: names.applicationGroup
-    hostPoolResourceId: hostPool.outputs.resourceId
-    locationControlPlane: locationControlPlane
-    locationVirtualMachines: locationVirtualMachines
-    mlzTags: mlzTags
-    securityPrincipalObjectIds: securityPrincipalObjectIds
-    desktopFriendlyName: desktopFriendlyName
-    tags: tags
-    virtualMachineName: virtualMachine.outputs.name
-  }
-}
-
-output applicationGroupResourceId string = applicationGroup.outputs.resourceId
-output hostPoolName string = hostPool.outputs.name
-output hostPoolResourceId string = hostPool.outputs.resourceId
+output deploymentUserAssignedIdentityClientId string = deploymentUserAssignedIdentity.outputs.clientId
+output deploymentUserAssignedIdentityPrincipalId string = deploymentUserAssignedIdentity.outputs.principalId
+output deploymentUserAssignedIdentityResourceId string = deploymentUserAssignedIdentity.outputs.resourceId
+output diskAccessPolicyDefinitionId string = policy.outputs.policyDefinitionId
+output diskAccessPolicyDisplayName string = policy.outputs.policyDisplayName
+output diskAccessResourceId string = diskAccess.outputs.resourceId
 output resourceGroupName string = resourceGroup.name
 output virtualMachineName string = virtualMachine.outputs.name
 output virtualMachineResourceId string = virtualMachine.outputs.resourceId
