@@ -36,7 +36,7 @@ var resourceGroupManagement = '${names.resourceGroup}${delimiter}management'
 resource resourceGroup_shared 'Microsoft.Resources/resourceGroups@2023-07-01' = {
   name: resourceGroupShared
   location: locationControlPlane
-  tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Resources/resourceGroups'] ?? {}, mlzTags)
+  tags: union(tags[?'Microsoft.Resources/resourceGroups'] ?? {}, mlzTags)
 }
 
 // Monitoring Resources for AVD Insights
