@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "342232070438190326"
+      "templateHash": "17128368986941776945"
     }
   },
   "parameters": {
@@ -862,7 +862,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.35.1.17967",
-              "templateHash": "3896242272474165760"
+              "templateHash": "1239996270294459153"
             }
           },
           "parameters": {
@@ -951,8 +951,8 @@
                 }
               },
               "dependsOn": [
-                "[resourceId('Microsoft.Network/publicIPAddresses', format('{0}{1}{2}', parameters('publicIpAddressName'), parameters('delimiter'), padLeft(range(0, 2)[1], 2, '0')))]",
-                "[resourceId('Microsoft.Network/publicIPAddresses', format('{0}{1}{2}', parameters('publicIpAddressName'), parameters('delimiter'), padLeft(range(0, 2)[0], 2, '0')))]"
+                "[resourceId('Microsoft.Network/publicIPAddresses', format('{0}{1}{2}', parameters('publicIpAddressName'), parameters('delimiter'), padLeft(range(0, 2)[0], 2, '0')))]",
+                "[resourceId('Microsoft.Network/publicIPAddresses', format('{0}{1}{2}', parameters('publicIpAddressName'), parameters('delimiter'), padLeft(range(0, 2)[1], 2, '0')))]"
               ]
             }
           ]
