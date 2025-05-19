@@ -38,7 +38,6 @@ var networkSecurityGroups_Tiers = [for (tier, i) in tiers: {
   flowLogsName: tiers[i].namingConvention.networkWatcherFlowLogsNetworkSecurityGroup
   name: tiers[i].namingConvention.networkSecurityGroup
   namingConvention: tiers[i].namingConvention
-  networkWatcherResourceId: tiers[i].networkWatcherResourceId
   resourceGroupName: resourceGroupNames[i]
   storageAccountResourceId: storageAccountResourceIds[i]
   subscriptionId: tiers[i].subscriptionId
@@ -51,7 +50,6 @@ var networkSecurityGroup_Bastion = deployBastion ? [
     flowLogsName: '${hub.namingConvention.networkWatcherFlowLogsNetworkSecurityGroup}${delimiter}bastion'
     name: hub.namingConvention.bastionHostNetworkSecurityGroup
     namingConvention: hub.namingConvention
-    networkWatcherResourceId: hub.networkWatcherResourceId
     resourceGroupName: hubResourceGroupName
     storageAccountResourceId: storageAccountResourceIds[0]
     subscriptionId: hub.subscriptionId
