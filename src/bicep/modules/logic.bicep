@@ -56,7 +56,6 @@ output resourceAbbreviations object = namingConventions[0].outputs.resourceAbbre
 output tiers array = [for (network, i) in networks: {
   name: network.name
   shortName: network.shortName
-  deployUniqueResources: network.deployUniqueResources
   subscriptionId: network.subscriptionId
   networkWatcherResourceId: network.networkWatcherResourceId
   nsgDiagLogs: network.?nsgDiagLogs ?? []

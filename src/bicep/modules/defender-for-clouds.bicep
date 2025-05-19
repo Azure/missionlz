@@ -11,7 +11,8 @@ param deploymentNameSuffix string
 param emailSecurityContact string
 param tiers array
 
-module defenderForCloud 'defender-for-cloud.bicep' = [for tier in tiers: if (tier.deployUniqueResources) {
+@batchSize(1)
+module defenderForCloud 'defender-for-cloud.bicep' = [for tier in tiers: {
   name: 'set-defender-${tier.name}-${deploymentNameSuffix}'
   scope: subscription(tier.subscriptionId)
   params: {

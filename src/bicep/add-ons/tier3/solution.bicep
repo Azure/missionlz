@@ -358,7 +358,6 @@ module policyAssignments '../../modules/policy-assignments.bicep' =
   if (deployPolicy && (!(empty(virtualNetworkAddressPrefix)))) {
     name: 'assign-policy-${workloadShortName}-${deploymentIndex}${deploymentNameSuffix}'
     params: {
-      delimiter: logic.outputs.delimiter
       deploymentNameSuffix: deploymentNameSuffix
       location: location
       logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
