@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "18441569375212838715"
+      "templateHash": "6434997795313364353"
     }
   },
   "parameters": {
@@ -11230,7 +11230,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.35.1.17967",
-              "templateHash": "8782615109560469913"
+              "templateHash": "7223260056711261736"
             }
           },
           "parameters": {
@@ -11296,7 +11296,7 @@
             }
           },
           "variables": {
-            "hostPoolResourceId": "[resourceId(subscription().id, variables('resourceGroupManagement'), 'Microsoft.DesktopVirtualization/hostpools', parameters('names').hostPool)]",
+            "hostPoolResourceId": "[resourceId(subscription().subscriptionId, variables('resourceGroupManagement'), 'Microsoft.DesktopVirtualization/hostpools', parameters('names').hostPool)]",
             "resourceGroupManagement": "[format('{0}{1}management', parameters('names').resourceGroup, parameters('delimiter'))]"
           },
           "resources": [

@@ -24,7 +24,7 @@ param tags object
 param virtualMachineAdminPassword string
 param virtualMachineAdminUsername string
 
-var hostPoolResourceId = resourceId(subscription().id, resourceGroupManagement, 'Microsoft.DesktopVirtualization/hostpools', names.hostPool)
+var hostPoolResourceId = resourceId(subscription().subscriptionId, resourceGroupManagement, 'Microsoft.DesktopVirtualization/hostpools', names.hostPool)
 var resourceGroupManagement = '${names.resourceGroup}${delimiter}management'
 
 resource resourceGroup 'Microsoft.Resources/resourceGroups@2023-07-01' = {
