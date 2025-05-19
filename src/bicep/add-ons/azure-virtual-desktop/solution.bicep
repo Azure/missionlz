@@ -976,7 +976,6 @@ module tier3_stamp '../tier3/solution.bicep' = {
     ] : customFirewallRuleCollectionGroups
     deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
     deployDefender: deployDefender
-    deploymentNameSuffix: deploymentNameSuffix
     deployNetworkWatcherTrafficAnalytics: deployNetworkWatcherTrafficAnalytics
     deployPolicy: deployPolicy
     emailSecurityContact: emailSecurityContact
@@ -1128,7 +1127,7 @@ module sharedServices 'modules/shared-services/shared-services.bicep' = {
     locationControlPlane: virtualNetwork_hub.location
     mlzTags: tier3_stamp.outputs.mlzTags
     names: naming_management.outputs.names
-    networkName: tier3_shared.outputs.tier.networkName
+    networkName: tier3_shared.outputs.tier.name
     sharedServicesSubnetResourceId: sharedServicesSubnetResourceId
     workspaceGlobalPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3_stamp.outputs.privateDnsZones, name => startsWith(name, 'privatelink-global.wvd'))[0]}'
   }
