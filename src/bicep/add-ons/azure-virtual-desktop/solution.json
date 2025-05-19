@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "16030581045267327884"
+      "templateHash": "7611805089209366182"
     }
   },
   "parameters": {
@@ -12610,7 +12610,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.35.1.17967",
-              "templateHash": "13125942245949425206"
+              "templateHash": "1458718301947590303"
             }
           },
           "parameters": {
@@ -12693,7 +12693,7 @@
               "apiVersion": "2023-07-01",
               "name": "[variables('resourceGroupShared')]",
               "location": "[parameters('locationControlPlane')]",
-              "tags": "[union(createObject('cm-resource-parent', variables('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Resources/resourceGroups'), createObject()), parameters('mlzTags'))]"
+              "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Resources/resourceGroups'), createObject()), parameters('mlzTags'))]"
             },
             {
               "condition": "[or(parameters('enableApplicationInsights'), parameters('enableAvdInsights'))]",
@@ -15294,7 +15294,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.35.1.17967",
-              "templateHash": "14366897974122144273"
+              "templateHash": "9450569204469619150"
             }
           },
           "parameters": {
@@ -15334,84 +15334,11 @@
           },
           "resources": [
             {
-              "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2022-09-01",
-              "name": "[format('deploy-rg-vdws-global-{0}', parameters('deploymentNameSuffix'))]",
-              "subscriptionId": "[split(parameters('sharedServicesSubnetResourceId'), '/')[2]]",
-              "location": "[deployment().location]",
-              "properties": {
-                "expressionEvaluationOptions": {
-                  "scope": "inner"
-                },
-                "mode": "Incremental",
-                "parameters": {
-                  "location": {
-                    "value": "[parameters('locationControlPlane')]"
-                  },
-                  "mlzTags": {
-                    "value": "[parameters('mlzTags')]"
-                  },
-                  "name": {
-                    "value": "[variables('resourceGroupWorkspaceGlobal')]"
-                  },
-                  "tags": {
-                    "value": {}
-                  }
-                },
-                "template": {
-                  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
-                  "contentVersion": "1.0.0.0",
-                  "metadata": {
-                    "_generator": {
-                      "name": "bicep",
-                      "version": "0.35.1.17967",
-                      "templateHash": "17739099961151144722"
-                    }
-                  },
-                  "parameters": {
-                    "mlzTags": {
-                      "type": "object"
-                    },
-                    "name": {
-                      "type": "string"
-                    },
-                    "location": {
-                      "type": "string"
-                    },
-                    "tags": {
-                      "type": "object",
-                      "defaultValue": {}
-                    }
-                  },
-                  "resources": [
-                    {
-                      "type": "Microsoft.Resources/resourceGroups",
-                      "apiVersion": "2019-05-01",
-                      "name": "[parameters('name')]",
-                      "location": "[parameters('location')]",
-                      "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Resources/resourceGroups'), createObject()), parameters('mlzTags'))]"
-                    }
-                  ],
-                  "outputs": {
-                    "id": {
-                      "type": "string",
-                      "value": "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('name'))]"
-                    },
-                    "name": {
-                      "type": "string",
-                      "value": "[parameters('name')]"
-                    },
-                    "location": {
-                      "type": "string",
-                      "value": "[reference(subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('name')), '2019-05-01', 'full').location]"
-                    },
-                    "tags": {
-                      "type": "object",
-                      "value": "[reference(subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('name')), '2019-05-01', 'full').tags]"
-                    }
-                  }
-                }
-              }
+              "type": "Microsoft.Resources/resourceGroups",
+              "apiVersion": "2023-07-01",
+              "name": "[variables('resourceGroupWorkspaceGlobal')]",
+              "location": "[parameters('locationControlPlane')]",
+              "tags": "[parameters('mlzTags')]"
             },
             {
               "type": "Microsoft.Resources/deployments",
@@ -15537,7 +15464,7 @@
                 }
               },
               "dependsOn": [
-                "[subscriptionResourceId(split(parameters('sharedServicesSubnetResourceId'), '/')[2], 'Microsoft.Resources/deployments', format('deploy-rg-vdws-global-{0}', parameters('deploymentNameSuffix')))]"
+                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('resourceGroupWorkspaceGlobal'))]"
               ]
             }
           ]
