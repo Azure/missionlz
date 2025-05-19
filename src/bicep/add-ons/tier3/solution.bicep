@@ -161,6 +161,7 @@ param workloadShortName string = 't3'
 
 var hubResourceGroupName = split(hubVirtualNetworkResourceId, '/')[4]
 var hubSubscriptionId = split(hubVirtualNetworkResourceId, '/')[2]
+var deploymentIndex = empty(stampIndex) ? '' : '${stampIndex}-'
 var subscriptionId = subscription().subscriptionId
 
 resource azureFirewall 'Microsoft.Network/azureFirewalls@2020-11-01' existing = {
@@ -174,7 +175,7 @@ resource virtualNetwork_hub 'Microsoft.Network/virtualNetworks@2023-11-01' exist
 }
 
 module virtualNetwork_operations '../../modules/existing-vnet-address-prefix.bicep' = {
-  name: 'get-ops-vnet-${deploymentNameSuffix}'
+  name: 'get-ops-vnet-${deploymentIndex}${deploymentNameSuffix}'
   params: {
     networkName: 'operations'
     peerings: virtualNetwork_hub.properties.virtualNetworkPeerings
@@ -182,7 +183,7 @@ module virtualNetwork_operations '../../modules/existing-vnet-address-prefix.bic
 }
 
 module firewallRules '../../modules/firewall-rules.bicep' = {
-  name: 'deploy-firewall-rules-${workloadShortName}-${deploymentNameSuffix}'
+  name: 'deploy-firewall-rules-${workloadShortName}-${deploymentIndex}${deploymentNameSuffix}'
   scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
   params: {
     firewallPolicyName: split(azureFirewall.properties.firewallPolicy.id, '/')[8]
@@ -224,14 +225,14 @@ module firewallRules '../../modules/firewall-rules.bicep' = {
 // This module outputs all the subscription IDs from the virtual network peerings of the 
 // hub virtual network to determine if the target subscription for this deployment is unique.
 module virtualNetworkPeerings 'modules/virtual-network-peerings.bicep' = {
-  name: 'get-vnet-peerings-${workloadShortName}-${deploymentNameSuffix}'
+  name: 'get-vnet-peerings-${workloadShortName}-${deploymentIndex}${deploymentNameSuffix}'
   params: {
     virtualNetworkPeerings: virtualNetwork_hub.properties.virtualNetworkPeerings
   }
 }
 
 module logic '../../modules/logic.bicep' = {
-  name: 'get-logic-${workloadShortName}-${deploymentNameSuffix}'
+  name: 'get-logic-${workloadShortName}-${deploymentIndex}${deploymentNameSuffix}'
   params: {
     deploymentNameSuffix: deploymentNameSuffix
     environmentAbbreviation: environmentAbbreviation
@@ -257,7 +258,7 @@ module logic '../../modules/logic.bicep' = {
 }
 
 module rg '../../modules/resource-group.bicep' = if (!(empty(virtualNetworkAddressPrefix))) {
-  name: 'deploy-rg-${workloadShortName}-${deploymentNameSuffix}'
+  name: 'deploy-rg-${workloadShortName}-${deploymentIndex}${deploymentNameSuffix}'
   params: {
     location: location
     mlzTags: logic.outputs.mlzTags
@@ -267,7 +268,7 @@ module rg '../../modules/resource-group.bicep' = if (!(empty(virtualNetworkAddre
 }
 
 module networking 'modules/networking.bicep' = if (!(empty(virtualNetworkAddressPrefix))) {
-  name: 'deploy-network-${workloadShortName}-${deploymentNameSuffix}'
+  name: 'deploy-network-${workloadShortName}-${deploymentIndex}${deploymentNameSuffix}'
   params: {
     additionalSubnets: additionalSubnets
     deploymentNameSuffix: deploymentNameSuffix
@@ -294,7 +295,7 @@ module networking 'modules/networking.bicep' = if (!(empty(virtualNetworkAddress
 }
 
 module customerManagedKeys '../../modules/customer-managed-keys.bicep' = if (!(empty(virtualNetworkAddressPrefix))) {
-  name: 'deploy-cmk-${workloadShortName}-${deploymentNameSuffix}'
+  name: 'deploy-cmk-${workloadShortName}-${deploymentIndex}${deploymentNameSuffix}'
   params: {
     deploymentNameSuffix: deploymentNameSuffix
     environmentAbbreviation: environmentAbbreviation
@@ -316,7 +317,7 @@ module customerManagedKeys '../../modules/customer-managed-keys.bicep' = if (!(e
 }
 
 module storage 'modules/storage.bicep' = if (!(empty(virtualNetworkAddressPrefix))) {
-  name: 'deploy-storage-${workloadShortName}-${deploymentNameSuffix}'
+  name: 'deploy-storage-${workloadShortName}-${deploymentIndex}${deploymentNameSuffix}'
   params: {
     blobsPrivateDnsZoneResourceId: resourceId(hubSubscriptionId, hubResourceGroupName, 'Microsoft.Network/privateDnsZones', 'privatelink.blob.${environment().suffixes.storage}')
     filesPrivateDnsZoneResourceId: resourceId(hubSubscriptionId, hubResourceGroupName, 'Microsoft.Network/privateDnsZones', 'privatelink.file.${environment().suffixes.storage}')
@@ -336,7 +337,7 @@ module storage 'modules/storage.bicep' = if (!(empty(virtualNetworkAddressPrefix
 }
 
 module diagnostics 'modules/diagnostics.bicep' = if (!(empty(virtualNetworkAddressPrefix))) {
-  name: 'deploy-diag-${workloadShortName}-${deploymentNameSuffix}'
+  name: 'deploy-diag-${workloadShortName}-${deploymentIndex}${deploymentNameSuffix}'
   params: {
     deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
     deploymentNameSuffix: deploymentNameSuffix
@@ -364,7 +365,7 @@ module diagnostics 'modules/diagnostics.bicep' = if (!(empty(virtualNetworkAddre
 
 module policyAssignments '../../modules/policy-assignments.bicep' =
   if (deployPolicy && (!(empty(virtualNetworkAddressPrefix)))) {
-    name: 'assign-policy-${workloadShortName}-${deploymentNameSuffix}'
+    name: 'assign-policy-${workloadShortName}-${deploymentIndex}${deploymentNameSuffix}'
     params: {
       delimiter: logic.outputs.delimiter
       deploymentNameSuffix: deploymentNameSuffix
@@ -381,7 +382,7 @@ module policyAssignments '../../modules/policy-assignments.bicep' =
 
 module defenderForCloud '../../modules/defender-for-cloud.bicep' =
   if (deployDefender && (!(empty(virtualNetworkAddressPrefix)))) {
-    name: 'set-defender-${workloadShortName}-${deploymentNameSuffix}'
+    name: 'set-defender-${workloadShortName}-${deploymentIndex}${deploymentNameSuffix}'
     params: {
       emailSecurityContact: emailSecurityContact
     }
@@ -396,6 +397,7 @@ output logAnalyticsWorkspaceResourceId string = logAnalyticsWorkspaceResourceId
 output mlzTags object = logic.outputs.mlzTags
 output namingConvention object = logic.outputs.tiers[0].namingConvention
 output networkSecurityGroupResourceId string = networking.outputs.networkSecurityGroupResourceId
+output networkWatcherResourceId string = networking.outputs.networkWatcherResourceId
 output privateDnsZones array = logic.outputs.privateDnsZones
 output resourceAbbreviations object = logic.outputs.resourceAbbreviations
 output identifier string = azureFirewall.tags.identifier
