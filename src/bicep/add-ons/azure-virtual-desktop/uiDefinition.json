@@ -1328,19 +1328,17 @@
               "elements": [
                 {
                   "name": "info",
-                  "type": "Microsoft.Common.InfoBox",
+                  "type": "Microsoft.Common.TextBlock",
                   "visible": true,
                   "options": {
-                    "icon": "None",
-                    "text": "The AVD Shared virtual network is used to host common resources across AVD stamps in the same namespace, e.g. a project, business unit, or department. This virtual network is deployed in the same region as MLZ and is connected to the AVD Stamp virtual network using a VNET peering connection.",
-                    "uri": ""
+                    "text": "The AVD Shared virtual network is used to host common resources across AVD stamps in the same namespace, e.g. a project, business unit, or department. This virtual network is deployed in the same region as MLZ and is connected to the AVD Stamp virtual network using a VNET peering connection."
                   }
                 },
                 {
                   "name": "virtualNetworkAddressCidrRange",
                   "label": "Virtual network CIDR range",
                   "type": "Microsoft.Common.TextBox",
-                  "defaultValue": "[concat('10.0.1', string(add(40, mul(2, steps('basics').naming.stampIndex))), '.0/23')]",
+                  "defaultValue": "10.0.139.0/24",
                   "toolTip": "Specify an address CIDR range within the range [10,26].",
                   "constraints": {
                     "required": true,
@@ -1357,7 +1355,7 @@
                   "label": "Session Hosts Subnet CIDR range",
                   "type": "Microsoft.Common.TextBox",
                   "visible": true,
-                  "defaultValue": "[concat('10.0.1', string(add(40, mul(2, steps('basics').naming.stampIndex))), '.0/24')]",
+                  "defaultValue": "10.0.139.0/24",
                   "toolTip": "Specify a CIDR range for the default subnet within the AVD Hosts spoke virtual network range [24,28].",
                   "constraints": {
                     "required": true,
@@ -1367,19 +1365,19 @@
                         "message": "Invalid CIDR range. The address prefix must be in the range [24,28]."
                       },
                       {
-                        "isValid": "[if(greaterOrEquals(last(split(steps('network').sharedVnet.virtualNetworkAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('network').sharedVnet.virtualNetworkAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('network').sharedVnet.sessionHostsSubnetAddressCidrRange, '/')), '.'), 1))), true)]",
+                        "isValid": "[if(greaterOrEquals(last(split(steps('network').sharedVnet.virtualNetworkAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('network').sharedVnet.virtualNetworkAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('network').sharedVnet.subnetAddressCidrRange, '/')), '.'), 1))), true)]",
                         "message": "CIDR range not within virtual network CIDR range (first octet)."
                       },
                       {
-                        "isValid": "[if(greaterOrEquals(last(split(steps('network').sharedVnet.virtualNetworkAddressCidrRange, '/')), 16), equals(last(take(split(first(split(steps('network').sharedVnet.virtualNetworkAddressCidrRange, '/')), '.'), 2)), last(take(split(first(split(steps('network').sharedVnet.sessionHostsSubnetAddressCidrRange, '/')), '.'), 2))), true)]",
+                        "isValid": "[if(greaterOrEquals(last(split(steps('network').sharedVnet.virtualNetworkAddressCidrRange, '/')), 16), equals(last(take(split(first(split(steps('network').sharedVnet.virtualNetworkAddressCidrRange, '/')), '.'), 2)), last(take(split(first(split(steps('network').sharedVnet.subnetAddressCidrRange, '/')), '.'), 2))), true)]",
                         "message": "CIDR range not within virtual network CIDR range (second octet)."
                       },
                       {
-                        "isValid": "[if(greaterOrEquals(last(split(steps('network').sharedVnet.virtualNetworkAddressCidrRange, '/')), 24), equals(last(take(split(first(split(steps('network').sharedVnet.virtualNetworkAddressCidrRange, '/')), '.'), 3)), last(take(split(first(split(steps('network').sharedVnet.sessionHostsSubnetAddressCidrRange, '/')), '.'), 3))), true)]",
+                        "isValid": "[if(greaterOrEquals(last(split(steps('network').sharedVnet.virtualNetworkAddressCidrRange, '/')), 24), equals(last(take(split(first(split(steps('network').sharedVnet.virtualNetworkAddressCidrRange, '/')), '.'), 3)), last(take(split(first(split(steps('network').sharedVnet.subnetAddressCidrRange, '/')), '.'), 3))), true)]",
                         "message": "CIDR range not within virtual network CIDR range (third octet)."
                       },
                       {
-                        "isValid": "[lessOrEquals(last(split(steps('network').sharedVnet.virtualNetworkAddressCidrRange, '/')), last(split(steps('network').sharedVnet.sessionHostsSubnetAddressCidrRange, '/')))]",
+                        "isValid": "[lessOrEquals(last(split(steps('network').sharedVnet.virtualNetworkAddressCidrRange, '/')), last(split(steps('network').sharedVnet.subnetAddressCidrRange, '/')))]",
                         "message": "CIDR range not within virtual network CIDR range (subnet mask)."
                       }
                     ]
@@ -1395,12 +1393,10 @@
               "elements": [
                                 {
                   "name": "info",
-                  "type": "Microsoft.Common.InfoBox",
+                  "type": "Microsoft.Common.TextBlock",
                   "visible": true,
                   "options": {
-                    "icon": "None",
-                    "text": "The AVD Stamp virtual network is used to host the resources within the specified AVD stamp. This virtual network will be deployed based on the session hosts location and is connected to the AVD Shard virtual network using a VNET peering connection.",
-                    "uri": ""
+                    "text": "The AVD Stamp virtual network is used to host the resources within the specified AVD stamp. This virtual network will be deployed based on the session hosts location and is connected to the AVD Shard virtual network using a VNET peering connection."
                   }
                 },
                 {
@@ -1421,7 +1417,7 @@
                 },
                 {
                   "name": "sessionHostsSubnetAddressCidrRange",
-                  "label": "Session Hosts Subnet CIDR range",
+                  "label": "Subnet CIDR range",
                   "type": "Microsoft.Common.TextBox",
                   "visible": true,
                   "defaultValue": "[concat('10.0.1', string(add(40, mul(2, steps('basics').naming.stampIndex))), '.0/24')]",
