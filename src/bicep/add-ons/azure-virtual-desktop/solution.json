@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "4780179313949488943"
+      "templateHash": "12738218892748420797"
     }
   },
   "parameters": {
@@ -11149,6 +11149,7 @@
         }
       },
       "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-shared-{0}', parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('get-id-vnet-{0}', parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('get-ops-vnet-{0}', parameters('deploymentNameSuffix')))]"
       ]
@@ -14884,6 +14885,7 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('deploy-shared-services-{0}', parameters('deploymentNameSuffix'))]",
+      "subscriptionId": "[split(parameters('sharedServicesSubnetResourceId'), '/')[2]]",
       "location": "[deployment().location]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -14912,11 +14914,11 @@
           "names": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-mgmt-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.names.value]"
           },
+          "networkName": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-shared-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tier.value.networkName]"
+          },
           "sharedServicesSubnetResourceId": {
             "value": "[parameters('sharedServicesSubnetResourceId')]"
-          },
-          "stampIndexFull": {
-            "value": "[variables('stampIndexFull')]"
           },
           "workspaceGlobalPrivateDnsZoneResourceId": {
             "value": "[format('{0}{1}', variables('privateDnsZoneResourceIdPrefix'), filter(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.privateDnsZones.value, lambda('name', startsWith(lambdaVariables('name'), 'privatelink-global.wvd')))[0])]"
@@ -14929,7 +14931,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.35.1.17967",
-              "templateHash": "9450569204469619150"
+              "templateHash": "5466057769432852631"
             }
           },
           "parameters": {
@@ -14954,10 +14956,10 @@
             "names": {
               "type": "object"
             },
-            "sharedServicesSubnetResourceId": {
+            "networkName": {
               "type": "string"
             },
-            "stampIndexFull": {
+            "sharedServicesSubnetResourceId": {
               "type": "string"
             },
             "workspaceGlobalPrivateDnsZoneResourceId": {
@@ -14965,7 +14967,7 @@
             }
           },
           "variables": {
-            "resourceGroupWorkspaceGlobal": "[replace(replace(parameters('names').resourceGroup, parameters('stampIndexFull'), format('workspace{0}global', parameters('delimiter'))), parameters('identifier'), parameters('identifierHub'))]"
+            "resourceGroupWorkspaceGlobal": "[format('{0}{1}avdGlobalWorkspace', replace(replace(parameters('names').resourceGroup, parameters('identifier'), parameters('identifierHub')), parameters('networkName'), 'sharedServices'), parameters('delimiter'))]"
           },
           "resources": [
             {
@@ -14999,13 +15001,13 @@
                     "value": "[parameters('mlzTags')]"
                   },
                   "workspaceGlobalName": {
-                    "value": "[replace(replace(parameters('names').workspace, parameters('stampIndexFull'), 'global'), parameters('identifier'), parameters('identifierHub'))]"
+                    "value": "[format('{0}{1}global', replace(replace(parameters('names').workspace, parameters('identifier'), parameters('identifierHub')), parameters('networkName'), 'sharedServices'), parameters('delimiter'))]"
                   },
                   "workspaceGlobalNetworkInterfaceName": {
-                    "value": "[replace(replace(parameters('names').workspaceNetworkInterface, parameters('stampIndexFull'), 'global'), parameters('identifier'), parameters('identifierHub'))]"
+                    "value": "[format('{0}{1}global', replace(replace(parameters('names').workspaceNetworkInterface, parameters('identifier'), parameters('identifierHub')), parameters('networkName'), 'sharedServices'), parameters('delimiter'))]"
                   },
                   "workspaceGlobalPrivateEndpointName": {
-                    "value": "[replace(replace(parameters('names').workspacePrivateEndpoint, parameters('stampIndexFull'), 'global'), parameters('identifier'), parameters('identifierHub'))]"
+                    "value": "[format('{0}{1}global', replace(replace(parameters('names').workspacePrivateEndpoint, parameters('identifier'), parameters('identifierHub')), parameters('networkName'), 'sharedServices'), parameters('delimiter'))]"
                   }
                 },
                 "template": {
@@ -15107,6 +15109,7 @@
       },
       "dependsOn": [
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-mgmt-{0}', parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-shared-{0}', parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },

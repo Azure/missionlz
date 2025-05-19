@@ -1006,6 +1006,9 @@ module tier3_stamp '../tier3/solution.bicep' = {
     workloadName: 'avd'
     workloadShortName: 'avd'
   }
+  dependsOn: [
+    tier3_shared
+  ]
 }
 
 // Deploys the management resource group and resources
@@ -1116,6 +1119,7 @@ module controlPlane 'modules/control-plane/control-plane.bicep' = {
 // Deploys AVD global workspace to the Shared Services subscription and virtual network
 module sharedServices 'modules/shared-services/shared-services.bicep' = {
   name: 'deploy-shared-services-${deploymentNameSuffix}'
+  scope: subscription(split(sharedServicesSubnetResourceId, '/')[2])
   params: {
     delimiter: tier3_stamp.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
@@ -1124,8 +1128,8 @@ module sharedServices 'modules/shared-services/shared-services.bicep' = {
     locationControlPlane: virtualNetwork_hub.location
     mlzTags: tier3_stamp.outputs.mlzTags
     names: naming_management.outputs.names
+    networkName: tier3_shared.outputs.tier.networkName
     sharedServicesSubnetResourceId: sharedServicesSubnetResourceId
-    stampIndexFull: stampIndexFull
     workspaceGlobalPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3_stamp.outputs.privateDnsZones, name => startsWith(name, 'privatelink-global.wvd'))[0]}'
   }
 }
