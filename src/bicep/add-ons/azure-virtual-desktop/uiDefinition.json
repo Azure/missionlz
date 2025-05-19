@@ -1352,7 +1352,7 @@
                 },
                 {
                   "name": "subnetAddressCidrRange",
-                  "label": "Session Hosts Subnet CIDR range",
+                  "label": "Subnet CIDR range",
                   "type": "Microsoft.Common.TextBox",
                   "visible": true,
                   "defaultValue": "10.0.139.0/24",
@@ -1417,7 +1417,7 @@
                 },
                 {
                   "name": "sessionHostsSubnetAddressCidrRange",
-                  "label": "Subnet CIDR range",
+                  "label": "Session Hosts Subnet CIDR range",
                   "type": "Microsoft.Common.TextBox",
                   "visible": true,
                   "defaultValue": "[concat('10.0.1', string(add(40, mul(2, steps('basics').naming.stampIndex))), '.0/24')]",
@@ -1450,7 +1450,7 @@
                 },
                 {
                   "name": "managementSubnetAddressCidrRange",
-                  "label": "Control Plane Subnet CIDR range",
+                  "label": "Management Subnet CIDR range",
                   "type": "Microsoft.Common.TextBox",
                   "defaultValue": "[concat('10.0.1', string(add(41, mul(2, steps('basics').naming.stampIndex))), '.0/26')]",
                   "toolTip": "Specify a CIDR range for the workload subnet within the AVD spoke virtual network range [24,28].",
