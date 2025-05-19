@@ -14,3 +14,5 @@ resource networkWatcher 'Microsoft.Network/networkWatchers@2021-02-01' = {
   tags: union(tags[?'Microsoft.Network/networkWatchers'] ?? {}, mlzTags)
   properties: {}
 }
+
+output resourceId string = networkWatcher.id

@@ -124,6 +124,7 @@ module virtualNetwork '../modules/virtual-network.bicep' = {
 
 output networkSecurityGroupName string = networkSecurityGroup.outputs.name
 output networkSecurityGroupResourceId string =  networkSecurityGroup.outputs.id
+output networkWatcherResourceId string = empty(networkWatcherResourceId) && deployUniqueResources ? networkWatcherResourceId : networkWatcher.outputs.resourceId
 output subnets array = virtualNetwork.outputs.subnets
 output virtualNetworkAddressPrefix string = virtualNetwork.outputs.addressPrefix
 output virtualNetworkName string = virtualNetwork.outputs.name
