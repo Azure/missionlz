@@ -519,7 +519,7 @@ resource extension_NvidiaGpuDriverWindows 'Microsoft.Compute/virtualMachines/ext
     typeHandlerVersion: '1.9'
     autoUpgradeMinorVersion: true
     // NVv3 VM sizes require a specific driver version: https://learn.microsoft.com/azure/virtual-machines/extensions/hpccompute-gpu-windows#known-issues
-    settings: startsWith(virtualMachineSize, 'Standard_NV') && endsWith(virtualMachineSize, 's_v3') ? {
+    settings: startsWith(virtualMachineSize, 'Standard_NV') && (endsWith(virtualMachineSize, 's_v3') || endsWith(virtualMachineSize, 's_A10_v5')) ? {
       driverVersion: '538.46'
     } : {}
   }
