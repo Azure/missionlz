@@ -13,22 +13,17 @@ param workspaceGlobalPrivateDnsZoneResourceId string
 
 var resourceGroupWorkspaceGlobal = replace(replace(names.resourceGroup, stampIndexFull, 'workspace${delimiter}global'), identifier, identifierHub)
 
-// Resource group for the global workspace
-module rg_workspace_global '../../../../modules/resource-group.bicep' = {
-  name: 'deploy-rg-vdws-global-${deploymentNameSuffix}'
-  scope: subscription(split(sharedServicesSubnetResourceId, '/')[2])
-  params: {
-    location: locationControlPlane
-    mlzTags: mlzTags
-    name: resourceGroupWorkspaceGlobal
-    tags: {}
-  }
+// Deploys the resource group for the AVD global workspace in the shared services subscription
+resource resourceGroup 'Microsoft.Resources/resourceGroups@2023-07-01' = {
+  name: resourceGroupWorkspaceGlobal
+  location: locationControlPlane
+  tags: mlzTags
 }
 
-// Global workspace
+// Deploys the AVD global workspace in the shared services subscription and network
 module workspace_global 'workspace-global.bicep' = {
   name: 'deploy-vdws-global-${deploymentNameSuffix}'
-  scope: resourceGroup(resourceGroupWorkspaceGlobal)
+  scope: resourceGroup
   params: {
     globalWorkspacePrivateDnsZoneResourceId: workspaceGlobalPrivateDnsZoneResourceId
     location: locationControlPlane
@@ -38,7 +33,4 @@ module workspace_global 'workspace-global.bicep' = {
     workspaceGlobalNetworkInterfaceName: replace(replace(names.workspaceNetworkInterface, stampIndexFull, 'global'), identifier, identifierHub)
     workspaceGlobalPrivateEndpointName: replace(replace(names.workspacePrivateEndpoint, stampIndexFull, 'global'), identifier, identifierHub)
   }
-  dependsOn: [
-    rg_workspace_global
-  ]
 }
