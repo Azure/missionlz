@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "12738218892748420797"
+      "templateHash": "18441569375212838715"
     }
   },
   "parameters": {
@@ -6317,9 +6317,6 @@
           "deployDefender": {
             "value": "[parameters('deployDefender')]"
           },
-          "deploymentNameSuffix": {
-            "value": "[parameters('deploymentNameSuffix')]"
-          },
           "deployNetworkWatcherTrafficAnalytics": {
             "value": "[parameters('deployNetworkWatcherTrafficAnalytics')]"
           },
@@ -11233,7 +11230,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.35.1.17967",
-              "templateHash": "11067301529182755015"
+              "templateHash": "8782615109560469913"
             }
           },
           "parameters": {
@@ -11299,7 +11296,7 @@
             }
           },
           "variables": {
-            "hostPoolResourceId": "[resourceId(variables('resourceGroupManagement'), 'Microsoft.DesktopVirtualization/hostpools', parameters('names').hostPool)]",
+            "hostPoolResourceId": "[resourceId(subscription().id, variables('resourceGroupManagement'), 'Microsoft.DesktopVirtualization/hostpools', parameters('names').hostPool)]",
             "resourceGroupManagement": "[format('{0}{1}management', parameters('names').resourceGroup, parameters('delimiter'))]"
           },
           "resources": [
@@ -14915,7 +14912,7 @@
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-mgmt-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.names.value]"
           },
           "networkName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-shared-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tier.value.networkName]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-shared-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tier.value.name]"
           },
           "sharedServicesSubnetResourceId": {
             "value": "[parameters('sharedServicesSubnetResourceId')]"
