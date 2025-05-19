@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "3716863579792367674"
+      "templateHash": "342232070438190326"
     }
   },
   "parameters": {
@@ -208,7 +208,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.35.1.17967",
-              "templateHash": "2746349065201600109"
+              "templateHash": "8614913005574375472"
             }
           },
           "parameters": {
@@ -619,7 +619,7 @@
               "localNetworkGateways": "lgw",
               "logAnalyticsWorkspaces": "log",
               "netAppAccounts": "naa",
-              "netAppCapacityPools": "nacp",
+              "netAppAccountsCapacityPools": "cp",
               "networkInterfaces": "nic",
               "networkSecurityGroups": "nsg",
               "networkWatchers": "nw",
@@ -662,8 +662,8 @@
             "names": {
               "actionGroup": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').actionGroups)]",
               "applicationGroup": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').applicationGroups)]",
-              "applicationInsights": "[replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').applicationInsights)]",
-              "appServicePlan": "[replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').appServicePlans)]",
+              "applicationInsights": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').applicationInsights)]",
+              "appServicePlan": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').appServicePlans)]",
               "automationAccount": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').automationAccounts)]",
               "automationAccountDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, variables('resourceAbbreviations').automationAccounts)]",
               "automationAccountNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').networkInterfaces), variables('tokens').service, variables('resourceAbbreviations').automationAccounts)]",
@@ -688,7 +688,7 @@
               "diskAccessNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').networkInterfaces), variables('tokens').service, variables('resourceAbbreviations').diskAccesses)]",
               "diskAccessPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').privateEndpoints), variables('tokens').service, variables('resourceAbbreviations').diskAccesses)]",
               "diskEncryptionSet": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').diskEncryptionSets)]",
-              "functionApp": "[replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').functionApps)]",
+              "functionApp": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').functionApps)]",
               "functionAppNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').networkInterfaces), variables('tokens').service, variables('resourceAbbreviations').functionApps)]",
               "functionAppPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').privateEndpoints), variables('tokens').service, variables('resourceAbbreviations').functionApps)]",
               "hostPool": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').hostPools)]",
@@ -703,7 +703,7 @@
               "logAnalyticsWorkspace": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').logAnalyticsWorkspaces)]",
               "logAnalyticsWorkspaceDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, variables('resourceAbbreviations').logAnalyticsWorkspaces)]",
               "netAppAccount": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').netAppAccounts)]",
-              "netAppAccountCapacityPool": "[replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').netAppCapacityPools)]",
+              "netAppAccountCapacityPool": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').netAppAccountsCapacityPools), variables('tokens').service, variables('resourceAbbreviations').netAppAccounts)]",
               "netAppAccountSmbServer": "[replace(replace(replace(replace(variables('namingConvention'), variables('tokens').resource, ''), parameters('environmentAbbreviation'), first(parameters('environmentAbbreviation'))), parameters('networkName'), ''), parameters('delimiter'), '')]",
               "networkSecurityGroup": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').networkSecurityGroups)]",
               "networkSecurityGroupDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, variables('resourceAbbreviations').networkSecurityGroups)]",
@@ -862,7 +862,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.35.1.17967",
-              "templateHash": "1239996270294459153"
+              "templateHash": "3896242272474165760"
             }
           },
           "parameters": {
@@ -951,8 +951,8 @@
                 }
               },
               "dependsOn": [
-                "[resourceId('Microsoft.Network/publicIPAddresses', format('{0}{1}{2}', parameters('publicIpAddressName'), parameters('delimiter'), padLeft(range(0, 2)[0], 2, '0')))]",
-                "[resourceId('Microsoft.Network/publicIPAddresses', format('{0}{1}{2}', parameters('publicIpAddressName'), parameters('delimiter'), padLeft(range(0, 2)[1], 2, '0')))]"
+                "[resourceId('Microsoft.Network/publicIPAddresses', format('{0}{1}{2}', parameters('publicIpAddressName'), parameters('delimiter'), padLeft(range(0, 2)[1], 2, '0')))]",
+                "[resourceId('Microsoft.Network/publicIPAddresses', format('{0}{1}{2}', parameters('publicIpAddressName'), parameters('delimiter'), padLeft(range(0, 2)[0], 2, '0')))]"
               ]
             }
           ]
