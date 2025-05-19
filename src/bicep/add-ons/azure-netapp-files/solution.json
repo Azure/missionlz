@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "5139365182494378121"
+      "templateHash": "8983190898623224084"
     }
   },
   "parameters": {
@@ -412,7 +412,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.35.1.17967",
-              "templateHash": "10150413471862972353"
+              "templateHash": "9470798020266027914"
             }
           },
           "parameters": {
@@ -906,7 +906,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.35.1.17967",
-                      "templateHash": "3466999246196311339"
+                      "templateHash": "382273146619927959"
                     }
                   },
                   "parameters": {
@@ -1625,7 +1625,6 @@
                           "name": "[parameters('networks')[copyIndex()].name]",
                           "shortName": "[parameters('networks')[copyIndex()].shortName]",
                           "subscriptionId": "[parameters('networks')[copyIndex()].subscriptionId]",
-                          "networkWatcherResourceId": "[parameters('networks')[copyIndex()].networkWatcherResourceId]",
                           "nsgDiagLogs": "[coalesce(tryGet(parameters('networks')[copyIndex()], 'nsgDiagLogs'), createArray())]",
                           "nsgRules": "[coalesce(tryGet(parameters('networks')[copyIndex()], 'nsgRules'), createArray())]",
                           "vnetAddressPrefix": "[coalesce(tryGet(parameters('networks')[copyIndex()], 'vnetAddressPrefix'), '')]",
