@@ -109,9 +109,6 @@ param networkWatcherFlowLogsRetentionDays int = 30
 @description('When set to "true", enables Virtual Network Flow Logs. It defaults to "true" as its required by MCSB.')
 param networkWatcherFlowLogsType string = 'VirtualNetwork'
 
-@description('The resource ID for an existing network watcher for the desired deployment location. Only one network watcher per location can exist in a subscription. The value can be left empty to create a new network watcher resource.')
-param networkWatcherResourceId string = ''
-
 @description('The policy to assign to the workload.')
 param policy string = 'NISTRev4'
 
@@ -242,9 +239,7 @@ module logic '../../modules/logic.bicep' = {
       {
         name: workloadName
         shortName: workloadShortName
-        deployUniqueResources: contains(virtualNetworkPeerings.outputs.subscriptionIds, subscriptionId) ? false : true
         subscriptionId: subscriptionId
-        networkWatcherResourceId: networkWatcherResourceId
         nsgDiagLogs: networkSecurityGroupDiagnosticsLogs
         nsgRules: networkSecurityGroupRules
         vnetAddressPrefix: virtualNetworkAddressPrefix
@@ -272,14 +267,11 @@ module networking 'modules/networking.bicep' = if (!(empty(virtualNetworkAddress
   params: {
     additionalSubnets: additionalSubnets
     deploymentNameSuffix: deploymentNameSuffix
-    deployUniqueResources: logic.outputs.tiers[0].deployUniqueResources
     hubVirtualNetworkResourceId: hubVirtualNetworkResourceId
     location: location
     mlzTags: logic.outputs.mlzTags
     networkSecurityGroupName: logic.outputs.tiers[0].namingConvention.networkSecurityGroup
     networkSecurityGroupRules: networkSecurityGroupRules
-    networkWatcherName: logic.outputs.tiers[0].namingConvention.networkWatcher
-    networkWatcherResourceId: networkWatcherResourceId
     resourceGroupName: rg.outputs.name
     routeTableName: logic.outputs.tiers[0].namingConvention.routeTable
     routeTableRouteNextHopIpAddress: azureFirewall.properties.ipConfigurations[0].properties.privateIPAddress
@@ -353,7 +345,6 @@ module diagnostics 'modules/diagnostics.bicep' = if (!(empty(virtualNetworkAddre
     networkSecurityGroupName: networking.outputs.networkSecurityGroupName
     networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
     networkWatcherFlowLogsType: networkWatcherFlowLogsType
-    networkWatcherResourceId: networkWatcherResourceId
     resourceGroupName: rg.outputs.name
     storageAccountResourceId: storage.outputs.storageAccountResourceId
     tiers: logic.outputs.tiers
@@ -397,7 +388,6 @@ output logAnalyticsWorkspaceResourceId string = logAnalyticsWorkspaceResourceId
 output mlzTags object = logic.outputs.mlzTags
 output namingConvention object = logic.outputs.tiers[0].namingConvention
 output networkSecurityGroupResourceId string = networking.outputs.networkSecurityGroupResourceId
-output networkWatcherResourceId string = networking.outputs.networkWatcherResourceId
 output privateDnsZones array = logic.outputs.privateDnsZones
 output resourceAbbreviations object = logic.outputs.resourceAbbreviations
 output identifier string = azureFirewall.tags.identifier

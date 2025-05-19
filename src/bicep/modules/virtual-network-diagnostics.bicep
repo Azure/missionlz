@@ -13,9 +13,6 @@ param logStorageAccountResourceId string
 param metrics array
 param networkWatcherFlowLogsRetentionDays int
 param networkWatcherFlowLogsType string
-param networkWatcherName string
-param networkWatcherResourceGroupName string
-param networkWatcherSubscriptionId string
 param supportedClouds array = [
   'AzureCloud'
 ]
@@ -40,14 +37,14 @@ resource diagnostics 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' 
 
 module virtualNetworkFlowLogs '../modules/network-watcher-flow-logs.bicep' = if (networkWatcherFlowLogsType == 'VirtualNetwork') {
   name: 'deploy-${tiername}-flowLogs-${deploymentNameSuffix}'
-  scope: resourceGroup(networkWatcherSubscriptionId, networkWatcherResourceGroupName)
+  scope: resourceGroup('NetworkWatcherRG')
   params: {
     deployNetworkWatcherTrafficAnalytics: deployNetworkWatcherTrafficAnalytics
     flowLogsName: flowLogsName
     flowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
     location: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
-    networkWatcherName: networkWatcherName
+    networkWatcherName: 'NetworkWatcher_${location}'
     storageAccountResourceId: logStorageAccountResourceId
     targetResourceId: virtualNetwork.id
   }

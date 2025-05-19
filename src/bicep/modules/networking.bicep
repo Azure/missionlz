@@ -56,8 +56,6 @@ module hubNetwork 'hub-network.bicep' = {
     mlzTags: mlzTags
     networkSecurityGroupName: hub.namingConvention.networkSecurityGroup
     networkSecurityGroupRules: hub.nsgRules
-    networkWatcherName: hub.namingConvention.networkWatcher
-    networkWatcherResourceId: hub.networkWatcherResourceId
     routeTableName: hub.namingConvention.routeTable
     subnetAddressPrefix: hub.subnetAddressPrefix
     subnetName: hub.namingConvention.subnet
@@ -73,13 +71,10 @@ module hubNetwork 'hub-network.bicep' = {
 module spokeNetworks 'spoke-network.bicep' = [for (spoke, i) in spokes: {
   name: 'deploy-vnet-${spoke.name}-${deploymentNameSuffix}'
   params: {
-    deployUniqueResources: spoke.deployUniqueResources
     location: location
     mlzTags: mlzTags
     networkSecurityGroupName: spoke.namingConvention.networkSecurityGroup
     networkSecurityGroupRules: spoke.nsgRules
-    networkWatcherName: spoke.namingConvention.networkWatcher
-    networkWatcherResourceId: spoke.networkWatcherResourceId
     resourceGroupName: spokeResourceGroupNames[i]
     routeTableName: spoke.namingConvention.routeTable
     routeTableRouteNextHopIpAddress: firewallSettings.clientPrivateIpAddress

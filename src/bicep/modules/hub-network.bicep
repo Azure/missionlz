@@ -37,8 +37,6 @@ param location string
 param mlzTags object
 param networkSecurityGroupName string
 param networkSecurityGroupRules array
-param networkWatcherName string
-param networkWatcherResourceId string
 param routeTableName string
 param subnetAddressPrefix string
 param subnetName string
@@ -250,16 +248,6 @@ module routeTable '../modules/route-table.bicep' = {
   }
 }
 
-module networkWatcher '../modules/network-watcher.bicep' = if (empty(networkWatcherResourceId)) {
-  name: 'networkWatcher'
-  params: {
-    location: location
-    mlzTags: mlzTags
-    name: networkWatcherName
-    tags: tags
-  }
-}
-
 module virtualNetwork '../modules/virtual-network.bicep' = {
   name: 'virtualNetwork'
   params: {
@@ -271,9 +259,6 @@ module virtualNetwork '../modules/virtual-network.bicep' = {
     tags: tags
     vNetDnsServers: vNetDnsServers
   }
-  dependsOn: [
-    networkWatcher
-  ]
 }
 
 module firewallClientPublicIPAddress '../modules/public-ip-address.bicep' = {

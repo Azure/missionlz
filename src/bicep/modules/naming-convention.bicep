@@ -120,7 +120,6 @@ var names = {
   netAppAccountSmbServer: replace(replace(replace(replace(namingConvention, tokens.resource, ''), environmentAbbreviation, first(environmentAbbreviation)), networkName, ''), delimiter, '')
   networkSecurityGroup: replace(namingConvention, tokens.resource, resourceAbbreviations.networkSecurityGroups)
   networkSecurityGroupDiagnosticSetting: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.diagnosticSettings), tokens.service, resourceAbbreviations.networkSecurityGroups)
-  networkWatcher: replace(namingConvention, tokens.resource, resourceAbbreviations.networkWatchers)
   networkWatcherFlowLogsNetworkSecurityGroup: replace(namingConvention, tokens.resource, '${resourceAbbreviations.networkWatchers}${delimiter}${resourceAbbreviations.networkWatchersFlowLogs}${delimiter}${resourceAbbreviations.networkSecurityGroups}')
   networkWatcherFlowLogsVirtualNetwork: replace(namingConvention, tokens.resource, '${resourceAbbreviations.networkWatchers}${delimiter}${resourceAbbreviations.networkWatchersFlowLogs}${delimiter}${resourceAbbreviations.virtualNetworks}')
   privateLinkScope: replace(namingConvention, tokens.resource, resourceAbbreviations.privateLinkScopes)

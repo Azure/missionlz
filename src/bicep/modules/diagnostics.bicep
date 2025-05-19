@@ -33,7 +33,6 @@ var hub = (filter(tiers, tier => tier.name == 'hub'))[0]
 var hubResourceGroupName = filter(resourceGroupNames, name => contains(name, 'hub'))[0]
 var networkSecurityGroups = union(networkSecurityGroups_Tiers, networkSecurityGroup_Bastion)
 var networkSecurityGroups_Tiers = [for (tier, i) in tiers: {
-  deployUniqueResources: tiers[i].deployUniqueResources
   diagnosticLogs: tiers[i].nsgDiagLogs
   diagnosticSettingName: tiers[i].namingConvention.networkSecurityGroupDiagnosticSetting
   flowLogsName: tiers[i].namingConvention.networkWatcherFlowLogsNetworkSecurityGroup
@@ -47,7 +46,6 @@ var networkSecurityGroups_Tiers = [for (tier, i) in tiers: {
 }]
 var networkSecurityGroup_Bastion = deployBastion ? [
   {
-    deployUniqueResources: hub.deployUniqueResources
     diagnosticLogs: hub.nsgDiagLogs
     diagnosticSettingName: hub.namingConvention.bastionHostNetworkSecurityGroupDiagnosticSetting
     flowLogsName: '${hub.namingConvention.networkWatcherFlowLogsNetworkSecurityGroup}${delimiter}bastion'
@@ -78,7 +76,8 @@ var publicIPAddresses = union([
   }
 ] : [])
 
-module activityLogDiagnosticSettings 'activity-log-diagnostic-settings.bicep' = [for (tier, i) in tiers: if (tier.deployUniqueResources) {
+@batchSize(1)
+module activityLogDiagnosticSettings 'activity-log-diagnostic-settings.bicep' = [for (tier, i) in tiers: {
   name: 'deploy-activity-diags-${tier.name}-${deploymentNameSuffix}'
   scope: subscription(tier.subscriptionId)
   params: {
@@ -112,9 +111,6 @@ module networkSecurityGroupDiagnostics '../modules/network-security-group-diagno
     networkSecurityGroupName: nsg.name
     networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
     networkWatcherFlowLogsType: networkWatcherFlowLogsType
-    networkWatcherName: !empty(nsg.networkWatcherResourceId) ? split(nsg.networkWatcherResourceId, '/')[8] : nsg.deployUniqueResources ? nsg.namingConvention.networkWatcher : hub.namingConvention.networkWatcher
-    networkWatcherResourceGroupName: !empty(nsg.networkWatcherResourceId) ? split(nsg.networkWatcherResourceId, '/')[4] : nsg.deployUniqueResources ? nsg.resourceGroupName : hubResourceGroupName
-    networkWatcherSubscriptionId: !empty(nsg.networkWatcherResourceId) ? split(nsg.networkWatcherResourceId, '/')[2] : nsg.deployUniqueResources ? nsg.subscriptionId : hub.subscriptionId
     storageAccountResourceId: nsg.storageAccountResourceId
     tiername: nsg.tierName
   }
@@ -135,9 +131,6 @@ module virtualNetworkDiagnostics '../modules/virtual-network-diagnostics.bicep' 
     metrics: tier.vnetDiagMetrics
     networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
     networkWatcherFlowLogsType: networkWatcherFlowLogsType
-    networkWatcherName: !empty(tier.networkWatcherResourceId) ? split(tier.networkWatcherResourceId, '/')[8] : tier.deployUniqueResources ? tier.namingConvention.networkWatcher : hub.namingConvention.networkWatcher
-    networkWatcherResourceGroupName: !empty(tier.networkWatcherResourceId) ? split(tier.networkWatcherResourceId, '/')[4] : tier.deployUniqueResources ? resourceGroupNames[i] : hubResourceGroupName
-    networkWatcherSubscriptionId: !empty(tier.networkWatcherResourceId) ? split(tier.networkWatcherResourceId, '/')[2] : tier.deployUniqueResources ? tier.subscriptionId : hub.subscriptionId
     tiername: tier.name
     virtualNetworkDiagnosticSettingName: tier.namingConvention.virtualNetworkDiagnosticSetting
     virtualNetworkName: tier.namingConvention.virtualNetwork

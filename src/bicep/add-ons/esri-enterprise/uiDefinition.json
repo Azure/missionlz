@@ -128,14 +128,6 @@
                   }
                 }
               ]
-            },
-            {
-              "name": "networkWatchersApi",
-              "type": "Microsoft.Solutions.ArmApiControl",
-              "request": {
-                "method": "GET",
-                "path": "[concat(steps('basics').scope.subscription.id, '/providers/Microsoft.Network/networkWatchers?api-version=2023-09-01')]"
-              }
             }
           ]
         },
@@ -1177,7 +1169,6 @@
                 "Microsoft.Network/applicationGateways",
                 "Microsoft.Network/networkInterfaces",
                 "Microsoft.Network/networkSecurityGroups",
-                "Microsoft.Network/networkWatchers",
                 "Microsoft.Network/privateEndpoints",
                 "Microsoft.Network/publicIPAddresses",
                 "Microsoft.Network/routeTables",
@@ -1229,7 +1220,6 @@
         "logAnalyticsWorkspaceName": "[steps('network').vnet.logAnalyticsWorkspace.name]",
         "networkWatcherFlowLogsRetentionDays": "[steps('networking').flowLogsSection.retentionDays]",
         "networkWatcherFlowLogsType": "[steps('networking').flowLogsSection.flowLogsType]",
-        "networkWatcherResourceId": "[if(not(empty(filter(steps('basics').networkWatchersApi.value, (item) => equals(item.location, steps('basics').scope.location.name)))), first(map(filter(steps('basics').networkWatchersApi.value, (item) => equals(item.location, steps('basics').scope.location.name)), (item) => item.id)), '')]",
         "numberOfDataStoreVirtualMachines": "[steps('datastoretypes').multitier.numnberOfPortalMachines]",
         "numberOfEsriServers": "[steps('datastoretypes').multitier.numnberOfServerMachines]",
         "numberOfEsrispatiotemporalBigDataStoreVirtualMachines": "[if(equals(steps('datastoretypes').dataStores.spatioTemporal, true), steps('datastoretypes').multitier.numberOfSpatioTemporalDataStoreMachines, 0)]",

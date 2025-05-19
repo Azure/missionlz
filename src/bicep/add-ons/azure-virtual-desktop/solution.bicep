@@ -245,9 +245,6 @@ param networkWatcherFlowLogsRetentionDays int = 30
 @description('When set to "true", enables Virtual Network Flow Logs. It defaults to "true" as its required by MCSB.')
 param networkWatcherFlowLogsType string = 'VirtualNetwork'
 
-@description('The resource ID for an existing network watcher for the desired deployment location. Only one network watcher per location can exist in a subscription. The value can be left empty to create a new network watcher resource.')
-param networkWatcherResourceId string = ''
-
 @description('The resource ID of the Log Analytics Workspace to use for log storage.')
 param operationsLogAnalyticsWorkspaceResourceId string
 
@@ -740,7 +737,6 @@ module tier3_shared '../tier3/solution.bicep' = {
     networkSecurityGroupRules: networkSecurityGroupRules
     networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
     networkWatcherFlowLogsType: networkWatcherFlowLogsType
-    networkWatcherResourceId: networkWatcherResourceId
     policy: policy
     subnetAddressPrefix: sharedSubnetAddressPrefix
     subnetName: 'avd-shared'
@@ -998,7 +994,6 @@ module tier3_stamp '../tier3/solution.bicep' = {
     networkSecurityGroupRules: networkSecurityGroupRules
     networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
     networkWatcherFlowLogsType: networkWatcherFlowLogsType
-    networkWatcherResourceId: tier3_shared.outputs.networkWatcherResourceId
     policy: policy
     stampIndex: stampIndexFull
     subnetAddressPrefix: sessionHostsSubnetAddressPrefix

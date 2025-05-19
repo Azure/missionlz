@@ -110,18 +110,6 @@ param enableProxy bool = true
 @description('[dev/prod/test] The abbreviation for the target environment.')
 param environmentAbbreviation string = 'dev'
 
-@description('The resource ID for an existing network watcher in the Hub tier for the desired deployment location. Only one network watcher per location can exist in a subscription and must be specified if it already exists. If the value is left empty, a new network watcher resource will be created.')
-param existingHubNetworkWatcherResourceId string = ''
-
-@description('The resource ID for an existing network watcher in the Identity tier for the desired deployment location. Only one network watcher per location can exist in a subscription and must be specified if it already exists. If the value is left empty, a new network watcher resource will be created.')
-param existingIdentityNetworkWatcherResourceId string = ''
-
-@description('The resource ID for an existing network watcher in the Operations tier for the desired deployment location. Only one network watcher per location can exist in a subscription and must be specified if it already exists. If the value is left empty, a new network watcher resource will be created.')
-param existingOperationsNetworkWatcherResourceId string = ''
-
-@description('The resource ID for an existing network watcher in the Shared Services tier for the desired deployment location. Only one network watcher per location can exist in a subscription and must be specified if it already exists. If the value is left empty, a new network watcher resource will be created.')
-param existingSharedServicesNetworkWatcherResourceId string = ''
-
 @description('An array of Azure Firewall Public IP Address Availability Zones. Default value = "[]" because Availability Zones are not available in every cloud. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-network/ip-services/public-ip-addresses#sku.')
 param firewallClientPublicIPAddressAvailabilityZones array = []
 
@@ -612,9 +600,7 @@ module logic 'modules/logic.bicep' = {
       {
         name: 'hub'
         shortName: 'hub'
-        deployUniqueResources: true
         subscriptionId: hubSubscriptionId
-        networkWatcherResourceId: existingHubNetworkWatcherResourceId
         nsgDiagLogs: hubNetworkSecurityGroupDiagnosticsLogs
         nsgRules: hubNetworkSecurityGroupRules
         vnetAddressPrefix: hubVirtualNetworkAddressPrefix
@@ -625,9 +611,7 @@ module logic 'modules/logic.bicep' = {
       {
         name: 'operations'
         shortName: 'ops'
-        deployUniqueResources: contains([ hubSubscriptionId ], operationsSubscriptionId) ? false : true
         subscriptionId: operationsSubscriptionId
-        networkWatcherResourceId: existingOperationsNetworkWatcherResourceId
         nsgDiagLogs: operationsNetworkSecurityGroupDiagnosticsLogs
         nsgRules: operationsNetworkSecurityGroupRules
         vnetAddressPrefix: operationsVirtualNetworkAddressPrefix
@@ -638,9 +622,7 @@ module logic 'modules/logic.bicep' = {
       {
         name: 'sharedServices'
         shortName: 'svcs'
-        deployUniqueResources: contains([ hubSubscriptionId, operationsSubscriptionId ], sharedServicesSubscriptionId) ? false : true
         subscriptionId: sharedServicesSubscriptionId
-        networkWatcherResourceId: existingSharedServicesNetworkWatcherResourceId
         nsgDiagLogs: sharedServicesNetworkSecurityGroupDiagnosticsLogs
         nsgRules: sharedServicesNetworkSecurityGroupRules
         vnetAddressPrefix: sharedServicesVirtualNetworkAddressPrefix
@@ -652,9 +634,7 @@ module logic 'modules/logic.bicep' = {
       {
         name: 'identity'
         shortName: 'id'
-        deployUniqueResources: contains([ hubSubscriptionId, operationsSubscriptionId, sharedServicesSubscriptionId ], identitySubscriptionId) ? false : true
         subscriptionId: identitySubscriptionId
-        networkWatcherResourceId: existingIdentityNetworkWatcherResourceId
         nsgDiagLogs: identityNetworkSecurityGroupDiagnosticsLogs
         nsgRules: identityNetworkSecurityGroupRules
         vnetAddressPrefix: identityVirtualNetworkAddressPrefix
