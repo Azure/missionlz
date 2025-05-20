@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "6434997795313364353"
+      "templateHash": "11706928433677321227"
     }
   },
   "parameters": {
@@ -12163,7 +12163,6 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('deploy-shared-{0}', parameters('deploymentNameSuffix'))]",
-      "subscriptionId": "[split(parameters('sharedServicesSubnetResourceId'), '/')[2]]",
       "location": "[deployment().location]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -12223,9 +12222,6 @@
           "privateLinkScopeResourceId": {
             "value": "[parameters('privateLinkScopeResourceId')]"
           },
-          "stampIndexFull": {
-            "value": "[variables('stampIndexFull')]"
-          },
           "subnetResourceId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnets.value[0].id]"
           },
@@ -12243,7 +12239,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.35.1.17967",
-              "templateHash": "1458718301947590303"
+              "templateHash": "12634318050189373259"
             }
           },
           "parameters": {
@@ -12301,9 +12297,6 @@
             "privateLinkScopeResourceId": {
               "type": "string"
             },
-            "stampIndexFull": {
-              "type": "string"
-            },
             "subnetResourceId": {
               "type": "string"
             },
@@ -12316,7 +12309,7 @@
           },
           "variables": {
             "hostPoolResourceId": "[format('{0}/resourceGroups/{1}/providers/Microsoft.DesktopVirtualization/hostpools/{2}', subscription().id, variables('resourceGroupManagement'), parameters('names').hostPool)]",
-            "resourceGroupShared": "[replace(parameters('names').resourceGroup, parameters('stampIndexFull'), 'shared')]",
+            "resourceGroupShared": "[format('{0}{1}shared', parameters('names').resourceGroup, parameters('delimiter'))]",
             "resourceGroupFslogix": "[format('{0}{1}fslogix', parameters('names').resourceGroup, parameters('delimiter'))]",
             "resourceGroupManagement": "[format('{0}{1}management', parameters('names').resourceGroup, parameters('delimiter'))]"
           },
@@ -12370,9 +12363,6 @@
                   "privateLinkScopeResourceId": {
                     "value": "[parameters('privateLinkScopeResourceId')]"
                   },
-                  "stampIndexFull": {
-                    "value": "[parameters('stampIndexFull')]"
-                  },
                   "tags": {
                     "value": "[parameters('tags')]"
                   }
@@ -12384,7 +12374,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.35.1.17967",
-                      "templateHash": "11733881341348846441"
+                      "templateHash": "8031849090915201995"
                     }
                   },
                   "parameters": {
@@ -12418,9 +12408,6 @@
                     "privateLinkScopeResourceId": {
                       "type": "string"
                     },
-                    "stampIndexFull": {
-                      "type": "string"
-                    },
                     "tags": {
                       "type": "object"
                     }
@@ -12429,7 +12416,7 @@
                     {
                       "type": "Microsoft.OperationalInsights/workspaces",
                       "apiVersion": "2021-06-01",
-                      "name": "[replace(parameters('names').logAnalyticsWorkspace, parameters('stampIndexFull'), 'avdi')]",
+                      "name": "[format('{0}{1}avdi', parameters('names').logAnalyticsWorkspace, parameters('delimiter'))]",
                       "location": "[parameters('location')]",
                       "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.OperationalInsights/workspaces'), createObject()), parameters('mlzTags'))]",
                       "properties": {
@@ -12448,7 +12435,7 @@
                       "condition": "[parameters('enableAvdInsights')]",
                       "type": "Microsoft.Insights/dataCollectionRules",
                       "apiVersion": "2022-06-01",
-                      "name": "[format('microsoft-avdi-{0}', replace(parameters('names').dataCollectionRule, format('{0}{1}', parameters('delimiter'), parameters('stampIndexFull')), ''))]",
+                      "name": "[format('microsoft-avdi-{0}', parameters('names').dataCollectionRule)]",
                       "location": "[parameters('location')]",
                       "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Insights/dataCollectionRules'), createObject()), parameters('mlzTags'))]",
                       "kind": "Windows",
@@ -12509,7 +12496,7 @@
                         "destinations": {
                           "logAnalytics": [
                             {
-                              "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', replace(parameters('names').logAnalyticsWorkspace, parameters('stampIndexFull'), 'avdi'))]",
+                              "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', format('{0}{1}avdi', parameters('names').logAnalyticsWorkspace, parameters('delimiter')))]",
                               "name": "la-workspace"
                             }
                           ]
@@ -12527,14 +12514,14 @@
                         ]
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.OperationalInsights/workspaces', replace(parameters('names').logAnalyticsWorkspace, parameters('stampIndexFull'), 'avdi'))]"
+                        "[resourceId('Microsoft.OperationalInsights/workspaces', format('{0}{1}avdi', parameters('names').logAnalyticsWorkspace, parameters('delimiter')))]"
                       ]
                     },
                     {
                       "condition": "[parameters('enableAvdInsights')]",
                       "type": "Microsoft.Insights/dataCollectionEndpoints",
                       "apiVersion": "2021-04-01",
-                      "name": "[replace(parameters('names').dataCollectionEndpoint, parameters('stampIndexFull'), 'avdi')]",
+                      "name": "[format('{0}{1}avdi', parameters('names').dataCollectionEndpoint, parameters('delimiter'))]",
                       "location": "[parameters('location')]",
                       "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Insights/dataCollectionEndpoints'), createObject()), parameters('mlzTags'))]",
                       "kind": "Windows",
@@ -12557,7 +12544,7 @@
                         "mode": "Incremental",
                         "parameters": {
                           "logAnalyticsWorkspaceResourceId": {
-                            "value": "[resourceId('Microsoft.OperationalInsights/workspaces', replace(parameters('names').logAnalyticsWorkspace, parameters('stampIndexFull'), 'avdi'))]"
+                            "value": "[resourceId('Microsoft.OperationalInsights/workspaces', format('{0}{1}avdi', parameters('names').logAnalyticsWorkspace, parameters('delimiter')))]"
                           },
                           "privateLinkScopeResourceId": {
                             "value": "[parameters('privateLinkScopeResourceId')]"
@@ -12622,7 +12609,7 @@
                         }
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.OperationalInsights/workspaces', replace(parameters('names').logAnalyticsWorkspace, parameters('stampIndexFull'), 'avdi'))]"
+                        "[resourceId('Microsoft.OperationalInsights/workspaces', format('{0}{1}avdi', parameters('names').logAnalyticsWorkspace, parameters('delimiter')))]"
                       ]
                     },
                     {
@@ -12639,7 +12626,7 @@
                         "mode": "Incremental",
                         "parameters": {
                           "dataCollectionEndpointResourceId": {
-                            "value": "[resourceId('Microsoft.Insights/dataCollectionEndpoints', replace(parameters('names').dataCollectionEndpoint, parameters('stampIndexFull'), 'avdi'))]"
+                            "value": "[resourceId('Microsoft.Insights/dataCollectionEndpoints', format('{0}{1}avdi', parameters('names').dataCollectionEndpoint, parameters('delimiter')))]"
                           },
                           "privateLinkScopeResourceId": {
                             "value": "[parameters('privateLinkScopeResourceId')]"
@@ -12704,22 +12691,22 @@
                         }
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Insights/dataCollectionEndpoints', replace(parameters('names').dataCollectionEndpoint, parameters('stampIndexFull'), 'avdi'))]"
+                        "[resourceId('Microsoft.Insights/dataCollectionEndpoints', format('{0}{1}avdi', parameters('names').dataCollectionEndpoint, parameters('delimiter')))]"
                       ]
                     }
                   ],
                   "outputs": {
                     "logAnalyticsWorkspaceName": {
                       "type": "string",
-                      "value": "[replace(parameters('names').logAnalyticsWorkspace, parameters('stampIndexFull'), 'avdi')]"
+                      "value": "[format('{0}{1}avdi', parameters('names').logAnalyticsWorkspace, parameters('delimiter'))]"
                     },
                     "logAnalyticsWorkspaceResourceId": {
                       "type": "string",
-                      "value": "[resourceId('Microsoft.OperationalInsights/workspaces', replace(parameters('names').logAnalyticsWorkspace, parameters('stampIndexFull'), 'avdi'))]"
+                      "value": "[resourceId('Microsoft.OperationalInsights/workspaces', format('{0}{1}avdi', parameters('names').logAnalyticsWorkspace, parameters('delimiter')))]"
                     },
                     "dataCollectionRuleResourceId": {
                       "type": "string",
-                      "value": "[if(parameters('enableAvdInsights'), resourceId('Microsoft.Insights/dataCollectionRules', format('microsoft-avdi-{0}', replace(parameters('names').dataCollectionRule, format('{0}{1}', parameters('delimiter'), parameters('stampIndexFull')), ''))), '')]"
+                      "value": "[if(parameters('enableAvdInsights'), resourceId('Microsoft.Insights/dataCollectionRules', format('microsoft-avdi-{0}', parameters('names').dataCollectionRule)), '')]"
                     }
                   }
                 }
@@ -12868,7 +12855,10 @@
                 "mode": "Incremental",
                 "parameters": {
                   "delegatedSubnetResourceId": {
-                    "value": "[filter(parameters('subnets'), lambda('subnet', contains(lambdaVariables('subnet').name, 'FunctionAppOutbound')))[0].id]"
+                    "value": "[filter(parameters('subnets'), lambda('subnet', contains(lambdaVariables('subnet').name, 'function-app-outbound')))[0].id]"
+                  },
+                  "delimiter": {
+                    "value": "[parameters('delimiter')]"
                   },
                   "deploymentNameSuffix": {
                     "value": "[parameters('deploymentNameSuffix')]"
@@ -12903,9 +12893,6 @@
                   "resourceGroupFslogix": {
                     "value": "[variables('resourceGroupFslogix')]"
                   },
-                  "stampIndexFull": {
-                    "value": "[parameters('stampIndexFull')]"
-                  },
                   "subnetResourceId": {
                     "value": "[parameters('subnetResourceId')]"
                   },
@@ -12920,11 +12907,14 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.35.1.17967",
-                      "templateHash": "16058371736667493776"
+                      "templateHash": "2591522769401390427"
                     }
                   },
                   "parameters": {
                     "delegatedSubnetResourceId": {
+                      "type": "string"
+                    },
+                    "delimiter": {
                       "type": "string"
                     },
                     "deploymentNameSuffix": {
@@ -12968,9 +12958,6 @@
                     "resourceGroupFslogix": {
                       "type": "string"
                     },
-                    "stampIndexFull": {
-                      "type": "string"
-                    },
                     "subnetResourceId": {
                       "type": "string"
                     },
@@ -12990,26 +12977,26 @@
                       {
                         "name": "blob",
                         "id": "[format('{0}{1}', parameters('privateDnsZoneResourceIdPrefix'), filter(parameters('privateDnsZones'), lambda('name', contains(lambdaVariables('name'), 'blob')))[0])]",
-                        "nic": "[replace(parameters('names').storageAccountBlobNetworkInterface, parameters('stampIndexFull'), variables('resourceSuffix'))]",
-                        "pe": "[replace(parameters('names').storageAccountBlobPrivateEndpoint, parameters('stampIndexFull'), variables('resourceSuffix'))]"
+                        "nic": "[format('{0}{1}{2}', parameters('names').storageAccountBlobNetworkInterface, parameters('delimiter'), variables('resourceSuffix'))]",
+                        "pe": "[format('{0}{1}{2}', parameters('names').storageAccountBlobPrivateEndpoint, parameters('delimiter'), variables('resourceSuffix'))]"
                       },
                       {
                         "name": "file",
                         "id": "[format('{0}{1}', parameters('privateDnsZoneResourceIdPrefix'), filter(parameters('privateDnsZones'), lambda('name', contains(lambdaVariables('name'), 'file')))[0])]",
-                        "nic": "[replace(parameters('names').storageAccountFileNetworkInterface, parameters('stampIndexFull'), variables('resourceSuffix'))]",
-                        "pe": "[replace(parameters('names').storageAccountFilePrivateEndpoint, parameters('stampIndexFull'), variables('resourceSuffix'))]"
+                        "nic": "[format('{0}{1}{2}', parameters('names').storageAccountFileNetworkInterface, parameters('delimiter'), variables('resourceSuffix'))]",
+                        "pe": "[format('{0}{1}{2}', parameters('names').storageAccountFilePrivateEndpoint, parameters('delimiter'), variables('resourceSuffix'))]"
                       },
                       {
                         "name": "queue",
                         "id": "[format('{0}{1}', parameters('privateDnsZoneResourceIdPrefix'), filter(parameters('privateDnsZones'), lambda('name', contains(lambdaVariables('name'), 'queue')))[0])]",
-                        "nic": "[replace(parameters('names').storageAccountQueueNetworkInterface, parameters('stampIndexFull'), variables('resourceSuffix'))]",
-                        "pe": "[replace(parameters('names').storageAccountQueuePrivateEndpoint, parameters('stampIndexFull'), variables('resourceSuffix'))]"
+                        "nic": "[format('{0}{1}{2}', parameters('names').storageAccountQueueNetworkInterface, parameters('delimiter'), variables('resourceSuffix'))]",
+                        "pe": "[format('{0}{1}{2}', parameters('names').storageAccountQueuePrivateEndpoint, parameters('delimiter'), variables('resourceSuffix'))]"
                       },
                       {
                         "name": "table",
                         "id": "[format('{0}{1}', parameters('privateDnsZoneResourceIdPrefix'), filter(parameters('privateDnsZones'), lambda('name', contains(lambdaVariables('name'), 'table')))[0])]",
-                        "nic": "[replace(parameters('names').storageAccountTableNetworkInterface, parameters('stampIndexFull'), variables('resourceSuffix'))]",
-                        "pe": "[replace(parameters('names').storageAccountTablePrivateEndpoint, parameters('stampIndexFull'), variables('resourceSuffix'))]"
+                        "nic": "[format('{0}{1}{2}', parameters('names').storageAccountTableNetworkInterface, parameters('delimiter'), variables('resourceSuffix'))]",
+                        "pe": "[format('{0}{1}{2}', parameters('names').storageAccountTablePrivateEndpoint, parameters('delimiter'), variables('resourceSuffix'))]"
                       }
                     ]
                   },
@@ -13017,14 +13004,14 @@
                     {
                       "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
                       "apiVersion": "2023-01-31",
-                      "name": "[replace(parameters('names').userAssignedIdentity, parameters('stampIndexFull'), variables('resourceSuffix'))]",
+                      "name": "[format('{0}{1}{2}', parameters('names').userAssignedIdentity, parameters('delimiter'), variables('resourceSuffix'))]",
                       "location": "[parameters('location')]",
                       "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.ManagedIdentity/userAssignedIdentities'), createObject()), parameters('mlzTags'))]"
                     },
                     {
                       "type": "Microsoft.KeyVault/vaults",
                       "apiVersion": "2022-07-01",
-                      "name": "[uniqueString(replace(parameters('names').keyVault, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id)]",
+                      "name": "[uniqueString(format('{0}{1}{2}', parameters('names').keyVault, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id)]",
                       "location": "[parameters('location')]",
                       "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.KeyVault/vaults'), createObject()), parameters('mlzTags'))]",
                       "properties": {
@@ -13052,31 +13039,31 @@
                     {
                       "type": "Microsoft.Authorization/roleAssignments",
                       "apiVersion": "2020-04-01-preview",
-                      "scope": "[format('Microsoft.KeyVault/vaults/{0}', uniqueString(replace(parameters('names').keyVault, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id))]",
-                      "name": "[guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', replace(parameters('names').userAssignedIdentity, parameters('stampIndexFull'), variables('resourceSuffix'))), 'e147488a-f6f5-4113-8e2d-b22465e65bf6', resourceId('Microsoft.KeyVault/vaults', uniqueString(replace(parameters('names').keyVault, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id)))]",
+                      "scope": "[format('Microsoft.KeyVault/vaults/{0}', uniqueString(format('{0}{1}{2}', parameters('names').keyVault, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id))]",
+                      "name": "[guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}{1}{2}', parameters('names').userAssignedIdentity, parameters('delimiter'), variables('resourceSuffix'))), 'e147488a-f6f5-4113-8e2d-b22465e65bf6', resourceId('Microsoft.KeyVault/vaults', uniqueString(format('{0}{1}{2}', parameters('names').keyVault, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id)))]",
                       "properties": {
-                        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', replace(parameters('names').userAssignedIdentity, parameters('stampIndexFull'), variables('resourceSuffix'))), '2023-01-31').principalId]",
+                        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}{1}{2}', parameters('names').userAssignedIdentity, parameters('delimiter'), variables('resourceSuffix'))), '2023-01-31').principalId]",
                         "principalType": "ServicePrincipal",
                         "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'e147488a-f6f5-4113-8e2d-b22465e65bf6')]"
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', replace(parameters('names').userAssignedIdentity, parameters('stampIndexFull'), variables('resourceSuffix')))]",
-                        "[resourceId('Microsoft.KeyVault/vaults', uniqueString(replace(parameters('names').keyVault, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id))]"
+                        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}{1}{2}', parameters('names').userAssignedIdentity, parameters('delimiter'), variables('resourceSuffix')))]",
+                        "[resourceId('Microsoft.KeyVault/vaults', uniqueString(format('{0}{1}{2}', parameters('names').keyVault, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id))]"
                       ]
                     },
                     {
                       "type": "Microsoft.Network/privateEndpoints",
                       "apiVersion": "2023-04-01",
-                      "name": "[replace(parameters('names').keyVaultPrivateEndpoint, parameters('stampIndexFull'), variables('resourceSuffix'))]",
+                      "name": "[format('{0}{1}{2}', parameters('names').keyVaultPrivateEndpoint, parameters('delimiter'), variables('resourceSuffix'))]",
                       "location": "[parameters('location')]",
                       "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Network/privateEndpoints'), createObject()), parameters('mlzTags'))]",
                       "properties": {
-                        "customNetworkInterfaceName": "[replace(parameters('names').keyVaultNetworkInterface, parameters('stampIndexFull'), variables('resourceSuffix'))]",
+                        "customNetworkInterfaceName": "[format('{0}{1}{2}', parameters('names').keyVaultNetworkInterface, parameters('delimiter'), variables('resourceSuffix'))]",
                         "privateLinkServiceConnections": [
                           {
-                            "name": "[replace(parameters('names').keyVaultPrivateEndpoint, parameters('stampIndexFull'), variables('resourceSuffix'))]",
+                            "name": "[format('{0}{1}{2}', parameters('names').keyVaultPrivateEndpoint, parameters('delimiter'), variables('resourceSuffix'))]",
                             "properties": {
-                              "privateLinkServiceId": "[resourceId('Microsoft.KeyVault/vaults', uniqueString(replace(parameters('names').keyVault, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id))]",
+                              "privateLinkServiceId": "[resourceId('Microsoft.KeyVault/vaults', uniqueString(format('{0}{1}{2}', parameters('names').keyVault, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id))]",
                               "groupIds": [
                                 "vault"
                               ]
@@ -13088,13 +13075,13 @@
                         }
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.KeyVault/vaults', uniqueString(replace(parameters('names').keyVault, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id))]"
+                        "[resourceId('Microsoft.KeyVault/vaults', uniqueString(format('{0}{1}{2}', parameters('names').keyVault, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id))]"
                       ]
                     },
                     {
                       "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                       "apiVersion": "2021-08-01",
-                      "name": "[format('{0}/{1}', replace(parameters('names').keyVaultPrivateEndpoint, parameters('stampIndexFull'), variables('resourceSuffix')), uniqueString(replace(parameters('names').keyVault, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id))]",
+                      "name": "[format('{0}/{1}', format('{0}{1}{2}', parameters('names').keyVaultPrivateEndpoint, parameters('delimiter'), variables('resourceSuffix')), uniqueString(format('{0}{1}{2}', parameters('names').keyVault, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id))]",
                       "properties": {
                         "privateDnsZoneConfigs": [
                           {
@@ -13106,14 +13093,14 @@
                         ]
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Network/privateEndpoints', replace(parameters('names').keyVaultPrivateEndpoint, parameters('stampIndexFull'), variables('resourceSuffix')))]",
-                        "[resourceId('Microsoft.KeyVault/vaults', uniqueString(replace(parameters('names').keyVault, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id))]"
+                        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}{1}{2}', parameters('names').keyVaultPrivateEndpoint, parameters('delimiter'), variables('resourceSuffix')))]",
+                        "[resourceId('Microsoft.KeyVault/vaults', uniqueString(format('{0}{1}{2}', parameters('names').keyVault, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id))]"
                       ]
                     },
                     {
                       "type": "Microsoft.KeyVault/vaults/keys",
                       "apiVersion": "2022-07-01",
-                      "name": "[format('{0}/{1}', uniqueString(replace(parameters('names').keyVault, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id), 'StorageEncryptionKey')]",
+                      "name": "[format('{0}/{1}', uniqueString(format('{0}{1}{2}', parameters('names').keyVault, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id), 'StorageEncryptionKey')]",
                       "properties": {
                         "attributes": {
                           "enabled": true
@@ -13145,13 +13132,13 @@
                         }
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.KeyVault/vaults', uniqueString(replace(parameters('names').keyVault, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id))]"
+                        "[resourceId('Microsoft.KeyVault/vaults', uniqueString(format('{0}{1}{2}', parameters('names').keyVault, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id))]"
                       ]
                     },
                     {
                       "type": "Microsoft.Storage/storageAccounts",
                       "apiVersion": "2022-09-01",
-                      "name": "[uniqueString(replace(parameters('names').storageAccount, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id)]",
+                      "name": "[uniqueString(format('{0}{1}{2}', parameters('names').storageAccount, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id)]",
                       "location": "[parameters('location')]",
                       "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Storage/storageAccounts'), createObject()), parameters('mlzTags'))]",
                       "sku": {
@@ -13161,7 +13148,7 @@
                       "identity": {
                         "type": "UserAssigned",
                         "userAssignedIdentities": {
-                          "[format('{0}', resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', replace(parameters('names').userAssignedIdentity, parameters('stampIndexFull'), variables('resourceSuffix'))))]": {}
+                          "[format('{0}', resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}{1}{2}', parameters('names').userAssignedIdentity, parameters('delimiter'), variables('resourceSuffix'))))]": {}
                         }
                       },
                       "properties": {
@@ -13177,11 +13164,11 @@
                         "dnsEndpointType": "Standard",
                         "encryption": {
                           "identity": {
-                            "userAssignedIdentity": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', replace(parameters('names').userAssignedIdentity, parameters('stampIndexFull'), variables('resourceSuffix')))]"
+                            "userAssignedIdentity": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}{1}{2}', parameters('names').userAssignedIdentity, parameters('delimiter'), variables('resourceSuffix')))]"
                           },
                           "requireInfrastructureEncryption": true,
                           "keyvaultproperties": {
-                            "keyvaulturi": "[reference(resourceId('Microsoft.KeyVault/vaults', uniqueString(replace(parameters('names').keyVault, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id)), '2022-07-01').vaultUri]",
+                            "keyvaulturi": "[reference(resourceId('Microsoft.KeyVault/vaults', uniqueString(format('{0}{1}{2}', parameters('names').keyVault, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id)), '2022-07-01').vaultUri]",
                             "keyname": "StorageEncryptionKey"
                           },
                           "services": {
@@ -13216,20 +13203,20 @@
                         "supportsHttpsTrafficOnly": true
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.KeyVault/vaults/keys', uniqueString(replace(parameters('names').keyVault, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id), 'StorageEncryptionKey')]",
-                        "[resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups', replace(parameters('names').keyVaultPrivateEndpoint, parameters('stampIndexFull'), variables('resourceSuffix')), uniqueString(replace(parameters('names').keyVault, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id))]",
-                        "[resourceId('Microsoft.Network/privateEndpoints', replace(parameters('names').keyVaultPrivateEndpoint, parameters('stampIndexFull'), variables('resourceSuffix')))]",
-                        "[extensionResourceId(resourceId('Microsoft.KeyVault/vaults', uniqueString(replace(parameters('names').keyVault, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id)), 'Microsoft.Authorization/roleAssignments', guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', replace(parameters('names').userAssignedIdentity, parameters('stampIndexFull'), variables('resourceSuffix'))), 'e147488a-f6f5-4113-8e2d-b22465e65bf6', resourceId('Microsoft.KeyVault/vaults', uniqueString(replace(parameters('names').keyVault, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id))))]",
-                        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', replace(parameters('names').userAssignedIdentity, parameters('stampIndexFull'), variables('resourceSuffix')))]",
-                        "[resourceId('Microsoft.KeyVault/vaults', uniqueString(replace(parameters('names').keyVault, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id))]"
+                        "[resourceId('Microsoft.KeyVault/vaults/keys', uniqueString(format('{0}{1}{2}', parameters('names').keyVault, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id), 'StorageEncryptionKey')]",
+                        "[resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups', format('{0}{1}{2}', parameters('names').keyVaultPrivateEndpoint, parameters('delimiter'), variables('resourceSuffix')), uniqueString(format('{0}{1}{2}', parameters('names').keyVault, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id))]",
+                        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}{1}{2}', parameters('names').keyVaultPrivateEndpoint, parameters('delimiter'), variables('resourceSuffix')))]",
+                        "[extensionResourceId(resourceId('Microsoft.KeyVault/vaults', uniqueString(format('{0}{1}{2}', parameters('names').keyVault, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id)), 'Microsoft.Authorization/roleAssignments', guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}{1}{2}', parameters('names').userAssignedIdentity, parameters('delimiter'), variables('resourceSuffix'))), 'e147488a-f6f5-4113-8e2d-b22465e65bf6', resourceId('Microsoft.KeyVault/vaults', uniqueString(format('{0}{1}{2}', parameters('names').keyVault, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id))))]",
+                        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}{1}{2}', parameters('names').userAssignedIdentity, parameters('delimiter'), variables('resourceSuffix')))]",
+                        "[resourceId('Microsoft.KeyVault/vaults', uniqueString(format('{0}{1}{2}', parameters('names').keyVault, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id))]"
                       ]
                     },
                     {
                       "type": "Microsoft.Storage/storageAccounts/blobServices",
                       "apiVersion": "2021-09-01",
-                      "name": "[format('{0}/{1}', uniqueString(replace(parameters('names').storageAccount, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id), 'default')]",
+                      "name": "[format('{0}/{1}', uniqueString(format('{0}{1}{2}', parameters('names').storageAccount, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id), 'default')]",
                       "dependsOn": [
-                        "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(replace(parameters('names').storageAccount, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id))]"
+                        "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(format('{0}{1}{2}', parameters('names').storageAccount, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id))]"
                       ]
                     },
                     {
@@ -13248,7 +13235,7 @@
                           {
                             "name": "[variables('storageSubResources')[copyIndex()].pe]",
                             "properties": {
-                              "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(replace(parameters('names').storageAccount, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id))]",
+                              "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(format('{0}{1}{2}', parameters('names').storageAccount, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id))]",
                               "groupIds": [
                                 "[variables('storageSubResources')[copyIndex()].name]"
                               ]
@@ -13260,7 +13247,7 @@
                         }
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(replace(parameters('names').storageAccount, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id))]"
+                        "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(format('{0}{1}{2}', parameters('names').storageAccount, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id))]"
                       ]
                     },
                     {
@@ -13270,7 +13257,7 @@
                       },
                       "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                       "apiVersion": "2021-08-01",
-                      "name": "[format('{0}/{1}', variables('storageSubResources')[copyIndex()].pe, uniqueString(replace(parameters('names').storageAccount, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id))]",
+                      "name": "[format('{0}/{1}', variables('storageSubResources')[copyIndex()].pe, uniqueString(format('{0}{1}{2}', parameters('names').storageAccount, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id))]",
                       "properties": {
                         "privateDnsZoneConfigs": [
                           {
@@ -13283,15 +13270,15 @@
                       },
                       "dependsOn": [
                         "[resourceId('Microsoft.Network/privateEndpoints', variables('storageSubResources')[copyIndex()].pe)]",
-                        "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(replace(parameters('names').storageAccount, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id))]"
+                        "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(format('{0}{1}{2}', parameters('names').storageAccount, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id))]"
                       ]
                     },
                     {
                       "condition": "[parameters('enableApplicationInsights')]",
                       "type": "microsoft.insights/diagnosticSettings",
                       "apiVersion": "2017-05-01-preview",
-                      "scope": "[format('Microsoft.Storage/storageAccounts/{0}/blobServices/{1}', uniqueString(replace(parameters('names').storageAccount, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id), 'default')]",
-                      "name": "[replace(parameters('names').storageAccountBlobDiagnosticSetting, parameters('stampIndexFull'), variables('resourceSuffix'))]",
+                      "scope": "[format('Microsoft.Storage/storageAccounts/{0}/blobServices/{1}', uniqueString(format('{0}{1}{2}', parameters('names').storageAccount, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id), 'default')]",
+                      "name": "[format('{0}{1}{2}', parameters('names').storageAccountBlobDiagnosticSetting, parameters('delimiter'), variables('resourceSuffix'))]",
                       "properties": {
                         "logs": [
                           {
@@ -13308,14 +13295,14 @@
                         "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]"
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Storage/storageAccounts/blobServices', uniqueString(replace(parameters('names').storageAccount, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id), 'default')]"
+                        "[resourceId('Microsoft.Storage/storageAccounts/blobServices', uniqueString(format('{0}{1}{2}', parameters('names').storageAccount, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id), 'default')]"
                       ]
                     },
                     {
                       "condition": "[parameters('enableApplicationInsights')]",
                       "type": "Microsoft.Insights/components",
                       "apiVersion": "2020-02-02",
-                      "name": "[replace(parameters('names').applicationInsights, parameters('stampIndexFull'), variables('resourceSuffix'))]",
+                      "name": "[format('{0}{1}{2}', parameters('names').applicationInsights, parameters('delimiter'), variables('resourceSuffix'))]",
                       "location": "[parameters('location')]",
                       "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Insights/components'), createObject()), parameters('mlzTags'))]",
                       "properties": {
@@ -13328,7 +13315,7 @@
                     {
                       "type": "Microsoft.Web/serverfarms",
                       "apiVersion": "2023-01-01",
-                      "name": "[replace(parameters('names').appServicePlan, parameters('stampIndexFull'), variables('resourceSuffix'))]",
+                      "name": "[format('{0}{1}{2}', parameters('names').appServicePlan, parameters('delimiter'), variables('resourceSuffix'))]",
                       "location": "[parameters('location')]",
                       "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Web/serverfarms'), createObject()), parameters('mlzTags'))]",
                       "sku": {
@@ -13343,7 +13330,7 @@
                     {
                       "type": "Microsoft.Web/sites",
                       "apiVersion": "2023-01-01",
-                      "name": "[uniqueString(replace(parameters('names').functionApp, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id)]",
+                      "name": "[uniqueString(format('{0}{1}{2}', parameters('names').functionApp, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id)]",
                       "location": "[parameters('location')]",
                       "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Web/sites'), createObject()), parameters('mlzTags'))]",
                       "kind": "functionapp",
@@ -13354,10 +13341,10 @@
                         "clientAffinityEnabled": false,
                         "httpsOnly": true,
                         "publicNetworkAccess": "Disabled",
-                        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', replace(parameters('names').appServicePlan, parameters('stampIndexFull'), variables('resourceSuffix')))]",
+                        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', format('{0}{1}{2}', parameters('names').appServicePlan, parameters('delimiter'), variables('resourceSuffix')))]",
                         "siteConfig": {
                           "alwaysOn": true,
-                          "appSettings": "[union(createArray(createObject('name', 'AzureWebJobsStorage__blobServiceUri', 'value', format('https://{0}.blob.{1}', uniqueString(replace(parameters('names').storageAccount, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id), environment().suffixes.storage)), createObject('name', 'AzureWebJobsStorage__credential', 'value', 'managedidentity'), createObject('name', 'AzureWebJobsStorage__queueServiceUri', 'value', format('https://{0}.queue.{1}', uniqueString(replace(parameters('names').storageAccount, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id), environment().suffixes.storage)), createObject('name', 'AzureWebJobsStorage__tableServiceUri', 'value', format('https://{0}.table.{1}', uniqueString(replace(parameters('names').storageAccount, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id), environment().suffixes.storage)), createObject('name', 'FUNCTIONS_EXTENSION_VERSION', 'value', '~4'), createObject('name', 'FUNCTIONS_WORKER_RUNTIME', 'value', 'powershell'), createObject('name', 'WEBSITE_LOAD_USER_PROFILE', 'value', '1'), createObject('name', 'FileShareName', 'value', 'profile-containers'), createObject('name', 'ResourceGroupName', 'value', parameters('resourceGroupFslogix')), createObject('name', 'ResourceManagerUrl', 'value', if(endsWith(environment().resourceManager, '/'), environment().resourceManager, format('{0}/', environment().resourceManager))), createObject('name', 'StorageSuffix', 'value', environment().suffixes.storage), createObject('name', 'SubscriptionId', 'value', subscription().subscriptionId)), if(parameters('enableApplicationInsights'), createArray(createObject('name', 'APPLICATIONINSIGHTS_CONNECTION_STRING', 'value', reference(resourceId('Microsoft.Insights/components', replace(parameters('names').applicationInsights, parameters('stampIndexFull'), variables('resourceSuffix'))), '2020-02-02').ConnectionString)), createArray()))]",
+                          "appSettings": "[union(createArray(createObject('name', 'AzureWebJobsStorage__blobServiceUri', 'value', format('https://{0}.blob.{1}', uniqueString(format('{0}{1}{2}', parameters('names').storageAccount, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id), environment().suffixes.storage)), createObject('name', 'AzureWebJobsStorage__credential', 'value', 'managedidentity'), createObject('name', 'AzureWebJobsStorage__queueServiceUri', 'value', format('https://{0}.queue.{1}', uniqueString(format('{0}{1}{2}', parameters('names').storageAccount, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id), environment().suffixes.storage)), createObject('name', 'AzureWebJobsStorage__tableServiceUri', 'value', format('https://{0}.table.{1}', uniqueString(format('{0}{1}{2}', parameters('names').storageAccount, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id), environment().suffixes.storage)), createObject('name', 'FUNCTIONS_EXTENSION_VERSION', 'value', '~4'), createObject('name', 'FUNCTIONS_WORKER_RUNTIME', 'value', 'powershell'), createObject('name', 'WEBSITE_LOAD_USER_PROFILE', 'value', '1'), createObject('name', 'FileShareName', 'value', 'profile-containers'), createObject('name', 'ResourceGroupName', 'value', parameters('resourceGroupFslogix')), createObject('name', 'ResourceManagerUrl', 'value', if(endsWith(environment().resourceManager, '/'), environment().resourceManager, format('{0}/', environment().resourceManager))), createObject('name', 'StorageSuffix', 'value', environment().suffixes.storage), createObject('name', 'SubscriptionId', 'value', subscription().subscriptionId)), if(parameters('enableApplicationInsights'), createArray(createObject('name', 'APPLICATIONINSIGHTS_CONNECTION_STRING', 'value', reference(resourceId('Microsoft.Insights/components', format('{0}{1}{2}', parameters('names').applicationInsights, parameters('delimiter'), variables('resourceSuffix'))), '2020-02-02').ConnectionString)), createArray()))]",
                           "cors": {
                             "allowedOrigins": [
                               "[format('{0}', environment().portal)]",
@@ -13377,24 +13364,24 @@
                         "vnetRouteAllEnabled": true
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Insights/components', replace(parameters('names').applicationInsights, parameters('stampIndexFull'), variables('resourceSuffix')))]",
-                        "[resourceId('Microsoft.Web/serverfarms', replace(parameters('names').appServicePlan, parameters('stampIndexFull'), variables('resourceSuffix')))]",
-                        "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(replace(parameters('names').storageAccount, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id))]"
+                        "[resourceId('Microsoft.Insights/components', format('{0}{1}{2}', parameters('names').applicationInsights, parameters('delimiter'), variables('resourceSuffix')))]",
+                        "[resourceId('Microsoft.Web/serverfarms', format('{0}{1}{2}', parameters('names').appServicePlan, parameters('delimiter'), variables('resourceSuffix')))]",
+                        "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(format('{0}{1}{2}', parameters('names').storageAccount, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id))]"
                       ]
                     },
                     {
                       "type": "Microsoft.Network/privateEndpoints",
                       "apiVersion": "2023-04-01",
-                      "name": "[replace(parameters('names').functionAppPrivateEndpoint, parameters('stampIndexFull'), variables('resourceSuffix'))]",
+                      "name": "[format('{0}{1}{2}', parameters('names').functionAppPrivateEndpoint, parameters('delimiter'), variables('resourceSuffix'))]",
                       "location": "[parameters('location')]",
                       "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Network/privateEndpoints'), createObject()), parameters('mlzTags'))]",
                       "properties": {
-                        "customNetworkInterfaceName": "[replace(parameters('names').functionAppNetworkInterface, parameters('stampIndexFull'), variables('resourceSuffix'))]",
+                        "customNetworkInterfaceName": "[format('{0}{1}{2}', parameters('names').functionAppNetworkInterface, parameters('delimiter'), variables('resourceSuffix'))]",
                         "privateLinkServiceConnections": [
                           {
-                            "name": "[replace(parameters('names').functionAppPrivateEndpoint, parameters('stampIndexFull'), variables('resourceSuffix'))]",
+                            "name": "[format('{0}{1}{2}', parameters('names').functionAppPrivateEndpoint, parameters('delimiter'), variables('resourceSuffix'))]",
                             "properties": {
-                              "privateLinkServiceId": "[resourceId('Microsoft.Web/sites', uniqueString(replace(parameters('names').functionApp, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id))]",
+                              "privateLinkServiceId": "[resourceId('Microsoft.Web/sites', uniqueString(format('{0}{1}{2}', parameters('names').functionApp, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id))]",
                               "groupIds": [
                                 "sites"
                               ]
@@ -13406,13 +13393,13 @@
                         }
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Web/sites', uniqueString(replace(parameters('names').functionApp, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id))]"
+                        "[resourceId('Microsoft.Web/sites', uniqueString(format('{0}{1}{2}', parameters('names').functionApp, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id))]"
                       ]
                     },
                     {
                       "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                       "apiVersion": "2021-08-01",
-                      "name": "[format('{0}/{1}', replace(parameters('names').functionAppPrivateEndpoint, parameters('stampIndexFull'), variables('resourceSuffix')), 'default')]",
+                      "name": "[format('{0}/{1}', format('{0}{1}{2}', parameters('names').functionAppPrivateEndpoint, parameters('delimiter'), variables('resourceSuffix')), 'default')]",
                       "properties": {
                         "privateDnsZoneConfigs": [
                           {
@@ -13424,13 +13411,13 @@
                         ]
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Network/privateEndpoints', replace(parameters('names').functionAppPrivateEndpoint, parameters('stampIndexFull'), variables('resourceSuffix')))]"
+                        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}{1}{2}', parameters('names').functionAppPrivateEndpoint, parameters('delimiter'), variables('resourceSuffix')))]"
                       ]
                     },
                     {
                       "type": "Microsoft.Web/sites/functions",
                       "apiVersion": "2020-12-01",
-                      "name": "[format('{0}/{1}', uniqueString(replace(parameters('names').functionApp, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id), 'auto-increase-file-share-quota')]",
+                      "name": "[format('{0}/{1}', uniqueString(format('{0}{1}{2}', parameters('names').functionApp, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id), 'auto-increase-file-share-quota')]",
                       "properties": {
                         "config": {
                           "disabled": false,
@@ -13450,7 +13437,7 @@
                         }
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Web/sites', uniqueString(replace(parameters('names').functionApp, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id))]"
+                        "[resourceId('Microsoft.Web/sites', uniqueString(format('{0}{1}{2}', parameters('names').functionApp, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id))]"
                       ]
                     },
                     {
@@ -13467,7 +13454,7 @@
                         "mode": "Incremental",
                         "parameters": {
                           "applicationInsightsResourceId": {
-                            "value": "[resourceId('Microsoft.Insights/components', replace(parameters('names').applicationInsights, parameters('stampIndexFull'), variables('resourceSuffix')))]"
+                            "value": "[resourceId('Microsoft.Insights/components', format('{0}{1}{2}', parameters('names').applicationInsights, parameters('delimiter'), variables('resourceSuffix')))]"
                           },
                           "privateLinkScopeResourceId": {
                             "value": "[parameters('privateLinkScopeResourceId')]"
@@ -13532,7 +13519,7 @@
                         }
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Insights/components', replace(parameters('names').applicationInsights, parameters('stampIndexFull'), variables('resourceSuffix')))]"
+                        "[resourceId('Microsoft.Insights/components', format('{0}{1}{2}', parameters('names').applicationInsights, parameters('delimiter'), variables('resourceSuffix')))]"
                       ]
                     },
                     {
@@ -13546,7 +13533,7 @@
                         "mode": "Incremental",
                         "parameters": {
                           "principalId": {
-                            "value": "[reference(resourceId('Microsoft.Web/sites', uniqueString(replace(parameters('names').functionApp, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id)), '2023-01-01', 'full').identity.principalId]"
+                            "value": "[reference(resourceId('Microsoft.Web/sites', uniqueString(format('{0}{1}{2}', parameters('names').functionApp, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id)), '2023-01-01', 'full').identity.principalId]"
                           },
                           "principalType": {
                             "value": "ServicePrincipal"
@@ -13555,7 +13542,7 @@
                             "value": "b7e6dc6d-f1e8-4753-8033-0f276bb0955b"
                           },
                           "storageAccountName": {
-                            "value": "[uniqueString(replace(parameters('names').storageAccount, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id)]"
+                            "value": "[uniqueString(format('{0}{1}{2}', parameters('names').storageAccount, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id)]"
                           }
                         },
                         "template": {
@@ -13598,8 +13585,8 @@
                         }
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Web/sites', uniqueString(replace(parameters('names').functionApp, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id))]",
-                        "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(replace(parameters('names').storageAccount, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id))]"
+                        "[resourceId('Microsoft.Web/sites', uniqueString(format('{0}{1}{2}', parameters('names').functionApp, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id))]",
+                        "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(format('{0}{1}{2}', parameters('names').storageAccount, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id))]"
                       ]
                     },
                     {
@@ -13615,10 +13602,10 @@
                         "mode": "Incremental",
                         "parameters": {
                           "functionAppName": {
-                            "value": "[uniqueString(replace(parameters('names').functionApp, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id)]"
+                            "value": "[uniqueString(format('{0}{1}{2}', parameters('names').functionApp, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id)]"
                           },
                           "ipv4Address": {
-                            "value": "[filter(reference(resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups', replace(parameters('names').functionAppPrivateEndpoint, parameters('stampIndexFull'), variables('resourceSuffix')), 'default'), '2021-08-01').privateDnsZoneConfigs[0].properties.recordSets, lambda('record', equals(lambdaVariables('record').recordSetName, uniqueString(replace(parameters('names').functionApp, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id))))[0].ipAddresses[0]]"
+                            "value": "[filter(reference(resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups', format('{0}{1}{2}', parameters('names').functionAppPrivateEndpoint, parameters('delimiter'), variables('resourceSuffix')), 'default'), '2021-08-01').privateDnsZoneConfigs[0].properties.recordSets, lambda('record', equals(lambdaVariables('record').recordSetName, uniqueString(format('{0}{1}{2}', parameters('names').functionApp, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id))))[0].ipAddresses[0]]"
                           },
                           "privateDnsZoneName": {
                             "value": "[split(variables('functionAppScmPrivateDnsZoneResourceId'), '/')[8]]"
@@ -13663,19 +13650,19 @@
                         }
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Web/sites', uniqueString(replace(parameters('names').functionApp, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id))]",
-                        "[resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups', replace(parameters('names').functionAppPrivateEndpoint, parameters('stampIndexFull'), variables('resourceSuffix')), 'default')]"
+                        "[resourceId('Microsoft.Web/sites', uniqueString(format('{0}{1}{2}', parameters('names').functionApp, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id))]",
+                        "[resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups', format('{0}{1}{2}', parameters('names').functionAppPrivateEndpoint, parameters('delimiter'), variables('resourceSuffix')), 'default')]"
                       ]
                     }
                   ],
                   "outputs": {
                     "functionAppName": {
                       "type": "string",
-                      "value": "[uniqueString(replace(parameters('names').functionApp, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id)]"
+                      "value": "[uniqueString(format('{0}{1}{2}', parameters('names').functionApp, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id)]"
                     },
                     "functionAppPrincipalId": {
                       "type": "string",
-                      "value": "[reference(resourceId('Microsoft.Web/sites', uniqueString(replace(parameters('names').functionApp, parameters('stampIndexFull'), variables('resourceSuffix')), resourceGroup().id)), '2023-01-01', 'full').identity.principalId]"
+                      "value": "[reference(resourceId('Microsoft.Web/sites', uniqueString(format('{0}{1}{2}', parameters('names').functionApp, parameters('delimiter'), variables('resourceSuffix')), resourceGroup().id)), '2023-01-01', 'full').identity.principalId]"
                     }
                   }
                 }
@@ -13739,6 +13726,9 @@
           "customRdpProperty": {
             "value": "[parameters('customRdpProperty')]"
           },
+          "delimiter": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-shared-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.delimiter.value]"
+          },
           "deploymentNameSuffix": {
             "value": "[parameters('deploymentNameSuffix')]"
           },
@@ -13756,6 +13746,9 @@
           },
           "enableAvdInsights": {
             "value": "[parameters('enableAvdInsights')]"
+          },
+          "existingFeedWorkspaceResourceId": {
+            "value": "[parameters('existingFeedWorkspaceResourceId')]"
           },
           "hostPoolPublicNetworkAccess": {
             "value": "[parameters('hostPoolPublicNetworkAccess')]"
@@ -13782,7 +13775,7 @@
             "value": "[parameters('locationVirtualMachines')]"
           },
           "logAnalyticsWorkspaceResourceId": {
-            "value": "[reference(subscriptionResourceId(split(parameters('sharedServicesSubnetResourceId'), '/')[2], 'Microsoft.Resources/deployments', format('deploy-shared-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.logAnalyticsWorkspaceResourceId.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-shared-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.logAnalyticsWorkspaceResourceId.value]"
           },
           "managementSubnetResourceId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnets.value[0].id]"
@@ -13802,8 +13795,14 @@
           "resourceGroupManagement": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceGroupName.value]"
           },
+          "resourceGroupShared": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-shared-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceGroupName.value]"
+          },
           "securityPrincipalObjectIds": {
             "value": "[map(parameters('securityPrincipals'), lambda('item', lambdaVariables('item').objectId))]"
+          },
+          "sharedSubnetReourceId": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-shared-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnets.value[0].id]"
           },
           "tags": {
             "value": "[parameters('tags')]"
@@ -13813,18 +13812,6 @@
           },
           "virtualMachineSize": {
             "value": "[parameters('virtualMachineSize')]"
-          },
-          "existingFeedWorkspaceResourceId": {
-            "value": "[parameters('existingFeedWorkspaceResourceId')]"
-          },
-          "resourceGroupShared": {
-            "value": "[reference(subscriptionResourceId(split(parameters('sharedServicesSubnetResourceId'), '/')[2], 'Microsoft.Resources/deployments', format('deploy-shared-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceGroupName.value]"
-          },
-          "sharedSubnetReourceId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-shared-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnets.value[0].id]"
-          },
-          "stampIndexFull": {
-            "value": "[variables('stampIndexFull')]"
           },
           "workspaceFriendlyName": {
             "value": "[parameters('workspaceFriendlyName')]"
@@ -13840,7 +13827,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.35.1.17967",
-              "templateHash": "1132980930907823440"
+              "templateHash": "12892866061769431349"
             }
           },
           "parameters": {
@@ -13854,6 +13841,9 @@
               "type": "string"
             },
             "customRdpProperty": {
+              "type": "string"
+            },
+            "delimiter": {
               "type": "string"
             },
             "deploymentNameSuffix": {
@@ -13929,9 +13919,6 @@
               "type": "array"
             },
             "sharedSubnetReourceId": {
-              "type": "string"
-            },
-            "stampIndexFull": {
               "type": "string"
             },
             "tags": {
@@ -14562,18 +14549,18 @@
                     "value": "[parameters('managementVirtualMachineName')]"
                   },
                   "workspaceFeedDiagnoticSettingName": {
-                    "value": "[replace(parameters('names').workspaceDiagnosticSetting, parameters('stampIndexFull'), 'feed')]"
+                    "value": "[format('{0}{1}feed', parameters('names').workspaceDiagnosticSetting, parameters('delimiter'))]"
                   },
                   "workspaceFeedName": {
-                    "value": "[replace(parameters('names').workspace, parameters('stampIndexFull'), 'feed')]"
+                    "value": "[format('{0}{1}feed', parameters('names').workspace, parameters('delimiter'))]"
                   },
                   "workspaceFeedNetworkInterfaceName": {
-                    "value": "[replace(parameters('names').workspaceNetworkInterface, parameters('stampIndexFull'), 'feed')]"
+                    "value": "[format('{0}{1}feed', parameters('names').workspaceNetworkInterface, parameters('delimiter'))]"
                   },
                   "workspaceFeedPrivateEndpointName": {
-                    "value": "[replace(parameters('names').workspacePrivateEndpoint, parameters('stampIndexFull'), 'feed')]"
+                    "value": "[format('{0}{1}feed', parameters('names').workspacePrivateEndpoint, parameters('delimiter'))]"
                   },
-                  "workspaceFriendlyName": "[if(empty(parameters('workspaceFriendlyName')), createObject('value', replace(parameters('names').workspace, parameters('stampIndexFull'), '')), createObject('value', format('{0} ({1})', parameters('workspaceFriendlyName'), parameters('locationControlPlane'))))]",
+                  "workspaceFriendlyName": "[if(empty(parameters('workspaceFriendlyName')), createObject('value', parameters('names').workspace), createObject('value', format('{0} ({1})', parameters('workspaceFriendlyName'), parameters('locationControlPlane'))))]",
                   "workspacePublicNetworkAccess": {
                     "value": "[parameters('workspacePublicNetworkAccess')]"
                   }
@@ -14873,7 +14860,7 @@
       "dependsOn": [
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-mgmt-{0}', parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId(split(parameters('sharedServicesSubnetResourceId'), '/')[2], 'Microsoft.Resources/deployments', format('deploy-shared-{0}', parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-shared-{0}', parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-shared-{0}', parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix')))]"
       ]
@@ -15171,7 +15158,7 @@
             "value": "[parameters('fslogixStorageService')]"
           },
           "functionAppPrincipalId": {
-            "value": "[reference(subscriptionResourceId(split(parameters('sharedServicesSubnetResourceId'), '/')[2], 'Microsoft.Resources/deployments', format('deploy-shared-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.functionAppPrincipalId.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-shared-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.functionAppPrincipalId.value]"
           },
           "hostPoolResourceId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-control-plane-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.hostPoolResourceId.value]"
@@ -16312,7 +16299,7 @@
       "dependsOn": [
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-control-plane-{0}', parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId(split(parameters('sharedServicesSubnetResourceId'), '/')[2], 'Microsoft.Resources/deployments', format('deploy-shared-{0}', parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-shared-{0}', parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
@@ -16346,7 +16333,7 @@
             "value": "[parameters('avdConfigurationZipFileName')]"
           },
           "dataCollectionRuleResourceId": {
-            "value": "[reference(subscriptionResourceId(split(parameters('sharedServicesSubnetResourceId'), '/')[2], 'Microsoft.Resources/deployments', format('deploy-shared-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.dataCollectionRuleResourceId.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-shared-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.dataCollectionRuleResourceId.value]"
           },
           "delimiter": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.delimiter.value]"
@@ -16433,7 +16420,7 @@
             "value": "[parameters('locationVirtualMachines')]"
           },
           "logAnalyticsWorkspaceResourceId": {
-            "value": "[reference(subscriptionResourceId(split(parameters('sharedServicesSubnetResourceId'), '/')[2], 'Microsoft.Resources/deployments', format('deploy-shared-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.logAnalyticsWorkspaceResourceId.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-shared-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.logAnalyticsWorkspaceResourceId.value]"
           },
           "managementVirtualMachineName": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.virtualMachineName.value]"
@@ -18370,7 +18357,7 @@
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-control-plane-{0}', parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-fslogix-{0}', parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId(split(parameters('sharedServicesSubnetResourceId'), '/')[2], 'Microsoft.Resources/deployments', format('deploy-shared-{0}', parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-shared-{0}', parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
