@@ -1045,7 +1045,6 @@ module management 'modules/management/management.bicep' = {
 // Deploys the resource group and resources for the AVD shared resources
 module shared 'modules/shared/shared.bicep' = {
   name: 'deploy-shared-${deploymentNameSuffix}'
-  scope: subscription(split(sharedServicesSubnetResourceId, '/')[2])
   params: {
     delimiter: naming_management.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
@@ -1067,7 +1066,6 @@ module shared 'modules/shared/shared.bicep' = {
     privateDnsZoneResourceIdPrefix: privateDnsZoneResourceIdPrefix
     privateDnsZones: tier3_stamp.outputs.privateDnsZones
     privateLinkScopeResourceId: privateLinkScopeResourceId
-    stampIndexFull: stampIndexFull
     subnetResourceId: tier3_stamp.outputs.subnets[0].id
     subnets: tier3_stamp.outputs.subnets
     tags: tags
@@ -1081,12 +1079,14 @@ module controlPlane 'modules/control-plane/control-plane.bicep' = {
     avdPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3_stamp.outputs.privateDnsZones, name => startsWith(name, 'privatelink.wvd'))[0]}'
     customImageId: customImageId
     customRdpProperty: customRdpProperty
+    delimiter: tier3_shared.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedIdentityClientId: management.outputs.deploymentUserAssignedIdentityClientId
     desktopFriendlyName: desktopFriendlyName
     diskSku: diskSku
     domainName: domainName
     enableAvdInsights: enableAvdInsights
+    existingFeedWorkspaceResourceId: existingFeedWorkspaceResourceId
     hostPoolPublicNetworkAccess: hostPoolPublicNetworkAccess
     hostPoolType: hostPoolType
     imageOffer: imageOffer
@@ -1102,14 +1102,12 @@ module controlPlane 'modules/control-plane/control-plane.bicep' = {
     mlzTags: tier3_stamp.outputs.mlzTags
     names: naming_management.outputs.names
     resourceGroupManagement: management.outputs.resourceGroupName
+    resourceGroupShared: shared.outputs.resourceGroupName
     securityPrincipalObjectIds: map(securityPrincipals, item => item.objectId)
+    sharedSubnetReourceId: tier3_shared.outputs.subnets[0].id
     tags: tags
     validationEnvironment: validationEnvironment
     virtualMachineSize: virtualMachineSize
-    existingFeedWorkspaceResourceId: existingFeedWorkspaceResourceId
-    resourceGroupShared: shared.outputs.resourceGroupName
-    sharedSubnetReourceId: tier3_shared.outputs.subnets[0].id
-    stampIndexFull: stampIndexFull
     workspaceFriendlyName: workspaceFriendlyName
     workspacePublicNetworkAccess: workspacePublicNetworkAccess
   }
