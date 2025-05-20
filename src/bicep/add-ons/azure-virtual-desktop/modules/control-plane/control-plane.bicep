@@ -4,6 +4,7 @@ param activeDirectorySolution string
 param avdPrivateDnsZoneResourceId string
 param customImageId string
 param customRdpProperty string
+param delimiter string
 // param deployFslogix bool
 param deploymentNameSuffix string
 param deploymentUserAssignedIdentityClientId string
@@ -30,7 +31,6 @@ param resourceGroupManagement string
 param resourceGroupShared string
 param securityPrincipalObjectIds array
 param sharedSubnetReourceId string
-param stampIndexFull string
 param tags object
 param validationEnvironment bool
 param virtualMachineSize string
@@ -115,11 +115,11 @@ module workspace_feed '../shared/workspace-feed.bicep' = {
     subnetResourceId: sharedSubnetReourceId
     tags: tags
     virtualMachineName: managementVirtualMachineName
-    workspaceFeedDiagnoticSettingName: replace(names.workspaceDiagnosticSetting, stampIndexFull, 'feed')
-    workspaceFeedName: replace(names.workspace, stampIndexFull, 'feed')
-    workspaceFeedNetworkInterfaceName: replace(names.workspaceNetworkInterface, stampIndexFull, 'feed')
-    workspaceFeedPrivateEndpointName: replace(names.workspacePrivateEndpoint, stampIndexFull, 'feed')
-    workspaceFriendlyName: empty(workspaceFriendlyName) ? replace(names.workspace, stampIndexFull, '') : '${workspaceFriendlyName} (${locationControlPlane})'
+    workspaceFeedDiagnoticSettingName: '${names.workspaceDiagnosticSetting}${delimiter}feed'
+    workspaceFeedName: '${names.workspace}${delimiter}feed'
+    workspaceFeedNetworkInterfaceName: '${names.workspaceNetworkInterface}${delimiter}feed'
+    workspaceFeedPrivateEndpointName: '${names.workspacePrivateEndpoint}${delimiter}feed'
+    workspaceFriendlyName: empty(workspaceFriendlyName) ? names.workspace : '${workspaceFriendlyName} (${locationControlPlane})'
     workspacePublicNetworkAccess: workspacePublicNetworkAccess
   }
 }

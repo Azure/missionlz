@@ -20,7 +20,6 @@ param privateDnsZones array
 param privateLinkScopeResourceId string
 // param recoveryServices bool
 // param recoveryServicesGeo string
-param stampIndexFull string
 // param storageService string
 param subnetResourceId string
 param subnets array
@@ -28,7 +27,7 @@ param tags object
 // param timeZone string
 
 var hostPoolResourceId = '${subscription().id}/resourceGroups/${resourceGroupManagement}/providers/Microsoft.DesktopVirtualization/hostpools/${names.hostPool}'
-var resourceGroupShared = replace(names.resourceGroup, stampIndexFull, 'shared')
+var resourceGroupShared = '${names.resourceGroup}${delimiter}shared'
 var resourceGroupFslogix = '${names.resourceGroup}${delimiter}fslogix'
 var resourceGroupManagement = '${names.resourceGroup}${delimiter}management'
 
@@ -55,7 +54,6 @@ module monitoring 'monitoring.bicep' = if (enableApplicationInsights || enableAv
     mlzTags: mlzTags
     names: names
     privateLinkScopeResourceId: privateLinkScopeResourceId
-    stampIndexFull: stampIndexFull
     tags: tags
   }
 }
@@ -110,7 +108,8 @@ module functionApp 'function-app.bicep' = if (fslogixStorageService == 'AzureFil
   name: 'deploy-function-app-${deploymentNameSuffix}'
   scope: resourceGroup_shared
   params: {
-    delegatedSubnetResourceId: filter(subnets, subnet => contains(subnet.name, 'FunctionAppOutbound'))[0].id
+    delegatedSubnetResourceId: filter(subnets, subnet => contains(subnet.name, 'function-app-outbound'))[0].id
+    delimiter: delimiter
     deploymentNameSuffix: deploymentNameSuffix
     enableApplicationInsights: enableApplicationInsights
     environmentAbbreviation: environmentAbbreviation
@@ -122,7 +121,6 @@ module functionApp 'function-app.bicep' = if (fslogixStorageService == 'AzureFil
     privateDnsZones: privateDnsZones
     privateLinkScopeResourceId: privateLinkScopeResourceId
     resourceGroupFslogix: resourceGroupFslogix
-    stampIndexFull: stampIndexFull
     subnetResourceId: subnetResourceId
     tags: tags
   }
