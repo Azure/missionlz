@@ -26,11 +26,12 @@ param managementSubnetResourceId string
 param managementVirtualMachineName string
 param maxSessionLimit int
 param mlzTags object
-param names object
 param resourceGroupManagement string
 param resourceGroupShared string
 param securityPrincipalObjectIds array
+param sharedNames object
 param sharedSubnetReourceId string
+param stampNames object
 param tags object
 param validationEnvironment bool
 param virtualMachineSize string
@@ -58,10 +59,10 @@ module hostPool 'host-pool.bicep' = {
     galleryImagePublisher: galleryImagePublisher
     galleryImageSku: galleryImageSku
     galleryItemId: galleryItemId
-    hostPoolDiagnosticSettingName: names.hostPoolDiagnosticSetting
-    hostPoolName: names.hostPool
-    hostPoolNetworkInterfaceName: names.hostPoolNetworkInterface
-    hostPoolPrivateEndpointName: names.hostPoolPrivateEndpoint
+    hostPoolDiagnosticSettingName: stampNames.hostPoolDiagnosticSetting
+    hostPoolName: stampNames.hostPool
+    hostPoolNetworkInterfaceName: stampNames.hostPoolNetworkInterface
+    hostPoolPrivateEndpointName: stampNames.hostPoolPrivateEndpoint
     hostPoolPublicNetworkAccess: hostPoolPublicNetworkAccess
     hostPoolType: hostPoolType
     imageType: imageType
@@ -69,7 +70,7 @@ module hostPool 'host-pool.bicep' = {
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     maxSessionLimit: maxSessionLimit
     mlzTags: mlzTags
-    sessionHostNamePrefix: names.virtualMachine
+    sessionHostNamePrefix: stampNames.virtualMachine
     subnetResourceId: managementSubnetResourceId
     tags: tags
     validationEnvironment: validationEnvironment
@@ -83,7 +84,7 @@ module applicationGroup 'application-group.bicep' = {
   params: {
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedIdentityClientId: deploymentUserAssignedIdentityClientId
-    desktopApplicationGroupName: names.applicationGroup
+    desktopApplicationGroupName: stampNames.applicationGroup
     hostPoolResourceId: hostPool.outputs.resourceId
     locationControlPlane: locationControlPlane
     locationVirtualMachines: locationVirtualMachines
@@ -115,11 +116,11 @@ module workspace_feed '../shared/workspace-feed.bicep' = {
     subnetResourceId: sharedSubnetReourceId
     tags: tags
     virtualMachineName: managementVirtualMachineName
-    workspaceFeedDiagnoticSettingName: '${names.workspaceDiagnosticSetting}${delimiter}feed'
-    workspaceFeedName: '${names.workspace}${delimiter}feed'
-    workspaceFeedNetworkInterfaceName: '${names.workspaceNetworkInterface}${delimiter}feed'
-    workspaceFeedPrivateEndpointName: '${names.workspacePrivateEndpoint}${delimiter}feed'
-    workspaceFriendlyName: empty(workspaceFriendlyName) ? names.workspace : '${workspaceFriendlyName} (${locationControlPlane})'
+    workspaceFeedDiagnoticSettingName: '${sharedNames.workspaceDiagnosticSetting}${delimiter}feed'
+    workspaceFeedName: '${sharedNames.workspace}${delimiter}feed'
+    workspaceFeedNetworkInterfaceName: '${sharedNames.workspaceNetworkInterface}${delimiter}feed'
+    workspaceFeedPrivateEndpointName: '${sharedNames.workspacePrivateEndpoint}${delimiter}feed'
+    workspaceFriendlyName: empty(workspaceFriendlyName) ? sharedNames.workspace : '${workspaceFriendlyName} (${locationControlPlane})'
     workspacePublicNetworkAccess: workspacePublicNetworkAccess
   }
 }

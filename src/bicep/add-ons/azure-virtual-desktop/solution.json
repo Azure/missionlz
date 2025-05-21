@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "11706928433677321227"
+      "templateHash": "6287337634175645984"
     }
   },
   "parameters": {
@@ -848,598 +848,6 @@
             "addressPrefix": {
               "type": "string",
               "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(variables('virtualNetworkResourceId'), '/')[2], split(variables('virtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(variables('virtualNetworkResourceId'), '/')[8]), '2023-11-01').addressSpace.addressPrefixes[0]]"
-            }
-          }
-        }
-      }
-    },
-    {
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
-      "name": "[format('get-naming-mgmt-{0}', parameters('deploymentNameSuffix'))]",
-      "location": "[deployment().location]",
-      "properties": {
-        "expressionEvaluationOptions": {
-          "scope": "inner"
-        },
-        "mode": "Incremental",
-        "parameters": {
-          "environmentAbbreviation": {
-            "value": "[parameters('environmentAbbreviation')]"
-          },
-          "location": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01', 'full').location]"
-          },
-          "networkName": {
-            "value": "avd"
-          },
-          "identifier": {
-            "value": "[parameters('identifier')]"
-          }
-        },
-        "template": {
-          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
-          "contentVersion": "1.0.0.0",
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "0.35.1.17967",
-              "templateHash": "8940763995032978193"
-            }
-          },
-          "parameters": {
-            "delimiter": {
-              "type": "string",
-              "defaultValue": "-",
-              "allowedValues": [
-                "",
-                "-"
-              ]
-            },
-            "environmentAbbreviation": {
-              "type": "string"
-            },
-            "location": {
-              "type": "string"
-            },
-            "networkName": {
-              "type": "string"
-            },
-            "identifier": {
-              "type": "string"
-            },
-            "stampIndex": {
-              "type": "string",
-              "defaultValue": ""
-            }
-          },
-          "variables": {
-            "$fxv#0": {
-              "AzureChina": {
-                "chinaeast": {
-                  "abbreviation": "cne",
-                  "recoveryServicesGeo": "sha",
-                  "timeDifference": "+8:00",
-                  "timeZone": "China Standard Time"
-                },
-                "chinaeast2": {
-                  "abbreviation": "cne2",
-                  "recoveryServicesGeo": "sha2",
-                  "timeDifference": "+8:00",
-                  "timeZone": "China Standard Time"
-                },
-                "chinanorth": {
-                  "abbreviation": "cnn",
-                  "recoveryServicesGeo": "bjb",
-                  "timeDifference": "+8:00",
-                  "timeZone": "China Standard Time"
-                },
-                "chinanorth2": {
-                  "abbreviation": "cnn2",
-                  "recoveryServicesGeo": "bjb2",
-                  "timeDifference": "+8:00",
-                  "timeZone": "China Standard Time"
-                }
-              },
-              "AzureCloud": {
-                "australiacentral": {
-                  "abbreviation": "auc",
-                  "recoveryServicesGeo": "acl",
-                  "timeDifference": "+10:00",
-                  "timeZone": "AUS Eastern Standard Time"
-                },
-                "australiacentral2": {
-                  "abbreviation": "auc2",
-                  "recoveryServicesGeo": "acl2",
-                  "timeDifference": "+10:00",
-                  "timeZone": "AUS Eastern Standard Time"
-                },
-                "australiaeast": {
-                  "abbreviation": "aue",
-                  "recoveryServicesGeo": "ae",
-                  "timeDifference": "+10:00",
-                  "timeZone": "AUS Eastern Standard Time"
-                },
-                "australiasoutheast": {
-                  "abbreviation": "ause",
-                  "recoveryServicesGeo": "ase",
-                  "timeDifference": "+10:00",
-                  "timeZone": "AUS Eastern Standard Time"
-                },
-                "brazilsouth": {
-                  "abbreviation": "brs",
-                  "recoveryServicesGeo": "brs",
-                  "timeDifference": "-3:00",
-                  "timeZone": "E. South America Standard Time"
-                },
-                "brazilsoutheast": {
-                  "abbreviation": "brse",
-                  "recoveryServicesGeo": "bse",
-                  "timeDifference": "-3:00",
-                  "timeZone": "E. South America Standard Time"
-                },
-                "canadacentral": {
-                  "abbreviation": "cac",
-                  "recoveryServicesGeo": "cnc",
-                  "timeDifference": "-5:00",
-                  "timeZone": "Eastern Standard Time"
-                },
-                "canadaeast": {
-                  "abbreviation": "cae",
-                  "recoveryServicesGeo": "cne",
-                  "timeDifference": "-5:00",
-                  "timeZone": "Eastern Standard Time"
-                },
-                "centralindia": {
-                  "abbreviation": "inc",
-                  "recoveryServicesGeo": "inc",
-                  "timeDifference": "+5:30",
-                  "timeZone": "India Standard Time"
-                },
-                "centralus": {
-                  "abbreviation": "usc",
-                  "recoveryServicesGeo": "cus",
-                  "timeDifference": "-6:00",
-                  "timeZone": "Central Standard Time"
-                },
-                "eastasia": {
-                  "abbreviation": "ase",
-                  "recoveryServicesGeo": "ea",
-                  "timeDifference": "+8:00",
-                  "timeZone": "China Standard Time"
-                },
-                "eastus": {
-                  "abbreviation": "use",
-                  "recoveryServicesGeo": "eus",
-                  "timeDifference": "-5:00",
-                  "timeZone": "Eastern Standard Time"
-                },
-                "eastus2": {
-                  "abbreviation": "use2",
-                  "recoveryServicesGeo": "eus2",
-                  "timeDifference": "-5:00",
-                  "timeZone": "Eastern Standard Time"
-                },
-                "francecentral": {
-                  "abbreviation": "frc",
-                  "recoveryServicesGeo": "frc",
-                  "timeDifference": "+1:00",
-                  "timeZone": "Central Europe Standard Time"
-                },
-                "francesouth": {
-                  "abbreviation": "frs",
-                  "recoveryServicesGeo": "frs",
-                  "timeDifference": "+1:00",
-                  "timeZone": "Central Europe Standard Time"
-                },
-                "germanynorth": {
-                  "abbreviation": "den",
-                  "recoveryServicesGeo": "gn",
-                  "timeDifference": "+1:00",
-                  "timeZone": "Central Europe Standard Time"
-                },
-                "germanywestcentral": {
-                  "abbreviation": "dewc",
-                  "recoveryServicesGeo": "gwc",
-                  "timeDifference": "+1:00",
-                  "timeZone": "Central Europe Standard Time"
-                },
-                "israelcentral": {
-                  "abbreviation": "ilc",
-                  "recoveryServicesGeo": "ilc",
-                  "timeDifference": "+2:00",
-                  "timeZone": "Israel Standard Time"
-                },
-                "italynorth": {
-                  "abbreviation": "itn",
-                  "recoveryServicesGeo": "itn",
-                  "timeDifference": "+1:00",
-                  "timeZone": "Central Europe Standard Time"
-                },
-                "japaneast": {
-                  "abbreviation": "jpe",
-                  "recoveryServicesGeo": "jpe",
-                  "timeDifference": "+9:00",
-                  "timeZone": "Tokyo Standard Time"
-                },
-                "japanwest": {
-                  "abbreviation": "jpw",
-                  "recoveryServicesGeo": "jpw",
-                  "timeDifference": "+9:00",
-                  "timeZone": "Tokyo Standard Time"
-                },
-                "jioindiacentral": {
-                  "abbreviation": "injc",
-                  "recoveryServicesGeo": "jic",
-                  "timeDifference": "+5:30",
-                  "timeZone": "India Standard Time"
-                },
-                "jioindiawest": {
-                  "abbreviation": "injw",
-                  "recoveryServicesGeo": "jiw",
-                  "timeDifference": "+5:30",
-                  "timeZone": "India Standard Time"
-                },
-                "koreacentral": {
-                  "abbreviation": "krc",
-                  "recoveryServicesGeo": "krc",
-                  "timeDifference": "+9:00",
-                  "timeZone": "Korea Standard Time"
-                },
-                "koreasouth": {
-                  "abbreviation": "krs",
-                  "recoveryServicesGeo": "krs",
-                  "timeDifference": "+9:00",
-                  "timeZone": "Korea Standard Time"
-                },
-                "northcentralus": {
-                  "abbreviation": "usnc",
-                  "recoveryServicesGeo": "ncus",
-                  "timeDifference": "-6:00",
-                  "timeZone": "Central Standard Time"
-                },
-                "northeurope": {
-                  "abbreviation": "eun",
-                  "recoveryServicesGeo": "ne",
-                  "timeDifference": "0:00",
-                  "timeZone": "GMT Standard Time"
-                },
-                "norwayeast": {
-                  "abbreviation": "noe",
-                  "recoveryServicesGeo": "nwe",
-                  "timeDifference": "+1:00",
-                  "timeZone": "Central Europe Standard Time"
-                },
-                "norwaywest": {
-                  "abbreviation": "now",
-                  "recoveryServicesGeo": "nww",
-                  "timeDifference": "+1:00",
-                  "timeZone": "Central Europe Standard Time"
-                },
-                "polandcentral": {
-                  "abbreviation": "plc",
-                  "recoveryServicesGeo": "plc",
-                  "timeDifference": "+1:00",
-                  "timeZone": "Central Europe Standard Time"
-                },
-                "qatarcentral": {
-                  "abbreviation": "qac",
-                  "recoveryServicesGeo": "qac",
-                  "timeDifference": "+3:00",
-                  "timeZone": "Arabian Standard Time"
-                },
-                "southafricanorth": {
-                  "abbreviation": "zan",
-                  "recoveryServicesGeo": "san",
-                  "timeDifference": "+2:00",
-                  "timeZone": "South Africa Standard Time"
-                },
-                "southafricawest": {
-                  "abbreviation": "zaw",
-                  "recoveryServicesGeo": "saw",
-                  "timeDifference": "+2:00",
-                  "timeZone": "South Africa Standard Time"
-                },
-                "southcentralus": {
-                  "abbreviation": "ussc",
-                  "recoveryServicesGeo": "scus",
-                  "timeDifference": "-6:00",
-                  "timeZone": "Central Standard Time"
-                },
-                "southeastasia": {
-                  "abbreviation": "asse",
-                  "recoveryServicesGeo": "sea",
-                  "timeDifference": "+8:00",
-                  "timeZone": "Singapore Standard Time"
-                },
-                "southindia": {
-                  "abbreviation": "ins",
-                  "recoveryServicesGeo": "ins",
-                  "timeDifference": "+5:30",
-                  "timeZone": "India Standard Time"
-                },
-                "swedencentral": {
-                  "abbreviation": "sec",
-                  "recoveryServicesGeo": "sdc",
-                  "timeDifference": "+1:00",
-                  "timeZone": "Central Europe Standard Time"
-                },
-                "switzerlandnorth": {
-                  "abbreviation": "chn",
-                  "recoveryServicesGeo": "szn",
-                  "timeDifference": "+1:00",
-                  "timeZone": "Central Europe Standard Time"
-                },
-                "switzerlandwest": {
-                  "abbreviation": "chw",
-                  "recoveryServicesGeo": "szw",
-                  "timeDifference": "+1:00",
-                  "timeZone": "Central Europe Standard Time"
-                },
-                "uaecentral": {
-                  "abbreviation": "aec",
-                  "recoveryServicesGeo": "uac",
-                  "timeDifference": "+3:00",
-                  "timeZone": "Arabian Standard Time"
-                },
-                "uaenorth": {
-                  "abbreviation": "aen",
-                  "recoveryServicesGeo": "uan",
-                  "timeDifference": "+3:00",
-                  "timeZone": "Arabian Standard Time"
-                },
-                "uksouth": {
-                  "abbreviation": "uks",
-                  "recoveryServicesGeo": "uks",
-                  "timeDifference": "0:00",
-                  "timeZone": "GMT Standard Time"
-                },
-                "ukwest": {
-                  "abbreviation": "ukw",
-                  "recoveryServicesGeo": "ukw",
-                  "timeDifference": "0:00",
-                  "timeZone": "GMT Standard Time"
-                },
-                "westcentralus": {
-                  "abbreviation": "uswc",
-                  "recoveryServicesGeo": "wcus",
-                  "timeDifference": "-7:00",
-                  "timeZone": "Mountain Standard Time"
-                },
-                "westeurope": {
-                  "abbreviation": "euw",
-                  "recoveryServicesGeo": "we",
-                  "timeDifference": "+1:00",
-                  "timeZone": "Central Europe Standard Time"
-                },
-                "westindia": {
-                  "abbreviation": "inw",
-                  "recoveryServicesGeo": "inw",
-                  "timeDifference": "+5:30",
-                  "timeZone": "India Standard Time"
-                },
-                "westus": {
-                  "abbreviation": "usw",
-                  "recoveryServicesGeo": "wus",
-                  "timeDifference": "-8:00",
-                  "timeZone": "Pacific Standard Time"
-                },
-                "westus2": {
-                  "abbreviation": "usw2",
-                  "recoveryServicesGeo": "wus2",
-                  "timeDifference": "-8:00",
-                  "timeZone": "Pacific Standard Time"
-                },
-                "westus3": {
-                  "abbreviation": "usw3",
-                  "recoveryServicesGeo": "wus3",
-                  "timeDifference": "-7:00",
-                  "timeZone": "Mountain Standard Time"
-                }
-              },
-              "AzureUSGovernment": {
-                "usdodcentral": {
-                  "abbreviation": "dodc",
-                  "recoveryServicesGeo": "udc",
-                  "timeDifference": "-6:00",
-                  "timeZone": "Central Standard Time"
-                },
-                "usdodeast": {
-                  "abbreviation": "dode",
-                  "recoveryServicesGeo": "ude",
-                  "timeDifference": "-5:00",
-                  "timeZone": "Eastern Standard Time"
-                },
-                "usgovarizona": {
-                  "abbreviation": "az",
-                  "recoveryServicesGeo": "uga",
-                  "timeDifference": "-7:00",
-                  "timeZone": "Mountain Standard Time"
-                },
-                "usgovtexas": {
-                  "abbreviation": "tx",
-                  "recoveryServicesGeo": "ugt",
-                  "timeDifference": "-6:00",
-                  "timeZone": "Central Standard Time"
-                },
-                "usgovvirginia": {
-                  "abbreviation": "va",
-                  "recoveryServicesGeo": "ugv",
-                  "timeDifference": "-5:00",
-                  "timeZone": "Eastern Standard Time"
-                }
-              }
-            },
-            "$fxv#1": {
-              "actionGroups": "ag",
-              "applicationGroups": "vdag",
-              "applicationInsights": "appi",
-              "appServicePlans": "asp",
-              "automationAccounts": "aa",
-              "availabilitySets": "avail",
-              "azureFirewalls": "afw",
-              "bastionHosts": "bas",
-              "computeGallieries": "cg",
-              "dataCollectionEndpoints": "dce",
-              "dataCollectionRuleAssociations": "dcra",
-              "dataCollectionRules": "dcr",
-              "diagnosticSettings": "diag",
-              "diskAccesses": "da",
-              "diskEncryptionSets": "des",
-              "disks": "disk",
-              "firewallPolicies": "afwp",
-              "functionApps": "func",
-              "hostPools": "vdpool",
-              "ipConfigurations": "ipconf",
-              "keyVaults": "kv",
-              "localNetworkGateways": "lgw",
-              "logAnalyticsWorkspaces": "log",
-              "netAppAccounts": "naa",
-              "netAppAccountsCapacityPools": "cp",
-              "networkInterfaces": "nic",
-              "networkSecurityGroups": "nsg",
-              "networkWatchers": "nw",
-              "networkWatchersFlowLogs": "fl",
-              "privateEndpoints": "pe",
-              "privateLinkScopes": "pls",
-              "publicIPAddresses": "pip",
-              "recoveryServicesVaults": "rsv",
-              "remoteApplicationGroups": "vdag",
-              "resourceGroups": "rg",
-              "routeTables": "rt",
-              "scalingPlans": "vdscaling",
-              "storageAccounts": "st",
-              "subnets": "snet",
-              "userAssignedIdentities": "id",
-              "virtualMachines": "vm",
-              "virtualNetworkGateways": "vgw",
-              "virtualNetworks": "vnet",
-              "workspaces": "vdws"
-            },
-            "directionShortNames": {
-              "east": "e",
-              "eastcentral": "ec",
-              "north": "n",
-              "northcentral": "nc",
-              "south": "s",
-              "southcentral": "sc",
-              "west": "w",
-              "westcentral": "wc"
-            },
-            "locations": "[coalesce(tryGet(variables('$fxv#0'), environment().name), createObject(format('{0}', parameters('location')), createObject('abbreviation', variables('directionShortNames')[skip(parameters('location'), sub(length(parameters('location')), 5))], 'timeDifference', if(contains(parameters('location'), 'east'), '-5:00', if(contains(parameters('location'), 'west'), '-8:00', '0:00')), 'timeZone', if(contains(parameters('location'), 'east'), 'Eastern Standard Time', if(contains(parameters('location'), 'west'), 'Pacific Standard Time', 'GMT Standard Time')))))]",
-            "locationAbbreviation": "[variables('locations')[parameters('location')].abbreviation]",
-            "resourceAbbreviations": "[variables('$fxv#1')]",
-            "tokens": {
-              "resource": "resource_token",
-              "service": "service_token"
-            },
-            "namingConvention": "[format('{0}{1}{2}{3}{4}{5}{6}{7}{8}{9}', toLower(parameters('identifier')), parameters('delimiter'), parameters('environmentAbbreviation'), parameters('delimiter'), variables('locationAbbreviation'), parameters('delimiter'), parameters('networkName'), parameters('delimiter'), variables('tokens').resource, if(empty(parameters('stampIndex')), '', format('{0}{1}', parameters('delimiter'), parameters('stampIndex'))))]",
-            "namingConvention_Service": "[format('{0}{1}{2}{3}{4}{5}{6}{7}{8}{9}{10}{11}', toLower(parameters('identifier')), parameters('delimiter'), parameters('environmentAbbreviation'), parameters('delimiter'), variables('locationAbbreviation'), parameters('delimiter'), parameters('networkName'), parameters('delimiter'), variables('tokens').service, parameters('delimiter'), variables('tokens').resource, if(empty(parameters('stampIndex')), '', format('{0}{1}', parameters('delimiter'), parameters('stampIndex'))))]",
-            "names": {
-              "actionGroup": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').actionGroups)]",
-              "applicationGroup": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').applicationGroups)]",
-              "applicationInsights": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').applicationInsights)]",
-              "appServicePlan": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').appServicePlans)]",
-              "automationAccount": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').automationAccounts)]",
-              "automationAccountDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, variables('resourceAbbreviations').automationAccounts)]",
-              "automationAccountNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').networkInterfaces), variables('tokens').service, variables('resourceAbbreviations').automationAccounts)]",
-              "automationAccountPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').privateEndpoints), variables('tokens').service, variables('resourceAbbreviations').automationAccounts)]",
-              "availabilitySet": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').availabilitySets)]",
-              "azureFirewall": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').azureFirewalls)]",
-              "azureFirewallPublicIPAddress": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').publicIPAddresses), variables('tokens').service, variables('resourceAbbreviations').azureFirewalls)]",
-              "azureFirewallPublicIPAddressDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, format('{0}{1}{2}', variables('resourceAbbreviations').publicIPAddresses, parameters('delimiter'), variables('resourceAbbreviations').azureFirewalls))]",
-              "azureFirewallDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, variables('resourceAbbreviations').azureFirewalls)]",
-              "azureFirewallPolicy": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').firewallPolicies)]",
-              "bastionHost": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').bastionHosts)]",
-              "bastionHostDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, variables('resourceAbbreviations').bastionHosts)]",
-              "bastionHostNetworkSecurityGroup": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').networkSecurityGroups), variables('tokens').service, variables('resourceAbbreviations').bastionHosts)]",
-              "bastionHostNetworkSecurityGroupDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, format('{0}{1}{2}', variables('resourceAbbreviations').networkSecurityGroups, parameters('delimiter'), variables('resourceAbbreviations').bastionHosts))]",
-              "bastionHostPublicIPAddress": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').publicIPAddresses), variables('tokens').service, variables('resourceAbbreviations').bastionHosts)]",
-              "bastionHostPublicIPAddressDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, format('{0}{1}{2}', variables('resourceAbbreviations').publicIPAddresses, parameters('delimiter'), variables('resourceAbbreviations').bastionHosts))]",
-              "computeGallery": "[replace(replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').computeGallieries), parameters('delimiter'), if(empty(parameters('delimiter')), '', '_'))]",
-              "dataCollectionEndpoint": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').dataCollectionEndpoints)]",
-              "dataCollectionRuleAssociation": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').dataCollectionRuleAssociations)]",
-              "dataCollectionRule": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').dataCollectionRules)]",
-              "diskAccess": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').diskAccesses)]",
-              "diskAccessNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').networkInterfaces), variables('tokens').service, variables('resourceAbbreviations').diskAccesses)]",
-              "diskAccessPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').privateEndpoints), variables('tokens').service, variables('resourceAbbreviations').diskAccesses)]",
-              "diskEncryptionSet": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').diskEncryptionSets)]",
-              "functionApp": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').functionApps)]",
-              "functionAppNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').networkInterfaces), variables('tokens').service, variables('resourceAbbreviations').functionApps)]",
-              "functionAppPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').privateEndpoints), variables('tokens').service, variables('resourceAbbreviations').functionApps)]",
-              "hostPool": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').hostPools)]",
-              "hostPoolDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, variables('resourceAbbreviations').hostPools)]",
-              "hostPoolNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').networkInterfaces), variables('tokens').service, variables('resourceAbbreviations').hostPools)]",
-              "hostPoolPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').privateEndpoints), variables('tokens').service, variables('resourceAbbreviations').hostPools)]",
-              "keyVault": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').keyVaults)]",
-              "keyVaultDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, variables('resourceAbbreviations').keyVaults)]",
-              "keyVaultNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').networkInterfaces), variables('tokens').service, variables('resourceAbbreviations').keyVaults)]",
-              "keyVaultPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').privateEndpoints), variables('tokens').service, variables('resourceAbbreviations').keyVaults)]",
-              "localNetworkGateway": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').localNetworkGateways)]",
-              "logAnalyticsWorkspace": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').logAnalyticsWorkspaces)]",
-              "logAnalyticsWorkspaceDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, variables('resourceAbbreviations').logAnalyticsWorkspaces)]",
-              "netAppAccount": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').netAppAccounts)]",
-              "netAppAccountCapacityPool": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').netAppAccountsCapacityPools), variables('tokens').service, variables('resourceAbbreviations').netAppAccounts)]",
-              "netAppAccountSmbServer": "[replace(replace(replace(replace(variables('namingConvention'), variables('tokens').resource, ''), parameters('environmentAbbreviation'), first(parameters('environmentAbbreviation'))), parameters('networkName'), ''), parameters('delimiter'), '')]",
-              "networkSecurityGroup": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').networkSecurityGroups)]",
-              "networkSecurityGroupDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, variables('resourceAbbreviations').networkSecurityGroups)]",
-              "networkWatcherFlowLogsNetworkSecurityGroup": "[replace(variables('namingConvention'), variables('tokens').resource, format('{0}{1}{2}{3}{4}', variables('resourceAbbreviations').networkWatchers, parameters('delimiter'), variables('resourceAbbreviations').networkWatchersFlowLogs, parameters('delimiter'), variables('resourceAbbreviations').networkSecurityGroups))]",
-              "networkWatcherFlowLogsVirtualNetwork": "[replace(variables('namingConvention'), variables('tokens').resource, format('{0}{1}{2}{3}{4}', variables('resourceAbbreviations').networkWatchers, parameters('delimiter'), variables('resourceAbbreviations').networkWatchersFlowLogs, parameters('delimiter'), variables('resourceAbbreviations').virtualNetworks))]",
-              "privateLinkScope": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').privateLinkScopes)]",
-              "privateLinkScopeNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').networkInterfaces), variables('tokens').service, variables('resourceAbbreviations').privateLinkScopes)]",
-              "privateLinkScopePrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').privateEndpoints), variables('tokens').service, variables('resourceAbbreviations').privateLinkScopes)]",
-              "recoveryServicesVault": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').recoveryServicesVaults)]",
-              "recoveryServicesVaultNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').networkInterfaces), variables('tokens').service, variables('resourceAbbreviations').recoveryServicesVaults)]",
-              "recoveryServicesVaultPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').privateEndpoints), variables('tokens').service, variables('resourceAbbreviations').recoveryServicesVaults)]",
-              "resourceGroup": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').resourceGroups)]",
-              "routeTable": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').routeTables)]",
-              "scalingPlan": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').scalingPlans)]",
-              "scalingPlanDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, variables('resourceAbbreviations').scalingPlans)]",
-              "storageAccount": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').storageAccounts)]",
-              "storageAccountBlobDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, format('{0}{1}blob', variables('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
-              "storageAccountBlobNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').networkInterfaces), variables('tokens').service, format('{0}{1}blob', variables('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
-              "storageAccountBlobPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').privateEndpoints), variables('tokens').service, format('{0}{1}blob', variables('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
-              "storageAccountFileDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, format('{0}{1}file', variables('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
-              "storageAccountFileNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').networkInterfaces), variables('tokens').service, format('{0}{1}file', variables('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
-              "storageAccountFilePrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').privateEndpoints), variables('tokens').service, format('{0}{1}file', variables('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
-              "storageAccountQueueDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, format('{0}{1}queue', variables('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
-              "storageAccountQueueNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').networkInterfaces), variables('tokens').service, format('{0}{1}queue', variables('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
-              "storageAccountQueuePrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').privateEndpoints), variables('tokens').service, format('{0}{1}queue', variables('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
-              "storageAccountTableDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, format('{0}{1}table', variables('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
-              "storageAccountTableNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').networkInterfaces), variables('tokens').service, format('{0}{1}table', variables('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
-              "storageAccountTablePrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').privateEndpoints), variables('tokens').service, format('{0}{1}table', variables('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
-              "subnet": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').subnets)]",
-              "userAssignedIdentity": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').userAssignedIdentities)]",
-              "virtualMachine": "[replace(replace(replace(replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').virtualMachines), parameters('environmentAbbreviation'), first(parameters('environmentAbbreviation'))), parameters('networkName'), ''), parameters('delimiter'), '')]",
-              "virtualMachineDisk": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').disks), variables('tokens').service, format('{0}', variables('resourceAbbreviations').virtualMachines))]",
-              "virtualMachineNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').networkInterfaces), variables('tokens').service, variables('resourceAbbreviations').virtualMachines)]",
-              "virtualMachineNetworkInterfaceDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, format('{0}{1}{2}', variables('resourceAbbreviations').networkInterfaces, parameters('delimiter'), variables('resourceAbbreviations').virtualMachines))]",
-              "virtualNetwork": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').virtualNetworks)]",
-              "virtualNetworkDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, variables('resourceAbbreviations').virtualNetworks)]",
-              "virtualNetworkGateway": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').virtualNetworkGateways)]",
-              "workspace": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').workspaces)]",
-              "workspaceDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, variables('resourceAbbreviations').workspaces)]",
-              "workspaceNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').networkInterfaces), variables('tokens').service, variables('resourceAbbreviations').workspaces)]",
-              "workspacePrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').privateEndpoints), variables('tokens').service, variables('resourceAbbreviations').workspaces)]"
-            }
-          },
-          "resources": [],
-          "outputs": {
-            "delimiter": {
-              "type": "string",
-              "value": "[parameters('delimiter')]"
-            },
-            "locations": {
-              "type": "object",
-              "value": "[variables('locations')]"
-            },
-            "names": {
-              "type": "object",
-              "value": "[variables('names')]"
-            },
-            "resourceAbbreviations": {
-              "type": "object",
-              "value": "[variables('resourceAbbreviations')]"
             }
           }
         }
@@ -12171,7 +11579,7 @@
         "mode": "Incremental",
         "parameters": {
           "delimiter": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-mgmt-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.delimiter.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-shared-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.delimiter.value]"
           },
           "deploymentNameSuffix": {
             "value": "[parameters('deploymentNameSuffix')]"
@@ -12211,7 +11619,7 @@
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
           },
           "names": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-mgmt-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.names.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-shared-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.namingConvention.value]"
           },
           "privateDnsZoneResourceIdPrefix": {
             "value": "[variables('privateDnsZoneResourceIdPrefix')]"
@@ -13699,7 +13107,7 @@
       },
       "dependsOn": [
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-mgmt-{0}', parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-shared-{0}', parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
@@ -13789,9 +13197,6 @@
           "mlzTags": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
           },
-          "names": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-mgmt-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.names.value]"
-          },
           "resourceGroupManagement": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceGroupName.value]"
           },
@@ -13801,8 +13206,14 @@
           "securityPrincipalObjectIds": {
             "value": "[map(parameters('securityPrincipals'), lambda('item', lambdaVariables('item').objectId))]"
           },
+          "sharedNames": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-shared-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.namingConvention.value]"
+          },
           "sharedSubnetReourceId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-shared-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnets.value[0].id]"
+          },
+          "stampNames": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.namingConvention.value]"
           },
           "tags": {
             "value": "[parameters('tags')]"
@@ -13827,7 +13238,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.35.1.17967",
-              "templateHash": "12892866061769431349"
+              "templateHash": "6304787719970686915"
             }
           },
           "parameters": {
@@ -13906,9 +13317,6 @@
             "mlzTags": {
               "type": "object"
             },
-            "names": {
-              "type": "object"
-            },
             "resourceGroupManagement": {
               "type": "string"
             },
@@ -13918,8 +13326,14 @@
             "securityPrincipalObjectIds": {
               "type": "array"
             },
+            "sharedNames": {
+              "type": "object"
+            },
             "sharedSubnetReourceId": {
               "type": "string"
+            },
+            "stampNames": {
+              "type": "object"
             },
             "tags": {
               "type": "object"
@@ -13990,16 +13404,16 @@
                     "value": "[variables('galleryItemId')]"
                   },
                   "hostPoolDiagnosticSettingName": {
-                    "value": "[parameters('names').hostPoolDiagnosticSetting]"
+                    "value": "[parameters('stampNames').hostPoolDiagnosticSetting]"
                   },
                   "hostPoolName": {
-                    "value": "[parameters('names').hostPool]"
+                    "value": "[parameters('stampNames').hostPool]"
                   },
                   "hostPoolNetworkInterfaceName": {
-                    "value": "[parameters('names').hostPoolNetworkInterface]"
+                    "value": "[parameters('stampNames').hostPoolNetworkInterface]"
                   },
                   "hostPoolPrivateEndpointName": {
-                    "value": "[parameters('names').hostPoolPrivateEndpoint]"
+                    "value": "[parameters('stampNames').hostPoolPrivateEndpoint]"
                   },
                   "hostPoolPublicNetworkAccess": {
                     "value": "[parameters('hostPoolPublicNetworkAccess')]"
@@ -14023,7 +13437,7 @@
                     "value": "[parameters('mlzTags')]"
                   },
                   "sessionHostNamePrefix": {
-                    "value": "[parameters('names').virtualMachine]"
+                    "value": "[parameters('stampNames').virtualMachine]"
                   },
                   "subnetResourceId": {
                     "value": "[parameters('managementSubnetResourceId')]"
@@ -14258,7 +13672,7 @@
                     "value": "[parameters('deploymentUserAssignedIdentityClientId')]"
                   },
                   "desktopApplicationGroupName": {
-                    "value": "[parameters('names').applicationGroup]"
+                    "value": "[parameters('stampNames').applicationGroup]"
                   },
                   "hostPoolResourceId": {
                     "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-vdpool-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
@@ -14549,18 +13963,18 @@
                     "value": "[parameters('managementVirtualMachineName')]"
                   },
                   "workspaceFeedDiagnoticSettingName": {
-                    "value": "[format('{0}{1}feed', parameters('names').workspaceDiagnosticSetting, parameters('delimiter'))]"
+                    "value": "[format('{0}{1}feed', parameters('sharedNames').workspaceDiagnosticSetting, parameters('delimiter'))]"
                   },
                   "workspaceFeedName": {
-                    "value": "[format('{0}{1}feed', parameters('names').workspace, parameters('delimiter'))]"
+                    "value": "[format('{0}{1}feed', parameters('sharedNames').workspace, parameters('delimiter'))]"
                   },
                   "workspaceFeedNetworkInterfaceName": {
-                    "value": "[format('{0}{1}feed', parameters('names').workspaceNetworkInterface, parameters('delimiter'))]"
+                    "value": "[format('{0}{1}feed', parameters('sharedNames').workspaceNetworkInterface, parameters('delimiter'))]"
                   },
                   "workspaceFeedPrivateEndpointName": {
-                    "value": "[format('{0}{1}feed', parameters('names').workspacePrivateEndpoint, parameters('delimiter'))]"
+                    "value": "[format('{0}{1}feed', parameters('sharedNames').workspacePrivateEndpoint, parameters('delimiter'))]"
                   },
-                  "workspaceFriendlyName": "[if(empty(parameters('workspaceFriendlyName')), createObject('value', parameters('names').workspace), createObject('value', format('{0} ({1})', parameters('workspaceFriendlyName'), parameters('locationControlPlane'))))]",
+                  "workspaceFriendlyName": "[if(empty(parameters('workspaceFriendlyName')), createObject('value', parameters('sharedNames').workspace), createObject('value', format('{0} ({1})', parameters('workspaceFriendlyName'), parameters('locationControlPlane'))))]",
                   "workspacePublicNetworkAccess": {
                     "value": "[parameters('workspacePublicNetworkAccess')]"
                   }
@@ -14859,7 +14273,6 @@
       },
       "dependsOn": [
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-mgmt-{0}', parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-shared-{0}', parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-shared-{0}', parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix')))]"
@@ -14896,7 +14309,7 @@
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
           },
           "names": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-mgmt-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.names.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-shared-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.namingConvention.value]"
           },
           "networkName": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-shared-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tier.value.name]"
@@ -15092,7 +14505,6 @@
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-mgmt-{0}', parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-shared-{0}', parameters('deploymentNameSuffix')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix')))]"
       ]

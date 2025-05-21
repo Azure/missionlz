@@ -483,17 +483,6 @@ resource partnerTelemetry 'Microsoft.Resources/deployments@2021-04-01' = if (ena
   }
 }
 
-// Gets the naming convention for the management resource group and resources
-module naming_management '../../modules/naming-convention.bicep' = {
-  name: 'get-naming-mgmt-${deploymentNameSuffix}'
-  params: {
-    environmentAbbreviation: environmentAbbreviation
-    location: virtualNetwork_hub.location
-    networkName: 'avd'
-    identifier: identifier
-  }
-}
-
 // Deploys the tier3 resources to support the AVD shared resources
 module tier3_shared '../tier3/solution.bicep' = {
   name: 'deploy-tier3-avd-shared-${deploymentNameSuffix}'
@@ -1046,7 +1035,7 @@ module management 'modules/management/management.bicep' = {
 module shared 'modules/shared/shared.bicep' = {
   name: 'deploy-shared-${deploymentNameSuffix}'
   params: {
-    delimiter: naming_management.outputs.delimiter
+    delimiter: tier3_shared.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedIdentityPrincipalId: management.outputs.deploymentUserAssignedIdentityPrincipalId
     enableApplicationInsights: enableApplicationInsights
@@ -1062,7 +1051,7 @@ module shared 'modules/shared/shared.bicep' = {
     logAnalyticsWorkspaceRetention: logAnalyticsWorkspaceRetention
     logAnalyticsWorkspaceSku: logAnalyticsWorkspaceSku
     mlzTags: tier3_stamp.outputs.mlzTags
-    names: naming_management.outputs.names
+    names: tier3_shared.outputs.namingConvention
     privateDnsZoneResourceIdPrefix: privateDnsZoneResourceIdPrefix
     privateDnsZones: tier3_stamp.outputs.privateDnsZones
     privateLinkScopeResourceId: privateLinkScopeResourceId
@@ -1100,11 +1089,12 @@ module controlPlane 'modules/control-plane/control-plane.bicep' = {
     managementVirtualMachineName: management.outputs.virtualMachineName
     maxSessionLimit: usersPerCore * virtualMachineVirtualCpuCount
     mlzTags: tier3_stamp.outputs.mlzTags
-    names: naming_management.outputs.names
     resourceGroupManagement: management.outputs.resourceGroupName
     resourceGroupShared: shared.outputs.resourceGroupName
     securityPrincipalObjectIds: map(securityPrincipals, item => item.objectId)
+    sharedNames: tier3_shared.outputs.namingConvention
     sharedSubnetReourceId: tier3_shared.outputs.subnets[0].id
+    stampNames: tier3_stamp.outputs.namingConvention
     tags: tags
     validationEnvironment: validationEnvironment
     virtualMachineSize: virtualMachineSize
@@ -1124,7 +1114,7 @@ module sharedServices 'modules/shared-services/shared-services.bicep' = {
     identifierHub: virtualNetwork_hub.tags.identifier
     locationControlPlane: virtualNetwork_hub.location
     mlzTags: tier3_stamp.outputs.mlzTags
-    names: naming_management.outputs.names
+    names: tier3_shared.outputs.namingConvention
     networkName: tier3_shared.outputs.tier.name
     sharedServicesSubnetResourceId: sharedServicesSubnetResourceId
     workspaceGlobalPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3_stamp.outputs.privateDnsZones, name => startsWith(name, 'privatelink-global.wvd'))[0]}'
