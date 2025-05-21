@@ -17,7 +17,6 @@ param names object
 param organizationalUnitPath string
 param privateDnsZoneResourceIdPrefix string
 param privateDnsZones array
-param stampIndexFull string
 param subnetResourceId string
 param tags object
 @secure()
@@ -73,12 +72,10 @@ module diskAccess 'disk-access.bicep' = {
   name: 'deploy-disk-access-${deploymentNameSuffix}'
   params: {
     azureBlobsPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(privateDnsZones, name => contains(name, 'blob'))[0]}'
-    delimiter: delimiter
     hostPoolResourceId: hostPoolResourceId
     location: locationVirtualMachines
     mlzTags: mlzTags
     names: names
-    stampIndexFull: stampIndexFull
     subnetResourceId: subnetResourceId
     tags: tags
   }

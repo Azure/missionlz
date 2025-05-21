@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "6287337634175645984"
+      "templateHash": "6916709073356418920"
     }
   },
   "parameters": {
@@ -10615,9 +10615,6 @@
           "privateDnsZones": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.privateDnsZones.value]"
           },
-          "stampIndexFull": {
-            "value": "[variables('stampIndexFull')]"
-          },
           "subnetResourceId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnets.value[0].id]"
           },
@@ -10638,7 +10635,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.35.1.17967",
-              "templateHash": "7223260056711261736"
+              "templateHash": "17145232859292209262"
             }
           },
           "parameters": {
@@ -10686,9 +10683,6 @@
             },
             "privateDnsZones": {
               "type": "array"
-            },
-            "stampIndexFull": {
-              "type": "string"
             },
             "subnetResourceId": {
               "type": "string"
@@ -10870,9 +10864,6 @@
                   "azureBlobsPrivateDnsZoneResourceId": {
                     "value": "[format('{0}{1}', parameters('privateDnsZoneResourceIdPrefix'), filter(parameters('privateDnsZones'), lambda('name', contains(lambdaVariables('name'), 'blob')))[0])]"
                   },
-                  "delimiter": {
-                    "value": "[parameters('delimiter')]"
-                  },
                   "hostPoolResourceId": {
                     "value": "[variables('hostPoolResourceId')]"
                   },
@@ -10884,9 +10875,6 @@
                   },
                   "names": {
                     "value": "[parameters('names')]"
-                  },
-                  "stampIndexFull": {
-                    "value": "[parameters('stampIndexFull')]"
                   },
                   "subnetResourceId": {
                     "value": "[parameters('subnetResourceId')]"
@@ -10902,14 +10890,11 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.35.1.17967",
-                      "templateHash": "7970535146153468402"
+                      "templateHash": "14406495852169186484"
                     }
                   },
                   "parameters": {
                     "azureBlobsPrivateDnsZoneResourceId": {
-                      "type": "string"
-                    },
-                    "delimiter": {
                       "type": "string"
                     },
                     "hostPoolResourceId": {
@@ -10924,9 +10909,6 @@
                     "names": {
                       "type": "object"
                     },
-                    "stampIndexFull": {
-                      "type": "string"
-                    },
                     "subnetResourceId": {
                       "type": "string"
                     },
@@ -10934,16 +10916,11 @@
                       "type": "object"
                     }
                   },
-                  "variables": {
-                    "diskAccessName": "[replace(parameters('names').diskAccess, format('{0}{1}', parameters('delimiter'), parameters('stampIndexFull')), '')]",
-                    "diskAccessNetworkInterface": "[replace(parameters('names').diskAccessNetworkInterface, format('{0}{1}', parameters('delimiter'), parameters('stampIndexFull')), '')]",
-                    "diskAccessPrivateEndpointName": "[replace(parameters('names').diskAccessPrivateEndpoint, format('{0}{1}', parameters('delimiter'), parameters('stampIndexFull')), '')]"
-                  },
                   "resources": [
                     {
                       "type": "Microsoft.Compute/diskAccesses",
                       "apiVersion": "2021-04-01",
-                      "name": "[variables('diskAccessName')]",
+                      "name": "[parameters('names').diskAccess]",
                       "location": "[parameters('location')]",
                       "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/diskAccesses'), createObject()), parameters('mlzTags'))]",
                       "properties": {}
@@ -10951,16 +10928,16 @@
                     {
                       "type": "Microsoft.Network/privateEndpoints",
                       "apiVersion": "2023-04-01",
-                      "name": "[variables('diskAccessPrivateEndpointName')]",
+                      "name": "[parameters('names').diskAccessPrivateEndpoint]",
                       "location": "[parameters('location')]",
                       "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Network/privateEndpoints'), createObject()), parameters('mlzTags'))]",
                       "properties": {
-                        "customNetworkInterfaceName": "[variables('diskAccessNetworkInterface')]",
+                        "customNetworkInterfaceName": "[parameters('names').diskAccessNetworkInterface]",
                         "privateLinkServiceConnections": [
                           {
-                            "name": "[variables('diskAccessPrivateEndpointName')]",
+                            "name": "[parameters('names').diskAccessPrivateEndpoint]",
                             "properties": {
-                              "privateLinkServiceId": "[resourceId('Microsoft.Compute/diskAccesses', variables('diskAccessName'))]",
+                              "privateLinkServiceId": "[resourceId('Microsoft.Compute/diskAccesses', parameters('names').diskAccess)]",
                               "groupIds": [
                                 "disks"
                               ]
@@ -10972,13 +10949,13 @@
                         }
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Compute/diskAccesses', variables('diskAccessName'))]"
+                        "[resourceId('Microsoft.Compute/diskAccesses', parameters('names').diskAccess)]"
                       ]
                     },
                     {
                       "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                       "apiVersion": "2021-08-01",
-                      "name": "[format('{0}/{1}', variables('diskAccessPrivateEndpointName'), variables('diskAccessName'))]",
+                      "name": "[format('{0}/{1}', parameters('names').diskAccessPrivateEndpoint, parameters('names').diskAccess)]",
                       "properties": {
                         "privateDnsZoneConfigs": [
                           {
@@ -10990,14 +10967,15 @@
                         ]
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Network/privateEndpoints', variables('diskAccessPrivateEndpointName'))]"
+                        "[resourceId('Microsoft.Compute/diskAccesses', parameters('names').diskAccess)]",
+                        "[resourceId('Microsoft.Network/privateEndpoints', parameters('names').diskAccessPrivateEndpoint)]"
                       ]
                     }
                   ],
                   "outputs": {
                     "resourceId": {
                       "type": "string",
-                      "value": "[resourceId('Microsoft.Compute/diskAccesses', variables('diskAccessName'))]"
+                      "value": "[resourceId('Microsoft.Compute/diskAccesses', parameters('names').diskAccess)]"
                     }
                   }
                 }

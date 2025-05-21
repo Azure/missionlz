@@ -1021,7 +1021,6 @@ module management 'modules/management/management.bicep' = {
     privateDnsZones: tier3_stamp.outputs.privateDnsZones
     // recoveryServices: recoveryServices
     // recoveryServicesGeo: tier3_stamp.outputs.locationProperties.recoveryServicesGeo
-    stampIndexFull: stampIndexFull
     // storageService: storageService
     subnetResourceId: tier3_stamp.outputs.subnets[0].id
     tags: tags
