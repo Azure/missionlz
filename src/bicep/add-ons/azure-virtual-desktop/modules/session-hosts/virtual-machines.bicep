@@ -104,7 +104,7 @@ resource hostPool 'Microsoft.DesktopVirtualization/hostPools@2023-09-05' existin
 }
 
 resource networkInterface 'Microsoft.Network/networkInterfaces@2020-05-01' = [for i in range(0, sessionHostCount): {
-  name: '${networkInterfaceNamePrefix}${delimiter}${stampIndexFull}${delimiter}${padLeft((i + sessionHostIndex), 4, '0')}'
+  name: '${networkInterfaceNamePrefix}${padLeft((i + sessionHostIndex), 4, '0')}'
   location: location
   tags: tagsNetworkInterfaces
   properties: {
@@ -150,7 +150,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-03-01' = [for i 
     storageProfile: {
       imageReference: imageReference
       osDisk: {
-        name: '${diskNamePrefix}${delimiter}${stampIndexFull}${delimiter}${padLeft((i + sessionHostIndex), 4, '0')}'
+        name: '${diskNamePrefix}${padLeft((i + sessionHostIndex), 4, '0')}'
         osType: 'Windows'
         createOption: 'FromImage'
         caching: 'ReadWrite'

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "6916709073356418920"
+      "templateHash": "17709227899149008206"
     }
   },
   "parameters": {
@@ -15900,7 +15900,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.35.1.17967",
-              "templateHash": "11217608354413225457"
+              "templateHash": "127376702922534172"
             }
           },
           "parameters": {
@@ -16625,7 +16625,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.35.1.17967",
-                      "templateHash": "2820520415389895351"
+                      "templateHash": "6691333680290076418"
                     }
                   },
                   "parameters": {
@@ -16840,7 +16840,7 @@
                       },
                       "type": "Microsoft.Network/networkInterfaces",
                       "apiVersion": "2020-05-01",
-                      "name": "[format('{0}{1}{2}{3}{4}', parameters('networkInterfaceNamePrefix'), parameters('delimiter'), parameters('stampIndexFull'), parameters('delimiter'), padLeft(add(range(0, parameters('sessionHostCount'))[copyIndex()], parameters('sessionHostIndex')), 4, '0'))]",
+                      "name": "[format('{0}{1}', parameters('networkInterfaceNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[copyIndex()], parameters('sessionHostIndex')), 4, '0'))]",
                       "location": "[parameters('location')]",
                       "tags": "[parameters('tagsNetworkInterfaces')]",
                       "properties": {
@@ -16887,7 +16887,7 @@
                         "storageProfile": {
                           "imageReference": "[variables('imageReference')]",
                           "osDisk": {
-                            "name": "[format('{0}{1}{2}{3}{4}', parameters('diskNamePrefix'), parameters('delimiter'), parameters('stampIndexFull'), parameters('delimiter'), padLeft(add(range(0, parameters('sessionHostCount'))[copyIndex()], parameters('sessionHostIndex')), 4, '0'))]",
+                            "name": "[format('{0}{1}', parameters('diskNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[copyIndex()], parameters('sessionHostIndex')), 4, '0'))]",
                             "osType": "Windows",
                             "createOption": "FromImage",
                             "caching": "ReadWrite",
@@ -16915,7 +16915,7 @@
                         "networkProfile": {
                           "networkInterfaces": [
                             {
-                              "id": "[resourceId('Microsoft.Network/networkInterfaces', format('{0}{1}{2}{3}{4}', parameters('networkInterfaceNamePrefix'), parameters('delimiter'), parameters('stampIndexFull'), parameters('delimiter'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')))]",
+                              "id": "[resourceId('Microsoft.Network/networkInterfaces', format('{0}{1}', parameters('networkInterfaceNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')))]",
                               "properties": {
                                 "deleteOption": "Delete"
                               }
