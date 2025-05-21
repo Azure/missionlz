@@ -22,7 +22,7 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2021-02-01' = {
       ]
     }
     subnets: subnets
-    dhcpOptions: empty(vNetDnsServers) ? null : {
+    dhcpOptions: {
       dnsServers: vNetDnsServers
     }
   }

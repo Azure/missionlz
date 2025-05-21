@@ -4,6 +4,7 @@ param activeDirectorySolution string
 param availability string
 param azureFilesPrivateDnsZoneResourceId string
 param subnets array
+param delimiter string
 param deploymentNameSuffix string
 param deploymentUserAssignedIdentityClientId string
 param deploymentUserAssignedIdentityPrincipalId string
@@ -24,15 +25,13 @@ param keyVaultUri string
 param location string
 param managementVirtualMachineName string
 param mlzTags object
-param namingConvention object
+param names object
 param netbios string
 param organizationalUnitPath string
-param recoveryServices bool
+// param recoveryServices bool
 param resourceGroupManagement string
-param resourceGroupName string
-param securityPrincipalObjectIds array
 param securityPrincipalNames array
-param serviceToken string
+param securityPrincipalObjectIds array
 param storageCount int
 param storageEncryptionKeyName string
 param storageIndex int
@@ -42,7 +41,7 @@ param subnetResourceId string
 param tags object
 
 resource resourceGroup 'Microsoft.Resources/resourceGroups@2023-07-01' = {
-  name: resourceGroupName
+  name: '${names.resourceGroup}${delimiter}fslogix'
   location: location
   tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Resources/resourceGroups'] ?? {}, mlzTags)
 }
@@ -50,7 +49,7 @@ resource resourceGroup 'Microsoft.Resources/resourceGroups@2023-07-01' = {
 // Role Assignment for FSLogix
 // Purpose: assigns the Storage Account Contributor role to the managed identity on the
 // management virtual machine  storage resource group to domain join storage account(s) & set NTFS permissions on the file share(s)
-module roleAssignment_Storage '../common/roleAssignments/resourceGroup.bicep' = {
+module roleAssignment_Storage '../common/role-assignments/resource-group.bicep' = {
   name: 'assign-role-storage-${deploymentNameSuffix}'
   scope: resourceGroup
   params: {
@@ -61,7 +60,7 @@ module roleAssignment_Storage '../common/roleAssignments/resourceGroup.bicep' = 
 }
 
 // Required role assignment for the funciton to manage the quota on Azure Files Premium
-module roleAssignments_resourceGroup '../common/roleAssignments/resourceGroup.bicep' = if (fslogixStorageService == 'AzureFiles Premium') {
+module roleAssignments_resourceGroup '../common/role-assignments/resource-group.bicep' = if (fslogixStorageService == 'AzureFiles Premium') {
   name: 'set-role-assignment-${deploymentNameSuffix}'
   scope: resourceGroup
   params: {
@@ -72,11 +71,12 @@ module roleAssignments_resourceGroup '../common/roleAssignments/resourceGroup.bi
 }
 
 // Azure NetApp Files for Fslogix
-module azureNetAppFiles 'azureNetAppFiles.bicep' = if (storageService == 'AzureNetAppFiles') {
+module azureNetAppFiles 'azure-netapp-files.bicep' = if (storageService == 'AzureNetAppFiles') {
   name: 'deploy-anf-${deploymentNameSuffix}'
   scope: resourceGroup
   params: {
     delegatedSubnetResourceId: filter(subnets, subnet => contains(subnet.name, 'AzureNetAppFiles'))[0].id
+    delimiter: delimiter
     dnsServers: dnsServers
     domainJoinPassword: domainJoinPassword
     domainJoinUserPrincipalName: domainJoinUserPrincipalName
@@ -85,36 +85,37 @@ module azureNetAppFiles 'azureNetAppFiles.bicep' = if (storageService == 'AzureN
     hostPoolResourceId: hostPoolResourceId
     location: location
     mlzTags: mlzTags
-    netAppAccountName: namingConvention.netAppAccount
-    netAppCapacityPoolName: namingConvention.netAppAccountCapacityPool
+    netAppAccountNamePrefix: names.netAppAccount
+    netAppCapacityPoolNamePrefix: names.netAppAccountCapacityPool
     organizationalUnitPath: organizationalUnitPath
-    smbServerName: namingConvention.netAppAccountSmbServer
+    smbServerName: names.netAppAccountSmbServer
     storageSku: storageSku
+    suffix: 'fslogix'
     tags: tags
   }
 }
 
 // Azure Files for FSLogix
-module azureFiles 'azureFiles/azureFiles.bicep' = if (storageService == 'AzureFiles') {
+module azureFiles 'azure-files/azure-files.bicep' = if (storageService == 'AzureFiles') {
   name: 'deploy-azure-files-${deploymentNameSuffix}'
   scope: resourceGroup
   params: {
     activeDirectorySolution: activeDirectorySolution
     availability: availability
     azureFilesPrivateDnsZoneResourceId: azureFilesPrivateDnsZoneResourceId
+    delimiter: delimiter
     deploymentNameSuffix: deploymentNameSuffix
-    enableRecoveryServices: recoveryServices
+    // enableRecoveryServices: recoveryServices
     encryptionUserAssignedIdentityResourceId: encryptionUserAssignedIdentityResourceId
     fileShares: fileShares
     fslogixShareSizeInGB: fslogixShareSizeInGB
     hostPoolResourceId: hostPoolResourceId
     keyVaultUri: keyVaultUri
     location: location
-    namingConvention: namingConvention
-    recoveryServicesVaultName: namingConvention.recoveryServicesVault
-    resourceGroupManagement: resourceGroupManagement
+    names: names
+    // recoveryServicesVaultName: namingConvention.recoveryServicesVault
+    // resourceGroupManagement: resourceGroupManagement
     securityPrincipalObjectIds: securityPrincipalObjectIds
-    serviceToken: serviceToken
     storageCount: storageCount
     storageEncryptionKeyName: storageEncryptionKeyName
     storageIndex: storageIndex
@@ -125,7 +126,7 @@ module azureFiles 'azureFiles/azureFiles.bicep' = if (storageService == 'AzureFi
   }
 }
 
-module ntfsPermissions 'ntfsPermissions.bicep' = {
+module ntfsPermissions 'ntfs-permissions.bicep' = {
   scope: resourceGroup
   params: {
     deploymentNameSuffix: deploymentNameSuffix
@@ -184,7 +185,7 @@ module ntfsPermissions 'ntfsPermissions.bicep' = {
       }
       {
         name: 'StorageAccountResourceGroupName'
-        value: resourceGroupName
+        value: resourceGroup.name
       }
       {
         name: 'StorageCount'

@@ -7,14 +7,11 @@ targetScope = 'subscription'
 
 param additionalSubnets array
 param deploymentNameSuffix string
-param deployUniqueResources bool
 param hubVirtualNetworkResourceId string
 param location string
 param mlzTags object
 param networkSecurityGroupName string
 param networkSecurityGroupRules array
-param networkWatcherName string
-param networkWatcherResourceId string
 param resourceGroupName string
 param routeTableName string
 param routeTableRouteNextHopIpAddress string
@@ -31,13 +28,10 @@ module spokeNetwork '../../../modules/spoke-network.bicep' = {
   name: 'deploy-spoke-${workloadShortName}-${deploymentNameSuffix}'
   params: {
     additionalSubnets: additionalSubnets
-    deployUniqueResources: deployUniqueResources
     location: location
     mlzTags: mlzTags
     networkSecurityGroupName: networkSecurityGroupName
     networkSecurityGroupRules: networkSecurityGroupRules
-    networkWatcherName: networkWatcherName
-    networkWatcherResourceId: networkWatcherResourceId
     resourceGroupName: resourceGroupName
     routeTableName: routeTableName
     routeTableRouteNextHopIpAddress: routeTableRouteNextHopIpAddress

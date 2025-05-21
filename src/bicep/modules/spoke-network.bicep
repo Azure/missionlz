@@ -6,13 +6,10 @@ Licensed under the MIT License.
 targetScope = 'subscription'
 
 param additionalSubnets array = []
-param deployUniqueResources bool
 param location string
 param mlzTags object
 param networkSecurityGroupName string
 param networkSecurityGroupRules array
-param networkWatcherName string
-param networkWatcherResourceId string
 param resourceGroupName string
 param routeTableName string
 param routeTableRouteNextHopIpAddress string
@@ -80,17 +77,6 @@ module routeTable '../modules/route-table.bicep' = {
   }
 }
 
-module networkWatcher '../modules/network-watcher.bicep' = if (empty(networkWatcherResourceId) && deployUniqueResources) {
-  name: 'networkWatcher'
-  scope: resourceGroup(subscriptionId, resourceGroupName)
-  params: {
-    location: location
-    mlzTags: mlzTags
-    name: networkWatcherName
-    tags: tags
-  }
-}
-
 module virtualNetwork '../modules/virtual-network.bicep' = {
   name: 'virtualNetwork'
   scope: resourceGroup(subscriptionId, resourceGroupName)
@@ -117,9 +103,6 @@ module virtualNetwork '../modules/virtual-network.bicep' = {
     tags: tags
     vNetDnsServers: vNetDnsServers
   }
-  dependsOn: [
-    networkWatcher
-  ]
 }
 
 output networkSecurityGroupName string = networkSecurityGroup.outputs.name

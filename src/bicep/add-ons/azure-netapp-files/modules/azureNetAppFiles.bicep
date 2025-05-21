@@ -1,6 +1,7 @@
 targetScope = 'subscription'
 
 param delegatedSubnetResourceId string
+param delimiter string
 param deploymentNameSuffix string
 param dnsServers string
 @secure()
@@ -20,11 +21,12 @@ param sku string
 param tags object 
 
 // Azure NetApp Files
-module netAppFiles '../../azure-virtual-desktop/modules/fslogix/azureNetAppFiles.bicep' = {
+module netAppFiles '../../azure-virtual-desktop/modules/fslogix/azure-netapp-files.bicep' = {
   name: 'deploy-netapp-files-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupName)
   params: {
     delegatedSubnetResourceId: delegatedSubnetResourceId
+    delimiter: delimiter
     dnsServers: dnsServers
     domainJoinPassword: domainJoinPassword
     domainJoinUserPrincipalName: domainJoinUserPrincipalName
@@ -34,8 +36,8 @@ module netAppFiles '../../azure-virtual-desktop/modules/fslogix/azureNetAppFiles
     ]
     location: location
     mlzTags: mlzTags
-    netAppAccountName: netAppAccountName
-    netAppCapacityPoolName: netAppCapacityPoolName
+    netAppAccountNamePrefix: netAppAccountName
+    netAppCapacityPoolNamePrefix: netAppCapacityPoolName
     organizationalUnitPath: organizationalUnitPath
     smbServerName: smbServerName
     storageSku: sku

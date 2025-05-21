@@ -19,6 +19,7 @@ This repository has carefully planned default address prefixes configured throug
 | Add-On   | Tier 3                               | 10.0.133.0/24  |
 | Add-On   | Imaging                              | 10.0.134.0/24  |
 | Add-On   | ESRI Enterprise                      | 10.0.136.0/23  |
+| Add-On   | Azure Virtual Desktop, Shared        | 10.0.139.0/24  |
 | Add-On   | Azure Virtual Desktop, Stamp Index 0 | 10.0.140.0/23  |
 | Add-On   | Azure Virtual Desktop, Stamp Index 1 | 10.0.142.0/23  |
 | Add-On   | Azure Virtual Desktop, Stamp Index 2 | 10.0.144.0/23  |

@@ -20,7 +20,6 @@
                   "Microsoft.ManagedIdentity/userAssignedIdentities",
                   "Microsoft.NetApp/netAppAccounts",
                   "Microsoft.Network/networkSecurityGroups",
-                  "Microsoft.Network/networkWatchers",
                   "Microsoft.Network/privateEndpoints",
                   "Microsoft.Network/routeTables",
                   "Microsoft.Network/virtualNetworks",
@@ -173,14 +172,6 @@
                   }
                 }
               ]
-            },
-            {
-              "name": "networkWatchersApi",
-              "type": "Microsoft.Solutions.ArmApiControl",
-              "request": {
-                "method": "GET",
-                "path": "[concat(steps('basics').scope.subscription.id, '/providers/Microsoft.Network/networkWatchers?api-version=2023-09-01')]"
-              }
             }
           ]
         },
@@ -617,7 +608,6 @@
                 "Microsoft.ManagedIdentity/userAssignedIdentities",
                 "Microsoft.NetApp/netAppAccounts",
                 "Microsoft.Network/networkSecurityGroups",
-                "Microsoft.Network/networkWatchers",
                 "Microsoft.Network/privateEndpoints",
                 "Microsoft.Network/routeTables",
                 "Microsoft.Network/virtualNetworks",
@@ -649,7 +639,6 @@
         "logAnalyticsWorkspaceResourceId": "[steps('compliance').logAnalyticsWorkspace]",
         "networkWatcherFlowLogsRetentionDays": "[steps('networking').flowLogsSection.retentionDays]",
         "networkWatcherFlowLogsType": "[steps('networking').flowLogsSection.flowLogsType]",
-        "networkWatcherResourceId": "[if(not(empty(filter(steps('basics').networkWatchersApi.value, (item) => equals(item.location, steps('basics').scope.location.name)))), first(map(filter(steps('basics').networkWatchersApi.value, (item) => equals(item.location, steps('basics').scope.location.name)), (item) => item.id)), '')]",
         "organizationalUnitPath": "[steps('settings').identity.ouPath]",
         "policy": "[if(steps('compliance').policySection.deployPolicy, steps('compliance').policySection.policy, '')]",
         "sku": "[steps('settings').storage.sku]",

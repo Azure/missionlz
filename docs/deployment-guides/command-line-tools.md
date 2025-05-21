@@ -89,7 +89,7 @@ Parameter Name | Default Value | Description
 
 By default, MLZ deploys **[Azure Firewall Premium](https://docs.microsoft.com/en-us/azure/firewall/premium-features). Not all regions support Azure Firewall Premium.** Check here to [see if the region you're deploying to supports Azure Firewall Premium](https://learn.microsoft.com/azure/firewall/premium-features#supported-regions). If necessary you can set a different firewall SKU or location.
 
-You can manually specify which SKU of Azure Firewall to use for your deployment by specifying the `firewallSkuTier` parameter. This parameter only accepts values of `Premium`, `Standard`, or `Basic`.
+You can manually specify which SKU of Azure Firewall to use for your deployment by specifying the `firewallSkuTier` parameter. This parameter only accepts the values of `Premium` or `Standard`.
 
 Additionally, you can specify  `customFirewallRuleCollectionGroups`  parameter with a set of firewall rule collection groups that can define the firewall rules used.
 

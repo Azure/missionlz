@@ -19,9 +19,7 @@ param networkSecurityGroupDiagnosticsLogs array
 param networkSecurityGroupName string
 param networkWatcherFlowLogsRetentionDays int
 param networkWatcherFlowLogsType string
-param networkWatcherResourceId string
 param resourceGroupName string
-param serviceToken string
 param storageAccountResourceId string
 param tiers array
 param virtualNetworkDiagnosticsLogs array
@@ -41,7 +39,7 @@ module keyvaultDiagnostics '../../../modules/key-vault-diagnostics.bicep' = {
   name: 'deploy-kv-diags-${tiers[0].shortName}-${deploymentNameSuffix}'
   scope: resourceGroup(tiers[0].subscriptionId, resourceGroupName)
   params: {
-    keyVaultDiagnosticSettingName: replace(tiers[0].namingConvention.keyVaultDiagnosticSetting, '${serviceToken}-', '')
+    keyVaultDiagnosticSettingName: tiers[0].namingConvention.keyVaultDiagnosticSetting
     keyVaultName: keyVaultName
     keyVaultStorageAccountId: storageAccountResourceId
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
@@ -64,9 +62,6 @@ module networkSecurityGroupDiagnostics '../../../modules/network-security-group-
     networkSecurityGroupName: networkSecurityGroupName
     networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
     networkWatcherFlowLogsType: networkWatcherFlowLogsType
-    networkWatcherName: empty(networkWatcherResourceId) ? tiers[0].namingConvention.networkWatcher : split(networkWatcherResourceId, '/')[8]
-    networkWatcherResourceGroupName: empty(networkWatcherResourceId) ? resourceGroupName : split(networkWatcherResourceId, '/')[4]
-    networkWatcherSubscriptionId: empty(networkWatcherResourceId) ? tiers[0].subscriptionId : split(networkWatcherResourceId, '/')[2]
     storageAccountResourceId: storageAccountResourceId
     tiername: tiers[0].name
   }
@@ -86,9 +81,6 @@ module virtualNetworkDiagnostics '../../../modules/virtual-network-diagnostics.b
     metrics: virtualNetworkDiagnosticsMetrics
     networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
     networkWatcherFlowLogsType: networkWatcherFlowLogsType
-    networkWatcherName: empty(networkWatcherResourceId) ? tiers[0].namingConvention.networkWatcher : split(networkWatcherResourceId, '/')[8]
-    networkWatcherResourceGroupName: empty(networkWatcherResourceId) ? resourceGroupName : split(networkWatcherResourceId, '/')[4]
-    networkWatcherSubscriptionId: empty(networkWatcherResourceId) ? tiers[0].subscriptionId : split(networkWatcherResourceId, '/')[2]
     tiername: tiers[0].name
     virtualNetworkDiagnosticSettingName: tiers[0].namingConvention.virtualNetworkDiagnosticSetting
     virtualNetworkName: virtualNetworkName

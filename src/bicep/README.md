@@ -34,7 +34,7 @@ Parameter name | Required | Description
 `firewallIntrusionDetectionMode` | No       | [Alert/Deny/Off] The Azure Firewall Intrusion Detection mode. Valid values are "Alert", "Deny", or "Off". The default value is "Alert".
 `firewallManagementPublicIPAddressAvailabilityZones` | No       | An array of Azure Firewall Public IP Address Availability Zones. It defaults to empty, or "No-Zone", because Availability Zones are not available in every cloud. See https://learn.microsoft.com/azure/virtual-network/ip-services/public-ip-addresses#sku for valid settings.
 `firewallManagementSubnetAddressPrefix` | No       | The CIDR Subnet Address Prefix for the Azure Firewall Management Subnet. It must be in the Hub Virtual Network space. It must be /26.
-`firewallSkuTier` | No       | [Standard/Premium/Basic] The SKU for Azure Firewall. It defaults to "Premium".
+`firewallSkuTier` | No       | [Premium/Standard] The SKU for Azure Firewall. It defaults to "Premium".
 `firewallSupernetIPAddress` | No       | Supernet CIDR address for the entire network of vnets, this address allows for communication between spokes. Recommended to use a Supernet calculator if modifying vnet addresses.
 `firewallThreatIntelMode` | No       | [Alert/Deny/Off] The Azure Firewall Threat Intelligence Rule triggered logging behavior. Valid values are "Alert", "Deny", or "Off". The default value is "Alert".
 `hubNetworkSecurityGroupDiagnosticsLogs` | No       | An array of Network Security Group diagnostic logs to apply to the Hub Virtual Network. See https://learn.microsoft.com/azure/virtual-network/virtual-network-nsg-manage-log#log-categories for valid settings.

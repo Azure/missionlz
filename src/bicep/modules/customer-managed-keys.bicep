@@ -15,7 +15,6 @@ param resourceGroupName string
 param subnetResourceId string
 param tags object
 param tier object
-param tokens object
 param workloadShortName string
 
 module keyVault 'key-vault.bicep' = {
@@ -30,7 +29,6 @@ module keyVault 'key-vault.bicep' = {
     subnetResourceId: subnetResourceId
     tags: tags
     tier: tier
-    tokens: tokens
   }
 }
 
@@ -57,7 +55,7 @@ module userAssignedIdentity 'user-assigned-identity.bicep' = {
     location: location
     mlzTags: mlzTags
     tags: tags
-    userAssignedIdentityName: replace(tier.namingConvention.userAssignedIdentity, '-${tokens.service}', '')
+    userAssignedIdentityName: tier.namingConvention.userAssignedIdentity
   }
 }
 

@@ -216,9 +216,6 @@ param networkWatcherFlowLogsRetentionDays int = 30
 @description('When set to "true", enables Virtual Network Flow Logs. It defaults to "true" as its required by MCSB.')
 param networkWatcherFlowLogsType string = 'VirtualNetwork'
 
-@description('The resource ID for an existing network watcher for the desired deployment location. Only one network watcher per location can exist in a subscription. The value can be left empty to create a new network watcher resource.')
-param networkWatcherResourceId string = ''
-
 @description('The file name of the Office installer in Azure Blobs.')
 param officeInstaller string = ''
 
@@ -332,7 +329,6 @@ module tier3 '../tier3/solution.bicep' = {
     networkSecurityGroupRules: networkSecurityGroupRules
     networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
     networkWatcherFlowLogsType: networkWatcherFlowLogsType
-    networkWatcherResourceId: networkWatcherResourceId
     policy: policy
     subnetAddressPrefix: subnetAddressPrefix
     subnetName: 'Imaging'
@@ -356,7 +352,7 @@ module baseline 'modules/baseline.bicep' = {
     exemptPolicyAssignmentIds: exemptPolicyAssignmentIds
     location: location
     mlzTags: tier3.outputs.mlzTags
-    resourceGroupName: replace(tier3.outputs.namingConvention.resourceGroup, tier3.outputs.tokens.service, 'network')
+    resourceGroupName: '${tier3.outputs.namingConvention.resourceGroup}${tier3.outputs.delimiter}network'
     storageAccountResourceId: storageAccountResourceId
     subscriptionId: subscriptionId
     tags: tags
@@ -388,7 +384,7 @@ module buildAutomation 'modules/buildAutomation.bicep' = if (enableBuildAutomati
     imageMajorVersion: imageMajorVersion
     imageMinorVersion: imageMinorVersion
     imagePatchVersion: imagePatchVersion
-    imageVirtualMachineName: replace(tier3.outputs.namingConvention.virtualMachine, tier3.outputs.tokens.service, 'b')
+    imageVirtualMachineName: '${tier3.outputs.namingConvention.virtualMachine}wb'
     installAccess: installAccess
     installArcGisPro: installArcGisPro
     installExcel: installExcel
@@ -410,7 +406,7 @@ module buildAutomation 'modules/buildAutomation.bicep' = if (enableBuildAutomati
     virtualMachineAdminUsername: virtualMachineAdminUsername
     location: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
-    managementVirtualMachineName: replace(tier3.outputs.namingConvention.virtualMachine, tier3.outputs.tokens.service, 'm')
+    managementVirtualMachineName: '${tier3.outputs.namingConvention.virtualMachine}wm'
     marketplaceImageOffer: marketplaceImageOffer
     marketplaceImagePublisher: marketplaceImagePublisher
     marketplaceImageSKU: marketplaceImageSKU
@@ -419,7 +415,7 @@ module buildAutomation 'modules/buildAutomation.bicep' = if (enableBuildAutomati
     officeInstaller: officeInstaller
     oUPath: oUPath
     replicaCount: replicaCount
-    resourceGroupName: replace(tier3.outputs.namingConvention.resourceGroup, tier3.outputs.tokens.service, 'network')
+    resourceGroupName: '${tier3.outputs.namingConvention.resourceGroup}${tier3.outputs.delimiter}network'
     sourceImageType: sourceImageType
     storageAccountResourceId: storageAccountResourceId
     subnetResourceId: tier3.outputs.subnets[0].id
@@ -455,7 +451,7 @@ module imageBuild 'modules/imageBuild.bicep' = {
     imageMajorVersion: imageMajorVersion
     imageMinorVersion: imageMinorVersion
     imagePatchVersion: imagePatchVersion
-    imageVirtualMachineName: replace(tier3.outputs.namingConvention.virtualMachine, tier3.outputs.tokens.service, 'b')
+    imageVirtualMachineName: '${tier3.outputs.namingConvention.virtualMachine}wb'
     installAccess: installAccess
     installArcGisPro: installArcGisPro
     installExcel: installExcel
@@ -475,7 +471,7 @@ module imageBuild 'modules/imageBuild.bicep' = {
     virtualMachineAdminPassword: virtualMachineAdminPassword
     virtualMachineAdminUsername: virtualMachineAdminUsername
     location: location
-    managementVirtualMachineName: replace(tier3.outputs.namingConvention.virtualMachine, tier3.outputs.tokens.service, 'm')
+    managementVirtualMachineName: '${tier3.outputs.namingConvention.virtualMachine}wm'
     marketplaceImageOffer: marketplaceImageOffer
     marketplaceImagePublisher: marketplaceImagePublisher
     marketplaceImageSKU: marketplaceImageSKU
@@ -483,7 +479,7 @@ module imageBuild 'modules/imageBuild.bicep' = {
     msrdcwebrtcsvcInstaller: msrdcwebrtcsvcInstaller
     officeInstaller: officeInstaller
     replicaCount: replicaCount
-    resourceGroupName: replace(tier3.outputs.namingConvention.resourceGroup, tier3.outputs.tokens.service, 'network')
+    resourceGroupName: '${tier3.outputs.namingConvention.resourceGroup}network'
     sourceImageType: sourceImageType
     storageAccountResourceId: storageAccountResourceId
     subnetResourceId: tier3.outputs.subnets[0].id

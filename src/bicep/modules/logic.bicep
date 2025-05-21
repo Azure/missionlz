@@ -7,9 +7,9 @@ targetScope = 'subscription'
 
 param deploymentNameSuffix string
 param environmentAbbreviation string
+param identifier string
 param location string
 param networks array
-param resourcePrefix string
 param stampIndex string = ''
 
 var environmentName = {
@@ -19,9 +19,9 @@ var environmentName = {
 }
 var mlzTags = {
   environment: environmentName[environmentAbbreviation]
+  identifier: identifier
   landingZoneName: 'MissionLandingZone'
   landingZoneVersion: loadTextContent('../data/version.txt')
-  resourcePrefix: resourcePrefix
 }
 
 /*
@@ -34,10 +34,9 @@ module namingConventions 'naming-convention.bicep' = [for network in networks: {
   name: 'naming-convention-${network.shortName}-${deploymentNameSuffix}'
   params: {
     environmentAbbreviation: environmentAbbreviation
+    identifier: identifier
     location: location
     networkName: network.name
-    networkShortName: network.shortName
-    resourcePrefix: resourcePrefix
     stampIndex: stampIndex
   }
 }]
@@ -45,10 +44,11 @@ module namingConventions 'naming-convention.bicep' = [for network in networks: {
 module privateDnsZones 'private-dns-zones.bicep' = {
   name: 'private-dns-zones-${deploymentNameSuffix}'
   params: {
-    locations: namingConventions[0].outputs.locations
+    // locations: namingConventions[0].outputs.locations // This is only needed for Recovery Services which has been disabled for now.
   }
 }
 
+output delimiter string = namingConventions[0].outputs.delimiter
 output locationProperties object = namingConventions[0].outputs.locations[location]
 output mlzTags object = mlzTags
 output privateDnsZones array = privateDnsZones.outputs.names
@@ -56,9 +56,7 @@ output resourceAbbreviations object = namingConventions[0].outputs.resourceAbbre
 output tiers array = [for (network, i) in networks: {
   name: network.name
   shortName: network.shortName
-  deployUniqueResources: network.deployUniqueResources
   subscriptionId: network.subscriptionId
-  networkWatcherResourceId: network.networkWatcherResourceId
   nsgDiagLogs: network.?nsgDiagLogs ?? []
   nsgRules: network.?nsgRules ?? []
   vnetAddressPrefix: network.?vnetAddressPrefix ?? ''
@@ -67,4 +65,3 @@ output tiers array = [for (network, i) in networks: {
   subnetAddressPrefix: network.?subnetAddressPrefix ?? ''
   namingConvention: namingConventions[i].outputs.names
 }]
-output tokens object = namingConventions[0].outputs.tokens

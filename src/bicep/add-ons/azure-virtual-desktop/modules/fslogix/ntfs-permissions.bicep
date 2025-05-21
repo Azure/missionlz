@@ -8,7 +8,7 @@ param resourceGroupName string
 param tags object
 param virtualMachineName string
 
-module ntfsPermissions 'runCommand.bicep' = {
+module ntfsPermissions 'run-command.bicep' = {
   name: 'deploy-fslogix-ntfs-permissions-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupName)
   params: {

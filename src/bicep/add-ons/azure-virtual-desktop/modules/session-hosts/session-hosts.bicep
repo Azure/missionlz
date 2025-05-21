@@ -7,6 +7,7 @@ param availabilitySetsIndex int
 param availabilityZones array
 param avdConfigurationZipFileName string
 param dataCollectionRuleResourceId string
+param delimiter string
 param deployFslogix bool
 param deploymentNameSuffix string
 param deploymentUserAssignedIdentityClientId string
@@ -24,11 +25,10 @@ param domainName string
 param drainMode bool
 param enableAcceleratedNetworking bool
 param enableAvdInsights bool
-param enableRecoveryServices bool
+// param enableRecoveryServices bool
 param enableWindowsUpdate bool
 param environmentAbbreviation string
 param fslogixContainerType string
-param hostPoolName string
 param hostPoolResourceId string
 param hostPoolType string
 param identifier string
@@ -41,22 +41,21 @@ param logAnalyticsWorkspaceResourceId string
 param managementVirtualMachineName string
 param maxResourcesPerTemplateDeployment int
 param mlzTags object
-param namingConvention object
+param names object
 param netAppFileShares array
 param networkSecurityGroupResourceId string
 param organizationalUnitPath string
 param profile string
-param recoveryServicesVaultName string
+// param recoveryServicesVaultName string
 param resourceGroupManagement string
-param resourceGroupName string
 param scalingWeekdaysOffPeakStartTime string
 param scalingWeekdaysPeakStartTime string
 param scalingWeekendsOffPeakStartTime string
 param scalingWeekendsPeakStartTime string
 param securityPrincipalObjectIds array
-param serviceToken string
 param sessionHostBatchCount int
 param sessionHostIndex int
+param stampIndexFull string
 param storageAccountNamePrefix string
 param storageCount int
 param storageIndex int
@@ -70,19 +69,29 @@ param virtualMachineAdminPassword string
 param virtualMachineAdminUsername string
 param virtualMachineSize string
 
-var availabilitySetNamePrefix = namingConvention.availabilitySet
+var availabilitySetNamePrefix = names.availabilitySet
 var tagsVirtualMachines = union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Compute/virtualMachines'] ?? {}, mlzTags)
 var uniqueToken = uniqueString(identifier, environmentAbbreviation, subscription().subscriptionId)
-var virtualMachineNamePrefix = replace(namingConvention.virtualMachine, serviceToken, '')
+
+resource computeGallery 'Microsoft.Compute/galleries@2023-07-03' existing = if (!empty(imageVersionResourceId)) {
+  name: split(imageVersionResourceId, '/')[8]
+  scope: resourceGroup(split(imageVersionResourceId, '/')[2], split(imageVersionResourceId, '/')[4])
+}
+
+resource computeGalleryImage 'Microsoft.Compute/galleries/images@2023-07-03' existing = if (!empty(imageVersionResourceId)) {
+  name: split(imageVersionResourceId, '/')[10]
+  parent: computeGallery
+}
+
 
 resource rg 'Microsoft.Resources/resourceGroups@2023-07-01' = {
-  name: resourceGroupName
+  name: '${names.resourceGroup}${delimiter}hosts'
   location: location
   tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Resources/resourceGroups'] ?? {}, mlzTags)
 }
 
 // Sets an Azure policy to disable public network access to managed disks
-module policyAssignment '../management/policyAssignment.bicep' = {
+module policyAssignment '../management/policy-assignment.bicep' = {
   name: 'assign-policy-diskAccess-${deploymentNameSuffix}'
   scope: rg
   params: {
@@ -94,13 +103,14 @@ module policyAssignment '../management/policyAssignment.bicep' = {
   }
 }
 
-module availabilitySets 'availabilitySets.bicep' = if (hostPoolType == 'Pooled' && availability == 'AvailabilitySets') {
+module availabilitySets 'availability-sets.bicep' = if (hostPoolType == 'Pooled' && availability == 'AvailabilitySets') {
   name: 'deploy-avSets-${deploymentNameSuffix}'
   scope: rg
   params: {
     availabilitySetNamePrefix: availabilitySetNamePrefix
     availabilitySetsCount: availabilitySetsCount
     availabilitySetsIndex: availabilitySetsIndex
+    delimiter: delimiter
     location: location
     tagsAvailabilitySets: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Compute/availabilitySets'] ?? {}, mlzTags)
   }
@@ -109,7 +119,7 @@ module availabilitySets 'availabilitySets.bicep' = if (hostPoolType == 'Pooled' 
 // Role Assignment for Entra Joined Virtual Machines
 // Purpose: assigns the Virtual Machine Login User role on the hosts resource group
 // to enable the login to Entra joined virtual machines
-module roleAssignments '../common/roleAssignments/resourceGroup.bicep' = [for i in range(0, length(securityPrincipalObjectIds)): if (contains(activeDirectorySolution, 'EntraId')) {
+module roleAssignments '../common/role-assignments/resource-group.bicep' = [for i in range(0, length(securityPrincipalObjectIds)): if (contains(activeDirectorySolution, 'EntraId')) {
   name: 'assign-role-${i}-${deploymentNameSuffix}'
   scope: rg
   params: {
@@ -130,7 +140,7 @@ resource image 'Microsoft.Compute/galleries/images@2023-07-03' existing = if (!e
 }
 
 // Disable Autoscale if adding new session hosts to an existing host pool
-module disableAutoscale '../common/runCommand.bicep' = {
+module disableAutoscale '../common/run-command.bicep' = {
   name: 'deploy-disableAutoscale-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupManagement)
   params: {
@@ -151,7 +161,7 @@ module disableAutoscale '../common/runCommand.bicep' = {
       }
       {
         name: 'ScalingPlanName' 
-        value: namingConvention.scalingPlan
+        value: names.scalingPlan
       }
       {
         name: 'SubscriptionId' 
@@ -169,7 +179,7 @@ module disableAutoscale '../common/runCommand.bicep' = {
 }
 
 @batchSize(1)
-module virtualMachines 'virtualMachines.bicep' = [for i in range(1, sessionHostBatchCount): {
+module virtualMachines 'virtual-machines.bicep' = [for i in range(1, sessionHostBatchCount): {
   name: 'deploy-vms-${i - 1}-${deploymentNameSuffix}'
   scope: rg
   params: {
@@ -179,13 +189,14 @@ module virtualMachines 'virtualMachines.bicep' = [for i in range(1, sessionHostB
     availabilityZones: availabilityZones
     avdConfigurationZipFileName: avdConfigurationZipFileName
     batchCount: i
-    dataCollectionRuleAssociationName: namingConvention.dataCollectionRuleAssociation
+    dataCollectionRuleAssociationNamePrefix: names.dataCollectionRuleAssociation
     dataCollectionRuleResourceId: dataCollectionRuleResourceId
+    delimiter: delimiter
     deployFslogix: deployFslogix
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedidentityClientId: deploymentUserAssignedIdentityClientId
     diskEncryptionSetResourceId: diskEncryptionSetResourceId
-    diskNamePrefix: namingConvention.virtualMachineDisk
+    diskNamePrefix: names.virtualMachineDisk
     diskSku: diskSku
     domainJoinPassword: domainJoinPassword
     domainJoinUserPrincipalName: domainJoinUserPrincipalName
@@ -195,22 +206,27 @@ module virtualMachines 'virtualMachines.bicep' = [for i in range(1, sessionHostB
     enableDrainMode: drainMode
     enableWindowsUpdate: enableWindowsUpdate
     fslogixContainerType: fslogixContainerType
-    hostPoolName: hostPoolName
+    hostPoolResourceId: hostPoolResourceId
     imageVersionResourceId: imageVersionResourceId
     imageOffer: empty(imageVersionResourceId) ? imageOffer : image.properties.identifier.offer
     imagePublisher: empty(imageVersionResourceId) ? imagePublisher : image.properties.identifier.publisher
+    imagePurchasePlan: profile == 'ArcGISPro' && !empty(imageVersionResourceId) ? computeGalleryImage.properties.purchasePlan : profile == 'ArcGISPro' && empty(imageVersionResourceId) ? {
+      name: imageSku
+      publisher: imagePublisher
+      product: imageOffer
+    } : {}
     imageSku: empty(imageVersionResourceId) ? imageSku : image.properties.identifier.sku
     location: location
     managementVirtualMachineName: managementVirtualMachineName
     netAppFileShares: netAppFileShares
-    networkInterfaceNamePrefix: namingConvention.virtualMachineNetworkInterface
+    networkInterfaceNamePrefix: names.virtualMachineNetworkInterface
     networkSecurityGroupResourceId: networkSecurityGroupResourceId
     organizationalUnitPath: organizationalUnitPath
     profile: profile
     resourceGroupManagement: resourceGroupManagement
-    serviceToken: serviceToken
     sessionHostCount: i == sessionHostBatchCount && divisionRemainderValue > 0 ? divisionRemainderValue : maxResourcesPerTemplateDeployment
     sessionHostIndex: i == 1 ? sessionHostIndex : ((i - 1) * maxResourcesPerTemplateDeployment) + sessionHostIndex
+    stampIndexFull: stampIndexFull
     storageAccountPrefix: storageAccountNamePrefix
     storageCount: storageCount
     storageIndex: storageIndex
@@ -220,7 +236,7 @@ module virtualMachines 'virtualMachines.bicep' = [for i in range(1, sessionHostB
     tagsNetworkInterfaces: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Network/networkInterfaces'] ?? {}, mlzTags)
     tagsVirtualMachines: tagsVirtualMachines
     uniqueToken: uniqueToken
-    virtualMachineNamePrefix: virtualMachineNamePrefix
+    virtualMachineNamePrefix: names.virtualMachine
     virtualMachineAdminPassword: virtualMachineAdminPassword
     virtualMachineAdminUsername: virtualMachineAdminUsername
     virtualMachineSize: virtualMachineSize
@@ -230,7 +246,7 @@ module virtualMachines 'virtualMachines.bicep' = [for i in range(1, sessionHostB
     disableAutoscale  ]
 }]
 
-module recoveryServices 'recoveryServices.bicep' = if (enableRecoveryServices && hostPoolType == 'Personal') {
+/* module recoveryServices 'recoveryServices.bicep' = if (enableRecoveryServices && hostPoolType == 'Personal') {
   name: 'deploy-recoveryServices-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupManagement)
   params: {
@@ -250,9 +266,9 @@ module recoveryServices 'recoveryServices.bicep' = if (enableRecoveryServices &&
   dependsOn: [
     virtualMachines
   ]
-}
+} */
 
-module scalingPlan '../management/scalingPlan.bicep' = {
+module scalingPlan '../control-plane/scaling-plan.bicep' = {
   name: 'deploy-scalingPlan-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupManagement)
   params: {
@@ -262,8 +278,8 @@ module scalingPlan '../management/scalingPlan.bicep' = {
     hostPoolType: hostPoolType
     location: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
-    scalingPlanDiagnosticSettingName: namingConvention.scalingPlanDiagnosticSetting
-    scalingPlanName: namingConvention.scalingPlan
+    scalingPlanDiagnosticSettingName: names.scalingPlanDiagnosticSetting
+    scalingPlanName: names.scalingPlan
     tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.DesktopVirtualization/scalingPlans'] ?? {}, mlzTags)
     timeZone: timeZone
     weekdaysOffPeakStartTime: scalingWeekdaysOffPeakStartTime
@@ -272,7 +288,7 @@ module scalingPlan '../management/scalingPlan.bicep' = {
     weekendsPeakStartTime: scalingWeekendsPeakStartTime
   }
   dependsOn: [
-    recoveryServices
+    // recoveryServices
     virtualMachines
   ]
 }

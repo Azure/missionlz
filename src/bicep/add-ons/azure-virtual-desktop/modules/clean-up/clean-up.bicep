@@ -6,7 +6,7 @@ param resourceGroupManagement string
 param userAssignedIdentityClientId string
 param virtualMachineResourceId string
 
-module cleanUp '../common/runCommand.bicep' = {
+module cleanUp '../common/run-command.bicep' = {
   scope: resourceGroup(resourceGroupManagement)
   name: 'clean-up-${deploymentNameSuffix}'
   params: {

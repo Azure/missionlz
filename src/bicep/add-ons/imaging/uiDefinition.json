@@ -176,14 +176,6 @@
                   }
                 }
               ]
-            },
-            {
-              "name": "networkWatchersApi",
-              "type": "Microsoft.Solutions.ArmApiControl",
-              "request": {
-                "method": "GET",
-                "path": "[concat(steps('basics').scope.subscription.id, '/providers/Microsoft.Network/networkWatchers?api-version=2023-09-01')]"
-              }
             }
           ]
         },
@@ -1354,7 +1346,7 @@
                 {
                   "name": "nsgFlowLogsRetirementWarning",
                   "type": "Microsoft.Common.InfoBox",
-                  "visible": "[equals(steps('networking').flowLogsSection.flowLogsType, 'deployNetworkSecurityGroupFlowLogs')]",
+                  "visible": "[equals(steps('network').flowLogsSection.flowLogsType, 'deployNetworkSecurityGroupFlowLogs')]",
                   "options": {
                     "style": "Warning",
                     "text": "NSG flow logs are scheduled for retirement on June 30, 2025. All customers should move to VNet flow logs which offer more logging and visibility. Click here learn more about NSG flow log retirement",
@@ -1538,7 +1530,6 @@
                 "Microsoft.ManagedIdentity/userAssignedIdentities",
                 "Microsoft.Network/networkInterfaces",
                 "Microsoft.Network/networkSecurityGroups",
-                "Microsoft.Network/networkWatchers",
                 "Microsoft.Network/privateEndpoints",
                 "Microsoft.Network/routeTables",
                 "Microsoft.Network/virtualNetworks",
@@ -1593,18 +1584,14 @@
         "installVirtualDesktopOptimizationTool": "[steps('customizations').specialitySoftware.installVirtualDesktopOptimizationTool]",
         "installVisio": "[if(steps('customizations').office.installOffice, steps('customizations').office.installVisio,'false')]",
         "installWord": "[if(steps('customizations').office.installOffice, steps('customizations').office.installWord,'false')]",
-        "localAdministratorPassword": "[steps('virtualMachines').localAdminCredentials.password]",
-        "localAdministratorUsername": "[steps('virtualMachines').localAdminCredentials.username]",
         "location": "[steps('basics').scope.location.name]",
         "logAnalyticsWorkspaceResourceId": "[if(and(steps('automation').automation.enable, steps('automation').monitoring.enable), steps('automation').monitoring.logAnalyticsWorkspace.id, '')]",
         "marketplaceImageOffer": "[if(equals(steps('image').source.type, 'AzureMarketplace'), steps('image').source.offer, '')]",
         "marketplaceImagePublisher": "[if(equals(steps('image').source.type, 'AzureMarketplace'), steps('image').source.publisher, '')]",
         "marketplaceImageSKU": "[if(equals(steps('image').source.type, 'AzureMarketplace'), steps('image').source.sku, '')]",
         "msrdcwebrtcsvcInstaller": "[if(steps('customizations').office.installTeams, steps('customizations').office.msrdcwebrtcsvcInstaller.blobName,'')]",
-        "networkSecurityGroupFlowLogRetentionDays": "[steps('network').flowLogsSection.retentionDays]",
-        "networkWatcherFlowLogsRetentionDays": "[steps('networking').flowLogsSection.retentionDays]",
-        "networkWatcherFlowLogsType": "[steps('networking').flowLogsSection.flowLogsType]",
-        "networkWatcherResourceId": "[if(not(empty(filter(steps('basics').networkWatchersApi.value, (item) => equals(item.location, steps('basics').scope.location.name)))), first(map(filter(steps('basics').networkWatchersApi.value, (item) => equals(item.location, steps('basics').scope.location.name)), (item) => item.id)), '')]",
+        "networkWatcherFlowLogsRetentionDays": "[steps('network').flowLogsSection.retentionDays]",
+        "networkWatcherFlowLogsType": "[steps('network').flowLogsSection.flowLogsType]",
         "officeInstaller": "[if(steps('customizations').office.installOffice, steps('customizations').office.officeBlob.blobName,'')]",
         "oUPath": "[if(and(steps('automation').automation.enable, steps('automation').hybridWorker.domainJoin), steps('automation').hybridWorker.ouPath, '')]",
         "policy": "[if(steps('compliance').policySection.deployPolicy, steps('compliance').policySection.policy, '')]",
@@ -1618,6 +1605,8 @@
         "updateService": "[if(steps('customizations').updates.installUpdates, steps('customizations').updates.updateService, 'MU')]",
         "vcRedistInstaller": "[if(steps('customizations').office.installTeams, steps('customizations').office.vcRedistInstaller.blobName,'')]",
         "vDOTInstaller": "[if(steps('customizations').specialitySoftware.installVirtualDesktopOptimizationTool, steps('customizations').specialitySoftware.vDotBlob.blobName,'')]",
+        "virtualMachineAdminPassword": "[steps('virtualMachines').localAdminCredentials.password]",
+        "virtualMachineAdminUsername": "[steps('virtualMachines').localAdminCredentials.username]",
         "virtualMachineSize": "[steps('virtualMachines').vmSize]",
         "virtualNetworkAddressPrefix": "[steps('network').networkSection.virtualNetworkAddressCidrRange]",
         "wsusServer": "[if(equals(steps('customizations').updates.updateService, 'WSUS'), steps('customizations').updates.wsusServer, '')]"

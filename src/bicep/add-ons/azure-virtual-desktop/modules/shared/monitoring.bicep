@@ -1,3 +1,4 @@
+param delimiter string
 param deploymentNameSuffix string
 param enableAvdInsights bool
 param hostPoolResourceId string
@@ -5,14 +6,12 @@ param location string
 param logAnalyticsWorkspaceRetention int
 param logAnalyticsWorkspaceSku string
 param mlzTags object
-param namingConvention object
+param names object
 param privateLinkScopeResourceId string
-param service string = 'mgmt'
-param serviceToken string
 param tags object
 
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2021-06-01' = {
-  name: replace(namingConvention.logAnalyticsWorkspace, serviceToken, service)
+  name: '${names.logAnalyticsWorkspace}${delimiter}avdi'
   location: location
   tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.OperationalInsights/workspaces'] ?? {}, mlzTags)
   properties: {
@@ -28,7 +27,7 @@ resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2021-06
   }
 }
 
-module privateLinkScope_logAnalyticsWorkspace 'privateLinkScope.bicep' = {
+module privateLinkScope_logAnalyticsWorkspace '../common/private-link-scope.bicep' = {
   name: 'deploy-private-link-scope-law-${deploymentNameSuffix}'
   scope: resourceGroup(split(privateLinkScopeResourceId, '/')[2], split(privateLinkScopeResourceId, '/')[4])
   params: {
@@ -38,7 +37,7 @@ module privateLinkScope_logAnalyticsWorkspace 'privateLinkScope.bicep' = {
 }
 
 resource dataCollectionRule 'Microsoft.Insights/dataCollectionRules@2022-06-01' = if (enableAvdInsights) {
-  name: 'microsoft-avdi-${replace(namingConvention.dataCollectionRule, serviceToken, service)}' // The name must start with 'microsoft-avdi-' for proper integration with AVD Insights
+  name: 'microsoft-avdi-${names.dataCollectionRule}' // The name must start with 'microsoft-avdi-' for proper integration with AVD Insights
   location: location
   tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Insights/dataCollectionRules'] ?? {}, mlzTags)
   kind: 'Windows'
@@ -119,7 +118,7 @@ resource dataCollectionRule 'Microsoft.Insights/dataCollectionRules@2022-06-01' 
 }
 
 resource dataCollectionEndpoint 'Microsoft.Insights/dataCollectionEndpoints@2021-04-01' = if (enableAvdInsights) {
-  name: replace(namingConvention.dataCollectionEndpoint, serviceToken, service)
+  name: '${names.dataCollectionEndpoint}${delimiter}avdi'
   location: location
   tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Insights/dataCollectionEndpoints'] ?? {}, mlzTags)
   kind: 'Windows'
@@ -130,7 +129,7 @@ resource dataCollectionEndpoint 'Microsoft.Insights/dataCollectionEndpoints@2021
   }
 }
 
-module privateLinkScope_dataCollectionEndpoint 'privateLinkScope.bicep' = if (enableAvdInsights) {
+module privateLinkScope_dataCollectionEndpoint '../common/private-link-scope.bicep' = if (enableAvdInsights) {
   name: 'deploy-private-link-scope-dce-${deploymentNameSuffix}'
   scope: resourceGroup(split(privateLinkScopeResourceId, '/')[2], split(privateLinkScopeResourceId, '/')[4])
   params: {

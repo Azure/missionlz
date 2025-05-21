@@ -7,31 +7,23 @@ param builtInAssignment string
 param deployRemediation bool
 param location string
 param logAnalyticsWorkspaceResourceId string
-param networkWatcherResourceGroupName string
 param windowsAdministratorsGroupMembership string
 
 var policyDefinitionID = {
   NISTRev4: {
     id: '/providers/Microsoft.Authorization/policySetDefinitions/cf25b9c1-bd23-4eb6-bd2c-f4f3ac644a5f'
-    parameters: union(json(replace(loadTextContent('policies/NISTRev4-policyAssignmentParameters.json'), 'NetworkWatcherRG', networkWatcherResourceGroupName)), {
+    parameters: union(json(loadTextContent('policies/NISTRev4-policyAssignmentParameters.json')), {
       listOfMembersToIncludeInWindowsVMAdministratorsGroup: {
         value: windowsAdministratorsGroupMembership
       }
       logAnalyticsWorkspaceIdforVMReporting: {
         value:  logAnalyticsWorkspace.id
       }
-      'resourceGroupName-b6e2945c-0b7b-40f5-9233-7a5323b5cdc6': {
-        value: networkWatcherResourceGroupName
-      }
     })
   }
   NISTRev5: {
     id: '/providers/Microsoft.Authorization/policySetDefinitions/179d1daa-458f-4e47-8086-2a68d0d6c38f'
-    parameters: union(json(loadTextContent('policies/NISTRev5-policyAssignmentParameters.json')), {
-      'resourceGroupName-b6e2945c-0b7b-40f5-9233-7a5323b5cdc6': {
-        value: networkWatcherResourceGroupName
-      }
-    })
+    parameters: json(loadTextContent('policies/NISTRev5-policyAssignmentParameters.json'))
   }
   IL5: {
     id: '/providers/Microsoft.Authorization/policySetDefinitions/f9a961fa-3241-4b20-adc4-bbf8ad9d7197'
@@ -42,9 +34,6 @@ var policyDefinitionID = {
       membersToIncludeInLocalAdministratorsGroup: {
         value: windowsAdministratorsGroupMembership
       }
-      NetworkWatcherResourceGroupName: {
-        value: networkWatcherResourceGroupName
-      }
     })
   }
   CMMC: {
@@ -52,9 +41,6 @@ var policyDefinitionID = {
     parameters: union(json(loadTextContent('policies/CMMC-policyAssignmentParameters.json')),{
       'logAnalyticsWorkspaceId-f47b5582-33ec-4c5c-87c0-b010a6b2e917': {
         value: logAnalyticsWorkspace.properties.customerId
-      }
-      'resourceGroupName-b6e2945c-0b7b-40f5-9233-7a5323b5cdc6': {
-        value: networkWatcherResourceGroupName
       }
     }, 'AzureCloud' == environment().name ? {
       'MembersToExclude-69bf4abd-ca1e-4cf6-8b5a-762d42e61d4f': {

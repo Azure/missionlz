@@ -121,9 +121,6 @@ param networkWatcherFlowLogsRetentionDays int = 30
 @description('When set to "true", enables Virtual Network Flow Logs. It defaults to "true" as its required by MCSB.')
 param networkWatcherFlowLogsType string = 'VirtualNetwork'
 
-@description('The resource ID for an existing network watcher for the desired deployment location. Only one network watcher per location can exist in a subscription. The value can be left empty to create a new network watcher resource.')
-param networkWatcherResourceId string = ''
-
 @description('The distinguished name for the target Organization Unit in Active Directory Domain Services.')
 param organizationalUnitPath string = ''
 
@@ -204,7 +201,6 @@ module tier3 '../tier3/solution.bicep' = {
     networkSecurityGroupRules: networkSecurityGroupRules
     networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
     networkWatcherFlowLogsType: networkWatcherFlowLogsType
-    networkWatcherResourceId: networkWatcherResourceId
     policy: policy
     subnetAddressPrefix: subnetAddressPrefix
     tags: tags
@@ -222,7 +218,7 @@ module rg '../../modules/resource-group.bicep' = {
   params: {
     location: location
     mlzTags: tier3.outputs.mlzTags
-    name: replace(tier3.outputs.namingConvention.resourceGroup, tier3.outputs.tokens.service, 'netAppFiles')
+    name: '${tier3.outputs.namingConvention.resourceGroup}${tier3.outputs.delimiter}netAppFiles'
     tags: tags
   }
 }
@@ -232,6 +228,7 @@ module netAppFiles 'modules/azureNetAppFiles.bicep' = {
   name: 'deploy-netapp-files-${deploymentNameSuffix}'
   params: {
     delegatedSubnetResourceId: filter(tier3.outputs.subnets, subnet => contains(subnet.name, 'AzureNetAppFiles'))[0].id
+    delimiter: tier3.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
     dnsServers: join(tier3.outputs.dnsServers, ',')
     domainJoinPassword: domainJoinPassword

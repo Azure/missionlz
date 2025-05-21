@@ -1,4 +1,5 @@
 param delegatedSubnetResourceId string
+param delimiter string
 param dnsServers string
 @secure()
 param domainJoinPassword string
@@ -9,17 +10,19 @@ param hostPoolResourceId string = ''
 param fileShares array
 param location string
 param mlzTags object
-param netAppAccountName string
-param netAppCapacityPoolName string
+param netAppAccountNamePrefix string
+param netAppCapacityPoolNamePrefix string
 param organizationalUnitPath string
 param smbServerName string
 param storageSku string
+param suffix string =  ''
 param tags object
 
+var nameSuffix = empty(suffix) ? '' : '${delimiter}${suffix}'
 var tagsNetAppAccount = union(empty(hostPoolResourceId) ? {} : {'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.NetApp/netAppAccounts'] ?? {}, mlzTags)
 
 resource netAppAccount 'Microsoft.NetApp/netAppAccounts@2021-06-01' = {
-  name: netAppAccountName
+  name: '${netAppAccountNamePrefix}${nameSuffix}'
   location: location
   tags: tagsNetAppAccount
   properties: {
@@ -43,7 +46,7 @@ resource netAppAccount 'Microsoft.NetApp/netAppAccounts@2021-06-01' = {
 
 resource capacityPool 'Microsoft.NetApp/netAppAccounts/capacityPools@2021-06-01' = {
   parent: netAppAccount
-  name: netAppCapacityPoolName
+  name: '${netAppCapacityPoolNamePrefix}${nameSuffix}'
   location: location
   tags: tagsNetAppAccount
   properties: {

@@ -1,5 +1,5 @@
 {
-  "actionGroups": "ag", 
+  "actionGroups": "ag",
   "applicationGroups": "vdag",
   "applicationInsights": "appi",
   "appServicePlans": "asp",
@@ -20,12 +20,14 @@
   "hostPools": "vdpool",
   "ipConfigurations": "ipconf",
   "keyVaults": "kv",
+  "localNetworkGateways": "lgw",
   "logAnalyticsWorkspaces": "log",
   "netAppAccounts": "naa",
-  "netAppCapacityPools": "nacp",
+  "netAppAccountsCapacityPools": "cp",
   "networkInterfaces": "nic",
   "networkSecurityGroups": "nsg",
   "networkWatchers": "nw",
+  "networkWatchersFlowLogs": "fl",
   "privateEndpoints": "pe",
   "privateLinkScopes": "pls",
   "publicIPAddresses": "pip",
@@ -38,6 +40,7 @@
   "subnets": "snet",
   "userAssignedIdentities": "id",
   "virtualMachines": "vm",
+  "virtualNetworkGateways": "vgw",
   "virtualNetworks": "vnet",
   "workspaces": "vdws"
 }

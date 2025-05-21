@@ -9,6 +9,7 @@ param bastionHostPublicIPAddressAllocationMethod string
 param bastionHostPublicIPAddressAvailabilityZones array
 param bastionHostPublicIPAddressSkuName string
 param bastionHostSubnetResourceId string
+param delimiter string
 param deployBastion bool
 param deployLinuxVirtualMachine bool
 param deployWindowsVirtualMachine bool
@@ -37,10 +38,8 @@ param linuxVmOsDiskType string
 param location string
 param logAnalyticsWorkspaceId string
 param mlzTags object
-param serviceToken string
 param supportedClouds array
 param tags object
-
 @secure()
 @minLength(12)
 param windowsVmAdminPassword string
@@ -80,12 +79,12 @@ module linuxVirtualMachine '../modules/linux-virtual-machine.bicep' =
       adminUsername: linuxVmAdminUsername
       authenticationType: linuxVmAuthenticationType
       diskEncryptionSetResourceId: diskEncryptionSetResourceId
-      diskName: replace(hub.namingConvention.virtualMachineDisk, serviceToken, 'remoteAccess-linux')
+      diskName: '${hub.namingConvention.virtualMachineDisk}${delimiter}lra' // lra = Linux Remote Access
       location: location
       logAnalyticsWorkspaceId: logAnalyticsWorkspaceId
       mlzTags: mlzTags
-      name: replace(hub.namingConvention.virtualMachine, serviceToken, 'ral')
-      networkInterfaceName: replace(hub.namingConvention.virtualMachineNetworkInterface, serviceToken, 'remoteAccess-linux')
+      name: '${hub.namingConvention.virtualMachine}lra' // lra = Linux Remote Access
+      networkInterfaceName: '${hub.namingConvention.virtualMachineNetworkInterface}${delimiter}lra' // lra = Linux Remote Access
       networkSecurityGroupResourceId: hubNetworkSecurityGroupResourceId
       osDiskCreateOption: linuxVmOsDiskCreateOption
       osDiskType: linuxVmOsDiskType
@@ -109,13 +108,13 @@ module windowsVirtualMachine '../modules/windows-virtual-machine.bicep' =
       adminUsername: windowsVmAdminUsername
       createOption: windowsVmCreateOption
       diskEncryptionSetResourceId: diskEncryptionSetResourceId
-      diskName: replace(hub.namingConvention.virtualMachineDisk, serviceToken, 'remoteAccess-windows')
+      diskName: '${hub.namingConvention.virtualMachineDisk}${delimiter}wra' // wra = Windows Remote Access
       hybridUseBenefit: hybridUseBenefit
       location: location
       logAnalyticsWorkspaceId: logAnalyticsWorkspaceId
       mlzTags: mlzTags
-      name: replace(hub.namingConvention.virtualMachine, serviceToken, 'raw')
-      networkInterfaceName: replace(hub.namingConvention.virtualMachineNetworkInterface, serviceToken, 'remoteAccess-windows')
+      name: '${hub.namingConvention.virtualMachine}wra' // wra = Windows Remote Access
+      networkInterfaceName: '${hub.namingConvention.virtualMachineNetworkInterface}${delimiter}wra' // wra = Windows Remote Access
       networkSecurityGroupResourceId: hubNetworkSecurityGroupResourceId
       offer: windowsVmImageOffer
       privateIPAddressAllocationMethod: windowsVmNetworkInterfacePrivateIPAddressAllocationMethod

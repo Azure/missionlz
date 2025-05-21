@@ -27,7 +27,7 @@ resource backupPolicy_Storage 'Microsoft.RecoveryServices/vaults/backupPolicies@
   name: 'AvdPolicyStorage'
 }
 
-module protectedItems_fileShares 'protectedItems.bicep' = [for i in range(0, storageCount): {
+module protectedItems_fileShares 'protected-items.bicep' = [for i in range(0, storageCount): {
   name: 'backup-file-shares-${i + storageIndex}-${deploymentNameSuffix}'
   params: {
     fileShares: fileShares

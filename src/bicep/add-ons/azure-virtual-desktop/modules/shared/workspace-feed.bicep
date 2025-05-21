@@ -4,7 +4,7 @@ param deploymentNameSuffix string
 param deploymentUserAssignedIdentityClientId string
 param enableAvdInsights bool
 param existingFeedWorkspaceResourceId string
-param hostPoolName string
+param hostPoolResourceId string
 param locationControlPlane string
 param locationVirtualMachines string
 param logAnalyticsWorkspaceResourceId string
@@ -20,7 +20,7 @@ param workspaceFeedPrivateEndpointName string
 param workspaceFriendlyName string
 param workspacePublicNetworkAccess string
 
-module addApplicationGroups '../common/runCommand.bicep' = if (!empty(existingFeedWorkspaceResourceId)) {
+module addApplicationGroups '../common/run-command.bicep' = if (!empty(existingFeedWorkspaceResourceId)) {
   scope: resourceGroup(resourceGroupManagement)
   name: 'add-vdag-references-${deploymentNameSuffix}'
   params: {
@@ -45,13 +45,7 @@ module addApplicationGroups '../common/runCommand.bicep' = if (!empty(existingFe
       }
     ]
     script: loadTextContent('../../artifacts/Update-AvdWorkspace.ps1')
-    tags: union(
-      {
-        'cm-resource-parent': '${subscription().id}/resourceGroups/${resourceGroup().name}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'
-      },
-      tags[?'Microsoft.Compute/virtualMachines'] ?? {},
-      mlzTags
-    )
+    tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Compute/virtualMachines'] ?? {}, mlzTags)
     virtualMachineName: virtualMachineName
   }
 }

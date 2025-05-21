@@ -32,7 +32,6 @@
                   "Microsoft.Network/azureFirewalls",
                   "Microsoft.Network/firewallPolicies",
                   "Microsoft.Network/networkSecurityGroups",
-                  "Microsoft.Network/networkWatchers",
                   "Microsoft.Network/privateDnsZones",
                   "Microsoft.Network/privateEndpoints",
                   "Microsoft.Network/publicIPAddresses",
@@ -94,15 +93,6 @@
                     "allowedValues": "[map(steps('basics').subscriptionApi.value, (item) => parse(concat('{\"label\":\"', item.displayName, '\",\"value\":\"', item.id, '\",\"description\":\"', 'ID: ', item.subscriptionId, '\"}')))]",
                     "required": true
                   }
-                },
-                {
-                  "name": "hubNetworkWatchersApi",
-                  "type": "Microsoft.Solutions.ArmApiControl",
-                  "condition": "[not(empty(steps('basics').hubSection.hubSubscriptionId))]",
-                  "request": {
-                    "method": "GET",
-                    "path": "[concat(steps('basics').hubSection.hubSubscriptionId, '/providers/Microsoft.Network/networkWatchers?api-version=2023-09-01')]"
-                  }
                 }
               ]
             },
@@ -143,15 +133,6 @@
                     "allowedValues": "[map(steps('basics').subscriptionApi.value, (item) => parse(concat('{\"label\":\"', item.displayName, '\",\"value\":\"', item.id, '\",\"description\":\"', 'ID: ', item.subscriptionId, '\"}')))]",
                     "required": true
                   }
-                },
-                {
-                  "name": "identityNetworkWatchersApi",
-                  "type": "Microsoft.Solutions.ArmApiControl",
-                  "condition": "[not(empty(steps('basics').identitySection.identitySubscriptionId))]",
-                  "request": {
-                    "method": "GET",
-                    "path": "[concat(steps('basics').identitySection.identitySubscriptionId, '/providers/Microsoft.Network/networkWatchers?api-version=2023-09-01')]"
-                  }
                 }
               ]
             },
@@ -181,15 +162,6 @@
                   "constraints": {
                     "allowedValues": "[map(steps('basics').subscriptionApi.value, (item) => parse(concat('{\"label\":\"', item.displayName, '\",\"value\":\"', item.id, '\",\"description\":\"', 'ID: ', item.subscriptionId, '\"}')))]",
                     "required": true
-                  }
-                },
-                {
-                  "name": "operationsNetworkWatchersApi",
-                  "type": "Microsoft.Solutions.ArmApiControl",
-                  "condition": "[not(empty(steps('basics').operationsSection.operationsSubscriptionId))]",
-                  "request": {
-                    "method": "GET",
-                    "path": "[concat(steps('basics').operationsSection.operationsSubscriptionId, '/providers/Microsoft.Network/networkWatchers?api-version=2023-09-01')]"
                   }
                 }
               ]
@@ -221,15 +193,6 @@
                     "allowedValues": "[map(steps('basics').subscriptionApi.value, (item) => parse(concat('{\"label\":\"', item.displayName, '\",\"value\":\"', item.id, '\",\"description\":\"', 'ID: ', item.subscriptionId, '\"}')))]",
                     "required": true
                   }
-                },
-                {
-                  "name": "sharedServicesNetworkWatchersApi",
-                  "type": "Microsoft.Solutions.ArmApiControl",
-                  "condition": "[not(empty(steps('basics').sharedServicesSection.sharedServicesSubscriptionId))]",
-                  "request": {
-                    "method": "GET",
-                    "path": "[concat(steps('basics').sharedServicesSection.sharedServicesSubscriptionId, '/providers/Microsoft.Network/networkWatchers?api-version=2023-09-01')]"
-                  }
                 }
               ]
             },
@@ -239,11 +202,11 @@
               "type": "Microsoft.Common.Section",
               "elements": [
                 {
-                  "name": "resourcePrefix",
-                  "label": "Resource Naming Prefix",
+                  "name": "identifier",
+                  "label": "Resource Naming Identifier",
                   "type": "Microsoft.Common.TextBox",
                   "defaultValue": "",
-                  "toolTip": "Specify a prefix (min 1 and max 6 lowercase characters and numbers) to prepend to all resources.",
+                  "toolTip": "Specify a value (min 1 and max 6 lowercase characters and numbers) to uniquely name resources.",
                   "constraints": {
                     "required": true,
                     "validations": [
@@ -495,11 +458,6 @@
                         "label": "Standard",
                         "description": "Azure Firewall Standard is recommended for customers looking for Layer 3 through Layer 7 firewall and needs autoscaling to handle peak traffic periods of up to 30 Gbps. It supports enterprise features like threat intelligence, DNS proxy, custom DNS, and web categories.",
                         "value": "Standard"
-                      },
-                      {
-                        "label": "Basic",
-                        "description": "Azure Firewall Basic is recommended for SMB customers with throughput needs of 250 Mbps.",
-                        "value": "Basic"
                       }
                     ],
                     "required": true
@@ -1470,7 +1428,6 @@
                 "Microsoft.Network/azureFirewalls",
                 "Microsoft.Network/firewallPolicies",
                 "Microsoft.Network/networkSecurityGroups",
-                "Microsoft.Network/networkWatchers",
                 "Microsoft.Network/privateDnsZones",
                 "Microsoft.Network/privateEndpoints",
                 "Microsoft.Network/publicIPAddresses",
@@ -1505,10 +1462,6 @@
         "deployWindowsVirtualMachine": "[steps('remoteAccess').windowsVmSection.deployWindowsVirtualMachine]",
         "emailSecurityContact": "[steps('compliance').defenderSection.emailSecurityContact]",
         "environmentAbbreviation": "[steps('basics').namingSection.environmentAbbreviation]",
-        "existingHubNetworkWatcherResourceId": "[if(not(empty(filter(steps('basics').hubSection.hubNetworkWatchersApi.value, (item) => equals(item.location, steps('basics').resourceScope.location.name)))), first(map(filter(steps('basics').hubSection.hubNetworkWatchersApi.value, (item) => equals(item.location, steps('basics').resourceScope.location.name)), (item) => item.id)), '')]",
-        "existingIdentityNetworkWatcherResourceId": "[if(not(empty(filter(steps('basics').identitySection.identityNetworkWatchersApi.value, (item) => equals(item.location, steps('basics').resourceScope.location.name)))), first(map(filter(steps('basics').identitySection.identityNetworkWatchersApi.value, (item) => equals(item.location, steps('basics').resourceScope.location.name)), (item) => item.id)), '')]",
-        "existingOperationsNetworkWatcherResourceId": "[if(not(empty(filter(steps('basics').operationsSection.operationsNetworkWatchersApi.value, (item) => equals(item.location, steps('basics').resourceScope.location.name)))), first(map(filter(steps('basics').operationsSection.operationsNetworkWatchersApi.value, (item) => equals(item.location, steps('basics').resourceScope.location.name)), (item) => item.id)), '')]",
-        "existingSharedServicesNetworkWatcherResourceId": "[if(not(empty(filter(steps('basics').sharedServicesSection.sharedServicesNetworkWatchersApi.value, (item) => equals(item.location, steps('basics').resourceScope.location.name)))), first(map(filter(steps('basics').sharedServicesSection.sharedServicesNetworkWatchersApi.value, (item) => equals(item.location, steps('basics').resourceScope.location.name)), (item) => item.id)), '')]",
         "firewallClientSubnetAddressPrefix": "[steps('networking').hubVirtualNetwork.firewallClientSubnetAddressCidrRange]",
         "firewallManagementSubnetAddressPrefix": "[steps('networking').hubVirtualNetwork.firewallManagementSubnetAddressCidrRange]",
         "firewallSkuTier": "[steps('networking').hubVirtualNetwork.firewallSkuTier]",
@@ -1533,7 +1486,7 @@
         "operationsSubscriptionId": "[replace(steps('basics').operationsSection.operationsSubscriptionId, '/subscriptions/', '')]",
         "operationsVirtualNetworkAddressPrefix": "[steps('networking').operationsVirtualNetwork.virtualNetworkAddressCidrRange]",
         "policy": "[steps('compliance').policySection.policy]",
-        "resourcePrefix": "[steps('basics').namingSection.resourcePrefix]",
+        "identifier": "[steps('basics').namingSection.identifier]",
         "sharedServicesSubnetAddressPrefix": "[steps('networking').sharedServicesVirtualNetwork.subnetAddressCidrRange]",
         "sharedServicesSubscriptionId": "[replace(steps('basics').sharedServicesSection.sharedServicesSubscriptionId, '/subscriptions/', '')]",
         "sharedServicesVirtualNetworkAddressPrefix": "[steps('networking').sharedServicesVirtualNetwork.virtualNetworkAddressCidrRange]",

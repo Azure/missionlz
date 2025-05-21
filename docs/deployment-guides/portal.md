@@ -63,7 +63,7 @@ The following parameters affect networking. Each virtual network and subnet has 
 - **Hub Subnet CIDR Range:** the default subnet for the Hub virtual network. The range must fit in the Hub virtual network.
 - **Firewall Client Subnet CIDR Range:** the address space for the Azure Firewall Client subnet. The range must fit in the Hub Virtual Network CIDR range. The network mask must be a /26. |
 - **Firewall Management Subnet CIDR Range:** the address space for the Azure Firewall Management subnet. The range must fit in the Hub Virtual Network CIDR range. The network mask must be a /26.
-- **Firewall SKU:** the SKU for the Azure Firewall. For SCCA compliance, Azure Firewall Premium should be deployed for production. If necessary you can set a different firewall SKU, Standard or Basic. Please [validate the SKU availability in your region](https://learn.microsoft.com/azure/firewall/premium-features#supported-regions) before deploying as there can be differences between clouds.
+- **Firewall SKU:** the SKU for the Azure Firewall. For SCCA compliance, Azure Firewall Premium should be deployed for production. If necessary you can set the firewall SKU to Standard. Please [validate the SKU availability in your region](https://learn.microsoft.com/azure/firewall/premium-features#supported-regions) before deploying as there can be differences between clouds.
 
 #### Identity Virtual Network (Optional)
 

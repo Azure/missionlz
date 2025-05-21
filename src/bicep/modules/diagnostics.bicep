@@ -7,6 +7,7 @@ targetScope = 'subscription'
 
 param bastionDiagnosticsLogs array
 param bastionDiagnosticsMetrics array
+param delimiter string
 param deployBastion bool
 param deploymentNameSuffix string
 param deployNetworkWatcherTrafficAnalytics bool
@@ -24,7 +25,6 @@ param networkWatcherFlowLogsType string
 param publicIPAddressDiagnosticsLogs array
 param publicIPAddressDiagnosticsMetrics array
 param resourceGroupNames array
-param serviceToken string
 param storageAccountResourceIds array
 param supportedClouds array
 param tiers array
@@ -33,13 +33,11 @@ var hub = (filter(tiers, tier => tier.name == 'hub'))[0]
 var hubResourceGroupName = filter(resourceGroupNames, name => contains(name, 'hub'))[0]
 var networkSecurityGroups = union(networkSecurityGroups_Tiers, networkSecurityGroup_Bastion)
 var networkSecurityGroups_Tiers = [for (tier, i) in tiers: {
-  deployUniqueResources: tiers[i].deployUniqueResources
   diagnosticLogs: tiers[i].nsgDiagLogs
   diagnosticSettingName: tiers[i].namingConvention.networkSecurityGroupDiagnosticSetting
   flowLogsName: tiers[i].namingConvention.networkWatcherFlowLogsNetworkSecurityGroup
   name: tiers[i].namingConvention.networkSecurityGroup
   namingConvention: tiers[i].namingConvention
-  networkWatcherResourceId: tiers[i].networkWatcherResourceId
   resourceGroupName: resourceGroupNames[i]
   storageAccountResourceId: storageAccountResourceIds[i]
   subscriptionId: tiers[i].subscriptionId
@@ -47,29 +45,27 @@ var networkSecurityGroups_Tiers = [for (tier, i) in tiers: {
 }]
 var networkSecurityGroup_Bastion = deployBastion ? [
   {
-    deployUniqueResources: hub.deployUniqueResources
     diagnosticLogs: hub.nsgDiagLogs
     diagnosticSettingName: hub.namingConvention.bastionHostNetworkSecurityGroupDiagnosticSetting
-    flowLogsName: replace(hub.namingConvention.networkWatcherFlowLogsNetworkSecurityGroup, '-nsg-', '-nsg-bastion-')
+    flowLogsName: '${hub.namingConvention.networkWatcherFlowLogsNetworkSecurityGroup}${delimiter}bastion'
     name: hub.namingConvention.bastionHostNetworkSecurityGroup
     namingConvention: hub.namingConvention
-    networkWatcherResourceId: hub.networkWatcherResourceId
     resourceGroupName: hubResourceGroupName
     storageAccountResourceId: storageAccountResourceIds[0]
     subscriptionId: hub.subscriptionId
-    tierName: 'hub-bas'
+    tierName: 'hub${delimiter}bas'
   }
 ] : []
 var operations = first(filter(tiers, tier => tier.name == 'operations'))
 var operationsResourceGroupName = filter(resourceGroupNames, name => contains(name, 'operations'))[0]
 var publicIPAddresses = union([
   {
-    name: hub.namingConvention.azureFirewallClientPublicIPAddress
-    diagName: hub.namingConvention.azureFirewallClientPublicIPAddressDiagnosticSetting
+    name: '${hub.namingConvention.azureFirewallPublicIPAddress}${delimiter}client'
+    diagName: '${hub.namingConvention.azureFirewallPublicIPAddressDiagnosticSetting}${delimiter}client'
   }
   {
-    name: hub.namingConvention.azureFirewallManagementPublicIPAddress
-    diagName: hub.namingConvention.azureFirewallManagementPublicIPAddressDiagnosticSetting
+    name: '${hub.namingConvention.azureFirewallPublicIPAddress}${delimiter}management'
+    diagName: '${hub.namingConvention.azureFirewallPublicIPAddressDiagnosticSetting}${delimiter}management'
   }
 ], deployBastion ? [
   {
@@ -78,7 +74,8 @@ var publicIPAddresses = union([
   }
 ] : [])
 
-module activityLogDiagnosticSettings 'activity-log-diagnostic-settings.bicep' = [for (tier, i) in tiers: if (tier.deployUniqueResources) {
+@batchSize(1)
+module activityLogDiagnosticSettings 'activity-log-diagnostic-settings.bicep' = [for (tier, i) in tiers: {
   name: 'deploy-activity-diags-${tier.name}-${deploymentNameSuffix}'
   scope: subscription(tier.subscriptionId)
   params: {
@@ -112,9 +109,6 @@ module networkSecurityGroupDiagnostics '../modules/network-security-group-diagno
     networkSecurityGroupName: nsg.name
     networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
     networkWatcherFlowLogsType: networkWatcherFlowLogsType
-    networkWatcherName: !empty(nsg.networkWatcherResourceId) ? split(nsg.networkWatcherResourceId, '/')[8] : nsg.deployUniqueResources ? nsg.namingConvention.networkWatcher : hub.namingConvention.networkWatcher
-    networkWatcherResourceGroupName: !empty(nsg.networkWatcherResourceId) ? split(nsg.networkWatcherResourceId, '/')[4] : nsg.deployUniqueResources ? nsg.resourceGroupName : hubResourceGroupName
-    networkWatcherSubscriptionId: !empty(nsg.networkWatcherResourceId) ? split(nsg.networkWatcherResourceId, '/')[2] : nsg.deployUniqueResources ? nsg.subscriptionId : hub.subscriptionId
     storageAccountResourceId: nsg.storageAccountResourceId
     tiername: nsg.tierName
   }
@@ -135,17 +129,14 @@ module virtualNetworkDiagnostics '../modules/virtual-network-diagnostics.bicep' 
     metrics: tier.vnetDiagMetrics
     networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
     networkWatcherFlowLogsType: networkWatcherFlowLogsType
-    networkWatcherName: !empty(tier.networkWatcherResourceId) ? split(tier.networkWatcherResourceId, '/')[8] : tier.deployUniqueResources ? tier.namingConvention.networkWatcher : hub.namingConvention.networkWatcher
-    networkWatcherResourceGroupName: !empty(tier.networkWatcherResourceId) ? split(tier.networkWatcherResourceId, '/')[4] : tier.deployUniqueResources ? resourceGroupNames[i] : hubResourceGroupName
-    networkWatcherSubscriptionId: !empty(tier.networkWatcherResourceId) ? split(tier.networkWatcherResourceId, '/')[2] : tier.deployUniqueResources ? tier.subscriptionId : hub.subscriptionId
     tiername: tier.name
     virtualNetworkDiagnosticSettingName: tier.namingConvention.virtualNetworkDiagnosticSetting
     virtualNetworkName: tier.namingConvention.virtualNetwork
   }
 }]
 
-module publicIpAddressDiagnostics '../modules/public-ip-address-diagnostics.bicep' = [for publicIPAddress in publicIPAddresses: {
-  name: 'deploy-pip-diags-${split(publicIPAddress.name, '-')[2]}-${split(publicIPAddress.name, '-')[3]}-${deploymentNameSuffix}'
+module publicIpAddressDiagnostics '../modules/public-ip-address-diagnostics.bicep' = [for (publicIPAddress, i) in publicIPAddresses: {
+  name: 'deploy-pip-diags-${i}-${deploymentNameSuffix}'
   scope: resourceGroup(hub.subscriptionId, hubResourceGroupName)
   params: {
     hubStorageAccountResourceId: storageAccountResourceIds[0]
@@ -174,7 +165,7 @@ module keyVaultDiagnostics '../modules/key-vault-diagnostics.bicep' = {
   name: 'deploy-kv-diags-${deploymentNameSuffix}'
   scope: resourceGroup(hub.subscriptionId, hubResourceGroupName)
   params: {
-    keyVaultDiagnosticSettingName: replace(hub.namingConvention.keyVaultDiagnosticSetting, serviceToken, '')
+    keyVaultDiagnosticSettingName: hub.namingConvention.keyVaultDiagnosticSetting
     keyVaultName: keyVaultName
     keyVaultStorageAccountId: storageAccountResourceIds[0]
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
@@ -187,7 +178,7 @@ module bastionDiagnostics '../modules/bastion-diagnostics.bicep' = if (deployBas
   name: 'deploy-bastion-diags-${deploymentNameSuffix}'
   scope: resourceGroup(hub.subscriptionId, hubResourceGroupName)
   params: {
-    diagnosticSettingName: replace(hub.namingConvention.bastionHostPublicIPAddressDiagnosticSetting, serviceToken, '')
+    diagnosticSettingName: hub.namingConvention.bastionHostDiagnosticSetting
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     logs: bastionDiagnosticsLogs
     metrics: bastionDiagnosticsMetrics

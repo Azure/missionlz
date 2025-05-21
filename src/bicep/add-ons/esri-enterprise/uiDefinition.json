@@ -128,14 +128,6 @@
                   }
                 }
               ]
-            },
-            {
-              "name": "networkWatchersApi",
-              "type": "Microsoft.Solutions.ArmApiControl",
-              "request": {
-                "method": "GET",
-                "path": "[concat(steps('basics').scope.subscription.id, '/providers/Microsoft.Network/networkWatchers?api-version=2023-09-01')]"
-              }
             }
           ]
         },
@@ -476,6 +468,21 @@
                   "defaultValue": false,
                   "visible": "[steps('server').esri.architecture]",
                   "toolTip": "Indicates whether the server is store esri portal and server content on an Azure storage file share."
+                },
+                {
+                  "name": "vmSize",
+                  "type": "Microsoft.Compute.SizeSelector",
+                  "label": "Size",
+                  "toolTip": "Select the size of the virtual machines.",
+                  "recommendedSizes": [
+                    "Standard_DS4_v2"
+                  ],
+                  "options": {
+                    "hideDiskTypeFilter": false
+                  },
+                  "osPlatform": "Windows",
+                  "count": 1,
+                  "visible": true
                 },
                 {
                   "name": "osDiskSize",
@@ -1177,7 +1184,6 @@
                 "Microsoft.Network/applicationGateways",
                 "Microsoft.Network/networkInterfaces",
                 "Microsoft.Network/networkSecurityGroups",
-                "Microsoft.Network/networkWatchers",
                 "Microsoft.Network/privateEndpoints",
                 "Microsoft.Network/publicIPAddresses",
                 "Microsoft.Network/routeTables",
@@ -1229,7 +1235,6 @@
         "logAnalyticsWorkspaceName": "[steps('network').vnet.logAnalyticsWorkspace.name]",
         "networkWatcherFlowLogsRetentionDays": "[steps('networking').flowLogsSection.retentionDays]",
         "networkWatcherFlowLogsType": "[steps('networking').flowLogsSection.flowLogsType]",
-        "networkWatcherResourceId": "[if(not(empty(filter(steps('basics').networkWatchersApi.value, (item) => equals(item.location, steps('basics').scope.location.name)))), first(map(filter(steps('basics').networkWatchersApi.value, (item) => equals(item.location, steps('basics').scope.location.name)), (item) => item.id)), '')]",
         "numberOfDataStoreVirtualMachines": "[steps('datastoretypes').multitier.numnberOfPortalMachines]",
         "numberOfEsriServers": "[steps('datastoretypes').multitier.numnberOfServerMachines]",
         "numberOfEsrispatiotemporalBigDataStoreVirtualMachines": "[if(equals(steps('datastoretypes').dataStores.spatioTemporal, true), steps('datastoretypes').multitier.numberOfSpatioTemporalDataStoreMachines, 0)]",
@@ -1255,11 +1260,11 @@
         "virtualMachineAdminPassword": "[steps('server').localAdminCredentials.password]",
         "virtualMachineAdminUsername": "[steps('server').localAdminCredentials.username]",
         "virtualMachineOSDiskSize": "[steps('server').configuration.osDiskSize]",
+        "virtualMachineSize": "[steps('server').configuration.vmSize]",
         "virtualNetworkAddressPrefix": "[steps('network').vnet.vnetAddressCidrRange]",
         "windowsDomainAdministratorPassword": "[if(equals(steps('server').domain.identity, true), steps('server').domain.password, '')]",
         "windowsDomainAdministratorUserName": "[if(equals(steps('server').domain.identity, true), steps('server').domain.userPrincipalName, '')]",
-        "windowsDomainName": "[if(equals(steps('server').domain.identity, true), steps('server').domain.name, '')]",
-        "workloadSubscriptionId": "[replace(steps('basics').subscriptions.spoke , '/subscriptions/', '')]"
+        "windowsDomainName": "[if(equals(steps('server').domain.identity, true), steps('server').domain.name, '')]"
       },
       "kind": "Subscription",
       "location": "[steps('basics').scope.location.name]",

@@ -21,9 +21,8 @@ param managementIpConfigurationPublicIPAddressResourceId string
 param mlzTags object
 param name string
 @allowed([
-  'Standard'
   'Premium'
-  'Basic'
+  'Standard'
 ])
 param skuTier string
 param tags object = {}
@@ -53,11 +52,11 @@ resource firewallPolicy 'Microsoft.Network/firewallPolicies@2021-02-01' = {
   tags: union(tags[?'Microsoft.Network/firewallPolicies'] ?? {}, mlzTags)
   properties: {
     threatIntelMode: threatIntelMode
-    intrusionDetection: ((skuTier == 'Premium') ? intrusionDetectionObject : null)
+    intrusionDetection: skuTier == 'Premium' ? intrusionDetectionObject : null
     sku: {
       tier: skuTier
     }
-    dnsSettings: ((skuTier == 'Premium' || skuTier == 'Standard') ? dnsSettings : null)
+    dnsSettings: dnsSettings
   }
 }
 
