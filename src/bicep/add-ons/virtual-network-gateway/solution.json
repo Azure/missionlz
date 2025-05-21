@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "2220563306952551561"
+      "templateHash": "3576029274621623951"
     }
   },
   "parameters": {
@@ -195,7 +195,7 @@
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01', 'full').location]"
           },
           "networkName": {
-            "value": "avd"
+            "value": "hub"
           },
           "identifier": {
             "value": "[parameters('identifier')]"

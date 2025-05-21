@@ -82,7 +82,7 @@ module namingConvention '../../modules/naming-convention.bicep' = {
   params: {
     environmentAbbreviation: environmentAbbreviation
     location: location
-    networkName: 'avd'
+    networkName: 'hub'
     identifier: identifier
   }
 }
