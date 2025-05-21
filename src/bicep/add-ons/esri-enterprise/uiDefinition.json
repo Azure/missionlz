@@ -470,6 +470,21 @@
                   "toolTip": "Indicates whether the server is store esri portal and server content on an Azure storage file share."
                 },
                 {
+                  "name": "vmSize",
+                  "type": "Microsoft.Compute.SizeSelector",
+                  "label": "Size",
+                  "toolTip": "Select the size of the virtual machines.",
+                  "recommendedSizes": [
+                    "Standard_DS4_v2"
+                  ],
+                  "options": {
+                    "hideDiskTypeFilter": false
+                  },
+                  "osPlatform": "Windows",
+                  "count": 1,
+                  "visible": true
+                },
+                {
                   "name": "osDiskSize",
                   "type": "Microsoft.Common.Slider",
                   "label": "OS Disk Size (GB)",
@@ -1245,11 +1260,11 @@
         "virtualMachineAdminPassword": "[steps('server').localAdminCredentials.password]",
         "virtualMachineAdminUsername": "[steps('server').localAdminCredentials.username]",
         "virtualMachineOSDiskSize": "[steps('server').configuration.osDiskSize]",
+        "virtualMachineSize": "[steps('server').configuration.vmSize]",
         "virtualNetworkAddressPrefix": "[steps('network').vnet.vnetAddressCidrRange]",
         "windowsDomainAdministratorPassword": "[if(equals(steps('server').domain.identity, true), steps('server').domain.password, '')]",
         "windowsDomainAdministratorUserName": "[if(equals(steps('server').domain.identity, true), steps('server').domain.userPrincipalName, '')]",
-        "windowsDomainName": "[if(equals(steps('server').domain.identity, true), steps('server').domain.name, '')]",
-        "workloadSubscriptionId": "[replace(steps('basics').subscriptions.spoke , '/subscriptions/', '')]"
+        "windowsDomainName": "[if(equals(steps('server').domain.identity, true), steps('server').domain.name, '')]"
       },
       "kind": "Subscription",
       "location": "[steps('basics').scope.location.name]",
