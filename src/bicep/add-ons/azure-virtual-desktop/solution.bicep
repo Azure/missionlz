@@ -487,6 +487,37 @@ resource partnerTelemetry 'Microsoft.Resources/deployments@2021-04-01' = if (ena
 module tier3_shared '../tier3/solution.bicep' = {
   name: 'deploy-tier3-avd-shared-${deploymentNameSuffix}'
   params: {
+    customFirewallRuleCollectionGroups: [
+      {
+        name: 'AVD-CollapsedCollectionGroup-${toUpper(identifier)}-${toUpper(environmentAbbreviation)}-${toUpper(locationVirtualMachines)}-SHARED'
+        properties: {
+          priority: 200
+          ruleCollections: [
+            {
+              name: 'AllowMonitorToLAW'
+              priority: 150
+              ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
+              action: {
+                type: 'Allow'
+              }
+              rules: [
+                {
+                  name: 'AllowMonitorToLAW'
+                  ruleType: 'NetworkRule'
+                  ipProtocols: ['Tcp']
+                  sourceAddresses: [sharedVirtualNetworkAddressPrefix]
+                  destinationAddresses: [cidrHost(virtualNetwork_operations.outputs.addressPrefix, 3)] // Network of the Log Analytics Workspace, could be narrowed using parameters file post deployment
+                  destinationPorts: ['443'] // HTTPS port for Azure Monitor
+                  sourceIpGroups: []
+                  destinationIpGroups: []
+                  destinationFqdns: []
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ]
     deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
     deployDefender: deployDefender
     deploymentNameSuffix: deploymentNameSuffix
@@ -527,7 +558,7 @@ module tier3_stamp '../tier3/solution.bicep' = {
     additionalSubnets: union(subnets.avdManagement, subnets.azureNetAppFiles, subnets.functionApp)
     customFirewallRuleCollectionGroups: empty(customFirewallRuleCollectionGroups) ? [
       {
-        name: 'AVD-CollapsedCollectionGroup-Stamp-${stampIndex}'
+        name: 'AVD-CollapsedCollectionGroup-${toUpper(identifier)}-${toUpper(environmentAbbreviation)}-${toUpper(locationVirtualMachines)}-${stampIndexFull}'
         properties: {
           priority: 200
           ruleCollections: [
