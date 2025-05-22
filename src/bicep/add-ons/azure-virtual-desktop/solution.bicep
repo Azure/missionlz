@@ -527,7 +527,7 @@ module tier3_stamp '../tier3/solution.bicep' = {
     additionalSubnets: union(subnets.avdManagement, subnets.azureNetAppFiles, subnets.functionApp)
     customFirewallRuleCollectionGroups: empty(customFirewallRuleCollectionGroups) ? [
       {
-        name: 'AVD-CollapsedCollectionGroup-Stamp-${stampIndex}'
+        name: toUpper('AVD-${identifier}-${environmentAbbreviation}-${locationVirtualMachines}-${stampIndex}')
         properties: {
           priority: 200
           ruleCollections: [
