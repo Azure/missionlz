@@ -89,6 +89,7 @@ module virtualNetwork '../modules/virtual-network.bicep' = {
       name: subnet.name
       properties: {
         addressPrefix: subnet.properties.addressPrefix
+        defaultOutboundAccess: false
         delegations: delegations[?subnet.name] ?? []
         networkSecurityGroup: {
           id: networkSecurityGroup.outputs.id

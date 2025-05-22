@@ -51,18 +51,21 @@ var subnets = union([
     name: 'AzureFirewallSubnet'
     properties: {
       addressPrefix: firewallClientSubnetAddressPrefix
+      defaultOutboundAccess: false
     }
   }
   {
     name: 'AzureFirewallManagementSubnet'
     properties: {
       addressPrefix: firewallManagementSubnetAddressPrefix
+      defaultOutboundAccess: false
     }
   }
   {
     name: subnetName
     properties: {
       addressPrefix: subnetAddressPrefix
+      defaultOutboundAccess: false
       networkSecurityGroup: {
         id: networkSecurityGroup.outputs.id
       }
@@ -78,6 +81,7 @@ var subnets = union([
     name: 'AzureBastionSubnet'
     properties: {
       addressPrefix: bastionHostSubnetAddressPrefix
+      defaultOutboundAccess: false
       networkSecurityGroup: {
         id: bastionNetworkSecurityGroup.outputs.id
       }
@@ -88,6 +92,7 @@ var subnets = union([
     name: 'GatewaySubnet'
     properties: {
       addressPrefix: azureGatewaySubnetAddressPrefix
+      defaultOutboundAccess: false
     }
   }
 ] : [])
