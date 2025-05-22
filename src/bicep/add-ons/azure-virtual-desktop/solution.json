@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "9320245594034977294"
+      "templateHash": "1907206176559012321"
     }
   },
   "parameters": {
@@ -864,6 +864,47 @@
         },
         "mode": "Incremental",
         "parameters": {
+          "customFirewallRuleCollectionGroups": {
+            "value": [
+              {
+                "name": "[format('AVD-CollapsedCollectionGroup-{0}-{1}-{2}-SHARED', toUpper(parameters('identifier')), toUpper(parameters('environmentAbbreviation')), toUpper(parameters('locationVirtualMachines')))]",
+                "properties": {
+                  "priority": 200,
+                  "ruleCollections": [
+                    {
+                      "name": "AllowMonitorToLAW",
+                      "priority": 150,
+                      "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                      "action": {
+                        "type": "Allow"
+                      },
+                      "rules": [
+                        {
+                          "name": "AllowMonitorToLAW",
+                          "ruleType": "NetworkRule",
+                          "ipProtocols": [
+                            "Tcp"
+                          ],
+                          "sourceAddresses": [
+                            "[parameters('sharedVirtualNetworkAddressPrefix')]"
+                          ],
+                          "destinationAddresses": [
+                            "[cidrHost(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-ops-vnet-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.addressPrefix.value, 3)]"
+                          ],
+                          "destinationPorts": [
+                            "443"
+                          ],
+                          "sourceIpGroups": [],
+                          "destinationIpGroups": [],
+                          "destinationFqdns": []
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ]
+          },
           "deployActivityLogDiagnosticSetting": {
             "value": "[parameters('deployActivityLogDiagnosticSetting')]"
           },
@@ -5697,7 +5738,10 @@
             }
           }
         }
-      }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('get-ops-vnet-{0}', parameters('deploymentNameSuffix')))]"
+      ]
     },
     {
       "type": "Microsoft.Resources/deployments",
