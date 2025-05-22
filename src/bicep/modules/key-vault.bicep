@@ -42,44 +42,6 @@ resource vault 'Microsoft.KeyVault/vaults@2022-07-01' = {
   }
 }
 
-resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = {
-  name: keyVaultPrivateEndpointName
-  location: location
-  tags: union(tags[?'Microsoft.Network/privateEndpoints'] ?? {}, mlzTags)
-  properties: {
-    customNetworkInterfaceName: tier.namingConvention.keyVaultNetworkInterface
-    privateLinkServiceConnections: [
-      {
-        name: keyVaultPrivateEndpointName
-        properties: {
-          privateLinkServiceId: vault.id
-          groupIds: [
-            'vault'
-          ]
-        }
-      }
-    ]
-    subnet: {
-      id: subnetResourceId
-    }
-  }
-}
-
-resource privateDnsZoneGroups 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2021-08-01' = {
-  parent: privateEndpoint
-  name: vault.name
-  properties: {
-    privateDnsZoneConfigs: [
-      {
-        name: 'ipconfig1'
-        properties: {
-          privateDnsZoneId: keyVaultPrivateDnsZoneResourceId
-        }
-      }
-    ]
-  }
-}
-
 resource key_disks 'Microsoft.KeyVault/vaults/keys@2022-07-01' = {
   parent: vault
   name: 'DiskEncryptionKey'
@@ -113,10 +75,6 @@ resource key_disks 'Microsoft.KeyVault/vaults/keys@2022-07-01' = {
       ]
     }
   }
-  dependsOn: [
-    privateEndpoint
-    privateDnsZoneGroups
-  ]
 }
 
 resource key_storageAccounts 'Microsoft.KeyVault/vaults/keys@2022-07-01' = {
@@ -152,9 +110,51 @@ resource key_storageAccounts 'Microsoft.KeyVault/vaults/keys@2022-07-01' = {
       ]
     }
   }
+}
+
+resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = {
+  name: keyVaultPrivateEndpointName
+  location: location
+  tags: union(tags[?'Microsoft.Network/privateEndpoints'] ?? {}, mlzTags)
+  properties: {
+    customNetworkInterfaceName: tier.namingConvention.keyVaultNetworkInterface
+    privateLinkServiceConnections: [
+      {
+        name: keyVaultPrivateEndpointName
+        properties: {
+          privateLinkServiceId: vault.id
+          groupIds: [
+            'vault'
+          ]
+        }
+      }
+    ]
+    subnet: {
+      id: subnetResourceId
+    }
+  }
   dependsOn: [
-    privateEndpoint
-    privateDnsZoneGroups
+    key_disks
+    key_storageAccounts
+  ]
+}
+
+resource privateDnsZoneGroups 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2021-08-01' = {
+  parent: privateEndpoint
+  name: vault.name
+  properties: {
+    privateDnsZoneConfigs: [
+      {
+        name: 'ipconfig1'
+        properties: {
+          privateDnsZoneId: keyVaultPrivateDnsZoneResourceId
+        }
+      }
+    ]
+  }
+  dependsOn: [
+    key_disks
+    key_storageAccounts
   ]
 }
 

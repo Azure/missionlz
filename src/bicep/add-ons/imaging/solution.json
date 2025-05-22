@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "13405773575267067200"
+      "templateHash": "8945308534649531855"
     }
   },
   "parameters": {
@@ -681,7 +681,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.35.1.17967",
-              "templateHash": "9470798020266027914"
+              "templateHash": "8090561459291771645"
             }
           },
           "parameters": {
@@ -2937,7 +2937,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.35.1.17967",
-                      "templateHash": "17875424644189676247"
+                      "templateHash": "12418522013927932955"
                     }
                   },
                   "parameters": {
@@ -3020,7 +3020,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.35.1.17967",
-                              "templateHash": "5025690535359493482"
+                              "templateHash": "1244555501661890727"
                             }
                           },
                           "parameters": {
@@ -3086,52 +3086,6 @@
                               }
                             },
                             {
-                              "type": "Microsoft.Network/privateEndpoints",
-                              "apiVersion": "2023-04-01",
-                              "name": "[variables('keyVaultPrivateEndpointName')]",
-                              "location": "[parameters('location')]",
-                              "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/privateEndpoints'), createObject()), parameters('mlzTags'))]",
-                              "properties": {
-                                "customNetworkInterfaceName": "[parameters('tier').namingConvention.keyVaultNetworkInterface]",
-                                "privateLinkServiceConnections": [
-                                  {
-                                    "name": "[variables('keyVaultPrivateEndpointName')]",
-                                    "properties": {
-                                      "privateLinkServiceId": "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id)))]",
-                                      "groupIds": [
-                                        "vault"
-                                      ]
-                                    }
-                                  }
-                                ],
-                                "subnet": {
-                                  "id": "[parameters('subnetResourceId')]"
-                                }
-                              },
-                              "dependsOn": [
-                                "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id)))]"
-                              ]
-                            },
-                            {
-                              "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
-                              "apiVersion": "2021-08-01",
-                              "name": "[format('{0}/{1}', variables('keyVaultPrivateEndpointName'), format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id)))]",
-                              "properties": {
-                                "privateDnsZoneConfigs": [
-                                  {
-                                    "name": "ipconfig1",
-                                    "properties": {
-                                      "privateDnsZoneId": "[parameters('keyVaultPrivateDnsZoneResourceId')]"
-                                    }
-                                  }
-                                ]
-                              },
-                              "dependsOn": [
-                                "[resourceId('Microsoft.Network/privateEndpoints', variables('keyVaultPrivateEndpointName'))]",
-                                "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id)))]"
-                              ]
-                            },
-                            {
                               "type": "Microsoft.KeyVault/vaults/keys",
                               "apiVersion": "2022-07-01",
                               "name": "[format('{0}/{1}', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id)), 'DiskEncryptionKey')]",
@@ -3166,8 +3120,6 @@
                                 }
                               },
                               "dependsOn": [
-                                "[resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups', variables('keyVaultPrivateEndpointName'), format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id)))]",
-                                "[resourceId('Microsoft.Network/privateEndpoints', variables('keyVaultPrivateEndpointName'))]",
                                 "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id)))]"
                               ]
                             },
@@ -3206,7 +3158,55 @@
                                 }
                               },
                               "dependsOn": [
-                                "[resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups', variables('keyVaultPrivateEndpointName'), format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id)))]",
+                                "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id)))]"
+                              ]
+                            },
+                            {
+                              "type": "Microsoft.Network/privateEndpoints",
+                              "apiVersion": "2023-04-01",
+                              "name": "[variables('keyVaultPrivateEndpointName')]",
+                              "location": "[parameters('location')]",
+                              "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/privateEndpoints'), createObject()), parameters('mlzTags'))]",
+                              "properties": {
+                                "customNetworkInterfaceName": "[parameters('tier').namingConvention.keyVaultNetworkInterface]",
+                                "privateLinkServiceConnections": [
+                                  {
+                                    "name": "[variables('keyVaultPrivateEndpointName')]",
+                                    "properties": {
+                                      "privateLinkServiceId": "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id)))]",
+                                      "groupIds": [
+                                        "vault"
+                                      ]
+                                    }
+                                  }
+                                ],
+                                "subnet": {
+                                  "id": "[parameters('subnetResourceId')]"
+                                }
+                              },
+                              "dependsOn": [
+                                "[resourceId('Microsoft.KeyVault/vaults/keys', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id)), 'DiskEncryptionKey')]",
+                                "[resourceId('Microsoft.KeyVault/vaults/keys', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id)), 'StorageEncryptionKey')]",
+                                "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id)))]"
+                              ]
+                            },
+                            {
+                              "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+                              "apiVersion": "2021-08-01",
+                              "name": "[format('{0}/{1}', variables('keyVaultPrivateEndpointName'), format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id)))]",
+                              "properties": {
+                                "privateDnsZoneConfigs": [
+                                  {
+                                    "name": "ipconfig1",
+                                    "properties": {
+                                      "privateDnsZoneId": "[parameters('keyVaultPrivateDnsZoneResourceId')]"
+                                    }
+                                  }
+                                ]
+                              },
+                              "dependsOn": [
+                                "[resourceId('Microsoft.KeyVault/vaults/keys', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id)), 'DiskEncryptionKey')]",
+                                "[resourceId('Microsoft.KeyVault/vaults/keys', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id)), 'StorageEncryptionKey')]",
                                 "[resourceId('Microsoft.Network/privateEndpoints', variables('keyVaultPrivateEndpointName'))]",
                                 "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id)))]"
                               ]
