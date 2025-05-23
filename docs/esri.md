@@ -49,7 +49,7 @@ Once the Mission Landing Zone is deployed, you can choose from three deployment 
 
 Each scenario is self-contained and can be deployed independently, depending on your organization's GIS architecture and operational goals.
 
-![ArcGIS on Azure diagram](./images/ArcGIS-on-Azure.svg)
+![ArcGIS on Azure diagram](./images/ArcGIS-on-Azure_Updated.png)
 
 ## Scenario 1: ArcGIS Pro on AVD 
 
