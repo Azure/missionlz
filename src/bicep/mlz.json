@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "12823176451840855524"
+      "templateHash": "936959403638073970"
     }
   },
   "parameters": {
@@ -1974,7 +1974,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.35.1.17967",
-              "templateHash": "8574716394860887328"
+              "templateHash": "726490189522022630"
             }
           },
           "parameters": {
@@ -2152,7 +2152,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.35.1.17967",
-                      "templateHash": "1667201673570965672"
+                      "templateHash": "6589194837173697220"
                     }
                   },
                   "parameters": {
@@ -2683,7 +2683,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.35.1.17967",
-                              "templateHash": "7840386815102120323"
+                              "templateHash": "7988838113053549171"
                             }
                           },
                           "parameters": {
@@ -2712,7 +2712,7 @@
                           "resources": [
                             {
                               "type": "Microsoft.Network/virtualNetworks",
-                              "apiVersion": "2021-02-01",
+                              "apiVersion": "2023-11-01",
                               "name": "[parameters('name')]",
                               "location": "[parameters('location')]",
                               "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/virtualNetworks'), createObject()), parameters('mlzTags'))]",
@@ -2732,7 +2732,7 @@
                           "outputs": {
                             "addressPrefix": {
                               "type": "string",
-                              "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('name')), '2021-02-01').addressSpace.addressPrefixes[0]]"
+                              "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('name')), '2023-11-01').addressSpace.addressPrefixes[0]]"
                             },
                             "dnsServers": {
                               "type": "array",
@@ -2748,7 +2748,7 @@
                             },
                             "subnets": {
                               "type": "array",
-                              "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('name')), '2021-02-01').subnets]"
+                              "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('name')), '2023-11-01').subnets]"
                             }
                           }
                         }
@@ -3337,7 +3337,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.35.1.17967",
-                      "templateHash": "3668711937498142869"
+                      "templateHash": "4426857277308040672"
                     }
                   },
                   "parameters": {
@@ -3649,7 +3649,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.35.1.17967",
-                              "templateHash": "7840386815102120323"
+                              "templateHash": "7988838113053549171"
                             }
                           },
                           "parameters": {
@@ -3678,7 +3678,7 @@
                           "resources": [
                             {
                               "type": "Microsoft.Network/virtualNetworks",
-                              "apiVersion": "2021-02-01",
+                              "apiVersion": "2023-11-01",
                               "name": "[parameters('name')]",
                               "location": "[parameters('location')]",
                               "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/virtualNetworks'), createObject()), parameters('mlzTags'))]",
@@ -3698,7 +3698,7 @@
                           "outputs": {
                             "addressPrefix": {
                               "type": "string",
-                              "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('name')), '2021-02-01').addressSpace.addressPrefixes[0]]"
+                              "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('name')), '2023-11-01').addressSpace.addressPrefixes[0]]"
                             },
                             "dnsServers": {
                               "type": "array",
@@ -3714,7 +3714,7 @@
                             },
                             "subnets": {
                               "type": "array",
-                              "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('name')), '2021-02-01').subnets]"
+                              "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('name')), '2023-11-01').subnets]"
                             }
                           }
                         }

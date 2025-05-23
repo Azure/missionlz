@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "14302868792050203091"
+      "templateHash": "9529812265417733229"
     }
   },
   "parameters": {
@@ -412,7 +412,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.35.1.17967",
-              "templateHash": "8090561459291771645"
+              "templateHash": "6422294649265815392"
             }
           },
           "parameters": {
@@ -1794,7 +1794,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.35.1.17967",
-                      "templateHash": "11696514221390334517"
+                      "templateHash": "14095271188024931541"
                     }
                   },
                   "parameters": {
@@ -1918,7 +1918,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.35.1.17967",
-                              "templateHash": "4871920687708691159"
+                              "templateHash": "4426857277308040672"
                             }
                           },
                           "parameters": {
@@ -2212,7 +2212,7 @@
                                       {
                                         "name": "value",
                                         "count": "[length(variables('subnets'))]",
-                                        "input": "[createObject('name', variables('subnets')[copyIndex('value')].name, 'properties', createObject('addressPrefix', variables('subnets')[copyIndex('value')].properties.addressPrefix, 'delegations', coalesce(tryGet(variables('delegations'), variables('subnets')[copyIndex('value')].name), createArray()), 'networkSecurityGroup', createObject('id', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'networkSecurityGroup'), '2022-09-01').outputs.id.value), 'routeTable', createObject('id', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'routeTable'), '2022-09-01').outputs.id.value), 'privateEndpointNetworkPolicies', 'Disabled', 'privateLinkServiceNetworkPolicies', 'Disabled'))]"
+                                        "input": "[createObject('name', variables('subnets')[copyIndex('value')].name, 'properties', createObject('addressPrefix', variables('subnets')[copyIndex('value')].properties.addressPrefix, 'defaultOutboundAccess', false(), 'delegations', coalesce(tryGet(variables('delegations'), variables('subnets')[copyIndex('value')].name), createArray()), 'networkSecurityGroup', createObject('id', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'networkSecurityGroup'), '2022-09-01').outputs.id.value), 'routeTable', createObject('id', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'routeTable'), '2022-09-01').outputs.id.value), 'privateEndpointNetworkPolicies', 'Disabled', 'privateLinkServiceNetworkPolicies', 'Disabled'))]"
                                       }
                                     ]
                                   },
@@ -2230,7 +2230,7 @@
                                     "_generator": {
                                       "name": "bicep",
                                       "version": "0.35.1.17967",
-                                      "templateHash": "7840386815102120323"
+                                      "templateHash": "7988838113053549171"
                                     }
                                   },
                                   "parameters": {
@@ -2259,7 +2259,7 @@
                                   "resources": [
                                     {
                                       "type": "Microsoft.Network/virtualNetworks",
-                                      "apiVersion": "2021-02-01",
+                                      "apiVersion": "2023-11-01",
                                       "name": "[parameters('name')]",
                                       "location": "[parameters('location')]",
                                       "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/virtualNetworks'), createObject()), parameters('mlzTags'))]",
@@ -2279,7 +2279,7 @@
                                   "outputs": {
                                     "addressPrefix": {
                                       "type": "string",
-                                      "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('name')), '2021-02-01').addressSpace.addressPrefixes[0]]"
+                                      "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('name')), '2023-11-01').addressSpace.addressPrefixes[0]]"
                                     },
                                     "dnsServers": {
                                       "type": "array",
@@ -2295,7 +2295,7 @@
                                     },
                                     "subnets": {
                                       "type": "array",
-                                      "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('name')), '2021-02-01').subnets]"
+                                      "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('name')), '2023-11-01').subnets]"
                                     }
                                   }
                                 }
