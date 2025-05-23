@@ -119,7 +119,7 @@ A multi-tier deployment involves distributing the components of ArcGIS Enterpris
 
 Choosing the right deployment scenario depends on your GIS goals, collaboration needs, and infrastructure preferences:
 
-### ArcGIS Pro on Azure Virtual Desktop (AVD)
+### Scenario 1: ArcGIS Pro on Azure Virtual Desktop (AVD)
 Ideal for users who need high-performance desktop GIS capabilities with remote access. This scenario is especially useful when:
 
 - You already use **ArcGIS Online** for sharing and collaboration and just need better hardware or centralized desktop access.
@@ -128,14 +128,14 @@ Ideal for users who need high-performance desktop GIS capabilities with remote a
 
 > *Note: ArcGIS Pro can connect directly to ArcGIS Online, making this scenario a great fit for SaaS-first organizations.*
 
-### Single-Tier Deployment (ArcGIS Enterprise + ArcGIS Pro)
+### Scenario 2: Single-Tier Deployment (ArcGIS Enterprise + ArcGIS Pro)
 Best for smaller teams or pilot projects that need to host and manage GIS services internally. Choose this when:
 
 - You need to publish feature services, manage users, or host web maps and apps.
 - You want a simple, cost-effective way to evaluate ArcGIS Enterprise capabilities.
 - You’re not ready for a full-scale production deployment but need more control than ArcGIS Online offers.
 
-### Multi-Tier Deployment (ArcGIS Enterprise + ArcGIS Pro)
+### Scenario 3: Multi-Tier Deployment (ArcGIS Enterprise + ArcGIS Pro)
 Designed for production environments requiring scalability, high availability, and enterprise-grade GIS workflows. Choose this when:
 
 - You need to support many users, complex data models, or mission-critical GIS operations.
