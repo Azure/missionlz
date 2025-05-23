@@ -108,9 +108,9 @@ A multi-tier deployment involves distributing the components of ArcGIS Enterpris
 **Benefits:** 
 
 <ul>
-  <li>Scalability: Can handle larger workloads and more users by distributing components across multiple machines.</li>
-  <li>High Availability: Provides redundancy and failover capabilities, ensuring continuous operation.</li>
-  <li>Performance: Improved performance as different components can be optimized and scaled independently</li>
+  <li><b>Scalability:</b> Can handle larger workloads and more users by distributing components across multiple machines.</li>
+  <li><b>High Availability:</b> Provides redundancy and failover capabilities, ensuring continuous operation.</li>
+  <li><b>Performance:</b> Improved performance as different components can be optimized and scaled independently</li>
 </ul>
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2Fesri-enterprise%2Fsolution.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2Fesri-enterprise%2FuiDefinition.json) [![Deploy to Azure Gov](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2Fesri-enterprise%2Fsolution.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2Fesri-enterprise%2FuiDefinition.json)
