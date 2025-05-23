@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "6699563380374554490"
+      "templateHash": "8732225374911317157"
     }
   },
   "parameters": {
@@ -1974,7 +1974,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.35.1.17967",
-              "templateHash": "15510177258588756383"
+              "templateHash": "13659616147485089052"
             }
           },
           "parameters": {
@@ -2152,7 +2152,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.35.1.17967",
-                      "templateHash": "17534724094025973358"
+                      "templateHash": "6072164548413299629"
                     }
                   },
                   "parameters": {
@@ -2683,7 +2683,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.35.1.17967",
-                              "templateHash": "7840386815102120323"
+                              "templateHash": "8506935914125613538"
                             }
                           },
                           "parameters": {
@@ -2723,9 +2723,7 @@
                                   ]
                                 },
                                 "subnets": "[parameters('subnets')]",
-                                "dhcpOptions": {
-                                  "dnsServers": "[parameters('vNetDnsServers')]"
-                                }
+                                "dhcpOptions": "[if(empty(parameters('vNetDnsServers')), null(), createObject('dnsServers', parameters('vNetDnsServers')))]"
                               }
                             }
                           ],
@@ -3337,7 +3335,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.35.1.17967",
-                      "templateHash": "4871920687708691159"
+                      "templateHash": "10595135574443822289"
                     }
                   },
                   "parameters": {
@@ -3649,7 +3647,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.35.1.17967",
-                              "templateHash": "7840386815102120323"
+                              "templateHash": "8506935914125613538"
                             }
                           },
                           "parameters": {
@@ -3689,9 +3687,7 @@
                                   ]
                                 },
                                 "subnets": "[parameters('subnets')]",
-                                "dhcpOptions": {
-                                  "dnsServers": "[parameters('vNetDnsServers')]"
-                                }
+                                "dhcpOptions": "[if(empty(parameters('vNetDnsServers')), null(), createObject('dnsServers', parameters('vNetDnsServers')))]"
                               }
                             }
                           ],

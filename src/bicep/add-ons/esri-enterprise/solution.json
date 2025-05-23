@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "8349578422845953953"
+      "templateHash": "310002407825398763"
     }
   },
   "parameters": {
@@ -962,7 +962,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.35.1.17967",
-              "templateHash": "8090561459291771645"
+              "templateHash": "17363786235025240008"
             }
           },
           "parameters": {
@@ -2344,7 +2344,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.35.1.17967",
-                      "templateHash": "11696514221390334517"
+                      "templateHash": "8603652955642984705"
                     }
                   },
                   "parameters": {
@@ -2468,7 +2468,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.35.1.17967",
-                              "templateHash": "4871920687708691159"
+                              "templateHash": "10595135574443822289"
                             }
                           },
                           "parameters": {
@@ -2780,7 +2780,7 @@
                                     "_generator": {
                                       "name": "bicep",
                                       "version": "0.35.1.17967",
-                                      "templateHash": "7840386815102120323"
+                                      "templateHash": "8506935914125613538"
                                     }
                                   },
                                   "parameters": {
@@ -2820,9 +2820,7 @@
                                           ]
                                         },
                                         "subnets": "[parameters('subnets')]",
-                                        "dhcpOptions": {
-                                          "dnsServers": "[parameters('vNetDnsServers')]"
-                                        }
+                                        "dhcpOptions": "[if(empty(parameters('vNetDnsServers')), null(), createObject('dnsServers', parameters('vNetDnsServers')))]"
                                       }
                                     }
                                   ],
