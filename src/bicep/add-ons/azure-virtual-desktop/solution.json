@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "6214786235989791534"
+      "templateHash": "5036492514406096893"
     }
   },
   "parameters": {
@@ -14645,13 +14645,12 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
-          "languageVersion": "2.0",
           "contentVersion": "1.0.0.0",
           "metadata": {
             "_generator": {
               "name": "bicep",
               "version": "0.35.1.17967",
-              "templateHash": "5974233628490798883"
+              "templateHash": "15492377759972203820"
             }
           },
           "parameters": {
@@ -14764,15 +14763,15 @@
               "type": "object"
             }
           },
-          "resources": {
-            "resourceGroup": {
+          "resources": [
+            {
               "type": "Microsoft.Resources/resourceGroups",
               "apiVersion": "2023-07-01",
               "name": "[format('{0}{1}fslogix', parameters('names').resourceGroup, parameters('delimiter'))]",
               "location": "[parameters('location')]",
               "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Resources/resourceGroups'), createObject()), parameters('mlzTags'))]"
             },
-            "roleAssignment_Storage": {
+            {
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
               "name": "[format('assign-role-storage-{0}', parameters('deploymentNameSuffix'))]",
@@ -14829,10 +14828,10 @@
                 }
               },
               "dependsOn": [
-                "resourceGroup"
+                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}{1}fslogix', parameters('names').resourceGroup, parameters('delimiter')))]"
               ]
             },
-            "roleAssignments_resourceGroup": {
+            {
               "condition": "[equals(parameters('fslogixStorageService'), 'AzureFiles Premium')]",
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
@@ -14890,10 +14889,10 @@
                 }
               },
               "dependsOn": [
-                "resourceGroup"
+                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}{1}fslogix', parameters('names').resourceGroup, parameters('delimiter')))]"
               ]
             },
-            "azureNetAppFiles": {
+            {
               "condition": "[equals(parameters('storageService'), 'AzureNetAppFiles')]",
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
@@ -15120,10 +15119,10 @@
                 }
               },
               "dependsOn": [
-                "resourceGroup"
+                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}{1}fslogix', parameters('names').resourceGroup, parameters('delimiter')))]"
               ]
             },
-            "azureFiles": {
+            {
               "condition": "[equals(parameters('storageService'), 'AzureFiles')]",
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
@@ -15519,13 +15518,13 @@
                 }
               },
               "dependsOn": [
-                "resourceGroup"
+                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}{1}fslogix', parameters('names').resourceGroup, parameters('delimiter')))]"
               ]
             },
-            "ntfsPermissions": {
+            {
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
-              "name": "[format('ntfsPermissions-{0}', uniqueString('ntfsPermissions', deployment().name))]",
+              "name": "[format('deploy-ntfspermissions-{0}', parameters('deploymentNameSuffix'))]",
               "resourceGroup": "[format('{0}{1}fslogix', parameters('names').resourceGroup, parameters('delimiter'))]",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -15545,7 +15544,7 @@
                   "location": {
                     "value": "[parameters('location')]"
                   },
-                  "parameters": "[if(equals(parameters('storageService'), 'AzureNetAppFiles'), createObject('value', createArray(createObject('name', 'FileShares', 'value', string(parameters('fileShares'))), createObject('name', 'ResourceManagerUri', 'value', environment().resourceManager), createObject('name', 'SecurityPrincipalNames', 'value', string(parameters('securityPrincipalNames'))), createObject('name', 'SmbServerNamePrefix', 'value', reference('azureNetAppFiles').outputs.smbServerNamePrefix.value), createObject('name', 'StorageService', 'value', parameters('storageService')))), createObject('value', createArray(createObject('name', 'ActiveDirectorySolution', 'value', parameters('activeDirectorySolution')), createObject('name', 'FslogixContainerType', 'value', parameters('fslogixContainerType')), createObject('name', 'Netbios', 'value', parameters('netbios')), createObject('name', 'OrganizationalUnitPath', 'value', parameters('organizationalUnitPath')), createObject('name', 'ResourceManagerUri', 'value', environment().resourceManager), createObject('name', 'SecurityPrincipalNames', 'value', string(parameters('securityPrincipalNames'))), createObject('name', 'StorageAccountPrefix', 'value', reference('azureFiles').outputs.storageAccountNamePrefix.value), createObject('name', 'StorageAccountResourceGroupName', 'value', format('{0}{1}fslogix', parameters('names').resourceGroup, parameters('delimiter'))), createObject('name', 'StorageCount', 'value', parameters('storageCount')), createObject('name', 'StorageIndex', 'value', parameters('storageIndex')), createObject('name', 'StorageService', 'value', parameters('storageService')), createObject('name', 'StorageSuffix', 'value', environment().suffixes.storage), createObject('name', 'SubscriptionId', 'value', subscription().subscriptionId), createObject('name', 'UserAssignedIdentityClientId', 'value', parameters('deploymentUserAssignedIdentityClientId')))))]",
+                  "parameters": "[if(equals(parameters('storageService'), 'AzureNetAppFiles'), createObject('value', createArray(createObject('name', 'FileShares', 'value', string(parameters('fileShares'))), createObject('name', 'ResourceManagerUri', 'value', environment().resourceManager), createObject('name', 'SecurityPrincipalNames', 'value', string(parameters('securityPrincipalNames'))), createObject('name', 'SmbServerNamePrefix', 'value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}{1}fslogix', parameters('names').resourceGroup, parameters('delimiter'))), 'Microsoft.Resources/deployments', format('deploy-anf-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.smbServerNamePrefix.value), createObject('name', 'StorageService', 'value', parameters('storageService')))), createObject('value', createArray(createObject('name', 'ActiveDirectorySolution', 'value', parameters('activeDirectorySolution')), createObject('name', 'FslogixContainerType', 'value', parameters('fslogixContainerType')), createObject('name', 'Netbios', 'value', parameters('netbios')), createObject('name', 'OrganizationalUnitPath', 'value', parameters('organizationalUnitPath')), createObject('name', 'ResourceManagerUri', 'value', environment().resourceManager), createObject('name', 'SecurityPrincipalNames', 'value', string(parameters('securityPrincipalNames'))), createObject('name', 'StorageAccountPrefix', 'value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}{1}fslogix', parameters('names').resourceGroup, parameters('delimiter'))), 'Microsoft.Resources/deployments', format('deploy-azure-files-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageAccountNamePrefix.value), createObject('name', 'StorageAccountResourceGroupName', 'value', format('{0}{1}fslogix', parameters('names').resourceGroup, parameters('delimiter'))), createObject('name', 'StorageCount', 'value', parameters('storageCount')), createObject('name', 'StorageIndex', 'value', parameters('storageIndex')), createObject('name', 'StorageService', 'value', parameters('storageService')), createObject('name', 'StorageSuffix', 'value', environment().suffixes.storage), createObject('name', 'SubscriptionId', 'value', subscription().subscriptionId), createObject('name', 'UserAssignedIdentityClientId', 'value', parameters('deploymentUserAssignedIdentityClientId')))))]",
                   "resourceGroupName": {
                     "value": "[parameters('resourceGroupManagement')]"
                   },
@@ -15703,20 +15702,20 @@
                 }
               },
               "dependsOn": [
-                "azureFiles",
-                "azureNetAppFiles",
-                "resourceGroup"
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}{1}fslogix', parameters('names').resourceGroup, parameters('delimiter'))), 'Microsoft.Resources/deployments', format('deploy-azure-files-{0}', parameters('deploymentNameSuffix')))]",
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}{1}fslogix', parameters('names').resourceGroup, parameters('delimiter'))), 'Microsoft.Resources/deployments', format('deploy-anf-{0}', parameters('deploymentNameSuffix')))]",
+                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}{1}fslogix', parameters('names').resourceGroup, parameters('delimiter')))]"
               ]
             }
-          },
+          ],
           "outputs": {
             "netAppShares": {
               "type": "array",
-              "value": "[if(equals(parameters('storageService'), 'AzureNetAppFiles'), reference('azureNetAppFiles').outputs.fileShares.value, createArray('None'))]"
+              "value": "[if(equals(parameters('storageService'), 'AzureNetAppFiles'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}{1}fslogix', parameters('names').resourceGroup, parameters('delimiter'))), 'Microsoft.Resources/deployments', format('deploy-anf-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.fileShares.value, createArray('None'))]"
             },
             "storageAccountNamePrefix": {
               "type": "string",
-              "value": "[if(equals(parameters('storageService'), 'AzureFiles'), reference('azureFiles').outputs.storageAccountNamePrefix.value, '')]"
+              "value": "[if(equals(parameters('storageService'), 'AzureFiles'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}{1}fslogix', parameters('names').resourceGroup, parameters('delimiter'))), 'Microsoft.Resources/deployments', format('deploy-azure-files-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageAccountNamePrefix.value, '')]"
             }
           }
         }
