@@ -127,6 +127,7 @@ module azureFiles 'azure-files/azure-files.bicep' = if (storageService == 'Azure
 }
 
 module ntfsPermissions 'ntfs-permissions.bicep' = {
+  name: 'deploy-ntfspermissions-${deploymentNameSuffix}'
   scope: resourceGroup
   params: {
     deploymentNameSuffix: deploymentNameSuffix
