@@ -25,11 +25,11 @@ param frontendPort object = {
   port: 80
 }
 
-@description('Key Vault resource ID')
-param keyVaultResourceId string
+@description('Key Vault resource ID (required if using port 443)')
+param keyVaultResourceId string = ''
 
-@description('Name of the certificate in Key Vault')
-param keyVaultCertName string
+@description('Name of the certificate in Key Vault (required if using port 443)')
+param keyVaultCertName string = ''
 
 @description('Version of the certificate in Key Vault (optional)')
 @allowed([
@@ -55,8 +55,8 @@ resource agwIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-3
   location: location
 }
 
-// Assign Key Vault Reader permissions to the managed identity
-resource keyVaultAccessPolicy 'Microsoft.KeyVault/vaults/accessPolicies@2023-02-01' = {
+// Assign Key Vault Reader permissions to the managed identity (only if port 443)
+resource keyVaultAccessPolicy 'Microsoft.KeyVault/vaults/accessPolicies@2023-02-01' = if (frontendPort.port == 443) {
   name: '${split(keyVaultResourceId, '/')[8]}/add'
   properties: {
     accessPolicies: [
@@ -119,7 +119,7 @@ resource appGateway 'Microsoft.Network/applicationGateways@2022-09-01' = {
         }
       }
     ]
-    sslCertificates: [
+    sslCertificates: frontendPort.port == 443 ? [
       {
         name: keyVaultCertName
         properties: {
@@ -128,7 +128,7 @@ resource appGateway 'Microsoft.Network/applicationGateways@2022-09-01' = {
             : '${keyVaultResourceId}/secrets/${keyVaultCertName}/${keyVaultCertVersion}'
         }
       }
-    ]
+    ] : []
     backendAddressPools: [
       backendAddressPool
     ]
