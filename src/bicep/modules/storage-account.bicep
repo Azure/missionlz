@@ -9,7 +9,6 @@ param keyVaultUri string
 param location string
 param mlzTags object
 param queuesPrivateDnsZoneResourceId string
-param serviceToken string
 param skuName string
 param storageEncryptionKeyName string
 param subnetResourceId string
@@ -21,30 +20,30 @@ param userAssignedIdentityResourceId string
 var  subResources = [
   {
     id: blobsPrivateDnsZoneResourceId
-    nic: tier.namingConvention.storageAccountBlobNetworkInterface
-    pe: tier.namingConvention.storageAccountBlobPrivateEndpoint
+    nic: '${tier.namingConvention.storageAccountBlobNetworkInterface}'
+    pe: '${tier.namingConvention.storageAccountBlobPrivateEndpoint}'
   }
   {
     id: filesPrivateDnsZoneResourceId
-    nic: tier.namingConvention.storageAccountFileNetworkInterface
-    pe: tier.namingConvention.storageAccountFilePrivateEndpoint
+    nic: '${tier.namingConvention.storageAccountFileNetworkInterface}'
+    pe: '${tier.namingConvention.storageAccountFilePrivateEndpoint}'
   }
   {
     id: queuesPrivateDnsZoneResourceId
-    nic: tier.namingConvention.storageAccountQueueNetworkInterface
-    pe: tier.namingConvention.storageAccountQueuePrivateEndpoint
+    nic: '${tier.namingConvention.storageAccountQueueNetworkInterface}'
+    pe: '${tier.namingConvention.storageAccountQueuePrivateEndpoint}'
   }
   {
     id: tablesPrivateDnsZoneResourceId
-    nic: tier.namingConvention.storageAccountTableNetworkInterface
-    pe: tier.namingConvention.storageAccountTablePrivateEndpoint
+    nic: '${tier.namingConvention.storageAccountTableNetworkInterface}'
+    pe: '${tier.namingConvention.storageAccountTablePrivateEndpoint}'
   }
 ]
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
-  name: uniqueString(replace(tier.namingConvention.storageAccount, serviceToken, 'log'), resourceGroup().id)
+  name: uniqueString(tier.namingConvention.storageAccount, resourceGroup().id)
   location: location
-  tags: union(contains(tags, 'Microsoft.Storage/storageAccounts') ? tags['Microsoft.Storage/storageAccounts'] : {}, mlzTags)
+  tags: union(tags[?'Microsoft.Storage/storageAccounts'] ?? {}, mlzTags)
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
@@ -107,7 +106,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
 resource privateEndpoints 'Microsoft.Network/privateEndpoints@2023-04-01' = [for (resource, i) in subResources: {
   name: resource.pe
   location: location
-  tags: union(contains(tags, 'Microsoft.Network/privateEndpoints') ? tags['Microsoft.Network/privateEndpoints'] : {}, mlzTags)
+  tags: union(tags[?'Microsoft.Network/privateEndpoints'] ?? {}, mlzTags)
   properties: {
     customNetworkInterfaceName: resource.nic
     privateLinkServiceConnections: [
@@ -144,3 +143,4 @@ resource privateDnsZoneGroups 'Microsoft.Network/privateEndpoints/privateDnsZone
 }]
 
 output id string = storageAccount.id
+output networkInterfaceResourceIds array = [for (resource, i) in subResources: privateEndpoints[i].properties.networkInterfaces[0].id]

@@ -1,6 +1,4 @@
-@secure()
-param adminPassword string
-param adminUsername string
+
 param architecture string
 param availabilitySetName string
 param domainJoinOptions int = 3
@@ -17,7 +15,10 @@ param subnetResourceId string
 param tags object
 param userAssignedIdentityResourceId string
 param virtualMachineName string
+@secure()
+param virtualMachineAdminPassword string
 param virtualMachineSize string
+param virtualMachineAdminUsername string
 @secure()
 param windowsDomainAdministratorPassword string
 param windowsDomainAdministratorUserName string
@@ -38,7 +39,7 @@ resource availabilitySet 'Microsoft.Compute/availabilitySets@2023-09-01' existin
 resource networkInterface 'Microsoft.Network/networkInterfaces@2023-04-01' = {
   name: networkInterfaceName
   location: location
-  tags: contains(tags, 'Microsoft.Network/networkInterfaces') ? tags['Microsoft.Network/networkInterfaces'] : {}
+  tags: tags[?'Microsoft.Network/networkInterfaces'] ?? {}
   properties: {
     ipConfigurations: [
       {
@@ -68,7 +69,7 @@ resource networkInterface 'Microsoft.Network/networkInterfaces@2023-04-01' = {
 resource virtualMachine 'Microsoft.Compute/virtualMachines@2023-03-01' = {
   name: virtualMachineName
   location: location
-  tags: contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}
+  tags: tags[?'Microsoft.Compute/virtualMachines'] ?? {}
   identity: {
     type: 'SystemAssigned'
   }
@@ -105,8 +106,8 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2023-03-01' = {
     }
     osProfile: {
       computerName: virtualMachineName
-      adminUsername: adminUsername
-      adminPassword: adminPassword
+      adminUsername: virtualMachineAdminUsername
+      adminPassword: virtualMachineAdminPassword
       windowsConfiguration: {
         provisionVMAgent: true
         enableAutomaticUpdates: false
@@ -147,7 +148,7 @@ resource aadLoginForWindows 'Microsoft.Compute/virtualMachines/extensions@2021-0
   parent: virtualMachine
   name: 'AADLoginForWindows'
   location: location
-  tags: contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}
+  tags: tags[?'Microsoft.Compute/virtualMachines'] ?? {}
   properties: {
     publisher: 'Microsoft.Azure.ActiveDirectory'
     type: 'AADLoginForWindows'
@@ -163,7 +164,7 @@ resource jsonADDomainExtension 'Microsoft.Compute/virtualMachines/extensions@202
   parent: virtualMachine
   name: 'joindomain'
   location: location
-  tags: contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}
+  tags: tags[?'Microsoft.Compute/virtualMachines'] ?? {}
   properties: {
     publisher: 'Microsoft.Compute'
     type: 'JsonADDomainExtension'
@@ -248,7 +249,7 @@ resource azureMonitorWindowsAgent 'Microsoft.Compute/virtualMachines/extensions@
   parent: virtualMachine
   name: 'AzureMonitorWindowsAgent'
   location: location
-  tags: contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}
+  tags: tags[?'Microsoft.Compute/virtualMachines'] ?? {}
   properties: {
     publisher: 'Microsoft.Azure.Monitor'
     type: 'AzureMonitorWindowsAgent'
@@ -269,7 +270,7 @@ resource azureMonitorWindowsAgent 'Microsoft.Compute/virtualMachines/extensions@
 resource dnsSuffix 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' = if (joinEntraDomain && (!joinWindowsDomain)) {
   name: 'rc-esriDnsSuffix'
   location: location
-  tags: contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}
+  tags: tags[?'Microsoft.Compute/virtualMachines'] ?? {}
   parent: virtualMachine
   properties: {
     treatFailureAsDeploymentFailure: true
@@ -281,20 +282,7 @@ resource dnsSuffix 'Microsoft.Compute/virtualMachines/runCommands@2023-03-01' = 
       }
     ]
     source: {
-      script: '''
-      param(
-        [string]$Domain
-      )
-      # ONLY RETURN ETHERNET CONNECTIONS
-      $nic = Get-DnsClient | Where-Object -Property InterfaceAlias -Match Ethernet
-      # ADD SUFFIX TO EACH ETHERNET CONNECTION
-      Foreach ($nic in $nics) {
-      Set-DnsClient -ConnectionSpecificSuffix $Domain -InterfaceIndex $nic.InterfaceIndex -confirm:$false
-      $Alias = $nic.InterfaceAlias
-      $Index = $nic.InterfaceIndex
-      }
-      Set-DnsClient -ConnectionSpecificSuffix $Domain -InterfaceIndex $nic.InterfaceIndex -confirm:$false
-      '''
+      script: loadTextContent('../artifacts/Set-DnsClient.ps1')
     }
   }
   dependsOn: [

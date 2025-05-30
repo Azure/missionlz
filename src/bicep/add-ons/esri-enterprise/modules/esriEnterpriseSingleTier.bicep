@@ -1,10 +1,10 @@
 @secure()
-param adminPassword string
-param adminUsername string
+param virtualMachineAdminPassword string
+param virtualMachineAdminUsername string
 param arcgisServiceAccountIsDomainAccount bool
 @secure()
 param arcgisServiceAccountPassword string
-param arcgisServiceAccountUserName string
+param arcgisServiceAccountUsername string
 param applicationGatewayPrivateIpAddress string
 param cloudStorageAccountCredentialsUserName string
 param dataStoreTypesForBaseDeploymentServers string
@@ -76,19 +76,14 @@ module applicationGateway 'applicationGateway.bicep' = {
     virtualNetworkName: virtualNetworkName
     windowsDomainName: windowsDomainName
   }
-  dependsOn: [
-    // privateDnsZone
-  ]
 }
 
 module desiredStateConfiguration 'desiredStateConfiguration.bicep' = {
   name: 'desired-state-configuration-${deploymentNameSuffix}'
   params: {
-    adminPassword: adminPassword
-    adminUsername: adminUsername
     arcgisServiceAccountIsDomainAccount: arcgisServiceAccountIsDomainAccount
     arcgisServiceAccountPassword: arcgisServiceAccountPassword
-    arcgisServiceAccountUserName: arcgisServiceAccountUserName
+    arcgisServiceAccountUsername: arcgisServiceAccountUsername
     cloudStorageAccountCredentialsUserName: cloudStorageAccountCredentialsUserName
     dataStoreTypesForBaseDeploymentServers: dataStoreTypesForBaseDeploymentServers
     debugMode: debugMode
@@ -106,20 +101,21 @@ module desiredStateConfiguration 'desiredStateConfiguration.bicep' = {
     primarySiteAdministratorAccountPassword: primarySiteAdministratorAccountPassword
     primarySiteAdministratorAccountUserName: primarySiteAdministratorAccountUserName
     publicKeySSLCertificateFileName: publicKeySSLCertificateFileName
+    selfSignedSSLCertificatePassword: selfSignedSSLCertificatePassword
     serverContext: serverContext
     serverLicenseFileName: serverLicenseFileName
+    storageAccountName: storageAccount.name
     storageUriPrefix: storageUriPrefix
     tags: tags
     useAzureFiles: useAzureFiles
     useCloudStorage: useCloudStorage
+    virtualMachineAdminPassword: virtualMachineAdminPassword
+    virtualMachineAdminUsername: virtualMachineAdminUsername
     virtualMachineNames: virtualMachineName
     virtualMachineOSDiskSize: virtualMachineOSDiskSize
-    storageAccountName: storageAccount.name
-    selfSignedSSLCertificatePassword: selfSignedSSLCertificatePassword
   }
   dependsOn: [
     applicationGateway
-    // privateDnsZone
   ]
 }
 

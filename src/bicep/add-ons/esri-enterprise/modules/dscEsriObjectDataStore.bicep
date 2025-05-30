@@ -2,7 +2,7 @@
 param arcgisServiceAccountIsDomainAccount bool
 @secure()
 param arcgisServiceAccountPassword string
-param arcgisServiceAccountUserName string
+param arcgisServiceAccountUsername string
 param debugMode bool
 param dscConfiguration string
 param dscScript string
@@ -47,7 +47,7 @@ resource extension_DSC 'Microsoft.Compute/virtualMachines/extensions@2018-10-01'
   parent: virtualMachine
   name: 'DSCConfiguration'
   location: location
-  tags: contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}
+  tags: tags[?'Microsoft.Compute/virtualMachines'] ?? {}
   properties: {
     autoUpgradeMinorVersion: true
     publisher: 'Microsoft.Powershell'
@@ -80,7 +80,7 @@ resource extension_DSC 'Microsoft.Compute/virtualMachines/extensions@2018-10-01'
       }
       configurationArguments: {
         ServiceCredential: {
-          userName: arcgisServiceAccountUserName
+          userName: arcgisServiceAccountUsername
           password: arcgisServiceAccountPassword
         }
         SiteAdministratorCredential: {

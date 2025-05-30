@@ -4,6 +4,7 @@ param activeDirectorySolution string
 param availability string
 param azureFilesPrivateDnsZoneResourceId string
 param subnets array
+param delimiter string
 param deploymentNameSuffix string
 param deploymentUserAssignedIdentityClientId string
 param deploymentUserAssignedIdentityPrincipalId string
@@ -14,7 +15,6 @@ param domainJoinPassword string
 param domainJoinUserPrincipalName string
 param domainName string
 param encryptionUserAssignedIdentityResourceId string
-param existingSharedActiveDirectoryConnection bool
 param fileShares array
 param fslogixContainerType string
 param fslogixShareSizeInGB int
@@ -25,16 +25,13 @@ param keyVaultUri string
 param location string
 param managementVirtualMachineName string
 param mlzTags object
-param namingConvention object
+param names object
 param netbios string
 param organizationalUnitPath string
-param recoveryServices bool
+// param recoveryServices bool
 param resourceGroupManagement string
-param resourceGroupName string
-param securityPrincipalObjectIds array
 param securityPrincipalNames array
-param serviceToken string
-param smbServerLocation string
+param securityPrincipalObjectIds array
 param storageCount int
 param storageEncryptionKeyName string
 param storageIndex int
@@ -43,11 +40,8 @@ param storageService string
 param subnetResourceId string
 param tags object
 
-var tagsNetAppAccount = union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.NetApp/netAppAccounts'] ?? {}, mlzTags)
-var tagsVirtualMachines = union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Compute/virtualMachines'] ?? {}, mlzTags)
-
 resource resourceGroup 'Microsoft.Resources/resourceGroups@2023-07-01' = {
-  name: resourceGroupName
+  name: '${names.resourceGroup}${delimiter}fslogix'
   location: location
   tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Resources/resourceGroups'] ?? {}, mlzTags)
 }
@@ -55,7 +49,7 @@ resource resourceGroup 'Microsoft.Resources/resourceGroups@2023-07-01' = {
 // Role Assignment for FSLogix
 // Purpose: assigns the Storage Account Contributor role to the managed identity on the
 // management virtual machine  storage resource group to domain join storage account(s) & set NTFS permissions on the file share(s)
-module roleAssignment_Storage '../common/roleAssignments/resourceGroup.bicep' = {
+module roleAssignment_Storage '../common/role-assignments/resource-group.bicep' = {
   name: 'assign-role-storage-${deploymentNameSuffix}'
   scope: resourceGroup
   params: {
@@ -66,7 +60,7 @@ module roleAssignment_Storage '../common/roleAssignments/resourceGroup.bicep' = 
 }
 
 // Required role assignment for the funciton to manage the quota on Azure Files Premium
-module roleAssignments_resourceGroup '../common/roleAssignments/resourceGroup.bicep' = if (fslogixStorageService == 'AzureFiles Premium') {
+module roleAssignments_resourceGroup '../common/role-assignments/resource-group.bicep' = if (fslogixStorageService == 'AzureFiles Premium') {
   name: 'set-role-assignment-${deploymentNameSuffix}'
   scope: resourceGroup
   params: {
@@ -77,71 +71,151 @@ module roleAssignments_resourceGroup '../common/roleAssignments/resourceGroup.bi
 }
 
 // Azure NetApp Files for Fslogix
-module azureNetAppFiles 'azureNetAppFiles.bicep' = if (storageService == 'AzureNetAppFiles') {
+module azureNetAppFiles 'azure-netapp-files.bicep' = if (storageService == 'AzureNetAppFiles') {
   name: 'deploy-anf-${deploymentNameSuffix}'
   scope: resourceGroup
   params: {
-    existingSharedActiveDirectoryConnection: existingSharedActiveDirectoryConnection
     delegatedSubnetResourceId: filter(subnets, subnet => contains(subnet.name, 'AzureNetAppFiles'))[0].id
-    deploymentNameSuffix: deploymentNameSuffix
+    delimiter: delimiter
     dnsServers: dnsServers
     domainJoinPassword: domainJoinPassword
     domainJoinUserPrincipalName: domainJoinUserPrincipalName
     domainName: domainName
     fileShares: fileShares
-    fslogixContainerType: fslogixContainerType
+    hostPoolResourceId: hostPoolResourceId
     location: location
-    managementVirtualMachineName: managementVirtualMachineName
-    netAppAccountName: namingConvention.netAppAccount
-    netAppCapacityPoolName: namingConvention.netAppAccountCapacityPool
+    mlzTags: mlzTags
+    netAppAccountNamePrefix: names.netAppAccount
+    netAppCapacityPoolNamePrefix: names.netAppAccountCapacityPool
     organizationalUnitPath: organizationalUnitPath
-    resourceGroupManagement: resourceGroupManagement
-    securityPrincipalNames: securityPrincipalNames
-    smbServerLocation: smbServerLocation
-    storageService: storageService
+    smbServerName: names.netAppAccountSmbServer
     storageSku: storageSku
-    tagsNetAppAccount: tagsNetAppAccount
-    tagsVirtualMachines: tagsVirtualMachines
+    suffix: 'fslogix'
+    tags: tags
   }
 }
 
 // Azure Files for FSLogix
-module azureFiles 'azureFiles/azureFiles.bicep' = if (storageService == 'AzureFiles') {
+module azureFiles 'azure-files/azure-files.bicep' = if (storageService == 'AzureFiles') {
   name: 'deploy-azure-files-${deploymentNameSuffix}'
   scope: resourceGroup
   params: {
     activeDirectorySolution: activeDirectorySolution
     availability: availability
     azureFilesPrivateDnsZoneResourceId: azureFilesPrivateDnsZoneResourceId
+    delimiter: delimiter
     deploymentNameSuffix: deploymentNameSuffix
-    deploymentUserAssignedIdentityClientId: deploymentUserAssignedIdentityClientId
-    domainJoinPassword: domainJoinPassword
-    domainJoinUserPrincipalName: domainJoinUserPrincipalName
-    enableRecoveryServices: recoveryServices
+    // enableRecoveryServices: recoveryServices
     encryptionUserAssignedIdentityResourceId: encryptionUserAssignedIdentityResourceId
     fileShares: fileShares
-    fslogixContainerType: fslogixContainerType
     fslogixShareSizeInGB: fslogixShareSizeInGB
     hostPoolResourceId: hostPoolResourceId
     keyVaultUri: keyVaultUri
     location: location
-    managementVirtualMachineName: managementVirtualMachineName
-    namingConvention: namingConvention
-    netbios: netbios
-    organizationalUnitPath: organizationalUnitPath
-    recoveryServicesVaultName: namingConvention.recoveryServicesVault
-    resourceGroupManagement: resourceGroupManagement
-    securityPrincipalNames: securityPrincipalNames
+    names: names
+    // recoveryServicesVaultName: namingConvention.recoveryServicesVault
+    // resourceGroupManagement: resourceGroupManagement
     securityPrincipalObjectIds: securityPrincipalObjectIds
-    serviceToken: serviceToken
     storageCount: storageCount
     storageEncryptionKeyName: storageEncryptionKeyName
     storageIndex: storageIndex
-    storageService: storageService
     storageSku: storageSku
     subnetResourceId: subnetResourceId
     tags: tags
     mlzTags: mlzTags
+  }
+}
+
+module ntfsPermissions 'ntfs-permissions.bicep' = {
+  name: 'deploy-ntfspermissions-${deploymentNameSuffix}'
+  scope: resourceGroup
+  params: {
+    deploymentNameSuffix: deploymentNameSuffix
+    domainJoinPassword: domainJoinPassword
+    domainJoinUserPrincipalName: domainJoinUserPrincipalName
+    location: location
+    parameters: storageService == 'AzureNetAppFiles' ? [
+      {
+        name: 'FileShares'
+        value: string(fileShares)
+      }
+      {
+        name: 'ResourceManagerUri'
+        value: environment().resourceManager
+      }
+      {
+        name: 'SecurityPrincipalNames'
+        value: string(securityPrincipalNames)
+      }
+      {
+        name: 'SmbServerNamePrefix'
+        value: azureNetAppFiles.outputs.smbServerNamePrefix
+      }
+      {
+        name: 'StorageService'
+        value: storageService
+      }
+    ] : [
+      {
+        name: 'ActiveDirectorySolution'
+        value: activeDirectorySolution
+      }
+      {
+        name: 'FslogixContainerType'
+        value: fslogixContainerType
+      }
+      {
+        name: 'Netbios'
+        value: netbios
+      }
+      {
+        name: 'OrganizationalUnitPath'
+        value: organizationalUnitPath
+      }
+      {
+        name: 'ResourceManagerUri'
+        value: environment().resourceManager
+      }
+      {
+        name: 'SecurityPrincipalNames'
+        value: string(securityPrincipalNames)
+      }
+      {
+        name: 'StorageAccountPrefix'
+        value: azureFiles.outputs.storageAccountNamePrefix
+      }
+      {
+        name: 'StorageAccountResourceGroupName'
+        value: resourceGroup.name
+      }
+      {
+        name: 'StorageCount'
+        value: storageCount
+      }
+      {
+        name: 'StorageIndex'
+        value: storageIndex
+      }
+      {
+        name: 'StorageService'
+        value: storageService
+      }
+      {
+        name: 'StorageSuffix'
+        value: environment().suffixes.storage
+      }
+      {
+        name: 'SubscriptionId'
+        value: subscription().subscriptionId
+      }
+      {
+        name: 'UserAssignedIdentityClientId'
+        value: deploymentUserAssignedIdentityClientId
+      }
+    ]
+    resourceGroupName: resourceGroupManagement
+    tags: tags
+    virtualMachineName: managementVirtualMachineName
   }
 }
 

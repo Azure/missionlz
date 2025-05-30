@@ -1,11 +1,9 @@
-@secure()
-param adminPassword string
-param adminUsername string
 param applicationGatewayName string
+param applicationGatewayPrivateIPAddress string
 param arcgisServiceAccountIsDomainAccount bool
 @secure()
 param arcgisServiceAccountPassword string
-param arcgisServiceAccountUserName string
+param arcgisServiceAccountUsername string
 param architecture string
 param cloudStorageAccountCredentialsUserName string
 param dataStoreVirtualMachineNames string
@@ -14,25 +12,39 @@ param dataStoreVirtualMachines array
 param debugMode bool
 param deploymentNameSuffix string
 param dscDataStoreFunction string
+param dscGraphDataStoreFunction string
+param dscObjectDataStoreFunction string
 param dscPortalFunction string
 param dscServerScriptFunction string
 param dscSpatioTemporalFunction string
 param dscTileCacheFunction string
-param dscGraphDataStoreFunction string
-param dscObjectDataStoreFunction string
 param enableDataStoreVirtualMachineDataDisk bool
+param enableGraphDataStore bool
+param enableGraphDataStoreVirtualMachineDataDisk bool
+param enableObjectDataStore bool
+param enableObjectDataStoreVirtualMachineDataDisk bool
 param enableServerLogHarvesterPlugin bool
+param enableSpatiotemporalBigDataStore bool
 param enableSpatiotemporalBigDataStoreVirtualMachineDataDisk bool
+param enableTileCacheDataStore bool
+param enableTileCacheDataStoreVirtualMachineDataDisk bool
 param enableVirtualMachineDataDisk bool
 param externalDnsHostname string
-// param externalDnsHostnamePrefix string
 param fileShareDscScriptFunction string
 param fileShareVirtualMachineName string
-// param iDns string
+param graphDataStoreVirtualMachineNames string
+param graphDataStoreVirtualMachineOSDiskSize int
+param graphDataStoreVirtualMachines array
+param isMultiMachineTileCacheDataStore bool
+param isObjectDataStoreClustered bool
+param isTileCacheDataStoreClustered bool
 param isUpdatingCertificates bool
 param joinWindowsDomain bool
 param keyVaultUri string
 param location string = resourceGroup().location
+param objectDataStoreVirtualMachineNames string
+param objectDataStoreVirtualMachineOSDiskSize int
+param objectDataStoreVirtualMachines array
 param portalBackendSslCert string
 param portalContext string
 param portalLicenseFileName string
@@ -47,6 +59,8 @@ param publicIpId string
 param resourceGroupName string
 param resourceSuffix string
 param secondaryDnsHostName string
+@secure()
+param selfSignedSSLCertificatePassword string
 param serverBackendSSLCert string
 param serverContext string
 param serverLicenseFileName string
@@ -55,6 +69,7 @@ param serverVirtualMachines array
 param spatiotemporalBigDataStoreVirtualMachineNames string
 param spatiotemporalBigDataStoreVirtualMachineOSDiskSize int
 param spatiotemporalBigDataStoreVirtualMachines array
+param tileCacheDataStoreVirtualMachineOSDiskSize int
 param tileCacheVirtualMachines array
 param tileCacheVirtualMachineNames string
 param storageAccountName string
@@ -64,44 +79,20 @@ param tags object
 param useAzureFiles bool
 param useCloudStorage bool
 param userAssignedIdenityResourceId string
-param virtualMachineOSDiskSize int
-// param virtualNetworkId string
-param virtualNetworkName string
 @secure()
-param selfSignedSSLCertificatePassword string
-param tileCacheDataStoreVirtualMachineOSDiskSize int
-param isTileCacheDataStoreClustered bool
-param isMultiMachineTileCacheDataStore bool
-param enableTileCacheDataStoreVirtualMachineDataDisk bool
-param graphDataStoreVirtualMachineNames string
-param graphDataStoreVirtualMachines array
-param graphDataStoreVirtualMachineOSDiskSize int
-param enableGraphDataStoreVirtualMachineDataDisk bool
-param objectDataStoreVirtualMachineNames string
-param objectDataStoreVirtualMachines array
-param objectDataStoreVirtualMachineOSDiskSize int
-param isObjectDataStoreClustered bool
-param enableObjectDataStoreVirtualMachineDataDisk bool
-param enableSpatiotemporalBigDataStore bool
-param enableTileCacheDataStore bool
-param enableGraphDataStore bool
-param enableObjectDataStore bool
-param applicationGatewayPrivateIPAddress string
+param virtualMachineAdminPassword string
+param virtualMachineAdminUsername string
+param virtualMachineOSDiskSize int
+param virtualNetworkName string
 param windowsDomainName string
-// param hubVirtualNetworkId string
-
-// var privateDnsDomainName ='${split(externalDnsHostname, '.')[1]}.${split(externalDnsHostname, '.')[2]}'
-
 
 module dscFileShare 'dscEsriFileShare.bicep' = if (architecture == 'multitier') {
   name: 'deploy-fileshare-dsc-${deploymentNameSuffix}'
   scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
-    adminPassword: adminPassword
-    adminUsername: adminUsername
     arcgisServiceAccountIsDomainAccount: arcgisServiceAccountIsDomainAccount
     arcgisServiceAccountPassword: arcgisServiceAccountPassword
-    arcgisServiceAccountUserName: arcgisServiceAccountUserName
+    arcgisServiceAccountUsername: arcgisServiceAccountUsername
     debugMode: debugMode
     dscConfiguration: fileShareDscScriptFunction
     dscScript: 'FileShareConfiguration.ps1'
@@ -113,6 +104,8 @@ module dscFileShare 'dscEsriFileShare.bicep' = if (architecture == 'multitier') 
     storageAccountName: storageAccountName
     storageUriPrefix: storageUriPrefix
     tags: tags
+    virtualMachineAdminPassword: virtualMachineAdminUsername
+    virtualMachineAdminUsername: virtualMachineAdminPassword
     virtualMachineOSDiskSize: virtualMachineOSDiskSize
   }
   dependsOn: [
@@ -143,22 +136,8 @@ module applicationGateway 'applicationGateway.bicep' = if (architecture == 'mult
   }
   dependsOn: [
     dscFileShare
-    // privateDnsZone
   ]
 }
-
-// module privateDnsZone 'privateDnsZone.bicep' = if (architecture == 'multitier' && joinWindowsDomain == false) {
-//   name: 'deploy-privatednszone-${deploymentNameSuffix}'
-//   scope: resourceGroup(subscriptionId, resourceGroupName)
-//   params: {
-//     externalDnsHostname: externalDnsHostname
-//     applicationGatewayPrivateIPAddress: applicationGatewayPrivateIPAddress
-//     virtualNetworkId: virtualNetworkId
-//     hubVirtualNetworkId: hubVirtualNetworkId
-//   }
-//   dependsOn: [
-//   ]
-// }
 
 @batchSize(1)
 module dscEsriServers 'dscEsriServer.bicep' =  [for (server, i) in serverVirtualMachines : if (architecture == 'multitier') {
@@ -167,7 +146,7 @@ module dscEsriServers 'dscEsriServer.bicep' =  [for (server, i) in serverVirtual
   params: {
     arcgisServiceAccountIsDomainAccount: arcgisServiceAccountIsDomainAccount
     arcgisServiceAccountPassword: arcgisServiceAccountPassword
-    arcgisServiceAccountUserName: arcgisServiceAccountUserName
+    arcgisServiceAccountUsername: arcgisServiceAccountUsername
     cloudStorageAccountCredentialsUserName: cloudStorageAccountCredentialsUserName
     debugMode: debugMode
     dscConfiguration: dscServerScriptFunction
@@ -207,7 +186,7 @@ module dscEsriDataStoreServers 'dscEsriDataStore.bicep' = [for (server, i) in da
   params: {
     arcgisServiceAccountIsDomainAccount: arcgisServiceAccountIsDomainAccount
     arcgisServiceAccountPassword: arcgisServiceAccountPassword
-    arcgisServiceAccountUserName: arcgisServiceAccountUserName
+    arcgisServiceAccountUsername: arcgisServiceAccountUsername
     cloudStorageAccountCredentialsUserName: cloudStorageAccountCredentialsUserName
     dataStoreVirtualMachineNames: dataStoreVirtualMachineNames
     dataStoreVirtualMachineOSDiskSize: dataStoreVirtualMachineOSDiskSize
@@ -243,7 +222,7 @@ module dscEsriSpatioTemporalServers 'dscEsriSpatioTemporal.bicep' = [for (server
   params: {
     arcgisServiceAccountIsDomainAccount: arcgisServiceAccountIsDomainAccount
     arcgisServiceAccountPassword: arcgisServiceAccountPassword
-    arcgisServiceAccountUserName: arcgisServiceAccountUserName
+    arcgisServiceAccountUsername: arcgisServiceAccountUsername
     debugMode: debugMode
     dscConfiguration: dscSpatioTemporalFunction
     dscScript: '${dscSpatioTemporalFunction}.ps1'
@@ -261,12 +240,11 @@ module dscEsriSpatioTemporalServers 'dscEsriSpatioTemporal.bicep' = [for (server
     virtualMachineNames: server
   }
   dependsOn:[
-    dscEsriServers
-    dscEsriDataStoreServers
-    dscFileShare
-    dscEsriObjectDataStoreServers
     applicationGateway
-    // privateDnsZone
+    dscEsriDataStoreServers
+    dscEsriObjectDataStoreServers
+    dscEsriServers
+    dscFileShare
   ]
 }]
 
@@ -278,7 +256,7 @@ module dscEsriTileCacheServers 'dscEsriTileCache.bicep' = [for (server, i) in ti
   params: {
     arcgisServiceAccountIsDomainAccount: arcgisServiceAccountIsDomainAccount
     arcgisServiceAccountPassword: arcgisServiceAccountPassword
-    arcgisServiceAccountUserName: arcgisServiceAccountUserName
+    arcgisServiceAccountUsername: arcgisServiceAccountUsername
     debugMode: debugMode
     dscConfiguration: dscTileCacheFunction
     dscScript: '${dscTileCacheFunction}.ps1'
@@ -314,7 +292,7 @@ module dscEsriGraphDataStoreServers 'dscEsriGraphDataStore.bicep' = [for (server
   params: {
     arcgisServiceAccountIsDomainAccount: arcgisServiceAccountIsDomainAccount
     arcgisServiceAccountPassword: arcgisServiceAccountPassword
-    arcgisServiceAccountUserName: arcgisServiceAccountUserName
+    arcgisServiceAccountUsername: arcgisServiceAccountUsername
     debugMode: debugMode
     dscConfiguration: dscGraphDataStoreFunction
     dscScript: '${dscGraphDataStoreFunction}.ps1'
@@ -334,7 +312,6 @@ module dscEsriGraphDataStoreServers 'dscEsriGraphDataStore.bicep' = [for (server
   dependsOn:[
     dscEsriServers
     dscEsriDataStoreServers
-    dscFileShare
     dscEsriObjectDataStoreServers
     dscEsriSpatioTemporalServers
     applicationGateway
@@ -350,7 +327,7 @@ module dscEsriObjectDataStoreServers 'dscEsriObjectDataStore.bicep' = [for (serv
     location: location
     arcgisServiceAccountIsDomainAccount: arcgisServiceAccountIsDomainAccount
     arcgisServiceAccountPassword: arcgisServiceAccountPassword
-    arcgisServiceAccountUserName: arcgisServiceAccountUserName
+    arcgisServiceAccountUsername: arcgisServiceAccountUsername
     debugMode: debugMode
     dscConfiguration: dscObjectDataStoreFunction
     dscScript: '${dscObjectDataStoreFunction}.ps1'
@@ -370,7 +347,6 @@ module dscEsriObjectDataStoreServers 'dscEsriObjectDataStore.bicep' = [for (serv
   dependsOn:[
     dscEsriServers
     dscEsriDataStoreServers
-    dscFileShare
     applicationGateway
     // privateDnsZone
   ]
@@ -384,7 +360,7 @@ module dscEsriPortalServers 'dscEsriPortal.bicep' = [for (server, i) in portalVi
   params: {
     arcgisServiceAccountIsDomainAccount: arcgisServiceAccountIsDomainAccount
     arcgisServiceAccountPassword: arcgisServiceAccountPassword
-    arcgisServiceAccountUserName: arcgisServiceAccountUserName
+    arcgisServiceAccountUsername: arcgisServiceAccountUsername
     cloudStorageAccountCredentialsUserName: cloudStorageAccountCredentialsUserName
     debugMode: debugMode
     dscConfiguration: dscPortalFunction

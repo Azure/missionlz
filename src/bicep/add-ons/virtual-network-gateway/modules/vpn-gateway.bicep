@@ -1,12 +1,13 @@
-param vgwname string
-param vgwlocation string = resourceGroup().location
-param publicIpAddressNames array
-param vgwsku string
-param vnetName string
+param delimiter string
+param location string
+param publicIpAddressName string
+param virtualNetworkGatewayName string
+param virtualNetworkGatewaySku string
+param virtualNetworkName string
 
 // Existing Virtual Network and Subnet
 resource vnet 'Microsoft.Network/virtualNetworks@2023-02-01' existing = {
-  name: vnetName
+  name: virtualNetworkName
 }
 
 // Reference the existing subnet within the specified Virtual Network
@@ -18,24 +19,26 @@ resource gatewaySubnet 'Microsoft.Network/virtualNetworks/subnets@2023-02-01' ex
 var gatewaySubnetId = gatewaySubnet.id
 
 // Public IP Addresses
-resource publicIpAddresses 'Microsoft.Network/publicIPAddresses@2023-02-01' = [for (pipname, index) in publicIpAddressNames: {
-  name: pipname
-  location: vgwlocation
-  sku: {
-    name: 'Standard'
+resource publicIpAddresses 'Microsoft.Network/publicIPAddresses@2023-02-01' = [
+  for i in range(0, 2): {
+    name: '${publicIpAddressName}${delimiter}${padLeft(i, 2, '0')}'
+    location: location
+    sku: {
+      name: 'Standard'
+    }
+    properties: {
+      publicIPAllocationMethod: 'Static'
+    }
   }
-  properties: {
-    publicIPAllocationMethod: 'Static'
-  }
-}]
+]
 
 var firstPublicIpAddressId = publicIpAddresses[0].id
 var secondPublicIpAddressId = publicIpAddresses[1].id
 
 // VPN Gateway
 resource vpnGateway 'Microsoft.Network/virtualNetworkGateways@2023-02-01' = {
-  name: vgwname
-  location: vgwlocation
+  name: virtualNetworkGatewayName
+  location: location
   properties: {
     gatewayType: 'Vpn'
     ipConfigurations: [
@@ -70,12 +73,8 @@ resource vpnGateway 'Microsoft.Network/virtualNetworkGateways@2023-02-01' = {
     enableBgp: false
     enablePrivateIpAddress: false
     sku: {
-      name: vgwsku
-      tier: vgwsku
+      name: virtualNetworkGatewaySku
+      tier: virtualNetworkGatewaySku
     }
   }
 }
-
-
-
-

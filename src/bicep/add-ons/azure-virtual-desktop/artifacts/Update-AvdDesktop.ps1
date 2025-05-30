@@ -32,4 +32,4 @@ Invoke-RestMethod `
     -Body (@{properties = @{friendlyName = $FriendlyName.Replace('"', '')}} | ConvertTo-Json) `
     -Headers $AzureManagementHeader `
     -Method 'PATCH' `
-    -Uri $($ResourceManagerUriFixed + 'subscriptions/' + $SubscriptionId + '/resourceGroups/' + $ResourceGroupName + '/providers/Microsoft.DesktopVirtualization/applicationGroups/' + $ApplicationGroupName + '/desktops/SessionDesktop?api-version=2022-02-10-preview') | Out-Null
+    -Uri $($ResourceManagerUriFixed + 'subscriptions/' + $SubscriptionId + '/resourceGroups/' + $ResourceGroupName + '/providers/Microsoft.DesktopVirtualization/applicationGroups/' + $ApplicationGroupName + '/desktops/SessionDesktop?api-version=2023-09-05') | Out-Null

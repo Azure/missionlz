@@ -2,7 +2,7 @@
 param arcgisServiceAccountIsDomainAccount bool
 @secure()
 param arcgisServiceAccountPassword string
-param arcgisServiceAccountUserName string
+param arcgisServiceAccountUsername string
 param cloudStorageAccountCredentialsUserName string
 param convertedEpoch int = dateTimeToEpoch(dateTimeAdd(utcNow(), 'P1D'))
 param debugMode bool
@@ -56,7 +56,7 @@ resource dscEsriServer 'Microsoft.Compute/virtualMachines/extensions@2018-10-01'
   parent: virtualMachine
   name: 'DSCConfiguration'
   location: location
-  tags: contains(tags, 'Microsoft.Compute/virtualMachines') ? tags['Microsoft.Compute/virtualMachines'] : {}
+  tags: tags[?'Microsoft.Compute/virtualMachines'] ?? {}
   properties: {
     autoUpgradeMinorVersion: true
     publisher: 'Microsoft.Powershell'
@@ -95,7 +95,7 @@ resource dscEsriServer 'Microsoft.Compute/virtualMachines/extensions@2018-10-01'
       }
       configurationArguments: {
         ServiceCredential: {
-          userName: arcgisServiceAccountUserName
+          userName: arcgisServiceAccountUsername
           password: arcgisServiceAccountPassword
         }
         ServerInternalCertificatePassword: {

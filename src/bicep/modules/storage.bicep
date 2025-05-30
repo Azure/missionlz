@@ -15,7 +15,6 @@ param logStorageSkuName string
 param mlzTags object
 param queuesPrivateDnsZoneResourceId string
 param resourceGroupNames array
-param serviceToken string
 param storageEncryptionKeyName string
 param tablesPrivateDnsZoneResourceId string
 param tags object
@@ -32,7 +31,6 @@ module storageAccount 'storage-account.bicep' = [for (tier, i) in tiers: {
     location: location
     mlzTags: mlzTags
     queuesPrivateDnsZoneResourceId: queuesPrivateDnsZoneResourceId
-    serviceToken: serviceToken
     skuName: logStorageSkuName
     storageEncryptionKeyName: storageEncryptionKeyName
     subnetResourceId: resourceId(tier.subscriptionId, resourceGroupNames[i], 'Microsoft.Network/virtualNetworks/subnets', tier.namingConvention.virtualNetwork, tier.namingConvention.subnet)
@@ -43,4 +41,5 @@ module storageAccount 'storage-account.bicep' = [for (tier, i) in tiers: {
   }
 }]
 
+output networkInterfaceResourceIds array = [for (tier, i) in tiers: storageAccount[i].outputs.networkInterfaceResourceIds]
 output storageAccountResourceIds array = [for (tier, i) in tiers: storageAccount[i].outputs.id]

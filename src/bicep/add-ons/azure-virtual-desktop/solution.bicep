@@ -18,10 +18,10 @@ param activeDirectorySolution string
 param availability string = 'AvailabilityZones'
 
 @description('The availability zones allowed for the AVD session hosts deployment location.')
-param availabilityZones array
+param availabilityZones array = ['1', '2', '3']
 
 @description('The file name for the ZIP file containing the AVD agents and DSC configuration.')
-param avdConfigurationZipFileName string = 'Configuration_1.0.02790.438.zip'
+param avdConfigurationZipFileName string = 'Configuration_1.0.02990.697.zip'
 
 @description('The object ID for the Azure Virtual Desktop enterprise application in Microsoft Entra ID.  The object ID can found by selecting Microsoft Applications using the Application type filter in the Enterprise Applications blade of Microsoft Entra ID.')
 param avdObjectId string
@@ -38,8 +38,8 @@ param deployActivityLogDiagnosticSetting bool
 @description('Choose whether to deploy Defender for Cloud.')
 param deployDefender bool
 
-@description('Choose whether to deploy Network Watcher for the AVD session hosts location. This is necessary when the control plane and session hosts are in different locations.')
-param deployNetworkWatcher bool
+@description('When set to true, deploys Network Watcher Traffic Analytics. It defaults to "false".')
+param deployNetworkWatcherTrafficAnalytics bool = false
 
 @description('Choose whether to deploy a policy assignment.')
 param deployPolicy bool
@@ -72,7 +72,7 @@ param domainName string = ''
 param drainMode bool = false
 
 @description('The email address to use for Defender for Cloud notifications.')
-param emailSecurityContact string
+param emailSecurityContact string = ''
 
 @description('Determine whether to enable accelerated networking on the AVD session hosts. https://learn.microsoft.com/en-us/azure/virtual-network/accelerated-networking-overview')
 param enableAcceleratedNetworking bool
@@ -86,6 +86,9 @@ param enableAvdInsights bool = true
 @description('Enable the partner telemetry deployment. This will allow ESRI to see data around the ArcGIS Pro deployments. https://learn.microsoft.com/en-us/partner-center/marketplace-offers/azure-partner-customer-usage-attribution')
 param enableTelemetry bool = false
 
+@description('Enables windows update services access through firewall.')
+param enableWindowsUpdateFwRules bool = false
+
 @allowed([
   'dev' // Development
   'prod' // Production
@@ -94,11 +97,11 @@ param enableTelemetry bool = false
 @description('The abbreviation for the target environment.')
 param environmentAbbreviation string = 'dev'
 
-@description('Determine whether the Shared Active Directory Connection for Azure NetApp Files already exists.')
-param existingSharedActiveDirectoryConnection bool = false
-
 @description('The resource ID for the existing feed workspace within a business unit or project.')
 param existingFeedWorkspaceResourceId string = ''
+
+@description('The custom firewall rule collection groups that override the default firewall rule collection groups.')
+param customFirewallRuleCollectionGroups array = []
 
 @description('The file share size(s) in GB for the Fslogix storage solution.')
 param fslogixShareSizeInGB int = 100
@@ -132,7 +135,7 @@ param functionAppSubnetAddressPrefix string = ''
   'EnabledForSessionHostsOnly'
 ])
 @description('The type of public network access for the host pool.')
-param hostPoolPublicNetworkAccess string
+param hostPoolPublicNetworkAccess string = 'Enabled'
 
 @allowed([
   'Pooled'
@@ -163,6 +166,26 @@ param imageSku string = 'win11-22h2-avd-m365'
 @description('The resource ID for the Compute Gallery Image Version. Do not set this value if using a marketplace image.')
 param imageVersionResourceId string = ''
 
+@description('An array of Key Vault Diagnostic Logs categories to collect. See "https://learn.microsoft.com/en-us/azure/key-vault/general/logging?tabs=Vault" for valid values.')
+param keyVaultDiagnosticsLogs array = [
+  {
+    category: 'AuditEvent'
+    enabled: true
+  }
+  {
+    category: 'AzurePolicyEvaluationDetails'
+    enabled: true
+  }
+]
+
+@description('The Key Vault Diagnostic Metrics to collect. See the following URL for valid settings: "https://learn.microsoft.com/azure/key-vault/general/logging?tabs=Vault".')
+param keyVaultDiagnosticMetrics array = [
+  {
+    category: 'AllMetrics'
+    enabled: true
+  }
+]
+
 @description('The deployment location for the AVD sessions hosts. This is necessary when the users are closer to a different location than the control plane location.')
 param locationVirtualMachines string = deployment().location
 
@@ -183,6 +206,45 @@ param logAnalyticsWorkspaceRetention int = 30
 @description('The SKU for the Log Analytics Workspace to setup the AVD monitoring solution')
 param logAnalyticsWorkspaceSku string = 'PerGB2018'
 
+@description('The Storage Account SKU to use for log storage. It defaults to "Standard_GRS". See https://docs.microsoft.com/en-us/rest/api/storagerp/srp_sku_types for valid settings.')
+param logStorageSkuName string = 'Standard_GRS'
+
+@description('The address prefix(es) for the new subnet(s) that will be created in the spoke virtual network(s). Specify only one address prefix in the array if the session hosts location and the control plan location are the same. If different locations are specified, add a second address prefix for the hosts virtual network.')
+param managementSubnetAddressPrefix string = '10.0.1${41 + (2 * stampIndex)}.0/26'
+
+@description('An array of metrics to enable on the diagnostic setting for network interfaces.')
+param networkInterfaceDiagnosticsMetrics array = [
+  {
+    category: 'AllMetrics'
+    enabled: true
+  }
+]
+
+@description('An array of Network Security Group diagnostic logs to apply to the workload Virtual Network. See https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-nsg-manage-log#log-categories for valid settings.')
+param networkSecurityGroupDiagnosticsLogs array = [
+  {
+    category: 'NetworkSecurityGroupEvent'
+    enabled: true
+  }
+  {
+    category: 'NetworkSecurityGroupRuleCounter'
+    enabled: true
+  }
+]
+
+@description('The rules to apply to the Network Security Group.')
+param networkSecurityGroupRules array = []
+
+@description('The number of days to retain Network Watcher Flow Logs. It defaults to "30".')  
+param networkWatcherFlowLogsRetentionDays int = 30
+
+@allowed([
+  'NetworkSecurityGroup'
+  'VirtualNetwork'
+])
+@description('When set to "true", enables Virtual Network Flow Logs. It defaults to "true" as its required by MCSB.')
+param networkWatcherFlowLogsType string = 'VirtualNetwork'
+
 @description('The resource ID of the Log Analytics Workspace to use for log storage.')
 param operationsLogAnalyticsWorkspaceResourceId string
 
@@ -202,8 +264,8 @@ param privateLinkScopeResourceId string
 @description('The profile of the workload for the AVD session hosts. When ArcGISPro is selected, telemetry data is collected for ESRI in the Partner Center.')
 param profile string = 'Generic'
 
-@description('Enable backups to an Azure Recovery Services vault.  For a pooled host pool this will enable backups on the Azure file share.  For a personal host pool this will enable backups on the AVD sessions hosts.')
-param recoveryServices bool = false
+// @description('Enable backups to an Azure Recovery Services vault.  For a pooled host pool this will enable backups on the Azure file share.  For a personal host pool this will enable backups on the AVD sessions hosts.')
+// param recoveryServices bool = false
 
 @description('Off peak start time for weekdays in HH:mm format.')
 param scalingWeekdaysOffPeakStartTime string = '17:00'
@@ -220,15 +282,6 @@ param scalingWeekendsPeakStartTime string = '09:00'
 @description('The array of Security Principals with their object IDs and display names to assign to the AVD Application Group and FSLogix Storage.')
 param securityPrincipals array
 
-/* Example of a security principal
-[
-  {
-    displayName: 'AVD'
-    objectId: '00000000-0000-0000-0000-000000000000'
-  }
-]
-*/
-
 @maxValue(5000)
 @minValue(0)
 @description('The number of session hosts to deploy in the host pool. Ensure you have the approved quota to deploy the desired count.')
@@ -239,13 +292,25 @@ param sessionHostCount int = 1
 @description('The starting number for the session hosts. This is important when adding virtual machines to ensure an update deployment is not performed on an existing, active session host.')
 param sessionHostIndex int = 0
 
+@description('The address prefix(es) for the new subnet(s) that will be created in the spoke virtual network(s). Specify only one address prefix in the array if the session hosts location and the control plan location are the same. If different locations are specified, add a second address prefix for the hosts virtual network.')
+param sessionHostsSubnetAddressPrefix string = '10.0.1${40 + (2 * stampIndex)}.0/24'
+
 @description('The resource ID for the subnet in the Shared Services subscription. This is required for the private endpoint on the AVD Global Workspace.')
 param sharedServicesSubnetResourceId string
+
+@description('The address prefix for the AVD Shared subnet that will be created in the AVD Shared spoke virtual network.')
+param sharedSubnetAddressPrefix string = '10.0.139.0/24'
+
+@description('The address prefix for the AVD Shared virtual network.')
+param sharedVirtualNetworkAddressPrefix string = '10.0.139.0/24'
 
 @maxValue(9)
 @minValue(0)
 @description('The stamp index allows for multiple AVD stamps with the same business unit or project to support different use cases. For example, "0" could be used for an office workers host pool and "1" could be used for a developers host pool within the "finance" business unit.')
 param stampIndex int = 0
+
+@description('The address prefix for the new spoke virtual network(s). Specify only one address prefix in the array if the session hosts location and the control plan location are the same. If different locations are specified, add a second address prefix for the hosts virtual network.')
+param stampVirtualNetworkAddressPrefix string = '10.0.1${40 + (2 * stampIndex)}.0/23'
 
 @maxValue(100)
 @minValue(0)
@@ -256,14 +321,6 @@ param storageCount int = 1
 @minValue(0)
 @description('The starting number for the names of the storage accounts to support sharding across multiple storage accounts. https://docs.microsoft.com/en-us/azure/architecture/patterns/sharding')
 param storageIndex int = 0
-
-@minLength(1)
-@maxLength(2)
-@description('The address prefix(es) for the new subnet(s) that will be created in the spoke virtual network(s). Specify only one address prefix in the array if the session hosts location and the control plan location are the same. If different locations are specified, add a second address prefix for the hosts virtual network.')
-param subnetAddressPrefixes array = [
-  '10.0.140.0/24'
-  '10.0.141.0/26'
-]
 
 @description('The Key / value pairs of metadata for the Azure resource groups and resources.')
 param tags object = {}
@@ -276,23 +333,22 @@ param validationEnvironment bool = false
 
 @secure()
 @description('The local administrator password for the AVD session hosts')
-param virtualMachinePassword string
+param virtualMachineAdminPassword string
+
+@description('The local administrator username for the AVD session hosts')
+param virtualMachineAdminUsername string
 
 @description('The virtual machine SKU for the AVD session hosts.')
 param virtualMachineSize string = 'Standard_D4ads_v5'
 
-@description('The local administrator username for the AVD session hosts')
-param virtualMachineUsername string
-
 @description('The number of virtual CPUs per virtual machine for the selected virtual machine size.')
 param virtualMachineVirtualCpuCount int
 
-@minLength(1)
-@maxLength(2)
-@description('The address prefix for the new spoke virtual network(s). Specify only one address prefix in the array if the session hosts location and the control plan location are the same. If different locations are specified, add a second address prefix for the hosts virtual network.')
-param virtualNetworkAddressPrefixes array = [
-  '10.0.140.0/23'
-]
+@description('The diagnostic logs to apply to the workload Virtual Network.')
+param virtualNetworkDiagnosticsLogs array = []
+
+@description('The metrics to monitor for the workload Virtual Network.')
+param virtualNetworkDiagnosticsMetrics array = []
 
 @description('The friendly name for the AVD workspace that is displayed in the end-user client.')
 param workspaceFriendlyName string = ''
@@ -302,7 +358,7 @@ param workspaceFriendlyName string = ''
   'Enabled'
 ])
 @description('The public network access setting on the AVD workspace either disables public network access or allows both public and private network access.')
-param workspacePublicNetworkAccess string
+param workspacePublicNetworkAccess string = 'Enabled'
 
 //  BATCH SESSION HOSTS
 // The following variables are used to determine the batches to deploy any number of AVD session hosts.
@@ -319,6 +375,7 @@ var endAvSetRange = (sessionHostCount + sessionHostIndex) / maxAvSetMembers // T
 var availabilitySetsCount = length(range(beginAvSetRange, (endAvSetRange - beginAvSetRange) + 1))
 
 // OTHER LOGIC & COMPUTED VALUES
+var cloudSuffix = replace(replace(environment().resourceManager, 'https://management.', ''), '/', '')
 var customImageId = empty(imageVersionResourceId) ? 'null' : '"${imageVersionResourceId}"'
 var deployFslogix = contains(fslogixStorageService, 'Azure') && contains(activeDirectorySolution, 'DomainServices')
   ? true
@@ -342,22 +399,27 @@ var fileShareNames = {
 var fileShares = fileShareNames[fslogixContainerType]
 var netbios = split(domainName, '.')[0]
 var privateDnsZoneResourceIdPrefix = '/subscriptions/${split(hubVirtualNetworkResourceId, '/')[2]}/resourceGroups/${split(hubVirtualNetworkResourceId, '/')[4]}/providers/Microsoft.Network/privateDnsZones/'
+var privateDnsZoneSuffixes_AzureVirtualDesktop = {
+  AzureCloud: 'microsoft.com'
+  AzureUSGovernment: 'azure.us'
+}
+var stampIndexFull = padLeft(stampIndex, 2, '0')
 var storageSku = fslogixStorageService == 'None' ? 'None' : split(fslogixStorageService, ' ')[1]
 var storageService = split(fslogixStorageService, ' ')[0]
 var storageSuffix = environment().suffixes.storage
 var subnets = {
-  avdControlPlane: [
+  avdManagement: [
     {
-      name: 'AvdControlPlane'
+      name: 'avd-management'
       properties: {
-        addressPrefix: subnetAddressPrefixes[1]
+        addressPrefix: managementSubnetAddressPrefix
       }
     }
   ]
   azureNetAppFiles: contains(fslogixStorageService, 'AzureNetAppFiles') && !empty(azureNetAppFilesSubnetAddressPrefix)
     ? [
         {
-          name: 'AzureNetAppFiles'
+          name: 'azure-netapp-files'
           properties: {
             addressPrefix: azureNetAppFilesSubnetAddressPrefix
           }
@@ -367,7 +429,7 @@ var subnets = {
   functionApp: fslogixStorageService == 'AzureFiles Premium'
     ? [
         {
-          name: 'FunctionAppOutbound'
+          name: 'function-app-outbound'
           properties: {
             addressPrefix: functionAppSubnetAddressPrefix
           }
@@ -376,10 +438,28 @@ var subnets = {
     : []
 }
 
-// Gets the MLZ hub virtual network for its location and tags
-resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-11-01' existing = {
+// Gets the MLZ hub virtual network for its location, tags, and peerings
+resource virtualNetwork_hub 'Microsoft.Network/virtualNetworks@2023-11-01' existing = {
   name: split(hubVirtualNetworkResourceId, '/')[8]
   scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
+}
+
+// Gets the address prefix for the identity virtual network to configure the firewall rules
+module virtualNetwork_identity '../../modules/existing-vnet-address-prefix.bicep' = if (contains(activeDirectorySolution, 'DomainServices')) {
+  name: 'get-id-vnet-${deploymentNameSuffix}'
+  params: {
+    networkName: 'identity'
+    peerings: virtualNetwork_hub.properties.virtualNetworkPeerings
+  }
+}
+
+// Gets the address prefix for the operations virtual network to configure the firewall rules
+module virtualNetwork_operations '../../modules/existing-vnet-address-prefix.bicep' = {
+  name: 'get-ops-vnet-${deploymentNameSuffix}'
+  params: {
+    networkName: 'operations'
+    peerings: virtualNetwork_hub.properties.virtualNetworkPeerings
+  }
 }
 
 // Gets the application group references if the AVD feed workspace already exists
@@ -403,218 +483,501 @@ resource partnerTelemetry 'Microsoft.Resources/deployments@2021-04-01' = if (ena
   }
 }
 
-// Gets the naming convention and tokens for the resource groups and resources
-module naming_management '../../modules/naming-convention.bicep' = {
-  name: 'get-naming-mgmt-${deploymentNameSuffix}'
+// Deploys the tier3 resources to support the AVD shared resources
+module tier3_shared '../tier3/solution.bicep' = {
+  name: 'deploy-tier3-avd-shared-${deploymentNameSuffix}'
   params: {
-    environmentAbbreviation: environmentAbbreviation
-    location: virtualNetwork.location
-    networkName: 'avd'
-    networkShortName: 'avd'
-    resourcePrefix: identifier
-    stampIndex: string(stampIndex)
-  }
-}
-
-module tier3_hosts '../tier3/solution.bicep' = {
-  name: 'deploy-tier3-avd-${deploymentNameSuffix}'
-  params: {
-    additionalSubnets: union(subnets.avdControlPlane, subnets.azureNetAppFiles, subnets.functionApp)
+    customFirewallRuleCollectionGroups: [
+      {
+        name: 'AVD-CollapsedCollectionGroup-${toUpper(identifier)}-${toUpper(environmentAbbreviation)}-${toUpper(locationVirtualMachines)}-SHARED'
+        properties: {
+          priority: 200
+          ruleCollections: [
+            {
+              name: 'AllowMonitorToLAW'
+              priority: 150
+              ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
+              action: {
+                type: 'Allow'
+              }
+              rules: [
+                {
+                  name: 'AllowMonitorToLAW'
+                  ruleType: 'NetworkRule'
+                  ipProtocols: ['Tcp']
+                  sourceAddresses: [sharedVirtualNetworkAddressPrefix]
+                  destinationAddresses: [cidrHost(virtualNetwork_operations.outputs.addressPrefix, 3)] // Network of the Log Analytics Workspace, could be narrowed using parameters file post deployment
+                  destinationPorts: ['443'] // HTTPS port for Azure Monitor
+                  sourceIpGroups: []
+                  destinationIpGroups: []
+                  destinationFqdns: []
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ]
     deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
     deployDefender: deployDefender
     deploymentNameSuffix: deploymentNameSuffix
-    deployNetworkWatcher: deployNetworkWatcher
+    deployNetworkWatcherTrafficAnalytics: deployNetworkWatcherTrafficAnalytics
     deployPolicy: deployPolicy
     emailSecurityContact: emailSecurityContact
     environmentAbbreviation: environmentAbbreviation
     firewallResourceId: hubAzureFirewallResourceId
     hubVirtualNetworkResourceId: hubVirtualNetworkResourceId
     identifier: identifier
+    keyVaultDiagnosticLogs: keyVaultDiagnosticsLogs
+    keyVaultDiagnosticMetrics: keyVaultDiagnosticMetrics
     location: locationVirtualMachines
     logAnalyticsWorkspaceResourceId: operationsLogAnalyticsWorkspaceResourceId
+    logStorageSkuName: logStorageSkuName
+    networkInterfaceDiagnosticsMetrics: networkInterfaceDiagnosticsMetrics
+    networkSecurityGroupDiagnosticsLogs: networkSecurityGroupDiagnosticsLogs
+    networkSecurityGroupRules: networkSecurityGroupRules
+    networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
+    networkWatcherFlowLogsType: networkWatcherFlowLogsType
     policy: policy
-    stampIndex: string(stampIndex)
-    subnetName: 'AvdSessionHosts'
-    subnetAddressPrefix: subnetAddressPrefixes[0]
+    subnetAddressPrefix: sharedSubnetAddressPrefix
+    subnetName: 'avd-shared'
     tags: tags
-    virtualNetworkAddressPrefix: virtualNetworkAddressPrefixes[0]
+    virtualNetworkAddressPrefix: sharedVirtualNetworkAddressPrefix
+    virtualNetworkDiagnosticsLogs: virtualNetworkDiagnosticsLogs
+    virtualNetworkDiagnosticsMetrics: virtualNetworkDiagnosticsMetrics
+    windowsAdministratorsGroupMembership: virtualMachineAdminUsername
     workloadName: 'avd'
     workloadShortName: 'avd'
   }
 }
 
-// Management: host pool, app group, AVD Insights, File Share Scaling
+// Deploys the tier3 resources to support the AVD stamp resources
+module tier3_stamp '../tier3/solution.bicep' = {
+  name: 'deploy-tier3-avd-stamp-${deploymentNameSuffix}'
+  params: {
+    additionalSubnets: union(subnets.avdManagement, subnets.azureNetAppFiles, subnets.functionApp)
+    customFirewallRuleCollectionGroups: empty(customFirewallRuleCollectionGroups) ? [
+      {
+        name: 'AVD-CollapsedCollectionGroup-${toUpper(identifier)}-${toUpper(environmentAbbreviation)}-${toUpper(locationVirtualMachines)}-${stampIndexFull}'
+        properties: {
+          priority: 200
+          ruleCollections: [
+            {
+              name: 'ApplicationRules'
+              priority: 150
+              ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
+              action: {
+                type: 'Allow'
+              }
+              rules: concat(
+                [
+                  {
+                    name: 'AVD-RequiredDeploymentEndpoints'
+                    ruleType: 'ApplicationRule'
+                    protocols: [
+                      {
+                        protocolType: 'Https'
+                        port: 443
+                      }
+                    ]
+                    fqdnTags: []
+                    webCategories: []
+                    targetFqdns: [
+                      replace(environment().resourceManager, 'https://', '')
+                      'mrsglobalsteus2prod.blob.${environment().suffixes.storage}'
+                      'wvdportalstorageblob.blob.${environment().suffixes.storage}'
+                      'gcs.prod.monitoring.${environment().suffixes.storage}'
+                      '*.prod.warm.ingest.monitor.${environment().suffixes.storage}'
+                      '*.guestconfiguration.${privateDnsZoneSuffixes_AzureVirtualDesktop[?environment().name] ?? cloudSuffix}'
+                      '*.wvd.${privateDnsZoneSuffixes_AzureVirtualDesktop[?environment().name] ?? cloudSuffix}'
+                    ]
+                    targetUrls: []
+                    terminateTLS: false
+                    sourceAddresses: [
+                      stampVirtualNetworkAddressPrefix
+                    ]
+                    destinationAddresses: []
+                    sourceIpGroups: []
+                  }
+                ],
+                contains(activeDirectorySolution, 'MicrosoftEntraId') ? [
+                  {
+                    name: 'AVD-EntraAuthEndpoints'
+                    ruleType: 'ApplicationRule'
+                    protocols: [
+                      {
+                        protocolType: 'Https'
+                        port: 443
+                      }
+                    ]
+                    fqdnTags: []
+                    webCategories: []
+                    targetFqdns: [
+                      replace(environment().authentication.loginEndpoint, 'https://', '')
+                      replace(environment().graph, 'https://', '')
+                      'enterpriseregistration.windows.net'
+                    ]
+                    targetUrls: []
+                    terminateTLS: false
+                    sourceAddresses: [
+                      stampVirtualNetworkAddressPrefix
+                    ]
+                    destinationAddresses: []
+                    sourceIpGroups: []
+                  }
+                ] : [],
+                enableWindowsUpdateFwRules ? [
+                  {
+                    name: 'WindowsUpdateEndpoints'
+                    ruleType: 'ApplicationRule'
+                    protocols: [
+                      {
+                        protocolType: 'Https'
+                        port: 443
+                      }
+                      {
+                        protocolType: 'Http'
+                        port: 80
+                      }
+                    ]
+                    fqdnTags: [
+                      'WindowsUpdate'
+                    ]
+                    webCategories: []
+                    targetFqdns: []
+                    targetUrls: []
+                    terminateTLS: false
+                    sourceAddresses: [
+                      stampVirtualNetworkAddressPrefix
+                    ]
+                    destinationAddresses: []
+                    sourceIpGroups: []
+                  }
+                ] : []
+              )
+            }
+            {
+              name: 'NetworkRules'
+              priority: 140
+              ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
+              action: {
+                type: 'Allow'
+              }
+              rules: concat(
+                [
+                  {
+                    name: 'KMS-Endpoint'
+                    ruleType: 'NetworkRule'
+                    ipProtocols: [
+                      'Tcp'
+                    ]
+                    sourceAddresses: [
+                      stampVirtualNetworkAddressPrefix
+                    ]
+                    destinationAddresses: []
+                    destinationFqdns: [
+                      'azkms.${environment().suffixes.storage}'
+                    ]
+                    destinationPorts: [
+                      '1688'
+                    ]
+                    sourceIpGroups: []
+                    destinationIpGroups: []
+                  }
+                ],
+                [
+                  {
+                    name: 'AllowMonitorToLAW'
+                    ruleType: 'NetworkRule'
+                    ipProtocols: ['Tcp']
+                    sourceAddresses: [
+                      stampVirtualNetworkAddressPrefix
+                    ]
+                    destinationAddresses: [cidrHost(virtualNetwork_operations.outputs.addressPrefix, 3)] // Network of the Log Analytics Workspace, could be narrowed using parameters file post deployment
+                    destinationPorts: ['443'] // HTTPS port for Azure Monitor
+                    sourceIpGroups: []
+                    destinationIpGroups: []
+                    destinationFqdns: []
+                  }
+                ],
+                [
+                  {
+                    name: 'TimeSync'
+                    ruleType: 'NetworkRule'
+                    ipProtocols: [
+                      'Udp'
+                    ]
+                    sourceAddresses: [
+                      stampVirtualNetworkAddressPrefix
+                    ]
+                    destinationAddresses: []
+                    destinationFqdns: [
+                      'time.windows.com'
+                    ]
+                    destinationPorts: [
+                      '123'
+                    ]
+                    sourceIpGroups: []
+                    destinationIpGroups: []
+                  }
+                ],
+                [
+                  {
+                    name: 'AzureCloudforLogin'
+                    ruleType: 'NetworkRule'
+                    ipProtocols: [
+                      'Tcp'
+                    ]
+                    sourceAddresses: [
+                      stampVirtualNetworkAddressPrefix
+                    ]
+                    destinationAddresses: ['AzureActiveDirectory']
+                    destinationFqdns: []
+                    destinationPorts: [
+                      '443'
+                    ]
+                    sourceIpGroups: []
+                    destinationIpGroups: []
+                  }
+                ],
+                contains(activeDirectorySolution, 'DomainServices') ? [
+                  {
+                    name: 'ADCommunicationRule'
+                    ruleType: 'NetworkRule'
+                    ipProtocols: [
+                      'Tcp'
+                      'Udp'
+                    ]
+                    sourceAddresses: [
+                      stampVirtualNetworkAddressPrefix
+                    ]
+                    destinationAddresses: [
+                      virtualNetwork_identity.outputs.addressPrefix
+                    ]
+                    destinationPorts: [
+                      '53'
+                      '88'
+                      '389'
+                      '445'
+                      '139'
+                      '135'
+                      '89'
+                      '123'
+                      '1024-65535'
+                    ]
+                    sourceIpGroups: []
+                    destinationIpGroups: []
+                  }
+                ] : []
+              )
+            }
+          ]
+        }
+      }
+    ] : customFirewallRuleCollectionGroups
+    deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
+    deployDefender: deployDefender
+    deployNetworkWatcherTrafficAnalytics: deployNetworkWatcherTrafficAnalytics
+    deployPolicy: deployPolicy
+    emailSecurityContact: emailSecurityContact
+    environmentAbbreviation: environmentAbbreviation
+    firewallResourceId: hubAzureFirewallResourceId
+    hubVirtualNetworkResourceId: hubVirtualNetworkResourceId
+    identifier: identifier
+    keyVaultDiagnosticLogs: keyVaultDiagnosticsLogs
+    keyVaultDiagnosticMetrics: keyVaultDiagnosticMetrics
+    location: locationVirtualMachines
+    logAnalyticsWorkspaceResourceId: operationsLogAnalyticsWorkspaceResourceId
+    logStorageSkuName: logStorageSkuName
+    networkInterfaceDiagnosticsMetrics: networkInterfaceDiagnosticsMetrics
+    networkSecurityGroupDiagnosticsLogs: networkSecurityGroupDiagnosticsLogs
+    networkSecurityGroupRules: networkSecurityGroupRules
+    networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
+    networkWatcherFlowLogsType: networkWatcherFlowLogsType
+    policy: policy
+    stampIndex: stampIndexFull
+    subnetAddressPrefix: sessionHostsSubnetAddressPrefix
+    subnetName: 'avd-session-hosts'
+    tags: tags
+    virtualNetworkAddressPrefix: stampVirtualNetworkAddressPrefix
+    virtualNetworkDiagnosticsLogs: virtualNetworkDiagnosticsLogs
+    virtualNetworkDiagnosticsMetrics: virtualNetworkDiagnosticsMetrics
+    windowsAdministratorsGroupMembership: virtualMachineAdminUsername
+    workloadName: 'avd'
+    workloadShortName: 'avd'
+  }
+  dependsOn: [
+    tier3_shared
+  ]
+}
+
+// Deploys the management resource group and resources
 module management 'modules/management/management.bicep' = {
   name: 'deploy-management-${deploymentNameSuffix}'
   params: {
-    activeDirectorySolution: activeDirectorySolution
     avdObjectId: avdObjectId
-    avdPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3_hosts.outputs.privateDnsZones, name => startsWith(name, 'privatelink.wvd'))[0]}'
-    customImageId: customImageId
-    customRdpProperty: customRdpProperty
-    deployFslogix: deployFslogix
+    delimiter: tier3_stamp.outputs.delimiter
+    // deployFslogix: deployFslogix
     deploymentNameSuffix: deploymentNameSuffix
-    desktopFriendlyName: empty(desktopFriendlyName) ? string(stampIndex) : desktopFriendlyName
-    diskEncryptionSetResourceId: tier3_hosts.outputs.diskEncryptionSetResourceId
+    diskEncryptionSetResourceId: tier3_stamp.outputs.diskEncryptionSetResourceId
     diskSku: diskSku
     domainJoinPassword: domainJoinPassword
     domainJoinUserPrincipalName: domainJoinUserPrincipalName
     domainName: domainName
+    locationControlPlane: virtualNetwork_hub.location
+    locationVirtualMachines: locationVirtualMachines
+    mlzTags: tier3_stamp.outputs.mlzTags
+    names: tier3_stamp.outputs.namingConvention
+    organizationalUnitPath: organizationalUnitPath
+    privateDnsZoneResourceIdPrefix: privateDnsZoneResourceIdPrefix
+    privateDnsZones: tier3_stamp.outputs.privateDnsZones
+    // recoveryServices: recoveryServices
+    // recoveryServicesGeo: tier3_stamp.outputs.locationProperties.recoveryServicesGeo
+    // storageService: storageService
+    subnetResourceId: tier3_stamp.outputs.subnets[0].id
+    tags: tags
+    // timeZone: tier3_stamp.outputs.locationProperties.timeZone
+    virtualMachineAdminPassword: virtualMachineAdminPassword
+    virtualMachineAdminUsername: virtualMachineAdminUsername
+  }
+}
+
+// Deploys the resource group and resources for the AVD shared resources
+module shared 'modules/shared/shared.bicep' = {
+  name: 'deploy-shared-${deploymentNameSuffix}'
+  params: {
+    delimiter: tier3_shared.outputs.delimiter
+    deploymentNameSuffix: deploymentNameSuffix
+    deploymentUserAssignedIdentityPrincipalId: management.outputs.deploymentUserAssignedIdentityPrincipalId
     enableApplicationInsights: enableApplicationInsights
     enableAvdInsights: enableAvdInsights
     environmentAbbreviation: environmentAbbreviation
+    existingApplicationGroupReferences: empty(existingFeedWorkspaceResourceId)
+      ? []
+      : workspace.properties.applicationGroupReferences
+    existingFeedWorkspaceResourceId: existingFeedWorkspaceResourceId
     fslogixStorageService: fslogixStorageService
+    locationControlPlane: virtualNetwork_hub.location
+    locationVirtualMachines: locationVirtualMachines
+    logAnalyticsWorkspaceRetention: logAnalyticsWorkspaceRetention
+    logAnalyticsWorkspaceSku: logAnalyticsWorkspaceSku
+    mlzTags: tier3_stamp.outputs.mlzTags
+    names: tier3_shared.outputs.namingConvention
+    privateDnsZoneResourceIdPrefix: privateDnsZoneResourceIdPrefix
+    privateDnsZones: tier3_stamp.outputs.privateDnsZones
+    privateLinkScopeResourceId: privateLinkScopeResourceId
+    subnetResourceId: tier3_stamp.outputs.subnets[0].id
+    subnets: tier3_stamp.outputs.subnets
+    tags: tags
+  }
+}
+
+module controlPlane 'modules/control-plane/control-plane.bicep' = {
+  name: 'deploy-control-plane-${deploymentNameSuffix}'
+  params: {
+    activeDirectorySolution: activeDirectorySolution
+    avdPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3_stamp.outputs.privateDnsZones, name => startsWith(name, 'privatelink.wvd'))[0]}'
+    customImageId: customImageId
+    customRdpProperty: customRdpProperty
+    delimiter: tier3_shared.outputs.delimiter
+    deploymentNameSuffix: deploymentNameSuffix
+    deploymentUserAssignedIdentityClientId: management.outputs.deploymentUserAssignedIdentityClientId
+    desktopFriendlyName: desktopFriendlyName
+    diskSku: diskSku
+    domainName: domainName
+    enableAvdInsights: enableAvdInsights
+    existingFeedWorkspaceResourceId: existingFeedWorkspaceResourceId
     hostPoolPublicNetworkAccess: hostPoolPublicNetworkAccess
     hostPoolType: hostPoolType
     imageOffer: imageOffer
     imagePublisher: imagePublisher
     imageSku: imageSku
     imageVersionResourceId: imageVersionResourceId
-    locationControlPlane: virtualNetwork.location
+    locationControlPlane: virtualNetwork_hub.location
     locationVirtualMachines: locationVirtualMachines
-    logAnalyticsWorkspaceRetention: logAnalyticsWorkspaceRetention
-    logAnalyticsWorkspaceSku: logAnalyticsWorkspaceSku
-    maxSessionLimit: usersPerCore * virtualMachineVirtualCpuCount
-    mlzTags: tier3_hosts.outputs.mlzTags
-    namingConvention: tier3_hosts.outputs.namingConvention
-    organizationalUnitPath: organizationalUnitPath
-    privateDnsZoneResourceIdPrefix: privateDnsZoneResourceIdPrefix
-    privateDnsZones: tier3_hosts.outputs.privateDnsZones
-    privateLinkScopeResourceId: privateLinkScopeResourceId
-    recoveryServices: recoveryServices
-    recoveryServicesGeo: tier3_hosts.outputs.locationProperties.recoveryServicesGeo
-    resourceAbbreviations: tier3_hosts.outputs.resourceAbbreviations
-    resourceGroupName: replace(naming_management.outputs.names.resourceGroup, naming_management.outputs.tokens.service, 'management')
-    resourceGroupProfiles: replace(tier3_hosts.outputs.namingConvention.resourceGroup, tier3_hosts.outputs.tokens.service, 'profiles')
-    securityPrincipalObjectIds: map(securityPrincipals, item => item.objectId)
-    serviceToken: tier3_hosts.outputs.tokens.service
-    sessionHostNamePrefix: replace(
-      tier3_hosts.outputs.namingConvention.virtualMachine,
-      tier3_hosts.outputs.tokens.service,
-      ''
-    )
-    storageService: storageService
-    subnetResourceId: tier3_hosts.outputs.subnets[0].id
-    subnets: tier3_hosts.outputs.subnets
-    tags: tags
-    timeZone: tier3_hosts.outputs.locationProperties.timeZone
-    validationEnvironment: validationEnvironment
-    virtualMachinePassword: virtualMachinePassword
-    virtualMachineSize: virtualMachineSize
-    virtualMachineUsername: virtualMachineUsername
-  }
-}
-
-// AVD Workspaces
-// This module creates the global and feed AVD workspace to support AVD with Private Link
-module workspaces 'modules/sharedServices/sharedServices.bicep' = {
-  name: 'deploy-workspaces-${deploymentNameSuffix}'
-  scope: subscription(split(sharedServicesSubnetResourceId, '/')[2])
-  params: {
-    applicationGroupResourceId: management.outputs.applicationGroupResourceId
-    avdPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3_hosts.outputs.privateDnsZones, name => startsWith(name, 'privatelink.wvd'))[0]}'
-    deploymentNameSuffix: deploymentNameSuffix
-    deploymentUserAssignedIdentityClientId: management.outputs.deploymentUserAssignedIdentityClientId
-    deploymentUserAssignedIdentityPrincipalId: management.outputs.deploymentUserAssignedIdentityPrincipalId
-    enableAvdInsights: enableAvdInsights
-    existingApplicationGroupReferences: empty(existingFeedWorkspaceResourceId)
-      ? []
-      : workspace.properties.applicationGroupReferences
-    existingFeedWorkspaceResourceId: existingFeedWorkspaceResourceId
-    existingWorkspace: !empty(existingFeedWorkspaceResourceId)
-    hostPoolName: management.outputs.hostPoolName
-    locationControlPlane: virtualNetwork.location
-    locationVirtualMachines: locationVirtualMachines
-    logAnalyticsWorkspaceResourceId: management.outputs.logAnalyticsWorkspaceResourceId
+    logAnalyticsWorkspaceResourceId: shared.outputs.logAnalyticsWorkspaceResourceId
+    managementSubnetResourceId: tier3_stamp.outputs.subnets[0].id
     managementVirtualMachineName: management.outputs.virtualMachineName
-    mlzTags: tier3_hosts.outputs.mlzTags
+    maxSessionLimit: usersPerCore * virtualMachineVirtualCpuCount
+    mlzTags: tier3_stamp.outputs.mlzTags
     resourceGroupManagement: management.outputs.resourceGroupName
-    sharedServicesSubnetResourceId: sharedServicesSubnetResourceId
+    resourceGroupShared: shared.outputs.resourceGroupName
+    securityPrincipalObjectIds: map(securityPrincipals, item => item.objectId)
+    sharedNames: tier3_shared.outputs.namingConvention
+    sharedSubnetReourceId: tier3_shared.outputs.subnets[0].id
+    stampNames: tier3_stamp.outputs.namingConvention
     tags: tags
-    workspaceFeedDiagnoticSettingName: naming_management.outputs.names.workspaceFeedDiagnosticSetting
-    workspaceFeedName: naming_management.outputs.names.workspaceFeed
-    workspaceFeedNetworkInterfaceName: naming_management.outputs.names.workspaceFeedNetworkInterface
-    workspaceFeedPrivateEndpointName: naming_management.outputs.names.workspaceFeedPrivateEndpoint
-    workspaceFeedResourceGroupName: replace(
-      replace(
-        naming_management.outputs.names.resourceGroup,
-        naming_management.outputs.tokens.service,
-        'feedWorkspace'
-      ),
-      '-${stampIndex}',
-      ''
-    )
-    workspaceFriendlyName: empty(workspaceFriendlyName)
-      ? replace(naming_management.outputs.names.workspaceFeed, '-${naming_management.outputs.tokens.service}', '')
-      : '${workspaceFriendlyName} (${virtualNetwork.location})'
-    workspaceGlobalName: replace(naming_management.outputs.names.workspaceGlobal, identifier, virtualNetwork.tags.resourcePrefix)
-    workspaceGlobalNetworkInterfaceName: replace(naming_management.outputs.names.workspaceGlobalNetworkInterface, identifier, virtualNetwork.tags.resourcePrefix)
-    workspaceGlobalPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3_hosts.outputs.privateDnsZones, name => startsWith(name, 'privatelink-global.wvd'))[0]}'
-    workspaceGlobalPrivateEndpointName: replace(naming_management.outputs.names.workspaceGlobalPrivateEndpoint, identifier, virtualNetwork.tags.resourcePrefix)
-    workspaceGlobalResourceGroupName: replace(
-      replace(
-        replace(
-          naming_management.outputs.names.resourceGroup,
-          naming_management.outputs.tokens.service,
-          'globalWorkspace'
-        ),
-        '-${stampIndex}',
-        ''
-      ),
-      identifier,
-      virtualNetwork.tags.resourcePrefix
-    )
+    validationEnvironment: validationEnvironment
+    virtualMachineSize: virtualMachineSize
+    workspaceFriendlyName: workspaceFriendlyName
     workspacePublicNetworkAccess: workspacePublicNetworkAccess
   }
 }
 
+// Deploys AVD global workspace to the Shared Services subscription and virtual network
+module sharedServices 'modules/shared-services/shared-services.bicep' = {
+  name: 'deploy-shared-services-${deploymentNameSuffix}'
+  scope: subscription(split(sharedServicesSubnetResourceId, '/')[2])
+  params: {
+    delimiter: tier3_stamp.outputs.delimiter
+    deploymentNameSuffix: deploymentNameSuffix
+    identifier: identifier
+    identifierHub: virtualNetwork_hub.tags.identifier
+    locationControlPlane: virtualNetwork_hub.location
+    mlzTags: tier3_stamp.outputs.mlzTags
+    names: tier3_shared.outputs.namingConvention
+    networkName: tier3_shared.outputs.tier.name
+    sharedServicesSubnetResourceId: sharedServicesSubnetResourceId
+    workspaceGlobalPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3_stamp.outputs.privateDnsZones, name => startsWith(name, 'privatelink-global.wvd'))[0]}'
+  }
+}
+
+// Deploys the resource group and resources for the FSLogix profiles storage
 module fslogix 'modules/fslogix/fslogix.bicep' = if (deployFslogix) {
   name: 'deploy-fslogix-${deploymentNameSuffix}'
   params: {
     activeDirectorySolution: activeDirectorySolution
     availability: availability
-    azureFilesPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3_hosts.outputs.privateDnsZones, name => contains(name, 'file'))[0]}'
+    azureFilesPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3_stamp.outputs.privateDnsZones, name => contains(name, 'file'))[0]}'
+    delimiter: tier3_stamp.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedIdentityClientId: management.outputs.deploymentUserAssignedIdentityClientId
     deploymentUserAssignedIdentityPrincipalId: management.outputs.deploymentUserAssignedIdentityPrincipalId
-    dnsServers: string(tier3_hosts.outputs.dnsServers)
+    dnsServers: join(tier3_stamp.outputs.dnsServers, ',')
     domainJoinPassword: domainJoinPassword
     domainJoinUserPrincipalName: domainJoinUserPrincipalName
     domainName: domainName
-    encryptionUserAssignedIdentityResourceId: tier3_hosts.outputs.userAssignedIdentityResourceId
-    existingSharedActiveDirectoryConnection: existingSharedActiveDirectoryConnection
+    encryptionUserAssignedIdentityResourceId: tier3_stamp.outputs.userAssignedIdentityResourceId
     fileShares: fileShares
     fslogixContainerType: fslogixContainerType
     fslogixShareSizeInGB: fslogixShareSizeInGB
     fslogixStorageService: fslogixStorageService
-    functionAppPrincipalId: management.outputs.functionAppPrincipalId
-    hostPoolResourceId: management.outputs.hostPoolResourceId
-    keyVaultUri: tier3_hosts.outputs.keyVaultUri
+    functionAppPrincipalId: shared.outputs.functionAppPrincipalId
+    hostPoolResourceId: controlPlane.outputs.hostPoolResourceId
+    keyVaultUri: tier3_stamp.outputs.keyVaultUri
     location: locationVirtualMachines
     managementVirtualMachineName: management.outputs.virtualMachineName
-    mlzTags: tier3_hosts.outputs.mlzTags
-    namingConvention: tier3_hosts.outputs.namingConvention
+    mlzTags: tier3_stamp.outputs.mlzTags
+    names: tier3_stamp.outputs.namingConvention
     netbios: netbios
     organizationalUnitPath: organizationalUnitPath
-    recoveryServices: recoveryServices
+    // recoveryServices: recoveryServices
     resourceGroupManagement: management.outputs.resourceGroupName
-    resourceGroupName: replace(tier3_hosts.outputs.namingConvention.resourceGroup, tier3_hosts.outputs.tokens.service, 'profiles')
     securityPrincipalNames: map(securityPrincipals, item => item.displayName)
     securityPrincipalObjectIds: map(securityPrincipals, item => item.objectId)
-    serviceToken: tier3_hosts.outputs.tokens.service
-    smbServerLocation: tier3_hosts.outputs.locationProperties.timeZone
     storageCount: storageCount
-    storageEncryptionKeyName: tier3_hosts.outputs.storageEncryptionKeyName
+    storageEncryptionKeyName: tier3_stamp.outputs.storageEncryptionKeyName
     storageIndex: storageIndex
     storageService: storageService
     storageSku: storageSku
-    subnetResourceId: tier3_hosts.outputs.subnets[0].id
-    subnets: tier3_hosts.outputs.subnets
+    subnetResourceId: tier3_stamp.outputs.subnets[0].id
+    subnets: tier3_stamp.outputs.subnets
     tags: tags
   }
 }
 
-module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
+// Deploys the resource group and resources for the AVD session hosts
+module sessionHosts 'modules/session-hosts/session-hosts.bicep' = {
   name: 'deploy-session-hosts-${deploymentNameSuffix}'
   params: {
     activeDirectorySolution: activeDirectorySolution
@@ -623,7 +986,8 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     availabilitySetsIndex: beginAvSetRange
     availabilityZones: availabilityZones
     avdConfigurationZipFileName: avdConfigurationZipFileName
-    dataCollectionRuleResourceId: management.outputs.dataCollectionRuleResourceId
+    dataCollectionRuleResourceId: shared.outputs.dataCollectionRuleResourceId
+    delimiter: tier3_stamp.outputs.delimiter
     deployFslogix: deployFslogix
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedIdentityClientId: management.outputs.deploymentUserAssignedIdentityClientId
@@ -631,7 +995,7 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     diskAccessPolicyDefinitionId: management.outputs.diskAccessPolicyDefinitionId
     diskAccessPolicyDisplayName: management.outputs.diskAccessPolicyDisplayName
     diskAccessResourceId: management.outputs.diskAccessResourceId
-    diskEncryptionSetResourceId: tier3_hosts.outputs.diskEncryptionSetResourceId
+    diskEncryptionSetResourceId: tier3_stamp.outputs.diskEncryptionSetResourceId
     diskSku: diskSku
     divisionRemainderValue: divisionRemainderValue
     domainJoinPassword: domainJoinPassword
@@ -640,11 +1004,11 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     drainMode: drainMode
     enableAcceleratedNetworking: enableAcceleratedNetworking
     enableAvdInsights: enableAvdInsights
-    enableRecoveryServices: recoveryServices
+    // enableRecoveryServices: recoveryServices
+    enableWindowsUpdate: enableWindowsUpdateFwRules
     environmentAbbreviation: environmentAbbreviation
     fslogixContainerType: fslogixContainerType
-    hostPoolName: management.outputs.hostPoolName
-    hostPoolResourceId: management.outputs.hostPoolResourceId
+    hostPoolResourceId: controlPlane.outputs.hostPoolResourceId
     hostPoolType: hostPoolType
     identifier: identifier
     imageOffer: imageOffer
@@ -652,45 +1016,43 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     imageSku: imageSku
     imageVersionResourceId: imageVersionResourceId
     location: locationVirtualMachines
-    logAnalyticsWorkspaceResourceId: management.outputs.logAnalyticsWorkspaceResourceId
+    logAnalyticsWorkspaceResourceId: shared.outputs.logAnalyticsWorkspaceResourceId
     managementVirtualMachineName: management.outputs.virtualMachineName
     maxResourcesPerTemplateDeployment: maxResourcesPerTemplateDeployment
-    mlzTags: tier3_hosts.outputs.mlzTags
-    namingConvention: tier3_hosts.outputs.namingConvention
+    mlzTags: tier3_stamp.outputs.mlzTags
+    names: tier3_stamp.outputs.namingConvention
     netAppFileShares: deployFslogix ? fslogix.outputs.netAppShares : [
       'None'
     ]
+    networkSecurityGroupResourceId: tier3_stamp.outputs.networkSecurityGroupResourceId
     organizationalUnitPath: organizationalUnitPath
     profile: profile
-    recoveryServicesVaultName: management.outputs.recoveryServicesVaultName
+    // recoveryServicesVaultName: management.outputs.recoveryServicesVaultName
     resourceGroupManagement: management.outputs.resourceGroupName
-    resourceGroupName: replace(tier3_hosts.outputs.namingConvention.resourceGroup, tier3_hosts.outputs.tokens.service, 'hosts')
     scalingWeekdaysOffPeakStartTime: scalingWeekdaysOffPeakStartTime
     scalingWeekdaysPeakStartTime: scalingWeekdaysPeakStartTime
     scalingWeekendsOffPeakStartTime: scalingWeekendsOffPeakStartTime
     scalingWeekendsPeakStartTime: scalingWeekendsPeakStartTime
     securityPrincipalObjectIds: map(securityPrincipals, item => item.objectId)
-    serviceToken: tier3_hosts.outputs.tokens.service
     sessionHostBatchCount: sessionHostBatchCount
     sessionHostIndex: sessionHostIndex
+    stampIndexFull: stampIndexFull
     storageAccountNamePrefix: deployFslogix ? fslogix.outputs.storageAccountNamePrefix : ''
     storageCount: storageCount
     storageIndex: storageIndex
     storageService: storageService
     storageSuffix: storageSuffix
-    subnetResourceId: tier3_hosts.outputs.subnets[0].id
+    subnetResourceId: tier3_stamp.outputs.subnets[0].id
     tags: tags
-    timeZone: tier3_hosts.outputs.locationProperties.timeZone
-    virtualMachinePassword: virtualMachinePassword
+    timeZone: tier3_stamp.outputs.locationProperties.timeZone
+    virtualMachineAdminPassword: virtualMachineAdminPassword
+    virtualMachineAdminUsername: virtualMachineAdminUsername
     virtualMachineSize: virtualMachineSize
-    virtualMachineUsername: virtualMachineUsername
   }
-  dependsOn: [
-    fslogix
-  ]
 }
 
-module cleanUp 'modules/cleanUp/cleanUp.bicep' = {
+// Deploys a run command to delete the management virtual machine
+module cleanUp 'modules/clean-up/clean-up.bicep' = {
   name: 'deploy-clean-up-${deploymentNameSuffix}'
   params: {
     deploymentNameSuffix: deploymentNameSuffix

@@ -38,7 +38,7 @@ resource imageDefinition 'Microsoft.Compute/galleries/images@2022-03-03' = {
   parent: computeGallery
   name: imageDefinitionName
   location: location
-  tags: union(contains(tags, 'Microsoft.Compute/galleries') ? tags['Microsoft.Compute/galleries'] : {}, mlzTags)
+  tags: union(tags[?'Microsoft.Compute/galleries'] ?? {}, mlzTags)
   properties: {
     architecture: 'x64'
     features: [
@@ -76,7 +76,7 @@ resource imageVersion 'Microsoft.Compute/galleries/images/versions@2022-03-03' =
   parent: imageDefinition
   name: imageVersionNumber
   location: location
-  tags: union(contains(tags, 'Microsoft.Compute/galleries') ? tags['Microsoft.Compute/galleries'] : {}, mlzTags)
+  tags: union(tags[?'Microsoft.Compute/galleries'] ?? {}, mlzTags)
   properties: {
     publishingProfile: {
       excludeFromLatest: excludeFromLatest

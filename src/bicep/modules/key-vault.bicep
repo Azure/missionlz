@@ -12,14 +12,13 @@ param resourceAbbreviations object
 param subnetResourceId string
 param tags object
 param tier object
-param tokens object
 
-var keyVaultPrivateEndpointName = replace(tier.namingConvention.keyVaultPrivateEndpoint, tokens.service, 'cmk')
+var keyVaultPrivateEndpointName = tier.namingConvention.keyVaultPrivateEndpoint
 
 resource vault 'Microsoft.KeyVault/vaults@2022-07-01' = {
-  name: '${resourceAbbreviations.keyVaults}${uniqueString(replace(tier.namingConvention.keyVault, tokens.service, 'cmk'), resourceGroup().id)}'
+  name: '${resourceAbbreviations.keyVaults}${uniqueString(tier.namingConvention.keyVault, resourceGroup().id)}'
   location: location
-  tags: union(contains(tags, 'Microsoft.KeyVault/vaults') ? tags['Microsoft.KeyVault/vaults'] : {}, mlzTags)
+  tags: union(tags[?'Microsoft.KeyVault/vaults'] ?? {}, mlzTags)
   properties: {
     enabledForDeployment: false
     enabledForDiskEncryption: false
@@ -43,44 +42,6 @@ resource vault 'Microsoft.KeyVault/vaults@2022-07-01' = {
   }
 }
 
-resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = {
-  name: keyVaultPrivateEndpointName
-  location: location
-  tags: union(contains(tags, 'Microsoft.Network/privateEndpoints') ? tags['Microsoft.Network/privateEndpoints'] : {}, mlzTags)
-  properties: {
-    customNetworkInterfaceName: replace(tier.namingConvention.keyVaultNetworkInterface, tokens.service, 'cmk')
-    privateLinkServiceConnections: [
-      {
-        name: keyVaultPrivateEndpointName
-        properties: {
-          privateLinkServiceId: vault.id
-          groupIds: [
-            'vault'
-          ]
-        }
-      }
-    ]
-    subnet: {
-      id: subnetResourceId
-    }
-  }
-}
-
-resource privateDnsZoneGroups 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2021-08-01' = {
-  parent: privateEndpoint
-  name: vault.name
-  properties: {
-    privateDnsZoneConfigs: [
-      {
-        name: 'ipconfig1'
-        properties: {
-          privateDnsZoneId: keyVaultPrivateDnsZoneResourceId
-        }
-      }
-    ]
-  }
-}
-
 resource key_disks 'Microsoft.KeyVault/vaults/keys@2022-07-01' = {
   parent: vault
   name: 'DiskEncryptionKey'
@@ -89,7 +50,7 @@ resource key_disks 'Microsoft.KeyVault/vaults/keys@2022-07-01' = {
       enabled: true
     }
     keySize: 4096
-    kty: 'RSA'
+    kty: 'RSA-HSM'
     rotationPolicy: {
       attributes: {
         expiryTime: 'P${string(diskEncryptionKeyExpirationInDays)}D'
@@ -124,7 +85,7 @@ resource key_storageAccounts 'Microsoft.KeyVault/vaults/keys@2022-07-01' = {
       enabled: true
     }
     keySize: 4096
-    kty: 'RSA'
+    kty: 'RSA-HSM'
     rotationPolicy: {
       attributes: {
         expiryTime: 'P${string(diskEncryptionKeyExpirationInDays)}D'
@@ -151,8 +112,55 @@ resource key_storageAccounts 'Microsoft.KeyVault/vaults/keys@2022-07-01' = {
   }
 }
 
+resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = {
+  name: keyVaultPrivateEndpointName
+  location: location
+  tags: union(tags[?'Microsoft.Network/privateEndpoints'] ?? {}, mlzTags)
+  properties: {
+    customNetworkInterfaceName: tier.namingConvention.keyVaultNetworkInterface
+    privateLinkServiceConnections: [
+      {
+        name: keyVaultPrivateEndpointName
+        properties: {
+          privateLinkServiceId: vault.id
+          groupIds: [
+            'vault'
+          ]
+        }
+      }
+    ]
+    subnet: {
+      id: subnetResourceId
+    }
+  }
+  dependsOn: [
+    key_disks
+    key_storageAccounts
+  ]
+}
+
+resource privateDnsZoneGroups 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2021-08-01' = {
+  parent: privateEndpoint
+  name: vault.name
+  properties: {
+    privateDnsZoneConfigs: [
+      {
+        name: 'ipconfig1'
+        properties: {
+          privateDnsZoneId: keyVaultPrivateDnsZoneResourceId
+        }
+      }
+    ]
+  }
+  dependsOn: [
+    key_disks
+    key_storageAccounts
+  ]
+}
+
 output keyUriWithVersion string = key_disks.properties.keyUriWithVersion
 output keyVaultResourceId string = vault.id
 output keyVaultName string = vault.name
 output keyVaultUri string = vault.properties.vaultUri
+output networkInterfaceResourceId string = privateEndpoint.properties.networkInterfaces[0].id
 output storageKeyName string = key_storageAccounts.name

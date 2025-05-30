@@ -15,7 +15,7 @@
         "description": "The password for the ArcGIS service account."
       }
     },
-    "arcgisServiceAccountUserName": {
+    "arcgisServiceAccountUsername": {
       "type": "string",
       "metadata": {
         "description": "The username for the ArcGIS service account."
@@ -26081,8 +26081,8 @@
           "arcgisServiceAccountPassword": {
             "value": "[parameters('arcgisServiceAccountPassword')]"
           },
-          "arcgisServiceAccountUserName": {
-            "value": "[parameters('arcgisServiceAccountUserName')]"
+          "arcgisServiceAccountUsername": {
+            "value": "[parameters('arcgisServiceAccountUsername')]"
           },
           "architecture": {
             "value": "singletier"
@@ -26232,7 +26232,7 @@
                 "description": "The password for the ArcGIS service account."
               }
             },
-            "arcgisServiceAccountUserName": {
+            "arcgisServiceAccountUsername": {
               "type": "string",
               "metadata": {
                 "description": "The username for the ArcGIS service account."
@@ -34839,8 +34839,8 @@
                   "arcgisServiceAccountPassword": {
                     "value": "[parameters('arcgisServiceAccountPassword')]"
                   },
-                  "arcgisServiceAccountUserName": {
-                    "value": "[parameters('arcgisServiceAccountUserName')]"
+                  "arcgisServiceAccountUsername": {
+                    "value": "[parameters('arcgisServiceAccountUsername')]"
                   },
                   "architecture": {
                     "value": "[parameters('architecture')]"
@@ -35092,7 +35092,7 @@
                     "arcgisServiceAccountPassword": {
                       "type": "securestring"
                     },
-                    "arcgisServiceAccountUserName": {
+                    "arcgisServiceAccountUsername": {
                       "type": "string"
                     },
                     "architecture": {
@@ -35355,8 +35355,8 @@
                           "arcgisServiceAccountPassword": {
                             "value": "[parameters('arcgisServiceAccountPassword')]"
                           },
-                          "arcgisServiceAccountUserName": {
-                            "value": "[parameters('arcgisServiceAccountUserName')]"
+                          "arcgisServiceAccountUsername": {
+                            "value": "[parameters('arcgisServiceAccountUsername')]"
                           },
                           "debugMode": {
                             "value": "[parameters('debugMode')]"
@@ -35418,7 +35418,7 @@
                             "arcgisServiceAccountPassword": {
                               "type": "securestring"
                             },
-                            "arcgisServiceAccountUserName": {
+                            "arcgisServiceAccountUsername": {
                               "type": "string"
                             },
                             "storageAccountName": {
@@ -35516,7 +35516,7 @@
                                   },
                                   "configurationArguments": {
                                     "ServiceCredential": {
-                                      "userName": "[parameters('arcgisServiceAccountUserName')]",
+                                      "userName": "[parameters('arcgisServiceAccountUsername')]",
                                       "password": "[parameters('arcgisServiceAccountPassword')]"
                                     },
                                     "MachineAdministratorCredential": {
@@ -36148,8 +36148,8 @@
                           "arcgisServiceAccountPassword": {
                             "value": "[parameters('arcgisServiceAccountPassword')]"
                           },
-                          "arcgisServiceAccountUserName": {
-                            "value": "[parameters('arcgisServiceAccountUserName')]"
+                          "arcgisServiceAccountUsername": {
+                            "value": "[parameters('arcgisServiceAccountUsername')]"
                           },
                           "cloudStorageAccountCredentialsUserName": {
                             "value": "[parameters('cloudStorageAccountCredentialsUserName')]"
@@ -36241,7 +36241,7 @@
                             "arcgisServiceAccountPassword": {
                               "type": "securestring"
                             },
-                            "arcgisServiceAccountUserName": {
+                            "arcgisServiceAccountUsername": {
                               "type": "string"
                             },
                             "cloudStorageAccountCredentialsUserName": {
@@ -36382,7 +36382,7 @@
                                   },
                                   "configurationArguments": {
                                     "ServiceCredential": {
-                                      "userName": "[parameters('arcgisServiceAccountUserName')]",
+                                      "userName": "[parameters('arcgisServiceAccountUsername')]",
                                       "password": "[parameters('arcgisServiceAccountPassword')]"
                                     },
                                     "ServerInternalCertificatePassword": {
@@ -36440,8 +36440,8 @@
                           "arcgisServiceAccountPassword": {
                             "value": "[parameters('arcgisServiceAccountPassword')]"
                           },
-                          "arcgisServiceAccountUserName": {
-                            "value": "[parameters('arcgisServiceAccountUserName')]"
+                          "arcgisServiceAccountUsername": {
+                            "value": "[parameters('arcgisServiceAccountUsername')]"
                           },
                           "cloudStorageAccountCredentialsUserName": {
                             "value": "[parameters('cloudStorageAccountCredentialsUserName')]"
@@ -36518,7 +36518,7 @@
                             "arcgisServiceAccountPassword": {
                               "type": "securestring"
                             },
-                            "arcgisServiceAccountUserName": {
+                            "arcgisServiceAccountUsername": {
                               "type": "string"
                             },
                             "cloudStorageAccountCredentialsUserName": {
@@ -36640,7 +36640,7 @@
                                   },
                                   "configurationArguments": {
                                     "ServiceCredential": {
-                                      "userName": "[parameters('arcgisServiceAccountUserName')]",
+                                      "userName": "[parameters('arcgisServiceAccountUsername')]",
                                       "password": "[parameters('arcgisServiceAccountPassword')]"
                                     },
                                     "SiteAdministratorCredential": {
@@ -36695,8 +36695,8 @@
                           "arcgisServiceAccountPassword": {
                             "value": "[parameters('arcgisServiceAccountPassword')]"
                           },
-                          "arcgisServiceAccountUserName": {
-                            "value": "[parameters('arcgisServiceAccountUserName')]"
+                          "arcgisServiceAccountUsername": {
+                            "value": "[parameters('arcgisServiceAccountUsername')]"
                           },
                           "debugMode": {
                             "value": "[parameters('debugMode')]"
@@ -36761,7 +36761,7 @@
                             "arcgisServiceAccountPassword": {
                               "type": "securestring"
                             },
-                            "arcgisServiceAccountUserName": {
+                            "arcgisServiceAccountUsername": {
                               "type": "string"
                             },
                             "debugMode": {
@@ -36868,7 +36868,7 @@
                                   },
                                   "configurationArguments": {
                                     "ServiceCredential": {
-                                      "userName": "[parameters('arcgisServiceAccountUserName')]",
+                                      "userName": "[parameters('arcgisServiceAccountUsername')]",
                                       "password": "[parameters('arcgisServiceAccountPassword')]"
                                     },
                                     "SiteAdministratorCredential": {
@@ -36915,8 +36915,8 @@
                           "arcgisServiceAccountPassword": {
                             "value": "[parameters('arcgisServiceAccountPassword')]"
                           },
-                          "arcgisServiceAccountUserName": {
-                            "value": "[parameters('arcgisServiceAccountUserName')]"
+                          "arcgisServiceAccountUsername": {
+                            "value": "[parameters('arcgisServiceAccountUsername')]"
                           },
                           "debugMode": {
                             "value": "[parameters('debugMode')]"
@@ -36987,7 +36987,7 @@
                             "arcgisServiceAccountPassword": {
                               "type": "securestring"
                             },
-                            "arcgisServiceAccountUserName": {
+                            "arcgisServiceAccountUsername": {
                               "type": "string"
                             },
                             "debugMode": {
@@ -37102,7 +37102,7 @@
                                   },
                                   "configurationArguments": {
                                     "ServiceCredential": {
-                                      "userName": "[parameters('arcgisServiceAccountUserName')]",
+                                      "userName": "[parameters('arcgisServiceAccountUsername')]",
                                       "password": "[parameters('arcgisServiceAccountPassword')]"
                                     },
                                     "SiteAdministratorCredential": {
@@ -37149,8 +37149,8 @@
                           "arcgisServiceAccountPassword": {
                             "value": "[parameters('arcgisServiceAccountPassword')]"
                           },
-                          "arcgisServiceAccountUserName": {
-                            "value": "[parameters('arcgisServiceAccountUserName')]"
+                          "arcgisServiceAccountUsername": {
+                            "value": "[parameters('arcgisServiceAccountUsername')]"
                           },
                           "debugMode": {
                             "value": "[parameters('debugMode')]"
@@ -37215,7 +37215,7 @@
                             "arcgisServiceAccountPassword": {
                               "type": "securestring"
                             },
-                            "arcgisServiceAccountUserName": {
+                            "arcgisServiceAccountUsername": {
                               "type": "string"
                             },
                             "graphDataStoreVirtualMachineNames": {
@@ -37322,7 +37322,7 @@
                                   },
                                   "configurationArguments": {
                                     "ServiceCredential": {
-                                      "userName": "[parameters('arcgisServiceAccountUserName')]",
+                                      "userName": "[parameters('arcgisServiceAccountUsername')]",
                                       "password": "[parameters('arcgisServiceAccountPassword')]"
                                     },
                                     "SiteAdministratorCredential": {
@@ -37379,8 +37379,8 @@
                           "arcgisServiceAccountPassword": {
                             "value": "[parameters('arcgisServiceAccountPassword')]"
                           },
-                          "arcgisServiceAccountUserName": {
-                            "value": "[parameters('arcgisServiceAccountUserName')]"
+                          "arcgisServiceAccountUsername": {
+                            "value": "[parameters('arcgisServiceAccountUsername')]"
                           },
                           "debugMode": {
                             "value": "[parameters('debugMode')]"
@@ -37445,7 +37445,7 @@
                             "arcgisServiceAccountPassword": {
                               "type": "securestring"
                             },
-                            "arcgisServiceAccountUserName": {
+                            "arcgisServiceAccountUsername": {
                               "type": "string"
                             },
                             "debugMode": {
@@ -37556,7 +37556,7 @@
                                   },
                                   "configurationArguments": {
                                     "ServiceCredential": {
-                                      "userName": "[parameters('arcgisServiceAccountUserName')]",
+                                      "userName": "[parameters('arcgisServiceAccountUsername')]",
                                       "password": "[parameters('arcgisServiceAccountPassword')]"
                                     },
                                     "SiteAdministratorCredential": {
@@ -37602,8 +37602,8 @@
                           "arcgisServiceAccountPassword": {
                             "value": "[parameters('arcgisServiceAccountPassword')]"
                           },
-                          "arcgisServiceAccountUserName": {
-                            "value": "[parameters('arcgisServiceAccountUserName')]"
+                          "arcgisServiceAccountUsername": {
+                            "value": "[parameters('arcgisServiceAccountUsername')]"
                           },
                           "cloudStorageAccountCredentialsUserName": {
                             "value": "[parameters('cloudStorageAccountCredentialsUserName')]"
@@ -37704,7 +37704,7 @@
                             "arcgisServiceAccountPassword": {
                               "type": "securestring"
                             },
-                            "arcgisServiceAccountUserName": {
+                            "arcgisServiceAccountUsername": {
                               "type": "string"
                             },
                             "cloudStorageAccountCredentialsUserName": {
@@ -37861,7 +37861,7 @@
                                   },
                                   "configurationArguments": {
                                     "ServiceCredential": {
-                                      "userName": "[parameters('arcgisServiceAccountUserName')]",
+                                      "userName": "[parameters('arcgisServiceAccountUsername')]",
                                       "password": "[parameters('arcgisServiceAccountPassword')]"
                                     },
                                     "PortalInternalCertificatePassword": {
@@ -37952,8 +37952,8 @@
                   "arcgisServiceAccountPassword": {
                     "value": "[parameters('arcgisServiceAccountPassword')]"
                   },
-                  "arcgisServiceAccountUserName": {
-                    "value": "[parameters('arcgisServiceAccountUserName')]"
+                  "arcgisServiceAccountUsername": {
+                    "value": "[parameters('arcgisServiceAccountUsername')]"
                   },
                   "cloudStorageAccountCredentialsUserName": {
                     "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-storage-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.cloudStorageAccountCredentialsUserName.value]"
@@ -38094,7 +38094,7 @@
                     "arcgisServiceAccountPassword": {
                       "type": "securestring"
                     },
-                    "arcgisServiceAccountUserName": {
+                    "arcgisServiceAccountUsername": {
                       "type": "string"
                     },
                     "applicationGatewayPrivateIpAddress": {
@@ -38827,8 +38827,8 @@
                           "arcgisServiceAccountPassword": {
                             "value": "[parameters('arcgisServiceAccountPassword')]"
                           },
-                          "arcgisServiceAccountUserName": {
-                            "value": "[parameters('arcgisServiceAccountUserName')]"
+                          "arcgisServiceAccountUsername": {
+                            "value": "[parameters('arcgisServiceAccountUsername')]"
                           },
                           "cloudStorageAccountCredentialsUserName": {
                             "value": "[parameters('cloudStorageAccountCredentialsUserName')]"
@@ -38935,7 +38935,7 @@
                             "arcgisServiceAccountPassword": {
                               "type": "securestring"
                             },
-                            "arcgisServiceAccountUserName": {
+                            "arcgisServiceAccountUsername": {
                               "type": "string"
                             },
                             "cloudStorageAccountCredentialsUserName": {
@@ -39091,7 +39091,7 @@
                                     "ServerLicenseFileUrl": "[format('{0}{1}?{2}', parameters('storageUriPrefix'), parameters('serverLicenseFileName'), listAccountSAS(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, resourceGroup().name), 'Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2021-04-01', variables('sasProperties')).accountSasToken)]",
                                     "PortalLicenseFileUrl": "[format('{0}{1}?{2}', parameters('storageUriPrefix'), parameters('portalLicenseFileName'), listAccountSAS(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, resourceGroup().name), 'Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2021-04-01', variables('sasProperties')).accountSasToken)]",
                                     "ServiceCredential": {
-                                      "userName": "[parameters('arcgisServiceAccountUserName')]",
+                                      "userName": "[parameters('arcgisServiceAccountUsername')]",
                                       "password": "[parameters('arcgisServiceAccountPassword')]"
                                     },
                                     "MachineAdministratorCredential": {

@@ -15,7 +15,6 @@ param resourceGroupName string
 param subnetResourceId string
 param tags object
 param tier object
-param tokens object
 param workloadShortName string
 
 module keyVault 'key-vault.bicep' = {
@@ -30,7 +29,6 @@ module keyVault 'key-vault.bicep' = {
     subnetResourceId: subnetResourceId
     tags: tags
     tier: tier
-    tokens: tokens
   }
 }
 
@@ -44,7 +42,7 @@ module diskEncryptionSet 'disk-encryption-set.bicep' = {
     keyVaultResourceId: keyVault.outputs.keyVaultResourceId
     location: location
     mlzTags: mlzTags
-    tags: contains(tags, 'Microsoft.Compute/diskEncryptionSets') ? tags['Microsoft.Compute/diskEncryptionSets'] : {}
+    tags: tags
     workloadShortName: workloadShortName
   }
 }
@@ -57,7 +55,7 @@ module userAssignedIdentity 'user-assigned-identity.bicep' = {
     location: location
     mlzTags: mlzTags
     tags: tags
-    userAssignedIdentityName: replace(tier.namingConvention.userAssignedIdentity, '-${tokens.service}', '')
+    userAssignedIdentityName: tier.namingConvention.userAssignedIdentity
   }
 }
 
@@ -65,5 +63,8 @@ output diskEncryptionSetResourceId string = diskEncryptionSet.outputs.resourceId
 output keyVaultName string = keyVault.outputs.keyVaultName
 output keyVaultUri string = keyVault.outputs.keyVaultUri
 output keyVaultResourceId string = keyVault.outputs.keyVaultResourceId
+output networkInterfaceResourceIds array = [
+  keyVault.outputs.networkInterfaceResourceId
+]
 output storageKeyName string = keyVault.outputs.storageKeyName
 output userAssignedIdentityResourceId string = userAssignedIdentity.outputs.resourceId

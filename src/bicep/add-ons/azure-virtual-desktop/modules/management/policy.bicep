@@ -1,8 +1,6 @@
 targetScope = 'subscription'
 
 param diskAccessResourceId string = ''
-param location string
-param resourceGroupName string
 
 var parameters = !empty(diskAccessResourceId) ? {
   diskAccessId: {
@@ -69,18 +67,6 @@ resource policyDefinition 'Microsoft.Authorization/policyDefinitions@2021-06-01'
       }
     }
     policyType: 'Custom'
-  }
-}
-
-module policyAssignment 'policyAssignment.bicep' = {
-  name: 'assign-policy-disk-network-access'
-  scope: resourceGroup(resourceGroupName)
-  params: {
-    diskAccessResourceId: diskAccessResourceId
-    location: location
-    policyDefinitionId: policyDefinition.id
-    policyDisplayName: policyDefinition.properties.displayName
-    policyName: policyDefinition.properties.displayName
   }
 }
 

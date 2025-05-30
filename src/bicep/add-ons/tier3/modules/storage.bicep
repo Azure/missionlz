@@ -11,10 +11,8 @@ param keyVaultUri string
 param logStorageSkuName string
 param location string
 param mlzTags object
-param network object
 param queuesPrivateDnsZoneResourceId string
 param resourceGroupName string
-param serviceToken string
 param storageEncryptionKeyName string
 param subnetResourceId string
 param tablesPrivateDnsZoneResourceId string
@@ -24,7 +22,7 @@ param userAssignedIdentityResourceId string
 
 module storageAccount '../../../modules/storage-account.bicep' = {
   name: 'storage'
-  scope: resourceGroup(network.subscriptionId, resourceGroupName)
+  scope: resourceGroup(tier.subscriptionId, resourceGroupName)
   params: {
     blobsPrivateDnsZoneResourceId: blobsPrivateDnsZoneResourceId
     filesPrivateDnsZoneResourceId: filesPrivateDnsZoneResourceId
@@ -32,7 +30,6 @@ module storageAccount '../../../modules/storage-account.bicep' = {
     location: location
     mlzTags: mlzTags
     queuesPrivateDnsZoneResourceId: queuesPrivateDnsZoneResourceId
-    serviceToken: serviceToken
     skuName: logStorageSkuName
     storageEncryptionKeyName: storageEncryptionKeyName
     subnetResourceId: subnetResourceId
@@ -43,4 +40,5 @@ module storageAccount '../../../modules/storage-account.bicep' = {
   }
 }
 
+output networkInterfaceResourceIds array = storageAccount.outputs.networkInterfaceResourceIds
 output storageAccountResourceId string = storageAccount.outputs.id
