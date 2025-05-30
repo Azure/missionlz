@@ -81,7 +81,7 @@ The single-tier ArcGIS Enterprise deployment involves installing all components 
 
 <ul>
   <li>Have limited resources and need a simple, cost-effective solution.</li>
-  <li>Are conducting initial testing or development.</li>
+  <li>Are conducting a proof-of-concept, testing or development.</li>
   <li>Do not require high availability or scalability.</li>
 </ul>
 
