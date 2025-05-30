@@ -37,6 +37,12 @@ param keyVaultCertName string = ''
 ])
 param keyVaultCertVersion string = ''
 
+@description('Minimum autoscale instances')
+param autoscaleMinCapacity int = 2
+
+@description('Maximum autoscale instances')
+param autoscaleMaxCapacity int = 10
+
 resource existingVnet 'Microsoft.Network/virtualNetworks@2021-05-01' existing = {
   name: split(vnetResourceId, '/')[8]
 }
@@ -72,6 +78,7 @@ resource keyVaultAccessPolicy 'Microsoft.KeyVault/vaults/accessPolicies@2023-02-
       }
     ]
   }
+  scope: keyVaultResourceId
 }
 
 resource appGateway 'Microsoft.Network/applicationGateways@2022-09-01' = {
@@ -86,9 +93,13 @@ resource appGateway 'Microsoft.Network/applicationGateways@2022-09-01' = {
   sku: {
     name: 'WAF_v2'
     tier: 'WAF_v2'
-    capacity: 2
   }
   properties: {
+    autoscaleConfiguration: {
+      minCapacity: autoscaleMinCapacity
+      maxCapacity: autoscaleMaxCapacity
+    }
+    enableHttp2: true
     gatewayIPConfigurations: [
       {
         name: 'appGatewayIpConfig'
