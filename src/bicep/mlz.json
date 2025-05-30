@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.35.1.17967",
-      "templateHash": "4868449341737374952"
+      "templateHash": "1636443856564240051"
     }
   },
   "parameters": {
@@ -1002,7 +1002,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.35.1.17967",
-              "templateHash": "382273146619927959"
+              "templateHash": "6135654587652756923"
             }
           },
           "parameters": {
@@ -1079,7 +1079,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.35.1.17967",
-                      "templateHash": "8940763995032978193"
+                      "templateHash": "8597914926647272505"
                     }
                   },
                   "parameters": {
@@ -1489,6 +1489,7 @@
                       "keyVaults": "kv",
                       "localNetworkGateways": "lgw",
                       "logAnalyticsWorkspaces": "log",
+                      "natGateways": "ng",
                       "netAppAccounts": "naa",
                       "netAppAccountsCapacityPools": "cp",
                       "networkInterfaces": "nic",
@@ -1498,6 +1499,7 @@
                       "privateEndpoints": "pe",
                       "privateLinkScopes": "pls",
                       "publicIPAddresses": "pip",
+                      "publicIPPrefixes": "ippre",
                       "recoveryServicesVaults": "rsv",
                       "remoteApplicationGroups": "vdag",
                       "resourceGroups": "rg",
@@ -1573,6 +1575,8 @@
                       "localNetworkGateway": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').localNetworkGateways)]",
                       "logAnalyticsWorkspace": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').logAnalyticsWorkspaces)]",
                       "logAnalyticsWorkspaceDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, variables('resourceAbbreviations').logAnalyticsWorkspaces)]",
+                      "natGateway": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').natGateways)]",
+                      "natGatewayPublicIPPrefix": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').publicIPPrefixes), variables('tokens').service, variables('resourceAbbreviations').natGateways)]",
                       "netAppAccount": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').netAppAccounts)]",
                       "netAppAccountCapacityPool": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').netAppAccountsCapacityPools), variables('tokens').service, variables('resourceAbbreviations').netAppAccounts)]",
                       "netAppAccountSmbServer": "[replace(replace(replace(replace(variables('namingConvention'), variables('tokens').resource, ''), parameters('environmentAbbreviation'), first(parameters('environmentAbbreviation'))), parameters('networkName'), ''), parameters('delimiter'), '')]",
