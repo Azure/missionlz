@@ -83,8 +83,16 @@ module attachNatGatewayToSubnet './modules/attach-natgw-to-subnet.bicep' = {
   scope: resourceGroup(resourceGroupName)
   params: {
     vnetName: getNetworkInfo.outputs.vnetName
-    subnetName: getNetworkInfo.outputs.subnetName
+    subnetName: getNetworkInfo.outputs.subnetObj.name
     natGatewayId: natGatewayModule.outputs.natGatewayId
-    addressPrefix: getNetworkInfo.outputs.addressPrefix
+    addressPrefix: getNetworkInfo.outputs.subnetObj.properties.addressPrefix
+    defaultOutboundAccess: getNetworkInfo.outputs.subnetObj.properties.defaultOutboundAccess // Ensure no default outbound access
+    delegations: getNetworkInfo.outputs.subnetObj.properties.delegations
+    serviceEndpoints: getNetworkInfo.outputs.subnetObj.properties.serviceEndpoints
+    serviceEndpointPolicies: getNetworkInfo.outputs.subnetObj.properties.serviceEndpointPolicies
+    privateEndpointNetworkPolicies: getNetworkInfo.outputs.subnetObj.properties.privateEndpointNetworkPolicies
+    privateLinkServiceNetworkPolicies: getNetworkInfo.outputs.subnetObj.properties.privateLinkServiceNetworkPolicies
+    networkSecurityGroupId: empty(getNetworkInfo.outputs.subnetObj.properties.networkSecurityGroup) ? '' : getNetworkInfo.outputs.subnetObj.properties.networkSecurityGroup.id
+    routeTableId: empty(getNetworkInfo.outputs.subnetObj.properties.routeTable) ? '' : getNetworkInfo.outputs.subnetObj.properties.routeTable.id
   }
 }

@@ -1,6 +1,9 @@
 @description('Resource ID of the hub firewall. Used to derive VNet and subnet info.')
 param hubFirewallResourceId string
 
+@description('A suffix to use for naming deployments uniquely.')
+param deploymentNameSuffix string = utcNow()
+
 resource firewall 'Microsoft.Network/azureFirewalls@2023-04-01' existing = {
   name: split(hubFirewallResourceId, '/')[8]
 }
@@ -9,8 +12,8 @@ var firewallSubnetId = firewall.properties.ipConfigurations[0].properties.subnet
 var firewallVnetName = split(firewallSubnetId, '/')[8]
 var firewallSubnetName = 'AzureFirewallSubnet'
 
-module getSubnetAddressPrefix './get-subnetaddressprefix.bicep' = {
-  name: 'getSubnetAddressPrefix'
+module getSubnetInfo './get-subnetinfo.bicep' = {
+  name: 'getSubnetInfo-${deploymentNameSuffix}'
   params: {
     vnetName: firewallVnetName
     subnetName: firewallSubnetName
@@ -18,5 +21,4 @@ module getSubnetAddressPrefix './get-subnetaddressprefix.bicep' = {
 }
 
 output vnetName string = firewallVnetName
-output subnetName string = firewallSubnetName
-output addressPrefix string = getSubnetAddressPrefix.outputs.addressPrefix
+output subnetObj object = getSubnetInfo.outputs.subnet

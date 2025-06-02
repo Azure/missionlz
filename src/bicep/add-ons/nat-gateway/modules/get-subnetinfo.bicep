@@ -8,9 +8,9 @@ resource vnet 'Microsoft.Network/virtualNetworks@2023-04-01' existing = {
   name: vnetName
 }
 
-resource subnet 'Microsoft.Network/virtualNetworks/subnets@2023-04-01' existing = {
+resource subnet 'Microsoft.Network/virtualNetworks/subnets@2024-05-01' existing = {
   name: subnetName
   parent: vnet
 }
 
-output addressPrefix string = subnet.properties.addressPrefix
+output subnet object = subnet
