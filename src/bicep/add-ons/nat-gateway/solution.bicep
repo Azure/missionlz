@@ -1,12 +1,9 @@
 targetScope = 'subscription'
 
-@description('Resource ID of the hub firewall.')
-param hubFirewallResourceId string
+@description('Resource ID of the subnet to attach the NAT Gateway to.')
+param subnetResourceId string
 
-@description('If Entra Domain Services is used, specify the subnet it is attached too, the NAT Gatewway will be required on that subnet directly.')
-param entraDomainServicesSubnetId string = ''
-
-@description('Zone for deployment. Use "" for no zone, or "1", "2", "3" for specific zones.  If no zone is specified, the NAT Gateway will be assigned a zone, however it will not be identifiable.')
+@description('Zone for the NAT Gateway. Use "" for no zone, or "1", "2", "3" for specific zones.')
 @allowed([
   ''
   '1'
@@ -15,34 +12,38 @@ param entraDomainServicesSubnetId string = ''
 ])
 param zone string = ''
 
-@description('TCP idle timeout in minutes.')
+@description('TCP idle timeout in minutes for the NAT Gateway.')
 @minValue(4)
 @maxValue(120)
 param tcpIdleTimeout int = 4
 
-@description('The length of the public IP prefix to allocate for outbound connections. Must be /30 for two usable IPs.')
+@description('The length of the public IP prefix for the NAT Gateway.')
 param publicIpPrefixLength int = 30
 
 @description('A suffix to use for naming deployments uniquely.')
 param deploymentNameSuffix string = utcNow()
 
-// Derive the resource group name from the firewall resource ID
-var resourceGroupName = split(hubFirewallResourceId, '/')[4]
+// Extract VNet and resource group/subscription from subnetResourceId
+var vnetResourceId = join(take(split(subnetResourceId, '/'), 9), '/')
+var vnetName = split(vnetResourceId, '/')[8]
+var subnetName = split(subnetResourceId, '/')[10]
+var subscriptionId = split(subnetResourceId, '/')[2]
+var resourceGroupName = split(subnetResourceId, '/')[4]
 
-// Extract values from the firewall name (e.g., mlz-dev-va-hub-afw)
-var firewallName = split(hubFirewallResourceId, '/')[8]
-var identifier = split(firewallName, '-')[0]
-var environmentAbbreviation = split(firewallName, '-')[1]
-var networkName = split(firewallName, '-')[3]
+// Extract values from vnetName using delimiter "-"
+var vnetNameParts = split(vnetName, '-')
+var identifier = vnetNameParts[0] // "new"
+var environmentAbbreviation = vnetNameParts[1] // "dev"
+var networkName = vnetNameParts[3] // "hub"
 
-// Get the firewall location
-resource firewall 'Microsoft.Network/azureFirewalls@2023-04-01' existing = {
-  name: firewallName
-  scope: resourceGroup(resourceGroupName)
+// Reference the existing VNet resource to get its location
+resource vnet 'Microsoft.Network/virtualNetworks@2022-09-01' existing = {
+  name: vnetName
+  scope: resourceGroup(subscriptionId, resourceGroupName)
 }
-var location = firewall.location
+var location = vnet.location
 
-// Call naming convention module to get nat gateway name
+// Generate names using your naming convention module
 module namingConvention '../../modules/naming-convention.bicep' = {
   name: 'namingConvention-${deploymentNameSuffix}'
   scope: subscription()
@@ -51,26 +52,17 @@ module namingConvention '../../modules/naming-convention.bicep' = {
     environmentAbbreviation: environmentAbbreviation
     location: location
     networkName: networkName
-    identifier: identifier // or use identifier if you want to match the firewall's
+    identifier:  identifier
     stampIndex: ''
   }
 }
 
-// Get VNet and subnet info (including addressPrefix) from the firewall
-module getNetworkInfo './modules/get-networkinfo.bicep' = {
-  name: 'getNetworkInfo-${deploymentNameSuffix}'
-  scope: resourceGroup(resourceGroupName)
-  params: {
-    hubFirewallResourceId: hubFirewallResourceId
-  }
-}
-
-// Deploy the NAT Gateway and public IP prefix
+// Create the NAT Gateway and Public IP Prefix using your module
 module natGatewayModule './modules/nat-gateway.bicep' = {
-  name: 'natGatewayDeploy-${deploymentNameSuffix}'
-  scope: resourceGroup(resourceGroupName)
+  name: 'natGateway-${deploymentNameSuffix}'
+  scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
-    hubFirewallResourceId: hubFirewallResourceId
+    hubFirewallResourceId: vnetResourceId // Used to derive resource group in the module
     location: location
     zone: zone
     natGatewayName: namingConvention.outputs.names.natGateway
@@ -80,57 +72,33 @@ module natGatewayModule './modules/nat-gateway.bicep' = {
   }
 }
 
-// Attach the NAT Gateway to the subnet
+// ...existing code...
+
+// Call get-networkinfo.bicep to get subnet information
+module getSubnetInfo './modules/get-subnetinfo.bicep' = {
+  name: 'getSubnetInfo-${deploymentNameSuffix}'
+  scope: resourceGroup(subscriptionId, resourceGroupName)
+  params: {
+    vnetName: vnetName
+    subnetName: subnetName
+  }
+}
+
+// Attach NAT Gateway to subnet using the info from getNetworkInfo
 module attachNatGatewayToSubnet './modules/attach-natgw-to-subnet.bicep' = {
   name: 'attachNatGatewayToSubnet-${deploymentNameSuffix}'
-  scope: resourceGroup(resourceGroupName)
+  scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
-    vnetName: getNetworkInfo.outputs.vnetName
-    subnetName: getNetworkInfo.outputs.subnetObj.name
+    vnetName: getSubnetInfo.outputs.vnetName
+    subnetName: getSubnetInfo.outputs.subnetName
     natGatewayId: natGatewayModule.outputs.natGatewayId
-    addressPrefix: getNetworkInfo.outputs.subnetObj.properties.addressPrefix
-    defaultOutboundAccess: getNetworkInfo.outputs.subnetObj.properties.defaultOutboundAccess // Ensure no default outbound access
-    delegations: getNetworkInfo.outputs.subnetObj.properties.delegations
-    serviceEndpoints: getNetworkInfo.outputs.subnetObj.properties.serviceEndpoints
-    serviceEndpointPolicies: getNetworkInfo.outputs.subnetObj.properties.serviceEndpointPolicies
-    privateEndpointNetworkPolicies: getNetworkInfo.outputs.subnetObj.properties.privateEndpointNetworkPolicies
-    privateLinkServiceNetworkPolicies: getNetworkInfo.outputs.subnetObj.properties.privateLinkServiceNetworkPolicies
-    networkSecurityGroupId: empty(getNetworkInfo.outputs.subnetObj.properties.networkSecurityGroup) ? '' : getNetworkInfo.outputs.subnetObj.properties.networkSecurityGroup.id
-    routeTableId: empty(getNetworkInfo.outputs.subnetObj.properties.routeTable) ? '' : getNetworkInfo.outputs.subnetObj.properties.routeTable.id
-  }
-}
-
-// If entraDomainServicesSubnetId is provided, attach NAT Gateway to that subnet as well
-var attachToEntraSubnet = !empty(entraDomainServicesSubnetId)
-
-var entraVnetName = attachToEntraSubnet ? split(entraDomainServicesSubnetId, '/')[8] : ''
-var entraSubnetName = attachToEntraSubnet ? split(entraDomainServicesSubnetId, '/')[10] : ''
-
-module getEntraSubnetInfo './modules/get-subnetinfo.bicep' = if (attachToEntraSubnet) {
-  name: 'getEntraSubnetInfo'
-  scope: resourceGroup(resourceGroupName)
-  params: {
-    vnetName: entraVnetName
-    subnetName: entraSubnetName
-  }
-}
-
-module attachNatGatewayToEntraSubnet './modules/attach-natgw-to-subnet.bicep' = if (attachToEntraSubnet) {
-  name: 'attachNatGatewayToEntraSubnet-${deploymentNameSuffix}'
-  scope: resourceGroup(resourceGroupName)
-  params: {
-    vnetName: entraVnetName
-    subnetName: entraSubnetName
-    natGatewayId: natGatewayModule.outputs.natGatewayId
-    addressPrefix: getEntraSubnetInfo.outputs.subnet.properties.addressPrefix
-    defaultOutboundAccess: getEntraSubnetInfo.outputs.subnet.properties.defaultOutboundAccess
-    delegations: getEntraSubnetInfo.outputs.subnet.properties.delegations
-    serviceEndpoints: getEntraSubnetInfo.outputs.subnet.properties.serviceEndpoints
-    serviceEndpointPolicies: getEntraSubnetInfo.outputs.subnet.properties.serviceEndpointPolicies
-    privateEndpointNetworkPolicies: getEntraSubnetInfo.outputs.subnet.properties.privateEndpointNetworkPolicies
-    privateLinkServiceNetworkPolicies: getEntraSubnetInfo.outputs.subnet.properties.privateLinkServiceNetworkPolicies
-    networkSecurityGroupId: empty(getEntraSubnetInfo.outputs.subnet.properties.networkSecurityGroup) ? '' : getEntraSubnetInfo.outputs.subnet.properties.networkSecurityGroup.id
-    routeTableId: empty(getEntraSubnetInfo.outputs.subnet.properties.routeTable) ? '' : getEntraSubnetInfo.outputs.subnet.properties.routeTable.id
+    addressPrefix: getSubnetInfo.outputs.addressPrefix
+    defaultOutboundAccess: getSubnetInfo.outputs.defaultOutboundAccess
+    privateEndpointNetworkPolicies: contains(getSubnetInfo.outputs, 'privateEndpointNetworkPolicies') && getSubnetInfo.outputs.privateEndpointNetworkPolicies == 'Enabled' ? 'Disabled'
+ : getSubnetInfo.outputs.privateEndpointNetworkPolicies
+    delegations: getSubnetInfo.outputs.delegations ?? []
+    networkSecurityGroupId: getSubnetInfo.outputs.networkSecurityGroupId
+    routeTableId: getSubnetInfo.outputs.routeTableId
   }
 }
 
