@@ -44,7 +44,7 @@ var location = firewall.location
 
 // Call naming convention module to get nat gateway name
 module namingConvention '../../modules/naming-convention.bicep' = {
-  name: 'namingConvention'
+  name: 'namingConvention-${deploymentNameSuffix}'
   scope: subscription()
   params: {
     delimiter: '-'
@@ -58,7 +58,7 @@ module namingConvention '../../modules/naming-convention.bicep' = {
 
 // Get VNet and subnet info (including addressPrefix) from the firewall
 module getNetworkInfo './modules/get-networkinfo.bicep' = {
-  name: 'getNetworkInfo'
+  name: 'getNetworkInfo-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupName)
   params: {
     hubFirewallResourceId: hubFirewallResourceId
@@ -82,7 +82,7 @@ module natGatewayModule './modules/nat-gateway.bicep' = {
 
 // Attach the NAT Gateway to the subnet
 module attachNatGatewayToSubnet './modules/attach-natgw-to-subnet.bicep' = {
-  name: 'attachNatGatewayToSubnet'
+  name: 'attachNatGatewayToSubnet-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupName)
   params: {
     vnetName: getNetworkInfo.outputs.vnetName
@@ -116,7 +116,7 @@ module getEntraSubnetInfo './modules/get-subnetinfo.bicep' = if (attachToEntraSu
 }
 
 module attachNatGatewayToEntraSubnet './modules/attach-natgw-to-subnet.bicep' = if (attachToEntraSubnet) {
-  name: 'attachNatGatewayToEntraSubnet'
+  name: 'attachNatGatewayToEntraSubnet-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupName)
   params: {
     vnetName: entraVnetName
