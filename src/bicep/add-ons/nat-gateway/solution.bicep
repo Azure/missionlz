@@ -3,6 +3,9 @@ targetScope = 'subscription'
 @description('Resource ID of the hub firewall.')
 param hubFirewallResourceId string
 
+@description('If Entra Domain Services is used, specify the subnet it is attached too, the NAT Gatewway will be required on that subnet directly.')
+param entraDomainServicesSubnetId string = ''
+
 @description('Zone for deployment. Use "" for no zone, or "1", "2", "3" for specific zones.  If no zone is specified, the NAT Gateway will be assigned a zone, however it will not be identifiable.')
 @allowed([
   ''
@@ -96,3 +99,38 @@ module attachNatGatewayToSubnet './modules/attach-natgw-to-subnet.bicep' = {
     routeTableId: empty(getNetworkInfo.outputs.subnetObj.properties.routeTable) ? '' : getNetworkInfo.outputs.subnetObj.properties.routeTable.id
   }
 }
+
+// If entraDomainServicesSubnetId is provided, attach NAT Gateway to that subnet as well
+var attachToEntraSubnet = !empty(entraDomainServicesSubnetId)
+
+var entraVnetName = attachToEntraSubnet ? split(entraDomainServicesSubnetId, '/')[8] : ''
+var entraSubnetName = attachToEntraSubnet ? split(entraDomainServicesSubnetId, '/')[10] : ''
+
+module getEntraSubnetInfo './modules/get-subnetinfo.bicep' = if (attachToEntraSubnet) {
+  name: 'getEntraSubnetInfo'
+  scope: resourceGroup(resourceGroupName)
+  params: {
+    vnetName: entraVnetName
+    subnetName: entraSubnetName
+  }
+}
+
+module attachNatGatewayToEntraSubnet './modules/attach-natgw-to-subnet.bicep' = if (attachToEntraSubnet) {
+  name: 'attachNatGatewayToEntraSubnet'
+  scope: resourceGroup(resourceGroupName)
+  params: {
+    vnetName: entraVnetName
+    subnetName: entraSubnetName
+    natGatewayId: natGatewayModule.outputs.natGatewayId
+    addressPrefix: getEntraSubnetInfo.outputs.subnet.properties.addressPrefix
+    defaultOutboundAccess: getEntraSubnetInfo.outputs.subnet.properties.defaultOutboundAccess
+    delegations: getEntraSubnetInfo.outputs.subnet.properties.delegations
+    serviceEndpoints: getEntraSubnetInfo.outputs.subnet.properties.serviceEndpoints
+    serviceEndpointPolicies: getEntraSubnetInfo.outputs.subnet.properties.serviceEndpointPolicies
+    privateEndpointNetworkPolicies: getEntraSubnetInfo.outputs.subnet.properties.privateEndpointNetworkPolicies
+    privateLinkServiceNetworkPolicies: getEntraSubnetInfo.outputs.subnet.properties.privateLinkServiceNetworkPolicies
+    networkSecurityGroupId: empty(getEntraSubnetInfo.outputs.subnet.properties.networkSecurityGroup) ? '' : getEntraSubnetInfo.outputs.subnet.properties.networkSecurityGroup.id
+    routeTableId: empty(getEntraSubnetInfo.outputs.subnet.properties.routeTable) ? '' : getEntraSubnetInfo.outputs.subnet.properties.routeTable.id
+  }
+}
+
