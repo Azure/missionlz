@@ -74,12 +74,25 @@ param natGatewayDeployments = [
     subnetResourceId: '/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/my-rg/providers/Microsoft.Network/virtualNetworks/my-vnet/subnets/my-subnet'
     zone: '1'
     tcpIdleTimeout: 10
-    publicIpPrefixLength: 30
+    publicIpPrefixLength: 31
   }
   {
     subnetResourceId: '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/another-rg/providers/Microsoft.Network/virtualNetworks/another-vnet/subnets/another-subnet'
     zone: ''
     tcpIdleTimeout: 4
-    publicIpPrefixLength: 29
+    publicIpPrefixLength: 31
   }
 ]
+
+| Prefix Length | Total IPs | Usable IPs | Notes                                   |
+|:-------------:|:---------:|:----------:|:----------------------------------------|
+| /31           | 2         | 2          | Smallest allowed for NAT Gateway        |
+| /30           | 4         | 4          | Common for high availability scenarios  |
+| /29           | 8         | 8          |                                         |
+| /28           | 16        | 16         |                                         |
+| /27           | 32        | 32         |                                         |
+| /26           | 64        | 64         |                                         |
+
+- **All IPs in the prefix are usable** for NAT Gateway.
+- **Azure NAT Gateway requires a minimum prefix length of /31** (2 IPs).
+- Choose a prefix length based on your expected outbound SNAT concurrency and scaling needs.
