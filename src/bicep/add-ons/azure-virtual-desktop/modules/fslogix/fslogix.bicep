@@ -75,7 +75,7 @@ module azureNetAppFiles 'azure-netapp-files.bicep' = if (storageService == 'Azur
   name: 'deploy-anf-${deploymentNameSuffix}'
   scope: resourceGroup
   params: {
-    delegatedSubnetResourceId: filter(subnets, subnet => contains(subnet.name, 'AzureNetAppFiles'))[0].id
+    delegatedSubnetResourceId: filter(subnets, subnet => contains(subnet.name, 'azure-netapp-files'))[0].id
     delimiter: delimiter
     dnsServers: dnsServers
     domainJoinPassword: domainJoinPassword

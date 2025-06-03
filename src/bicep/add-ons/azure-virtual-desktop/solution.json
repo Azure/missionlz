@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.36.1.42791",
-      "templateHash": "225588938131005331"
+      "templateHash": "13026258751547213904"
     }
   },
   "parameters": {
@@ -14658,7 +14658,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.36.1.42791",
-              "templateHash": "11362197899694363651"
+              "templateHash": "17962090318051725731"
             }
           },
           "parameters": {
@@ -14913,7 +14913,7 @@
                 "mode": "Incremental",
                 "parameters": {
                   "delegatedSubnetResourceId": {
-                    "value": "[filter(parameters('subnets'), lambda('subnet', contains(lambdaVariables('subnet').name, 'AzureNetAppFiles')))[0].id]"
+                    "value": "[filter(parameters('subnets'), lambda('subnet', contains(lambdaVariables('subnet').name, 'azure-netapp-files')))[0].id]"
                   },
                   "delimiter": {
                     "value": "[parameters('delimiter')]"
