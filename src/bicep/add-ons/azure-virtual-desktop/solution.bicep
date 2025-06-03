@@ -583,7 +583,7 @@ module tier3_stamp '../tier3/solution.bicep' = {
                     fqdnTags: []
                     webCategories: []
                     targetFqdns: [
-                      replace(environment().resourceManager, 'https://', '')
+                      split(environment().resourceManager, '/')[2]
                       'mrsglobalsteus2prod.blob.${environment().suffixes.storage}'
                       'wvdportalstorageblob.blob.${environment().suffixes.storage}'
                       'gcs.prod.monitoring.${environment().suffixes.storage}'
@@ -613,8 +613,8 @@ module tier3_stamp '../tier3/solution.bicep' = {
                     fqdnTags: []
                     webCategories: []
                     targetFqdns: [
-                      replace(environment().authentication.loginEndpoint, 'https://', '')
-                      replace(environment().graph, 'https://', '')
+                      split(environment().authentication.loginEndpoint, '/')[2]
+                      split(environment().graph, '/')[2]
                       'enterpriseregistration.windows.net'
                     ]
                     targetUrls: []
