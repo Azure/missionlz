@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.36.1.42791",
-      "templateHash": "8299536638613206905"
+      "templateHash": "16746723315063257692"
     }
   },
   "parameters": {
@@ -1978,7 +1978,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.36.1.42791",
-              "templateHash": "1006057699868099050"
+              "templateHash": "10528203297099752327"
             }
           },
           "parameters": {
@@ -3339,7 +3339,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.36.1.42791",
-                      "templateHash": "12736005386005618957"
+                      "templateHash": "15642922990611429065"
                     }
                   },
                   "parameters": {
@@ -3395,7 +3395,7 @@
                       "azure-netapp-files": [
                         {
                           "name": "Microsoft.Netapp.volumes",
-                          "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets/delegations', parameters('virtualNetworkName'), 'AzureNetAppFiles', 'delegation')]",
+                          "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets/delegations', parameters('virtualNetworkName'), 'azure-netapp-files', 'delegation')]",
                           "properties": {
                             "serviceName": "Microsoft.Netapp/volumes"
                           },
@@ -3405,7 +3405,7 @@
                       "function-app-outbound": [
                         {
                           "name": "Microsoft.Web/sites",
-                          "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets/delegations', parameters('virtualNetworkName'), 'FunctionAppOutbound', 'delegation')]",
+                          "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets/delegations', parameters('virtualNetworkName'), 'function-app-outbound', 'delegation')]",
                           "properties": {
                             "serviceName": "Microsoft.Web/serverfarms"
                           },
