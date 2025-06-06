@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.36.1.42791",
-      "templateHash": "1076364424703238218"
+      "templateHash": "11355511628056530543"
     }
   },
   "parameters": {
@@ -1391,7 +1391,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.36.1.42791",
-              "templateHash": "10571151766056335060"
+              "templateHash": "404965638842623321"
             }
           },
           "parameters": {
@@ -1515,7 +1515,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.36.1.42791",
-                      "templateHash": "17802381362381119019"
+                      "templateHash": "12736005386005618957"
                     }
                   },
                   "parameters": {
@@ -1568,7 +1568,7 @@
                   },
                   "variables": {
                     "delegations": {
-                      "AzureNetAppFiles": [
+                      "azure-netapp-files": [
                         {
                           "name": "Microsoft.Netapp.volumes",
                           "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets/delegations', parameters('virtualNetworkName'), 'AzureNetAppFiles', 'delegation')]",
@@ -1578,7 +1578,7 @@
                           "type": "Microsoft.Network/virtualNetworks/subnets/delegations"
                         }
                       ],
-                      "FunctionAppOutbound": [
+                      "function-app-outbound": [
                         {
                           "name": "Microsoft.Web/sites",
                           "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets/delegations', parameters('virtualNetworkName'), 'FunctionAppOutbound', 'delegation')]",

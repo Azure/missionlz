@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.35.1.17967",
-      "templateHash": "16414437403201584856"
+      "version": "0.36.1.42791",
+      "templateHash": "7822751757765672828"
     }
   },
   "parameters": {
@@ -158,8 +158,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.35.1.17967",
-              "templateHash": "13117315929769004472"
+              "version": "0.36.1.42791",
+              "templateHash": "10920232848085869523"
             }
           },
           "parameters": {
@@ -207,8 +207,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.35.1.17967",
-              "templateHash": "8940763995032978193"
+              "version": "0.36.1.42791",
+              "templateHash": "322013226771768199"
             }
           },
           "parameters": {
@@ -618,6 +618,7 @@
               "keyVaults": "kv",
               "localNetworkGateways": "lgw",
               "logAnalyticsWorkspaces": "log",
+              "natGateways": "ng",
               "netAppAccounts": "naa",
               "netAppAccountsCapacityPools": "cp",
               "networkInterfaces": "nic",
@@ -627,6 +628,7 @@
               "privateEndpoints": "pe",
               "privateLinkScopes": "pls",
               "publicIPAddresses": "pip",
+              "publicIPPrefixes": "ippre",
               "recoveryServicesVaults": "rsv",
               "remoteApplicationGroups": "vdag",
               "resourceGroups": "rg",
@@ -702,6 +704,8 @@
               "localNetworkGateway": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').localNetworkGateways)]",
               "logAnalyticsWorkspace": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').logAnalyticsWorkspaces)]",
               "logAnalyticsWorkspaceDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').diagnosticSettings), variables('tokens').service, variables('resourceAbbreviations').logAnalyticsWorkspaces)]",
+              "natGateway": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').natGateways)]",
+              "natGatewayPublicIPPrefix": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').publicIPPrefixes), variables('tokens').service, variables('resourceAbbreviations').natGateways)]",
               "netAppAccount": "[replace(variables('namingConvention'), variables('tokens').resource, variables('resourceAbbreviations').netAppAccounts)]",
               "netAppAccountCapacityPool": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, variables('resourceAbbreviations').netAppAccountsCapacityPools), variables('tokens').service, variables('resourceAbbreviations').netAppAccounts)]",
               "netAppAccountSmbServer": "[replace(replace(replace(replace(variables('namingConvention'), variables('tokens').resource, ''), parameters('environmentAbbreviation'), first(parameters('environmentAbbreviation'))), parameters('networkName'), ''), parameters('delimiter'), '')]",
@@ -792,8 +796,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.35.1.17967",
-              "templateHash": "8037704770039885052"
+              "version": "0.36.1.42791",
+              "templateHash": "6924351684147529161"
             }
           },
           "parameters": {
@@ -860,8 +864,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.35.1.17967",
-              "templateHash": "1239996270294459153"
+              "version": "0.36.1.42791",
+              "templateHash": "13798692656070283120"
             }
           },
           "parameters": {
@@ -950,8 +954,8 @@
                 }
               },
               "dependsOn": [
-                "[resourceId('Microsoft.Network/publicIPAddresses', format('{0}{1}{2}', parameters('publicIpAddressName'), parameters('delimiter'), padLeft(range(0, 2)[0], 2, '0')))]",
-                "[resourceId('Microsoft.Network/publicIPAddresses', format('{0}{1}{2}', parameters('publicIpAddressName'), parameters('delimiter'), padLeft(range(0, 2)[1], 2, '0')))]"
+                "[resourceId('Microsoft.Network/publicIPAddresses', format('{0}{1}{2}', parameters('publicIpAddressName'), parameters('delimiter'), padLeft(range(0, 2)[1], 2, '0')))]",
+                "[resourceId('Microsoft.Network/publicIPAddresses', format('{0}{1}{2}', parameters('publicIpAddressName'), parameters('delimiter'), padLeft(range(0, 2)[0], 2, '0')))]"
               ]
             }
           ]
@@ -991,8 +995,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.35.1.17967",
-              "templateHash": "954875256653891343"
+              "version": "0.36.1.42791",
+              "templateHash": "15016236479029547392"
             }
           },
           "parameters": {
@@ -1069,8 +1073,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.35.1.17967",
-              "templateHash": "10869894369274505041"
+              "version": "0.36.1.42791",
+              "templateHash": "2330351185688015430"
             }
           },
           "parameters": {
@@ -1161,8 +1165,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.35.1.17967",
-              "templateHash": "2746587089915637497"
+              "version": "0.36.1.42791",
+              "templateHash": "7152671973261211645"
             }
           },
           "parameters": {
@@ -1250,8 +1254,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.35.1.17967",
-              "templateHash": "2746587089915637497"
+              "version": "0.36.1.42791",
+              "templateHash": "7152671973261211645"
             }
           },
           "parameters": {
@@ -1345,8 +1349,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.35.1.17967",
-              "templateHash": "2746587089915637497"
+              "version": "0.36.1.42791",
+              "templateHash": "7152671973261211645"
             }
           },
           "parameters": {
@@ -1437,8 +1441,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.35.1.17967",
-              "templateHash": "10779518179907803992"
+              "version": "0.36.1.42791",
+              "templateHash": "1556909877368598848"
             }
           },
           "parameters": {
@@ -1521,8 +1525,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.35.1.17967",
-              "templateHash": "10779518179907803992"
+              "version": "0.36.1.42791",
+              "templateHash": "1556909877368598848"
             }
           },
           "parameters": {
@@ -1598,8 +1602,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.35.1.17967",
-              "templateHash": "1946823497954630922"
+              "version": "0.36.1.42791",
+              "templateHash": "14252772433922090258"
             }
           },
           "parameters": {
@@ -1675,8 +1679,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.35.1.17967",
-              "templateHash": "2235896789733499511"
+              "version": "0.36.1.42791",
+              "templateHash": "17101170157322955912"
             }
           },
           "parameters": {
@@ -1770,8 +1774,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.35.1.17967",
-              "templateHash": "2235896789733499511"
+              "version": "0.36.1.42791",
+              "templateHash": "17101170157322955912"
             }
           },
           "parameters": {
@@ -1860,8 +1864,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.35.1.17967",
-              "templateHash": "8121251656849754071"
+              "version": "0.36.1.42791",
+              "templateHash": "8844699578628743632"
             }
           },
           "parameters": {

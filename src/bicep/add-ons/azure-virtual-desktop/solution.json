@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.36.1.42791",
-      "templateHash": "7236144417878044786"
+      "templateHash": "2834170197337544154"
     }
   },
   "parameters": {
@@ -1003,7 +1003,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.36.1.42791",
-              "templateHash": "1076364424703238218"
+              "templateHash": "11972391109684272039"
             }
           },
           "parameters": {
@@ -2389,7 +2389,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.36.1.42791",
-                      "templateHash": "10571151766056335060"
+                      "templateHash": "2212380941491487556"
                     }
                   },
                   "parameters": {
@@ -2513,7 +2513,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.36.1.42791",
-                              "templateHash": "17802381362381119019"
+                              "templateHash": "15642922990611429065"
                             }
                           },
                           "parameters": {
@@ -2566,20 +2566,20 @@
                           },
                           "variables": {
                             "delegations": {
-                              "AzureNetAppFiles": [
+                              "azure-netapp-files": [
                                 {
                                   "name": "Microsoft.Netapp.volumes",
-                                  "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets/delegations', parameters('virtualNetworkName'), 'AzureNetAppFiles', 'delegation')]",
+                                  "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets/delegations', parameters('virtualNetworkName'), 'azure-netapp-files', 'delegation')]",
                                   "properties": {
                                     "serviceName": "Microsoft.Netapp/volumes"
                                   },
                                   "type": "Microsoft.Network/virtualNetworks/subnets/delegations"
                                 }
                               ],
-                              "FunctionAppOutbound": [
+                              "function-app-outbound": [
                                 {
                                   "name": "Microsoft.Web/sites",
-                                  "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets/delegations', parameters('virtualNetworkName'), 'FunctionAppOutbound', 'delegation')]",
+                                  "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets/delegations', parameters('virtualNetworkName'), 'function-app-outbound', 'delegation')]",
                                   "properties": {
                                     "serviceName": "Microsoft.Web/serverfarms"
                                   },
@@ -5858,7 +5858,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.36.1.42791",
-              "templateHash": "1076364424703238218"
+              "templateHash": "11972391109684272039"
             }
           },
           "parameters": {
@@ -7244,7 +7244,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.36.1.42791",
-                      "templateHash": "10571151766056335060"
+                      "templateHash": "2212380941491487556"
                     }
                   },
                   "parameters": {
@@ -7368,7 +7368,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.36.1.42791",
-                              "templateHash": "17802381362381119019"
+                              "templateHash": "15642922990611429065"
                             }
                           },
                           "parameters": {
@@ -7421,20 +7421,20 @@
                           },
                           "variables": {
                             "delegations": {
-                              "AzureNetAppFiles": [
+                              "azure-netapp-files": [
                                 {
                                   "name": "Microsoft.Netapp.volumes",
-                                  "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets/delegations', parameters('virtualNetworkName'), 'AzureNetAppFiles', 'delegation')]",
+                                  "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets/delegations', parameters('virtualNetworkName'), 'azure-netapp-files', 'delegation')]",
                                   "properties": {
                                     "serviceName": "Microsoft.Netapp/volumes"
                                   },
                                   "type": "Microsoft.Network/virtualNetworks/subnets/delegations"
                                 }
                               ],
-                              "FunctionAppOutbound": [
+                              "function-app-outbound": [
                                 {
                                   "name": "Microsoft.Web/sites",
-                                  "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets/delegations', parameters('virtualNetworkName'), 'FunctionAppOutbound', 'delegation')]",
+                                  "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets/delegations', parameters('virtualNetworkName'), 'function-app-outbound', 'delegation')]",
                                   "properties": {
                                     "serviceName": "Microsoft.Web/serverfarms"
                                   },
