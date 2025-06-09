@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.36.1.42791",
-      "templateHash": "2834170197337544154"
+      "templateHash": "8654961220274849457"
     }
   },
   "parameters": {
@@ -721,7 +721,6 @@
       "AzureCloud": "microsoft.com",
       "AzureUSGovernment": "azure.us"
     },
-    "stampIndexFull": "[padLeft(parameters('stampIndex'), 2, '0')]",
     "storageSku": "[if(equals(parameters('fslogixStorageService'), 'None'), 'None', split(parameters('fslogixStorageService'), ' ')[1])]",
     "storageService": "[split(parameters('fslogixStorageService'), ' ')[0]]",
     "storageSuffix": "[environment().suffixes.storage]",
@@ -5759,7 +5758,7 @@
           "additionalSubnets": {
             "value": "[union(variables('subnets').avdManagement, variables('subnets').azureNetAppFiles, variables('subnets').functionApp)]"
           },
-          "customFirewallRuleCollectionGroups": "[if(empty(parameters('customFirewallRuleCollectionGroups')), createObject('value', createArray(createObject('name', format('AVD-CollapsedCollectionGroup-{0}-{1}-{2}-{3}', toUpper(parameters('identifier')), toUpper(parameters('environmentAbbreviation')), toUpper(parameters('locationVirtualMachines')), variables('stampIndexFull')), 'properties', createObject('priority', 200, 'ruleCollections', createArray(createObject('name', 'ApplicationRules', 'priority', 150, 'ruleCollectionType', 'FirewallPolicyFilterRuleCollection', 'action', createObject('type', 'Allow'), 'rules', concat(createArray(createObject('name', 'AVD-RequiredDeploymentEndpoints', 'ruleType', 'ApplicationRule', 'protocols', createArray(createObject('protocolType', 'Https', 'port', 443)), 'fqdnTags', createArray(), 'webCategories', createArray(), 'targetFqdns', createArray(split(environment().resourceManager, '/')[2], format('mrsglobalsteus2prod.blob.{0}', environment().suffixes.storage), format('wvdportalstorageblob.blob.{0}', environment().suffixes.storage), format('gcs.prod.monitoring.{0}', environment().suffixes.storage), format('*.prod.warm.ingest.monitor.{0}', environment().suffixes.storage), format('*.guestconfiguration.{0}', coalesce(tryGet(variables('privateDnsZoneSuffixes_AzureVirtualDesktop'), environment().name), variables('cloudSuffix'))), format('*.wvd.{0}', coalesce(tryGet(variables('privateDnsZoneSuffixes_AzureVirtualDesktop'), environment().name), variables('cloudSuffix')))), 'targetUrls', createArray(), 'terminateTLS', false(), 'sourceAddresses', createArray(parameters('stampVirtualNetworkAddressPrefix')), 'destinationAddresses', createArray(), 'sourceIpGroups', createArray())), if(contains(parameters('activeDirectorySolution'), 'MicrosoftEntraId'), createArray(createObject('name', 'AVD-EntraAuthEndpoints', 'ruleType', 'ApplicationRule', 'protocols', createArray(createObject('protocolType', 'Https', 'port', 443)), 'fqdnTags', createArray(), 'webCategories', createArray(), 'targetFqdns', createArray(split(environment().authentication.loginEndpoint, '/')[2], split(environment().graph, '/')[2], 'enterpriseregistration.windows.net'), 'targetUrls', createArray(), 'terminateTLS', false(), 'sourceAddresses', createArray(parameters('stampVirtualNetworkAddressPrefix')), 'destinationAddresses', createArray(), 'sourceIpGroups', createArray())), createArray()), if(parameters('enableWindowsUpdateFwRules'), createArray(createObject('name', 'WindowsUpdateEndpoints', 'ruleType', 'ApplicationRule', 'protocols', createArray(createObject('protocolType', 'Https', 'port', 443), createObject('protocolType', 'Http', 'port', 80)), 'fqdnTags', createArray('WindowsUpdate'), 'webCategories', createArray(), 'targetFqdns', createArray(), 'targetUrls', createArray(), 'terminateTLS', false(), 'sourceAddresses', createArray(parameters('stampVirtualNetworkAddressPrefix')), 'destinationAddresses', createArray(), 'sourceIpGroups', createArray())), createArray()))), createObject('name', 'NetworkRules', 'priority', 140, 'ruleCollectionType', 'FirewallPolicyFilterRuleCollection', 'action', createObject('type', 'Allow'), 'rules', concat(createArray(createObject('name', 'KMS-Endpoint', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Tcp'), 'sourceAddresses', createArray(parameters('stampVirtualNetworkAddressPrefix')), 'destinationAddresses', createArray(), 'destinationFqdns', createArray(format('azkms.{0}', environment().suffixes.storage)), 'destinationPorts', createArray('1688'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray())), createArray(createObject('name', 'AllowMonitorToLAW', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Tcp'), 'sourceAddresses', createArray(parameters('stampVirtualNetworkAddressPrefix')), 'destinationAddresses', createArray(cidrHost(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-ops-vnet-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.addressPrefix.value, 3)), 'destinationPorts', createArray('443'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray(), 'destinationFqdns', createArray())), createArray(createObject('name', 'TimeSync', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Udp'), 'sourceAddresses', createArray(parameters('stampVirtualNetworkAddressPrefix')), 'destinationAddresses', createArray(), 'destinationFqdns', createArray('time.windows.com'), 'destinationPorts', createArray('123'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray())), createArray(createObject('name', 'AzureCloudforLogin', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Tcp'), 'sourceAddresses', createArray(parameters('stampVirtualNetworkAddressPrefix')), 'destinationAddresses', createArray('AzureActiveDirectory'), 'destinationFqdns', createArray(), 'destinationPorts', createArray('443'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray())), if(contains(parameters('activeDirectorySolution'), 'DomainServices'), createArray(createObject('name', 'ADCommunicationRule', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Tcp', 'Udp'), 'sourceAddresses', createArray(parameters('stampVirtualNetworkAddressPrefix')), 'destinationAddresses', createArray(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-id-vnet-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.addressPrefix.value), 'destinationPorts', createArray('53', '88', '389', '445', '139', '135', '89', '123', '1024-65535'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray())), createArray())))))))), createObject('value', parameters('customFirewallRuleCollectionGroups')))]",
+          "customFirewallRuleCollectionGroups": "[if(empty(parameters('customFirewallRuleCollectionGroups')), createObject('value', createArray(createObject('name', format('AVD-CollapsedCollectionGroup-{0}-{1}-{2}-{3}', toUpper(parameters('identifier')), toUpper(parameters('environmentAbbreviation')), toUpper(parameters('locationVirtualMachines')), parameters('stampIndex')), 'properties', createObject('priority', 200, 'ruleCollections', createArray(createObject('name', 'ApplicationRules', 'priority', 150, 'ruleCollectionType', 'FirewallPolicyFilterRuleCollection', 'action', createObject('type', 'Allow'), 'rules', concat(createArray(createObject('name', 'AVD-RequiredDeploymentEndpoints', 'ruleType', 'ApplicationRule', 'protocols', createArray(createObject('protocolType', 'Https', 'port', 443)), 'fqdnTags', createArray(), 'webCategories', createArray(), 'targetFqdns', createArray(split(environment().resourceManager, '/')[2], format('mrsglobalsteus2prod.blob.{0}', environment().suffixes.storage), format('wvdportalstorageblob.blob.{0}', environment().suffixes.storage), format('gcs.prod.monitoring.{0}', environment().suffixes.storage), format('*.prod.warm.ingest.monitor.{0}', environment().suffixes.storage), format('*.guestconfiguration.{0}', coalesce(tryGet(variables('privateDnsZoneSuffixes_AzureVirtualDesktop'), environment().name), variables('cloudSuffix'))), format('*.wvd.{0}', coalesce(tryGet(variables('privateDnsZoneSuffixes_AzureVirtualDesktop'), environment().name), variables('cloudSuffix')))), 'targetUrls', createArray(), 'terminateTLS', false(), 'sourceAddresses', createArray(parameters('stampVirtualNetworkAddressPrefix')), 'destinationAddresses', createArray(), 'sourceIpGroups', createArray())), if(contains(parameters('activeDirectorySolution'), 'MicrosoftEntraId'), createArray(createObject('name', 'AVD-EntraAuthEndpoints', 'ruleType', 'ApplicationRule', 'protocols', createArray(createObject('protocolType', 'Https', 'port', 443)), 'fqdnTags', createArray(), 'webCategories', createArray(), 'targetFqdns', createArray(split(environment().authentication.loginEndpoint, '/')[2], split(environment().graph, '/')[2], 'enterpriseregistration.windows.net'), 'targetUrls', createArray(), 'terminateTLS', false(), 'sourceAddresses', createArray(parameters('stampVirtualNetworkAddressPrefix')), 'destinationAddresses', createArray(), 'sourceIpGroups', createArray())), createArray()), if(parameters('enableWindowsUpdateFwRules'), createArray(createObject('name', 'WindowsUpdateEndpoints', 'ruleType', 'ApplicationRule', 'protocols', createArray(createObject('protocolType', 'Https', 'port', 443), createObject('protocolType', 'Http', 'port', 80)), 'fqdnTags', createArray('WindowsUpdate'), 'webCategories', createArray(), 'targetFqdns', createArray(), 'targetUrls', createArray(), 'terminateTLS', false(), 'sourceAddresses', createArray(parameters('stampVirtualNetworkAddressPrefix')), 'destinationAddresses', createArray(), 'sourceIpGroups', createArray())), createArray()))), createObject('name', 'NetworkRules', 'priority', 140, 'ruleCollectionType', 'FirewallPolicyFilterRuleCollection', 'action', createObject('type', 'Allow'), 'rules', concat(createArray(createObject('name', 'KMS-Endpoint', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Tcp'), 'sourceAddresses', createArray(parameters('stampVirtualNetworkAddressPrefix')), 'destinationAddresses', createArray(), 'destinationFqdns', createArray(format('azkms.{0}', environment().suffixes.storage)), 'destinationPorts', createArray('1688'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray())), createArray(createObject('name', 'AllowMonitorToLAW', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Tcp'), 'sourceAddresses', createArray(parameters('stampVirtualNetworkAddressPrefix')), 'destinationAddresses', createArray(cidrHost(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-ops-vnet-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.addressPrefix.value, 3)), 'destinationPorts', createArray('443'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray(), 'destinationFqdns', createArray())), createArray(createObject('name', 'TimeSync', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Udp'), 'sourceAddresses', createArray(parameters('stampVirtualNetworkAddressPrefix')), 'destinationAddresses', createArray(), 'destinationFqdns', createArray('time.windows.com'), 'destinationPorts', createArray('123'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray())), createArray(createObject('name', 'AzureCloudforLogin', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Tcp'), 'sourceAddresses', createArray(parameters('stampVirtualNetworkAddressPrefix')), 'destinationAddresses', createArray('AzureActiveDirectory'), 'destinationFqdns', createArray(), 'destinationPorts', createArray('443'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray())), if(contains(parameters('activeDirectorySolution'), 'DomainServices'), createArray(createObject('name', 'ADCommunicationRule', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Tcp', 'Udp'), 'sourceAddresses', createArray(parameters('stampVirtualNetworkAddressPrefix')), 'destinationAddresses', createArray(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-id-vnet-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.addressPrefix.value), 'destinationPorts', createArray('53', '88', '389', '445', '139', '135', '89', '123', '1024-65535'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray())), createArray())))))))), createObject('value', parameters('customFirewallRuleCollectionGroups')))]",
           "deployActivityLogDiagnosticSetting": {
             "value": "[parameters('deployActivityLogDiagnosticSetting')]"
           },
@@ -5821,7 +5820,7 @@
             "value": "[parameters('policy')]"
           },
           "stampIndex": {
-            "value": "[variables('stampIndexFull')]"
+            "value": "[string(parameters('stampIndex'))]"
           },
           "subnetAddressPrefix": {
             "value": "[parameters('sessionHostsSubnetAddressPrefix')]"
@@ -15900,9 +15899,6 @@
           "sessionHostIndex": {
             "value": "[parameters('sessionHostIndex')]"
           },
-          "stampIndexFull": {
-            "value": "[variables('stampIndexFull')]"
-          },
           "storageAccountNamePrefix": "[if(variables('deployFslogix'), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-fslogix-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.storageAccountNamePrefix.value), createObject('value', ''))]",
           "storageCount": {
             "value": "[parameters('storageCount')]"
@@ -15942,7 +15938,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.36.1.42791",
-              "templateHash": "3334828791435677136"
+              "templateHash": "15355551227617866046"
             }
           },
           "parameters": {
@@ -16101,9 +16097,6 @@
             },
             "sessionHostIndex": {
               "type": "int"
-            },
-            "stampIndexFull": {
-              "type": "string"
             },
             "storageAccountNamePrefix": {
               "type": "string"
@@ -16530,7 +16523,7 @@
                   "batchCount": {
                     "value": "[range(1, parameters('sessionHostBatchCount'))[copyIndex()]]"
                   },
-                  "dataCollectionRuleAssociationNamePrefix": {
+                  "dataCollectionRuleAssociationName": {
                     "value": "[parameters('names').dataCollectionRuleAssociation]"
                   },
                   "dataCollectionRuleResourceId": {
@@ -16617,9 +16610,6 @@
                   },
                   "sessionHostCount": "[if(and(equals(range(1, parameters('sessionHostBatchCount'))[copyIndex()], parameters('sessionHostBatchCount')), greater(parameters('divisionRemainderValue'), 0)), createObject('value', parameters('divisionRemainderValue')), createObject('value', parameters('maxResourcesPerTemplateDeployment')))]",
                   "sessionHostIndex": "[if(equals(range(1, parameters('sessionHostBatchCount'))[copyIndex()], 1), createObject('value', parameters('sessionHostIndex')), createObject('value', add(mul(sub(range(1, parameters('sessionHostBatchCount'))[copyIndex()], 1), parameters('maxResourcesPerTemplateDeployment')), parameters('sessionHostIndex'))))]",
-                  "stampIndexFull": {
-                    "value": "[parameters('stampIndexFull')]"
-                  },
                   "storageAccountPrefix": {
                     "value": "[parameters('storageAccountNamePrefix')]"
                   },
@@ -16667,7 +16657,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.36.1.42791",
-                      "templateHash": "9061794238969457667"
+                      "templateHash": "17794366525253489563"
                     }
                   },
                   "parameters": {
@@ -16689,7 +16679,7 @@
                     "batchCount": {
                       "type": "int"
                     },
-                    "dataCollectionRuleAssociationNamePrefix": {
+                    "dataCollectionRuleAssociationName": {
                       "type": "string"
                     },
                     "dataCollectionRuleResourceId": {
@@ -16787,9 +16777,6 @@
                     },
                     "sessionHostIndex": {
                       "type": "int"
-                    },
-                    "stampIndexFull": {
-                      "type": "string"
                     },
                     "storageAccountPrefix": {
                       "type": "string"
@@ -17079,7 +17066,7 @@
                       "type": "Microsoft.Insights/dataCollectionRuleAssociations",
                       "apiVersion": "2022-06-01",
                       "scope": "[format('Microsoft.Compute/virtualMachines/{0}', format('{0}{1}', parameters('virtualMachineNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')))]",
-                      "name": "[format('{0}{1}{2}', parameters('dataCollectionRuleAssociationNamePrefix'), parameters('delimiter'), parameters('stampIndexFull'))]",
+                      "name": "[parameters('dataCollectionRuleAssociationName')]",
                       "properties": {
                         "dataCollectionRuleId": "[parameters('dataCollectionRuleResourceId')]",
                         "description": "AVD Insights data collection rule association"

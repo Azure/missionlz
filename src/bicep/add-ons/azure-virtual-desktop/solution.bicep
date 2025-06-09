@@ -403,7 +403,6 @@ var privateDnsZoneSuffixes_AzureVirtualDesktop = {
   AzureCloud: 'microsoft.com'
   AzureUSGovernment: 'azure.us'
 }
-var stampIndexFull = padLeft(stampIndex, 2, '0')
 var storageSku = fslogixStorageService == 'None' ? 'None' : split(fslogixStorageService, ' ')[1]
 var storageService = split(fslogixStorageService, ' ')[0]
 var storageSuffix = environment().suffixes.storage
@@ -558,7 +557,7 @@ module tier3_stamp '../tier3/solution.bicep' = {
     additionalSubnets: union(subnets.avdManagement, subnets.azureNetAppFiles, subnets.functionApp)
     customFirewallRuleCollectionGroups: empty(customFirewallRuleCollectionGroups) ? [
       {
-        name: 'AVD-CollapsedCollectionGroup-${toUpper(identifier)}-${toUpper(environmentAbbreviation)}-${toUpper(locationVirtualMachines)}-${stampIndexFull}'
+        name: 'AVD-CollapsedCollectionGroup-${toUpper(identifier)}-${toUpper(environmentAbbreviation)}-${toUpper(locationVirtualMachines)}-${stampIndex}'
         properties: {
           priority: 200
           ruleCollections: [
@@ -795,7 +794,7 @@ module tier3_stamp '../tier3/solution.bicep' = {
     networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
     networkWatcherFlowLogsType: networkWatcherFlowLogsType
     policy: policy
-    stampIndex: stampIndexFull
+    stampIndex: string(stampIndex)
     subnetAddressPrefix: sessionHostsSubnetAddressPrefix
     subnetName: 'avd-session-hosts'
     tags: tags
@@ -1036,7 +1035,6 @@ module sessionHosts 'modules/session-hosts/session-hosts.bicep' = {
     securityPrincipalObjectIds: map(securityPrincipals, item => item.objectId)
     sessionHostBatchCount: sessionHostBatchCount
     sessionHostIndex: sessionHostIndex
-    stampIndexFull: stampIndexFull
     storageAccountNamePrefix: deployFslogix ? fslogix.outputs.storageAccountNamePrefix : ''
     storageCount: storageCount
     storageIndex: storageIndex

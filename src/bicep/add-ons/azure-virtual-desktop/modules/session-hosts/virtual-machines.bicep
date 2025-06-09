@@ -4,7 +4,7 @@ param availabilitySetNamePrefix string
 param availabilityZones array
 param avdConfigurationZipFileName string
 param batchCount int
-param dataCollectionRuleAssociationNamePrefix string
+param dataCollectionRuleAssociationName string
 param dataCollectionRuleResourceId string
 param delimiter string
 param deployFslogix bool
@@ -38,7 +38,6 @@ param profile string
 param resourceGroupManagement string
 param sessionHostCount int
 param sessionHostIndex int
-param stampIndexFull string
 param storageAccountPrefix string
 param storageCount int
 param storageIndex int
@@ -274,7 +273,7 @@ resource extension_AzureMonitorWindowsAgent 'Microsoft.Compute/virtualMachines/e
 
 resource dataCollectionRuleAssociation 'Microsoft.Insights/dataCollectionRuleAssociations@2022-06-01' = [for i in range(0, sessionHostCount): if (enableAvdInsights) {
   scope: virtualMachine[i]
-  name: '${dataCollectionRuleAssociationNamePrefix}${delimiter}${stampIndexFull}'
+  name: dataCollectionRuleAssociationName
   properties: {
     dataCollectionRuleId: dataCollectionRuleResourceId
     description: 'AVD Insights data collection rule association'
