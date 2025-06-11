@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.36.1.42791",
-      "templateHash": "6441042794923992373"
+      "templateHash": "7560422085568639663"
     }
   },
   "parameters": {
@@ -62,7 +62,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.36.1.42791",
-              "templateHash": "13963706556728913676"
+              "templateHash": "17851989259202845198"
             }
           },
           "parameters": {
@@ -158,7 +158,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.36.1.42791",
-                      "templateHash": "322013226771768199"
+                      "templateHash": "4751792817864339444"
                     }
                   },
                   "parameters": {
@@ -602,7 +602,7 @@
                       "west": "w",
                       "westcentral": "wc"
                     },
-                    "locations": "[coalesce(tryGet(variables('$fxv#0'), environment().name), createObject(format('{0}', parameters('location')), createObject('abbreviation', variables('directionShortNames')[skip(parameters('location'), sub(length(parameters('location')), 5))], 'timeDifference', if(contains(parameters('location'), 'east'), '-5:00', if(contains(parameters('location'), 'west'), '-8:00', '0:00')), 'timeZone', if(contains(parameters('location'), 'east'), 'Eastern Standard Time', if(contains(parameters('location'), 'west'), 'Pacific Standard Time', 'GMT Standard Time')))))]",
+                    "locations": "[coalesce(tryGet(variables('$fxv#0'), environment().name), createObject(format('{0}', parameters('location')), createObject('abbreviation', variables('directionShortNames')[skip(parameters('location'), sub(length(parameters('location')), 4))], 'timeDifference', if(contains(parameters('location'), 'east'), '-5:00', if(contains(parameters('location'), 'west'), '-8:00', '0:00')), 'timeZone', if(contains(parameters('location'), 'east'), 'Eastern Standard Time', if(contains(parameters('location'), 'west'), 'Pacific Standard Time', 'GMT Standard Time')))))]",
                     "locationAbbreviation": "[variables('locations')[parameters('location')].abbreviation]",
                     "resourceAbbreviations": "[variables('$fxv#1')]",
                     "tokens": {
