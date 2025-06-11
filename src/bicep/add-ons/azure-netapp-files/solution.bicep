@@ -175,7 +175,7 @@ module tier3 '../tier3/solution.bicep' = {
   params: {
     additionalSubnets:[
       {
-        name: 'AzureNetAppFiles'
+        name: 'azure-netapp-files'
         properties: {
           addressPrefix: azureNetAppFilesSubnetAddressPrefix
         }
