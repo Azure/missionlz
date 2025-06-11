@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.36.1.42791",
-      "templateHash": "8654961220274849457"
+      "templateHash": "15548224511419538151"
     }
   },
   "parameters": {
@@ -14657,7 +14657,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.36.1.42791",
-              "templateHash": "17962090318051725731"
+              "templateHash": "17381494891681102059"
             }
           },
           "parameters": {
@@ -14970,7 +14970,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.36.1.42791",
-                      "templateHash": "12219860192191530524"
+                      "templateHash": "5064661533348519357"
                     }
                   },
                   "parameters": {
@@ -15035,7 +15035,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.NetApp/netAppAccounts",
-                      "apiVersion": "2021-06-01",
+                      "apiVersion": "2025-01-01",
                       "name": "[format('{0}{1}', parameters('netAppAccountNamePrefix'), variables('nameSuffix'))]",
                       "location": "[parameters('location')]",
                       "tags": "[variables('tagsNetAppAccount')]",
@@ -15058,7 +15058,7 @@
                     },
                     {
                       "type": "Microsoft.NetApp/netAppAccounts/capacityPools",
-                      "apiVersion": "2021-06-01",
+                      "apiVersion": "2025-01-01",
                       "name": "[format('{0}/{1}', format('{0}{1}', parameters('netAppAccountNamePrefix'), variables('nameSuffix')), format('{0}{1}', parameters('netAppCapacityPoolNamePrefix'), variables('nameSuffix')))]",
                       "location": "[parameters('location')]",
                       "tags": "[variables('tagsNetAppAccount')]",
@@ -15079,7 +15079,7 @@
                         "count": "[length(range(0, length(parameters('fileShares'))))]"
                       },
                       "type": "Microsoft.NetApp/netAppAccounts/capacityPools/volumes",
-                      "apiVersion": "2021-06-01",
+                      "apiVersion": "2025-01-01",
                       "name": "[format('{0}/{1}/{2}', format('{0}{1}', parameters('netAppAccountNamePrefix'), variables('nameSuffix')), format('{0}{1}', parameters('netAppCapacityPoolNamePrefix'), variables('nameSuffix')), parameters('fileShares')[range(0, length(parameters('fileShares')))[copyIndex()]])]",
                       "location": "[parameters('location')]",
                       "tags": "[variables('tagsNetAppAccount')]",
@@ -15091,6 +15091,7 @@
                         "defaultUserQuotaInKiBs": 0,
                         "encryptionKeySource": "Microsoft.NetApp",
                         "isDefaultQuotaEnabled": false,
+                        "isLargeVolume": false,
                         "kerberosEnabled": false,
                         "ldapEnabled": false,
                         "networkFeatures": "Standard",
@@ -15099,8 +15100,10 @@
                         ],
                         "securityStyle": "ntfs",
                         "serviceLevel": "[parameters('storageSku')]",
+                        "smbAccessBasedEnumeration": "Enabled",
                         "smbContinuouslyAvailable": true,
                         "smbEncryption": true,
+                        "smbNonBrowsable": "Disabled",
                         "snapshotDirectoryVisible": true,
                         "subnetId": "[parameters('delegatedSubnetResourceId')]",
                         "usageThreshold": 107374182400
@@ -15115,7 +15118,7 @@
                       "type": "array",
                       "copy": {
                         "count": "[length(parameters('fileShares'))]",
-                        "input": "[reference(resourceId('Microsoft.NetApp/netAppAccounts/capacityPools/volumes', format('{0}{1}', parameters('netAppAccountNamePrefix'), variables('nameSuffix')), format('{0}{1}', parameters('netAppCapacityPoolNamePrefix'), variables('nameSuffix')), parameters('fileShares')[range(0, length(parameters('fileShares')))[copyIndex()]]), '2021-06-01').mountTargets[0].smbServerFqdn]"
+                        "input": "[reference(resourceId('Microsoft.NetApp/netAppAccounts/capacityPools/volumes', format('{0}{1}', parameters('netAppAccountNamePrefix'), variables('nameSuffix')), format('{0}{1}', parameters('netAppCapacityPoolNamePrefix'), variables('nameSuffix')), parameters('fileShares')[range(0, length(parameters('fileShares')))[copyIndex()]]), '2025-01-01').mountTargets[0].smbServerFqdn]"
                       }
                     },
                     "smbServerNamePrefix": {
