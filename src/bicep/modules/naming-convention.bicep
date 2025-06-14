@@ -28,7 +28,7 @@ var directionShortNames = {
 }
 var locations = loadJsonContent('../data/locations.json')[?environment().name] ?? {
   '${location}': {
-    abbreviation: directionShortNames[skip(location, length(location) - 5)]
+    abbreviation: directionShortNames[skip(location, length(location) - 4)]
     timeDifference: contains(location, 'east') ? '-5:00' : contains(location, 'west') ? '-8:00' : '0:00'
     timeZone: contains(location, 'east') ? 'Eastern Standard Time' : contains(location, 'west') ? 'Pacific Standard Time' : 'GMT Standard Time'
   }

@@ -55,7 +55,6 @@ param scalingWeekendsPeakStartTime string
 param securityPrincipalObjectIds array
 param sessionHostBatchCount int
 param sessionHostIndex int
-param stampIndexFull string
 param storageAccountNamePrefix string
 param storageCount int
 param storageIndex int
@@ -189,7 +188,7 @@ module virtualMachines 'virtual-machines.bicep' = [for i in range(1, sessionHost
     availabilityZones: availabilityZones
     avdConfigurationZipFileName: avdConfigurationZipFileName
     batchCount: i
-    dataCollectionRuleAssociationNamePrefix: names.dataCollectionRuleAssociation
+    dataCollectionRuleAssociationName: names.dataCollectionRuleAssociation
     dataCollectionRuleResourceId: dataCollectionRuleResourceId
     delimiter: delimiter
     deployFslogix: deployFslogix
@@ -226,7 +225,6 @@ module virtualMachines 'virtual-machines.bicep' = [for i in range(1, sessionHost
     resourceGroupManagement: resourceGroupManagement
     sessionHostCount: i == sessionHostBatchCount && divisionRemainderValue > 0 ? divisionRemainderValue : maxResourcesPerTemplateDeployment
     sessionHostIndex: i == 1 ? sessionHostIndex : ((i - 1) * maxResourcesPerTemplateDeployment) + sessionHostIndex
-    stampIndexFull: stampIndexFull
     storageAccountPrefix: storageAccountNamePrefix
     storageCount: storageCount
     storageIndex: storageIndex

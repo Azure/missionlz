@@ -21,7 +21,7 @@ param tags object
 var nameSuffix = empty(suffix) ? '' : '${delimiter}${suffix}'
 var tagsNetAppAccount = union(empty(hostPoolResourceId) ? {} : {'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.NetApp/netAppAccounts'] ?? {}, mlzTags)
 
-resource netAppAccount 'Microsoft.NetApp/netAppAccounts@2021-06-01' = {
+resource netAppAccount 'Microsoft.NetApp/netAppAccounts@2025-01-01' = {
   name: '${netAppAccountNamePrefix}${nameSuffix}'
   location: location
   tags: tagsNetAppAccount
@@ -31,7 +31,6 @@ resource netAppAccount 'Microsoft.NetApp/netAppAccounts@2021-06-01' = {
         aesEncryption: true
         domain: domainName
         dns: dnsServers
-        // domainGuid: 'string'
         organizationalUnit: empty(organizationalUnitPath) ? 'CN=Computers' : organizationalUnitPath
         password: domainJoinPassword
         smbServerName: smbServerName
@@ -44,7 +43,7 @@ resource netAppAccount 'Microsoft.NetApp/netAppAccounts@2021-06-01' = {
   }
 }
 
-resource capacityPool 'Microsoft.NetApp/netAppAccounts/capacityPools@2021-06-01' = {
+resource capacityPool 'Microsoft.NetApp/netAppAccounts/capacityPools@2025-01-01' = {
   parent: netAppAccount
   name: '${netAppCapacityPoolNamePrefix}${nameSuffix}'
   location: location
@@ -58,7 +57,7 @@ resource capacityPool 'Microsoft.NetApp/netAppAccounts/capacityPools@2021-06-01'
   }
 }
 
-resource volumes 'Microsoft.NetApp/netAppAccounts/capacityPools/volumes@2021-06-01' = [for i in range(0, length(fileShares)): {
+resource volumes 'Microsoft.NetApp/netAppAccounts/capacityPools/volumes@2025-01-01' = [for i in range(0, length(fileShares)): {
   parent: capacityPool
   name: fileShares[i]
   location: location
@@ -67,7 +66,6 @@ resource volumes 'Microsoft.NetApp/netAppAccounts/capacityPools/volumes@2021-06-
     avsDataStore: 'Disabled'
     // backupId: 'string'
     coolAccess: false
-    // coolnessPeriod: int
     creationToken: fileShares[i]
     // dataProtection: {
     //   backup: {
@@ -90,25 +88,8 @@ resource volumes 'Microsoft.NetApp/netAppAccounts/capacityPools/volumes@2021-06-
     defaultGroupQuotaInKiBs: 0
     defaultUserQuotaInKiBs: 0
     encryptionKeySource: 'Microsoft.NetApp'
-    // exportPolicy: {
-    //   rules: [
-    //     {
-    //       allowedClients: 'string'
-    //       chownMode: 'string'
-    //       cifs: bool
-    //       hasRootAccess: bool
-    //       kerberos5iReadWrite: bool
-    //       kerberos5pReadWrite: bool
-    //       kerberos5ReadWrite: bool
-    //       nfsv3: bool
-    //       nfsv41: bool
-    //       ruleIndex: int
-    //       unixReadWrite: bool
-    //     }
-    //   ]
-    // }
     isDefaultQuotaEnabled: false
-    // isRestoring: bool
+    isLargeVolume: false
     kerberosEnabled: false
     ldapEnabled: false
     networkFeatures: 'Standard'
@@ -117,8 +98,10 @@ resource volumes 'Microsoft.NetApp/netAppAccounts/capacityPools/volumes@2021-06-
     ]
     securityStyle: 'ntfs'
     serviceLevel: storageSku
+    smbAccessBasedEnumeration: 'Enabled'
     smbContinuouslyAvailable: true
     smbEncryption: true
+    smbNonBrowsable: 'Disabled'
     snapshotDirectoryVisible: true
     // snapshotId: 'string'
     subnetId: delegatedSubnetResourceId

@@ -19,19 +19,6 @@ $WarningPreference = 'SilentlyContinue'
 
 # Convert NetAppFiles share names from a JSON array to a PowerShell array
 [array]$NetAppFileShares = $NetAppFileShares.Replace("'",'"') | ConvertFrom-Json
-$NetAppFileShares | Add-Content -Path 'C:\cse.txt' -Force
-
-#  Add Recommended Security Settings
-$Settings = @(
-
-    # Set Kerberos Encryption for STIG compliance
-    [PSCustomObject]@{
-        Name = 'SupportedEncryptionTypes'
-        Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\Kerberos\Parameters'
-        PropertyType = 'DWord'
-        Value = 2147483640
-    }
-)
 
 #  Add Recommended AVD Settings
 $Settings = @(

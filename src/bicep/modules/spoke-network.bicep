@@ -22,20 +22,20 @@ param virtualNetworkName string
 param vNetDnsServers array
 
 var delegations = {
-  AzureNetAppFiles: [
+  'azure-netapp-files': [
     {
       name: 'Microsoft.Netapp.volumes'
-      id: resourceId('Microsoft.Network/virtualNetworks/subnets/delegations', virtualNetworkName, 'AzureNetAppFiles', 'delegation')
+      id: resourceId('Microsoft.Network/virtualNetworks/subnets/delegations', virtualNetworkName, 'azure-netapp-files', 'delegation')
       properties: {
         serviceName: 'Microsoft.Netapp/volumes'
       }
       type: 'Microsoft.Network/virtualNetworks/subnets/delegations'
     }
   ]
-  FunctionAppOutbound: [
+  'function-app-outbound': [
     {
       name: 'Microsoft.Web/sites'
-      id: resourceId('Microsoft.Network/virtualNetworks/subnets/delegations', virtualNetworkName, 'FunctionAppOutbound', 'delegation')
+      id: resourceId('Microsoft.Network/virtualNetworks/subnets/delegations', virtualNetworkName, 'function-app-outbound', 'delegation')
       properties: {
         serviceName: 'Microsoft.Web/serverfarms'
       }
