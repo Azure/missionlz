@@ -1,182 +1,161 @@
-# Welcome to the ArcGIS on Azure with Azure Virtual Desktop (AVD) Landing Zone Accelerator
+
+# Esri ArcGIS Pro on Azure Virtual Desktop (AVD) Accelerator
 
 > [!CAUTION]
 > This repository is a WORK-IN-PROGRESS and is not yet fully complete.  
 
-Azure Landing Zone Accelerators are architectural guidance, reference architecture, reference implementations, and automation packaged to deploy workload platforms on Azure at scale and aligned with industry proven practices. This accelerator represents the strategic design path and automated deployment options to deploy Esri’s ArcGIS Enterprise with ArcGIS Pro GPU enabled virtual desktops.
+## Quick Start Summary
 
-This solution provides an architectural approach and reference implementation to prepare Azure subscriptions for a scalable ArcGIS implementation on Azure, utilizing a combination of Azure cloud native services and traditional infrastructure virtual machines. Once the deployment is completed, users of this accelerator will have a base deployment which enables a rapid deployment of an Enterprise GIS.
+- **Scenario 1:** [ArcGIS Pro on Azure Virtual Desktop (AVD)](#scenario-1-arcgis-pro-on-avd)
+- **Scenario 2:** [Single-Tier Deployment (ArcGIS Enterprise + ArcGIS Pro on AVD)](#scenario-2-single-tier-deployment-arcgis-enterprise--arcgis-pro-on-avd)
+- **Scenario 3:** [Multi-Tier Deployment (ArcGIS Enterprise + ArcGIS Pro on AVD)](#scenario-3-multi-tier-deployment-arcgis-enterprise--arcgis-pro-on-avd)
+- **Who Would Use Each:** [Guidance on Choosing the Right Deployment Scenario](#who-would-use-each)
 
-For overall architectural guidance on deploying ArcGIS in Azure, check out the Azure Architecture Center documentation -> [Deploy Esri ArcGIS Pro in Azure Virtual Desktop](https://learn.microsoft.com/en-us/azure/architecture/example-scenario/data/esri-arcgis-azure-virtual-desktop). Also, see [Esri's ArcGIS Architecture Center](https://architecture.arcgis.com/).
+## Solution Description
 
-Below is a diagram of the components of this solution.
+This accelerator offers an architectural approach and reference implementation to prepare Azure subscriptions for scalable ArcGIS deployments. It combines Azure cloud-native services and traditional infrastructure virtual machines. Upon completion, users will have a base deployment for rapid enterprise GIS adoption.
 
-![ArcGIS on Azure diagram](./images/ArcGIS-on-Azure.png)
+### Who is this for?
 
-The ArcGIS on Azure Landing Zone Accelerator is modular and designed to be usable for organizations that have no Azure infrastructure, as well as those who already have assets in Azure. The path is comprised of four steps, each  may be done sequentially, or not at all depending upon the requierments of your project. However, let's first discuss landing zones.
+This accelerator is designed for GIS administrators, IT/cloud architects, and organizations looking to modernize their GIS infrastructure by leveraging Azure's scalability, performance, and security. Whether you're migrating from on-premises or expanding your cloud footprint, this solution provides the tools and guidance needed for successful deployment.
 
-## What is a Landing Zone?
+### Major Benefits
 
-A [**landing zone**](https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/landing-zone)  is networking & infrastructure configured to provide a secure environment for hosting workloads.
+This accelerator provides a modern, cloud-native foundation for deploying ArcGIS Pro and ArcGIS Enterprise on Azure. Benefits span both desktop GIS performance and enterprise GIS infrastructure modernization:
 
-An Azure landing zone consists of platform landing zones and application landing zones.
+### 🔷 ArcGIS Pro on Azure Virtual Desktop (AVD)
 
-**Platform landing zone:** A platform landing zone is a subscription that provides shared services (identity, connectivity, management) to applications in application landing zones. Consolidating these shared services often improves operational efficiency. One or more central teams manage the platform landing zones.
+- **Enhanced Performance:** GPU-enabled virtual desktops deliver fast rendering and processing for complex 2D/3D geospatial workflows.
+- **Remote Access:** Users can securely access ArcGIS Pro from anywhere, enabling hybrid and distributed teams.
+- **Cost Optimization:** Flexible pricing with pooled or personal desktops reduces idle capacity and aligns with usage patterns.
+- **Simplified Management:** Centralized provisioning, updates, and policy enforcement streamline IT operations.
 
-**Application landing zone:** An application landing zone is a subscription for hosting an application. You pre-provision application landing zones through code and use management groups to assign policy controls to them. In the conceptual architecture above, the ArcGIS Enterprise Single Machine or Multiple-Machine deployments represent two different application landing zones.
+### ☁️ ArcGIS Enterprise on Azure
 
-Reference: [ArcGIS Enterprise Single Machine or Multiple-Machine](https://enterprise.arcgis.com/en/server/latest/install/windows/deployment-scenarios.htm)
+- **Elastic Scalability:** Easily scale compute, storage, and services to meet growing user and data demands — without hardware constraints.
+- **High Availability & Resilience:** Azure-native features like availability zones, load balancing, and backup services improve uptime and disaster recovery.
+- **Security & Compliance:** Benefit from Azure’s enterprise-grade security, identity integration (Microsoft Entra ID), and compliance certifications.
+- **Operational Efficiency:** Automate deployments with infrastructure-as-code (Bicep/ARM), reducing manual setup and configuration time.
+- **Global Reach:** Deploy closer to your users with Azure’s global data center footprint, improving performance and reducing latency.
+- **Integration Ready:** Seamlessly connect ArcGIS Enterprise with other Azure services (e.g., Azure SQL, Azure Maps, AI/ML tools) for advanced workflows.
 
-## Step 1
+## Components
 
-:arrow_forward: The first step is to deploy [Mission Landing Zone](https://github.com/Azure/missionlz/blob/main/README.md). This allows organizations to start with a foundational landing zone that supports their application portfolios, regardless of whether the applications are being migrated or are newly developed and deployed to Azure.
+This accelerator is designed to be deployed **after** the [Mission Landing Zone](https://github.com/Azure/missionlz) has been set up. The Mission Landing Zone provides the foundational Azure infrastructure (identity, networking, security, and governance) required to support ArcGIS workloads.
 
-Mission Landing Zone is a highly opinionated Infrastructure-as-Code (IaC) template which IT oversight organizations can use to create a cloud management system to deploy Azure environments for their workloads and teams. Mission Landing Zone provides a Secure Cloud Computing Architecture (SCCA) compliant hub and spoke network infrastructure.
+Once the Mission Landing Zone is deployed, you can choose from three deployment scenarios depending on your needs:
 
-If you already have an Azure Landing Zone, you can skip this step. For more on what an Azure Landing Zone is, see here -> [Azure Landing Zone](https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/landing-zone).
+- **Scenario 1:** ArcGIS Pro on Azure Virtual Desktop (AVD)
+- **Scenario 2:** Single-Tier ArcGIS Enterprise + ArcGIS Pro on AVD
+- **Scenario 3:** Multi-Tier ArcGIS Enterprise + ArcGIS Pro on AVD
 
-## Step 2
+Each scenario is self-contained and can be deployed independently, depending on your organization's GIS architecture and operational goals.
 
- :arrow_forward: The second step is to create the Windows image which will be used to create the Azure Virtual Desktops. This image will have ArcGIS Pro pre-installed when you use this template ->  [Zero Trust and Azure Imaging](https://github.com/Azure/missionlz/blob/main/src/bicep/add-ons/imaging/README.md). Be sure to complete the necessary [prerequisites](https://github.com/Azure/missionlz/tree/main/src/bicep/add-ons/imaging#prequisites).
+![ArcGIS on Azure diagram](./images/ArcGIS-on-Azure_Updated.png)
 
-> [!WARNING]
-> Failure to complete the [prerequisites](https://github.com/Azure/missionlz/tree/main/src/bicep/add-ons/imaging#prequisites) will result in an unsuccessful deployment.
+## Scenario 1: ArcGIS Pro on AVD
 
-## Step 3
+ArcGIS Pro on Azure Virtual Desktop (AVD) provides a modern, cloud-based solution for delivering high-performance GIS desktops to users anywhere. This deployment scenario focuses on enabling GIS professionals to access GPU-accelerated ArcGIS Pro sessions remotely, without the need for local high-end hardware.
 
- :arrow_forward: The third step is to deploy the Azure Virtual Desktop (AVD) solution. This solution provides a fully operational [stamp](https://learn.microsoft.com/azure/architecture/patterns/deployment-stamp) in an Azure subscription adhering  to the [Zero Trust principles](https://learn.microsoft.com/security/zero-trust/azure-infrastructure-avd).
+This scenario is ideal for organizations that:
 
-This template represents the strategic design path and target technical state for Azure Virtual Desktop deployment. Many of the [common features](https://github.com/Azure/missionlz/tree/main/src/bicep/add-ons/azure-virtual-desktop/docs/features) used with AVD have been automated in this solution for your convenience.
+- Need to provide remote access to ArcGIS Pro for distributed teams or hybrid workforces.
+- Want to leverage GPU-enabled virtual desktops for intensive 2D/3D geospatial analysis and visualization.
+- Require flexible, scalable desktop environments that can be pooled or assigned per user.
 
-Be sure to complete the necessary [prerequisites](https://github.com/Azure/missionlz/blob/main/src/bicep/add-ons/azure-virtual-desktop/docs/prerequisites.md) and to review the parameter descriptions to the understand the consequences of your selections. Also, please review Esri's guidance on [VDI and ArcGIS Pro](https://architecture.arcgis.com/en/framework/architecture-practices/architectural-foundations/deployment-concepts/vdi-and-arcgis-pro.html).
+**Benefits:**
 
-This Azure Virtual Desktop Accelerator only deploys the specific Azure Virtual Desktop resources, shown in the architectural diagram above. It is assumed that an appropriate landing zone foundation is already setup. This means that policies and governance should already be in place.
+- **Remote Productivity:** Users can access ArcGIS Pro from virtually anywhere, enabling collaboration across geographies.
+- **GPU Acceleration:** Delivers high-performance rendering and analysis for demanding GIS workflows.
+- **Centralized Management:** Simplifies IT operations with centralized updates, security policies, and user provisioning.
+- **Cost Optimization:** Offers flexible pricing models with pooled or personal desktops to match usage patterns.
+- **Secure Access:** Integrates with Microsoft Entra ID and supports conditional access, MFA, and other enterprise-grade security features.
 
-> [!WARNING]
-> Failure to complete the [prerequisites](https://github.com/Azure/missionlz/blob/main/src/bicep/add-ons/azure-virtual-desktop/docs/prerequisites.md) will result in an unsuccessful deployment.
+<!-- markdownlint-disable MD013 -->
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2Fesri-enterprise%2Fsolution.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2Fesri-enterprise%2FuiDefinition.json) [![Deploy to Azure Gov](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2Fesri-enterprise%2Fsolution.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2Fesri-enterprise%2FuiDefinition.json)
+<!-- markdownlint-enable MD013 -->
 
-## Step 4
+## Scenario 2: Single-Tier Deployment (ArcGIS Enterprise + ArcGIS Pro on AVD)
 
- :arrow_forward: The fourth step is to run the ArcGIS Enterprise on Azure accelerator.
+The single-tier ArcGIS Enterprise deployment involves installing all components of ArcGIS Enterprise on a single virtual machine. This setup is straightforward and suitable for smaller implementations or proof-of-concept projects. It is ideal for organizations that:
 
-There are two primary components to this component in this geospatial accelerator: ArcGIS Pro & ArcGIS Enterprise.
+- Have limited resources and need a simple, cost-effective solution.
+- Are conducting a proof-of-concept, testing or development.
+- Do not require high availability or scalability.
 
-- ArcGIS Pro is a 64-bit professional desktop GIS application. GIS analysts can use it to perform spatial analysis and edit spatial data. GIS administrators can use it to create and publish geospatial services. This app will be deployed on the Windows client virtual machines used as the Azure Virtual Desktop (AVD) hosts. Geospatial analysis in Azure is typically done on GPU optimized virtual desktops.
+**Benefits:**
 
-- ArcGIS Enterprise is a software system for GIS that powers mapping and visualization, analytics, and data management. It is the backbone for running the Esri suite of applications. ArcGIS Enterprise includes ArcGIS Server, which is the core web services component for making maps and performing analysis, and Portal for ArcGIS. ArcGIS Enterprise will be deployed and configured within your landing zone.
+- **Simplicity:** Easier to set up and manage since all components are on one machine.
+- **Cost-Effective:** Lower infrastructure costs as it requires fewer resources.
+- **Quick Deployment:** Faster to deploy and configure, making it suitable for short-term projects.
+
+<!-- markdownlint-disable MD013 -->
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2Fesri-enterprise%2Fsolution.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2Fesri-enterprise%2FuiDefinition.json) [![Deploy to Azure Gov](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2Fesri-enterprise%2Fsolution.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2Fesri-enterprise%2FuiDefinition.json)
+<!-- markdownlint-enable MD013 -->
+
+## Scenario 3: Multi-Tier Deployment (ArcGIS Enterprise + ArcGIS Pro on AVD)
+
+A multi-tier deployment involves distributing the components of ArcGIS Enterprise across multiple virtual machines. This setup is more complex but offers better performance, scalability, and high availability. It is ideal for organizations that:
+
+- Require a robust and scalable solution for production environments.
+- Need to support a large number of users and high-demand applications.
+- Require high availability and disaster recovery capabilities.
+
+**Benefits:**
+
+- **Scalability:** Can handle larger workloads and more users by distributing components across multiple machines.
+- **High Availability:** Provides redundancy and failover capabilities, ensuring continuous operation.
+- **Performance:** Improved performance as different components can be optimized and scaled independently.
+
+<!-- markdownlint-disable MD013 -->
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2Fesri-enterprise%2Fsolution.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2Fesri-enterprise%2FuiDefinition.json) [![Deploy to Azure Gov](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2Fesri-enterprise%2Fsolution.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2Fesri-enterprise%2FuiDefinition.json)
+<!-- markdownlint-enable MD013 -->
+
+## Who Would Use Each?
+
+Choosing the right deployment scenario depends on your GIS goals, collaboration needs, and infrastructure preferences:
+
+### Scenario 1: ArcGIS Pro on Azure Virtual Desktop (AVD)
+
+Ideal for users who need high-performance desktop GIS capabilities with remote access. This scenario is especially useful when:
+
+- You already use **ArcGIS Online** for sharing and collaboration and just need better hardware or centralized desktop access.
+- You work with local or cloud-hosted data but don’t need to manage your own GIS server infrastructure.
+- You want to enable GPU-accelerated workflows for 2D/3D analysis, cartography, or geoprocessing.
 
 > [!NOTE]
-> Presently this accelerator performs a base deployment of ArcGIS Enterprise. It does not deploy additonal ArcGIS Enterprise server roles. Once the accelerator is deployed, additional server roles can be deployed on virtual machines in the landing zone.
+> ArcGIS Pro can connect directly to ArcGIS Online, making this scenario a great fit for SaaS-first organizations.
 
-This automation template will setup Esri's ArcGIS Enterprise in either a [Single Machine or Multiple-Machine](https://enterprise.arcgis.com/en/server/latest/install/windows/deployment-scenarios.htm) deployment as shown in the diagrams. Presently, this base deployment is nearly identical to the [ArcGIS Enterprise Cloud Builder](https://enterprise.arcgis.com/en/server/latest/cloud/azure/what-is-arcgis-server-cloud-builder-for-microsoft-azure.htm).
+### Scenario 2: Single-Tier Deployment (ArcGIS Enterprise + ArcGIS Pro)
 
-However, optimizations have been made in this highly opinionated architecture. For example, as part of the deployment, [Azure NetApp Files](https://learn.microsoft.com/en-us/azure/azure-netapp-files/azure-netapp-files-introduction) has been deployed which allows for ArcGIS Pro and Enterprise to share a Network Attached Storage device. ArcGIS Pro users can place GIS datasets on the share.
+Best for smaller teams or pilot projects that need to host and manage GIS services internally. Choose this when:
 
-Also, ArcGIS Enterprise has its [server directories](https://enterprise.arcgis.com/en/server/latest/administer/windows/about-server-directories.htm) located there for fast access to these important components of ArcGIS Enterprise. Also, the Web Adaptor is not deployed. Instead, the Azure Application Gateway is used as the load balancing solution.
+- You need to publish feature services, manage users, or host web maps and apps.
+- You want a simple, cost-effective way to evaluate ArcGIS Enterprise capabilities.
+- You’re not ready for a full-scale production deployment but need more control than ArcGIS Online offers.
 
-Once everything is deployed, users will need to consider how to migrate their data, applications, and configuration to this new environment. This includes ArcGIS Enterprise services, Enterprise geodatabase, Portal for ArcGIS configuration, etc.
+### Scenario 3: Multi-Tier Deployment (ArcGIS Enterprise + ArcGIS Pro)
 
-See Esri's documentation [here](https://enterprise.arcgis.com/en/portal/latest/administer/windows/migration-strategies.htm) and [here](https://architecture.arcgis.com/en/framework/architecture-practices/architectural-foundations/deployment-concepts/enterprise-and-cloud-migration.html) for advice on migrations.
+Designed for production environments requiring scalability, high availability, and enterprise-grade GIS workflows. Choose this when:
 
-See this [video](https://mediaspace.esri.com/media/t/1_6iw4ydg1) for a full discussion on migration options.
+- You need to support many users, complex data models, or mission-critical GIS operations.
+- You require enterprise geodatabases, versioned editing, or integration with internal systems.
+- You need to meet strict performance, security, or compliance requirements in a cloud-hosted environment.
 
-## Choosing a Deployment Model
+## Learn More and Explore Further
 
-The below automation templates can be deployed in your Azure subscriptions by clicking the blue buttons.
+If you're looking to deepen your understanding of deploying ArcGIS in the cloud or want to explore related architectures and tools, here are some helpful resources:
 
-## Mission Landing Zone
+### 🌐 ArcGIS Architecture Resources
 
-[Mission Landing Zone](https://github.com/Azure/missionlz/blob/main/README.md) is a highly opinionated Infrastructure-as-Code (IaC) template which IT organizations can use to create a cloud management system in Azure for their workloads and teams. Mission Landing Zone provides a Secure Cloud Computing Architecture (SCCA) compliant hub and spoke infrastructure.
+- **[ArcGIS on Azure – Example Scenario](https://learn.microsoft.com/en-us/azure/architecture/example-scenario/data/esri-arcgis-azure-virtual-desktop):** Learn how to deploy ArcGIS Pro in Azure Virtual Desktop with step-by-step guidance.
+- **[Esri Architecture Center](https://architecture.arcgis.com/):** Explore Esri’s official architecture patterns, best practices, and deployment strategies.
 
-You must have [Owner RBAC permissions](https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#owner) on the subscription(s) you deploy Mission Landing Zone into. See [prerequisites](https://github.com/Azure/missionlz/blob/main/docs/deployment-guide-bicep.md#prerequisites) for additional guidance.
+### 🚀 Azure Landing Zone Resources
 
-<!-- markdownlint-disable MD013 -->
-1. Deploy Mission Landing Zone into `AzureCloud` or `AzureUsGovernment` from the Azure Portal:
+- **[What is an Azure Landing Zone?](https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/landing-zone/):** Understand the foundational building blocks for deploying workloads in Azure.
+- **[Enterprise-Scale Landing Zones](https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/enterprise-scale/implementation):** Learn how to implement scalable, secure, and governed environments for enterprise workloads.
 
-    | Azure Commercial | Azure Government |
-    | :--- | :--- |
-    | [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fmlz.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fform%2Fmlz.portal.json) | [![Deploy to Azure Gov](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fmlz.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fform%2Fmlz.portal.json) |
-<!-- markdownlint-enable MD013 -->
+### 🧭 Other Application Accelerators
 
-## Azure Zero Trust Imaging
-
-This [Azure Zero Trust Imaging](https://github.com/Azure/missionlz/blob/main/src/bicep/add-ons/Imaging/README.md) solution creates images using a zero trust process and resources. While other options exist in Azure, its either a manual process or it doesn't adhere to zero trust.
-
-<!-- markdownlint-disable MD013 -->
-1. Deploy Zero Trust Imaging into `AzureCloud` or `AzureUsGovernment` from the Azure Portal:
-
-    | Azure Commercial | Azure Government |
-    | :--- | :--- |
-    |[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2FImaging%2Fsolution.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2FImaging%2FuiDefinition.json) | [![Deploy to Azure Gov](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2FImaging%2Fsolution.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2FImaging%2FuiDefinition.json) |
-<!-- markdownlint-enable MD013 -->
-
-## The Azure Virtual Desktop (AVD) solution
-
-The [Azure Virtual Desktop (AVD) solution](https://github.com/Azure/missionlz/tree/main/src/bicep/add-ons/azure-virtual-desktop#readme) provides an architectural approach and reference implementation to prepare landing zone subscriptions for a scalable Azure Virtual Desktop deployment. Be sure to complete the necessary [prerequisites](https://github.com/Azure/missionlz/blob/main/src/bicep/add-ons/azure-virtual-desktop/docs/prerequisites.md)
-
-<!-- markdownlint-disable MD013 -->
-1. Deploy The Azure Virtual Desktop (AVD) solution into `AzureCloud` or `AzureUsGovernment` from the Azure Portal:
-
-    | Azure Commercial | Azure Government |
-    | :--- | :--- |
-    |[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2Fazure-virtual-desktop%2Fsolution.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2Fazure-virtual-desktop%2FuiDefinition.json) | [![Deploy to Azure Gov](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2Fazure-virtual-desktop%2Fsolution.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2Fazure-virtual-desktop%2FuiDefinition.json) |
-<!-- markdownlint-enable MD013 -->
-
-## ArcGIS on Azure
-
-In this ArcGIS on Azure accelerator, you have access to step by step guides covering various customer scenarios that can help accelerate the deployment of ArcGIS on Azure which conforms with best practices. This is a good starting point if you are **new** to Azure or Infrastructure-As-Code (IaC) . Each scenario represents common use cases, with the goal of accelerating the deployment process.
-
-### ArcGIS Enterprise base deployment single machine
-
-This option will deploy ArcGIS Enterprise on one virtual server, which is suitable  for Prof-of-Concept implementations or demo environments.
-
-### ArcGIS Enterprise base deployment single tier
-
-This option will deploy ArcGIS Enterprise on one Virutal Server, which is suiteable for Prof-of-Concept implementations.
-
-![alt text](images/ArcGIS-on-Azure-Single-Tier.png)
-
-<!-- markdownlint-disable MD013 -->
-| Deployment Type | Link |
-|:--|:--|
-| Azure portal UI | [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2Fesri-enterprise%2Fsolution.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2Fesri-enterprise%2FuiDefinition.json) [![Deploy to Azure Gov](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2Fesri-enterprise%2Fsolution.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2Fesri-enterprise%2FuiDefinition.json) |
-<!-- markdownlint-enable MD013 -->
-
-### ArcGIS Enterprise base deployment multi tier
-
-This option will deploy ArcGIS Enterprise across multiple virtual machines, which is more suitable for production implementations which require high availability.
-
-#### Pre-Reqs
-
-If deploying ArcGIS Enterprise please follow the below guidance and pre-req steps:
-
-##### Upload the following scripts and files to your storage account container
-
-- [Az.Accounts 2.13.1 PowerShell Module](https://www.powershellgallery.com/api/v2/package/Az.Accounts/2.13.1)
-- [Az.Automation 1.9.0 PowerShell Module](https://www.powershellgallery.com/api/v2/package/Az.Automation/1.9.0)
-- [Az.Compute 5.7.0 PowerShell Module](https://www.powershellgallery.com/api/v2/package/Az.Compute/5.7.0)
-- [Az.Resources 6.6.0 PowerShell Module](https://www.powershellgallery.com/api/v2/package/Az.Resources/6.6.0)
-- [Az.KeyVault 4.12.0 PowerShell Module](https://www.powershellgallery.com/api/v2/package/Az.Resources/6.6.0)
-- [Az.Storage 5.1.0 PowerShell Module](https://www.powershellgallery.com/api/v2/package/Az.Storage/5.1.0)
-- [Az.MarketplaceOrdering 2.0.0 PowerShell Module](https://www.powershellgallery.com/api/v2/package/Az.MarketplaceOrdering/2.0.0)
-- [PFX Certificate for ESRI Enterprise that is password protected](https://enterprise.arcgis.com/en/server/latest/administer/windows/best-practices-for-server-certificates.htm)
-
-![alt text](images/ArcGIS-on-Azure-multi-tier.png)
-
-<!-- markdownlint-disable MD013 -->
-| Deployment Type | Link |
-|:--|:--|
-| Azure portal UI | [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2Fesri-enterprise%2Fsolution.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2Fesri-enterprise%2FuiDefinition.json) [![Deploy to Azure Gov](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2Fesri-enterprise%2Fsolution.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fadd-ons%2Fesri-enterprise%2FuiDefinition.json) |
-<!-- markdownlint-enable MD033 -->
-
-If you would like step by step guidance on how to deploy ESRI’s ArcGIS Enterprise on Azure and access it with ArcGIS Pro GPU enabled Azure virtual desktops, check out the Azure Architecture Center documentation: [Deploy Esri ArcGIS Pro in Azure Virtual Desktop](https://learn.microsoft.com/en-us/azure/architecture/example-scenario/data/esri-arcgis-azure-virtual-desktop).
-
-## More options for quick start automated deployments for Azure Landing Zones
-
-:arrow_forward: [What is an Azure landing zone?](https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/landing-zone/)
-
-:arrow_forward: [Implement Cloud Adoption Framework enterprise-scale landing zones in Azure](https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/enterprise-scale/implementation)
-
-### Or check out one of our other application Landing Zone Accelerators
-
-:arrow_forward: [Deploy Azure application landing zones](https://learn.microsoft.com/en-us/azure/architecture/landing-zones/landing-zone-deploy#application)
+- **[Deploy Azure Application Landing Zones](https://learn.microsoft.com/en-us/azure/architecture/landing-zones/landing-zone-deploy#application):** Discover other accelerators for deploying applications in Azure using landing zone principles.
