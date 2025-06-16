@@ -1,67 +1,107 @@
-@description('A suffix to use for naming deployments uniquely. Default value = "utcNow()".')
-param deploymentNameSuffix string = utcNow()
+targetScope = 'subscription'
 
-@description('Resource ID of the existing Virtual Network')
-param hubVnetResourceId string = '/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/example-rg/providers/Microsoft.Network/virtualNetworks/example-vnet'
+@description('Resource ID of the target Virtual Network')
+param vnetResourceId string
 
-@description('Name for the Application Gateway subnet')
-param agwSubnetName string = 'agwSubnet'
+@description('Address prefix for the Application Gateway subnet (e.g., 10.0.1.0/24)')
+param subnetPrefix string
 
-@description('Subnet address prefix for the Application Gateway (must be part of the VNet address space)')
-param agwSubnetPrefix string = '10.0.2.0/27'
+@description('Backend address pool for the Application Gateway (must match ARM schema)')
+param backendAddressPool object
 
-@description('Name for the Application Gateway')
-param agwName string = 'example-appgw'
+@description('Frontend private IP configurations for the Application Gateway')
+param frontendPrivateIpConfigs array
 
-@description('Location for the Application Gateway')
-param location string = 'eastus'
+@description('Frontend port configurations (array of objects: { name, port })')
+param frontendPorts array
 
-@description('Backend address pool for the Application Gateway')
-param backendAddressPool object = {
-  name: 'example-backend'
-  properties: {
-    backendAddresses: [
-      { ipAddress: '10.0.4.4' }
-      { ipAddress: '10.0.4.5' }
-    ]
+@description('Web Application Firewall configuration for the Application Gateway')
+param webApplicationFirewallConfiguration object
+
+@description('Key Vault resource ID (required if using port 443)')
+param keyVaultResourceId string = ''
+
+@description('Name of the certificate in Key Vault (required if using port 443)')
+param keyVaultCertName string = ''
+
+@description('Optional deployment name suffix for uniqueness')
+param deploymentNameSuffix string = ''
+
+// --- Extract naming convention values from vnetResourceId ---
+var vnetName = last(split(vnetResourceId, '/'))
+var vnetNameParts = split(vnetName, '-')
+var identifier = vnetNameParts[0]
+var environmentAbbreviation = vnetNameParts[1]
+var locationShort = vnetNameParts[2]
+var networkName = vnetNameParts[3]
+var delimiter = '-'
+
+// --- Derive route table name and resource ID ---
+var routeTableName = '${identifier}${delimiter}${environmentAbbreviation}${delimiter}${locationShort}${delimiter}${networkName}-rt'
+var vnetResourceGroup = split(vnetResourceId, '/')[4]
+var routeTableResourceId = resourceId('Microsoft.Network/routeTables', routeTableName)
+
+// --- Call naming convention module ---
+module naming '../../modules/naming-convention.bicep' = {
+  name: 'get-naming-${deploymentNameSuffix}'
+  params: {
+    delimiter: delimiter
+    environmentAbbreviation: environmentAbbreviation
+    location: locationShort
+    networkName: networkName
+    identifier: identifier
+    stampIndex: deploymentNameSuffix
   }
 }
 
-@description('Frontend private IP configuration for the Application Gateway')
-param frontendPrivateIpConfig object = {
-  name: 'feip1'
-  privateIPAddress: '10.0.2.10'
-  privateIPAllocationMethod: 'Static'
-}
-
-@description('Frontend port configuration')
-param frontendPort object = {
-  name: 'frontendPort80'
-  port: 80
-}
-
-@description('Key Vault resource ID')
-param keyVaultResourceId string = '/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/example-rg/providers/Microsoft.KeyVault/vaults/example-kv'
-
-@description('Name of the certificate in Key Vault')
-param keyVaultCertName string = 'example-cert'
-
-@description('Version of the certificate in Key Vault (optional)')
-param keyVaultCertVersion string = ''
-
-module appGatewayModule './modules/app-gateway.bicep' = {
-  name: 'deploy-appGateway-${deploymentNameSuffix}'
+// --- Subnet module ---
+module subnet 'modules/subnet.bicep' = {
+  name: 'create-subnet-${deploymentNameSuffix}'
+  scope: resourceGroup(vnetResourceGroup)
   params: {
-    agwName: agwName
-    location: location
-    subnetName: agwSubnetName
-    addressPrefix: agwSubnetPrefix
-    vnetResourceId: hubVnetResourceId
+    vnetResourceId: vnetResourceId
+    subnetName: naming.outputs.names.subnet
+    subnetPrefix: subnetPrefix
+    routeTableId: routeTableResourceId
+  }
+}
+
+// --- Determine if HTTPS/Key Vault is needed ---
+var frontendPortNumbers = [for p in frontendPorts: p.port]
+var hasPort443 = contains(frontendPortNumbers, 443)
+
+// --- Key Vault/Identity module (only if port 443 is present) ---
+module keyvault 'modules/keyvault.bicep' = if (hasPort443) {
+  name: 'get-keyvault-certificate-${deploymentNameSuffix}'
+  scope: resourceGroup(split(keyVaultResourceId, '/')[4])
+  params: {
+    keyVaultResourceId: keyVaultResourceId
+    identityName: naming.outputs.names.userAssignedIdentity
+    location: subnet.outputs.subnetProperties.location
+    deployAccessPolicy: true
+  }
+}
+
+// --- Application Gateway module ---
+module appGateway 'modules/app-gateway.bicep' = {
+  name: 'create-appGateway-${deploymentNameSuffix}'
+  scope: resourceGroup(vnetResourceGroup)
+  params: {
+    agwName: naming.outputs.names.applicationGateway
+    location: subnet.outputs.subnetProperties.location
+    subnetResourceId: subnet.outputs.subnetResourceId
     backendAddressPool: backendAddressPool
-    frontendPrivateIpConfig: frontendPrivateIpConfig
-    frontendPort: frontendPort
+    frontendPrivateIpConfigs: frontendPrivateIpConfigs
+    frontendPorts: frontendPorts
     keyVaultResourceId: keyVaultResourceId
     keyVaultCertName: keyVaultCertName
-    keyVaultCertVersion: keyVaultCertVersion
+    webApplicationFirewallConfiguration: webApplicationFirewallConfiguration
+    identityResourceId: hasPort443 ? keyvault.outputs.identityResourceId : ''
   }
 }
+
+// --- Outputs ---
+output appGatewayId string = appGateway.outputs.appGatewayId
+output appGatewayName string = appGateway.outputs.appGatewayName
+output subnetId string = subnet.outputs.subnetResourceId
+output naming object = naming.outputs

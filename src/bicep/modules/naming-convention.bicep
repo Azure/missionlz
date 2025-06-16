@@ -74,6 +74,7 @@ var namingConvention_Service = '${toLower(identifier)}${delimiter}${environmentA
 
 var names = {
   actionGroup: replace(namingConvention, tokens.resource, resourceAbbreviations.actionGroups)
+  applicationGateway: replace(namingConvention, tokens.resource, resourceAbbreviations.applicationGateway)
   applicationGroup: replace(namingConvention, tokens.resource, resourceAbbreviations.applicationGroups)
   applicationInsights: replace(namingConvention, tokens.resource, resourceAbbreviations.applicationInsights)
   appServicePlan: replace(namingConvention, tokens.resource, resourceAbbreviations.appServicePlans)

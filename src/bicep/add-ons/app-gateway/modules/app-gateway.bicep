@@ -4,26 +4,17 @@ param agwName string
 @description('Location for the Application Gateway')
 param location string
 
-@description('Name of the subnet for the Application Gateway')
-param subnetName string
-
-@description('Resource ID of the Virtual Network containing the subnet')
-param vnetResourceId string
+@description('Resource ID of the subnet for the Application Gateway')
+param subnetResourceId string
 
 @description('Backend address pool for the Application Gateway (must match ARM schema)')
 param backendAddressPool object
 
-@description('Frontend private IP configuration for the Application Gateway')
-param frontendPrivateIpConfig object
+@description('Frontend private IP configurations for the Application Gateway')
+param frontendPrivateIpConfigs array
 
-@description('Address prefix for the subnet where the Application Gateway will be deployed')
-param addressPrefix string
-
-@description('Frontend port configuration (e.g., { name: "frontendPort80", port: 80 })')
-param frontendPort object = {
-  name: 'frontendPort80'
-  port: 80
-}
+@description('Frontend port configurations (array of objects: { name, port })')
+param frontendPorts array
 
 @description('Key Vault resource ID (required if using port 443)')
 param keyVaultResourceId string = ''
@@ -32,9 +23,6 @@ param keyVaultResourceId string = ''
 param keyVaultCertName string = ''
 
 @description('Version of the certificate in Key Vault (optional)')
-@allowed([
-  ''
-])
 param keyVaultCertVersion string = ''
 
 @description('Minimum autoscale instances')
@@ -43,43 +31,50 @@ param autoscaleMinCapacity int = 2
 @description('Maximum autoscale instances')
 param autoscaleMaxCapacity int = 10
 
-resource existingVnet 'Microsoft.Network/virtualNetworks@2021-05-01' existing = {
-  name: split(vnetResourceId, '/')[8]
-}
+@description('Web Application Firewall configuration for the Application Gateway')
+param webApplicationFirewallConfiguration object
 
-resource subnet 'Microsoft.Network/virtualNetworks/subnets@2021-05-01' = {
-  name: subnetName
-  parent: existingVnet
+@description('User-assigned managed identity resource ID')
+param identityResourceId string
+
+// Precompute values outside of resource definition
+var frontendIpConfigs = [for ipConfig in frontendPrivateIpConfigs: {
+  name: ipConfig.name
   properties: {
-    addressPrefix: addressPrefix
+    privateIPAddress: ipConfig.privateIPAddress
+    privateIPAllocationMethod: ipConfig.privateIPAllocationMethod
+    subnet: {
+      id: subnetResourceId
+    }
   }
-}
+}]
 
-// Create a user-assigned managed identity for the Application Gateway
-resource agwIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
-  name: '${agwName}-identity'
-  location: location
-}
-
-// Assign Key Vault Reader permissions to the managed identity (only if port 443)
-resource keyVaultAccessPolicy 'Microsoft.KeyVault/vaults/accessPolicies@2023-02-01' = if (frontendPort.port == 443) {
-  name: '${split(keyVaultResourceId, '/')[8]}/add'
+var frontendPortConfigs = [for port in frontendPorts: {
+  name: port.name
   properties: {
-    accessPolicies: [
-      {
-        tenantId: subscription().tenantId
-        objectId: agwIdentity.properties.principalId
-        permissions: {
-          secrets: [
-            'get'
-            'list'
-          ]
-        }
-      }
-    ]
+    port: port.port
   }
-  scope: keyVaultResourceId
-}
+}]
+
+var sslCert = keyVaultCertName == '' ? [] : [{
+  name: keyVaultCertName
+  properties: {
+    keyVaultSecretId: keyVaultCertVersion == ''
+      ? '${keyVaultResourceId}/secrets/${keyVaultCertName}'
+      : '${keyVaultResourceId}/secrets/${keyVaultCertName}/${keyVaultCertVersion}'
+  }
+}]
+
+var listenerNames = [for port in frontendPorts: port.port == 443 ? 'httpsListener${port.name}' : 'httpListener${port.name}']
+
+var backendHttpSettings = [for port in frontendPorts: {
+  name: 'httpSettings${port.name}'
+  properties: {
+    port: port.port
+    protocol: port.port == 443 ? 'Https' : 'Http'
+    cookieBasedAffinity: 'Disabled'
+  }
+}]
 
 resource appGateway 'Microsoft.Network/applicationGateways@2022-09-01' = {
   name: agwName
@@ -87,7 +82,7 @@ resource appGateway 'Microsoft.Network/applicationGateways@2022-09-01' = {
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
-      '${agwIdentity.id}': {}
+      '${identityResourceId}': {}
     }
   }
   sku: {
@@ -105,108 +100,53 @@ resource appGateway 'Microsoft.Network/applicationGateways@2022-09-01' = {
         name: 'appGatewayIpConfig'
         properties: {
           subnet: {
-            id: subnet.id
+            id: subnetResourceId
           }
         }
       }
     ]
-    frontendIPConfigurations: [
-      {
-        name: frontendPrivateIpConfig.name
-        properties: {
-          privateIPAddress: frontendPrivateIpConfig.privateIPAddress
-          privateIPAllocationMethod: frontendPrivateIpConfig.privateIPAllocationMethod
-          subnet: {
-            id: subnet.id
-          }
-        }
-      }
-    ]
-    frontendPorts: [
-      {
-        name: frontendPort.name
-        properties: {
-          port: frontendPort.port
-        }
-      }
-    ]
-    sslCertificates: frontendPort.port == 443 ? [
-      {
-        name: keyVaultCertName
-        properties: {
-          keyVaultSecretId: keyVaultCertVersion == ''
-            ? '${keyVaultResourceId}/secrets/${keyVaultCertName}'
-            : '${keyVaultResourceId}/secrets/${keyVaultCertName}/${keyVaultCertVersion}'
-        }
-      }
-    ] : []
-    backendAddressPools: [
-      backendAddressPool
-    ]
-    backendHttpSettingsCollection: [
-      {
-        name: 'httpSettings'
-        properties: {
-          port: frontendPort.port
-          protocol: frontendPort.port == 443 ? 'Https' : 'Http'
-          cookieBasedAffinity: 'Disabled'
-        }
-      }
-    ]
+    frontendIPConfigurations: frontendIpConfigs
+    frontendPorts: frontendPortConfigs
+    sslCertificates: sslCert
+    backendAddressPools: [backendAddressPool]
+    backendHttpSettingsCollection: backendHttpSettings
     httpListeners: [
-      frontendPort.port == 443 ? {
-        name: 'httpsListener'
+      for (port, i) in frontendPorts: {
+        name: listenerNames[i]
         properties: {
           frontendIPConfiguration: {
-            id: resourceId('Microsoft.Network/applicationGateways/frontendIPConfigurations', agwName, frontendPrivateIpConfig.name)
+            id: resourceId('Microsoft.Network/applicationGateways/frontendIPConfigurations', agwName, frontendIpConfigs[i % length(frontendIpConfigs)].name)
           }
           frontendPort: {
-            id: resourceId('Microsoft.Network/applicationGateways/frontendPorts', agwName, frontendPort.name)
+            id: resourceId('Microsoft.Network/applicationGateways/frontendPorts', agwName, port.name)
           }
-          protocol: 'Https'
-          sslCertificate: {
+          protocol: port.port == 443 ? 'Https' : 'Http'
+          sslCertificate: port.port == 443 ? {
             id: resourceId('Microsoft.Network/applicationGateways/sslCertificates', agwName, keyVaultCertName)
-          }
-        }
-      } : {
-        name: 'httpListener'
-        properties: {
-          frontendIPConfiguration: {
-            id: resourceId('Microsoft.Network/applicationGateways/frontendIPConfigurations', agwName, frontendPrivateIpConfig.name)
-          }
-          frontendPort: {
-            id: resourceId('Microsoft.Network/applicationGateways/frontendPorts', agwName, frontendPort.name)
-          }
-          protocol: 'Http'
+          } : null
         }
       }
     ]
     requestRoutingRules: [
-      {
-        name: 'rule1'
+      for port in frontendPorts: {
+        name: 'rule${port.name}'
         properties: {
           ruleType: 'Basic'
           httpListener: {
-            id: resourceId(
-              'Microsoft.Network/applicationGateways/httpListeners',
-              agwName,
-              frontendPort.port == 443 ? 'httpsListener' : 'httpListener'
-            )
+            id: resourceId('Microsoft.Network/applicationGateways/httpListeners', agwName, port.port == 443 ? 'httpsListener${port.name}' : 'httpListener${port.name}')
           }
           backendAddressPool: {
             id: resourceId('Microsoft.Network/applicationGateways/backendAddressPools', agwName, backendAddressPool.name)
           }
           backendHttpSettings: {
-            id: resourceId('Microsoft.Network/applicationGateways/backendHttpSettingsCollection', agwName, 'httpSettings')
+            id: resourceId('Microsoft.Network/applicationGateways/backendHttpSettingsCollection', agwName, 'httpSettings${port.name}')
           }
         }
       }
     ]
-    webApplicationFirewallConfiguration: {
-      enabled: true
-      firewallMode: 'Prevention'
-      ruleSetType: 'OWASP'
-      ruleSetVersion: '3.2'
-    }
+    webApplicationFirewallConfiguration: webApplicationFirewallConfiguration
   }
 }
+
+output appGatewayId string = appGateway.id
+output appGatewayName string = appGateway.name
