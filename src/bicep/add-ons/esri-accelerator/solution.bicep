@@ -1,11 +1,11 @@
 targetScope = 'subscription'
 
-@secure()
-@description('The password for the ArcGIS service account.')
-param arcgisServiceAccountPassword string
+// @secure()
+// @description('The password for the ArcGIS service account.')
+// param arcgisServiceAccountPassword string
 
-@description('The username for the ArcGIS service account.')
-param arcgisServiceAccountUsername string
+// @description('The username for the ArcGIS service account.')
+// param arcgisServiceAccountUsername string
 
 @description('The object ID for the Azure Virtual Desktop enterprise application in Microsoft Entra ID.  The object ID can found by selecting Microsoft Applications using the Application type filter in the Enterprise Applications blade of Microsoft Entra ID.')
 param avdObjectId string
@@ -19,57 +19,54 @@ param deployDefender bool
 @description('The suffix used for naming deployments uniquely. It defaults to a timestamp with the utcNow function.')
 param deploymentNameSuffix string = utcNow()
 
-@description('Choose whether to deploy Network Watcher for the deployment location.')
-param deployNetworkWatcher bool
-
 @description('Choose whether to deploy a policy assignment.')
 param deployPolicy bool
 
 @description('Determines whether to use the hybrid use benefit for the Windows virtual machines.')
 param hybridUseBenefit bool
 
-@secure()
-@description('The password for the local administrator account on the virtual machines.')
-param localAdministratorPassword string
-
-@description('The username for the local administrator account on the virtual machines.')
-param localAdministratorUsername string
-
 @description('The region to deploy resources into. It defaults to the deployment location.')
 param location string = deployment().location
 
-@description('The base 64 encoded string containing the license file for the ESRI portal.')
-param portalLicenseFile string
+// @description('The base 64 encoded string containing the license file for the ESRI portal.')
+// param portalLicenseFile string
 
-@allowed([
-  'creatorUT'
-  'editorUT'
-  'fieldWorkerUT'
-  'GISProfessionalAdvUT'
-  'GISProfessionalBasicUT'
-  'GISProfessionalStdUT'
-  'IndoorsUserUT'
-  'insightsAnalystUT'
-  'viewerUT'
-])
-@description('The license user type ID for the ESRI portal.')
-param portalLicenseUserTypeId string
+// @allowed([
+//   'creatorUT'
+//   'editorUT'
+//   'fieldWorkerUT'
+//   'GISProfessionalAdvUT'
+//   'GISProfessionalBasicUT'
+//   'GISProfessionalStdUT'
+//   'IndoorsUserUT'
+//   'insightsAnalystUT'
+//   'viewerUT'
+// ])
+// @description('The license user type ID for the ESRI portal.')
+// param portalLicenseUserTypeId string
 
-@secure()
-@description('The password for the ESRI Primary Site Administrator Account.')
-param primarySiteAdministratorAccountPassword string
+// @secure()
+// @description('The password for the ESRI Primary Site Administrator Account.')
+// param primarySiteAdministratorAccountPassword string
 
-@description('The username for the ESRI Primary Site Administrator Account.')
-param primarySiteAdministratorAccountUserName string
+// @description('The username for the ESRI Primary Site Administrator Account.')
+// param primarySiteAdministratorAccountUserName string
 
 @description('The array of Security Principals with their object IDs and display names to assign to the AVD Application Group and FSLogix Storage.')
 param securityPrincipals array
 
-@description('The base 64 encoded string containing the license file for ESRI Enterprise server.')
-param serverLicenseFile string
+// @description('The base 64 encoded string containing the license file for ESRI Enterprise server.')
+// param serverLicenseFile string
 
-@description('The resource ID of the Azure Storage Account used for storing the deployment artifacts.')
-param storageAccountResourceId string
+// @description('The resource ID of the Azure Storage Account used for storing the deployment artifacts.')
+// param storageAccountResourceId string
+
+@secure()
+@description('The password for the local administrator account on the virtual machines.')
+param virtualMachineAdminPassword string
+
+@description('The username for the local administrator account on the virtual machines.')
+param virtualMachineAdminUsername string
 
 @allowed([
   'Standard_NV4as_v4'
@@ -83,12 +80,12 @@ param virtualMachineSize string = 'Standard_NV4as_v4'
 module missionLandingZone '../../mlz.bicep' = {
   name: 'deploy-mission-landing-zone-${deploymentNameSuffix}'
   params: {
-    environmentAbbreviation: 'dev'
     deployIdentity: false
+    environmentAbbreviation: 'dev'
     firewallSkuTier: 'Standard'
     hybridUseBenefit: hybridUseBenefit
+    identifier: 'poc'
     location: location
-    resourcePrefix: 'poc'
   }
 }
 
@@ -112,18 +109,19 @@ module azureVirtualDesktop '../azure-virtual-desktop/solution.bicep' = {
     privateLinkScopeResourceId: missionLandingZone.outputs.privateLinkScopeResourceId
     securityPrincipals: securityPrincipals
     sharedServicesSubnetResourceId: missionLandingZone.outputs.sharedServicesSubnetResourceId
-    virtualMachinePassword: localAdministratorPassword
+    virtualMachineAdminPassword: virtualMachineAdminPassword
+    virtualMachineAdminUsername: virtualMachineAdminUsername
     virtualMachineSize: virtualMachineSize
-    virtualMachineUsername: localAdministratorUsername
     virtualMachineVirtualCpuCount: int(replace(replace(virtualMachineSize, 'Standard_NV', ''), 'as_v4', ''))
   }
 }
 
-module esriEnterprise '../esri-enterprise/solution.bicep' = {
+// Commented out the ArcGIS Enterprise deployment until its ready
+/* module arcGisEnterprise '../esri-enterprise/solution.bicep' = {
   name: 'deploy-esri-enterprise-${deploymentNameSuffix}'
   params: {
-    adminPassword: localAdministratorPassword
-    adminUsername: localAdministratorUsername
+    adminPassword: virtualMachineAdminPassword
+    adminUsername: virtualMachineAdminUsername
     arcgisServiceAccountIsDomainAccount: true
     arcgisServiceAccountPassword: arcgisServiceAccountPassword
     arcgisServiceAccountUsername: arcgisServiceAccountUsername
@@ -153,14 +151,14 @@ module esriEnterprise '../esri-enterprise/solution.bicep' = {
     portalLicenseUserTypeId: portalLicenseUserTypeId
     primarySiteAdministratorAccountPassword: primarySiteAdministratorAccountPassword
     primarySiteAdministratorAccountUserName: primarySiteAdministratorAccountUserName
-    resourcePrefix: resourcePrefix
+    resourcePrefix: identifier
     selfSignedCertificatePassword: certificatePassword
     serverLicenseFile: serverLicenseFile
     spokelogAnalyticsWorkspaceResourceId: missionLandingZone.outputs.logAnalyticsWorkspaceResourceId
     useAzureFiles: false
     useCloudStorage: false
-    windowsDomainAdministratorPassword: domainJoinPassword
-    windowsDomainAdministratorUserName: domainJoinUsername
+    windowsDomainAdministratorPassword: virtualMachineAdminPassword
+    windowsDomainAdministratorUserName: virtualMachineAdminUsername
     windowsDomainName: domainName
   }
-}
+} */

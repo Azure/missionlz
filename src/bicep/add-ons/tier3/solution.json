@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.36.1.42791",
-      "templateHash": "1076364424703238218"
+      "templateHash": "11058004354889565628"
     }
   },
   "parameters": {
@@ -499,7 +499,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.36.1.42791",
-              "templateHash": "4469456265090492260"
+              "templateHash": "1691236354960860871"
             }
           },
           "parameters": {
@@ -576,7 +576,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.36.1.42791",
-                      "templateHash": "322013226771768199"
+                      "templateHash": "4751792817864339444"
                     }
                   },
                   "parameters": {
@@ -1020,7 +1020,7 @@
                       "west": "w",
                       "westcentral": "wc"
                     },
-                    "locations": "[coalesce(tryGet(variables('$fxv#0'), environment().name), createObject(format('{0}', parameters('location')), createObject('abbreviation', variables('directionShortNames')[skip(parameters('location'), sub(length(parameters('location')), 5))], 'timeDifference', if(contains(parameters('location'), 'east'), '-5:00', if(contains(parameters('location'), 'west'), '-8:00', '0:00')), 'timeZone', if(contains(parameters('location'), 'east'), 'Eastern Standard Time', if(contains(parameters('location'), 'west'), 'Pacific Standard Time', 'GMT Standard Time')))))]",
+                    "locations": "[coalesce(tryGet(variables('$fxv#0'), environment().name), createObject(format('{0}', parameters('location')), createObject('abbreviation', variables('directionShortNames')[skip(parameters('location'), sub(length(parameters('location')), 4))], 'timeDifference', if(contains(parameters('location'), 'east'), '-5:00', if(contains(parameters('location'), 'west'), '-8:00', '0:00')), 'timeZone', if(contains(parameters('location'), 'east'), 'Eastern Standard Time', if(contains(parameters('location'), 'west'), 'Pacific Standard Time', 'GMT Standard Time')))))]",
                     "locationAbbreviation": "[variables('locations')[parameters('location')].abbreviation]",
                     "resourceAbbreviations": "[variables('$fxv#1')]",
                     "tokens": {
@@ -1391,7 +1391,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.36.1.42791",
-              "templateHash": "10571151766056335060"
+              "templateHash": "2212380941491487556"
             }
           },
           "parameters": {
@@ -1515,7 +1515,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.36.1.42791",
-                      "templateHash": "17802381362381119019"
+                      "templateHash": "15642922990611429065"
                     }
                   },
                   "parameters": {
@@ -1568,20 +1568,20 @@
                   },
                   "variables": {
                     "delegations": {
-                      "AzureNetAppFiles": [
+                      "azure-netapp-files": [
                         {
                           "name": "Microsoft.Netapp.volumes",
-                          "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets/delegations', parameters('virtualNetworkName'), 'AzureNetAppFiles', 'delegation')]",
+                          "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets/delegations', parameters('virtualNetworkName'), 'azure-netapp-files', 'delegation')]",
                           "properties": {
                             "serviceName": "Microsoft.Netapp/volumes"
                           },
                           "type": "Microsoft.Network/virtualNetworks/subnets/delegations"
                         }
                       ],
-                      "FunctionAppOutbound": [
+                      "function-app-outbound": [
                         {
                           "name": "Microsoft.Web/sites",
-                          "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets/delegations', parameters('virtualNetworkName'), 'FunctionAppOutbound', 'delegation')]",
+                          "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets/delegations', parameters('virtualNetworkName'), 'function-app-outbound', 'delegation')]",
                           "properties": {
                             "serviceName": "Microsoft.Web/serverfarms"
                           },

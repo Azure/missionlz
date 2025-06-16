@@ -175,7 +175,7 @@ module tier3 '../tier3/solution.bicep' = {
   params: {
     additionalSubnets:[
       {
-        name: 'AzureNetAppFiles'
+        name: 'azure-netapp-files'
         properties: {
           addressPrefix: azureNetAppFilesSubnetAddressPrefix
         }
@@ -227,7 +227,7 @@ module rg '../../modules/resource-group.bicep' = {
 module netAppFiles 'modules/azureNetAppFiles.bicep' = {
   name: 'deploy-netapp-files-${deploymentNameSuffix}'
   params: {
-    delegatedSubnetResourceId: filter(tier3.outputs.subnets, subnet => contains(subnet.name, 'AzureNetAppFiles'))[0].id
+    delegatedSubnetResourceId: filter(tier3.outputs.subnets, subnet => contains(subnet.name, 'azure-netapp-files'))[0].id
     delimiter: tier3.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
     dnsServers: join(tier3.outputs.dnsServers, ',')

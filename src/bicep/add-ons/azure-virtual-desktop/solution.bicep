@@ -21,7 +21,7 @@ param availability string = 'AvailabilityZones'
 param availabilityZones array = ['1', '2', '3']
 
 @description('The file name for the ZIP file containing the AVD agents and DSC configuration.')
-param avdConfigurationZipFileName string = 'Configuration_1.0.02990.697.zip'
+param avdConfigurationZipFileName string = 'Configuration_1.0.03047.739.zip'
 
 @description('The object ID for the Azure Virtual Desktop enterprise application in Microsoft Entra ID.  The object ID can found by selecting Microsoft Applications using the Application type filter in the Enterprise Applications blade of Microsoft Entra ID.')
 param avdObjectId string
@@ -403,7 +403,6 @@ var privateDnsZoneSuffixes_AzureVirtualDesktop = {
   AzureCloud: 'microsoft.com'
   AzureUSGovernment: 'azure.us'
 }
-var stampIndexFull = padLeft(stampIndex, 2, '0')
 var storageSku = fslogixStorageService == 'None' ? 'None' : split(fslogixStorageService, ' ')[1]
 var storageService = split(fslogixStorageService, ' ')[0]
 var storageSuffix = environment().suffixes.storage
@@ -558,7 +557,7 @@ module tier3_stamp '../tier3/solution.bicep' = {
     additionalSubnets: union(subnets.avdManagement, subnets.azureNetAppFiles, subnets.functionApp)
     customFirewallRuleCollectionGroups: empty(customFirewallRuleCollectionGroups) ? [
       {
-        name: 'AVD-CollapsedCollectionGroup-${toUpper(identifier)}-${toUpper(environmentAbbreviation)}-${toUpper(locationVirtualMachines)}-${stampIndexFull}'
+        name: 'AVD-CollapsedCollectionGroup-${toUpper(identifier)}-${toUpper(environmentAbbreviation)}-${toUpper(locationVirtualMachines)}-${stampIndex}'
         properties: {
           priority: 200
           ruleCollections: [
@@ -583,7 +582,7 @@ module tier3_stamp '../tier3/solution.bicep' = {
                     fqdnTags: []
                     webCategories: []
                     targetFqdns: [
-                      replace(environment().resourceManager, 'https://', '')
+                      split(environment().resourceManager, '/')[2]
                       'mrsglobalsteus2prod.blob.${environment().suffixes.storage}'
                       'wvdportalstorageblob.blob.${environment().suffixes.storage}'
                       'gcs.prod.monitoring.${environment().suffixes.storage}'
@@ -613,8 +612,8 @@ module tier3_stamp '../tier3/solution.bicep' = {
                     fqdnTags: []
                     webCategories: []
                     targetFqdns: [
-                      replace(environment().authentication.loginEndpoint, 'https://', '')
-                      replace(environment().graph, 'https://', '')
+                      split(environment().authentication.loginEndpoint, '/')[2]
+                      split(environment().graph, '/')[2]
                       'enterpriseregistration.windows.net'
                     ]
                     targetUrls: []
@@ -795,7 +794,7 @@ module tier3_stamp '../tier3/solution.bicep' = {
     networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
     networkWatcherFlowLogsType: networkWatcherFlowLogsType
     policy: policy
-    stampIndex: stampIndexFull
+    stampIndex: string(stampIndex)
     subnetAddressPrefix: sessionHostsSubnetAddressPrefix
     subnetName: 'avd-session-hosts'
     tags: tags
@@ -1036,7 +1035,6 @@ module sessionHosts 'modules/session-hosts/session-hosts.bicep' = {
     securityPrincipalObjectIds: map(securityPrincipals, item => item.objectId)
     sessionHostBatchCount: sessionHostBatchCount
     sessionHostIndex: sessionHostIndex
-    stampIndexFull: stampIndexFull
     storageAccountNamePrefix: deployFslogix ? fslogix.outputs.storageAccountNamePrefix : ''
     storageCount: storageCount
     storageIndex: storageIndex
