@@ -75,6 +75,9 @@ param deployDefenderPlans array = ['VirtualMachines']
 @description('Choose to deploy the identity resources. The identity resoures are not required if you plan to use cloud identities.')
 param deployIdentity bool = false
 
+@description('When set to "true", deploys Active Directory Domain Services (ADDS) domain controllers in the identity tier. Requires deployIdentity to be true. Default value = "false".')
+param deployActiveDirectoryDomainServices bool = false
+
 @description('When set to "true", provisions Linux Virtual Machine Host only. Default value = "false".')
 param deployLinuxVirtualMachine bool = false
 
@@ -307,6 +310,53 @@ param identityVirtualNetworkDiagnosticsMetrics array = [
     enabled: true
   }
 ]
+
+// ACTIVE DIRECTORY DOMAIN SERVICES PARAMETERS
+
+@description('The prefix for the ADDS domain controller VM names. Default value = "[identifier]-adds".')
+param addsVmNamePrefix string = '${identifier}-adds'
+
+@description('The number of ADDS domain controller VMs to deploy. Default value = 2.')
+param addsVmCount int = 2
+
+@description('The size of the ADDS domain controller VMs. Default value = "Standard_DS2_v2".')
+param addsVmSize string = 'Standard_DS2_v2'
+
+@description('Array of static private IP addresses for the ADDS domain controller VM Network Interface Cards. Must contain two IP addresses from the identity subnet.')
+param addsVmPrivateIPAddresses array = []
+
+@description('The Active Directory DNS domain name. Required when deployActiveDirectoryDomainServices is true.')
+param addsDnsDomainName string = ''
+
+@description('The Active Directory NetBIOS domain name. Required when deployActiveDirectoryDomainServices is true.')
+param addsNetbiosDomainName string = ''
+
+@description('DNS forwarder IP addresses for the ADDS DNS servers. Default value = ["168.63.129.16"].')
+param addsDnsForwarders array = ['168.63.129.16']
+
+@description('The username for the domain administrator account. Required when deployActiveDirectoryDomainServices is true.')
+param addsDomainAdminUsername string = ''
+
+@secure()
+@description('The password for the domain administrator account. Required when deployActiveDirectoryDomainServices is true.')
+param addsDomainAdminPassword string = ''
+
+@description('The username for the safemode administrator account. Required when deployActiveDirectoryDomainServices is true.')
+param addsSafemodeAdminUsername string = ''
+
+@secure()
+@description('The password for the safemode administrator account. Required when deployActiveDirectoryDomainServices is true.')
+param addsSafemodeAdminPassword string = ''
+
+@description('The username for the domain join user account. Required when deployActiveDirectoryDomainServices is true.')
+param addsDomainJoinUsername string = ''
+
+@secure()
+@description('The password for the domain join user account. Required when deployActiveDirectoryDomainServices is true.')
+param addsDomainJoinUserPassword string = ''
+
+@description('Management subnet IP prefixes allowed in the Windows Firewall for ADDS VMs.')
+param addsManagementSubnets array = []
 
 @description('An array of Key Vault Diagnostic Logs categories to collect. See the following URL for valid settings: "https://learn.microsoft.com/azure/key-vault/general/logging?tabs=Vault".')
 param keyVaultDiagnosticsLogs array = [
@@ -906,6 +956,33 @@ module defenderforClouds 'modules/defender-for-clouds.bicep' =
     }
   }
 
+// ACTIVE DIRECTORY DOMAIN SERVICES
+
+module activeDirectoryDomainServices 'modules/active-directory-domain-controllers.bicep' =
+  if (deployActiveDirectoryDomainServices && deployIdentity) {
+    name: 'deploy-adds-${deploymentNameSuffix}'
+    params: {
+      location: location
+      tags: tags
+      identityResourceGroupName: filter(resourceGroups.outputs.names, name => contains(name, 'identity'))[0]
+      vmNamePrefix: addsVmNamePrefix
+      vmCount: addsVmCount
+      vmSize: addsVmSize
+      nicPrivateIPAddresses: addsVmPrivateIPAddresses
+      dnsDomainName: addsDnsDomainName
+      netbiosDomainName: addsNetbiosDomainName
+      dnsForwarders: addsDnsForwarders
+      managementSubnets: addsManagementSubnets
+      domainAdminUsername: addsDomainAdminUsername
+      domainAdminPassword: addsDomainAdminPassword
+      safemodeAdminUsername: addsSafemodeAdminUsername
+      safemodeAdminPassword: addsSafemodeAdminPassword
+      domainJoinUsername: addsDomainJoinUsername
+      domainJoinUserPassword: addsDomainJoinUserPassword
+      identityVirtualNetworkSubnetId: networking.outputs.identitySubnetResourceId
+    }
+  }
+
 output azureFirewallResourceId string = networking.outputs.azureFirewallResourceId
 output diskEncryptionSetResourceId string = customerManagedKeys.outputs.diskEncryptionSetResourceId
 output hubVirtualNetworkResourceId string = networking.outputs.hubVirtualNetworkResourceId
@@ -915,3 +992,6 @@ output logAnalyticsWorkspaceResourceId string = monitoring.outputs.logAnalyticsW
 output privateLinkScopeResourceId string = monitoring.outputs.privateLinkScopeResourceId
 output sharedServicesSubnetResourceId string = networking.outputs.sharedServicesSubnetResourceId
 output tiers array = logic.outputs.tiers
+output activeDirectoryDomainServicesDeployed bool = deployActiveDirectoryDomainServices && deployIdentity
+output addsDnsDomainName string = deployActiveDirectoryDomainServices && deployIdentity ? addsDnsDomainName : ''
+output addsNetbiosDomainName string = deployActiveDirectoryDomainServices && deployIdentity ? addsNetbiosDomainName : ''
