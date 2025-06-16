@@ -281,7 +281,7 @@ module networking 'modules/networking.bicep' = if (!(empty(virtualNetworkAddress
     tags: tags
     virtualNetworkAddressPrefix: virtualNetworkAddressPrefix
     virtualNetworkName: logic.outputs.tiers[0].namingConvention.virtualNetwork
-    vNetDnsServers: virtualNetwork_hub.properties.dhcpOptions.dnsServers
+    vNetDnsServers: virtualNetwork_hub.properties.?dhcpOptions.dnsServers ?? []
     workloadShortName: workloadShortName
   }
 }

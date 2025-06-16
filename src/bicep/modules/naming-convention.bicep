@@ -28,7 +28,7 @@ var directionShortNames = {
 }
 var locations = loadJsonContent('../data/locations.json')[?environment().name] ?? {
   '${location}': {
-    abbreviation: directionShortNames[skip(location, length(location) - 5)]
+    abbreviation: directionShortNames[skip(location, length(location) - 4)]
     timeDifference: contains(location, 'east') ? '-5:00' : contains(location, 'west') ? '-8:00' : '0:00'
     timeZone: contains(location, 'east') ? 'Eastern Standard Time' : contains(location, 'west') ? 'Pacific Standard Time' : 'GMT Standard Time'
   }
@@ -115,6 +115,8 @@ var names = {
   localNetworkGateway: replace(namingConvention, tokens.resource, resourceAbbreviations.localNetworkGateways)
   logAnalyticsWorkspace: replace(namingConvention, tokens.resource, resourceAbbreviations.logAnalyticsWorkspaces)
   logAnalyticsWorkspaceDiagnosticSetting: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.diagnosticSettings), tokens.service, resourceAbbreviations.logAnalyticsWorkspaces)
+  natGateway: replace(namingConvention, tokens.resource, resourceAbbreviations.natGateways)
+  natGatewayPublicIPPrefix: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.publicIPPrefixes), tokens.service, resourceAbbreviations.natGateways)
   netAppAccount: replace(namingConvention, tokens.resource, resourceAbbreviations.netAppAccounts)
   netAppAccountCapacityPool: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.netAppAccountsCapacityPools), tokens.service, resourceAbbreviations.netAppAccounts)
   netAppAccountSmbServer: replace(replace(replace(replace(namingConvention, tokens.resource, ''), environmentAbbreviation, first(environmentAbbreviation)), networkName, ''), delimiter, '')

@@ -2,7 +2,7 @@
 param(
 
     [Parameter(Mandatory)]
-    [ValidateSet('China','Global','USGov','USGovDoD','USNat','USSec')]
+    [ValidateSet('China','Global','USGov','USGovDoD')]
     [string]$Environment,
 
     [Parameter(Mandatory)]
@@ -55,8 +55,6 @@ $AzureEnvironment = switch($Environment)
     Global { 'AzureCloud' }
     USGov { 'AzureUSGovernment' }
     USGovDoD { 'AzureUSGovernment' }
-    USNat { 'USNat' }
-    USSec { 'USSec' }
 }
 
 # Install the Az module
