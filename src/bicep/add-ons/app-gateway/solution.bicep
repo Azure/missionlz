@@ -25,20 +25,24 @@ param keyVaultResourceId string = ''
 param keyVaultCertName string = ''
 
 @description('Optional deployment name suffix for uniqueness')
-param deploymentNameSuffix string = ''
+param deploymentNameSuffix string = utcNow()
 
+resource vnet 'Microsoft.Network/virtualNetworks@2023-05-01' existing = {
+  name: split(vnetResourceId, '/')[8]
+  scope: resourceGroup(split(vnetResourceId, '/')[4])
+}
 // --- Extract naming convention values from vnetResourceId ---
 var vnetName = last(split(vnetResourceId, '/'))
 var vnetNameParts = split(vnetName, '-')
 var identifier = vnetNameParts[0]
 var environmentAbbreviation = vnetNameParts[1]
-var locationShort = vnetNameParts[2]
 var networkName = vnetNameParts[3]
 var delimiter = '-'
+var locationShort = vnetNameParts[2]
+var location = vnet.location
 
 // --- Derive route table name and resource ID ---
 var routeTableName = '${identifier}${delimiter}${environmentAbbreviation}${delimiter}${locationShort}${delimiter}${networkName}-rt'
-var vnetResourceGroup = split(vnetResourceId, '/')[4]
 var routeTableResourceId = resourceId('Microsoft.Network/routeTables', routeTableName)
 
 // --- Call naming convention module ---
@@ -47,20 +51,19 @@ module naming '../../modules/naming-convention.bicep' = {
   params: {
     delimiter: delimiter
     environmentAbbreviation: environmentAbbreviation
-    location: locationShort
+    location: location
     networkName: networkName
     identifier: identifier
-    stampIndex: deploymentNameSuffix
   }
 }
 
 // --- Subnet module ---
 module subnet 'modules/subnet.bicep' = {
   name: 'create-subnet-${deploymentNameSuffix}'
-  scope: resourceGroup(vnetResourceGroup)
+  scope: resourceGroup(split(vnetResourceId, '/')[2], split(vnetResourceId, '/')[4])
   params: {
     vnetResourceId: vnetResourceId
-    subnetName: naming.outputs.names.subnet
+    subnetName: 'agw-snet'
     subnetPrefix: subnetPrefix
     routeTableId: routeTableResourceId
   }
@@ -73,7 +76,7 @@ var hasPort443 = contains(frontendPortNumbers, 443)
 // --- Key Vault/Identity module (only if port 443 is present) ---
 module keyvault 'modules/keyvault.bicep' = if (hasPort443) {
   name: 'get-keyvault-certificate-${deploymentNameSuffix}'
-  scope: resourceGroup(split(keyVaultResourceId, '/')[4])
+  scope: resourceGroup(split(vnetResourceId, '/')[2], split(vnetResourceId, '/')[4])
   params: {
     keyVaultResourceId: keyVaultResourceId
     identityName: naming.outputs.names.userAssignedIdentity
@@ -85,7 +88,7 @@ module keyvault 'modules/keyvault.bicep' = if (hasPort443) {
 // --- Application Gateway module ---
 module appGateway 'modules/app-gateway.bicep' = {
   name: 'create-appGateway-${deploymentNameSuffix}'
-  scope: resourceGroup(vnetResourceGroup)
+  scope: resourceGroup(split(vnetResourceId, '/')[2], split(vnetResourceId, '/')[4])
   params: {
     agwName: naming.outputs.names.applicationGateway
     location: subnet.outputs.subnetProperties.location

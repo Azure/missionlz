@@ -7,36 +7,27 @@ param subnetName string
 @description('Address prefix for the subnet (e.g., 10.0.1.0/24)')
 param subnetPrefix string
 
-@description('Delegations for the subnet (optional)')
-param delegations array = []
-
 @description('Network security group resource ID (optional)')
 param nsgId string = ''
 
 @description('Route table resource ID (optional)')
 param routeTableId string = ''
 
-@description('NAT Gateway resource ID (optional)')
-param natGatewayId string = ''
-
 resource vnet 'Microsoft.Network/virtualNetworks@2023-05-01' existing = {
-  name: split(vnetResourceId, '/')[8]
+  name: last(split(vnetResourceId, '/'))
 }
 
-resource subnet 'Microsoft.Network/virtualNetworks/subnets@2023-05-01' = {
-  parent: vnet
+resource subnet 'Microsoft.Network/virtualNetworks/subnets@2024-07-01' = {
   name: subnetName
+  parent: vnet
   properties: {
     addressPrefix: subnetPrefix
-    delegations: delegations
+    defaultOutboundAccess: false
     networkSecurityGroup: empty(nsgId) ? null : {
       id: nsgId
     }
     routeTable: empty(routeTableId) ? null : {
       id: routeTableId
-    }
-    natGateway: empty(natGatewayId) ? null : {
-      id: natGatewayId
     }
   }
 }
