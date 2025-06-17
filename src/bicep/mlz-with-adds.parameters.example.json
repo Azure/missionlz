@@ -1,0 +1,51 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "identifier": {
+      "value": "myorg"
+    },
+    "environmentAbbreviation": {
+      "value": "dev"
+    },
+    "location": {
+      "value": "East US"
+    },
+    "deployIdentity": {
+      "value": true
+    },
+    "deployActiveDirectoryDomainServices": {
+      "value": true
+    },
+    "addsDnsDomainName": {
+      "value": "myorg.local"
+    },
+    "addsNetbiosDomainName": {
+      "value": "MYORG"
+    },
+    "addsVmPrivateIPAddresses": {
+      "value": ["10.0.130.4", "10.0.130.5"]
+    },
+    "addsDomainAdminUsername": {
+      "value": "administrator"
+    },
+    "addsDomainAdminPassword": {
+      "value": "PLEASE_CHANGE_THIS_PASSWORD"
+    },
+    "addsSafemodeAdminUsername": {
+      "value": "safemodeadmin"
+    },
+    "addsSafemodeAdminPassword": {
+      "value": "PLEASE_CHANGE_THIS_PASSWORD"
+    },
+    "addsDomainJoinUsername": {
+      "value": "domainjoin"
+    },
+    "addsDomainJoinUserPassword": {
+      "value": "PLEASE_CHANGE_THIS_PASSWORD"
+    },
+    "addsManagementSubnets": {
+      "value": ["10.0.128.0/24"]
+    }
+  }
+}
