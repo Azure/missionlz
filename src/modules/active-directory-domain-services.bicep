@@ -31,9 +31,21 @@ param tags object = {}
 param vmCount int = 2
 param vmSize string
 
+var resourceGroupName = '${identity.namingConvention.resourceGroup}${delimiter}domainControllers'
+
+module rg 'resource-group.bicep' = {
+  name: 'deploy-rg-${identity.name}-${deploymentNameSuffix}'
+  params: {
+    mlzTags: mlzTags
+    name: resourceGroupName
+    location: location
+    tags: tags
+  }
+}
+
 module diskEncryptionSet 'disk-encryption-set.bicep' = {
   name: 'deploy-adds-des-${deploymentNameSuffix}'
-  scope: resourceGroup(identityResourceGroupName)
+  scope: resourceGroup(resourceGroupName)
   params: {
     deploymentNameSuffix: deploymentNameSuffix
     diskEncryptionSetName: identity.namingConvention.diskEncryptionSet
@@ -44,22 +56,28 @@ module diskEncryptionSet 'disk-encryption-set.bicep' = {
     tags: tags
     workloadShortName: 'adds'
   }
+  dependsOn: [
+    rg
+  ]
 }
 
 module availabilitySet 'availability-set.bicep' = {
   name: 'deploy-adds-availability-set-${deploymentNameSuffix}'
-  scope: resourceGroup(identityResourceGroupName)
+  scope: resourceGroup(resourceGroupName)
   params: {
     availabilitySetName: identity.namingConvention.availabilitySet
     location: location
     mlzTags: mlzTags
     tags: tags
   }
+  dependsOn: [
+    rg
+  ]
 }
 
 module domainControllers 'domain-controller.bicep' = [for i in range(0, vmCount): {
   name: 'deploy-adds-dc-${i}-${deploymentNameSuffix}'
-  scope: resourceGroup(identityResourceGroupName)
+  scope: resourceGroup(resourceGroupName)
   params: {
     adminPassword: adminPassword
     adminUsername: adminUsername
@@ -85,4 +103,7 @@ module domainControllers 'domain-controller.bicep' = [for i in range(0, vmCount)
     tags: tags
     vmSize: vmSize
   }
+  dependsOn: [
+    rg
+  ]
 }]
