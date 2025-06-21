@@ -76,6 +76,7 @@ module runCommand_DomainControllerPromotion 'run-command.bicep' = {
   name: 'deploy-adds-run-command-${index}-${deploymentNameSuffix}'
   scope: resourceGroup(identityResourceGroupName)
   params: {
+    asyncExecution: true
     location: location
     mlzTags: mlzTags
     name: 'New-ADDSForest-${index}'
@@ -109,6 +110,7 @@ module runCommand_DomainControllerPromotion 'run-command.bicep' = {
     ])
     script: loadTextContent('../artifacts/New-ADDSForest.ps1')
     tags: tags
+    treatFailureAsDeploymentFailure: true
     virtualMachineName: virtualMachine.outputs.virtualMachineName
   }
 }
