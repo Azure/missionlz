@@ -668,7 +668,10 @@ module networking 'modules/networking.bicep' = {
     deploymentNameSuffix: deploymentNameSuffix
     deployBastion: deployBastion
     deployAzureGatewaySubnet: deployAzureGatewaySubnet
-    dnsServers: dnsServers
+    dnsServers: deployIdentity && deployActiveDirectoryDomainServices ? [
+      cidrHost(identitySubnetAddressPrefix, 3)
+      cidrHost(identitySubnetAddressPrefix, 4)
+    ] : dnsServers
     enableProxy: enableProxy
     firewallSettings: {
       clientPrivateIpAddress: firewallClientPrivateIpAddress
