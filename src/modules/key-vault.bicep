@@ -158,7 +158,7 @@ resource privateDnsZoneGroups 'Microsoft.Network/privateEndpoints/privateDnsZone
   ]
 }
 
-output keyUriWithVersion string = key_disks.properties.keyUriWithVersion
+output disksKeyUriWithVersion string = key_disks.properties.keyUriWithVersion
 output keyVaultResourceId string = vault.id
 output keyVaultName string = vault.name
 output keyVaultUri string = vault.properties.vaultUri

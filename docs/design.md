@@ -30,6 +30,23 @@ Networking is set up in a hub and spoke design, separated by tiers: T0 (Identity
 
 Each virtual network has been given a default address prefix to ensure they fall within the default super network. Refer to the [Networking page](./networking.md) for all the default address prefixes.
 
+## Identity Services
+
+Mission Landing Zone optionally supports Active Directory Domain Services (ADDS) deployment in the identity tier. This feature enables single-click deployment scenarios that require on-premises-style domain services, such as:
+
+- Azure NetApp Files integration with SMB shares
+- Legacy applications requiring domain authentication
+- Hybrid identity scenarios with on-premises Active Directory
+
+When enabled via the `deployActiveDirectoryDomainServices` parameter, MLZ deploys:
+
+- Two Windows Server 2022 domain controllers in an availability set
+- PowerShell DSC configuration for ADDS role installation
+- DNS forwarding configuration for hybrid connectivity
+- Proper network security group rules for domain controller communication
+
+For detailed configuration options, see [Active Directory Domain Services](./active-directory-domain-services.md).
+
 ## Subscriptions
 
 Most customers will deploy each tier to a separate Azure subscription, but multiple subscriptions are not required. A single subscription deployment is good for a testing and evaluation, or possibly a small IT Admin team.
