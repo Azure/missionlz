@@ -50,6 +50,9 @@ param customFirewallRuleCollectionGroups array = []
 @description('[Standard/Free] The SKU for Defender for Cloud. Default value = "Free".')
 param defenderSkuTier string = 'Free'
 
+@description('When set to "true", deploys Active Directory Domain Services (ADDS) domain controllers in the identity tier. Requires deployIdentity to be true. Default value = "false".')
+param deployActiveDirectoryDomainServices bool = false
+
 @description('When set to "true", provisions Azure Gateway Subnet only. Default value = "false".')
 param deployAzureGatewaySubnet bool = false
 
@@ -84,9 +87,6 @@ param deployDefenderPlans array = ['VirtualMachines']
 
 @description('Choose to deploy the identity resources. The identity resoures are not required if you plan to use cloud identities.')
 param deployIdentity bool = false
-
-@description('When set to "true", deploys Active Directory Domain Services (ADDS) domain controllers in the identity tier. Requires deployIdentity to be true. Default value = "false".')
-param deployActiveDirectoryDomainServices bool = false
 
 @description('When set to "true", provisions Linux Virtual Machine Host only. Default value = "false".')
 param deployLinuxVirtualMachine bool = false
