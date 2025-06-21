@@ -38,7 +38,7 @@ module diskEncryptionSet 'disk-encryption-set.bicep' = {
   params: {
     deploymentNameSuffix: deploymentNameSuffix
     diskEncryptionSetName: tier.namingConvention.diskEncryptionSet
-    keyUrl: keyVault.outputs.keyUriWithVersion
+    keyUrl: keyVault.outputs.disksKeyUriWithVersion
     keyVaultResourceId: keyVault.outputs.keyVaultResourceId
     location: location
     mlzTags: mlzTags
@@ -60,6 +60,7 @@ module userAssignedIdentity 'user-assigned-identity.bicep' = {
 }
 
 output diskEncryptionSetResourceId string = diskEncryptionSet.outputs.resourceId
+output disksKeyUriWithVersion string = keyVault.outputs.disksKeyUriWithVersion
 output keyVaultName string = keyVault.outputs.keyVaultName
 output keyVaultUri string = keyVault.outputs.keyVaultUri
 output keyVaultResourceId string = keyVault.outputs.keyVaultResourceId
