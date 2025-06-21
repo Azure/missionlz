@@ -467,14 +467,6 @@
                     "required": true
                   },
                   "visible": true
-                },
-                {
-                  "name": "firewallSkuDescription",
-                  "type": "Microsoft.Common.InfoBox",
-                  "options": {
-                    "style": "Warning",
-                    "text": "Please validate the SKU availability in your region before deploying as there can be differences between clouds."
-                  }
                 }
               ]
             },
@@ -1012,6 +1004,83 @@
           ]
         },
         {
+          "name": "identity",
+          "label": "Identity",
+          "elements": [
+            {
+              "name": "identityNotSelectedWarning",
+              "type": "Microsoft.Common.InfoBox",
+              "visible": "[not(steps('basics').identitySection.deployIdentity)]",
+              "options": {
+                "style": "Warning",
+                "text": "The 'Deploy identity resources' checkbox was not selected on the Basics step. If you want to deploy Active Directory Domain Services, go back to the Basics step and check the check box."
+              }
+            },
+            {
+              "name": "addsSection",
+              "label": "Active Directory Domain Services",
+              "type": "Microsoft.Common.Section",
+              "visible": "[steps('basics').identitySection.deployIdentity]",
+              "elements": [
+                {
+                  "name": "deployADDS",
+                  "label": "Deploy Active Directory Domain Services?",
+                  "type": "Microsoft.Common.CheckBox",
+                  "toolTip": "Check this option to deploy two domain controllers in a new forest within the identity tier / spoke.",
+                  "constraints": {
+                    "required": false
+                  }
+                },
+                {
+                  "name": "domainName",
+                  "label": "Domain Name",
+                  "type": "Microsoft.Common.TextBox",
+                  "visible": "[steps('identity').addsSection.deployADDS]",
+                  "toolTip": "Provide domain name for the selected Active Directory solution.",
+                  "placeholder": "Example: contoso.com",
+                  "constraints": {
+                    "required": true
+                  }
+                },
+                {
+                  "name": "safeModeAdminPassword",
+                  "label": {
+                    "password": "Safe Mode Admin Password"
+                  },
+                  "type": "Microsoft.Common.PasswordBox",
+                  "visible": "[steps('identity').addsSection.deployADDS]",
+                  "toolTip": "Enter a password that is alphanumeric, contains at least 12 characters, 1 letter, 1 number and 1 special character.",
+                  "constraints": {
+                    "required": true
+                  },
+                  "options": {
+                    "hideConfirmation": false
+                  }
+                },
+                {
+                  "name": "vmSize",
+                  "label": "Virtual Machine Size",
+                  "type": "Microsoft.Compute.SizeSelector",
+                  "visible": "[steps('identity').addsSection.deployADDS]",
+                  "toolTip": "Select the size of the virtual machines for the domain controllers.",
+                  "recommendedSizes": [
+                    "Standard_D2s_v3"
+                  ],
+                  "constraints": {
+                    "allowedSizes": [],
+                    "numAvailabilityZonesRequired": 1
+                  },
+                  "options": {
+                    "hideDiskTypeFilter": true
+                  },
+                  "osPlatform": "Windows",
+                  "count": 2
+                }
+              ]
+            }
+          ]
+        },
+        {
           "name": "remoteAccess",
           "label": "Remote Access",
           "elements": [
@@ -1403,6 +1472,7 @@
                 {
                   "name": "policyWarning",
                   "type": "Microsoft.Common.InfoBox",
+                  "visible": "[steps('remoteAccess').linuxVmSection.deployLinuxVirtualMachine]",
                   "options": {
                     "style": "Warning",
                     "text": "Please validate the desired Linux distribution is available, as there can be differences between clouds."
@@ -1456,9 +1526,13 @@
       "location": "[steps('basics').resourceScope.location.name]",
       "subscriptionId": "[steps('basics').resourceScope.subscription.id]",
       "parameters": {
+        "addsDomainName": "[steps('identity').addsSection.domainName]",
+        "addsSafeModeAdminPassword": "[steps('identity').addsSection.safeModeAdminPassword]",
+        "addsVmSize": "[steps('identity').addsSection.vmSize]",
         "azureGatewaySubnetAddressPrefix": "[steps('remoteAccess').azureGatewaySubnetSection.azureGatewaySubnetAddressCidrRange]",
         "bastionHostSubnetAddressPrefix": "[steps('remoteAccess').azureBastionSection.bastionSubnetAddressCidrRange]",
         "defenderSkuTier": "[if(steps('compliance').defenderSection.deployDefender, 'Standard', 'Free')]",
+        "deployActiveDirectoryDomainServices": "[steps('identity').addsSection.deployADDS]",
         "deployAzureGatewaySubnet": "[steps('remoteAccess').azureGatewaySubnetSection.deployAzureGatewaySubnet]",
         "deployBastion": "[steps('remoteAccess').azureBastionSection.deployBastion]",
         "deployDefenderPlans": "[steps('compliance').defenderSection.deployDefenderPlans]",
