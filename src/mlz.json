@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.36.1.42791",
-      "templateHash": "4694549600857533063"
+      "templateHash": "9687974617661184272"
     }
   },
   "parameters": {
@@ -9197,7 +9197,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.36.1.42791",
-              "templateHash": "6760028165685740244"
+              "templateHash": "16051765836249430401"
             }
           },
           "parameters": {
@@ -9283,6 +9283,7 @@
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
               "name": "[format('deploy-rg-{0}-{1}', parameters('identity').name, parameters('deploymentNameSuffix'))]",
+              "subscriptionId": "[parameters('identity').subscriptionId]",
               "location": "[deployment().location]",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -9362,6 +9363,7 @@
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
               "name": "[format('deploy-adds-des-{0}', parameters('deploymentNameSuffix'))]",
+              "subscriptionId": "[parameters('identity').subscriptionId]",
               "resourceGroup": "[variables('resourceGroupName')]",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -9538,13 +9540,14 @@
                 }
               },
               "dependsOn": [
-                "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', parameters('identity').name, parameters('deploymentNameSuffix')))]"
+                "[subscriptionResourceId(parameters('identity').subscriptionId, 'Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', parameters('identity').name, parameters('deploymentNameSuffix')))]"
               ]
             },
             {
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
               "name": "[format('deploy-adds-availability-set-{0}', parameters('deploymentNameSuffix'))]",
+              "subscriptionId": "[parameters('identity').subscriptionId]",
               "resourceGroup": "[variables('resourceGroupName')]",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -9614,7 +9617,7 @@
                 }
               },
               "dependsOn": [
-                "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', parameters('identity').name, parameters('deploymentNameSuffix')))]"
+                "[subscriptionResourceId(parameters('identity').subscriptionId, 'Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', parameters('identity').name, parameters('deploymentNameSuffix')))]"
               ]
             },
             {
@@ -9625,6 +9628,7 @@
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
               "name": "[format('deploy-adds-dc-{0}-{1}', range(0, parameters('vmCount'))[copyIndex()], parameters('deploymentNameSuffix'))]",
+              "subscriptionId": "[parameters('identity').subscriptionId]",
               "resourceGroup": "[variables('resourceGroupName')]",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -9639,7 +9643,7 @@
                     "value": "[parameters('adminUsername')]"
                   },
                   "availabilitySetResourceId": {
-                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-adds-availability-set-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('identity').subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-adds-availability-set-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
                   },
                   "delimiter": {
                     "value": "[parameters('delimiter')]"
@@ -9648,7 +9652,7 @@
                     "value": "[parameters('deploymentNameSuffix')]"
                   },
                   "diskEncryptionSetResourceId": {
-                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-adds-des-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('identity').subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-adds-des-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
                   },
                   "dnsForwarder": {
                     "value": "[parameters('dnsForwarder')]"
@@ -10461,9 +10465,9 @@
                 }
               },
               "dependsOn": [
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-adds-availability-set-{0}', parameters('deploymentNameSuffix')))]",
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-adds-des-{0}', parameters('deploymentNameSuffix')))]",
-                "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', parameters('identity').name, parameters('deploymentNameSuffix')))]"
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('identity').subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-adds-availability-set-{0}', parameters('deploymentNameSuffix')))]",
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('identity').subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-adds-des-{0}', parameters('deploymentNameSuffix')))]",
+                "[subscriptionResourceId(parameters('identity').subscriptionId, 'Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}', parameters('identity').name, parameters('deploymentNameSuffix')))]"
               ]
             }
           ]

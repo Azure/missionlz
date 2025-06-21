@@ -35,6 +35,7 @@ var resourceGroupName = '${identity.namingConvention.resourceGroup}${delimiter}d
 
 module rg 'resource-group.bicep' = {
   name: 'deploy-rg-${identity.name}-${deploymentNameSuffix}'
+  scope: subscription(identity.subscriptionId)
   params: {
     mlzTags: mlzTags
     name: resourceGroupName
@@ -45,7 +46,7 @@ module rg 'resource-group.bicep' = {
 
 module diskEncryptionSet 'disk-encryption-set.bicep' = {
   name: 'deploy-adds-des-${deploymentNameSuffix}'
-  scope: resourceGroup(resourceGroupName)
+  scope: resourceGroup(identity.subscriptionId, resourceGroupName)
   params: {
     deploymentNameSuffix: deploymentNameSuffix
     diskEncryptionSetName: identity.namingConvention.diskEncryptionSet
@@ -63,7 +64,7 @@ module diskEncryptionSet 'disk-encryption-set.bicep' = {
 
 module availabilitySet 'availability-set.bicep' = {
   name: 'deploy-adds-availability-set-${deploymentNameSuffix}'
-  scope: resourceGroup(resourceGroupName)
+  scope: resourceGroup(identity.subscriptionId, resourceGroupName)
   params: {
     availabilitySetName: identity.namingConvention.availabilitySet
     location: location
@@ -77,7 +78,7 @@ module availabilitySet 'availability-set.bicep' = {
 
 module domainControllers 'domain-controller.bicep' = [for i in range(0, vmCount): {
   name: 'deploy-adds-dc-${i}-${deploymentNameSuffix}'
-  scope: resourceGroup(resourceGroupName)
+  scope: resourceGroup(identity.subscriptionId, resourceGroupName)
   params: {
     adminPassword: adminPassword
     adminUsername: adminUsername
