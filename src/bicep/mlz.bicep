@@ -5,6 +5,16 @@ Licensed under the MIT License.
 
 targetScope = 'subscription'
 
+@description('The Active Directory DNS domain name. Required when deployActiveDirectoryDomainServices is true.')
+param addsDomainName string = ''
+
+@secure()
+@description('The password for the safemode administrator account. Required when deployActiveDirectoryDomainServices is true.')
+param addsSafeModeAdminPassword string = ''
+
+@description('The virtual machine size for the Active Directory Domain Services (ADDS) domain controllers. Default value = "Standard_D2s_v3".')
+param addsVmSize string = 'Standard_D2s_v3'
+
 @description('The CIDR Subnet Address Prefix for the Azure Gateway Subnet. It must be in the Hub Virtual Network space. It must be /26.')
 param azureGatewaySubnetAddressPrefix string = '10.0.129.192/26'
 
@@ -311,53 +321,6 @@ param identityVirtualNetworkDiagnosticsMetrics array = [
   }
 ]
 
-// ACTIVE DIRECTORY DOMAIN SERVICES PARAMETERS
-
-@description('The prefix for the ADDS domain controller VM names. Default value = "[identifier]-adds".')
-param addsVmNamePrefix string = '${identifier}-adds'
-
-@description('The number of ADDS domain controller VMs to deploy. Default value = 2.')
-param addsVmCount int = 2
-
-@description('The size of the ADDS domain controller VMs. Default value = "Standard_DS2_v2".')
-param addsVmSize string = 'Standard_DS2_v2'
-
-@description('Array of static private IP addresses for the ADDS domain controller VM Network Interface Cards. Must contain two IP addresses from the identity subnet.')
-param addsVmPrivateIPAddresses array = []
-
-@description('The Active Directory DNS domain name. Required when deployActiveDirectoryDomainServices is true.')
-param addsDnsDomainName string = ''
-
-@description('The Active Directory NetBIOS domain name. Required when deployActiveDirectoryDomainServices is true.')
-param addsNetbiosDomainName string = ''
-
-@description('DNS forwarder IP addresses for the ADDS DNS servers. Default value = ["168.63.129.16"].')
-param addsDnsForwarders array = ['168.63.129.16']
-
-@description('The username for the domain administrator account. Required when deployActiveDirectoryDomainServices is true.')
-param addsDomainAdminUsername string = ''
-
-@secure()
-@description('The password for the domain administrator account. Required when deployActiveDirectoryDomainServices is true.')
-param addsDomainAdminPassword string = ''
-
-@description('The username for the safemode administrator account. Required when deployActiveDirectoryDomainServices is true.')
-param addsSafemodeAdminUsername string = ''
-
-@secure()
-@description('The password for the safemode administrator account. Required when deployActiveDirectoryDomainServices is true.')
-param addsSafemodeAdminPassword string = ''
-
-@description('The username for the domain join user account. Required when deployActiveDirectoryDomainServices is true.')
-param addsDomainJoinUsername string = ''
-
-@secure()
-@description('The password for the domain join user account. Required when deployActiveDirectoryDomainServices is true.')
-param addsDomainJoinUserPassword string = ''
-
-@description('Management subnet IP prefixes allowed in the Windows Firewall for ADDS VMs.')
-param addsManagementSubnets array = []
-
 @description('An array of Key Vault Diagnostic Logs categories to collect. See the following URL for valid settings: "https://learn.microsoft.com/azure/key-vault/general/logging?tabs=Vault".')
 param keyVaultDiagnosticsLogs array = [
   {
@@ -377,13 +340,6 @@ param keyVaultDiagnosticsMetrics array = [
     enabled: true
   }
 ]
-
-@allowed([
-  'Static'
-  'Dynamic'
-])
-@description('[Static/Dynamic] The public IP Address allocation method for the Linux virtual machine. Default value = "Dynamic".')
-param linuxNetworkInterfacePrivateIPAddressAllocationMethod string = 'Dynamic'
 
 @minLength(12)
 @secure()
@@ -421,8 +377,8 @@ param linuxVmImagePublisher string = 'Canonical'
 @description('The Linux image SKU in the Azure marketplace. Default value = "20_04-lts-gen2".')
 param linuxVmImageSku string = '20_04-lts-gen2'
 
-@description('The disk creation option of the Linux Virtual Machine for remote access. Default value = "FromImage".')
-param linuxVmOsDiskCreateOption string = 'FromImage'
+@description('The Linux image version in the Azure marketplace. Default value = "latest".')
+param linuxVmImageVersion string = 'latest'
 
 @description('The disk type of the Linux Virtual Machine for remote access. Default value = "Standard_LRS".')
 param linuxVmOsDiskType string = 'Standard_LRS'
@@ -601,9 +557,6 @@ param windowsVmAdminPassword string = deployWindowsVirtualMachine ? '' : newGuid
 @description('The administrator username for the Windows Virtual Machine for remote access. Default value = "xadmin".')
 param windowsVmAdminUsername string = 'xadmin'
 
-@description('The disk creation option of the Windows Virtual Machine for remote access. Default value = "FromImage".')
-param windowsVmCreateOption string = 'FromImage'
-
 @description('The Windows image offer in the Azure marketplace. Default value = "WindowsServer".')
 param windowsVmImageOffer string = 'WindowsServer'
 
@@ -617,21 +570,14 @@ param windowsVmImagePublisher string = 'MicrosoftWindowsServer'
 @description('[2019-datacenter-gensecond/2022-datacenter-g2] The Windows image SKU in the Azure marketplace. Default value = "2019-datacenter-gensecond".')
 param windowsVmImageSku string = '2019-datacenter-gensecond'
 
-@allowed([
-  'Static'
-  'Dynamic'
-])
-@description('[Static/Dynamic] The public IP Address allocation method for the Windows virtual machine. Default value = "Dynamic".')
-param windowsVmNetworkInterfacePrivateIPAddressAllocationMethod string = 'Dynamic'
+@description('The Windows image version in the Azure marketplace. Default value = "latest".')
+param windowsVmImageVersion string = 'latest'
 
 @description('The size of the Windows Virtual Machine for remote access. Default value = "Standard_DS1_v2".')
 param windowsVmSize string = 'Standard_DS1_v2'
 
 @description('The storage account type of the Windows Virtual Machine for remote access. Default value = "StandardSSD_LRS".')
 param windowsVmStorageAccountType string = 'StandardSSD_LRS'
-
-@description('The version of the Windows Virtual Machine for remote access. Default value = "latest".')
-param windowsVmVersion string = 'latest'
 
 
 var firewallClientPrivateIpAddress = firewallClientUsableIpAddresses[3]
@@ -841,31 +787,26 @@ module remoteAccess 'modules/remote-access.bicep' = {
     hubResourceGroupName: filter(resourceGroups.outputs.names, name => contains(name, 'hub'))[0]
     hubSubnetResourceId: networking.outputs.hubSubnetResourceId
     hybridUseBenefit: hybridUseBenefit
-    linuxNetworkInterfacePrivateIPAddressAllocationMethod: linuxNetworkInterfacePrivateIPAddressAllocationMethod
     linuxVmAdminPasswordOrKey: linuxVmAdminPasswordOrKey
     linuxVmAdminUsername: linuxVmAdminUsername
-    linuxVmImagePublisher: linuxVmImagePublisher
-    linuxVmImageOffer: linuxVmImageOffer
-    linuxVmImageSku: linuxVmImageSku
-    linuxVmSize: linuxVmSize
     linuxVmAuthenticationType: linuxVmAuthenticationType
-    linuxVmOsDiskCreateOption: linuxVmOsDiskCreateOption
+    linuxVmImageOffer: linuxVmImageOffer
+    linuxVmImagePublisher: linuxVmImagePublisher
+    linuxVmImageSku: linuxVmImageSku
+    linuxVmImageVersion: linuxVmImageVersion
     linuxVmOsDiskType: linuxVmOsDiskType
+    linuxVmSize: linuxVmSize
     location: location
-    logAnalyticsWorkspaceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
     mlzTags: logic.outputs.mlzTags
-    supportedClouds: supportedClouds
     tags: tags
     windowsVmAdminPassword: windowsVmAdminPassword
     windowsVmAdminUsername: windowsVmAdminUsername
-    windowsVmCreateOption: windowsVmCreateOption
     windowsVmImageOffer: windowsVmImageOffer
     windowsVmImagePublisher: windowsVmImagePublisher
     windowsVmImageSku: windowsVmImageSku
-    windowsVmNetworkInterfacePrivateIPAddressAllocationMethod: windowsVmNetworkInterfacePrivateIPAddressAllocationMethod
     windowsVmSize: windowsVmSize
     windowsVmStorageAccountType: windowsVmStorageAccountType
-    windowsVmVersion: windowsVmVersion
+    windowsVmVersion: windowsVmImageVersion
   }
 }
 
@@ -958,28 +899,31 @@ module defenderforClouds 'modules/defender-for-clouds.bicep' =
 
 // ACTIVE DIRECTORY DOMAIN SERVICES
 
-module activeDirectoryDomainServices 'modules/active-directory-domain-controllers.bicep' =
+module activeDirectoryDomainServices 'modules/active-directory-domain-services.bicep' =
   if (deployActiveDirectoryDomainServices && deployIdentity) {
     name: 'deploy-adds-${deploymentNameSuffix}'
     params: {
-      location: location
-      tags: tags
+      adminPassword: windowsVmAdminPassword
+      adminUsername: windowsVmAdminUsername
+      delimiter: logic.outputs.delimiter
+      deploymentNameSuffix: deploymentNameSuffix
+      domainName: addsDomainName
+      hybridUseBenefit: hybridUseBenefit
+      identity: filter(logic.outputs.tiers, tier => tier.name == 'identity')[0]
       identityResourceGroupName: filter(resourceGroups.outputs.names, name => contains(name, 'identity'))[0]
-      vmNamePrefix: addsVmNamePrefix
-      vmCount: addsVmCount
+      imageOffer: windowsVmImageOffer
+      imagePublisher: windowsVmImagePublisher
+      imageSku: windowsVmImageSku
+      imageVersion: windowsVmImageVersion
+      keyUrl: customerManagedKeys.outputs.disksKeyUriWithVersion
+      keyVaultResourceId: customerManagedKeys.outputs.keyVaultResourceId
+      location: location
+      mlzTags: logic.outputs.mlzTags
+      safeModeAdminPassword: addsSafeModeAdminPassword
+      storageAccountType: windowsVmStorageAccountType
+      subnetResourceId: networking.outputs.identitySubnetResourceId
+      tags: tags
       vmSize: addsVmSize
-      nicPrivateIPAddresses: addsVmPrivateIPAddresses
-      dnsDomainName: addsDnsDomainName
-      netbiosDomainName: addsNetbiosDomainName
-      dnsForwarders: addsDnsForwarders
-      managementSubnets: addsManagementSubnets
-      domainAdminUsername: addsDomainAdminUsername
-      domainAdminPassword: addsDomainAdminPassword
-      safemodeAdminUsername: addsSafemodeAdminUsername
-      safemodeAdminPassword: addsSafemodeAdminPassword
-      domainJoinUsername: addsDomainJoinUsername
-      domainJoinUserPassword: addsDomainJoinUserPassword
-      identityVirtualNetworkSubnetId: networking.outputs.identitySubnetResourceId
     }
   }
 
@@ -992,6 +936,3 @@ output logAnalyticsWorkspaceResourceId string = monitoring.outputs.logAnalyticsW
 output privateLinkScopeResourceId string = monitoring.outputs.privateLinkScopeResourceId
 output sharedServicesSubnetResourceId string = networking.outputs.sharedServicesSubnetResourceId
 output tiers array = logic.outputs.tiers
-output activeDirectoryDomainServicesDeployed bool = deployActiveDirectoryDomainServices && deployIdentity
-output addsDnsDomainName string = deployActiveDirectoryDomainServices && deployIdentity ? addsDnsDomainName : ''
-output addsNetbiosDomainName string = deployActiveDirectoryDomainServices && deployIdentity ? addsNetbiosDomainName : ''
