@@ -97,6 +97,7 @@ module availabilitySet 'availability-set.bicep' = {
   ]
 }
 
+@batchSize(1)
 module domainControllers 'domain-controller.bicep' = [
   for i in range(0, vmCount): {
     name: 'deploy-adds-dc-${i}-${deploymentNameSuffix}'
