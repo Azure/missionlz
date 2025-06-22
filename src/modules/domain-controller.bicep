@@ -21,6 +21,7 @@ param imageVersion string
 param index int
 param location string
 param mlzTags object
+param privateIPAddressOffset int = 3
 @secure()
 param safeModeAdminPassword string
 param storageAccountType string
@@ -63,7 +64,7 @@ module virtualMachine 'virtual-machine.bicep' = {
     mlzTags: mlzTags
     networkInterfaceName: '${tier.namingConvention.virtualMachineNetworkInterface}${delimiter}dc${delimiter}${index}'
     networkSecurityGroupResourceId: virtualNetwork.properties.subnets[0].properties.networkSecurityGroup.id
-    privateIPAddress: cidrHost(virtualNetwork.properties.subnets[0].properties.addressPrefix, index + 3)
+    privateIPAddress: cidrHost(virtualNetwork.properties.subnets[0].properties.addressPrefix, index + privateIPAddressOffset)
     storageAccountType: storageAccountType
     subnetResourceId: subnetResourceId
     tags: tags

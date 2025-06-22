@@ -669,8 +669,8 @@ module networking 'modules/networking.bicep' = {
     deployBastion: deployBastion
     deployAzureGatewaySubnet: deployAzureGatewaySubnet
     dnsServers: deployIdentity && deployActiveDirectoryDomainServices ? [
-      cidrHost(identitySubnetAddressPrefix, 3)
-      cidrHost(identitySubnetAddressPrefix, 4)
+      cidrHost(identitySubnetAddressPrefix, hubSubscriptionId == identitySubscriptionId ? 3 : 4) // when the sub IDs are the same, a key vault is not deployed in the identity spoke
+      cidrHost(identitySubnetAddressPrefix, hubSubscriptionId == identitySubscriptionId ? 4 : 5) // when the sub IDs are the same, a key vault is not deployed in the identity spoke
     ] : dnsServers
     enableProxy: enableProxy
     firewallSettings: {
