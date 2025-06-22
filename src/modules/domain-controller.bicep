@@ -47,8 +47,13 @@ module virtualMachine 'virtual-machine.bicep' = {
       caching: 'None'
       diskSizeGB: 128
       lun: 0
+      managedDisk: {
+        diskEncryptionSet: {
+          id: diskEncryptionSetResourceId
+        }
+        storageAccountType: storageAccountType
+      }
       name: '${tier.namingConvention.virtualMachineDisk}${delimiter}dc${delimiter}${index}${delimiter}1'
-      storageAccountType: storageAccountType
     }]
     diskCaching: 'None'
     diskEncryptionSetResourceId: diskEncryptionSetResourceId

@@ -120,6 +120,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2024-11-01' = {
       encryptionAtHost: true
     }
     storageProfile: {
+      dataDisks: dataDisks
       imageReference: {
         publisher: imagePublisher
         offer: imageOffer
@@ -139,7 +140,6 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2024-11-01' = {
         name: diskName
         osType: osType
       }
-      dataDisks: dataDisks
     }
     licenseType: hybridUseBenefit ? 'Windows_Server' : null
   }
