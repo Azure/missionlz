@@ -15,7 +15,6 @@ param dnsForwarder string = '168.63.129.16'
 param domainName string
 param environmentAbbreviation string
 param hybridUseBenefit bool
-param identityResourceGroupName string
 param imageOffer string
 param imagePublisher string
 param imageSku string
@@ -114,7 +113,6 @@ module domainControllers 'domain-controller.bicep' = [
       dnsForwarder: dnsForwarder
       domainName: domainName
       hybridUseBenefit: hybridUseBenefit
-      identityResourceGroupName: identityResourceGroupName
       imageOffer: imageOffer
       imagePublisher: imagePublisher
       imageSku: imageSku
