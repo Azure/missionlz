@@ -52,16 +52,27 @@ var linuxConfiguration = {
   }
 }
 
-module networkInterface '../modules/network-interface.bicep' = {
-  name: 'remoteAccess-windowsNetworkInterface'
-  params: {
-    location: location
-    mlzTags: mlzTags
-    name: networkInterfaceName
-    networkSecurityGroupResourceId: networkSecurityGroupResourceId
-    privateIPAddress: privateIPAddress
-    subnetResourceId: subnetResourceId
-    tags: tags
+resource networkInterface 'Microsoft.Network/networkInterfaces@2021-02-01' = {
+  name: networkInterfaceName
+  location: location
+  tags: union(tags[?'Microsoft.Network/networkInterfaces'] ?? {}, mlzTags)
+  properties: {
+    enableAcceleratedNetworking: true
+    ipConfigurations: [
+      {
+        name: 'ipconfig'
+        properties: {
+          privateIPAddress: empty(privateIPAddress) ? null : privateIPAddress
+          privateIPAllocationMethod: empty(privateIPAddress) ? 'Dynamic' : 'Static'
+          subnet: {
+            id: subnetResourceId
+          }
+        }
+      }
+    ]
+    networkSecurityGroup: {
+      id: networkSecurityGroupResourceId
+    }
   }
 }
 
@@ -87,7 +98,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2024-11-01' = {
     networkProfile: {
       networkInterfaces: [
         { 
-          id: networkInterface.outputs.id
+          id: networkInterface.id
           properties: {
             deleteOption: 'Delete'
           }
@@ -267,5 +278,5 @@ resource extension_JsonADDomainExtension 'Microsoft.Compute/virtualMachines/exte
   ]
 }
 
-output networkInterfaceResourceId string = networkInterface.outputs.id
+output networkInterfaceResourceId string = networkInterface.id
 output virtualMachineName string = virtualMachine.name
