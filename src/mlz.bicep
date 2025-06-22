@@ -913,7 +913,6 @@ module activeDirectoryDomainServices 'modules/active-directory-domain-services.b
       domainName: addsDomainName
       environmentAbbreviation: environmentAbbreviation
       hybridUseBenefit: hybridUseBenefit
-      identityResourceGroupName: filter(resourceGroups.outputs.names, name => contains(name, 'identity'))[0]
       imageOffer: windowsVmImageOffer
       imagePublisher: windowsVmImagePublisher
       imageSku: windowsVmImageSku
