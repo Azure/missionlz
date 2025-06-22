@@ -13,7 +13,6 @@ param diskEncryptionSetResourceId string
 param dnsForwarder string = '168.63.129.16'
 param domainName string
 param hybridUseBenefit bool
-param identityResourceGroupName string
 param imageOffer string
 param imagePublisher string
 param imageSku string
@@ -37,7 +36,6 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2024-07-01' existing 
 
 module virtualMachine 'virtual-machine.bicep' = {
   name: 'deploy-adds-vm-${index}-${deploymentNameSuffix}'
-  scope: resourceGroup(identityResourceGroupName)
   params: {
     adminPasswordOrKey: adminPassword
     adminUsername: adminUsername
@@ -80,7 +78,6 @@ module virtualMachine 'virtual-machine.bicep' = {
 
 module runCommand_DomainControllerPromotion 'run-command.bicep' = {
   name: 'deploy-adds-run-command-${index}-${deploymentNameSuffix}'
-  scope: resourceGroup(identityResourceGroupName)
   params: {
     asyncExecution: true
     location: location
