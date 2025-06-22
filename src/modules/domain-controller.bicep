@@ -13,7 +13,6 @@ param diskEncryptionSetResourceId string
 param dnsForwarder string = '168.63.129.16'
 param domainName string
 param hybridUseBenefit bool
-param identity object
 param identityResourceGroupName string
 param imageOffer string
 param imagePublisher string
@@ -27,6 +26,7 @@ param safeModeAdminPassword string
 param storageAccountType string
 param subnetResourceId string
 param tags object = {}
+param tier object
 param vmSize string
 
 resource virtualNetwork 'Microsoft.Network/virtualNetworks@2024-07-01' existing = {
@@ -46,12 +46,12 @@ module virtualMachine 'virtual-machine.bicep' = {
       caching: 'None'
       diskSizeGB: 128
       lun: 0
-      name: '${identity.namingConvention.virtualMachineDisk}${delimiter}dc${delimiter}${index}${delimiter}1'
+      name: '${tier.namingConvention.virtualMachineDisk}${delimiter}dc${delimiter}${index}${delimiter}1'
       storageAccountType: storageAccountType
     }]
     diskCaching: 'None'
     diskEncryptionSetResourceId: diskEncryptionSetResourceId
-    diskName: '${identity.namingConvention.virtualMachineDisk}${delimiter}dc${delimiter}${index}${delimiter}0'
+    diskName: '${tier.namingConvention.virtualMachineDisk}${delimiter}dc${delimiter}${index}${delimiter}0'
     domainJoin: index == 0 ? false : true
     domainName: domainName
     hybridUseBenefit: hybridUseBenefit
@@ -61,13 +61,13 @@ module virtualMachine 'virtual-machine.bicep' = {
     imageVersion: imageVersion
     location: location
     mlzTags: mlzTags
-    networkInterfaceName: '${identity.namingConvention.virtualMachineNetworkInterface}${delimiter}dc${delimiter}${index}'
+    networkInterfaceName: '${tier.namingConvention.virtualMachineNetworkInterface}${delimiter}dc${delimiter}${index}'
     networkSecurityGroupResourceId: virtualNetwork.properties.subnets[0].properties.networkSecurityGroup.id
     privateIPAddress: cidrHost(virtualNetwork.properties.subnets[0].properties.addressPrefix, index + 3)
     storageAccountType: storageAccountType
     subnetResourceId: subnetResourceId
     tags: tags
-    virtualMachineName: '${identity.namingConvention.virtualMachine}dc${index}'
+    virtualMachineName: '${tier.namingConvention.virtualMachine}dc${index}'
     virtualMachineSize: vmSize
   }  
 }
