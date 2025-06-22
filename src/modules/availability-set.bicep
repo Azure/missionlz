@@ -3,7 +3,7 @@ param location string
 param mlzTags object
 param tags object
 
-resource availabilitySets 'Microsoft.Compute/availabilitySets@2019-07-01' = {
+resource availabilitySet 'Microsoft.Compute/availabilitySets@2019-07-01' = {
   name: availabilitySetName
   location: location
   tags: union(tags[?'Microsoft.Compute/availabilitySets'] ?? {}, mlzTags)
@@ -16,4 +16,4 @@ resource availabilitySets 'Microsoft.Compute/availabilitySets@2019-07-01' = {
   }
 }
 
-output resourceId string = availabilitySets.id
+output resourceId string = availabilitySet.id
