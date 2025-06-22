@@ -61,6 +61,9 @@ module keyVault 'key-vault.bicep' = if (hubSubscriptionId != identitySubscriptio
     tags: tags
     tier: tier
   }
+  dependsOn: [
+    rg
+  ]
 }
 
 module diskEncryptionSet 'disk-encryption-set.bicep' = if (hubSubscriptionId != identitySubscriptionId) {
@@ -94,35 +97,39 @@ module availabilitySet 'availability-set.bicep' = {
   ]
 }
 
-module domainControllers 'domain-controller.bicep' = [for i in range(0, vmCount): {
-  name: 'deploy-adds-dc-${i}-${deploymentNameSuffix}'
-  scope: resourceGroup(tier.subscriptionId, resourceGroupName)
-  params: {
-    adminPassword: adminPassword
-    adminUsername: adminUsername
-    availabilitySetResourceId: availabilitySet.outputs.resourceId
-    delimiter: delimiter
-    deploymentNameSuffix: deploymentNameSuffix
-    diskEncryptionSetResourceId: hubSubscriptionId == identitySubscriptionId ? diskEncryptionSetResourceId : diskEncryptionSet.outputs.resourceId
-    dnsForwarder: dnsForwarder
-    domainName: domainName
-    hybridUseBenefit: hybridUseBenefit
-    identityResourceGroupName: identityResourceGroupName
-    imageOffer: imageOffer
-    imagePublisher: imagePublisher
-    imageSku: imageSku
-    imageVersion: imageVersion
-    index: i
-    location: location
-    mlzTags: mlzTags
-    safeModeAdminPassword: safeModeAdminPassword
-    storageAccountType: storageAccountType
-    subnetResourceId: subnetResourceId
-    tags: tags
-    tier: tier
-    vmSize: vmSize
+module domainControllers 'domain-controller.bicep' = [
+  for i in range(0, vmCount): {
+    name: 'deploy-adds-dc-${i}-${deploymentNameSuffix}'
+    scope: resourceGroup(tier.subscriptionId, resourceGroupName)
+    params: {
+      adminPassword: adminPassword
+      adminUsername: adminUsername
+      availabilitySetResourceId: availabilitySet.outputs.resourceId
+      delimiter: delimiter
+      deploymentNameSuffix: deploymentNameSuffix
+      diskEncryptionSetResourceId: hubSubscriptionId == identitySubscriptionId
+        ? diskEncryptionSetResourceId
+        : diskEncryptionSet.outputs.resourceId
+      dnsForwarder: dnsForwarder
+      domainName: domainName
+      hybridUseBenefit: hybridUseBenefit
+      identityResourceGroupName: identityResourceGroupName
+      imageOffer: imageOffer
+      imagePublisher: imagePublisher
+      imageSku: imageSku
+      imageVersion: imageVersion
+      index: i
+      location: location
+      mlzTags: mlzTags
+      safeModeAdminPassword: safeModeAdminPassword
+      storageAccountType: storageAccountType
+      subnetResourceId: subnetResourceId
+      tags: tags
+      tier: tier
+      vmSize: vmSize
+    }
+    dependsOn: [
+      rg
+    ]
   }
-  dependsOn: [
-    rg
-  ]
-}]
+]
