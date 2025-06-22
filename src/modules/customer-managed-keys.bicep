@@ -15,10 +15,9 @@ param resourceGroupName string
 param subnetResourceId string
 param tags object
 param tier object
-param workloadShortName string
 
 module keyVault 'key-vault.bicep' = {
-  name: 'deploy-kv-${workloadShortName}-${deploymentNameSuffix}'
+  name: 'deploy-cmk-kv-${deploymentNameSuffix}'
   scope: resourceGroup(tier.subscriptionId, resourceGroupName)
   params: {
     environmentAbbreviation: environmentAbbreviation
@@ -33,7 +32,7 @@ module keyVault 'key-vault.bicep' = {
 }
 
 module diskEncryptionSet 'disk-encryption-set.bicep' = {
-  name: 'deploy-des-${workloadShortName}-${deploymentNameSuffix}'
+  name: 'deploy-cmk-des-${deploymentNameSuffix}'
   scope: resourceGroup(tier.subscriptionId, resourceGroupName)
   params: {
     deploymentNameSuffix: deploymentNameSuffix
@@ -43,12 +42,11 @@ module diskEncryptionSet 'disk-encryption-set.bicep' = {
     location: location
     mlzTags: mlzTags
     tags: tags
-    workloadShortName: workloadShortName
   }
 }
 
 module userAssignedIdentity 'user-assigned-identity.bicep' = {
-  name: 'deploy-id-${workloadShortName}-${deploymentNameSuffix}'
+  name: 'deploy-cmk-id-${deploymentNameSuffix}'
   scope: resourceGroup(tier.subscriptionId, resourceGroupName)
   params: {
     keyVaultName: keyVault.outputs.keyVaultName

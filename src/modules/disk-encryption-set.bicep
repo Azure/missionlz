@@ -10,7 +10,6 @@ param keyVaultResourceId string
 param location string
 param mlzTags object
 param tags object
-param workloadShortName string
 
 resource diskEncryptionSet 'Microsoft.Compute/diskEncryptionSets@2023-04-02' = {
   name: diskEncryptionSetName
@@ -32,7 +31,7 @@ resource diskEncryptionSet 'Microsoft.Compute/diskEncryptionSets@2023-04-02' = {
 }
 
 module roleAssignment 'role-assignment.bicep' = {
-  name: 'assign-role-des-${workloadShortName}-${deploymentNameSuffix}'
+  name: 'assign-role-des-${deploymentNameSuffix}'
   params: {
     principalId: diskEncryptionSet.identity.principalId
     principalType: 'ServicePrincipal'

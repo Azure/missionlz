@@ -12,20 +12,20 @@ param logAnalyticsWorkspaceCappingDailyQuotaGb int
 param logAnalyticsWorkspaceRetentionInDays int
 param logAnalyticsWorkspaceSkuName string
 param mlzTags object
-param ops object
 param opsResourceGroupName string
 param privateDnsZoneResourceIds object
 param subnetResourceId string
 param tags object
+param tier object
 
 module logAnalyticsWorkspace 'log-analytics-workspace.bicep' = {
   name: 'deploy-law-${deploymentNameSuffix}'
-  scope: resourceGroup(ops.subscriptionId, opsResourceGroupName)
+  scope: resourceGroup(tier.subscriptionId, opsResourceGroupName)
   params: {
     deploySentinel: deploySentinel
     location: location
     mlzTags: mlzTags
-    name: ops.namingConvention.logAnalyticsWorkspace
+    name: tier.namingConvention.logAnalyticsWorkspace
     retentionInDays: logAnalyticsWorkspaceRetentionInDays
     skuName: logAnalyticsWorkspaceSkuName
     tags: tags
@@ -36,24 +36,24 @@ module logAnalyticsWorkspace 'log-analytics-workspace.bicep' = {
 
 module privateLinkScope 'private-link-scope.bicep' = {
   name: 'deploy-private-link-scope-${deploymentNameSuffix}'
-  scope: resourceGroup(ops.subscriptionId, opsResourceGroupName)
+  scope: resourceGroup(tier.subscriptionId, opsResourceGroupName)
   params: {
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspace.outputs.resourceId
-    name: ops.namingConvention.privateLinkScope
+    name: tier.namingConvention.privateLinkScope
   }
 }
 
 module privateEndpoint 'private-endpoint.bicep' = {
   name: 'deploy-private-endpoint-${deploymentNameSuffix}'
-  scope: resourceGroup(ops.subscriptionId, opsResourceGroupName)
+  scope: resourceGroup(tier.subscriptionId, opsResourceGroupName)
   params: {
     groupIds: [
       'azuremonitor'
     ]
     location: location
     mlzTags: mlzTags
-    name: ops.namingConvention.privateLinkScopePrivateEndpoint
-    networkInterfaceName: ops.namingConvention.privateLinkScopeNetworkInterface
+    name: tier.namingConvention.privateLinkScopePrivateEndpoint
+    networkInterfaceName: tier.namingConvention.privateLinkScopeNetworkInterface
     privateDnsZoneConfigs: [
       {
         name: 'monitor'

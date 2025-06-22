@@ -747,7 +747,6 @@ module customerManagedKeys 'modules/customer-managed-keys.bicep' = {
     subnetResourceId: networking.outputs.hubSubnetResourceId
     tags: tags
     tier: filter(logic.outputs.tiers, tier => tier.name == 'hub')[0]
-    workloadShortName: 'ops'
   }
 }
 
@@ -763,7 +762,7 @@ module monitoring 'modules/monitoring.bicep' = {
     logAnalyticsWorkspaceRetentionInDays: logAnalyticsWorkspaceRetentionInDays
     logAnalyticsWorkspaceSkuName: logAnalyticsWorkspaceSkuName
     mlzTags: logic.outputs.mlzTags
-    ops: filter(logic.outputs.tiers, tier => tier.name == 'operations')[0]
+    tier: filter(logic.outputs.tiers, tier => tier.name == 'operations')[0]
     opsResourceGroupName: filter(resourceGroups.outputs.names, name => contains(name, 'operations'))[0]
     privateDnsZoneResourceIds: networking.outputs.privateDnsZoneResourceIds
     subnetResourceId: networking.outputs.operationsSubnetResourceId
@@ -910,22 +909,24 @@ module activeDirectoryDomainServices 'modules/active-directory-domain-services.b
       adminUsername: windowsVmAdminUsername
       delimiter: logic.outputs.delimiter
       deploymentNameSuffix: deploymentNameSuffix
+      diskEncryptionSetResourceId: customerManagedKeys.outputs.diskEncryptionSetResourceId
       domainName: addsDomainName
+      environmentAbbreviation: environmentAbbreviation
       hybridUseBenefit: hybridUseBenefit
-      identity: filter(logic.outputs.tiers, tier => tier.name == 'identity')[0]
       identityResourceGroupName: filter(resourceGroups.outputs.names, name => contains(name, 'identity'))[0]
       imageOffer: windowsVmImageOffer
       imagePublisher: windowsVmImagePublisher
       imageSku: windowsVmImageSku
       imageVersion: windowsVmImageVersion
-      keyUrl: customerManagedKeys.outputs.disksKeyUriWithVersion
-      keyVaultResourceId: customerManagedKeys.outputs.keyVaultResourceId
+      keyVaultPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.keyVault
       location: location
       mlzTags: logic.outputs.mlzTags
+      resourceAbbreviations: logic.outputs.resourceAbbreviations
       safeModeAdminPassword: addsSafeModeAdminPassword
       storageAccountType: windowsVmStorageAccountType
       subnetResourceId: networking.outputs.identitySubnetResourceId
       tags: tags
+      tier: filter(logic.outputs.tiers, tier => tier.name == 'identity')[0]
       vmSize: addsVmSize
     }
   }
