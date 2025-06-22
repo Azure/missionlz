@@ -10,32 +10,36 @@ param adminPassword string
 param adminUsername string
 param delimiter string
 param deploymentNameSuffix string
+param diskEncryptionSetResourceId string
 param dnsForwarder string = '168.63.129.16'
 param domainName string
+param environmentAbbreviation string
 param hybridUseBenefit bool
-param identity object
 param identityResourceGroupName string
 param imageOffer string
 param imagePublisher string
 param imageSku string
 param imageVersion string
-param keyUrl string
-param keyVaultResourceId string
+param keyVaultPrivateDnsZoneResourceId string
 param location string = deployment().location
 param mlzTags object
+param resourceAbbreviations object
 @secure()
 param safeModeAdminPassword string
 param storageAccountType string
 param subnetResourceId string
 param tags object = {}
+param tier object
 param vmCount int = 2
 param vmSize string
 
-var resourceGroupName = '${identity.namingConvention.resourceGroup}${delimiter}domainControllers'
+var hubSubscriptionId = subscription().subscriptionId
+var identitySubscriptionId = tier.subscriptionId
+var resourceGroupName = '${tier.namingConvention.resourceGroup}${delimiter}domainControllers'
 
 module rg 'resource-group.bicep' = {
-  name: 'deploy-rg-${identity.name}-${deploymentNameSuffix}'
-  scope: subscription(identity.subscriptionId)
+  name: 'deploy-adds-rg-${tier.name}-${deploymentNameSuffix}'
+  scope: subscription(tier.subscriptionId)
   params: {
     mlzTags: mlzTags
     name: resourceGroupName
@@ -44,18 +48,32 @@ module rg 'resource-group.bicep' = {
   }
 }
 
-module diskEncryptionSet 'disk-encryption-set.bicep' = {
+module keyVault 'key-vault.bicep' = if (hubSubscriptionId != identitySubscriptionId) {
+  name: 'deploy-adds-kv-${deploymentNameSuffix}'
+  scope: resourceGroup(tier.subscriptionId, resourceGroupName)
+  params: {
+    environmentAbbreviation: environmentAbbreviation
+    keyVaultPrivateDnsZoneResourceId: keyVaultPrivateDnsZoneResourceId
+    location: location
+    mlzTags: mlzTags
+    resourceAbbreviations: resourceAbbreviations
+    subnetResourceId: subnetResourceId
+    tags: tags
+    tier: tier
+  }
+}
+
+module diskEncryptionSet 'disk-encryption-set.bicep' = if (hubSubscriptionId != identitySubscriptionId) {
   name: 'deploy-adds-des-${deploymentNameSuffix}'
-  scope: resourceGroup(identity.subscriptionId, resourceGroupName)
+  scope: resourceGroup(tier.subscriptionId, resourceGroupName)
   params: {
     deploymentNameSuffix: deploymentNameSuffix
-    diskEncryptionSetName: identity.namingConvention.diskEncryptionSet
-    keyUrl: keyUrl
-    keyVaultResourceId: keyVaultResourceId
+    diskEncryptionSetName: tier.namingConvention.diskEncryptionSet
+    keyUrl: keyVault.outputs.disksKeyUriWithVersion
+    keyVaultResourceId: keyVault.outputs.keyVaultResourceId
     location: location
     mlzTags: mlzTags
     tags: tags
-    workloadShortName: 'adds'
   }
   dependsOn: [
     rg
@@ -64,9 +82,9 @@ module diskEncryptionSet 'disk-encryption-set.bicep' = {
 
 module availabilitySet 'availability-set.bicep' = {
   name: 'deploy-adds-availability-set-${deploymentNameSuffix}'
-  scope: resourceGroup(identity.subscriptionId, resourceGroupName)
+  scope: resourceGroup(tier.subscriptionId, resourceGroupName)
   params: {
-    availabilitySetName: identity.namingConvention.availabilitySet
+    availabilitySetName: tier.namingConvention.availabilitySet
     location: location
     mlzTags: mlzTags
     tags: tags
@@ -78,18 +96,17 @@ module availabilitySet 'availability-set.bicep' = {
 
 module domainControllers 'domain-controller.bicep' = [for i in range(0, vmCount): {
   name: 'deploy-adds-dc-${i}-${deploymentNameSuffix}'
-  scope: resourceGroup(identity.subscriptionId, resourceGroupName)
+  scope: resourceGroup(tier.subscriptionId, resourceGroupName)
   params: {
     adminPassword: adminPassword
     adminUsername: adminUsername
     availabilitySetResourceId: availabilitySet.outputs.resourceId
     delimiter: delimiter
     deploymentNameSuffix: deploymentNameSuffix
-    diskEncryptionSetResourceId: diskEncryptionSet.outputs.resourceId
+    diskEncryptionSetResourceId: hubSubscriptionId == identitySubscriptionId ? diskEncryptionSetResourceId : diskEncryptionSet.outputs.resourceId
     dnsForwarder: dnsForwarder
     domainName: domainName
     hybridUseBenefit: hybridUseBenefit
-    identity: identity
     identityResourceGroupName: identityResourceGroupName
     imageOffer: imageOffer
     imagePublisher: imagePublisher
@@ -102,6 +119,7 @@ module domainControllers 'domain-controller.bicep' = [for i in range(0, vmCount)
     storageAccountType: storageAccountType
     subnetResourceId: subnetResourceId
     tags: tags
+    tier: tier
     vmSize: vmSize
   }
   dependsOn: [
