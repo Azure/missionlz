@@ -1,6 +1,6 @@
 # Mission Landing Zone - Deployment Guide using a Template Spec
 
-[**Home**](../../README.md) | [**Design**](../design.md) | [**Add-Ons**](../../src/bicep/add-ons/README.md) | [**Resources**](../resources.md)
+[**Home**](../../README.md) | [**Design**](../design.md) | [**Add-Ons**](../../src/add-ons/README.md) | [**Resources**](../resources.md)
 
 ## Table of Contents
 
@@ -25,8 +25,8 @@ The following prerequisites are required on the target Azure subscription(s):
 Use the following steps to create the Template Spec resource using CloudShell:
 
 1. Download the following files to your local workstation:
-   1. [src/bicep/mlz.json](../../src/bicep/mlz.json)
-   1. [src/bicep/form/mlz.portal.json](../../src/bicep/form/mlz.portal.json)
+   1. [src/bicep/mlz.json](../../src/mlz.json)
+   1. [src/bicep/form/mlz.portal.json](../../src/form/mlz.portal.json)
 1. If applicable, transfer the files to a workstation in the target network.
 1. Login to the Azure Portal.
 1. Create a storage account for CloudShell using the following settings:

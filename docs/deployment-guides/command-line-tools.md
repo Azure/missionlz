@@ -1,6 +1,6 @@
 # Mission Landing Zone - Deployment Guide using Command Line Tools
 
-[**Home**](../../README.md) | [**Design**](../design.md) | [**Add-Ons**](../../src/bicep/add-ons/README.md) | [**Resources**](../resources.md)
+[**Home**](../../README.md) | [**Design**](../design.md) | [**Add-Ons**](../../src/add-ons/README.md) | [**Resources**](../resources.md)
 
 ## Table of Contents
 
@@ -11,9 +11,9 @@
 - [Remove MLZ](#remove-mlz)
 - [References](#references)
 
-This guide describes how to deploy Mission Landing Zone (MLZ) using the ARM template at [src/bicep/mlz.json](../../src/bicep/mlz.json) using either Azure CLI or Azure PowerShell. The supported clouds for this guide include the Azure Commercial, Azure Government, Azure Government Secret, and Azure Government Top Secret.
+This guide describes how to deploy Mission Landing Zone (MLZ) using the ARM template at [src/bicep/mlz.json](../../src/mlz.json) using either Azure CLI or Azure PowerShell. The supported clouds for this guide include the Azure Commercial, Azure Government, Azure Government Secret, and Azure Government Top Secret.
 
-MLZ has only one required parameter and provides sensible defaults for the rest, allowing for simple deployments that specify only the parameters that need to differ from the defaults. See the [README.md](../../src/bicep/README.md) document in the **src/bicep** folder for a complete list of parameters.
+MLZ has only one required parameter and provides sensible defaults for the rest, allowing for simple deployments that specify only the parameters that need to differ from the defaults. See the [README.md](../../src/README.md) document in the **src/bicep** folder for a complete list of parameters.
 
 ## Prerequisites
 
@@ -149,7 +149,7 @@ Parameter Name | Default Value | Description
 `deployPolicy` | 'false' | When set to "true", deploys the Azure Policy set defined at by the parameter "policy" to the resource groups generated in the deployment. It defaults to "false".
 `policy` | NISTRev4 | [NISTRev4/NISTRev5/IL5/CMMC] Built-in policy assignments to assign, it defaults to "NISTRev4". IL5 is only available for AzureUsGovernment and will switch to NISTRev4 if tried in AzureCloud.
 
-Under the [src/bicep/modules/policies](../src/bicep/modules/policies) directory are JSON files named for the initiatives with default parameters (except for a Log Analytics workspace ID value `<LAWORKSPACE>` that we substitute at deployment time -- any other parameter can be modified as needed).
+Under the [src/bicep/modules/policies](../src/modules/policies) directory are JSON files named for the initiatives with default parameters (except for a Log Analytics workspace ID value `<LAWORKSPACE>` that we substitute at deployment time -- any other parameter can be modified as needed).
 
 ### Microsoft Defender for Cloud
 
@@ -243,7 +243,7 @@ Parameter Name | Default Value | Description
 
 ### Modifying the Naming Conventions
 
-MLZ resources are named according to the naming conventions defined in the following bicep file: [src/bicep/modules/naming-convention.bicep](../../src/bicep/modules/naming-convention.bicep)
+MLZ resources are named according to the naming conventions defined in the following bicep file: [src/bicep/modules/naming-convention.bicep](../../src/modules/naming-convention.bicep)
 
 There are two conventions used, depending on the type of resource. One convention is used to signify the relationship between itself and parent resources so the name contains a service token. The other convention is the same except it lacks the service token. Global resources, like storage accounts, use the unique string function to create names that will prevent collisions with other Azure customers.
 
@@ -296,7 +296,7 @@ az deployment sub create \
 
 ## Deployment Output
 
-After you've deployed Mission Landing Zone you can integrate [add-ons](../../src/bicep/add-ons/README.md) with the output of MLZ. PowerShell, Azure CLI, and JMESpath queries allow you to retrieve outputs from a deployment and pass them as parameters into another deployment.
+After you've deployed Mission Landing Zone you can integrate [add-ons](../../src/add-ons/README.md) with the output of MLZ. PowerShell, Azure CLI, and JMESpath queries allow you to retrieve outputs from a deployment and pass them as parameters into another deployment.
 
 - **PowerShell:** use the `Get-AzSubscriptionDeployment` cmdlet.
 - **Azure CLI:** use the `az deployment sub show` command with a `--query` argument to retrieve information about the resources you deployed.

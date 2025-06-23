@@ -55,7 +55,7 @@ param nicPrivateIPAddressAllocationMethod string = 'Static'
 param nicPrivateIPAddresses array = []
 
 @description('Uri to the container that contains the DSC configuration and the Custom Script')
-param extensionsFilesContainerUri string = 'https://raw.githubusercontent.com/Azure/missionlz/main/src/bicep/examples/iaas-dns-forwarders/extensions'
+param extensionsFilesContainerUri string = 'https://raw.githubusercontent.com/Azure/missionlz/main/src/examples/iaas-dns-forwarders/extensions'
 
 @description('SAS Token to access the container that contains the DSC configuration and the Custom Script. Defaults to none for a public container')
 @secure()

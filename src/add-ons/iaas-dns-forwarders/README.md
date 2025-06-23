@@ -21,13 +21,13 @@ The two Windows DNS Servers are configured to act as DNS servers for all Virtual
 ## Pre-requisites
 
 1. A Mission LZ deployment (a deployment of mlz.bicep)
-2. The outputs from a deployment of mlz.bicep (./src/bicep/examples/deploymentVariables.json).  
+2. The outputs from a deployment of mlz.bicep (./src/examples/deploymentVariables.json).  
 
 ### Generate MLZ Variable File (deploymentVariables.json)
 
 For instructions on generating 'deploymentVariables.json' using both Azure PowerShell and Azure CLI, please see the [README at the root of the examples folder](..\README.md).
 
-Place the resulting 'deploymentVariables.json' file within the ./src/bicep/examples folder.
+Place the resulting 'deploymentVariables.json' file within the ./src/examples folder.
 
 ## Deployment
 
@@ -102,7 +102,7 @@ The [forwarderVm.bicep template](forwarderVm.bicep) goes through the following s
 
 1. Deploy Availability Set.
 2. Deploy Network Interfaces.
-3. Deploys Virtual Machines (using the [MLZ VM Module](https://github.com/FabienGilbert/mlz/blob/main/src/bicep/modules/windows-virtual-machine.bicep)).
+3. Deploys Virtual Machines (using the [MLZ VM Module](https://github.com/FabienGilbert/mlz/blob/main/src/modules/windows-virtual-machine.bicep)).
 4. Deploys the PowerShell DSC VM Extension, to install the Windows DNS Server feature and configure the default server forwarders (provided in the `dnsServerForwardersIpAddresses` parameter).
 5. Deploy the Custom Script VM Extension, to create the Conditional DNS Forwarders (provided in the `conditionalDnsServerForwarders` parameter).
 

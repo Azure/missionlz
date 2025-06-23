@@ -1,6 +1,6 @@
 # Mission Landing Zone - Deployment Guide using the Azure Portal
 
-[**Home**](../../README.md) | [**Design**](../design.md) | [**Add-Ons**](../../src/bicep/add-ons/README.md) | [**Resources**](../resources.md)
+[**Home**](../../README.md) | [**Design**](../design.md) | [**Add-Ons**](../../src/add-ons/README.md) | [**Resources**](../resources.md)
 
 ## Table of Contents
 
