@@ -20,7 +20,7 @@ resource networkSecurityGroup 'Microsoft.Network/networkSecurityGroups@2021-02-0
   name: networkSecurityGroupName
 }
 
-resource diagnostics 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' = {
+resource diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' = {
   scope: networkSecurityGroup
   name: networkSecurityGroupDiagnosticSettingName
   properties: {
