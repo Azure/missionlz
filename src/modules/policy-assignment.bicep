@@ -12,7 +12,7 @@ param windowsAdministratorsGroupMembership string
 var policyDefinitionID = {
   NISTRev4: {
     id: '/providers/Microsoft.Authorization/policySetDefinitions/cf25b9c1-bd23-4eb6-bd2c-f4f3ac644a5f'
-    parameters: union(json(loadTextContent('policies/NISTRev4-policyAssignmentParameters.json')), {
+    parameters: union(json(loadTextContent('../policies/NISTRev4-policyAssignmentParameters.json')), {
       listOfMembersToIncludeInWindowsVMAdministratorsGroup: {
         value: windowsAdministratorsGroupMembership
       }
@@ -23,11 +23,11 @@ var policyDefinitionID = {
   }
   NISTRev5: {
     id: '/providers/Microsoft.Authorization/policySetDefinitions/179d1daa-458f-4e47-8086-2a68d0d6c38f'
-    parameters: json(loadTextContent('policies/NISTRev5-policyAssignmentParameters.json'))
+    parameters: json(loadTextContent('../policies/NISTRev5-policyAssignmentParameters.json'))
   }
   IL5: {
     id: '/providers/Microsoft.Authorization/policySetDefinitions/f9a961fa-3241-4b20-adc4-bbf8ad9d7197'
-    parameters: union(json(loadTextContent('policies/IL5-policyAssignmentParameters.json')), {
+    parameters: union(json(loadTextContent('../policies/IL5-policyAssignmentParameters.json')), {
       logAnalyticsWorkspaceIDForVMAgents: {
         value: logAnalyticsWorkspace.id
       }
@@ -38,7 +38,7 @@ var policyDefinitionID = {
   }
   CMMC: {
     id: '/providers/Microsoft.Authorization/policySetDefinitions/b5629c75-5c77-4422-87b9-2509e680f8de'
-    parameters: union(json(loadTextContent('policies/CMMC-policyAssignmentParameters.json')),{
+    parameters: union(json(loadTextContent('../policies/CMMC-policyAssignmentParameters.json')),{
       'logAnalyticsWorkspaceId-f47b5582-33ec-4c5c-87c0-b010a6b2e917': {
         value: logAnalyticsWorkspace.properties.customerId
       }
