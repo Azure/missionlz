@@ -14,13 +14,14 @@ param bastionHostSubnetResourceId string
 param delimiter string
 param deployBastion bool
 param deployLinuxVirtualMachine bool
+param deploymentNameSuffix string
 param deployWindowsVirtualMachine bool
-param diskEncryptionSetResourceId string
 param hub object
 param hubNetworkSecurityGroupResourceId string
 param hubResourceGroupName string
 param hubSubnetResourceId string
 param hybridUseBenefit bool
+param keyVaultResourceId string
 @secure()
 @minLength(12)
 param linuxVmAdminPasswordOrKey string
@@ -50,6 +51,29 @@ param windowsVmSize string
 param windowsVmStorageAccountType string
 param windowsVmVersion string
 
+module key '../modules/key-vault-key.bicep' = {
+  name: 'deploy-ra-key-${deploymentNameSuffix}'
+  scope: resourceGroup(split(keyVaultResourceId, '/')[2], split(keyVaultResourceId, '/')[4])
+  params: {
+    keyName: hub.namingConvention.diskEncryptionSet
+    keyVaultName: split(keyVaultResourceId, '/')[8]
+  }
+}
+
+module diskEncryptionSet '../modules/disk-encryption-set.bicep' = {
+  name: 'deploy-ra-disk-encryption-set-${deploymentNameSuffix}'
+  scope: resourceGroup(hub.subscriptionId, hubResourceGroupName)
+  params: {
+    deploymentNameSuffix: deploymentNameSuffix
+    diskEncryptionSetName: hub.namingConvention.diskEncryptionSet
+    keyUrl: key.outputs.keyUriWithVersion
+    keyVaultResourceId: keyVaultResourceId
+    location: location
+    mlzTags: mlzTags
+    tags: tags
+  }
+}
+
 module bastionHost '../modules/bastion-host.bicep' =
   if (deployBastion) {
     name: 'remoteAccess-bastionHost'
@@ -77,7 +101,7 @@ module linuxVirtualMachine '../modules/virtual-machine.bicep' =
       authenticationType: linuxVmAuthenticationType
       // dataCollectionRuleAssociationName: dataCollectionRuleAssociationName
       // dataCollectionRuleResourceId: dataCollectionRuleResourceId
-      diskEncryptionSetResourceId: diskEncryptionSetResourceId
+      diskEncryptionSetResourceId: diskEncryptionSet.outputs.resourceId
       diskName: '${hub.namingConvention.virtualMachineDisk}${delimiter}lra' // lra = Linux Remote Access
       imageOffer: linuxVmImageOffer
       imagePublisher: linuxVmImagePublisher
@@ -105,7 +129,7 @@ module windowsVirtualMachine '../modules/virtual-machine.bicep' =
       authenticationType: 'password'
       // dataCollectionRuleAssociationName: dataCollectionRuleAssociationName
       // dataCollectionRuleResourceId: dataCollectionRuleResourceId
-      diskEncryptionSetResourceId: diskEncryptionSetResourceId
+      diskEncryptionSetResourceId: diskEncryptionSet.outputs.resourceId
       diskName: '${hub.namingConvention.virtualMachineDisk}${delimiter}wra' // wra = Windows Remote Access
       hybridUseBenefit: hybridUseBenefit
       imageOffer: windowsVmImageOffer
