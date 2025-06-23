@@ -733,6 +733,8 @@ module networking 'modules/networking.bicep' = {
 }
 
 // CUSTOMER MANAGED KEYS
+// Deploys a key vault for the customer managed key configurations in all the storage accounts in all the tiers and
+// the disk encryption set for the remote access virtual machines in the hub tier.
 
 module customerManagedKeys 'modules/customer-managed-keys.bicep' = {
   name: 'deploy-cmk-hub-${deploymentNameSuffix}'
