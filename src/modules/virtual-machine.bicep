@@ -51,6 +51,68 @@ var linuxConfiguration = {
     ]
   }
 }
+// List of supported image SKUs for the Dependency Agent based on the documenation:
+// - https://learn.microsoft.com/azure/virtual-machines/extensions/agent-dependency-windows
+// - https://learn.microsoft.com/azure/virtual-machines/extensions/agent-dependency-linux
+var dependencyAgentSupport = [
+  '74-gen2' // RedHat 7.4 Gen2
+  '75-gen2' // RedHat 7.5 Gen2
+  '76-gen2' // RedHat 7.6 Gen2
+  '77-gen2' // RedHat 7.7 Gen2
+  '78-gen2' // RedHat 7.8 Gen2
+  '79-gen2' // RedHat 7.9 Gen2
+  '8-gen2' // RedHat 8 Gen2
+  '8-lvm-gen2' // RedHat 8 LVM Gen2
+  '81-ci-gen2' // RedHat 8.1 Gen2
+  '81gen2' // RedHat 8.1 Gen2
+  '82-gen2' // RedHat 8.2 Gen2
+  '83-gen2' // RedHat 8.3 Gen2
+  '84-gen2' // RedHat 8.4 Gen2
+  '85-gen2' // RedHat 8.5 Gen2
+  '86-gen2' // RedHat 8.6 Gen2
+  '16_04-daily-lts-gen2' // Ubuntu 16.04 LTS Gen2
+  '16_04-lts-gen2' // Ubuntu 16.04 LTS Gen2
+  '16_04_0-lts-gen2' // Ubuntu 16.04 LTS Gen2
+  '18_04-daily-lts-gen2' // Ubuntu 18.04 LTS Gen2
+  '18_04-lts-gen2' // Ubuntu 18.04 LTS Gen2
+  '20_04-lts-gen2' // Ubuntu 20.04 LTS Gen2
+  '2016-Datacenter' // Windows Server 2016 Datacenter
+  '2016-datacenter-gensecond' // Windows Server 2016 Datacenter Gen2
+  '2016-datacenter-gs' // Windows Server 2016 Datacenter Gen2 with Storage Spaces
+  '2016-Datacenter-smalldisk' // Windows Server 2016 Datacenter Small Disk
+  '2016-datacenter-smalldisk-g2' // Windows Server 2016 Datacenter Small Disk Gen2
+  '2016-Datacenter-with-Containers' // Windows Server 2016 Datacenter with Containers
+  '2016-datacenter-with-containers-g2' // Windows Server 2016 Datacenter with Containers Gen2
+  '2016-Datacenter-zhcn' // Windows Server 2016 Datacenter Chinese
+  '2016-datacenter-zhcn-g2' // Windows Server 2016 Datacenter Chinese Gen2
+  '2019-Datacenter' // Windows Server 2019 Datacenter
+  '2019-datacenter-gensecond' // Windows Server 2019 Datacenter Gen2
+  '2019-datacenter-gs' // Windows Server 2019 Datacenter Gen2 with Storage Spaces
+  '2019-datacenter-gs-g2' // Windows Server 2019 Datacenter Gen2 with Storage Spaces Gen2
+  '2019-Datacenter-smalldisk' // Windows Server 2019 Datacenter Small Disk
+  '2019-datacenter-smalldisk-g2' // Windows Server 2019 Datacenter Small Disk Gen2
+  '2019-Datacenter-with-Containers' // Windows Server 2019 Datacenter with Containers
+  '2019-datacenter-with-containers-g2' // Windows Server 2019 Datacenter with Containers Gen2
+  '2019-datacenter-with-containers-gs' // Windows Server 2019 Datacenter with Containers Gen2 with Storage Spaces
+  '2019-Datacenter-with-Containers-smalldisk' // Windows Server 2019 Datacenter with Containers Small Disk
+  '2019-datacenter-with-containers-smalldisk-g2' // Windows Server 2019 Datacenter with Containers Small Disk Gen2
+  '2019-Datacenter-zhcn' // Windows Server 2019 Datacenter Chinese
+  '2019-datacenter-zhcn-g2' // Windows Server 2019 Datacenter Chinese Gen2
+  '2022-datacenter' // Windows Server 2022 Datacenter
+  '2022-datacenter-azure-edition' // Windows Server 2022 Datacenter Azure Edition
+  '2022-datacenter-azure-edition-core' // Windows Server 2022 Datacenter Azure Edition Core
+  '2022-datacenter-azure-edition-core-smalldisk' // Windows Server 2022 Datacenter Azure Edition Core Small Disk
+  '2022-datacenter-azure-edition-hotpatch' // Windows Server 2022 Datacenter Azure Edition Hotpatch
+  '2022-datacenter-azure-edition-hotpatch-smalldisk' // Windows Server 2022 Datacenter Azure Edition Hotpatch Small Disk
+  '2022-datacenter-azure-edition-smalldisk' // Windows Server 2022 Datacenter Azure Edition Small Disk
+  '2022-datacenter-core' // Windows Server 2022 Datacenter Core
+  '2022-datacenter-core-g2' // Windows Server 2022 Datacenter Core Gen2
+  '2022-datacenter-core-smalldisk' // Windows Server 2022 Datacenter Core Small Disk
+  '2022-datacenter-core-smalldisk-g2' // Windows Server 2022 Datacenter Core Small Disk Gen2
+  '2022-datacenter-g2' // Windows Server 2022 Datacenter Gen2
+  '2022-datacenter-smalldisk' // Windows Server 2022 Datacenter Small Disk
+  '2022-datacenter-smalldisk-g2' // Windows Server 2022 Datacenter Small Disk Gen2
+]
 
 resource networkInterface 'Microsoft.Network/networkInterfaces@2021-02-01' = {
   name: networkInterfaceName
@@ -235,7 +297,7 @@ resource extension_AzureMonitorAgent 'Microsoft.Compute/virtualMachines/extensio
   ]
 } */
 
-resource extension_DependencyAgent 'Microsoft.Compute/virtualMachines/extensions@2024-11-01' = {
+resource extension_DependencyAgent 'Microsoft.Compute/virtualMachines/extensions@2024-11-01' = if (contains(dependencyAgentSupport, imageSku)) {
   parent: virtualMachine
   name: 'DependencyAgent${osType}'
   location: location
