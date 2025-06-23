@@ -31,20 +31,6 @@ module keyVault 'key-vault.bicep' = {
   }
 }
 
-module diskEncryptionSet 'disk-encryption-set.bicep' = {
-  name: 'deploy-cmk-des-${deploymentNameSuffix}'
-  scope: resourceGroup(tier.subscriptionId, resourceGroupName)
-  params: {
-    deploymentNameSuffix: deploymentNameSuffix
-    diskEncryptionSetName: tier.namingConvention.diskEncryptionSet
-    keyUrl: keyVault.outputs.disksKeyUriWithVersion
-    keyVaultResourceId: keyVault.outputs.keyVaultResourceId
-    location: location
-    mlzTags: mlzTags
-    tags: tags
-  }
-}
-
 module userAssignedIdentity 'user-assigned-identity.bicep' = {
   name: 'deploy-cmk-id-${deploymentNameSuffix}'
   scope: resourceGroup(tier.subscriptionId, resourceGroupName)
@@ -57,13 +43,10 @@ module userAssignedIdentity 'user-assigned-identity.bicep' = {
   }
 }
 
-output diskEncryptionSetResourceId string = diskEncryptionSet.outputs.resourceId
-output disksKeyUriWithVersion string = keyVault.outputs.disksKeyUriWithVersion
 output keyVaultName string = keyVault.outputs.keyVaultName
 output keyVaultUri string = keyVault.outputs.keyVaultUri
 output keyVaultResourceId string = keyVault.outputs.keyVaultResourceId
 output networkInterfaceResourceIds array = [
   keyVault.outputs.networkInterfaceResourceId
 ]
-output storageKeyName string = keyVault.outputs.storageKeyName
 output userAssignedIdentityResourceId string = userAssignedIdentity.outputs.resourceId
