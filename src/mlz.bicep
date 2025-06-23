@@ -733,11 +733,9 @@ module networking 'modules/networking.bicep' = {
 }
 
 // CUSTOMER MANAGED KEYS
-// Deploys a key vault for the customer managed key configurations in all the storage accounts in all the tiers and
-// the disk encryption set for the remote access virtual machines in the hub tier.
 
 module customerManagedKeys 'modules/customer-managed-keys.bicep' = {
-  name: 'deploy-cmk-hub-${deploymentNameSuffix}'
+  name: 'deploy-cmk-${deploymentNameSuffix}'
   params: {
     deploymentNameSuffix: deploymentNameSuffix
     environmentAbbreviation: environmentAbbreviation
@@ -784,13 +782,14 @@ module remoteAccess 'modules/remote-access.bicep' = {
     delimiter: logic.outputs.delimiter
     deployBastion: deployBastion
     deployLinuxVirtualMachine: deployLinuxVirtualMachine
+    deploymentNameSuffix: deploymentNameSuffix
     deployWindowsVirtualMachine: deployWindowsVirtualMachine
-    diskEncryptionSetResourceId: customerManagedKeys.outputs.diskEncryptionSetResourceId
     hub: filter(logic.outputs.tiers, tier => tier.name == 'hub')[0]
     hubNetworkSecurityGroupResourceId: networking.outputs.hubNetworkSecurityGroupResourceId
     hubResourceGroupName: filter(resourceGroups.outputs.names, name => contains(name, 'hub'))[0]
     hubSubnetResourceId: networking.outputs.hubSubnetResourceId
     hybridUseBenefit: hybridUseBenefit
+    keyVaultResourceId: customerManagedKeys.outputs.keyVaultResourceId
     linuxVmAdminPasswordOrKey: linuxVmAdminPasswordOrKey
     linuxVmAdminUsername: linuxVmAdminUsername
     linuxVmAuthenticationType: linuxVmAuthenticationType
@@ -823,13 +822,12 @@ module storage 'modules/storage.bicep' = {
     //deployIdentity: deployIdentity
     deploymentNameSuffix: deploymentNameSuffix
     filesPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.file
-    keyVaultUri: customerManagedKeys.outputs.keyVaultUri
+    keyVaultResourceId: customerManagedKeys.outputs.keyVaultResourceId
     location: location
     logStorageSkuName: logStorageSkuName
     mlzTags: logic.outputs.mlzTags
     queuesPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.queue
     resourceGroupNames: resourceGroups.outputs.names
-    storageEncryptionKeyName: customerManagedKeys.outputs.storageKeyName
     tablesPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.table
     tags: tags
     tiers: logic.outputs.tiers
@@ -840,10 +838,10 @@ module storage 'modules/storage.bicep' = {
   ]
 }
 
-// DIAGONSTIC LOGGING
+// DIAGONSTIC SETTINGS FOR LOGGING
 
-module diagnostics 'modules/diagnostics.bicep' = {
-  name: 'deploy-resource-diag-${deploymentNameSuffix}'
+module diagnosticSettings 'modules/diagnostic-settings.bicep' = {
+  name: 'deploy-diagnostic-settings-${deploymentNameSuffix}'
   params: {
     bastionDiagnosticsLogs: bastionDiagnosticsLogs
     bastionDiagnosticsMetrics: bastionDiagnosticsMetrics
@@ -871,35 +869,26 @@ module diagnostics 'modules/diagnostics.bicep' = {
   }
 }
 
-// POLICY ASSIGNMENTS
+// SECURITY AND COMPLIANCE
+// Enables Microsoft Defender for Cloud and assigns the selected built-in policy.
 
-module policyAssignments 'modules/policy-assignments.bicep' =
-  if (deployPolicy) {
-    name: 'assign-policies-${deploymentNameSuffix}'
-    params: {
-      deploymentNameSuffix: deploymentNameSuffix
-      location: location
-      logAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
-      policy: policy
-      resourceGroupNames: resourceGroups.outputs.names
-      tiers: logic.outputs.tiers
-      windowsAdministratorsGroupMembership: windowsVmAdminUsername
-    }
+module security 'modules/security.bicep' = {
+  name: 'deploy-security-${deploymentNameSuffix}'
+  params: {
+    defenderPlans: deployDefenderPlans
+    defenderSkuTier: defenderSkuTier
+    deployDefender: deployDefender
+    deployPolicy: deployPolicy
+    deploymentNameSuffix: deploymentNameSuffix
+    emailSecurityContact: emailSecurityContact
+    location: location
+    logAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
+    policy: policy
+    resourceGroupNames: resourceGroups.outputs.names
+    tiers: logic.outputs.tiers
+    windowsAdministratorsGroupMembership: windowsVmAdminUsername
   }
-
-// MICROSOFT DEFENDER FOR CLOUD
-
-module defenderforClouds 'modules/defender-for-clouds.bicep' =
-  if (deployDefender) {
-    name: 'deploy-defender-${deploymentNameSuffix}'
-    params: {
-      defenderPlans: deployDefenderPlans
-      defenderSkuTier: defenderSkuTier
-      deploymentNameSuffix: deploymentNameSuffix
-      emailSecurityContact: emailSecurityContact
-      tiers: logic.outputs.tiers
-    }
-  }
+}
 
 // ACTIVE DIRECTORY DOMAIN SERVICES
 
@@ -911,7 +900,6 @@ module activeDirectoryDomainServices 'modules/active-directory-domain-services.b
       adminUsername: windowsVmAdminUsername
       delimiter: logic.outputs.delimiter
       deploymentNameSuffix: deploymentNameSuffix
-      diskEncryptionSetResourceId: customerManagedKeys.outputs.diskEncryptionSetResourceId
       domainName: addsDomainName
       environmentAbbreviation: environmentAbbreviation
       hybridUseBenefit: hybridUseBenefit
@@ -933,7 +921,6 @@ module activeDirectoryDomainServices 'modules/active-directory-domain-services.b
   }
 
 output azureFirewallResourceId string = networking.outputs.azureFirewallResourceId
-output diskEncryptionSetResourceId string = customerManagedKeys.outputs.diskEncryptionSetResourceId
 output hubVirtualNetworkResourceId string = networking.outputs.hubVirtualNetworkResourceId
 output identitySubnetResourceId string = networking.outputs.identitySubnetResourceId
 output locationProperties object = logic.outputs.locationProperties
