@@ -10,7 +10,6 @@ param adminPassword string
 param adminUsername string
 param delimiter string
 param deploymentNameSuffix string
-param diskEncryptionSetResourceId string
 param dnsForwarder string = '168.63.129.16'
 param domainName string
 param environmentAbbreviation string
@@ -47,32 +46,40 @@ module rg 'resource-group.bicep' = {
   }
 }
 
-module keyVault 'key-vault.bicep' = if (hubSubscriptionId != identitySubscriptionId) {
-  name: 'deploy-adds-kv-${deploymentNameSuffix}'
-  scope: resourceGroup(tier.subscriptionId, resourceGroupName)
+module customerManagedKeys 'customer-managed-keys.bicep' = {
+  name: 'deploy-adds-cmk-${deploymentNameSuffix}'
+  scope: subscription(tier.subscriptionId)
   params: {
+    deploymentNameSuffix: deploymentNameSuffix
     environmentAbbreviation: environmentAbbreviation
     keyVaultPrivateDnsZoneResourceId: keyVaultPrivateDnsZoneResourceId
     location: location
     mlzTags: mlzTags
     resourceAbbreviations: resourceAbbreviations
+    resourceGroupName: resourceGroupName
     subnetResourceId: subnetResourceId
     tags: tags
     tier: tier
   }
-  dependsOn: [
-    rg
-  ]
 }
 
-module diskEncryptionSet 'disk-encryption-set.bicep' = if (hubSubscriptionId != identitySubscriptionId) {
+module key '../modules/key-vault-key.bicep' = {
+  name: 'deploy-adds-key-${deploymentNameSuffix}'
+  scope: resourceGroup(tier.subscriptionId, resourceGroupName)
+  params: {
+    keyName: tier.namingConvention.diskEncryptionSet
+    keyVaultName: customerManagedKeys.outputs.keyVaultName
+  }
+}
+
+module diskEncryptionSet 'disk-encryption-set.bicep' = {
   name: 'deploy-adds-des-${deploymentNameSuffix}'
   scope: resourceGroup(tier.subscriptionId, resourceGroupName)
   params: {
     deploymentNameSuffix: deploymentNameSuffix
     diskEncryptionSetName: tier.namingConvention.diskEncryptionSet
-    keyUrl: keyVault.outputs.disksKeyUriWithVersion
-    keyVaultResourceId: keyVault.outputs.keyVaultResourceId
+    keyUrl: key.outputs.keyUriWithVersion
+    keyVaultResourceId: customerManagedKeys.outputs.keyVaultResourceId
     location: location
     mlzTags: mlzTags
     tags: tags
@@ -107,9 +114,7 @@ module domainControllers 'domain-controller.bicep' = [
       availabilitySetResourceId: availabilitySet.outputs.resourceId
       delimiter: delimiter
       deploymentNameSuffix: deploymentNameSuffix
-      diskEncryptionSetResourceId: hubSubscriptionId == identitySubscriptionId
-        ? diskEncryptionSetResourceId
-        : diskEncryptionSet.outputs.resourceId
+      diskEncryptionSetResourceId: diskEncryptionSet.outputs.resourceId
       dnsForwarder: dnsForwarder
       domainName: domainName
       hybridUseBenefit: hybridUseBenefit
