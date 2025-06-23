@@ -43,6 +43,7 @@ module virtualMachine 'virtual-machine.bicep' = {
     availabilitySetResourceId: availabilitySetResourceId
     dataDisks: [{
       caching: 'None'
+      createOption: 'Empty'
       diskSizeGB: 128
       lun: 0
       managedDisk: {
