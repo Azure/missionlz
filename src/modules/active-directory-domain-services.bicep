@@ -61,6 +61,9 @@ module customerManagedKeys 'customer-managed-keys.bicep' = {
     tags: tags
     tier: tier
   }
+  dependsOn: [
+    rg
+  ]
 }
 
 module key '../modules/key-vault-key.bicep' = {
