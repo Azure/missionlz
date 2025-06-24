@@ -11,9 +11,9 @@
 - [Remove MLZ](#remove-mlz)
 - [References](#references)
 
-This guide describes how to deploy Mission Landing Zone (MLZ) using the ARM template at [src/bicep/mlz.json](../../src/mlz.json) using either Azure CLI or Azure PowerShell. The supported clouds for this guide include the Azure Commercial, Azure Government, Azure Government Secret, and Azure Government Top Secret.
+This guide describes how to deploy Mission Landing Zone (MLZ) using the ARM template at [src/mlz.json](../../src/mlz.json) using either Azure CLI or Azure PowerShell. The supported clouds for this guide include the Azure Commercial, Azure Government, Azure Government Secret, and Azure Government Top Secret.
 
-MLZ has only one required parameter and provides sensible defaults for the rest, allowing for simple deployments that specify only the parameters that need to differ from the defaults. See the [README.md](../../src/README.md) document in the **src/bicep** folder for a complete list of parameters.
+MLZ has only one required parameter, identifier, and provides sensible defaults for the rest. This allows for simple deployments that specify only the parameters that need to differ from the defaults. Information on all the parameters will be provided later in this guide. First, the prerequisites must be completed before any deployments are initiated.
 
 ## Prerequisites
 
