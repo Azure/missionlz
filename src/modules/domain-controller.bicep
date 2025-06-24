@@ -102,7 +102,7 @@ module runCommand_DomainControllerPromotion 'run-command.bicep' = {
         value: dnsForwarder
       }
     ]
-    protectedParameters: '[{\'name\': \'AdminPassword\',\'value\': \'${adminPassword}\'},{\'name\':\'SafeModeAdminPassword\',\'value\': \'${safeModeAdminPassword}\'}]'
+    protectedParameters: '[{\'name\':\'AdminPassword\',\'value\':\'${adminPassword}\'},{\'name\':\'SafeModeAdminPassword\',\'value\':\'${safeModeAdminPassword}\'}]'
     script: loadTextContent('../artifacts/New-ADDSForest.ps1')
     tags: tags
     treatFailureAsDeploymentFailure: true
