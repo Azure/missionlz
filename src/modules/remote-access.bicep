@@ -51,7 +51,7 @@ param windowsVmSize string
 param windowsVmStorageAccountType string
 param windowsVmVersion string
 
-module key '../modules/key-vault-key.bicep' = {
+module key '../modules/key-vault-key.bicep' = if (deployLinuxVirtualMachine || deployWindowsVirtualMachine) {
   name: 'deploy-ra-key-${deploymentNameSuffix}'
   scope: resourceGroup(split(keyVaultResourceId, '/')[2], split(keyVaultResourceId, '/')[4])
   params: {
@@ -60,7 +60,7 @@ module key '../modules/key-vault-key.bicep' = {
   }
 }
 
-module diskEncryptionSet '../modules/disk-encryption-set.bicep' = {
+module diskEncryptionSet '../modules/disk-encryption-set.bicep' = if (deployLinuxVirtualMachine || deployWindowsVirtualMachine) {
   name: 'deploy-ra-disk-encryption-set-${deploymentNameSuffix}'
   scope: resourceGroup(hub.subscriptionId, hubResourceGroupName)
   params: {
@@ -74,84 +74,86 @@ module diskEncryptionSet '../modules/disk-encryption-set.bicep' = {
   }
 }
 
-module bastionHost '../modules/bastion-host.bicep' =
-  if (deployBastion) {
-    name: 'remoteAccess-bastionHost'
-    scope: resourceGroup(hub.subscriptionId, hubResourceGroupName)
-    params: {
-      bastionHostSubnetResourceId: bastionHostSubnetResourceId
-      location: location
-      mlzTags: mlzTags
-      name: hub.namingConvention.bastionHost
-      publicIPAddressAllocationMethod: bastionHostPublicIPAddressAllocationMethod
-      publicIPAddressAvailabilityZones: bastionHostPublicIPAddressAvailabilityZones
-      publicIPAddressName: hub.namingConvention.bastionHostPublicIPAddress
-      publicIPAddressSkuName: bastionHostPublicIPAddressSkuName
-      tags: tags
-    }
+module bastionHost '../modules/bastion-host.bicep' = if (deployBastion) {
+  name: 'deploy-ra-bastion-host-${deploymentNameSuffix}'
+  scope: resourceGroup(hub.subscriptionId, hubResourceGroupName)
+  params: {
+    bastionHostSubnetResourceId: bastionHostSubnetResourceId
+    location: location
+    mlzTags: mlzTags
+    name: hub.namingConvention.bastionHost
+    publicIPAddressAllocationMethod: bastionHostPublicIPAddressAllocationMethod
+    publicIPAddressAvailabilityZones: bastionHostPublicIPAddressAvailabilityZones
+    publicIPAddressName: hub.namingConvention.bastionHostPublicIPAddress
+    publicIPAddressSkuName: bastionHostPublicIPAddressSkuName
+    tags: tags
   }
+}
 
-module linuxVirtualMachine '../modules/virtual-machine.bicep' =
-  if (deployLinuxVirtualMachine) {
-    name: 'remoteAccess-linuxVirtualMachine'
-    scope: resourceGroup(hub.subscriptionId, hubResourceGroupName)
-    params: {
-      adminPasswordOrKey: linuxVmAdminPasswordOrKey
-      adminUsername: linuxVmAdminUsername
-      authenticationType: linuxVmAuthenticationType
-      // dataCollectionRuleAssociationName: dataCollectionRuleAssociationName
-      // dataCollectionRuleResourceId: dataCollectionRuleResourceId
-      diskEncryptionSetResourceId: diskEncryptionSet.outputs.resourceId
-      diskName: '${hub.namingConvention.virtualMachineDisk}${delimiter}lra' // lra = Linux Remote Access
-      imageOffer: linuxVmImageOffer
-      imagePublisher: linuxVmImagePublisher
-      imageSku: linuxVmImageSku
-      imageVersion: linuxVmImageVersion
-      location: location
-      mlzTags: mlzTags
-      networkInterfaceName: '${hub.namingConvention.virtualMachineNetworkInterface}${delimiter}lra' // lra = Linux Remote Access
-      networkSecurityGroupResourceId: hubNetworkSecurityGroupResourceId
-      storageAccountType: linuxVmOsDiskType
-      subnetResourceId: hubSubnetResourceId
-      tags: tags
-      virtualMachineName: '${hub.namingConvention.virtualMachine}lra' // lra = Linux Remote Access
-      virtualMachineSize: linuxVmSize
-    }
+module linuxVirtualMachine '../modules/virtual-machine.bicep' = if (deployLinuxVirtualMachine) {
+  name: 'deploy-ra-linux-vm-${deploymentNameSuffix}'
+  scope: resourceGroup(hub.subscriptionId, hubResourceGroupName)
+  params: {
+    adminPasswordOrKey: linuxVmAdminPasswordOrKey
+    adminUsername: linuxVmAdminUsername
+    authenticationType: linuxVmAuthenticationType
+    // dataCollectionRuleAssociationName: dataCollectionRuleAssociationName
+    // dataCollectionRuleResourceId: dataCollectionRuleResourceId
+    diskEncryptionSetResourceId: diskEncryptionSet.outputs.resourceId
+    diskName: '${hub.namingConvention.virtualMachineDisk}${delimiter}lra' // lra = Linux Remote Access
+    imageOffer: linuxVmImageOffer
+    imagePublisher: linuxVmImagePublisher
+    imageSku: linuxVmImageSku
+    imageVersion: linuxVmImageVersion
+    location: location
+    mlzTags: mlzTags
+    networkInterfaceName: '${hub.namingConvention.virtualMachineNetworkInterface}${delimiter}lra' // lra = Linux Remote Access
+    networkSecurityGroupResourceId: hubNetworkSecurityGroupResourceId
+    storageAccountType: linuxVmOsDiskType
+    subnetResourceId: hubSubnetResourceId
+    tags: tags
+    virtualMachineName: '${hub.namingConvention.virtualMachine}lra' // lra = Linux Remote Access
+    virtualMachineSize: linuxVmSize
   }
+}
 
-module windowsVirtualMachine '../modules/virtual-machine.bicep' =
-  if (deployWindowsVirtualMachine) {
-    name: 'remoteAccess-windowsVirtualMachine'
-    scope: resourceGroup(hub.subscriptionId, hubResourceGroupName)
-    params: {
-      adminPasswordOrKey: windowsVmAdminPassword
-      adminUsername: windowsVmAdminUsername
-      authenticationType: 'password'
-      // dataCollectionRuleAssociationName: dataCollectionRuleAssociationName
-      // dataCollectionRuleResourceId: dataCollectionRuleResourceId
-      diskEncryptionSetResourceId: diskEncryptionSet.outputs.resourceId
-      diskName: '${hub.namingConvention.virtualMachineDisk}${delimiter}wra' // wra = Windows Remote Access
-      hybridUseBenefit: hybridUseBenefit
-      imageOffer: windowsVmImageOffer
-      imagePublisher: windowsVmImagePublisher
-      imageSku: windowsVmImageSku
-      imageVersion: windowsVmVersion
-      location: location
-      mlzTags: mlzTags
-      networkInterfaceName: '${hub.namingConvention.virtualMachineNetworkInterface}${delimiter}wra' // wra = Windows Remote Access
-      networkSecurityGroupResourceId: hubNetworkSecurityGroupResourceId
-      storageAccountType: windowsVmStorageAccountType
-      subnetResourceId: hubSubnetResourceId
-      tags: tags
-      virtualMachineName: '${hub.namingConvention.virtualMachine}wra' // wra = Windows Remote Access
-      virtualMachineSize: windowsVmSize
-    }
+module windowsVirtualMachine '../modules/virtual-machine.bicep' = if (deployWindowsVirtualMachine) {
+  name: 'deploy-ra-windows-vm-${deploymentNameSuffix}'
+  scope: resourceGroup(hub.subscriptionId, hubResourceGroupName)
+  params: {
+    adminPasswordOrKey: windowsVmAdminPassword
+    adminUsername: windowsVmAdminUsername
+    authenticationType: 'password'
+    // dataCollectionRuleAssociationName: dataCollectionRuleAssociationName
+    // dataCollectionRuleResourceId: dataCollectionRuleResourceId
+    diskEncryptionSetResourceId: diskEncryptionSet.outputs.resourceId
+    diskName: '${hub.namingConvention.virtualMachineDisk}${delimiter}wra' // wra = Windows Remote Access
+    hybridUseBenefit: hybridUseBenefit
+    imageOffer: windowsVmImageOffer
+    imagePublisher: windowsVmImagePublisher
+    imageSku: windowsVmImageSku
+    imageVersion: windowsVmVersion
+    location: location
+    mlzTags: mlzTags
+    networkInterfaceName: '${hub.namingConvention.virtualMachineNetworkInterface}${delimiter}wra' // wra = Windows Remote Access
+    networkSecurityGroupResourceId: hubNetworkSecurityGroupResourceId
+    storageAccountType: windowsVmStorageAccountType
+    subnetResourceId: hubSubnetResourceId
+    tags: tags
+    virtualMachineName: '${hub.namingConvention.virtualMachine}wra' // wra = Windows Remote Access
+    virtualMachineSize: windowsVmSize
   }
+}
 
 output networkInterfaceResourceIds array = union(
-  deployLinuxVirtualMachine ? [
-    linuxVirtualMachine.outputs.networkInterfaceResourceId
-  ] : [], 
-  deployWindowsVirtualMachine ? [
-    windowsVirtualMachine.outputs.networkInterfaceResourceId
-  ] : [])
+  deployLinuxVirtualMachine
+    ? [
+        linuxVirtualMachine.outputs.networkInterfaceResourceId
+      ]
+    : [],
+  deployWindowsVirtualMachine
+    ? [
+        windowsVirtualMachine.outputs.networkInterfaceResourceId
+      ]
+    : []
+)
