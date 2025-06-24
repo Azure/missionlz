@@ -15,7 +15,7 @@ param(
     [string]$DNSForwarder,
 
     [Parameter(Mandatory = $true)]
-    [string]$SafeModePassword
+    [string]$SafeModeAdminPassword
 )
 
 $ErrorActionPreference = 'Stop'
