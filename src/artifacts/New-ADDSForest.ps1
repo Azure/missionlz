@@ -23,13 +23,15 @@ $WarningPreference = 'SilentlyContinue'
 
 $SecureAdminPassword = ConvertTo-SecureString -String $AdminPassword -AsPlainText -Force
 $DomainCredential = New-Object System.Management.Automation.PSCredential ("$($DomainName.Split('.')[0])\$($AdminUsername)", $SecureAdminPassword)
-$SecureSafeModePassword = ConvertTo-SecureString -String $SafeModePassword -AsPlainText -Force
+$SecureSafeModePassword = ConvertTo-SecureString -String $SafeModeAdminPassword -AsPlainText -Force
 
 # Initialize, partition, and format data disk
 $DiskNumber = (Get-Disk | Where-Object { $_.PartitionStyle -eq 'Raw' }).Number
-Initialize-Disk -Number $DiskNumber -PartitionStyle 'GPT' | Out-Null
-New-Partition -DiskNumber $DiskNumber -DriveLetter 'F' -UseMaximumSize | Out-Null
-Format-Volume -DriveLetter 'F' -FileSystem 'NTFS' -NewFileSystemLabel 'ADDS' -Confirm:$false | Out-Null
+if ($DiskNumber) {
+    Initialize-Disk -Number $DiskNumber -PartitionStyle 'GPT' | Out-Null
+    New-Partition -DiskNumber $DiskNumber -DriveLetter 'F' -UseMaximumSize | Out-Null
+    Format-Volume -DriveLetter 'F' -FileSystem 'NTFS' -NewFileSystemLabel 'ADDS' -Confirm:$false | Out-Null
+}
 
 # Install AD DS role
 $FeatureInstalled = (Get-WindowsFeature -Name 'AD-Domain-Services').Installed
@@ -42,8 +44,10 @@ Import-Module -Name 'ADDSDeployment'
 
 # Create new forest
 if ( $DomainControllerNumber -eq 1 ) {
-    $ExistingForest = (Get-ADForest -ErrorAction 'SilentlyContinue').Name
-    if ( $ExistingForest -ne $DomainName) {
+    try {
+        Get-ADForest | Out-Null
+    }
+    catch [Microsoft.ActiveDirectory.Management.ADIdentityNotFoundException] {
         Install-ADDSForest `
             -DatabasePath 'F:\NTDS' `
             -DomainMode 'WinThreshold' `
