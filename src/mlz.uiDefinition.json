@@ -215,8 +215,8 @@
                     "required": true,
                     "validations": [
                       {
-                        "regex": "^[a-z0-9]{1,6}$",
-                        "message": "The prefix must contain alphanumeric characters, letters must be lowercase, and the length must be between 1 to 6 characters."
+                        "regex": "^[a-z0-9]{1,5}$",
+                        "message": "The prefix must contain alphanumeric characters, letters must be lowercase, and the length must be between 1 to 5 characters."
                       }
                     ]
                   }
@@ -1024,18 +1024,25 @@
               "elements": [
                 {
                   "name": "deployADDS",
-                  "label": "Deploy Active Directory Domain Services?",
+                  "label": "Deploy active directory domain services?",
                   "type": "Microsoft.Common.CheckBox",
                   "toolTip": "Check this option to deploy two domain controllers in a new forest within the identity tier / spoke.",
                   "constraints": {
                     "required": false
                   }
-                },
+                }
+              ]
+            },
+            {
+              "name": "forestSection",
+              "label": "Forest settings",
+              "type": "Microsoft.Common.Section",
+              "visible": "[steps('identity').addsSection.deployADDS]",
+              "elements": [
                 {
                   "name": "domainName",
-                  "label": "Domain Name",
+                  "label": "Domain name",
                   "type": "Microsoft.Common.TextBox",
-                  "visible": "[steps('identity').addsSection.deployADDS]",
                   "toolTip": "Provide domain name for the selected Active Directory solution.",
                   "placeholder": "Example: contoso.com",
                   "constraints": {
@@ -1045,10 +1052,10 @@
                 {
                   "name": "safeModeAdminPassword",
                   "label": {
-                    "password": "Safe Mode Admin Password"
+                    "password": "Safe mode admin password",
+                    "confirmPassword": "Confirm safe mode admin password"
                   },
                   "type": "Microsoft.Common.PasswordBox",
-                  "visible": "[steps('identity').addsSection.deployADDS]",
                   "toolTip": "Enter a password that is alphanumeric, contains at least 12 characters, 1 letter, 1 number and 1 special character.",
                   "constraints": {
                     "required": true
@@ -1056,12 +1063,59 @@
                   "options": {
                     "hideConfirmation": false
                   }
+                }
+              ]
+            },
+            {
+              "name": "vmSection",
+              "label": "Virtual machine settings",
+              "type": "Microsoft.Common.Section",
+              "visible": "[steps('identity').addsSection.deployADDS]",
+              "elements": [
+                {
+                  "name": "vmImageSku",
+                  "type": "Microsoft.Common.DropDown",
+                  "label": "Windows server image",
+                  "defaultValue": "2022 Datacenter Gen2",
+                  "toolTip": "Select the Windows Server operating system for the domain controllers.",
+                  "placeholder": "",
+                  "multiselect": false,
+                  "selectAll": false,
+                  "multiLine": true,
+                  "constraints": {
+                    "allowedValues": [
+                      {
+                        "label": "2019 Datacenter Core Gen2",
+                        "value": "2019-datacenter-core-g2"
+                      },
+                      {
+                        "label": "2019 Datacenter Gen2",
+                        "value": "2019-datacenter-gensecond"
+                      },
+                      {
+                        "label": "2022 Datacenter Core Gen2",
+                        "value": "2022-datacenter-core-g2"
+                      },
+                      {
+                        "label": "2022 Datacenter Gen2",
+                        "value": "2022-datacenter-g2"
+                      }
+                    ]
+                  }
+                },
+                                {
+                  "name": "hybridUseBenefit",
+                  "type": "Microsoft.Common.CheckBox",
+                  "label": "Enable hybrid use benefit?",
+                  "toolTip": "Check here to enable the Hybrid Use Benefit on the domain controllers.",
+                  "constraints": {
+                    "required": false
+                  }
                 },
                 {
                   "name": "vmSize",
-                  "label": "Virtual Machine Size",
+                  "label": "Size",
                   "type": "Microsoft.Compute.SizeSelector",
-                  "visible": "[steps('identity').addsSection.deployADDS]",
                   "toolTip": "Select the size of the virtual machines for the domain controllers.",
                   "recommendedSizes": [
                     "Standard_D2s_v3"
@@ -1075,6 +1129,44 @@
                   },
                   "osPlatform": "Windows",
                   "count": 2
+                },
+                {
+                  "name": "credentialTextBlock",
+                  "type": "Microsoft.Common.TextBlock",
+                  "options": {
+                    "text": "Provide the username and password for the local administrator account on the domain controllers."
+                  }
+                },
+                {
+                  "name": "vmAdminUsername",
+                  "type": "Microsoft.Compute.UserNameTextBox",
+                  "label": "Username",
+                  "defaultValue": "",
+                  "toolTip": "Specify the username for the local administrator account on the domain controllers.",
+                  "constraints": {
+                    "required": true,
+                    "regex": "^[a-z0-9A-Z]{1,30}$",
+                    "validationMessage": "Only alphanumeric characters are allowed, and the value must be 1-30 characters long."
+                  },
+                  "osPlatform": "Windows"
+                },
+                {
+                  "name": "vmAdminPassword",
+                  "type": "Microsoft.Common.PasswordBox",
+                  "label": {
+                    "password": "Password",
+                    "confirmPassword": "Confirm password"
+                  },
+                  "defaultValue": "",
+                  "toolTip": "Specify the password for the local administrator account on the domain controllers.",
+                  "constraints": {
+                    "required": true,
+                    "regex": "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{12,72}$",
+                    "validationMessage": "The password must be alphanumeric, contain at least 12 characters, and have at least 1 letter, 1 number and one special character."
+                  },
+                  "options": {
+                    "hideConfirmation": false
+                  }
                 }
               ]
             }
@@ -1526,9 +1618,12 @@
       "location": "[steps('basics').resourceScope.location.name]",
       "subscriptionId": "[steps('basics').resourceScope.subscription.id]",
       "parameters": {
-        "addsDomainName": "[steps('identity').addsSection.domainName]",
-        "addsSafeModeAdminPassword": "[steps('identity').addsSection.safeModeAdminPassword]",
-        "addsVmSize": "[steps('identity').addsSection.vmSize]",
+        "addsDomainName": "[steps('identity').forestSection.domainName]",
+        "addsSafeModeAdminPassword": "[steps('identity').forestSection.safeModeAdminPassword]",
+        "addsVmAdminPassword": "[steps('identity').vmSection.vmAdminPassword.password]",
+        "addsVmAdminUsername": "[steps('identity').vmSection.vmAdminUsername]",
+        "addsVmImageSku": "[steps('identity').vmSection.vmImageSku]",
+        "addsVmSize": "[steps('identity').vmSection.vmSize]",
         "azureGatewaySubnetAddressPrefix": "[steps('remoteAccess').azureGatewaySubnetSection.azureGatewaySubnetAddressCidrRange]",
         "bastionHostSubnetAddressPrefix": "[steps('remoteAccess').azureBastionSection.bastionSubnetAddressCidrRange]",
         "defenderSkuTier": "[if(steps('compliance').defenderSection.deployDefender, 'Standard', 'Free')]",
