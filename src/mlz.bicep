@@ -757,8 +757,8 @@ module networking 'modules/networking.bicep' = {
                               firewallSupernetIPAddress
                             ]
                             destinationAddresses: [
-                              [cidrHost(identityVirtualNetworkAddressPrefix, 3)]
-                              [cidrHost(identityVirtualNetworkAddressPrefix, 4)]
+                              cidrHost(identityVirtualNetworkAddressPrefix, 3)
+                              cidrHost(identityVirtualNetworkAddressPrefix, 4)
                             ]
                             destinationPorts: [
                               '53'    // DNS
@@ -780,8 +780,8 @@ module networking 'modules/networking.bicep' = {
                               firewallSupernetIPAddress
                             ]
                             destinationAddresses: [
-                              [cidrHost(identityVirtualNetworkAddressPrefix, 3)]
-                              [cidrHost(identityVirtualNetworkAddressPrefix, 4)]
+                              cidrHost(identityVirtualNetworkAddressPrefix, 3)
+                              cidrHost(identityVirtualNetworkAddressPrefix, 4)
                             ]
                             destinationPorts: [
                               '53' // DNS over UDP
