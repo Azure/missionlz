@@ -5,18 +5,18 @@ Licensed under the MIT License.
 
 targetScope = 'subscription'
 
-@description('The Active Directory DNS domain name. Required when deployActiveDirectoryDomainServices is true.')
+@description('The root domain name for the new forest in Active Directory Domain Services. Required when deployActiveDirectoryDomainServices is true.')
 param addsDomainName string = ''
 
 @secure()
-@description('The password for the safemode administrator account. Required when deployActiveDirectoryDomainServices is true.')
+@description('The password for the safe mode administrator account. Required when deployActiveDirectoryDomainServices is true.')
 param addsSafeModeAdminPassword string = ''
 
-@description('The administrator username for the Active Directory Domain Services (ADDS) domain controller virtual machines. Required when deployActiveDirectoryDomainServices is true.')
+@description('The password for the local administrator accounts on the Active Directory Domain Services (ADDS) domain controllers. Required when deployActiveDirectoryDomainServices is true.')
 @secure()
 param addsVmAdminPassword string = ''
 
-@description('The administrator password for the Active Directory Domain Services (ADDS) domain controller virtual machines. Required when deployActiveDirectoryDomainServices is true.')
+@description('The username for the local administrator accounts on the Active Directory Domain Services (ADDS) domain controllers. Required when deployActiveDirectoryDomainServices is true.')
 param addsVmAdminUsername string = ''
 
 @allowed([
@@ -25,10 +25,10 @@ param addsVmAdminUsername string = ''
   '2022-datacenter-core-g2' // Windows Server 2022 Datacenter Core Gen2
   '2022-datacenter-g2' // Windows Server 2022 Datacenter Gen2
 ])
-@description('[2019-datacenter-core-g2/2019-datacenter-gensecond/2022-datacenter-core-g2/2022-datacenter-g2] The Windows image SKU in the Azure marketplace for the domain controller. Default value = "2019-datacenter-gensecond".')
+@description('The Windows image SKU in the Azure marketplace for the Active Directory Domain Services (ADDS) domain controllers.')
 param addsVmImageSku string = '2019-datacenter-gensecond'
 
-@description('The virtual machine size for the Active Directory Domain Services (ADDS) domain controllers. Default value = "Standard_D2s_v3".')
+@description('The virtual machine size for the Active Directory Domain Services (ADDS) domain controllers.')
 param addsVmSize string = 'Standard_D2s_v3'
 
 @description('The CIDR Subnet Address Prefix for the Azure Gateway Subnet. It must be in the Hub Virtual Network space. It must be /26.')
@@ -786,6 +786,36 @@ module monitoring 'modules/monitoring.bicep' = {
   }
 }
 
+// ACTIVE DIRECTORY DOMAIN SERVICES
+
+module activeDirectoryDomainServices 'modules/active-directory-domain-services.bicep' =
+  if (deployActiveDirectoryDomainServices && deployIdentity) {
+    name: 'deploy-adds-${deploymentNameSuffix}'
+    params: {
+      adminPassword: addsVmAdminPassword
+      adminUsername: addsVmAdminUsername
+      delimiter: logic.outputs.delimiter
+      deploymentNameSuffix: deploymentNameSuffix
+      domainName: addsDomainName
+      environmentAbbreviation: environmentAbbreviation
+      hybridUseBenefit: hybridUseBenefit
+      imageOffer: 'WindowsServer'
+      imagePublisher: 'MicrosoftWindowsServer'
+      imageSku: addsVmImageSku
+      imageVersion: windowsVmImageVersion
+      keyVaultPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.keyVault
+      location: location
+      mlzTags: logic.outputs.mlzTags
+      resourceAbbreviations: logic.outputs.resourceAbbreviations
+      safeModeAdminPassword: addsSafeModeAdminPassword
+      storageAccountType: windowsVmStorageAccountType
+      subnetResourceId: networking.outputs.identitySubnetResourceId
+      tags: tags
+      tier: filter(logic.outputs.tiers, tier => tier.name == 'identity')[0]
+      vmSize: addsVmSize
+    }
+  }
+
 // REMOTE ACCESS
 
 module remoteAccess 'modules/remote-access.bicep' = {
@@ -850,6 +880,7 @@ module storage 'modules/storage.bicep' = {
     userAssignedIdentityResourceId: customerManagedKeys.outputs.userAssignedIdentityResourceId
   }
   dependsOn: [
+    activeDirectoryDomainServices // This is needed to ensure the first two IPs in the identity subnet are availabile for the domain controllers
     remoteAccess
   ]
 }
@@ -905,36 +936,6 @@ module security 'modules/security.bicep' = {
     windowsAdministratorsGroupMembership: windowsVmAdminUsername
   }
 }
-
-// ACTIVE DIRECTORY DOMAIN SERVICES
-
-module activeDirectoryDomainServices 'modules/active-directory-domain-services.bicep' =
-  if (deployActiveDirectoryDomainServices && deployIdentity) {
-    name: 'deploy-adds-${deploymentNameSuffix}'
-    params: {
-      adminPassword: addsVmAdminPassword
-      adminUsername: addsVmAdminUsername
-      delimiter: logic.outputs.delimiter
-      deploymentNameSuffix: deploymentNameSuffix
-      domainName: addsDomainName
-      environmentAbbreviation: environmentAbbreviation
-      hybridUseBenefit: hybridUseBenefit
-      imageOffer: 'WindowsServer'
-      imagePublisher: 'MicrosoftWindowsServer'
-      imageSku: addsVmImageSku
-      imageVersion: windowsVmImageVersion
-      keyVaultPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.keyVault
-      location: location
-      mlzTags: logic.outputs.mlzTags
-      resourceAbbreviations: logic.outputs.resourceAbbreviations
-      safeModeAdminPassword: addsSafeModeAdminPassword
-      storageAccountType: windowsVmStorageAccountType
-      subnetResourceId: networking.outputs.identitySubnetResourceId
-      tags: tags
-      tier: filter(logic.outputs.tiers, tier => tier.name == 'identity')[0]
-      vmSize: addsVmSize
-    }
-  }
 
 output azureFirewallResourceId string = networking.outputs.azureFirewallResourceId
 output hubVirtualNetworkResourceId string = networking.outputs.hubVirtualNetworkResourceId
