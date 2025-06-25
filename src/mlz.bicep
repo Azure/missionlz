@@ -12,6 +12,22 @@ param addsDomainName string = ''
 @description('The password for the safemode administrator account. Required when deployActiveDirectoryDomainServices is true.')
 param addsSafeModeAdminPassword string = ''
 
+@description('The administrator username for the Active Directory Domain Services (ADDS) domain controller virtual machines. Required when deployActiveDirectoryDomainServices is true.')
+@secure()
+param addsVmAdminPassword string = ''
+
+@description('The administrator password for the Active Directory Domain Services (ADDS) domain controller virtual machines. Required when deployActiveDirectoryDomainServices is true.')
+param addsVmAdminUsername string = ''
+
+@allowed([
+  '2019-datacenter-core-g2' // Windows Server 2019 Datacenter Core Gen2
+  '2019-datacenter-gensecond' // Windows Server 2019 Datacenter Gen2
+  '2022-datacenter-core-g2' // Windows Server 2022 Datacenter Core Gen2
+  '2022-datacenter-g2' // Windows Server 2022 Datacenter Gen2
+])
+@description('[2019-datacenter-core-g2/2019-datacenter-gensecond/2022-datacenter-core-g2/2022-datacenter-g2] The Windows image SKU in the Azure marketplace for the domain controller. Default value = "2019-datacenter-gensecond".')
+param addsVmImageSku string = '2019-datacenter-gensecond'
+
 @description('The virtual machine size for the Active Directory Domain Services (ADDS) domain controllers. Default value = "Standard_D2s_v3".')
 param addsVmSize string = 'Standard_D2s_v3'
 
@@ -277,8 +293,8 @@ param hubVirtualNetworkDiagnosticsMetrics array = [
 param hybridUseBenefit bool = false
 
 @minLength(1)
-@maxLength(6)
-@description('1-6 alphanumeric characters without whitespace, used to name resources and generate uniqueness for resources within your subscription. Ideally, the value should represent an organization, department, or business unit.')
+@maxLength(5)
+@description('1-5 alphanumeric characters without whitespace, used to name resources and generate uniqueness for resources within your subscription. Ideally, the value should represent an organization, department, or business unit.')
 param identifier string
 
 @description('An array of Network Security Group diagnostic logs to apply to the Identity Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-network/virtual-network-nsg-manage-log#log-categories.')
@@ -896,16 +912,16 @@ module activeDirectoryDomainServices 'modules/active-directory-domain-services.b
   if (deployActiveDirectoryDomainServices && deployIdentity) {
     name: 'deploy-adds-${deploymentNameSuffix}'
     params: {
-      adminPassword: windowsVmAdminPassword
-      adminUsername: windowsVmAdminUsername
+      adminPassword: addsVmAdminPassword
+      adminUsername: addsVmAdminUsername
       delimiter: logic.outputs.delimiter
       deploymentNameSuffix: deploymentNameSuffix
       domainName: addsDomainName
       environmentAbbreviation: environmentAbbreviation
       hybridUseBenefit: hybridUseBenefit
-      imageOffer: windowsVmImageOffer
-      imagePublisher: windowsVmImagePublisher
-      imageSku: windowsVmImageSku
+      imageOffer: 'WindowsServer'
+      imagePublisher: 'MicrosoftWindowsServer'
+      imageSku: addsVmImageSku
       imageVersion: windowsVmImageVersion
       keyVaultPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.keyVault
       location: location
