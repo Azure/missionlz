@@ -97,7 +97,7 @@ param deployDefender bool = true
   'SqlServerVirtualMachines'
   'StorageAccounts'
   'VirtualMachine*/
-  
+
 @description('The Paid Workload Protection plans for Defender for Cloud. Default value = "VirtualMachines". See the following URL for valid settings: https://learn.microsoft.com/rest/api/defenderforcloud-composite/pricings/update?view=rest-defenderforcloud-composite-latest&tabs=HTTP.')
 param deployDefenderPlans array = ['VirtualMachines']
 
@@ -148,64 +148,64 @@ param firewallClientSubnetAddressPrefix string = '10.0.128.0/26'
 @description('An array of Firewall Diagnostic Logs categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/firewall/monitor-firewall#enable-diagnostic-logging-through-the-azure-portal.')
 param firewallDiagnosticsLogs array = [
   {
-      category: 'AzureFirewallApplicationRule'
-      enabled: true
+    category: 'AzureFirewallApplicationRule'
+    enabled: true
   }
   {
-      category: 'AzureFirewallNetworkRule'
-      enabled: true
+    category: 'AzureFirewallNetworkRule'
+    enabled: true
   }
   {
-      category: 'AzureFirewallDnsProxy'
-      enabled: enableProxy
+    category: 'AzureFirewallDnsProxy'
+    enabled: enableProxy
   }
   {
-      category: 'AZFWNetworkRule'
-      enabled: true
+    category: 'AZFWNetworkRule'
+    enabled: true
   }
   {
-      category: 'AZFWApplicationRule'
-      enabled: true
+    category: 'AZFWApplicationRule'
+    enabled: true
   }
   {
-      category: 'AZFWNatRule'
-      enabled: true
+    category: 'AZFWNatRule'
+    enabled: true
   }
   {
-      category: 'AZFWThreatIntel'
-      enabled: true
+    category: 'AZFWThreatIntel'
+    enabled: true
   }
   {
-      category: 'AZFWIdpsSignature'
-      enabled: true
+    category: 'AZFWIdpsSignature'
+    enabled: true
   }
   {
-      category: 'AZFWDnsQuery'
-      enabled: true
+    category: 'AZFWDnsQuery'
+    enabled: true
   }
   {
-      category: 'AZFWFqdnResolveFailure'
-      enabled: true
+    category: 'AZFWFqdnResolveFailure'
+    enabled: true
   }
   {
-      category: 'AZFWFatFlow'
-      enabled: true
+    category: 'AZFWFatFlow'
+    enabled: true
   }
   {
-      category: 'AZFWFlowTrace'
-      enabled: true
+    category: 'AZFWFlowTrace'
+    enabled: true
   }
   {
-      category: 'AZFWApplicationRuleAggregation'
-      enabled: true
+    category: 'AZFWApplicationRuleAggregation'
+    enabled: true
   }
   {
-      category: 'AZFWNetworkRuleAggregation'
-      enabled: true
+    category: 'AZFWNetworkRuleAggregation'
+    enabled: true
   }
   {
-      category: 'AZFWNatRuleAggregation'
-      enabled: true
+    category: 'AZFWNatRuleAggregation'
+    enabled: true
   }
 ]
 
@@ -433,7 +433,7 @@ param networkInterfaceDiagnosticsMetrics array = [
   }
 ]
 
-@description('The number of days to retain Network Watcher Flow Logs. Default value = "30".')  
+@description('The number of days to retain Network Watcher Flow Logs. Default value = "30".')
 param networkWatcherFlowLogsRetentionDays int = 30
 
 @allowed([
@@ -595,7 +595,6 @@ param windowsVmSize string = 'Standard_DS1_v2'
 @description('The storage account type of the Windows Virtual Machine for remote access. Default value = "StandardSSD_LRS".')
 param windowsVmStorageAccountType string = 'StandardSSD_LRS'
 
-
 var firewallClientPrivateIpAddress = firewallClientUsableIpAddresses[3]
 var firewallClientUsableIpAddresses = [for i in range(0, 4): cidrHost(firewallClientSubnetAddressPrefix, i)]
 
@@ -608,53 +607,58 @@ module logic 'modules/logic.bicep' = {
     environmentAbbreviation: environmentAbbreviation
     identifier: identifier
     location: location
-    networks: union([
-      {
-        name: 'hub'
-        shortName: 'hub'
-        subscriptionId: hubSubscriptionId
-        nsgDiagLogs: hubNetworkSecurityGroupDiagnosticsLogs
-        nsgRules: hubNetworkSecurityGroupRules
-        vnetAddressPrefix: hubVirtualNetworkAddressPrefix
-        vnetDiagLogs: hubVirtualNetworkDiagnosticsLogs
-        vnetDiagMetrics: hubVirtualNetworkDiagnosticsMetrics
-        subnetAddressPrefix: hubSubnetAddressPrefix
-      }
-      {
-        name: 'operations'
-        shortName: 'ops'
-        subscriptionId: operationsSubscriptionId
-        nsgDiagLogs: operationsNetworkSecurityGroupDiagnosticsLogs
-        nsgRules: operationsNetworkSecurityGroupRules
-        vnetAddressPrefix: operationsVirtualNetworkAddressPrefix
-        vnetDiagLogs: operationsVirtualNetworkDiagnosticsLogs
-        vnetDiagMetrics: operationsVirtualNetworkDiagnosticsMetrics
-        subnetAddressPrefix: operationsSubnetAddressPrefix
-      }
-      {
-        name: 'sharedServices'
-        shortName: 'svcs'
-        subscriptionId: sharedServicesSubscriptionId
-        nsgDiagLogs: sharedServicesNetworkSecurityGroupDiagnosticsLogs
-        nsgRules: sharedServicesNetworkSecurityGroupRules
-        vnetAddressPrefix: sharedServicesVirtualNetworkAddressPrefix
-        vnetDiagLogs: sharedServicesVirtualNetworkDiagnosticsLogs
-        vnetDiagMetrics: sharedServicesVirtualNetworkDiagnosticsMetrics
-        subnetAddressPrefix: sharedServicesSubnetAddressPrefix
-      }
-    ], deployIdentity ? [
-      {
-        name: 'identity'
-        shortName: 'id'
-        subscriptionId: identitySubscriptionId
-        nsgDiagLogs: identityNetworkSecurityGroupDiagnosticsLogs
-        nsgRules: identityNetworkSecurityGroupRules
-        vnetAddressPrefix: identityVirtualNetworkAddressPrefix
-        vnetDiagLogs: identityVirtualNetworkDiagnosticsLogs
-        vnetDiagMetrics: identityVirtualNetworkDiagnosticsMetrics
-        subnetAddressPrefix: identitySubnetAddressPrefix
-      }
-    ] : [])
+    networks: union(
+      [
+        {
+          name: 'hub'
+          shortName: 'hub'
+          subscriptionId: hubSubscriptionId
+          nsgDiagLogs: hubNetworkSecurityGroupDiagnosticsLogs
+          nsgRules: hubNetworkSecurityGroupRules
+          vnetAddressPrefix: hubVirtualNetworkAddressPrefix
+          vnetDiagLogs: hubVirtualNetworkDiagnosticsLogs
+          vnetDiagMetrics: hubVirtualNetworkDiagnosticsMetrics
+          subnetAddressPrefix: hubSubnetAddressPrefix
+        }
+        {
+          name: 'operations'
+          shortName: 'ops'
+          subscriptionId: operationsSubscriptionId
+          nsgDiagLogs: operationsNetworkSecurityGroupDiagnosticsLogs
+          nsgRules: operationsNetworkSecurityGroupRules
+          vnetAddressPrefix: operationsVirtualNetworkAddressPrefix
+          vnetDiagLogs: operationsVirtualNetworkDiagnosticsLogs
+          vnetDiagMetrics: operationsVirtualNetworkDiagnosticsMetrics
+          subnetAddressPrefix: operationsSubnetAddressPrefix
+        }
+        {
+          name: 'sharedServices'
+          shortName: 'svcs'
+          subscriptionId: sharedServicesSubscriptionId
+          nsgDiagLogs: sharedServicesNetworkSecurityGroupDiagnosticsLogs
+          nsgRules: sharedServicesNetworkSecurityGroupRules
+          vnetAddressPrefix: sharedServicesVirtualNetworkAddressPrefix
+          vnetDiagLogs: sharedServicesVirtualNetworkDiagnosticsLogs
+          vnetDiagMetrics: sharedServicesVirtualNetworkDiagnosticsMetrics
+          subnetAddressPrefix: sharedServicesSubnetAddressPrefix
+        }
+      ],
+      deployIdentity
+        ? [
+            {
+              name: 'identity'
+              shortName: 'id'
+              subscriptionId: identitySubscriptionId
+              nsgDiagLogs: identityNetworkSecurityGroupDiagnosticsLogs
+              nsgRules: identityNetworkSecurityGroupRules
+              vnetAddressPrefix: identityVirtualNetworkAddressPrefix
+              vnetDiagLogs: identityVirtualNetworkDiagnosticsLogs
+              vnetDiagMetrics: identityVirtualNetworkDiagnosticsMetrics
+              subnetAddressPrefix: identitySubnetAddressPrefix
+            }
+          ]
+        : []
+    )
   }
 }
 
@@ -684,10 +688,12 @@ module networking 'modules/networking.bicep' = {
     deploymentNameSuffix: deploymentNameSuffix
     deployBastion: deployBastion
     deployAzureGatewaySubnet: deployAzureGatewaySubnet
-    dnsServers: deployIdentity && deployActiveDirectoryDomainServices ? [
-      cidrHost(identitySubnetAddressPrefix, hubSubscriptionId == identitySubscriptionId ? 3 : 4) // when the sub IDs are the same, a key vault is not deployed in the identity spoke
-      cidrHost(identitySubnetAddressPrefix, hubSubscriptionId == identitySubscriptionId ? 4 : 5) // when the sub IDs are the same, a key vault is not deployed in the identity spoke
-    ] : dnsServers
+    dnsServers: deployIdentity && deployActiveDirectoryDomainServices
+      ? [
+          cidrHost(identitySubnetAddressPrefix, hubSubscriptionId == identitySubscriptionId ? 3 : 4) // when the sub IDs are the same, a key vault is not deployed in the identity spoke
+          cidrHost(identitySubnetAddressPrefix, hubSubscriptionId == identitySubscriptionId ? 4 : 5) // when the sub IDs are the same, a key vault is not deployed in the identity spoke
+        ]
+      : dnsServers
     enableProxy: enableProxy
     firewallSettings: {
       clientPrivateIpAddress: firewallClientPrivateIpAddress
@@ -700,45 +706,99 @@ module networking 'modules/networking.bicep' = {
       supernetIPAddress: firewallSupernetIPAddress
       threatIntelMode: firewallThreatIntelMode
     }
-    firewallRuleCollectionGroups: empty(customFirewallRuleCollectionGroups) ? [
-      {
-        name: 'MLZ-NetworkCollectionGroup'
-        properties: {
-          priority: 150
-          ruleCollections: [
-            {
-              name: 'AzureMonitor'
+    firewallRuleCollectionGroups: empty(customFirewallRuleCollectionGroups)
+      ? [
+          {
+            name: 'MLZ-NetworkCollectionGroup'
+            properties: {
               priority: 150
-              ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
-              action: {
-                type: 'Allow'
-              }
-              rules: [
-                {
-                  name: 'AllowMonitorToLAW'
-                  ruleType: 'NetworkRule'
-                  ipProtocols: ['Tcp']
-                  sourceAddresses: concat(
-                    [
-                      hubVirtualNetworkAddressPrefix // Hub network
-                    ],
-                    [
-                      sharedServicesVirtualNetworkAddressPrefix // Shared network
-                    ],
-                    empty(identityVirtualNetworkAddressPrefix) ? [] : [identityVirtualNetworkAddressPrefix] // Include Identity network only if it has a value
-                  )
-                  destinationAddresses: [cidrHost(operationsVirtualNetworkAddressPrefix, 3)] // LAW private endpoint network
-                  destinationPorts: ['443'] // HTTPS port for Azure Monitor
-                  sourceIpGroups: []
-                  destinationIpGroups: []
-                  destinationFqdns: []
-                }
-              ]
+              ruleCollections: union(
+                [
+                  {
+                    name: 'AzureMonitor'
+                    priority: 150
+                    ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
+                    action: {
+                      type: 'Allow'
+                    }
+                    rules: [
+                      {
+                        name: 'AllowMonitorToLAW'
+                        ruleType: 'NetworkRule'
+                        ipProtocols: ['Tcp']
+                        sourceAddresses: concat(
+                          [
+                            hubVirtualNetworkAddressPrefix // Hub network
+                            sharedServicesVirtualNetworkAddressPrefix // Shared network
+                          ],
+                          deployIdentity ? [identityVirtualNetworkAddressPrefix] : [] // Include Identity network only if it has a value
+                        )
+                        destinationAddresses: [cidrHost(operationsVirtualNetworkAddressPrefix, 3)] // LAW private endpoint network
+                        destinationPorts: ['443'] // HTTPS port for Azure Monitor
+                      }
+                    ]
+                  }
+                ],
+                deployActiveDirectoryDomainServices
+                  ? [
+                      {
+                        name: 'ActiveDirectoryDomainServices'
+                        priority: 200
+                        ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
+                        action: {
+                          type: 'Allow'
+                        }
+                        rules: [
+                          {
+                            name: 'Allow-ADDS-TCP'
+                            ruleType: 'NetworkRule'
+                            ipProtocols: ['TCP']
+                            sourceAddresses: [
+                              firewallSupernetIPAddress
+                            ]
+                            destinationAddresses: [
+                              [cidrHost(identityVirtualNetworkAddressPrefix, 3)]
+                              [cidrHost(identityVirtualNetworkAddressPrefix, 4)]
+                            ]
+                            destinationPorts: [
+                              '53'    // DNS
+                              '88'    // Kerberos
+                              '135'   // RPC
+                              '389'   // LDAP
+                              '445'   // SMB
+                              '464'   // Kerberos Change/Set Password
+                              '636'   // LDAPS
+                              '3268'  // Global Catalog
+                              '3269'  // Global Catalog over SSL
+                            ]
+                          }
+                          {
+                            name: 'Allow-ADDS-UDP'
+                            ruleType: 'NetworkRule'
+                            ipProtocols: ['UDP']
+                            sourceAddresses: [
+                              firewallSupernetIPAddress
+                            ]
+                            destinationAddresses: [
+                              [cidrHost(identityVirtualNetworkAddressPrefix, 3)]
+                              [cidrHost(identityVirtualNetworkAddressPrefix, 4)]
+                            ]
+                            destinationPorts: [
+                              '53' // DNS over UDP
+                              '88' // Kerberos over UDP
+                              '389' // LDAP over UDP
+                              '464' // Kerberos Change/Set Password over UDP
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  : []
+              )
             }
-          ]
-        }
-      }
-    ] : customFirewallRuleCollectionGroups
+          }
+        ]
+      : customFirewallRuleCollectionGroups
     location: location
     mlzTags: logic.outputs.mlzTags
     privateDnsZoneNames: logic.outputs.privateDnsZones
@@ -788,33 +848,32 @@ module monitoring 'modules/monitoring.bicep' = {
 
 // ACTIVE DIRECTORY DOMAIN SERVICES
 
-module activeDirectoryDomainServices 'modules/active-directory-domain-services.bicep' =
-  if (deployActiveDirectoryDomainServices && deployIdentity) {
-    name: 'deploy-adds-${deploymentNameSuffix}'
-    params: {
-      adminPassword: addsVmAdminPassword
-      adminUsername: addsVmAdminUsername
-      delimiter: logic.outputs.delimiter
-      deploymentNameSuffix: deploymentNameSuffix
-      domainName: addsDomainName
-      environmentAbbreviation: environmentAbbreviation
-      hybridUseBenefit: hybridUseBenefit
-      imageOffer: 'WindowsServer'
-      imagePublisher: 'MicrosoftWindowsServer'
-      imageSku: addsVmImageSku
-      imageVersion: windowsVmImageVersion
-      keyVaultPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.keyVault
-      location: location
-      mlzTags: logic.outputs.mlzTags
-      resourceAbbreviations: logic.outputs.resourceAbbreviations
-      safeModeAdminPassword: addsSafeModeAdminPassword
-      storageAccountType: windowsVmStorageAccountType
-      subnetResourceId: networking.outputs.identitySubnetResourceId
-      tags: tags
-      tier: filter(logic.outputs.tiers, tier => tier.name == 'identity')[0]
-      vmSize: addsVmSize
-    }
+module activeDirectoryDomainServices 'modules/active-directory-domain-services.bicep' = if (deployActiveDirectoryDomainServices && deployIdentity) {
+  name: 'deploy-adds-${deploymentNameSuffix}'
+  params: {
+    adminPassword: addsVmAdminPassword
+    adminUsername: addsVmAdminUsername
+    delimiter: logic.outputs.delimiter
+    deploymentNameSuffix: deploymentNameSuffix
+    domainName: addsDomainName
+    environmentAbbreviation: environmentAbbreviation
+    hybridUseBenefit: hybridUseBenefit
+    imageOffer: 'WindowsServer'
+    imagePublisher: 'MicrosoftWindowsServer'
+    imageSku: addsVmImageSku
+    imageVersion: windowsVmImageVersion
+    keyVaultPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.keyVault
+    location: location
+    mlzTags: logic.outputs.mlzTags
+    resourceAbbreviations: logic.outputs.resourceAbbreviations
+    safeModeAdminPassword: addsSafeModeAdminPassword
+    storageAccountType: windowsVmStorageAccountType
+    subnetResourceId: networking.outputs.identitySubnetResourceId
+    tags: tags
+    tier: filter(logic.outputs.tiers, tier => tier.name == 'identity')[0]
+    vmSize: addsVmSize
   }
+}
 
 // REMOTE ACCESS
 
@@ -904,7 +963,12 @@ module diagnosticSettings 'modules/diagnostic-settings.bicep' = {
     location: location
     logAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
     networkInterfaceDiagnosticsMetrics: networkInterfaceDiagnosticsMetrics
-    networkInterfaceResourceIds: union(customerManagedKeys.outputs.networkInterfaceResourceIds, monitoring.outputs.networkInterfaceResourceIds, remoteAccess.outputs.networkInterfaceResourceIds, flatten(storage.outputs.networkInterfaceResourceIds))
+    networkInterfaceResourceIds: union(
+      customerManagedKeys.outputs.networkInterfaceResourceIds,
+      monitoring.outputs.networkInterfaceResourceIds,
+      remoteAccess.outputs.networkInterfaceResourceIds,
+      flatten(storage.outputs.networkInterfaceResourceIds)
+    )
     networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
     networkWatcherFlowLogsType: networkWatcherFlowLogsType
     publicIPAddressDiagnosticsLogs: publicIPAddressDiagnosticsLogs
