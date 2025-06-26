@@ -48,20 +48,20 @@ module privateDnsZones 'private-dns-zones.bicep' = {
   }
 }
 
-output delimiter string = namingConventions[0].outputs.delimiter
-output locationProperties object = namingConventions[0].outputs.locations[location]
 output mlzTags object = mlzTags
 output privateDnsZones array = privateDnsZones.outputs.names
-output resourceAbbreviations object = namingConventions[0].outputs.resourceAbbreviations
 output tiers array = [for (network, i) in networks: {
+  delimiter: namingConventions[i].outputs.delimiter
+  locationProperties: namingConventions[i].outputs.locations[location]
   name: network.name
-  shortName: network.shortName
-  subscriptionId: network.subscriptionId
+  namingConvention: namingConventions[i].outputs.names
   nsgDiagLogs: network.?nsgDiagLogs ?? []
   nsgRules: network.?nsgRules ?? []
+  resourceAbbreviations: namingConventions[i].outputs.resourceAbbreviations
+  shortName: network.shortName
+  subnetAddressPrefix: network.?subnetAddressPrefix ?? ''
+  subscriptionId: network.subscriptionId
   vnetAddressPrefix: network.?vnetAddressPrefix ?? ''
   vnetDiagLogs: network.?vnetDiagLogs ?? []
   vnetDiagMetrics: network.?vnetDiagMetrics ?? []
-  subnetAddressPrefix: network.?subnetAddressPrefix ?? ''
-  namingConvention: namingConventions[i].outputs.names
 }]
