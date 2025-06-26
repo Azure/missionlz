@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.33.93.31351",
-      "templateHash": "7443211343054596224"
+      "version": "0.36.1.42791",
+      "templateHash": "12669853371766212804"
     }
   },
   "parameters": {
@@ -278,8 +278,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.33.93.31351",
-              "templateHash": "15594129744731548865"
+              "version": "0.36.1.42791",
+              "templateHash": "9088598872311992846"
             }
           },
           "parameters": {
@@ -488,8 +488,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.33.93.31351",
-              "templateHash": "11393432732482196290"
+              "version": "0.36.1.42791",
+              "templateHash": "6469172915604559865"
             }
           },
           "parameters": {
@@ -739,8 +739,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.33.93.31351",
-              "templateHash": "16455535134300982050"
+              "version": "0.36.1.42791",
+              "templateHash": "13766316185754969200"
             }
           },
           "parameters": {
@@ -1162,8 +1162,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.33.93.31351",
-              "templateHash": "7400813670576825580"
+              "version": "0.36.1.42791",
+              "templateHash": "16695497020602858477"
             }
           },
           "parameters": {
@@ -1195,7 +1195,7 @@
               "apiVersion": "2023-03-01",
               "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'restartVirtualMachine')]",
               "location": "[parameters('location')]",
-              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
+              "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/virtualMachines'), createObject()), parameters('mlzTags'))]",
               "properties": {
                 "treatFailureAsDeploymentFailure": true,
                 "asyncExecution": false,
@@ -1265,8 +1265,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.33.93.31351",
-              "templateHash": "9407380787926779583"
+              "version": "0.36.1.42791",
+              "templateHash": "3017453895590292342"
             }
           },
           "parameters": {
@@ -1295,7 +1295,7 @@
               "apiVersion": "2023-03-01",
               "name": "[format('{0}/{1}', parameters('imageVirtualMachineName'), 'install-microsoft-updates')]",
               "location": "[parameters('location')]",
-              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
+              "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/virtualMachines'), createObject()), parameters('mlzTags'))]",
               "properties": {
                 "asyncExecution": false,
                 "parameters": "[if(equals(parameters('updateService'), 'WSUS'), createArray(createObject('name', 'Service', 'value', parameters('updateService')), createObject('name', 'WSUSServer', 'value', parameters('wsusServer'))), createArray(createObject('name', 'Service', 'value', parameters('updateService'))))]",
@@ -1352,8 +1352,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.33.93.31351",
-              "templateHash": "7400813670576825580"
+              "version": "0.36.1.42791",
+              "templateHash": "16695497020602858477"
             }
           },
           "parameters": {
@@ -1385,7 +1385,7 @@
               "apiVersion": "2023-03-01",
               "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'restartVirtualMachine')]",
               "location": "[parameters('location')]",
-              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
+              "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/virtualMachines'), createObject()), parameters('mlzTags'))]",
               "properties": {
                 "treatFailureAsDeploymentFailure": true,
                 "asyncExecution": false,
@@ -1448,8 +1448,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.33.93.31351",
-              "templateHash": "18367526052756419166"
+              "version": "0.36.1.42791",
+              "templateHash": "11906475900681470668"
             }
           },
           "parameters": {
@@ -1472,7 +1472,7 @@
               "apiVersion": "2023-03-01",
               "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'sysprepVirtualMachine')]",
               "location": "[parameters('location')]",
-              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
+              "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/virtualMachines'), createObject()), parameters('mlzTags'))]",
               "properties": {
                 "treatFailureAsDeploymentFailure": false,
                 "asyncExecution": true,
@@ -1529,8 +1529,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.33.93.31351",
-              "templateHash": "12290487570291502704"
+              "version": "0.36.1.42791",
+              "templateHash": "8612874839237249518"
             }
           },
           "parameters": {
@@ -1563,7 +1563,7 @@
               "apiVersion": "2023-03-01",
               "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'generalizeVirtualMachine')]",
               "location": "[parameters('location')]",
-              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
+              "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/virtualMachines'), createObject()), parameters('mlzTags'))]",
               "properties": {
                 "treatFailureAsDeploymentFailure": true,
                 "asyncExecution": false,
@@ -1650,8 +1650,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.33.93.31351",
-              "templateHash": "18262891690771946297"
+              "version": "0.36.1.42791",
+              "templateHash": "5158210466455608750"
             }
           },
           "parameters": {
@@ -1806,8 +1806,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.33.93.31351",
-              "templateHash": "16391379206468268227"
+              "version": "0.36.1.42791",
+              "templateHash": "6412306347153324175"
             }
           },
           "parameters": {
@@ -1840,7 +1840,7 @@
               "apiVersion": "2023-03-01",
               "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'removeVirtualMachine')]",
               "location": "[parameters('location')]",
-              "tags": "[union(if(contains(parameters('tags'), 'Microsoft.Compute/virtualMachines'), parameters('tags')['Microsoft.Compute/virtualMachines'], createObject()), parameters('mlzTags'))]",
+              "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/virtualMachines'), createObject()), parameters('mlzTags'))]",
               "properties": {
                 "treatFailureAsDeploymentFailure": false,
                 "asyncExecution": "[if(parameters('enableBuildAutomation'), false(), true())]",

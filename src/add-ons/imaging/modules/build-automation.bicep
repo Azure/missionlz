@@ -94,7 +94,7 @@ resource roleDefinition 'Microsoft.Authorization/roleDefinitions@2022-04-01' = {
   }
 }
 
-module virtualNetwork 'virtualNetwork.bicep' = {
+module virtualNetwork 'virtual-network.bicep' = {
   scope: resourceGroup(split(subnetResourceId, '/')[2], split(subnetResourceId, '/')[4])
   name: 'virtual-network-${deploymentNameSuffix}'
   params: {
@@ -103,7 +103,7 @@ module virtualNetwork 'virtualNetwork.bicep' = {
   }
 }
 
-module keyVault 'keyVault.bicep' = {
+module keyVault 'key-vault.bicep' = {
   scope: resourceGroup(subscriptionId, resourceGroupName)
   name: 'key-vault-${deploymentNameSuffix}'
   params: {
@@ -122,7 +122,7 @@ module keyVault 'keyVault.bicep' = {
   }
 }
 
-module templateSpec 'templateSpec.bicep' = {
+module templateSpec 'template-spec.bicep' = {
   scope: resourceGroup(subscriptionId, resourceGroupName)
   name: 'template-spec-${deploymentNameSuffix}'
   params: {
@@ -133,7 +133,7 @@ module templateSpec 'templateSpec.bicep' = {
   }
 }
 
-module managementVM 'managementVM.bicep' = {
+module managementVM 'management-virtual-machine.bicep' = {
   name: 'management-vm-${deploymentNameSuffix}'
   scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
@@ -154,7 +154,7 @@ module managementVM 'managementVM.bicep' = {
   }
 }
 
-module automationAccount 'automationAccount.bicep' = {
+module automationAccount 'automation-account.bicep' = {
   scope: resourceGroup(subscriptionId, resourceGroupName)
   name: 'automation-account-${deploymentNameSuffix}'
   params: {

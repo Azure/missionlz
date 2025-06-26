@@ -347,20 +347,22 @@ module baseline 'modules/baseline.bicep' = {
   params: {
     computeGalleryName: tier3.outputs.namingConvention.computeGallery
     deploymentNameSuffix: deploymentNameSuffix
-    diskEncryptionSetResourceId: tier3.outputs.diskEncryptionSetResourceId
     enableBuildAutomation: enableBuildAutomation
+    environmentAbbreviation: environmentAbbreviation
     exemptPolicyAssignmentIds: exemptPolicyAssignmentIds
+    keyVaultPrivateDnsZoneResourceId: keyVaultPrivateDnsZoneResourceId
     location: location
-    mlzTags: tier3.outputs.mlzTags
     resourceGroupName: '${tier3.outputs.namingConvention.resourceGroup}${tier3.outputs.delimiter}network'
     storageAccountResourceId: storageAccountResourceId
+    subnetResourceId: tier3.outputs.subnets[0].id
     subscriptionId: subscriptionId
     tags: tags
+    tier: tier3.outputs
     userAssignedIdentityName: tier3.outputs.namingConvention.userAssignedIdentity
   }
 }
 
-module buildAutomation 'modules/buildAutomation.bicep' = if (enableBuildAutomation) {
+module buildAutomation 'modules/build-automation.bicep' = if (enableBuildAutomation) {
   name: 'deploy-build-automation-${deploymentNameSuffix}'
   params: {
     actionGroupName: tier3.outputs.namingConvention.actionGroup
@@ -372,7 +374,7 @@ module buildAutomation 'modules/buildAutomation.bicep' = if (enableBuildAutomati
     containerName: containerName
     customizations: customizations
     deploymentNameSuffix: deploymentNameSuffix
-    diskEncryptionSetResourceId: tier3.outputs.diskEncryptionSetResourceId
+    diskEncryptionSetResourceId: baseline.outputs.diskEncryptionSetResourceId
     distributionGroup: distributionGroup
     domainJoinPassword: domainJoinPassword
     domainJoinUserPrincipalName: domainJoinUserPrincipalName
@@ -434,7 +436,7 @@ module buildAutomation 'modules/buildAutomation.bicep' = if (enableBuildAutomati
   }
 }
 
-module imageBuild 'modules/imageBuild.bicep' = {
+module imageBuild 'modules/image-build.bicep' = {
   name: 'build-image-${deploymentNameSuffix}'
   params: {
     arcGisProInstaller: arcGisProInstaller
@@ -443,7 +445,7 @@ module imageBuild 'modules/imageBuild.bicep' = {
     containerName: containerName
     customizations: customizations
     deploymentNameSuffix: deploymentNameSuffix
-    diskEncryptionSetResourceId: tier3.outputs.diskEncryptionSetResourceId
+    diskEncryptionSetResourceId: baseline.outputs.diskEncryptionSetResourceId
     enableBuildAutomation: enableBuildAutomation
     excludeFromLatest: excludeFromLatest
     hybridUseBenefit: hybridUseBenefit

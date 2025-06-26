@@ -76,7 +76,7 @@ resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' existing =
     scope: resourceGroup(subscriptionId, resourceGroupName)
   }
 
-module managementVM 'managementVM.bicep' =
+module managementVM 'management-virtual-machine.bicep' =
   if (!enableBuildAutomation) {
     name: 'management-vm-${deploymentNameSuffix}'
     scope: resourceGroup(subscriptionId, resourceGroupName)
@@ -95,7 +95,7 @@ module managementVM 'managementVM.bicep' =
     }
   }
 
-module virtualMachine 'virtualMachine.bicep' = {
+module virtualMachine 'virtual-machine.bicep' = {
   name: 'image-vm-${deploymentNameSuffix}'
   scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
@@ -158,7 +158,7 @@ module addCustomizations 'customizations.bicep' = {
   }
 }
 
-module restartVirtualMachine1 'restartVirtualMachine.bicep' = {
+module restartVirtualMachine1 'restart-virtual-machine.bicep' = {
   name: 'restart-vm-1-${deploymentNameSuffix}'
   scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
@@ -175,7 +175,7 @@ module restartVirtualMachine1 'restartVirtualMachine.bicep' = {
   ]
 }
 
-module microsoftUdpates 'microsoftUpdates.bicep' =
+module microsoftUdpates 'microsoft-updates.bicep' =
   if (installUpdates) {
     name: 'microsoft-updates-${deploymentNameSuffix}'
     scope: resourceGroup(subscriptionId, resourceGroupName)
@@ -192,7 +192,7 @@ module microsoftUdpates 'microsoftUpdates.bicep' =
     ]
   }
 
-module restartVirtualMachine2 'restartVirtualMachine.bicep' = if (installUpdates) {
+module restartVirtualMachine2 'restart-virtual-machine.bicep' = if (installUpdates) {
   name: 'restart-vm-2-${deploymentNameSuffix}'
   scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
@@ -208,7 +208,7 @@ module restartVirtualMachine2 'restartVirtualMachine.bicep' = if (installUpdates
     microsoftUdpates
   ]
 }
-module sysprepVirtualMachine 'sysprepVirtualMachine.bicep' = {
+module sysprepVirtualMachine 'sysprep-virtual-machine.bicep' = {
   name: 'sysprep-vm-${deploymentNameSuffix}'
   scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
@@ -223,7 +223,7 @@ module sysprepVirtualMachine 'sysprepVirtualMachine.bicep' = {
   ]
 }
 
-module generalizeVirtualMachine 'generalizeVirtualMachine.bicep' = {
+module generalizeVirtualMachine 'generalize-virtual-machine.bicep' = {
   name: 'generalize-vm-${deploymentNameSuffix}'
   scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
@@ -240,7 +240,7 @@ module generalizeVirtualMachine 'generalizeVirtualMachine.bicep' = {
   ]
 }
 
-module imageVersion 'imageVersion.bicep' = {
+module imageVersion 'image-version.bicep' = {
   name: 'image-version-${deploymentNameSuffix}'
   scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
@@ -263,7 +263,7 @@ module imageVersion 'imageVersion.bicep' = {
   ]
 }
 
-module removeVirtualMachine 'removeVirtualMachine.bicep' = {
+module removeVirtualMachine 'remove-virtual-machine.bicep' = {
   name: 'remove-vm-${deploymentNameSuffix}'
   scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {

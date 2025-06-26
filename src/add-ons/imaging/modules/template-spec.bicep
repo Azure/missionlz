@@ -24,7 +24,7 @@ resource version 'Microsoft.Resources/templateSpecs/versions@2022-02-01' = {
   location: location
   tags: union(tags[?'Microsoft.Resources/templateSpecs'] ?? {}, mlzTags)
   properties: {
-    mainTemplate: loadJsonContent('imageBuild.json')
+    mainTemplate: loadJsonContent('image-build.json')
   }
 }
 
