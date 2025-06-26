@@ -8,15 +8,15 @@ param encryptionUserAssignedIdentityResourceId string
 param fileShares array
 param fslogixShareSizeInGB int
 param hostPoolResourceId string
+param keyVaultName string
 param keyVaultUri string
 param location string
 param mlzTags object
 param names object
 // param recoveryServicesVaultName string
-// param resourceGroupManagement string
+param resourceGroupManagement string
 param securityPrincipalObjectIds array
 param storageCount int
-param storageEncryptionKeyName string
 param storageIndex int
 param storageSku string
 param subnetResourceId string
@@ -39,6 +39,15 @@ var storageRedundancy = availability == 'availabilityZones' ? '_ZRS' : '_LRS'
 var tagsPrivateEndpoints = union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Network/privateEndpoints'] ?? {}, mlzTags)
 var tagsStorageAccounts = union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Storage/storageAccounts'] ?? {}, mlzTags)
 // var tagsRecoveryServicesVault = union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.recoveryServices/vaults'] ?? {}, mlzTags)
+
+module key '../../../../../modules/key-vault-key.bicep' = [for i in range(0, storageCount): {
+  name: 'deploy-sa-key-${i}-${deploymentNameSuffix}'
+  scope: resourceGroup(resourceGroupManagement)
+  params: {
+    keyName: take('${storageAccountNamePrefix}${padLeft(i + storageIndex, 2, '0')}', 15)
+    keyVaultName: keyVaultName
+  }
+}]
 
 resource storageAccounts 'Microsoft.Storage/storageAccounts@2022-09-01' = [for i in range(0, storageCount): {
   name: take('${storageAccountNamePrefix}${padLeft(i + storageIndex, 2, '0')}', 15)
@@ -72,7 +81,7 @@ resource storageAccounts 'Microsoft.Storage/storageAccounts@2022-09-01' = [for i
       requireInfrastructureEncryption: true
       keyvaultproperties: {
           keyvaulturi: keyVaultUri
-          keyname: storageEncryptionKeyName
+          keyname: key[i].outputs.keyName
       }
       services: storageSku == 'Standard' ? {
         file: {
