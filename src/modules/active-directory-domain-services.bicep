@@ -8,7 +8,6 @@ targetScope = 'subscription'
 @secure()
 param adminPassword string
 param adminUsername string
-param delimiter string
 param deploymentNameSuffix string
 param dnsForwarder string = '168.63.129.16'
 param domainName string
@@ -21,7 +20,6 @@ param imageVersion string
 param keyVaultPrivateDnsZoneResourceId string
 param location string = deployment().location
 param mlzTags object
-param resourceAbbreviations object
 @secure()
 param safeModeAdminPassword string
 param storageAccountType string
@@ -33,7 +31,7 @@ param vmSize string
 
 var hubSubscriptionId = subscription().subscriptionId
 var identitySubscriptionId = tier.subscriptionId
-var resourceGroupName = '${tier.namingConvention.resourceGroup}${delimiter}domainControllers'
+var resourceGroupName = '${tier.namingConvention.resourceGroup}${tier.delimiter}domainControllers'
 
 module rg 'resource-group.bicep' = {
   name: 'deploy-adds-rg-${tier.name}-${deploymentNameSuffix}'
@@ -55,7 +53,6 @@ module customerManagedKeys 'customer-managed-keys.bicep' = {
     keyVaultPrivateDnsZoneResourceId: keyVaultPrivateDnsZoneResourceId
     location: location
     mlzTags: mlzTags
-    resourceAbbreviations: resourceAbbreviations
     resourceGroupName: resourceGroupName
     subnetResourceId: subnetResourceId
     tags: tags
@@ -115,7 +112,7 @@ module domainControllers 'domain-controller.bicep' = [
       adminPassword: adminPassword
       adminUsername: adminUsername
       availabilitySetResourceId: availabilitySet.outputs.resourceId
-      delimiter: delimiter
+      delimiter: tier.delimiter
       deploymentNameSuffix: deploymentNameSuffix
       diskEncryptionSetResourceId: diskEncryptionSet.outputs.resourceId
       dnsForwarder: dnsForwarder

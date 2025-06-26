@@ -11,12 +11,10 @@ param bastionHostPublicIPAddressSkuName string
 param bastionHostSubnetResourceId string
 // param dataCollectionRuleAssociationName string
 // param dataCollectionRuleResourceId string
-param delimiter string
 param deployBastion bool
 param deployLinuxVirtualMachine bool
 param deploymentNameSuffix string
 param deployWindowsVirtualMachine bool
-param hub object
 param hubNetworkSecurityGroupResourceId string
 param hubResourceGroupName string
 param hubSubnetResourceId string
@@ -40,6 +38,7 @@ param linuxVmOsDiskType string
 param location string
 param mlzTags object
 param tags object
+param tier object
 @secure()
 @minLength(12)
 param windowsVmAdminPassword string
@@ -55,17 +54,17 @@ module key '../modules/key-vault-key.bicep' = if (deployLinuxVirtualMachine || d
   name: 'deploy-ra-key-${deploymentNameSuffix}'
   scope: resourceGroup(split(keyVaultResourceId, '/')[2], split(keyVaultResourceId, '/')[4])
   params: {
-    keyName: hub.namingConvention.diskEncryptionSet
+    keyName: tier.namingConvention.diskEncryptionSet
     keyVaultName: split(keyVaultResourceId, '/')[8]
   }
 }
 
 module diskEncryptionSet '../modules/disk-encryption-set.bicep' = if (deployLinuxVirtualMachine || deployWindowsVirtualMachine) {
   name: 'deploy-ra-disk-encryption-set-${deploymentNameSuffix}'
-  scope: resourceGroup(hub.subscriptionId, hubResourceGroupName)
+  scope: resourceGroup(tier.subscriptionId, hubResourceGroupName)
   params: {
     deploymentNameSuffix: deploymentNameSuffix
-    diskEncryptionSetName: hub.namingConvention.diskEncryptionSet
+    diskEncryptionSetName: tier.namingConvention.diskEncryptionSet
     keyUrl: key.outputs.keyUriWithVersion
     keyVaultResourceId: keyVaultResourceId
     location: location
@@ -76,15 +75,15 @@ module diskEncryptionSet '../modules/disk-encryption-set.bicep' = if (deployLinu
 
 module bastionHost '../modules/bastion-host.bicep' = if (deployBastion) {
   name: 'deploy-ra-bastion-host-${deploymentNameSuffix}'
-  scope: resourceGroup(hub.subscriptionId, hubResourceGroupName)
+  scope: resourceGroup(tier.subscriptionId, hubResourceGroupName)
   params: {
     bastionHostSubnetResourceId: bastionHostSubnetResourceId
     location: location
     mlzTags: mlzTags
-    name: hub.namingConvention.bastionHost
+    name: tier.namingConvention.bastionHost
     publicIPAddressAllocationMethod: bastionHostPublicIPAddressAllocationMethod
     publicIPAddressAvailabilityZones: bastionHostPublicIPAddressAvailabilityZones
-    publicIPAddressName: hub.namingConvention.bastionHostPublicIPAddress
+    publicIPAddressName: tier.namingConvention.bastionHostPublicIPAddress
     publicIPAddressSkuName: bastionHostPublicIPAddressSkuName
     tags: tags
   }
@@ -92,7 +91,7 @@ module bastionHost '../modules/bastion-host.bicep' = if (deployBastion) {
 
 module linuxVirtualMachine '../modules/virtual-machine.bicep' = if (deployLinuxVirtualMachine) {
   name: 'deploy-ra-linux-vm-${deploymentNameSuffix}'
-  scope: resourceGroup(hub.subscriptionId, hubResourceGroupName)
+  scope: resourceGroup(tier.subscriptionId, hubResourceGroupName)
   params: {
     adminPasswordOrKey: linuxVmAdminPasswordOrKey
     adminUsername: linuxVmAdminUsername
@@ -100,26 +99,26 @@ module linuxVirtualMachine '../modules/virtual-machine.bicep' = if (deployLinuxV
     // dataCollectionRuleAssociationName: dataCollectionRuleAssociationName
     // dataCollectionRuleResourceId: dataCollectionRuleResourceId
     diskEncryptionSetResourceId: diskEncryptionSet.outputs.resourceId
-    diskName: '${hub.namingConvention.virtualMachineDisk}${delimiter}lra' // lra = Linux Remote Access
+    diskName: '${tier.namingConvention.virtualMachineDisk}${tier.delimiter}lra' // lra = Linux Remote Access
     imageOffer: linuxVmImageOffer
     imagePublisher: linuxVmImagePublisher
     imageSku: linuxVmImageSku
     imageVersion: linuxVmImageVersion
     location: location
     mlzTags: mlzTags
-    networkInterfaceName: '${hub.namingConvention.virtualMachineNetworkInterface}${delimiter}lra' // lra = Linux Remote Access
+    networkInterfaceName: '${tier.namingConvention.virtualMachineNetworkInterface}${tier.delimiter}lra' // lra = Linux Remote Access
     networkSecurityGroupResourceId: hubNetworkSecurityGroupResourceId
     storageAccountType: linuxVmOsDiskType
     subnetResourceId: hubSubnetResourceId
     tags: tags
-    virtualMachineName: '${hub.namingConvention.virtualMachine}lra' // lra = Linux Remote Access
+    virtualMachineName: '${tier.namingConvention.virtualMachine}lra' // lra = Linux Remote Access
     virtualMachineSize: linuxVmSize
   }
 }
 
 module windowsVirtualMachine '../modules/virtual-machine.bicep' = if (deployWindowsVirtualMachine) {
   name: 'deploy-ra-windows-vm-${deploymentNameSuffix}'
-  scope: resourceGroup(hub.subscriptionId, hubResourceGroupName)
+  scope: resourceGroup(tier.subscriptionId, hubResourceGroupName)
   params: {
     adminPasswordOrKey: windowsVmAdminPassword
     adminUsername: windowsVmAdminUsername
@@ -127,7 +126,7 @@ module windowsVirtualMachine '../modules/virtual-machine.bicep' = if (deployWind
     // dataCollectionRuleAssociationName: dataCollectionRuleAssociationName
     // dataCollectionRuleResourceId: dataCollectionRuleResourceId
     diskEncryptionSetResourceId: diskEncryptionSet.outputs.resourceId
-    diskName: '${hub.namingConvention.virtualMachineDisk}${delimiter}wra' // wra = Windows Remote Access
+    diskName: '${tier.namingConvention.virtualMachineDisk}${tier.delimiter}wra' // wra = Windows Remote Access
     hybridUseBenefit: hybridUseBenefit
     imageOffer: windowsVmImageOffer
     imagePublisher: windowsVmImagePublisher
@@ -135,12 +134,12 @@ module windowsVirtualMachine '../modules/virtual-machine.bicep' = if (deployWind
     imageVersion: windowsVmVersion
     location: location
     mlzTags: mlzTags
-    networkInterfaceName: '${hub.namingConvention.virtualMachineNetworkInterface}${delimiter}wra' // wra = Windows Remote Access
+    networkInterfaceName: '${tier.namingConvention.virtualMachineNetworkInterface}${tier.delimiter}wra' // wra = Windows Remote Access
     networkSecurityGroupResourceId: hubNetworkSecurityGroupResourceId
     storageAccountType: windowsVmStorageAccountType
     subnetResourceId: hubSubnetResourceId
     tags: tags
-    virtualMachineName: '${hub.namingConvention.virtualMachine}wra' // wra = Windows Remote Access
+    virtualMachineName: '${tier.namingConvention.virtualMachine}wra' // wra = Windows Remote Access
     virtualMachineSize: windowsVmSize
   }
 }

@@ -7,7 +7,6 @@ targetScope = 'subscription'
 
 param bastionDiagnosticsLogs array
 param bastionDiagnosticsMetrics array
-param delimiter string
 param deployBastion bool
 param deploymentNameSuffix string
 param deployNetworkWatcherTrafficAnalytics bool
@@ -47,25 +46,25 @@ var networkSecurityGroup_Bastion = deployBastion ? [
   {
     diagnosticLogs: hub.nsgDiagLogs
     diagnosticSettingName: hub.namingConvention.bastionHostNetworkSecurityGroupDiagnosticSetting
-    flowLogsName: '${hub.namingConvention.networkWatcherFlowLogsNetworkSecurityGroup}${delimiter}bastion'
+    flowLogsName: '${hub.namingConvention.networkWatcherFlowLogsNetworkSecurityGroup}${hub.delimiter}bastion'
     name: hub.namingConvention.bastionHostNetworkSecurityGroup
     namingConvention: hub.namingConvention
     resourceGroupName: hubResourceGroupName
     storageAccountResourceId: storageAccountResourceIds[0]
     subscriptionId: hub.subscriptionId
-    tierName: 'hub${delimiter}bas'
+    tierName: 'hub${hub.delimiter}bas'
   }
 ] : []
 var operations = first(filter(tiers, tier => tier.name == 'operations'))
 var operationsResourceGroupName = filter(resourceGroupNames, name => contains(name, 'operations'))[0]
 var publicIPAddresses = union([
   {
-    name: '${hub.namingConvention.azureFirewallPublicIPAddress}${delimiter}client'
-    diagName: '${hub.namingConvention.azureFirewallPublicIPAddressDiagnosticSetting}${delimiter}client'
+    name: '${hub.namingConvention.azureFirewallPublicIPAddress}${hub.delimiter}client'
+    diagName: '${hub.namingConvention.azureFirewallPublicIPAddressDiagnosticSetting}${hub.delimiter}client'
   }
   {
-    name: '${hub.namingConvention.azureFirewallPublicIPAddress}${delimiter}management'
-    diagName: '${hub.namingConvention.azureFirewallPublicIPAddressDiagnosticSetting}${delimiter}management'
+    name: '${hub.namingConvention.azureFirewallPublicIPAddress}${hub.delimiter}management'
+    diagName: '${hub.namingConvention.azureFirewallPublicIPAddressDiagnosticSetting}${hub.delimiter}management'
   }
 ], deployBastion ? [
   {

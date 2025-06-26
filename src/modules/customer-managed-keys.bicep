@@ -10,7 +10,6 @@ param environmentAbbreviation string
 param keyVaultPrivateDnsZoneResourceId string
 param location string
 param mlzTags object
-param resourceAbbreviations object
 param resourceGroupName string
 param subnetResourceId string
 param tags object
@@ -24,7 +23,7 @@ module keyVault 'key-vault.bicep' = {
     keyVaultPrivateDnsZoneResourceId: keyVaultPrivateDnsZoneResourceId
     location: location
     mlzTags: mlzTags
-    resourceAbbreviations: resourceAbbreviations
+    resourceAbbreviations: tier.resourceAbbreviations
     subnetResourceId: subnetResourceId
     tags: tags
     tier: tier

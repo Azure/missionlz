@@ -3,12 +3,9 @@ targetScope = 'subscription'
 param activeDirectorySolution string
 param availability string
 param azureFilesPrivateDnsZoneResourceId string
-param subnets array
-param delimiter string
 param deploymentNameSuffix string
 param deploymentUserAssignedIdentityClientId string
 param deploymentUserAssignedIdentityPrincipalId string
-param dnsServers string
 @secure()
 param domainJoinPassword string
 @secure()
@@ -21,11 +18,10 @@ param fslogixShareSizeInGB int
 param fslogixStorageService string
 param functionAppPrincipalId string
 param hostPoolResourceId string
+param keyVaultName string
 param keyVaultUri string
 param location string
 param managementVirtualMachineName string
-param mlzTags object
-param names object
 param netbios string
 param organizationalUnitPath string
 // param recoveryServices bool
@@ -33,17 +29,16 @@ param resourceGroupManagement string
 param securityPrincipalNames array
 param securityPrincipalObjectIds array
 param storageCount int
-param storageEncryptionKeyName string
 param storageIndex int
 param storageSku string
 param storageService string
-param subnetResourceId string
 param tags object
+param tier object
 
 resource resourceGroup 'Microsoft.Resources/resourceGroups@2023-07-01' = {
-  name: '${names.resourceGroup}${delimiter}fslogix'
+  name: '${tier.namingConvention.resourceGroup}${tier.delimiter}fslogix'
   location: location
-  tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Resources/resourceGroups'] ?? {}, mlzTags)
+  tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Resources/resourceGroups'] ?? {}, tier.mlzTags)
 }
 
 // Role Assignment for FSLogix
@@ -75,20 +70,20 @@ module azureNetAppFiles 'azure-netapp-files.bicep' = if (storageService == 'Azur
   name: 'deploy-anf-${deploymentNameSuffix}'
   scope: resourceGroup
   params: {
-    delegatedSubnetResourceId: filter(subnets, subnet => contains(subnet.name, 'azure-netapp-files'))[0].id
-    delimiter: delimiter
-    dnsServers: dnsServers
+    delegatedSubnetResourceId: filter(tier.subnets, subnet => contains(subnet.name, 'azure-netapp-files'))[0].id
+    delimiter: tier.delimiter
+    dnsServers: join(tier.dnsServers, ',')
     domainJoinPassword: domainJoinPassword
     domainJoinUserPrincipalName: domainJoinUserPrincipalName
     domainName: domainName
     fileShares: fileShares
     hostPoolResourceId: hostPoolResourceId
     location: location
-    mlzTags: mlzTags
-    netAppAccountNamePrefix: names.netAppAccount
-    netAppCapacityPoolNamePrefix: names.netAppAccountCapacityPool
+    mlzTags: tier.mlzTags
+    netAppAccountNamePrefix: tier.namingConvention.netAppAccount
+    netAppCapacityPoolNamePrefix: tier.namingConvention.netAppAccountCapacityPool
     organizationalUnitPath: organizationalUnitPath
-    smbServerName: names.netAppAccountSmbServer
+    smbServerName: tier.namingConvention.netAppAccountSmbServer
     storageSku: storageSku
     suffix: 'fslogix'
     tags: tags
@@ -103,26 +98,24 @@ module azureFiles 'azure-files/azure-files.bicep' = if (storageService == 'Azure
     activeDirectorySolution: activeDirectorySolution
     availability: availability
     azureFilesPrivateDnsZoneResourceId: azureFilesPrivateDnsZoneResourceId
-    delimiter: delimiter
+    delimiter: tier.delimiter
     deploymentNameSuffix: deploymentNameSuffix
-    // enableRecoveryServices: recoveryServices
     encryptionUserAssignedIdentityResourceId: encryptionUserAssignedIdentityResourceId
     fileShares: fileShares
     fslogixShareSizeInGB: fslogixShareSizeInGB
     hostPoolResourceId: hostPoolResourceId
+    keyVaultName: keyVaultName
     keyVaultUri: keyVaultUri
     location: location
-    names: names
-    // recoveryServicesVaultName: namingConvention.recoveryServicesVault
-    // resourceGroupManagement: resourceGroupManagement
+    mlzTags: tier.mlzTags
+    names: tier.namingConvention
+    resourceGroupManagement: resourceGroupManagement
     securityPrincipalObjectIds: securityPrincipalObjectIds
     storageCount: storageCount
-    storageEncryptionKeyName: storageEncryptionKeyName
     storageIndex: storageIndex
     storageSku: storageSku
-    subnetResourceId: subnetResourceId
+    subnetResourceId: tier.subnets[0].id
     tags: tags
-    mlzTags: mlzTags
   }
 }
 

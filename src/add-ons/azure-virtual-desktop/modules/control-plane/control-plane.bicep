@@ -4,8 +4,6 @@ param activeDirectorySolution string
 param avdPrivateDnsZoneResourceId string
 param customImageId string
 param customRdpProperty string
-param delimiter string
-// param deployFslogix bool
 param deploymentNameSuffix string
 param deploymentUserAssignedIdentityClientId string
 param desktopFriendlyName string
@@ -22,17 +20,13 @@ param imageVersionResourceId string
 param locationControlPlane string
 param locationVirtualMachines string
 param logAnalyticsWorkspaceResourceId string
-param managementSubnetResourceId string
 param managementVirtualMachineName string
 param maxSessionLimit int
-param mlzTags object
 param resourceGroupManagement string
 param resourceGroupShared string
 param securityPrincipalObjectIds array
-param sharedNames object
-param sharedSubnetReourceId string
-param stampNames object
 param tags object
+param tiers array
 param validationEnvironment bool
 param virtualMachineSize string
 param workspaceFriendlyName string
@@ -43,6 +37,8 @@ var galleryImagePublisher = empty(imageVersionResourceId) ? '"${imagePublisher}"
 var galleryImageSku = empty(imageVersionResourceId) ? '"${imageSku}"' : 'null'
 var galleryItemId = empty(imageVersionResourceId) ? '"${imagePublisher}.${imageOffer}${imageSku}"' : 'null'
 var imageType = empty(imageVersionResourceId) ? '"Gallery"' : '"CustomImage"'
+var sharedTier = tiers[0]
+var stampTier = tiers[1]
 
 module hostPool 'host-pool.bicep' = {
   name: 'deploy-vdpool-${deploymentNameSuffix}'
@@ -59,19 +55,19 @@ module hostPool 'host-pool.bicep' = {
     galleryImagePublisher: galleryImagePublisher
     galleryImageSku: galleryImageSku
     galleryItemId: galleryItemId
-    hostPoolDiagnosticSettingName: stampNames.hostPoolDiagnosticSetting
-    hostPoolName: stampNames.hostPool
-    hostPoolNetworkInterfaceName: stampNames.hostPoolNetworkInterface
-    hostPoolPrivateEndpointName: stampNames.hostPoolPrivateEndpoint
+    hostPoolDiagnosticSettingName: stampTier.namingConvention.hostPoolDiagnosticSetting
+    hostPoolName: stampTier.namingConvention.hostPool
+    hostPoolNetworkInterfaceName: stampTier.namingConvention.hostPoolNetworkInterface
+    hostPoolPrivateEndpointName: stampTier.namingConvention.hostPoolPrivateEndpoint
     hostPoolPublicNetworkAccess: hostPoolPublicNetworkAccess
     hostPoolType: hostPoolType
     imageType: imageType
     location: locationControlPlane
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     maxSessionLimit: maxSessionLimit
-    mlzTags: mlzTags
-    sessionHostNamePrefix: stampNames.virtualMachine
-    subnetResourceId: managementSubnetResourceId
+    mlzTags: stampTier.mlzTags
+    sessionHostNamePrefix: stampTier.namingConvention.virtualMachine
+    subnetResourceId: stampTier.subnets[0].id
     tags: tags
     validationEnvironment: validationEnvironment
     virtualMachineSize: virtualMachineSize
@@ -84,11 +80,11 @@ module applicationGroup 'application-group.bicep' = {
   params: {
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedIdentityClientId: deploymentUserAssignedIdentityClientId
-    desktopApplicationGroupName: stampNames.applicationGroup
+    desktopApplicationGroupName: stampTier.namingConvention.applicationGroup
     hostPoolResourceId: hostPool.outputs.resourceId
     locationControlPlane: locationControlPlane
     locationVirtualMachines: locationVirtualMachines
-    mlzTags: mlzTags
+    mlzTags: stampTier.mlzTags
     securityPrincipalObjectIds: securityPrincipalObjectIds
     desktopFriendlyName: desktopFriendlyName
     tags: tags
@@ -111,16 +107,16 @@ module workspace_feed '../shared/workspace-feed.bicep' = {
     locationControlPlane: locationControlPlane
     locationVirtualMachines: locationVirtualMachines
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
-    mlzTags: mlzTags
+    mlzTags: sharedTier.mlzTags
     resourceGroupManagement: resourceGroupManagement
-    subnetResourceId: sharedSubnetReourceId
+    subnetResourceId: sharedTier.subnets[0].id
     tags: tags
     virtualMachineName: managementVirtualMachineName
-    workspaceFeedDiagnoticSettingName: '${sharedNames.workspaceDiagnosticSetting}${delimiter}feed'
-    workspaceFeedName: '${sharedNames.workspace}${delimiter}feed'
-    workspaceFeedNetworkInterfaceName: '${sharedNames.workspaceNetworkInterface}${delimiter}feed'
-    workspaceFeedPrivateEndpointName: '${sharedNames.workspacePrivateEndpoint}${delimiter}feed'
-    workspaceFriendlyName: empty(workspaceFriendlyName) ? sharedNames.workspace : '${workspaceFriendlyName} (${locationControlPlane})'
+    workspaceFeedDiagnoticSettingName: '${sharedTier.namingConvention.workspaceDiagnosticSetting}${sharedTier.delimiter}feed'
+    workspaceFeedName: '${sharedTier.namingConvention.workspace}${sharedTier.delimiter}feed'
+    workspaceFeedNetworkInterfaceName: '${sharedTier.namingConvention.workspaceNetworkInterface}${sharedTier.delimiter}feed'
+    workspaceFeedPrivateEndpointName: '${sharedTier.namingConvention.workspacePrivateEndpoint}${sharedTier.delimiter}feed'
+    workspaceFriendlyName: empty(workspaceFriendlyName) ? sharedTier.namingConvention.workspace : '${workspaceFriendlyName} (${locationControlPlane})'
     workspacePublicNetworkAccess: workspacePublicNetworkAccess
   }
 }

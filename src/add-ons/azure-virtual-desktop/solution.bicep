@@ -815,27 +815,18 @@ module management 'modules/management/management.bicep' = {
   name: 'deploy-management-${deploymentNameSuffix}'
   params: {
     avdObjectId: avdObjectId
-    delimiter: tier3_stamp.outputs.delimiter
-    // deployFslogix: deployFslogix
     deploymentNameSuffix: deploymentNameSuffix
-    diskEncryptionSetResourceId: tier3_stamp.outputs.diskEncryptionSetResourceId
     diskSku: diskSku
     domainJoinPassword: domainJoinPassword
     domainJoinUserPrincipalName: domainJoinUserPrincipalName
     domainName: domainName
+    environmentAbbreviation: environmentAbbreviation
     locationControlPlane: virtualNetwork_hub.location
     locationVirtualMachines: locationVirtualMachines
-    mlzTags: tier3_stamp.outputs.mlzTags
-    names: tier3_stamp.outputs.namingConvention
     organizationalUnitPath: organizationalUnitPath
     privateDnsZoneResourceIdPrefix: privateDnsZoneResourceIdPrefix
-    privateDnsZones: tier3_stamp.outputs.privateDnsZones
-    // recoveryServices: recoveryServices
-    // recoveryServicesGeo: tier3_stamp.outputs.locationProperties.recoveryServicesGeo
-    // storageService: storageService
-    subnetResourceId: tier3_stamp.outputs.subnets[0].id
     tags: tags
-    // timeZone: tier3_stamp.outputs.locationProperties.timeZone
+    tier: tier3_stamp.outputs
     virtualMachineAdminPassword: virtualMachineAdminPassword
     virtualMachineAdminUsername: virtualMachineAdminUsername
   }
@@ -845,7 +836,6 @@ module management 'modules/management/management.bicep' = {
 module shared 'modules/shared/shared.bicep' = {
   name: 'deploy-shared-${deploymentNameSuffix}'
   params: {
-    delimiter: tier3_shared.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedIdentityPrincipalId: management.outputs.deploymentUserAssignedIdentityPrincipalId
     enableApplicationInsights: enableApplicationInsights
@@ -860,14 +850,10 @@ module shared 'modules/shared/shared.bicep' = {
     locationVirtualMachines: locationVirtualMachines
     logAnalyticsWorkspaceRetention: logAnalyticsWorkspaceRetention
     logAnalyticsWorkspaceSku: logAnalyticsWorkspaceSku
-    mlzTags: tier3_stamp.outputs.mlzTags
-    names: tier3_shared.outputs.namingConvention
     privateDnsZoneResourceIdPrefix: privateDnsZoneResourceIdPrefix
-    privateDnsZones: tier3_stamp.outputs.privateDnsZones
     privateLinkScopeResourceId: privateLinkScopeResourceId
-    subnetResourceId: tier3_stamp.outputs.subnets[0].id
-    subnets: tier3_stamp.outputs.subnets
     tags: tags
+    tier: tier3_shared.outputs
   }
 }
 
@@ -878,7 +864,6 @@ module controlPlane 'modules/control-plane/control-plane.bicep' = {
     avdPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3_stamp.outputs.privateDnsZones, name => startsWith(name, 'privatelink.wvd'))[0]}'
     customImageId: customImageId
     customRdpProperty: customRdpProperty
-    delimiter: tier3_shared.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedIdentityClientId: management.outputs.deploymentUserAssignedIdentityClientId
     desktopFriendlyName: desktopFriendlyName
@@ -895,17 +880,16 @@ module controlPlane 'modules/control-plane/control-plane.bicep' = {
     locationControlPlane: virtualNetwork_hub.location
     locationVirtualMachines: locationVirtualMachines
     logAnalyticsWorkspaceResourceId: shared.outputs.logAnalyticsWorkspaceResourceId
-    managementSubnetResourceId: tier3_stamp.outputs.subnets[0].id
     managementVirtualMachineName: management.outputs.virtualMachineName
     maxSessionLimit: usersPerCore * virtualMachineVirtualCpuCount
-    mlzTags: tier3_stamp.outputs.mlzTags
     resourceGroupManagement: management.outputs.resourceGroupName
     resourceGroupShared: shared.outputs.resourceGroupName
     securityPrincipalObjectIds: map(securityPrincipals, item => item.objectId)
-    sharedNames: tier3_shared.outputs.namingConvention
-    sharedSubnetReourceId: tier3_shared.outputs.subnets[0].id
-    stampNames: tier3_stamp.outputs.namingConvention
     tags: tags
+    tiers: [
+      tier3_shared.outputs
+      tier3_stamp.outputs
+    ]
     validationEnvironment: validationEnvironment
     virtualMachineSize: virtualMachineSize
     workspaceFriendlyName: workspaceFriendlyName
@@ -918,15 +902,12 @@ module sharedServices 'modules/shared-services/shared-services.bicep' = {
   name: 'deploy-shared-services-${deploymentNameSuffix}'
   scope: subscription(split(sharedServicesSubnetResourceId, '/')[2])
   params: {
-    delimiter: tier3_stamp.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
     identifier: identifier
     identifierHub: virtualNetwork_hub.tags.identifier
     locationControlPlane: virtualNetwork_hub.location
-    mlzTags: tier3_stamp.outputs.mlzTags
-    names: tier3_shared.outputs.namingConvention
-    networkName: tier3_shared.outputs.tier.name
     sharedServicesSubnetResourceId: sharedServicesSubnetResourceId
+    tier: tier3_shared
     workspaceGlobalPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3_stamp.outputs.privateDnsZones, name => startsWith(name, 'privatelink-global.wvd'))[0]}'
   }
 }
@@ -938,40 +919,34 @@ module fslogix 'modules/fslogix/fslogix.bicep' = if (deployFslogix) {
     activeDirectorySolution: activeDirectorySolution
     availability: availability
     azureFilesPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3_stamp.outputs.privateDnsZones, name => contains(name, 'file'))[0]}'
-    delimiter: tier3_stamp.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedIdentityClientId: management.outputs.deploymentUserAssignedIdentityClientId
     deploymentUserAssignedIdentityPrincipalId: management.outputs.deploymentUserAssignedIdentityPrincipalId
-    dnsServers: join(tier3_stamp.outputs.dnsServers, ',')
     domainJoinPassword: domainJoinPassword
     domainJoinUserPrincipalName: domainJoinUserPrincipalName
     domainName: domainName
-    encryptionUserAssignedIdentityResourceId: tier3_stamp.outputs.userAssignedIdentityResourceId
+    encryptionUserAssignedIdentityResourceId: management.outputs.encryptionUserAssignedIdentityResourceId
     fileShares: fileShares
     fslogixContainerType: fslogixContainerType
     fslogixShareSizeInGB: fslogixShareSizeInGB
     fslogixStorageService: fslogixStorageService
     functionAppPrincipalId: shared.outputs.functionAppPrincipalId
     hostPoolResourceId: controlPlane.outputs.hostPoolResourceId
-    keyVaultUri: tier3_stamp.outputs.keyVaultUri
+    keyVaultName: management.outputs.keyVaultName
+    keyVaultUri: management.outputs.keyVaultUri
     location: locationVirtualMachines
     managementVirtualMachineName: management.outputs.virtualMachineName
-    mlzTags: tier3_stamp.outputs.mlzTags
-    names: tier3_stamp.outputs.namingConvention
     netbios: netbios
     organizationalUnitPath: organizationalUnitPath
-    // recoveryServices: recoveryServices
     resourceGroupManagement: management.outputs.resourceGroupName
     securityPrincipalNames: map(securityPrincipals, item => item.displayName)
     securityPrincipalObjectIds: map(securityPrincipals, item => item.objectId)
     storageCount: storageCount
-    storageEncryptionKeyName: tier3_stamp.outputs.storageEncryptionKeyName
     storageIndex: storageIndex
     storageService: storageService
     storageSku: storageSku
-    subnetResourceId: tier3_stamp.outputs.subnets[0].id
-    subnets: tier3_stamp.outputs.subnets
     tags: tags
+    tier: tier3_stamp.outputs
   }
 }
 
@@ -986,7 +961,6 @@ module sessionHosts 'modules/session-hosts/session-hosts.bicep' = {
     availabilityZones: availabilityZones
     avdConfigurationZipFileName: avdConfigurationZipFileName
     dataCollectionRuleResourceId: shared.outputs.dataCollectionRuleResourceId
-    delimiter: tier3_stamp.outputs.delimiter
     deployFslogix: deployFslogix
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedIdentityClientId: management.outputs.deploymentUserAssignedIdentityClientId
@@ -994,7 +968,7 @@ module sessionHosts 'modules/session-hosts/session-hosts.bicep' = {
     diskAccessPolicyDefinitionId: management.outputs.diskAccessPolicyDefinitionId
     diskAccessPolicyDisplayName: management.outputs.diskAccessPolicyDisplayName
     diskAccessResourceId: management.outputs.diskAccessResourceId
-    diskEncryptionSetResourceId: tier3_stamp.outputs.diskEncryptionSetResourceId
+    diskEncryptionSetResourceId: management.outputs.diskEncryptionSetResourceId
     diskSku: diskSku
     divisionRemainderValue: divisionRemainderValue
     domainJoinPassword: domainJoinPassword
@@ -1003,7 +977,6 @@ module sessionHosts 'modules/session-hosts/session-hosts.bicep' = {
     drainMode: drainMode
     enableAcceleratedNetworking: enableAcceleratedNetworking
     enableAvdInsights: enableAvdInsights
-    // enableRecoveryServices: recoveryServices
     enableWindowsUpdate: enableWindowsUpdateFwRules
     environmentAbbreviation: environmentAbbreviation
     fslogixContainerType: fslogixContainerType
@@ -1018,15 +991,11 @@ module sessionHosts 'modules/session-hosts/session-hosts.bicep' = {
     logAnalyticsWorkspaceResourceId: shared.outputs.logAnalyticsWorkspaceResourceId
     managementVirtualMachineName: management.outputs.virtualMachineName
     maxResourcesPerTemplateDeployment: maxResourcesPerTemplateDeployment
-    mlzTags: tier3_stamp.outputs.mlzTags
-    names: tier3_stamp.outputs.namingConvention
     netAppFileShares: deployFslogix ? fslogix.outputs.netAppShares : [
       'None'
     ]
-    networkSecurityGroupResourceId: tier3_stamp.outputs.networkSecurityGroupResourceId
     organizationalUnitPath: organizationalUnitPath
     profile: profile
-    // recoveryServicesVaultName: management.outputs.recoveryServicesVaultName
     resourceGroupManagement: management.outputs.resourceGroupName
     scalingWeekdaysOffPeakStartTime: scalingWeekdaysOffPeakStartTime
     scalingWeekdaysPeakStartTime: scalingWeekdaysPeakStartTime
@@ -1040,9 +1009,8 @@ module sessionHosts 'modules/session-hosts/session-hosts.bicep' = {
     storageIndex: storageIndex
     storageService: storageService
     storageSuffix: storageSuffix
-    subnetResourceId: tier3_stamp.outputs.subnets[0].id
     tags: tags
-    timeZone: tier3_stamp.outputs.locationProperties.timeZone
+    tier: tier3_stamp.outputs
     virtualMachineAdminPassword: virtualMachineAdminPassword
     virtualMachineAdminUsername: virtualMachineAdminUsername
     virtualMachineSize: virtualMachineSize

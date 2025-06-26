@@ -1,23 +1,20 @@
 targetScope = 'subscription'
 
-param delimiter string
 param deploymentNameSuffix string
 param identifier string
 param identifierHub string
 param locationControlPlane string
-param mlzTags object
-param names object
-param networkName string
 param sharedServicesSubnetResourceId string
+param tier object
 param workspaceGlobalPrivateDnsZoneResourceId string
 
-var resourceGroupWorkspaceGlobal = '${replace(replace(names.resourceGroup, identifier, identifierHub), networkName, 'sharedServices')}${delimiter}avdGlobalWorkspace'
+var resourceGroupWorkspaceGlobal = '${replace(replace(tier.namingConvention.resourceGroup, identifier, identifierHub), tier.name, 'sharedServices')}${tier.delimiter}avdGlobalWorkspace'
 
 // Deploys the resource group for the AVD global workspace in the shared services subscription
 resource resourceGroup 'Microsoft.Resources/resourceGroups@2023-07-01' = {
   name: resourceGroupWorkspaceGlobal
   location: locationControlPlane
-  tags: mlzTags
+  tags: tier.mlzTags
 }
 
 // Deploys the AVD global workspace in the shared services subscription and network
@@ -28,9 +25,9 @@ module workspace_global 'workspace-global.bicep' = {
     globalWorkspacePrivateDnsZoneResourceId: workspaceGlobalPrivateDnsZoneResourceId
     location: locationControlPlane
     subnetResourceId: sharedServicesSubnetResourceId
-    tags: mlzTags
-    workspaceGlobalName: '${replace(replace(names.workspace, identifier, identifierHub), networkName, 'sharedServices')}${delimiter}global'
-    workspaceGlobalNetworkInterfaceName: '${replace(replace(names.workspaceNetworkInterface, identifier, identifierHub), networkName, 'sharedServices')}${delimiter}global'
-    workspaceGlobalPrivateEndpointName: '${replace(replace(names.workspacePrivateEndpoint, identifier, identifierHub), networkName, 'sharedServices')}${delimiter}global'
+    tags: tier.mlzTags
+    workspaceGlobalName: '${replace(replace(tier.namingConvention.workspace, identifier, identifierHub), tier.name, 'sharedServices')}${tier.delimiter}global'
+    workspaceGlobalNetworkInterfaceName: '${replace(replace(tier.namingConvention.workspaceNetworkInterface, identifier, identifierHub), tier.name, 'sharedServices')}${tier.delimiter}global'
+    workspaceGlobalPrivateEndpointName: '${replace(replace(tier.namingConvention.workspacePrivateEndpoint, identifier, identifierHub), tier.name, 'sharedServices')}${tier.delimiter}global'
   }
 }
