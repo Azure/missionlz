@@ -7,8 +7,8 @@ on:
   pull_request:
     branches: [main]
     paths:
-    - 'src/bicep/**'
-    - '!src/bicep/**.md'
+    - 'src/**'
+    - '!src/**.md'
 env:
   BICEP_VERSION: ''
 jobs:
@@ -36,9 +36,9 @@ jobs:
           git config user.email github-actions@github.com
           az bicep install
           az bicep version
-          az bicep build --file src/bicep/mlz.bicep --outfile src/bicep/mlz.json
+          az bicep build --file src/mlz.bicep --outfile src/mlz.json
           if [[ $(git status --porcelain) ]]; then
-            git add src/bicep/mlz.json
+            git add src/mlz.json
             git commit -m "GitHub Action: Build Bicep to JSON"
             git push origin HEAD:"$GITHUB_HEAD_REF"
           fi

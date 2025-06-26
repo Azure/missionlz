@@ -1,6 +1,6 @@
 # Mission Landing Zone - Regulatory Compliance - NIST Policies
 
-[**Home**](../README.md) | [**Design**](./design.md) | [**Add-Ons**](../src/bicep/add-ons/README.md) | [**Resources**](./resources.md)
+[**Home**](../README.md) | [**Design**](./design.md) | [**Add-Ons**](../src/add-ons/README.md) | [**Resources**](./resources.md)
 
 A goal of Mission Landing Zone (MLZ) is to ensure deployments have the tools and resources available that allow it to be compliant with most regulations across most industries.
 
@@ -56,7 +56,7 @@ Or, you can apply policy after deploying MLZ:
 az deployment group create \
   --resource-group <Resource Group to assign> \
   --name <original deployment name + descriptor> \
-  --template-file ./src/bicep/modules/policy-assignment.bicep \
+  --template-file ./src/modules/policy-assignment.bicep \
   --parameters builtInAssignment=<one of 'CMMC', 'IL5', 'NISTRev4', or 'NISTRev5'> logAnalyticsWorkspaceName=<Log analytics workspace name> \
   --parameters logAnalyticsWorkspaceName=<Log Analytics Workspace Name> \
   --parameters logAnalyticsWorkspaceResourceGroupName=<Log Analytics Workspace Resource Group Name>
@@ -66,7 +66,7 @@ az deployment group create \
 
 ### Modifying with Bicep
 
-The project stores well-known policies at [src/bicep/modules/policies](../src/bicep/modules/policies) where JSON files named for the initiatives with default parameters (except for a Log Analytics workspace ID value `<LAWORKSPACE>` that we substitute at deployment time -- any other parameter can be modified as needed).
+The project stores well-known policies at [src/bicep/modules/policies](../src/modules/policies) where JSON files named for the initiatives with default parameters (except for a Log Analytics workspace ID value `<LAWORKSPACE>` that we substitute at deployment time -- any other parameter can be modified as needed).
 
 ## What's Next
 

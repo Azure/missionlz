@@ -1,6 +1,6 @@
 # Mission Landing Zone
 
-[**Home**](./README.md) | [**Design**](./docs/design.md) | [**Add-Ons**](./src/bicep/add-ons/README.md) | [**Resources**](./docs/resources.md)
+[**Home**](./README.md) | [**Design**](./docs/design.md) | [**Add-Ons**](./src/add-ons/README.md) | [**Resources**](./docs/resources.md)
 
 Mission Landing Zone is a highly opinionated infrastructure as code (IaC) template. IT oversight organizations can use the template to create a cloud management system to deploy Azure environments for their workloads and teams. The solution addresses a narrowly scoped, specific need for a [Secure Cloud Computing Architecture (SCCA)](docs/scca.md) compliant hub and spoke infrastructure.
 
@@ -8,7 +8,7 @@ Mission Landing Zone is a highly opinionated infrastructure as code (IaC) templa
 - Implements controls following Microsoft's [SACA](https://aka.ms/saca) and [zero trust](https://learn.microsoft.com/security/zero-trust/) guidance
 - Deployable in Azure Commercial, Azure Government, Azure Government Secret, and Azure Government Top Secret clouds
 - A simple solution with low configuration and narrow scope
-- Written as [Bicep](./src/bicep/) templates
+- Written as [Bicep](./src/) templates
 
 Mission Landing Zone is the right solution when:
 
@@ -41,4 +41,4 @@ Mission Landing Zone can be deployed from the Azure Portal, or with Azure comman
 | [Command Line Tools](./docs/deployment-guides/command-line-tools.md)  | Azure Commercial, Azure Government, Azure Government Secret, & Azure Government Top Secret |
 
 > [!NOTE]  
-> Be sure to check out our **[add-ons](./src/bicep/add-ons/README.md)** to accelerate workload deployments.
+> Be sure to check out our **[add-ons](./src/add-ons/README.md)** to accelerate workload deployments.

@@ -22,5 +22,5 @@ steps:
         az deployment sub what-if \
           --name ${{ parameters.DeploymentName }} \
           --location ${{ parameters.Location }} \
-          --template-file $(Build.SourcesDirectory)/src/bicep/mlz.bicep \
+          --template-file $(Build.SourcesDirectory)/src/mlz.bicep \
           --parameters resourcePrefix=$datetime
