@@ -1,35 +1,30 @@
 targetScope = 'subscription'
 
 param avdObjectId string
-param delimiter string
-// param deployFslogix bool
 param deploymentNameSuffix string
-param diskEncryptionSetResourceId string
 param diskSku string
 @secure()
 param domainJoinPassword string
 param domainJoinUserPrincipalName string
 param domainName string
+param environmentAbbreviation string
 param locationControlPlane string
 param locationVirtualMachines string
-param mlzTags object
-param names object
 param organizationalUnitPath string
 param privateDnsZoneResourceIdPrefix string
-param privateDnsZones array
-param subnetResourceId string
 param tags object
+param tier object
 @secure()
 param virtualMachineAdminPassword string
 param virtualMachineAdminUsername string
 
-var hostPoolResourceId = resourceId(subscription().subscriptionId, resourceGroupManagement, 'Microsoft.DesktopVirtualization/hostpools', names.hostPool)
-var resourceGroupManagement = '${names.resourceGroup}${delimiter}management'
+var hostPoolResourceId = resourceId(subscription().subscriptionId, resourceGroupManagement, 'Microsoft.DesktopVirtualization/hostpools', tier.namingConvention.hostPool)
+var resourceGroupManagement = '${tier.namingConvention.resourceGroup}${tier.delimiter}management'
 
 resource resourceGroup 'Microsoft.Resources/resourceGroups@2023-07-01' = {
   name: resourceGroupManagement
   location: locationControlPlane
-  tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Resources/resourceGroups'] ?? {}, mlzTags)
+  tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Resources/resourceGroups'] ?? {}, tier.mlzTags)
 }
 
 module deploymentUserAssignedIdentity 'user-assigned-identity.bicep' = {
@@ -37,8 +32,8 @@ module deploymentUserAssignedIdentity 'user-assigned-identity.bicep' = {
   name: 'deploy-id-deployment-${deploymentNameSuffix}'
   params: {
     location: locationVirtualMachines
-    name: '${names.userAssignedIdentity}${delimiter}deployment'
-    tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.ManagedIdentity/userAssignedIdentities'] ?? {}, mlzTags)
+    name: '${tier.namingConvention.userAssignedIdentity}${tier.delimiter}deployment'
+    tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.ManagedIdentity/userAssignedIdentities'] ?? {}, tier.mlzTags)
   }
 }
 
@@ -71,12 +66,12 @@ module diskAccess 'disk-access.bicep' = {
   scope: resourceGroup
   name: 'deploy-disk-access-${deploymentNameSuffix}'
   params: {
-    azureBlobsPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(privateDnsZones, name => contains(name, 'blob'))[0]}'
+    azureBlobsPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier.privateDnsZones, name => contains(name, 'blob'))[0]}'
     hostPoolResourceId: hostPoolResourceId
     location: locationVirtualMachines
-    mlzTags: mlzTags
-    names: names
-    subnetResourceId: subnetResourceId
+    mlzTags: tier.mlzTags
+    names: tier.namingConvention
+    subnetResourceId: tier.subnets[0].id
     tags: tags
   }
 }
@@ -102,6 +97,44 @@ module policyAssignment 'policy-assignment.bicep' = {
   }
 }
 
+module customerManagedKeys '../../../../modules/customer-managed-keys.bicep' = {
+  name: 'deploy-cmk-${deploymentNameSuffix}'
+  params: {
+    deploymentNameSuffix: deploymentNameSuffix
+    environmentAbbreviation: environmentAbbreviation
+    keyVaultPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier.privateDnsZones, name => contains(name, 'vaultcore'))[0]}'
+    location: locationVirtualMachines
+    mlzTags: tier.mlzTags
+    resourceGroupName: resourceGroup.name
+    subnetResourceId: tier.subnets[0].id
+    tags: tags
+    tier: tier
+  }
+}
+
+module key '../../../../modules/key-vault-key.bicep' = {
+  name: 'deploy-adds-key-${deploymentNameSuffix}'
+  scope: resourceGroup
+  params: {
+    keyName: tier.namingConvention.diskEncryptionSet
+    keyVaultName: customerManagedKeys.outputs.keyVaultName
+  }
+}
+
+module diskEncryptionSet '../../../../modules/disk-encryption-set.bicep' = {
+  name: 'deploy-adds-des-${deploymentNameSuffix}'
+  scope: resourceGroup
+  params: {
+    deploymentNameSuffix: deploymentNameSuffix
+    diskEncryptionSetName: tier.namingConvention.diskEncryptionSet
+    keyUrl: key.outputs.keyUriWithVersion
+    keyVaultResourceId: customerManagedKeys.outputs.keyVaultResourceId
+    location: locationVirtualMachines
+    mlzTags: tier.mlzTags
+    tags: tags
+  }
+}
+
 // Management Virtual Machine
 // Purpose: deploys the management VM which is used to execute PowerShell scripts.
 module virtualMachine 'virtual-machine.bicep' = {
@@ -110,20 +143,20 @@ module virtualMachine 'virtual-machine.bicep' = {
   params: {
     deploymentUserAssignedIdentityPrincipalId: deploymentUserAssignedIdentity.outputs.principalId
     deploymentUserAssignedIdentityResourceId: deploymentUserAssignedIdentity.outputs.resourceId
-    diskEncryptionSetResourceId: diskEncryptionSetResourceId
-    diskName: '${names.virtualMachineDisk}${delimiter}mgt'
+    diskEncryptionSetResourceId: diskEncryptionSet.outputs.resourceId
+    diskName: '${tier.namingConvention.virtualMachineDisk}${tier.delimiter}mgt'
     diskSku: diskSku
     domainJoinPassword: domainJoinPassword
     domainJoinUserPrincipalName: domainJoinUserPrincipalName
     domainName: domainName
     hostPoolResourceId: hostPoolResourceId
     location: locationVirtualMachines
-    mlzTags: mlzTags
-    networkInterfaceName: '${names.virtualMachineNetworkInterface}${delimiter}mgt'
+    mlzTags: tier.mlzTags
+    networkInterfaceName: '${tier.namingConvention.virtualMachineNetworkInterface}${tier.delimiter}mgt'
     organizationalUnitPath: organizationalUnitPath
-    subnetResourceId: subnetResourceId
+    subnetResourceId: tier.subnets[0].id
     tags: tags
-    virtualMachineName: '${names.virtualMachine}mgt'
+    virtualMachineName: '${tier.namingConvention.virtualMachine}mgt'
     virtualMachineAdminPassword: virtualMachineAdminPassword
     virtualMachineAdminUsername: virtualMachineAdminUsername
   }
@@ -135,6 +168,10 @@ output deploymentUserAssignedIdentityResourceId string = deploymentUserAssignedI
 output diskAccessPolicyDefinitionId string = policy.outputs.policyDefinitionId
 output diskAccessPolicyDisplayName string = policy.outputs.policyDisplayName
 output diskAccessResourceId string = diskAccess.outputs.resourceId
+output diskEncryptionSetResourceId string = diskEncryptionSet.outputs.resourceId
+output encryptionUserAssignedIdentityResourceId string = customerManagedKeys.outputs.userAssignedIdentityResourceId
+output keyVaultName string = customerManagedKeys.outputs.keyVaultName
+output keyVaultUri string = customerManagedKeys.outputs.keyVaultUri
 output resourceGroupName string = resourceGroup.name
 output virtualMachineName string = virtualMachine.outputs.name
 output virtualMachineResourceId string = virtualMachine.outputs.resourceId
