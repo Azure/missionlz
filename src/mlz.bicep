@@ -667,7 +667,6 @@ module logic 'modules/logic.bicep' = {
 module resourceGroups 'modules/resource-groups.bicep' = {
   name: 'deploy-resource-groups-${deploymentNameSuffix}'
   params: {
-    delimiter: logic.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
     location: location
     mlzTags: logic.outputs.mlzTags
@@ -683,7 +682,6 @@ module networking 'modules/networking.bicep' = {
   params: {
     bastionHostSubnetAddressPrefix: bastionHostSubnetAddressPrefix
     azureGatewaySubnetAddressPrefix: azureGatewaySubnetAddressPrefix
-    delimiter: logic.outputs.delimiter
     deployIdentity: deployIdentity
     deploymentNameSuffix: deploymentNameSuffix
     deployBastion: deployBastion
@@ -818,7 +816,6 @@ module customerManagedKeys 'modules/customer-managed-keys.bicep' = {
     keyVaultPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.keyVault
     location: location
     mlzTags: logic.outputs.mlzTags
-    resourceAbbreviations: logic.outputs.resourceAbbreviations
     resourceGroupName: filter(resourceGroups.outputs.names, name => contains(name, 'hub'))[0]
     subnetResourceId: networking.outputs.hubSubnetResourceId
     tags: tags
@@ -853,7 +850,6 @@ module activeDirectoryDomainServices 'modules/active-directory-domain-services.b
   params: {
     adminPassword: addsVmAdminPassword
     adminUsername: addsVmAdminUsername
-    delimiter: logic.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
     domainName: addsDomainName
     environmentAbbreviation: environmentAbbreviation
@@ -865,7 +861,6 @@ module activeDirectoryDomainServices 'modules/active-directory-domain-services.b
     keyVaultPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.keyVault
     location: location
     mlzTags: logic.outputs.mlzTags
-    resourceAbbreviations: logic.outputs.resourceAbbreviations
     safeModeAdminPassword: addsSafeModeAdminPassword
     storageAccountType: windowsVmStorageAccountType
     subnetResourceId: networking.outputs.identitySubnetResourceId
@@ -884,12 +879,10 @@ module remoteAccess 'modules/remote-access.bicep' = {
     bastionHostPublicIPAddressAvailabilityZones: bastionHostPublicIPAddressAvailabilityZones
     bastionHostPublicIPAddressSkuName: 'Standard'
     bastionHostSubnetResourceId: networking.outputs.bastionHostSubnetResourceId
-    delimiter: logic.outputs.delimiter
     deployBastion: deployBastion
     deployLinuxVirtualMachine: deployLinuxVirtualMachine
     deploymentNameSuffix: deploymentNameSuffix
     deployWindowsVirtualMachine: deployWindowsVirtualMachine
-    hub: filter(logic.outputs.tiers, tier => tier.name == 'hub')[0]
     hubNetworkSecurityGroupResourceId: networking.outputs.hubNetworkSecurityGroupResourceId
     hubResourceGroupName: filter(resourceGroups.outputs.names, name => contains(name, 'hub'))[0]
     hubSubnetResourceId: networking.outputs.hubSubnetResourceId
@@ -907,6 +900,7 @@ module remoteAccess 'modules/remote-access.bicep' = {
     location: location
     mlzTags: logic.outputs.mlzTags
     tags: tags
+    tier: filter(logic.outputs.tiers, tier => tier.name == 'hub')[0]
     windowsVmAdminPassword: windowsVmAdminPassword
     windowsVmAdminUsername: windowsVmAdminUsername
     windowsVmImageOffer: windowsVmImageOffer
@@ -951,7 +945,6 @@ module diagnosticSettings 'modules/diagnostic-settings.bicep' = {
   params: {
     bastionDiagnosticsLogs: bastionDiagnosticsLogs
     bastionDiagnosticsMetrics: bastionDiagnosticsMetrics
-    delimiter: logic.outputs.delimiter
     deployBastion: deployBastion
     deployNetworkWatcherTrafficAnalytics: deployNetworkWatcherTrafficAnalytics
     deploymentNameSuffix: deploymentNameSuffix
@@ -1004,7 +997,6 @@ module security 'modules/security.bicep' = {
 output azureFirewallResourceId string = networking.outputs.azureFirewallResourceId
 output hubVirtualNetworkResourceId string = networking.outputs.hubVirtualNetworkResourceId
 output identitySubnetResourceId string = networking.outputs.identitySubnetResourceId
-output locationProperties object = logic.outputs.locationProperties
 output logAnalyticsWorkspaceResourceId string = monitoring.outputs.logAnalyticsWorkspaceResourceId
 output privateLinkScopeResourceId string = monitoring.outputs.privateLinkScopeResourceId
 output sharedServicesSubnetResourceId string = networking.outputs.sharedServicesSubnetResourceId
