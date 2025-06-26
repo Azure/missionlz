@@ -20,6 +20,7 @@ param tags object
 param tiers array
 param userAssignedIdentityResourceId string
 
+@batchSize(1)
 module key '../modules/key-vault-key.bicep' = [for (tier, i) in tiers: {
   name: 'deploy-ra-key-${tier.name}-${deploymentNameSuffix}'
   scope: resourceGroup(split(keyVaultResourceId, '/')[2], split(keyVaultResourceId, '/')[4])
