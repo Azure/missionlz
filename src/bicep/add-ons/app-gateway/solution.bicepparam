@@ -18,10 +18,12 @@ param backendAddressPool = {
 param frontendPrivateIpConfigs = [
   {
     name: 'frontendPrivateIp1'
+    privateIPAddress: '10.0.129.68'
     privateIPAllocationMethod: 'Static'
   }
   {
     name: 'frontendPrivateIp2'
+    privateIPAddress: '10.0.129.69'
     privateIPAllocationMethod: 'Static'
   }
 ]
@@ -44,7 +46,7 @@ param webApplicationFirewallConfiguration = {
   // exclusions: []
   // disabledRuleGroups: []
 }
-param keyVaultResourceId = '/subscriptions/afb59830-1fc9-44c9-bba3-04f657483578/resourceGroups/new-dev-va-hub-rg-network/providers/Microsoft.KeyVault/vaults/kv3rmzihwnl7oyk'
+param keyvaultUri = 'https://kv3rmzihwnl7oyk.vault.azure.net'
 param keyVaultCertName = 'testcert'
 
 

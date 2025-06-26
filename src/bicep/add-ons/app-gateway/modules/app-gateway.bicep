@@ -17,7 +17,7 @@ param frontendPrivateIpConfigs array
 param frontendPorts array
 
 @description('Key Vault resource ID (required if using port 443)')
-param keyVaultResourceId string = ''
+param keyvaultUri string = ''
 
 @description('Name of the certificate in Key Vault (required if using port 443)')
 param keyVaultCertName string = ''
@@ -37,17 +37,32 @@ param webApplicationFirewallConfiguration object
 @description('User-assigned managed identity resource ID')
 param identityResourceId string
 
-// Precompute values outside of resource definition
-var frontendIpConfigs = [for ipConfig in frontendPrivateIpConfigs: {
-  name: ipConfig.name
-  properties: {
-    privateIPAddress: ipConfig.privateIPAddress
-    privateIPAllocationMethod: ipConfig.privateIPAllocationMethod
-    subnet: {
-      id: subnetResourceId
-    }
+
+var normalizedFrontendPrivateIpConfigs = [
+  for ipConfig in frontendPrivateIpConfigs: {
+    name: ipConfig.name
+    privateIPAllocationMethod: empty(ipConfig.privateIPAllocationMethod) ? 'Static' : ipConfig.privateIPAllocationMethod
+    privateIPAddress: contains(ipConfig, 'privateIPAddress') ? ipConfig.privateIPAddress : null
   }
-}]
+]
+
+// Precompute values outside of resource definition
+var frontendIpConfigs = [
+  for ipConfig in normalizedFrontendPrivateIpConfigs: {
+    name: ipConfig.name
+    properties: union(
+      {
+        privateIPAllocationMethod: ipConfig.privateIPAllocationMethod
+        subnet: {
+          id: subnetResourceId
+        }
+      },
+      empty(ipConfig.privateIPAddress) ? {} : {
+        privateIPAddress: ipConfig.privateIPAddress
+      }
+    )
+  }
+]
 
 var frontendPortConfigs = [for port in frontendPorts: {
   name: port.name
@@ -60,8 +75,8 @@ var sslCert = keyVaultCertName == '' ? [] : [{
   name: keyVaultCertName
   properties: {
     keyVaultSecretId: keyVaultCertVersion == ''
-      ? '${keyVaultResourceId}/secrets/${keyVaultCertName}'
-      : '${keyVaultResourceId}/secrets/${keyVaultCertName}/${keyVaultCertVersion}'
+    ? '${keyvaultUri}/secrets/${keyVaultCertName}'
+    : '${keyvaultUri}/secrets/${keyVaultCertName}/${keyVaultCertVersion}'
   }
 }]
 
@@ -85,11 +100,11 @@ resource appGateway 'Microsoft.Network/applicationGateways@2022-09-01' = {
       '${identityResourceId}': {}
     }
   }
-  sku: {
-    name: 'WAF_v2'
-    tier: 'WAF_v2'
-  }
   properties: {
+    sku: {
+      name: 'WAF_V2'
+      tier: 'WAF_V2'
+    }
     autoscaleConfiguration: {
       minCapacity: autoscaleMinCapacity
       maxCapacity: autoscaleMaxCapacity
@@ -141,6 +156,7 @@ resource appGateway 'Microsoft.Network/applicationGateways@2022-09-01' = {
           backendHttpSettings: {
             id: resourceId('Microsoft.Network/applicationGateways/backendHttpSettingsCollection', agwName, 'httpSettings${port.name}')
           }
+          priority: 100 + port.port // Ensure unique priorities
         }
       }
     ]

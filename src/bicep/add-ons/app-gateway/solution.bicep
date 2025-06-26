@@ -19,10 +19,13 @@ param frontendPorts array
 param webApplicationFirewallConfiguration object
 
 @description('Key Vault resource ID (required if using port 443)')
-param keyVaultResourceId string = ''
+param keyvaultUri string = ''
 
 @description('Name of the certificate in Key Vault (required if using port 443)')
 param keyVaultCertName string = ''
+
+@description('Network security group resource ID (optional)')
+param nsgResourceId string = '' // Optional, can be empty
 
 @description('Optional deployment name suffix for uniqueness')
 param deploymentNameSuffix string = utcNow()
@@ -43,8 +46,15 @@ var location = vnet.location
 
 // --- Derive route table name and resource ID ---
 var routeTableName = '${identifier}${delimiter}${environmentAbbreviation}${delimiter}${locationShort}${delimiter}${networkName}-rt'
-var routeTableResourceId = resourceId('Microsoft.Network/routeTables', routeTableName)
+var vnetSubscriptionId = split(vnetResourceId, '/')[2]
+var vnetResourceGroup = split(vnetResourceId, '/')[4]
 
+var routeTableResourceId = format(
+  '/subscriptions/{0}/resourceGroups/{1}/providers/Microsoft.Network/routeTables/{2}',
+  vnetSubscriptionId,
+  vnetResourceGroup,
+  routeTableName
+)
 // --- Call naming convention module ---
 module naming '../../modules/naming-convention.bicep' = {
   name: 'get-naming-${deploymentNameSuffix}'
@@ -65,7 +75,8 @@ module subnet 'modules/subnet.bicep' = {
     vnetResourceId: vnetResourceId
     subnetName: 'agw-snet'
     subnetPrefix: subnetPrefix
-    routeTableId: routeTableResourceId
+    nsgId: nsgResourceId // Optional, can be empty
+    routeTableId: routeTableResourceId  // Optional, can be empty
   }
 }
 
@@ -78,9 +89,9 @@ module keyvault 'modules/keyvault.bicep' = if (hasPort443) {
   name: 'get-keyvault-certificate-${deploymentNameSuffix}'
   scope: resourceGroup(split(vnetResourceId, '/')[2], split(vnetResourceId, '/')[4])
   params: {
-    keyVaultResourceId: keyVaultResourceId
+    keyvaultUri: keyvaultUri
     identityName: naming.outputs.names.userAssignedIdentity
-    location: subnet.outputs.subnetProperties.location
+    location: location
     deployAccessPolicy: true
   }
 }
@@ -91,12 +102,12 @@ module appGateway 'modules/app-gateway.bicep' = {
   scope: resourceGroup(split(vnetResourceId, '/')[2], split(vnetResourceId, '/')[4])
   params: {
     agwName: naming.outputs.names.applicationGateway
-    location: subnet.outputs.subnetProperties.location
+    location: location
     subnetResourceId: subnet.outputs.subnetResourceId
     backendAddressPool: backendAddressPool
     frontendPrivateIpConfigs: frontendPrivateIpConfigs
     frontendPorts: frontendPorts
-    keyVaultResourceId: keyVaultResourceId
+    keyvaultUri: keyvaultUri
     keyVaultCertName: keyVaultCertName
     webApplicationFirewallConfiguration: webApplicationFirewallConfiguration
     identityResourceId: hasPort443 ? keyvault.outputs.identityResourceId : ''

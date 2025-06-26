@@ -13,7 +13,7 @@ param nsgId string = ''
 @description('Route table resource ID (optional)')
 param routeTableId string = ''
 
-resource vnet 'Microsoft.Network/virtualNetworks@2023-05-01' existing = {
+resource vnet 'Microsoft.Network/virtualNetworks@2024-07-01' existing = {
   name: last(split(vnetResourceId, '/'))
 }
 

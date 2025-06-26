@@ -1,5 +1,5 @@
 @description('The Key Vault resource ID')
-param keyVaultResourceId string
+param keyvaultUri string
 
 @description('The name for the managed identity to create and assign to the Application Gateway')
 param identityName string
@@ -10,6 +10,8 @@ param location string
 @description('Whether to deploy the access policy')
 param deployAccessPolicy bool = true
 
+var keyVaultName = split(split(keyvaultUri, '://')[1], '.')[0]
+
 // Create the managed identity for the Application Gateway
 resource agwIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
   name: identityName
@@ -18,7 +20,7 @@ resource agwIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-3
 
 // Reference the existing Key Vault
 resource existingKeyVault 'Microsoft.KeyVault/vaults@2023-07-01' existing = {
-  name: split(keyVaultResourceId, '/')[8]
+  name: keyVaultName
 }
 
 // Add access policy if required
