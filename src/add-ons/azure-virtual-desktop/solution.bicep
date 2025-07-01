@@ -235,7 +235,7 @@ param networkSecurityGroupDiagnosticsLogs array = [
 @description('The rules to apply to the Network Security Group.')
 param networkSecurityGroupRules array = []
 
-@description('The number of days to retain Network Watcher Flow Logs. It defaults to "30".')  
+@description('The number of days to retain Network Watcher Flow Logs. It defaults to "30".')
 param networkWatcherFlowLogsRetentionDays int = 30
 
 @allowed([
@@ -375,6 +375,15 @@ var endAvSetRange = (sessionHostCount + sessionHostIndex) / maxAvSetMembers // T
 var availabilitySetsCount = length(range(beginAvSetRange, (endAvSetRange - beginAvSetRange) + 1))
 
 // OTHER LOGIC & COMPUTED VALUES
+var agentTrafficUniqueString = substring(cloud, 2, 1) == 'n'
+  ? 'wvd${first(cloudSuffix)}xportalcontainer'
+  : 'wvdportalstorageblob'
+var agentUpdatesUniqueString = cloud == 'AzureCloud'
+  ? 'eus2prod'
+  : cloud == 'AzureUSGovernment'
+      ? 'ugviffx'
+      : '${first(cloud)}${take(skip(cloud, 2), 1)}${first(locationVirtualMachines)}${substring(cloud, 2, 1) == 'n' ? first(cloudSuffix) : substring(cloudSuffix, 3, 1)}x'
+var cloud = environment().name
 var cloudSuffix = replace(replace(environment().resourceManager, 'https://management.', ''), '/', '')
 var customImageId = empty(imageVersionResourceId) ? 'null' : '"${imageVersionResourceId}"'
 var deployFslogix = contains(fslogixStorageService, 'Azure') && contains(activeDirectorySolution, 'DomainServices')
@@ -444,7 +453,10 @@ resource virtualNetwork_hub 'Microsoft.Network/virtualNetworks@2023-11-01' exist
 }
 
 // Gets the address prefix for the identity virtual network to configure the firewall rules
-module virtualNetwork_identity '../../modules/existing-vnet-address-prefix.bicep' = if (contains(activeDirectorySolution, 'DomainServices')) {
+module virtualNetwork_identity '../../modules/existing-vnet-address-prefix.bicep' = if (contains(
+  activeDirectorySolution,
+  'DomainServices'
+)) {
   name: 'get-id-vnet-${deploymentNameSuffix}'
   params: {
     networkName: 'identity'
@@ -555,225 +567,163 @@ module tier3_stamp '../tier3/solution.bicep' = {
   name: 'deploy-tier3-avd-stamp-${deploymentNameSuffix}'
   params: {
     additionalSubnets: union(subnets.avdManagement, subnets.azureNetAppFiles, subnets.functionApp)
-    customFirewallRuleCollectionGroups: empty(customFirewallRuleCollectionGroups) ? [
-      {
-        name: 'AVD-CollapsedCollectionGroup-${toUpper(identifier)}-${toUpper(environmentAbbreviation)}-${toUpper(locationVirtualMachines)}-${stampIndex}'
-        properties: {
-          priority: 200
-          ruleCollections: [
-            {
-              name: 'ApplicationRules'
-              priority: 150
-              ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
-              action: {
-                type: 'Allow'
-              }
-              rules: concat(
-                [
-                  {
-                    name: 'AVD-RequiredDeploymentEndpoints'
-                    ruleType: 'ApplicationRule'
-                    protocols: [
-                      {
-                        protocolType: 'Https'
-                        port: 443
-                      }
-                    ]
-                    fqdnTags: []
-                    webCategories: []
-                    targetFqdns: [
-                      split(environment().resourceManager, '/')[2]
-                      'mrsglobalsteus2prod.blob.${environment().suffixes.storage}'
-                      'wvdportalstorageblob.blob.${environment().suffixes.storage}'
-                      'gcs.prod.monitoring.${environment().suffixes.storage}'
-                      '*.prod.warm.ingest.monitor.${environment().suffixes.storage}'
-                      '*.guestconfiguration.${privateDnsZoneSuffixes_AzureVirtualDesktop[?environment().name] ?? cloudSuffix}'
-                      '*.wvd.${privateDnsZoneSuffixes_AzureVirtualDesktop[?environment().name] ?? cloudSuffix}'
-                    ]
-                    targetUrls: []
-                    terminateTLS: false
-                    sourceAddresses: [
-                      stampVirtualNetworkAddressPrefix
-                    ]
-                    destinationAddresses: []
-                    sourceIpGroups: []
+    customFirewallRuleCollectionGroups: empty(customFirewallRuleCollectionGroups)
+      ? [
+          {
+            name: 'AVD-CollapsedCollectionGroup-${toUpper(identifier)}-${toUpper(environmentAbbreviation)}-${toUpper(locationVirtualMachines)}-${stampIndex}'
+            properties: {
+              priority: 200
+              ruleCollections: [
+                {
+                  name: 'ApplicationRules'
+                  priority: 200
+                  ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
+                  action: {
+                    type: 'Allow'
                   }
-                ],
-                contains(activeDirectorySolution, 'MicrosoftEntraId') ? [
-                  {
-                    name: 'AVD-EntraAuthEndpoints'
-                    ruleType: 'ApplicationRule'
-                    protocols: [
+                  rules: concat(
+                    [
                       {
-                        protocolType: 'Https'
-                        port: 443
+                        name: 'AVD-RequiredDeploymentEndpoints'
+                        ruleType: 'ApplicationRule'
+                        protocols: [
+                          {
+                            protocolType: 'Https'
+                            port: 443
+                          }
+                        ]
+                        fqdnTags: []
+                        webCategories: []
+                        targetFqdns: [
+                          split(environment().resourceManager, '/')[2]
+                          'mrsglobalst${agentUpdatesUniqueString}.blob.${environment().suffixes.storage}'
+                          '${agentTrafficUniqueString}.blob.${environment().suffixes.storage}'
+                          'gcs${cloud == 'AzureCloud' ? '.prod' : ''}.monitoring.${environment().suffixes.storage}'
+                          '*.prod.warm.ingest.monitor.${environment().suffixes.storage}'
+                          '*.guestconfiguration.${privateDnsZoneSuffixes_AzureVirtualDesktop[?environment().name] ?? cloudSuffix}'
+                          '*.wvd.${privateDnsZoneSuffixes_AzureVirtualDesktop[?environment().name] ?? cloudSuffix}'
+                        ]
+                        targetUrls: []
+                        terminateTLS: false
+                        sourceAddresses: [
+                          stampVirtualNetworkAddressPrefix
+                        ]
+                        destinationAddresses: []
+                        sourceIpGroups: []
                       }
-                    ]
-                    fqdnTags: []
-                    webCategories: []
-                    targetFqdns: [
-                      split(environment().authentication.loginEndpoint, '/')[2]
-                      split(environment().graph, '/')[2]
-                      'enterpriseregistration.windows.net'
-                    ]
-                    targetUrls: []
-                    terminateTLS: false
-                    sourceAddresses: [
-                      stampVirtualNetworkAddressPrefix
-                    ]
-                    destinationAddresses: []
-                    sourceIpGroups: []
+                    ],
+                    contains(activeDirectorySolution, 'MicrosoftEntraId')
+                      ? [
+                          {
+                            name: 'AVD-EntraAuthEndpoints'
+                            ruleType: 'ApplicationRule'
+                            protocols: [
+                              {
+                                protocolType: 'Https'
+                                port: 443
+                              }
+                            ]
+                            fqdnTags: []
+                            webCategories: []
+                            targetFqdns: [
+                              split(environment().authentication.loginEndpoint, '/')[2]
+                              split(environment().graph, '/')[2]
+                              'enterpriseregistration.windows.net'
+                            ]
+                            targetUrls: []
+                            terminateTLS: false
+                            sourceAddresses: [
+                              stampVirtualNetworkAddressPrefix
+                            ]
+                            destinationAddresses: []
+                            sourceIpGroups: []
+                          }
+                        ]
+                      : [],
+                    enableWindowsUpdateFwRules
+                      ? [
+                          {
+                            name: 'WindowsUpdateEndpoints'
+                            ruleType: 'ApplicationRule'
+                            protocols: [
+                              {
+                                protocolType: 'Https'
+                                port: 443
+                              }
+                            ]
+                            fqdnTags: [
+                              'WindowsUpdate'
+                            ]
+                            webCategories: []
+                            targetFqdns: []
+                            targetUrls: []
+                            terminateTLS: false
+                            sourceAddresses: [
+                              stampVirtualNetworkAddressPrefix
+                            ]
+                            destinationAddresses: []
+                            sourceIpGroups: []
+                          }
+                        ]
+                      : []
+                  )
+                }
+                {
+                  name: 'NetworkRules'
+                  priority: 200
+                  ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
+                  action: {
+                    type: 'Allow'
                   }
-                ] : [],
-                enableWindowsUpdateFwRules ? [
-                  {
-                    name: 'WindowsUpdateEndpoints'
-                    ruleType: 'ApplicationRule'
-                    protocols: [
+                  rules: concat(
+                    [
                       {
-                        protocolType: 'Https'
-                        port: 443
+                        name: 'KMS-Endpoint'
+                        ruleType: 'NetworkRule'
+                        ipProtocols: [
+                          'Tcp'
+                        ]
+                        sourceAddresses: [
+                          stampVirtualNetworkAddressPrefix
+                        ]
+                        destinationAddresses: []
+                        destinationFqdns: [
+                          'azkms.${environment().suffixes.storage}'
+                          'kms.${environment().suffixes.storage}'
+                        ]
+                        destinationPorts: [
+                          '1688'
+                        ]
+                        sourceIpGroups: []
+                        destinationIpGroups: []
                       }
+                    ],
+                    [
                       {
-                        protocolType: 'Http'
-                        port: 80
+                        name: 'AzureCloudforLogin'
+                        ruleType: 'NetworkRule'
+                        ipProtocols: [
+                          'Tcp'
+                        ]
+                        sourceAddresses: [
+                          stampVirtualNetworkAddressPrefix
+                        ]
+                        destinationAddresses: ['AzureActiveDirectory']
+                        destinationFqdns: []
+                        destinationPorts: [
+                          '443'
+                        ]
+                        sourceIpGroups: []
+                        destinationIpGroups: []
                       }
                     ]
-                    fqdnTags: [
-                      'WindowsUpdate'
-                    ]
-                    webCategories: []
-                    targetFqdns: []
-                    targetUrls: []
-                    terminateTLS: false
-                    sourceAddresses: [
-                      stampVirtualNetworkAddressPrefix
-                    ]
-                    destinationAddresses: []
-                    sourceIpGroups: []
-                  }
-                ] : []
-              )
+                  )
+                }
+              ]
             }
-            {
-              name: 'NetworkRules'
-              priority: 140
-              ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
-              action: {
-                type: 'Allow'
-              }
-              rules: concat(
-                [
-                  {
-                    name: 'KMS-Endpoint'
-                    ruleType: 'NetworkRule'
-                    ipProtocols: [
-                      'Tcp'
-                    ]
-                    sourceAddresses: [
-                      stampVirtualNetworkAddressPrefix
-                    ]
-                    destinationAddresses: []
-                    destinationFqdns: [
-                      'azkms.${environment().suffixes.storage}'
-                    ]
-                    destinationPorts: [
-                      '1688'
-                    ]
-                    sourceIpGroups: []
-                    destinationIpGroups: []
-                  }
-                ],
-                [
-                  {
-                    name: 'AllowMonitorToLAW'
-                    ruleType: 'NetworkRule'
-                    ipProtocols: ['Tcp']
-                    sourceAddresses: [
-                      stampVirtualNetworkAddressPrefix
-                    ]
-                    destinationAddresses: [cidrHost(virtualNetwork_operations.outputs.addressPrefix, 3)] // Network of the Log Analytics Workspace, could be narrowed using parameters file post deployment
-                    destinationPorts: ['443'] // HTTPS port for Azure Monitor
-                    sourceIpGroups: []
-                    destinationIpGroups: []
-                    destinationFqdns: []
-                  }
-                ],
-                [
-                  {
-                    name: 'TimeSync'
-                    ruleType: 'NetworkRule'
-                    ipProtocols: [
-                      'Udp'
-                    ]
-                    sourceAddresses: [
-                      stampVirtualNetworkAddressPrefix
-                    ]
-                    destinationAddresses: []
-                    destinationFqdns: [
-                      'time.windows.com'
-                    ]
-                    destinationPorts: [
-                      '123'
-                    ]
-                    sourceIpGroups: []
-                    destinationIpGroups: []
-                  }
-                ],
-                [
-                  {
-                    name: 'AzureCloudforLogin'
-                    ruleType: 'NetworkRule'
-                    ipProtocols: [
-                      'Tcp'
-                    ]
-                    sourceAddresses: [
-                      stampVirtualNetworkAddressPrefix
-                    ]
-                    destinationAddresses: ['AzureActiveDirectory']
-                    destinationFqdns: []
-                    destinationPorts: [
-                      '443'
-                    ]
-                    sourceIpGroups: []
-                    destinationIpGroups: []
-                  }
-                ],
-                contains(activeDirectorySolution, 'DomainServices') ? [
-                  {
-                    name: 'ADCommunicationRule'
-                    ruleType: 'NetworkRule'
-                    ipProtocols: [
-                      'Tcp'
-                      'Udp'
-                    ]
-                    sourceAddresses: [
-                      stampVirtualNetworkAddressPrefix
-                    ]
-                    destinationAddresses: [
-                      virtualNetwork_identity.outputs.addressPrefix
-                    ]
-                    destinationPorts: [
-                      '53'
-                      '88'
-                      '389'
-                      '445'
-                      '139'
-                      '135'
-                      '89'
-                      '123'
-                      '1024-65535'
-                    ]
-                    sourceIpGroups: []
-                    destinationIpGroups: []
-                  }
-                ] : []
-              )
-            }
-          ]
-        }
-      }
-    ] : customFirewallRuleCollectionGroups
+          }
+        ]
+      : customFirewallRuleCollectionGroups
     deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
     deployDefender: deployDefender
     deployNetworkWatcherTrafficAnalytics: deployNetworkWatcherTrafficAnalytics
@@ -991,9 +941,11 @@ module sessionHosts 'modules/session-hosts/session-hosts.bicep' = {
     logAnalyticsWorkspaceResourceId: shared.outputs.logAnalyticsWorkspaceResourceId
     managementVirtualMachineName: management.outputs.virtualMachineName
     maxResourcesPerTemplateDeployment: maxResourcesPerTemplateDeployment
-    netAppFileShares: deployFslogix ? fslogix.outputs.netAppShares : [
-      'None'
-    ]
+    netAppFileShares: deployFslogix
+      ? fslogix.outputs.netAppShares
+      : [
+          'None'
+        ]
     organizationalUnitPath: organizationalUnitPath
     profile: profile
     resourceGroupManagement: management.outputs.resourceGroupName
