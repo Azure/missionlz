@@ -6,10 +6,12 @@ Licensed under the MIT License.
 targetScope = 'subscription'
 
 param blobsPrivateDnsZoneResourceId string
+param deploymentIndex string
 param deploymentNameSuffix string
+param environmentAbbreviation string
 param filesPrivateDnsZoneResourceId string
-param keyVaultResourceId string
-param keyVaultUri string
+param hubSubscriptionId string
+param hubResourceGroupName string
 param logStorageSkuName string
 param location string
 param mlzTags object
@@ -19,14 +21,26 @@ param subnetResourceId string
 param tablesPrivateDnsZoneResourceId string
 param tags object
 param tier object
-param userAssignedIdentityResourceId string
+param workloadShortName string
 
-module key '../../../modules/key-vault-key.bicep' = {
-  name: 'deploy-ra-key-${tier.name}-${deploymentNameSuffix}'
-  scope: resourceGroup(split(keyVaultResourceId, '/')[2], split(keyVaultResourceId, '/')[4])
+module customerManagedKeys '../../../modules/customer-managed-keys.bicep' = {
+  name: 'deploy-cmk-${workloadShortName}-${deploymentIndex}${deploymentNameSuffix}'
   params: {
-    keyName: 'storage-${tier.name}'
-    keyVaultName: split(keyVaultResourceId, '/')[8]
+    deploymentNameSuffix: deploymentNameSuffix
+    environmentAbbreviation: environmentAbbreviation
+    keyName: 'StorageEncryptionKey'
+    keyVaultPrivateDnsZoneResourceId: resourceId(
+      hubSubscriptionId,
+      hubResourceGroupName,
+      'Microsoft.Network/privateDnsZones',
+      replace('privatelink${environment().suffixes.keyvaultDns}', 'vault', 'vaultcore')
+    )
+    location: location
+    mlzTags: mlzTags
+    resourceGroupName: resourceGroupName
+    subnetResourceId: subnetResourceId
+    tags: tags
+    tier: tier
   }
 }
 
@@ -36,19 +50,27 @@ module storageAccount '../../../modules/storage-account.bicep' = {
   params: {
     blobsPrivateDnsZoneResourceId: blobsPrivateDnsZoneResourceId
     filesPrivateDnsZoneResourceId: filesPrivateDnsZoneResourceId
-    keyVaultUri: keyVaultUri
+    keyVaultUri: customerManagedKeys.outputs.keyVaultUri
     location: location
     mlzTags: mlzTags
     queuesPrivateDnsZoneResourceId: queuesPrivateDnsZoneResourceId
     skuName: logStorageSkuName
-    storageEncryptionKeyName: key.outputs.keyName
+    storageEncryptionKeyName: customerManagedKeys.outputs.keyName
     subnetResourceId: subnetResourceId
     tablesPrivateDnsZoneResourceId: tablesPrivateDnsZoneResourceId
     tags: tags
     tier: tier
-    userAssignedIdentityResourceId: userAssignedIdentityResourceId
+    userAssignedIdentityResourceId: customerManagedKeys.outputs.userAssignedIdentityResourceId
   }
 }
 
-output networkInterfaceResourceIds array = storageAccount.outputs.networkInterfaceResourceIds
+output keyVaultName string = customerManagedKeys.outputs.keyVaultName
+output keyVaultUri string = customerManagedKeys.outputs.keyVaultUri
+output networkInterfaceResourceIds array = union(
+  [
+    customerManagedKeys.outputs.keyVaultNetworkInterfaceResourceId
+  ],
+  storageAccount.outputs.networkInterfaceResourceIds
+)
 output storageAccountResourceId string = storageAccount.outputs.id
+output userAssignedIdentityResourceId string = customerManagedKeys.outputs.userAssignedIdentityResourceId

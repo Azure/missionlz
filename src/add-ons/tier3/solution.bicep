@@ -286,34 +286,12 @@ module networking 'modules/networking.bicep' = if (!(empty(virtualNetworkAddress
   }
 }
 
-module customerManagedKeys '../../modules/customer-managed-keys.bicep' = if (!(empty(virtualNetworkAddressPrefix))) {
-  name: 'deploy-cmk-${workloadShortName}-${deploymentIndex}${deploymentNameSuffix}'
-  params: {
-    deploymentNameSuffix: deploymentNameSuffix
-    environmentAbbreviation: environmentAbbreviation
-    keyVaultPrivateDnsZoneResourceId: resourceId(
-      hubSubscriptionId,
-      hubResourceGroupName,
-      'Microsoft.Network/privateDnsZones',
-      replace('privatelink${environment().suffixes.keyvaultDns}', 'vault', 'vaultcore')
-    )
-    location: location
-    mlzTags: logic.outputs.mlzTags
-    resourceGroupName: rg.outputs.name
-    subnetResourceId: networking.outputs.subnets[0].id
-    tags: tags
-    tier: logic.outputs.tiers[0]
-  }
-}
-
 module storage 'modules/storage.bicep' = if (!(empty(virtualNetworkAddressPrefix))) {
   name: 'deploy-storage-${workloadShortName}-${deploymentIndex}${deploymentNameSuffix}'
   params: {
     blobsPrivateDnsZoneResourceId: resourceId(hubSubscriptionId, hubResourceGroupName, 'Microsoft.Network/privateDnsZones', 'privatelink.blob.${environment().suffixes.storage}')
     deploymentNameSuffix: deploymentNameSuffix
     filesPrivateDnsZoneResourceId: resourceId(hubSubscriptionId, hubResourceGroupName, 'Microsoft.Network/privateDnsZones', 'privatelink.file.${environment().suffixes.storage}')
-    keyVaultResourceId: customerManagedKeys.outputs.keyVaultResourceId
-    keyVaultUri: customerManagedKeys.outputs.keyVaultUri
     location: location
     logStorageSkuName: logStorageSkuName
     mlzTags: logic.outputs.mlzTags
@@ -323,7 +301,11 @@ module storage 'modules/storage.bicep' = if (!(empty(virtualNetworkAddressPrefix
     tablesPrivateDnsZoneResourceId: resourceId(hubSubscriptionId, hubResourceGroupName, 'Microsoft.Network/privateDnsZones', 'privatelink.table.${environment().suffixes.storage}')
     tags: tags
     tier: logic.outputs.tiers[0]
-    userAssignedIdentityResourceId: customerManagedKeys.outputs.userAssignedIdentityResourceId
+    deploymentIndex: deploymentIndex
+    environmentAbbreviation: environmentAbbreviation
+    hubResourceGroupName: hubResourceGroupName
+    hubSubscriptionId: hubSubscriptionId
+    workloadShortName: workloadShortName
   }
 }
 
@@ -335,11 +317,11 @@ module diagnostics 'modules/diagnostics.bicep' = if (!(empty(virtualNetworkAddre
     deployNetworkWatcherTrafficAnalytics: deployNetworkWatcherTrafficAnalytics
     keyVaultDiagnosticLogs: keyVaultDiagnosticLogs
     keyVaultDiagnosticMetrics: keyVaultDiagnosticMetrics
-    keyVaultName: customerManagedKeys.outputs.keyVaultName
+    keyVaultName: storage.outputs.keyVaultName
     location: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     networkInterfaceDiagnosticsMetrics: networkInterfaceDiagnosticsMetrics
-    networkInterfaceResourceIds: union(customerManagedKeys.outputs.networkInterfaceResourceIds, storage.outputs.networkInterfaceResourceIds)
+    networkInterfaceResourceIds: storage.outputs.networkInterfaceResourceIds
     networkSecurityGroupDiagnosticsLogs: networkSecurityGroupDiagnosticsLogs
     networkSecurityGroupName: networking.outputs.networkSecurityGroupName
     networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
@@ -380,7 +362,7 @@ module defenderForCloud '../../modules/defender-for-cloud.bicep' =
 output name string = logic.outputs.tiers[0].name
 output delimiter string = logic.outputs.tiers[0].delimiter
 output dnsServers array = empty(virtualNetworkAddressPrefix) ? [] : virtualNetwork_hub.properties.?dhcpOptions.dnsServers ?? []
-output keyVaultUri string = empty(virtualNetworkAddressPrefix) ? '' : customerManagedKeys.outputs.keyVaultUri
+output keyVaultUri string = empty(virtualNetworkAddressPrefix) ? '' : storage.outputs.keyVaultUri
 output locationProperties object = logic.outputs.tiers[0].locationProperties
 output logAnalyticsWorkspaceResourceId string = logAnalyticsWorkspaceResourceId
 output mlzTags object = logic.outputs.mlzTags
@@ -390,4 +372,4 @@ output privateDnsZones array = logic.outputs.privateDnsZones
 output identifier string = azureFirewall.tags.identifier
 output storageAccountResourceId string = empty(virtualNetworkAddressPrefix) ? '' : storage.outputs.storageAccountResourceId
 output subnets array = empty(virtualNetworkAddressPrefix) ? [] : networking.outputs.subnets
-output userAssignedIdentityResourceId string = empty(virtualNetworkAddressPrefix) ? '' : customerManagedKeys.outputs.userAssignedIdentityResourceId
+output userAssignedIdentityResourceId string = empty(virtualNetworkAddressPrefix) ? '' : storage.outputs.userAssignedIdentityResourceId

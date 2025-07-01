@@ -102,6 +102,7 @@ module customerManagedKeys '../../../../modules/customer-managed-keys.bicep' = {
   params: {
     deploymentNameSuffix: deploymentNameSuffix
     environmentAbbreviation: environmentAbbreviation
+    keyName: tier.namingConvention.diskEncryptionSet
     keyVaultPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier.privateDnsZones, name => contains(name, 'vaultcore'))[0]}'
     location: locationVirtualMachines
     mlzTags: tier.mlzTags
@@ -112,22 +113,13 @@ module customerManagedKeys '../../../../modules/customer-managed-keys.bicep' = {
   }
 }
 
-module key '../../../../modules/key-vault-key.bicep' = {
-  name: 'deploy-adds-key-${deploymentNameSuffix}'
-  scope: resourceGroup
-  params: {
-    keyName: tier.namingConvention.diskEncryptionSet
-    keyVaultName: customerManagedKeys.outputs.keyVaultName
-  }
-}
-
 module diskEncryptionSet '../../../../modules/disk-encryption-set.bicep' = {
   name: 'deploy-adds-des-${deploymentNameSuffix}'
   scope: resourceGroup
   params: {
     deploymentNameSuffix: deploymentNameSuffix
     diskEncryptionSetName: tier.namingConvention.diskEncryptionSet
-    keyUrl: key.outputs.keyUriWithVersion
+    keyUrl: customerManagedKeys.outputs.keyUriWithVersion
     keyVaultResourceId: customerManagedKeys.outputs.keyVaultResourceId
     location: locationVirtualMachines
     mlzTags: tier.mlzTags

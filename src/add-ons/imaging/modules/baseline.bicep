@@ -54,20 +54,12 @@ module customerManagedKeys '../../../modules/customer-managed-keys.bicep' = {
     tags: tags
     deploymentNameSuffix: deploymentNameSuffix
     environmentAbbreviation: environmentAbbreviation
+    keyName: tier.namingConvention.diskEncryptionSet
     keyVaultPrivateDnsZoneResourceId: keyVaultPrivateDnsZoneResourceId
-    mlzTags: {}
+    mlzTags: tier.mlzTags
     resourceGroupName: resourceGroupName
     subnetResourceId: subnetResourceId
     tier: tier
-  }
-}
-
-module key '../../../modules/key-vault-key.bicep' = {
-  name: 'deploy-cmk-key-${deploymentNameSuffix}'
-  scope: resourceGroup(subscriptionId, resourceGroupName)
-  params: {
-    keyName: tier.namingConvention.diskEncryptionSet
-    keyVaultName: customerManagedKeys.outputs.keyVaultName
   }
 }
 
@@ -79,7 +71,7 @@ module diskEncryptionSet '../../../modules/disk-encryption-set.bicep' = {
     tags: tags
     deploymentNameSuffix: deploymentNameSuffix
     diskEncryptionSetName: tier.namingConvention.diskEncryptionSet
-    keyUrl: key.outputs.keyUriWithVersion
+    keyUrl: customerManagedKeys.outputs.keyUriWithVersion
     keyVaultResourceId: customerManagedKeys.outputs.keyVaultResourceId
     mlzTags: tier.mlzTags
   }

@@ -22,7 +22,6 @@ param location string = deployment().location
 param mlzTags object
 @secure()
 param safeModeAdminPassword string
-param storageAccountType string
 param subnetResourceId string
 param tags object = {}
 param tier object
@@ -50,6 +49,7 @@ module customerManagedKeys 'customer-managed-keys.bicep' = {
   params: {
     deploymentNameSuffix: deploymentNameSuffix
     environmentAbbreviation: environmentAbbreviation
+    keyName: tier.namingConvention.diskEncryptionSet
     keyVaultPrivateDnsZoneResourceId: keyVaultPrivateDnsZoneResourceId
     location: location
     mlzTags: mlzTags
@@ -63,22 +63,13 @@ module customerManagedKeys 'customer-managed-keys.bicep' = {
   ]
 }
 
-module key '../modules/key-vault-key.bicep' = {
-  name: 'deploy-adds-key-${deploymentNameSuffix}'
-  scope: resourceGroup(tier.subscriptionId, resourceGroupName)
-  params: {
-    keyName: tier.namingConvention.diskEncryptionSet
-    keyVaultName: customerManagedKeys.outputs.keyVaultName
-  }
-}
-
 module diskEncryptionSet 'disk-encryption-set.bicep' = {
   name: 'deploy-adds-des-${deploymentNameSuffix}'
   scope: resourceGroup(tier.subscriptionId, resourceGroupName)
   params: {
     deploymentNameSuffix: deploymentNameSuffix
     diskEncryptionSetName: tier.namingConvention.diskEncryptionSet
-    keyUrl: key.outputs.keyUriWithVersion
+    keyUrl: customerManagedKeys.outputs.keyUriWithVersion
     keyVaultResourceId: customerManagedKeys.outputs.keyVaultResourceId
     location: location
     mlzTags: mlzTags
@@ -127,7 +118,6 @@ module domainControllers 'domain-controller.bicep' = [
       mlzTags: mlzTags
       privateIPAddressOffset: hubSubscriptionId == identitySubscriptionId ? 3 : 4
       safeModeAdminPassword: safeModeAdminPassword
-      storageAccountType: storageAccountType
       subnetResourceId: subnetResourceId
       tags: tags
       tier: tier
@@ -137,4 +127,11 @@ module domainControllers 'domain-controller.bicep' = [
       rg
     ]
   }
+]
+
+output keyVaultProperties object = customerManagedKeys.outputs.keyVaultProperties
+output networkInterfaceResourceIds array = [
+  customerManagedKeys.outputs.keyVaultNetworkInterfaceResourceId
+  domainControllers[0].outputs.networkInterfaceResourceId
+  domainControllers[1].outputs.networkInterfaceResourceId
 ]
