@@ -15,11 +15,12 @@ param deployBastion bool
 param deployLinuxVirtualMachine bool
 param deploymentNameSuffix string
 param deployWindowsVirtualMachine bool
+param environmentAbbreviation string
 param hubNetworkSecurityGroupResourceId string
 param hubResourceGroupName string
 param hubSubnetResourceId string
 param hybridUseBenefit bool
-param keyVaultResourceId string
+param keyVaultPrivateDnsZoneResourceId string
 @secure()
 @minLength(12)
 param linuxVmAdminPasswordOrKey string
@@ -50,23 +51,48 @@ param windowsVmSize string
 param windowsVmStorageAccountType string
 param windowsVmVersion string
 
-module key '../modules/key-vault-key.bicep' = if (deployLinuxVirtualMachine || deployWindowsVirtualMachine) {
-  name: 'deploy-ra-key-${deploymentNameSuffix}'
-  scope: resourceGroup(split(keyVaultResourceId, '/')[2], split(keyVaultResourceId, '/')[4])
+var jbResourceGroupName = '${tier.namingConvention.resourceGroup}${tier.delimiter}jumpBoxes'
+
+module rg 'resource-group.bicep' = {
+  name: 'deploy-ra-rg-${tier.name}-${deploymentNameSuffix}'
+  scope: subscription(tier.subscriptionId)
   params: {
-    keyName: tier.namingConvention.diskEncryptionSet
-    keyVaultName: split(keyVaultResourceId, '/')[8]
+    mlzTags: mlzTags
+    name: jbResourceGroupName
+    location: location
+    tags: tags
   }
+}
+
+module customerManagedKeys 'customer-managed-keys.bicep' = {
+  name: 'deploy-ra-cmk-${deploymentNameSuffix}'
+  scope: subscription(tier.subscriptionId)
+  params: {
+    deploymentNameSuffix: deploymentNameSuffix
+    environmentAbbreviation: environmentAbbreviation
+    keyName: tier.namingConvention.diskEncryptionSet
+    keyVaultPrivateDnsZoneResourceId: keyVaultPrivateDnsZoneResourceId
+    location: location
+    mlzTags: mlzTags
+    resourceGroupName: jbResourceGroupName
+    subnetResourceId: hubSubnetResourceId
+    tags: tags
+    tier: tier
+    workload: 'jumpBoxes'
+  }
+  dependsOn: [
+    rg
+  ]
 }
 
 module diskEncryptionSet '../modules/disk-encryption-set.bicep' = if (deployLinuxVirtualMachine || deployWindowsVirtualMachine) {
   name: 'deploy-ra-disk-encryption-set-${deploymentNameSuffix}'
-  scope: resourceGroup(tier.subscriptionId, hubResourceGroupName)
+  scope: resourceGroup(tier.subscriptionId, jbResourceGroupName)
   params: {
     deploymentNameSuffix: deploymentNameSuffix
     diskEncryptionSetName: tier.namingConvention.diskEncryptionSet
-    keyUrl: key.outputs.keyUriWithVersion
-    keyVaultResourceId: keyVaultResourceId
+    keyUrl: customerManagedKeys.outputs.keyUriWithVersion
+    keyVaultResourceId: customerManagedKeys.outputs.keyVaultResourceId
     location: location
     mlzTags: mlzTags
     tags: tags
@@ -91,7 +117,7 @@ module bastionHost '../modules/bastion-host.bicep' = if (deployBastion) {
 
 module linuxVirtualMachine '../modules/virtual-machine.bicep' = if (deployLinuxVirtualMachine) {
   name: 'deploy-ra-linux-vm-${deploymentNameSuffix}'
-  scope: resourceGroup(tier.subscriptionId, hubResourceGroupName)
+  scope: resourceGroup(tier.subscriptionId, jbResourceGroupName)
   params: {
     adminPasswordOrKey: linuxVmAdminPasswordOrKey
     adminUsername: linuxVmAdminUsername
@@ -118,7 +144,7 @@ module linuxVirtualMachine '../modules/virtual-machine.bicep' = if (deployLinuxV
 
 module windowsVirtualMachine '../modules/virtual-machine.bicep' = if (deployWindowsVirtualMachine) {
   name: 'deploy-ra-windows-vm-${deploymentNameSuffix}'
-  scope: resourceGroup(tier.subscriptionId, hubResourceGroupName)
+  scope: resourceGroup(tier.subscriptionId, jbResourceGroupName)
   params: {
     adminPasswordOrKey: windowsVmAdminPassword
     adminUsername: windowsVmAdminUsername
@@ -144,7 +170,10 @@ module windowsVirtualMachine '../modules/virtual-machine.bicep' = if (deployWind
   }
 }
 
-output networkInterfaceResourceIds array = union(
+output keyVaultProperties object = customerManagedKeys.outputs.keyVaultProperties
+output networkInterfaceResourceIds array = union([
+    customerManagedKeys.outputs.keyVaultNetworkInterfaceResourceId
+  ],
   deployLinuxVirtualMachine
     ? [
         linuxVirtualMachine.outputs.networkInterfaceResourceId
