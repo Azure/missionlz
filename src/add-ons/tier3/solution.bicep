@@ -190,61 +190,32 @@ module virtualNetworkPeerings 'modules/virtual-network-peerings.bicep' = {
   }
 }
 
-module logic '../../modules/logic.bicep' = {
-  name: 'get-logic-${workloadShortName}-${deploymentIndex}${deploymentNameSuffix}'
-  params: {
-    deploymentNameSuffix: deploymentNameSuffix
-    environmentAbbreviation: environmentAbbreviation
-    identifier: identifier
-    location: location
-    networks: [
-      {
-        name: workloadName
-        shortName: workloadShortName
-        subscriptionId: subscriptionId
-        nsgDiagLogs: networkSecurityGroupDiagnosticsLogs
-        nsgRules: networkSecurityGroupRules
-        vnetAddressPrefix: virtualNetworkAddressPrefix
-        vnetDiagLogs: virtualNetworkDiagnosticsLogs
-        vnetDiagMetrics: virtualNetworkDiagnosticsMetrics
-        subnetAddressPrefix: subnetAddressPrefix
-      }
-    ]
-    stampIndex: stampIndex
-  }
-}
-
-module rg '../../modules/resource-group.bicep' = if (!(empty(virtualNetworkAddressPrefix))) {
-  name: 'deploy-rg-${workloadShortName}-${deploymentIndex}${deploymentNameSuffix}'
-  params: {
-    location: location
-    mlzTags: logic.outputs.mlzTags
-    name: '${logic.outputs.tiers[0].namingConvention.resourceGroup}${logic.outputs.tiers[0].delimiter}network'
-    tags: tags
-  }
-}
-
-module networking 'modules/networking.bicep' = if (!(empty(virtualNetworkAddressPrefix))) {
+module networking 'modules/networking.bicep' = {
   name: 'deploy-network-${workloadShortName}-${deploymentIndex}${deploymentNameSuffix}'
   params: {
     additionalSubnets: additionalSubnets
+    deploymentIndex: deploymentIndex
     deploymentNameSuffix: deploymentNameSuffix
+    environmentAbbreviation: environmentAbbreviation
     hubVirtualNetworkResourceId: hubVirtualNetworkResourceId
+    identifier: identifier
     location: location
-    mlzTags: logic.outputs.mlzTags
-    networkSecurityGroupName: logic.outputs.tiers[0].namingConvention.networkSecurityGroup
-    networkSecurityGroupRules: networkSecurityGroupRules
-    resourceGroupName: rg.outputs.name
-    routeTableName: logic.outputs.tiers[0].namingConvention.routeTable
+    network: {
+      name: workloadName
+      nsgDiagLogs: networkSecurityGroupDiagnosticsLogs
+      nsgRules: networkSecurityGroupRules
+      shortName: workloadShortName
+      subnetAddressPrefix: subnetAddressPrefix
+      subscriptionId: subscriptionId
+      vnetAddressPrefix: virtualNetworkAddressPrefix
+      vnetDiagLogs: virtualNetworkDiagnosticsLogs
+      vnetDiagMetrics: virtualNetworkDiagnosticsMetrics
+    }
     routeTableRouteNextHopIpAddress: azureFirewall.properties.ipConfigurations[0].properties.privateIPAddress
-    subnetAddressPrefix: subnetAddressPrefix
-    subnetName: empty(subnetName) ? logic.outputs.tiers[0].namingConvention.subnet : subnetName
-    subscriptionId: subscriptionId
+    stampIndex: stampIndex
+    subnetName: subnetName
     tags: tags
-    virtualNetworkAddressPrefix: virtualNetworkAddressPrefix
-    virtualNetworkName: logic.outputs.tiers[0].namingConvention.virtualNetwork
     vNetDnsServers: virtualNetwork_hub.properties.?dhcpOptions.dnsServers ?? []
-    workloadShortName: workloadShortName
   }
 }
 
@@ -256,13 +227,13 @@ module storage 'modules/storage.bicep' = if (!(empty(virtualNetworkAddressPrefix
     filesPrivateDnsZoneResourceId: resourceId(hubSubscriptionId, hubResourceGroupName, 'Microsoft.Network/privateDnsZones', 'privatelink.file.${environment().suffixes.storage}')
     location: location
     logStorageSkuName: logStorageSkuName
-    mlzTags: logic.outputs.mlzTags
+    mlzTags: networking.outputs.tier.mlzTags
     queuesPrivateDnsZoneResourceId: resourceId(hubSubscriptionId, hubResourceGroupName, 'Microsoft.Network/privateDnsZones', 'privatelink.queue.${environment().suffixes.storage}')
-    resourceGroupName: rg.outputs.name
-    subnetResourceId: networking.outputs.subnets[0].id
+    resourceGroupName: networking.outputs.tier.resourceGroupName
+    subnetResourceId: networking.outputs.tier.subnetResourceId
     tablesPrivateDnsZoneResourceId: resourceId(hubSubscriptionId, hubResourceGroupName, 'Microsoft.Network/privateDnsZones', 'privatelink.table.${environment().suffixes.storage}')
     tags: tags
-    tier: logic.outputs.tiers[0]
+    tier: networking.outputs.tier
     deploymentIndex: deploymentIndex
     environmentAbbreviation: environmentAbbreviation
     hubResourceGroupName: hubResourceGroupName
@@ -285,12 +256,10 @@ module diagnostics 'modules/diagnostics.bicep' = if (!(empty(virtualNetworkAddre
     networkInterfaceDiagnosticsMetrics: networkInterfaceDiagnosticsMetrics
     networkInterfaceResourceIds: storage.outputs.networkInterfaceResourceIds
     networkSecurityGroupDiagnosticsLogs: networkSecurityGroupDiagnosticsLogs
-    networkSecurityGroupName: networking.outputs.networkSecurityGroupName
     networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
     networkWatcherFlowLogsType: networkWatcherFlowLogsType
-    resourceGroupName: rg.outputs.name
     storageAccountResourceId: storage.outputs.storageAccountResourceId
-    tiers: logic.outputs.tiers
+    tier: networking.outputs.tier
     virtualNetworkDiagnosticsLogs: virtualNetworkDiagnosticsLogs
     virtualNetworkDiagnosticsMetrics: virtualNetworkDiagnosticsMetrics
     virtualNetworkName: networking.outputs.virtualNetworkName
@@ -305,10 +274,9 @@ module policyAssignments '../../modules/policy-assignments.bicep' =
       location: location
       logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
       policy: policy
-      resourceGroupNames: [
-        rg.outputs.name
+      tiers: [
+        networking.outputs.tier
       ]
-      tiers: logic.outputs.tiers
       windowsAdministratorsGroupMembership: windowsAdministratorsGroupMembership
     }
   }
@@ -321,17 +289,10 @@ module defenderForCloud '../../modules/defender-for-cloud.bicep' =
     }
   }
 
-output name string = logic.outputs.tiers[0].name
-output delimiter string = logic.outputs.tiers[0].delimiter
-output dnsServers array = empty(virtualNetworkAddressPrefix) ? [] : virtualNetwork_hub.properties.?dhcpOptions.dnsServers ?? []
-output keyVaultUri string = empty(virtualNetworkAddressPrefix) ? '' : storage.outputs.keyVaultUri
-output locationProperties object = logic.outputs.tiers[0].locationProperties
-output logAnalyticsWorkspaceResourceId string = logAnalyticsWorkspaceResourceId
-output mlzTags object = logic.outputs.mlzTags
-output namingConvention object = logic.outputs.tiers[0].namingConvention
-output networkSecurityGroupResourceId string = networking.outputs.networkSecurityGroupResourceId
-output privateDnsZones array = logic.outputs.privateDnsZones
-output identifier string = azureFirewall.tags.identifier
-output storageAccountResourceId string = empty(virtualNetworkAddressPrefix) ? '' : storage.outputs.storageAccountResourceId
-output subnets array = empty(virtualNetworkAddressPrefix) ? [] : networking.outputs.subnets
-output userAssignedIdentityResourceId string = empty(virtualNetworkAddressPrefix) ? '' : storage.outputs.userAssignedIdentityResourceId
+output privateDnsZones array = networking.outputs.privateDnsZones
+output tier object = union({
+  dnsServers: virtualNetwork_hub.properties.?dhcpOptions.dnsServers ?? []
+  logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
+}, 
+  networking.outputs.tier
+)

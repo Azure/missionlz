@@ -41,7 +41,7 @@ module namingConventions 'naming-convention.bicep' = [for network in networks: {
   }
 }]
 
-module privateDnsZones 'private-dns-zones.bicep' = {
+module privateDnsZones 'private-dns-zone-names.bicep' = {
   name: 'private-dns-zones-${deploymentNameSuffix}'
   params: {
     // locations: namingConventions[0].outputs.locations // This is only needed for Recovery Services which has been disabled for now.

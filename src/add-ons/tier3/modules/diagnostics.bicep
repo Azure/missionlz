@@ -16,30 +16,28 @@ param logAnalyticsWorkspaceResourceId string
 param networkInterfaceDiagnosticsMetrics array
 param networkInterfaceResourceIds array
 param networkSecurityGroupDiagnosticsLogs array
-param networkSecurityGroupName string
 param networkWatcherFlowLogsRetentionDays int
 param networkWatcherFlowLogsType string
-param resourceGroupName string
 param storageAccountResourceId string
-param tiers array
+param tier object
 param virtualNetworkDiagnosticsLogs array
 param virtualNetworkDiagnosticsMetrics array
 param virtualNetworkName string
 
 module activityLogDiagnosticSettings '../../../modules/activity-log-diagnostic-settings.bicep' =
   if (deployActivityLogDiagnosticSetting) {
-    name: 'deploy-activity-diags-${tiers[0].shortName}-${deploymentNameSuffix}'
-    scope: subscription(tiers[0].subscriptionId)
+    name: 'deploy-activity-diags-${tier.shortName}-${deploymentNameSuffix}'
+    scope: subscription(tier.subscriptionId)
     params: {
       logAnalyticsWorkspaceId: logAnalyticsWorkspaceResourceId
     }
   }
 
 module keyvaultDiagnostics '../../../modules/key-vault-diagnostics.bicep' = {
-  name: 'deploy-kv-diags-${tiers[0].shortName}-${deploymentNameSuffix}'
-  scope: resourceGroup(tiers[0].subscriptionId, resourceGroupName)
+  name: 'deploy-kv-diags-${tier.shortName}-${deploymentNameSuffix}'
+  scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
   params: {
-    keyVaultDiagnosticSettingName: tiers[0].namingConvention.keyVaultDiagnosticSetting
+    keyVaultDiagnosticSettingName: tier.namingConvention.keyVaultDiagnosticSetting
     keyVaultName: keyVaultName
     keyVaultStorageAccountId: storageAccountResourceId
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
@@ -49,31 +47,31 @@ module keyvaultDiagnostics '../../../modules/key-vault-diagnostics.bicep' = {
 }  
 
 module networkSecurityGroupDiagnostics '../../../modules/network-security-group-diagnostics.bicep' = {
-  name: 'deploy-nsg-diags-${tiers[0].shortName}-${deploymentNameSuffix}'
-  scope: resourceGroup(tiers[0].subscriptionId, resourceGroupName)
+  name: 'deploy-nsg-diags-${tier.shortName}-${deploymentNameSuffix}'
+  scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
   params: {
     deploymentNameSuffix: deploymentNameSuffix
     deployNetworkWatcherTrafficAnalytics: deployNetworkWatcherTrafficAnalytics
-    flowLogsName: tiers[0].namingConvention.networkWatcherFlowLogsNetworkSecurityGroup
+    flowLogsName: tier.namingConvention.networkWatcherFlowLogsNetworkSecurityGroup
     location: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     logs: networkSecurityGroupDiagnosticsLogs
-    networkSecurityGroupDiagnosticSettingName: tiers[0].namingConvention.networkSecurityGroupDiagnosticSetting
-    networkSecurityGroupName: networkSecurityGroupName
+    networkSecurityGroupDiagnosticSettingName: tier.namingConvention.networkSecurityGroupDiagnosticSetting
+    networkSecurityGroupName: split(tier.networkSecurityGroupResourceId, '/')[8]
     networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
     networkWatcherFlowLogsType: networkWatcherFlowLogsType
     storageAccountResourceId: storageAccountResourceId
-    tiername: tiers[0].name
+    tiername: tier.name
   }
 }
 
 module virtualNetworkDiagnostics '../../../modules/virtual-network-diagnostics.bicep' = {
-  name: 'deploy-vnet-diags-${tiers[0].shortName}-${deploymentNameSuffix}'
-  scope: resourceGroup(tiers[0].subscriptionId, resourceGroupName)
+  name: 'deploy-vnet-diags-${tier.shortName}-${deploymentNameSuffix}'
+  scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
   params: {
     deploymentNameSuffix: deploymentNameSuffix
     deployNetworkWatcherTrafficAnalytics: deployNetworkWatcherTrafficAnalytics
-    flowLogsName: tiers[0].namingConvention.networkWatcherFlowLogsVirtualNetwork
+    flowLogsName: tier.namingConvention.networkWatcherFlowLogsVirtualNetwork
     location: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     logs: virtualNetworkDiagnosticsLogs
@@ -81,8 +79,8 @@ module virtualNetworkDiagnostics '../../../modules/virtual-network-diagnostics.b
     metrics: virtualNetworkDiagnosticsMetrics
     networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
     networkWatcherFlowLogsType: networkWatcherFlowLogsType
-    tiername: tiers[0].name
-    virtualNetworkDiagnosticSettingName: tiers[0].namingConvention.virtualNetworkDiagnosticSetting
+    tiername: tier.name
+    virtualNetworkDiagnosticSettingName: tier.namingConvention.virtualNetworkDiagnosticSetting
     virtualNetworkName: virtualNetworkName
   }
 }
@@ -98,6 +96,8 @@ module networkInterfaceDiagnostics '../../../modules/network-interface-diagnosti
     storageAccountResourceIds: [
       storageAccountResourceId
     ]
-    tiers: tiers
+    tiers: [
+      tier
+    ]
   }
 }]

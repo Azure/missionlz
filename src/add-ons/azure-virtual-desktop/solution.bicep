@@ -722,8 +722,9 @@ module management 'modules/management/management.bicep' = {
     locationVirtualMachines: locationVirtualMachines
     organizationalUnitPath: organizationalUnitPath
     privateDnsZoneResourceIdPrefix: privateDnsZoneResourceIdPrefix
+    privateDnsZones: tier3_stamp.outputs.privateDnsZones
     tags: tags
-    tier: tier3_stamp.outputs
+    tier: tier3_stamp.outputs.tier
     virtualMachineAdminPassword: virtualMachineAdminPassword
     virtualMachineAdminUsername: virtualMachineAdminUsername
   }
@@ -748,9 +749,10 @@ module shared 'modules/shared/shared.bicep' = {
     logAnalyticsWorkspaceRetention: logAnalyticsWorkspaceRetention
     logAnalyticsWorkspaceSku: logAnalyticsWorkspaceSku
     privateDnsZoneResourceIdPrefix: privateDnsZoneResourceIdPrefix
+    privateDnsZones: tier3_stamp.outputs.privateDnsZones
     privateLinkScopeResourceId: privateLinkScopeResourceId
     tags: tags
-    tier: tier3_shared.outputs
+    tier: tier3_shared.outputs.tier
   }
 }
 
@@ -784,8 +786,8 @@ module controlPlane 'modules/control-plane/control-plane.bicep' = {
     securityPrincipalObjectIds: map(securityPrincipals, item => item.objectId)
     tags: tags
     tiers: [
-      tier3_shared.outputs
-      tier3_stamp.outputs
+      tier3_shared.outputs.tier
+      tier3_stamp.outputs.tier
     ]
     validationEnvironment: validationEnvironment
     virtualMachineSize: virtualMachineSize
@@ -804,7 +806,7 @@ module sharedServices 'modules/shared-services/shared-services.bicep' = {
     identifierHub: virtualNetwork_hub.tags.identifier
     locationControlPlane: virtualNetwork_hub.location
     sharedServicesSubnetResourceId: sharedServicesSubnetResourceId
-    tier: tier3_shared
+    tier: tier3_shared.outputs.tier
     workspaceGlobalPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3_stamp.outputs.privateDnsZones, name => startsWith(name, 'privatelink-global.wvd'))[0]}'
   }
 }
@@ -843,7 +845,7 @@ module fslogix 'modules/fslogix/fslogix.bicep' = if (deployFslogix) {
     storageService: storageService
     storageSku: storageSku
     tags: tags
-    tier: tier3_stamp.outputs
+    tier: tier3_stamp.outputs.tier
   }
 }
 
@@ -909,7 +911,7 @@ module sessionHosts 'modules/session-hosts/session-hosts.bicep' = {
     storageService: storageService
     storageSuffix: storageSuffix
     tags: tags
-    tier: tier3_stamp.outputs
+    tier: tier3_stamp.outputs.tier
     virtualMachineAdminPassword: virtualMachineAdminPassword
     virtualMachineAdminUsername: virtualMachineAdminUsername
     virtualMachineSize: virtualMachineSize

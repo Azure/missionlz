@@ -36,9 +36,6 @@ module customerManagedKeys '../../../modules/customer-managed-keys.bicep' = {
       replace('privatelink${environment().suffixes.keyvaultDns}', 'vault', 'vaultcore')
     )
     location: location
-    mlzTags: mlzTags
-    resourceGroupName: resourceGroupName
-    subnetResourceId: subnetResourceId
     tags: tags
     tier: tier
   }

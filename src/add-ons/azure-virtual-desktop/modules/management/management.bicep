@@ -12,6 +12,7 @@ param locationControlPlane string
 param locationVirtualMachines string
 param organizationalUnitPath string
 param privateDnsZoneResourceIdPrefix string
+param privateDnsZones array
 param tags object
 param tier object
 @secure()
@@ -66,7 +67,7 @@ module diskAccess 'disk-access.bicep' = {
   scope: resourceGroup
   name: 'deploy-disk-access-${deploymentNameSuffix}'
   params: {
-    azureBlobsPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier.privateDnsZones, name => contains(name, 'blob'))[0]}'
+    azureBlobsPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(privateDnsZones, name => contains(name, 'blob'))[0]}'
     hostPoolResourceId: hostPoolResourceId
     location: locationVirtualMachines
     mlzTags: tier.mlzTags
@@ -103,11 +104,8 @@ module customerManagedKeys '../../../../modules/customer-managed-keys.bicep' = {
     deploymentNameSuffix: deploymentNameSuffix
     environmentAbbreviation: environmentAbbreviation
     keyName: tier.namingConvention.diskEncryptionSet
-    keyVaultPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier.privateDnsZones, name => contains(name, 'vaultcore'))[0]}'
+    keyVaultPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(privateDnsZones, name => contains(name, 'vaultcore'))[0]}'
     location: locationVirtualMachines
-    mlzTags: tier.mlzTags
-    resourceGroupName: resourceGroup.name
-    subnetResourceId: tier.subnets[0].id
     tags: tags
     tier: tier
   }

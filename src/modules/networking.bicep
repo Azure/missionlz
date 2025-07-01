@@ -13,54 +13,67 @@ param deployIdentity bool
 param deploymentNameSuffix string
 param dnsServers array
 param enableProxy bool
-param firewallSettings object
+param environmentAbbreviation string
 param firewallRuleCollectionGroups array
+param firewallSettings object
+param identifier string
 param location string
-param mlzTags object
-param privateDnsZoneNames array
-param resourceGroupNames array
+param networks array
 param tags object
-param tiers array
 
-var hub = filter(tiers, tier => tier.name == 'hub')[0]
-var hubResourceGroupName = filter(resourceGroupNames, name => contains(name, 'hub'))[0]
-var spokes = filter(tiers, tier => tier.name != 'hub')
-var spokeResourceGroupNames = filter(resourceGroupNames, name => !contains(name, 'hub'))
+// var hub = filter(tiers, tier => tier.name == 'hub')[0]
+// var hubResourceGroupName = filter(resourceGroupNames, name => contains(name, 'hub'))[0]
+var hubSubscriptionId = filter(networks, network => network.name == 'hub')[0].subscriptionId
+var spokes = filter(networks, network => network.name != 'hub')
+// var spokeResourceGroupNames = filter(resourceGroupNames, name => !contains(name, 'hub'))
+
+module logic 'logic.bicep' = {
+  name: 'get-logic-${deploymentNameSuffix}'
+  params: {
+    deploymentNameSuffix: deploymentNameSuffix
+    environmentAbbreviation: environmentAbbreviation
+    identifier: identifier
+    location: location
+    networks: networks
+  }
+}
+
+module resourceGroups 'resource-groups.bicep' = {
+  name: 'deploy-resource-groups-${deploymentNameSuffix}'
+  params: {
+    deploymentNameSuffix: deploymentNameSuffix
+    location: location
+    mlzTags: logic.outputs.mlzTags
+    tiers: logic.outputs.tiers
+    tags: tags
+  }
+}
 
 module hubNetwork 'hub-network.bicep' = {
   name: 'deploy-vnet-hub-${deploymentNameSuffix}'
-  scope: resourceGroup(hub.subscriptionId, hubResourceGroupName)
   params: {
     azureGatewaySubnetAddressPrefix: azureGatewaySubnetAddressPrefix
-    bastionHostNetworkSecurityGroup: hub.namingConvention.bastionHostNetworkSecurityGroup
     bastionHostSubnetAddressPrefix: bastionHostSubnetAddressPrefix
     deployAzureGatewaySubnet: deployAzureGatewaySubnet
     deployBastion: deployBastion
+    deploymentNameSuffix: deploymentNameSuffix
     dnsServers: dnsServers
     enableProxy: enableProxy
     firewallClientPrivateIpAddress: firewallSettings.clientPrivateIpAddress
     firewallClientPublicIPAddressAvailabilityZones: firewallSettings.clientPublicIPAddressAvailabilityZones
-    firewallClientPublicIPAddressName: '${hub.namingConvention.azureFirewallPublicIPAddress}${hub.delimiter}client'
     firewallClientSubnetAddressPrefix: firewallSettings.clientSubnetAddressPrefix
     firewallIntrusionDetectionMode: firewallSettings.intrusionDetectionMode
     firewallManagementPublicIPAddressAvailabilityZones: firewallSettings.managementPublicIPAddressAvailabilityZones
-    firewallManagementPublicIPAddressName: '${hub.namingConvention.azureFirewallPublicIPAddress}${hub.delimiter}management'
     firewallManagementSubnetAddressPrefix: firewallSettings.managementSubnetAddressPrefix
-    firewallName: hub.namingConvention.azureFirewall
-    firewallPolicyName: hub.namingConvention.azureFirewallPolicy
     firewallSkuTier: firewallSettings.skuTier
     firewallThreatIntelMode: firewallSettings.threatIntelMode
     firewallRuleCollectionGroups: firewallRuleCollectionGroups
     location: location
-    mlzTags: mlzTags
-    networkSecurityGroupName: hub.namingConvention.networkSecurityGroup
-    networkSecurityGroupRules: hub.nsgRules
-    routeTableName: hub.namingConvention.routeTable
-    subnetAddressPrefix: hub.subnetAddressPrefix
-    subnetName: hub.namingConvention.subnet
+    mlzTags: logic.outputs.mlzTags 
+    resourceGroupName: filter(resourceGroups.outputs.names, name => contains(name, 'hub'))[0]
+    subscriptionId: hubSubscriptionId
     tags: tags
-    virtualNetworkAddressPrefix: hub.vnetAddressPrefix
-    virtualNetworkName: hub.namingConvention.virtualNetwork
+    tier: filter(logic.outputs.tiers, tier => tier.name == 'hub')[0]
     vNetDnsServers: [
       firewallSettings.clientPrivateIpAddress
     ]
@@ -71,18 +84,11 @@ module spokeNetworks 'spoke-network.bicep' = [for (spoke, i) in spokes: {
   name: 'deploy-vnet-${spoke.name}-${deploymentNameSuffix}'
   params: {
     location: location
-    mlzTags: mlzTags
-    networkSecurityGroupName: spoke.namingConvention.networkSecurityGroup
-    networkSecurityGroupRules: spoke.nsgRules
-    resourceGroupName: spokeResourceGroupNames[i]
-    routeTableName: spoke.namingConvention.routeTable
+    mlzTags: logic.outputs.mlzTags
+    resourceGroupName: filter(resourceGroups.outputs.names, name => contains(name, spoke.name))[0]
     routeTableRouteNextHopIpAddress: firewallSettings.clientPrivateIpAddress
-    subnetAddressPrefix: spoke.subnetAddressPrefix
-    subnetName: spoke.namingConvention.subnet
-    subscriptionId: spoke.subscriptionId
     tags: tags
-    virtualNetworkAddressPrefix: spoke.vnetAddressPrefix
-    virtualNetworkName: spoke.namingConvention.virtualNetwork
+    tier: filter(logic.outputs.tiers, tier => tier.name == spoke.name)[0]
     vNetDnsServers: hubNetwork.outputs.dnsServers
   }
 }]
@@ -94,10 +100,10 @@ module hubVirtualNetworkPeerings 'hub-network-peerings.bicep' = [for (spoke, i) 
   params: {
     deploymentNameSuffix: deploymentNameSuffix
     hubVirtualNetworkName: hubNetwork.outputs.virtualNetworkName
-    resourceGroupName: hubResourceGroupName
+    resourceGroupName: filter(resourceGroups.outputs.names, name => contains(name, 'hub'))[0]
     spokeShortName: spoke.shortName
     spokeVirtualNetworkResourceId: spokeNetworks[i].outputs.virtualNetworkResourceId
-    subscriptionId: hub.subscriptionId
+    subscriptionId: hubSubscriptionId
   }
 }]
 
@@ -106,7 +112,7 @@ module spokeVirtualNetworkPeerings 'spoke-network-peering.bicep' = [for (spoke, 
   params: {
     deploymentNameSuffix: deploymentNameSuffix
     hubVirtualNetworkResourceId: hubNetwork.outputs.virtualNetworkResourceId
-    resourceGroupName: spokeResourceGroupNames[i]
+    resourceGroupName: filter(resourceGroups.outputs.names, name => contains(name, spoke.name))[0]
     spokeShortName: spoke.shortName
     spokeVirtualNetworkName: spokeNetworks[i].outputs.virtualNetworkName
     subscriptionId: spoke.subscriptionId
@@ -115,16 +121,17 @@ module spokeVirtualNetworkPeerings 'spoke-network-peering.bicep' = [for (spoke, 
 
 // PRIVATE DNS
 
-module privateDnsZones 'private-dns.bicep' = {
+module privateDnsZones 'private-dns-zones.bicep' = {
   name: 'deploy-private-dns-zones-${deploymentNameSuffix}'
-  scope: resourceGroup(hub.subscriptionId, hubResourceGroupName)
   params: {
     deployIdentity: deployIdentity
     deploymentNameSuffix: deploymentNameSuffix
     hubVirtualNetworkResourceId: hubNetwork.outputs.virtualNetworkResourceId
     identityVirtualNetworkResourceId: deployIdentity ? spokeNetworks[2].outputs.virtualNetworkResourceId : ''
-    mlzTags: mlzTags
-    privateDnsZoneNames: privateDnsZoneNames
+    mlzTags: logic.outputs.mlzTags
+    privateDnsZoneNames: logic.outputs.privateDnsZones
+    resourceGroupName: filter(resourceGroups.outputs.names, name => contains(name, 'hub'))[0]
+    subscriptionId: hubSubscriptionId
     tags: tags
   }
   dependsOn: [
@@ -133,11 +140,29 @@ module privateDnsZones 'private-dns.bicep' = {
 }
 
 output azureFirewallResourceId string = hubNetwork.outputs.firewallResourceId
-output bastionHostSubnetResourceId string = hubNetwork.outputs.bastionHostSubnetResourceId
-output sharedServicesSubnetResourceId string = spokeNetworks[1].outputs.subnets[0].id
-output hubNetworkSecurityGroupResourceId string = hubNetwork.outputs.networkSecurityGroupResourceId
-output hubSubnetResourceId string = hubNetwork.outputs.subnetResourceId
 output hubVirtualNetworkResourceId string = hubNetwork.outputs.virtualNetworkResourceId
-output identitySubnetResourceId string = deployIdentity ? spokeNetworks[2].outputs.subnets[0].id : ''
-output operationsSubnetResourceId string = spokeNetworks[0].outputs.subnets[0].id
+output bastionHostSubnetResourceId string = hubNetwork.outputs.bastionHostSubnetResourceId
 output privateDnsZoneResourceIds object = privateDnsZones.outputs.privateDnsZoneResourceIds
+output sharedServicesSubnetResourceId string = spokeNetworks[1].outputs.networkSecurityGroupResourceId 
+output tiers array = [for (network, i) in networks: {
+  delimiter: logic.outputs.tiers[i].delimiter
+  locationProperties: logic.outputs.tiers[0].locationProperties
+  mlzTags: logic.outputs.mlzTags
+  name: network.name
+  namingConvention: logic.outputs.tiers[i].namingConvention
+  networkSecurityGroupResourceId: [
+    hubNetwork.outputs.networkSecurityGroupResourceId
+    spokeNetworks[0].outputs.networkSecurityGroupResourceId // Operations
+    spokeNetworks[1].outputs.networkSecurityGroupResourceId // Shared Services
+    spokeNetworks[2].outputs.networkSecurityGroupResourceId // Identity
+  ][i]
+  resourceGroupName: filter(resourceGroups.outputs.names, name => contains(name, network.name))[0]
+  shortName: network.shortName
+  subnetResourceId: [
+    hubNetwork.outputs.subnetResourceId
+    spokeNetworks[0].outputs.subnets[0].id // Operations
+    spokeNetworks[1].outputs.subnets[0].id // Shared Services
+    spokeNetworks[2].outputs.subnets[0].id // Identity
+  ][i]
+  subscriptionId: network.subscriptionId
+}]

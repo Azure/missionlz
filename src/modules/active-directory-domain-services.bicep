@@ -19,10 +19,8 @@ param imageSku string
 param imageVersion string
 param keyVaultPrivateDnsZoneResourceId string
 param location string = deployment().location
-param mlzTags object
 @secure()
 param safeModeAdminPassword string
-param subnetResourceId string
 param tags object = {}
 param tier object
 param vmCount int = 2
@@ -36,7 +34,7 @@ module rg 'resource-group.bicep' = {
   name: 'deploy-adds-rg-${tier.name}-${deploymentNameSuffix}'
   scope: subscription(tier.subscriptionId)
   params: {
-    mlzTags: mlzTags
+    mlzTags: tier.mlzTags
     name: resourceGroupName
     location: location
     tags: tags
@@ -52,9 +50,6 @@ module customerManagedKeys 'customer-managed-keys.bicep' = {
     keyName: tier.namingConvention.diskEncryptionSet
     keyVaultPrivateDnsZoneResourceId: keyVaultPrivateDnsZoneResourceId
     location: location
-    mlzTags: mlzTags
-    resourceGroupName: resourceGroupName
-    subnetResourceId: subnetResourceId
     tags: tags
     tier: tier
   }
@@ -72,7 +67,7 @@ module diskEncryptionSet 'disk-encryption-set.bicep' = {
     keyUrl: customerManagedKeys.outputs.keyUriWithVersion
     keyVaultResourceId: customerManagedKeys.outputs.keyVaultResourceId
     location: location
-    mlzTags: mlzTags
+    mlzTags: tier.mlzTags
     tags: tags
   }
   dependsOn: [
@@ -86,7 +81,7 @@ module availabilitySet 'availability-set.bicep' = {
   params: {
     availabilitySetName: tier.namingConvention.availabilitySet
     location: location
-    mlzTags: mlzTags
+    mlzTags: tier.mlzTags
     tags: tags
   }
   dependsOn: [
@@ -115,10 +110,10 @@ module domainControllers 'domain-controller.bicep' = [
       imageVersion: imageVersion
       index: i
       location: location
-      mlzTags: mlzTags
+      mlzTags: tier.mlzTags
       privateIPAddressOffset: hubSubscriptionId == identitySubscriptionId ? 3 : 4
       safeModeAdminPassword: safeModeAdminPassword
-      subnetResourceId: subnetResourceId
+      subnetResourceId: tier.subnetResourceId
       tags: tags
       tier: tier
       vmSize: vmSize

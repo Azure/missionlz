@@ -6,19 +6,13 @@ Licensed under the MIT License.
 targetScope = 'subscription'
 
 param additionalSubnets array = []
+param customSubnetName string = ''
 param location string
 param mlzTags object
-param networkSecurityGroupName string
-param networkSecurityGroupRules array
 param resourceGroupName string
-param routeTableName string
 param routeTableRouteNextHopIpAddress string
-param subnetAddressPrefix string
-param subnetName string
-param subscriptionId string
 param tags object
-param virtualNetworkAddressPrefix string
-param virtualNetworkName string
+param tier object
 param vNetDnsServers array
 
 var delegations = {
@@ -45,12 +39,14 @@ var delegations = {
 }
 var subnets = union([
   {
-    name: subnetName
+    name: empty(customSubnetName) ? tier.namingConvention.subnet : customSubnetName
     properties: {
-      addressPrefix: subnetAddressPrefix
+      addressPrefix: tier.subnetAddressPrefix
     }
   }
 ], additionalSubnets)
+var subscriptionId = tier.subscriptionId
+var virtualNetworkName = tier.namingConvention.virtualNetwork
 
 module networkSecurityGroup '../modules/network-security-group.bicep' = {
   name: 'networkSecurityGroup'
@@ -58,8 +54,8 @@ module networkSecurityGroup '../modules/network-security-group.bicep' = {
   params: {
     location: location
     mlzTags: mlzTags
-    name: networkSecurityGroupName
-    securityRules: networkSecurityGroupRules
+    name: tier.namingConvention.networkSecurityGroup
+    securityRules: tier.nsgRules
     tags: tags
   }
 }
@@ -71,7 +67,7 @@ module routeTable '../modules/route-table.bicep' = {
     disableBgpRoutePropagation: true
     location: location
     mlzTags: mlzTags
-    name: routeTableName
+    name: tier.namingConvention.routeTable
     routeNextHopIpAddress: routeTableRouteNextHopIpAddress
     tags: tags
   }
@@ -81,7 +77,7 @@ module virtualNetwork '../modules/virtual-network.bicep' = {
   name: 'virtualNetwork'
   scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
-    addressPrefix: virtualNetworkAddressPrefix
+    addressPrefix: tier.vnetAddressPrefix
     location: location
     mlzTags: mlzTags
     name: virtualNetworkName

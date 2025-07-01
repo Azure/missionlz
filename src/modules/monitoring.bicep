@@ -11,20 +11,17 @@ param location string
 param logAnalyticsWorkspaceCappingDailyQuotaGb int
 param logAnalyticsWorkspaceRetentionInDays int
 param logAnalyticsWorkspaceSkuName string
-param mlzTags object
-param opsResourceGroupName string
 param privateDnsZoneResourceIds object
-param subnetResourceId string
 param tags object
 param tier object
 
 module logAnalyticsWorkspace 'log-analytics-workspace.bicep' = {
   name: 'deploy-law-${deploymentNameSuffix}'
-  scope: resourceGroup(tier.subscriptionId, opsResourceGroupName)
+  scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
   params: {
     deploySentinel: deploySentinel
     location: location
-    mlzTags: mlzTags
+    mlzTags: tier.mlzTags
     name: tier.namingConvention.logAnalyticsWorkspace
     retentionInDays: logAnalyticsWorkspaceRetentionInDays
     skuName: logAnalyticsWorkspaceSkuName
@@ -36,7 +33,7 @@ module logAnalyticsWorkspace 'log-analytics-workspace.bicep' = {
 
 module privateLinkScope 'private-link-scope.bicep' = {
   name: 'deploy-private-link-scope-${deploymentNameSuffix}'
-  scope: resourceGroup(tier.subscriptionId, opsResourceGroupName)
+  scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
   params: {
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspace.outputs.resourceId
     name: tier.namingConvention.privateLinkScope
@@ -45,13 +42,13 @@ module privateLinkScope 'private-link-scope.bicep' = {
 
 module privateEndpoint 'private-endpoint.bicep' = {
   name: 'deploy-private-endpoint-${deploymentNameSuffix}'
-  scope: resourceGroup(tier.subscriptionId, opsResourceGroupName)
+  scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
   params: {
     groupIds: [
       'azuremonitor'
     ]
     location: location
-    mlzTags: mlzTags
+    mlzTags: tier.mlzTags
     name: tier.namingConvention.privateLinkScopePrivateEndpoint
     networkInterfaceName: tier.namingConvention.privateLinkScopeNetworkInterface
     privateDnsZoneConfigs: [
@@ -87,7 +84,7 @@ module privateEndpoint 'private-endpoint.bicep' = {
       }
     ]
     privateLinkServiceId: privateLinkScope.outputs.resourceId
-    subnetResourceId: subnetResourceId
+    subnetResourceId: tier.subnetResourceId
     tags: tags
   }
 }

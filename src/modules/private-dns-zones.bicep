@@ -1,51 +1,66 @@
+/*
+Copyright (c) Microsoft Corporation.
+Licensed under the MIT License.
+*/
+
 targetScope = 'subscription'
 
-// param locations object // This is only needed for Recovery Services which has been disabled for now.
+param deployIdentity bool
+param deploymentNameSuffix string
+param hubVirtualNetworkResourceId string
+param identityVirtualNetworkResourceId string
+param mlzTags object
+param privateDnsZoneNames array
+param resourceGroupName string
+param subscriptionId string
+param tags object
 
-var cloudSuffix = replace(replace(environment().resourceManager, 'https://management.', ''), '/', '')
-var privateDnsZoneNames = union([
-  'privatelink.agentsvc.azure-automation.${privateDnsZoneSuffixes_AzureAutomation[?environment().name] ?? cloudSuffix}' // Automation
-  'privatelink.azure-automation.${privateDnsZoneSuffixes_AzureAutomation[?environment().name] ?? cloudSuffix}' // Automation
-  'privatelink.${privateDnsZoneSuffixes_AzureWebSites[?environment().name] ?? 'appservice.${cloudSuffix}'}' // Web Apps & Function Apps
-  'scm.privatelink.${privateDnsZoneSuffixes_AzureWebSites[?environment().name] ?? 'appservice.${cloudSuffix}'}' // Web Apps & Function Apps
-  'privatelink.wvd.${privateDnsZoneSuffixes_AzureVirtualDesktop[?environment().name] ?? cloudSuffix}' // Azure Virtual Desktop
-  'privatelink-global.wvd.${privateDnsZoneSuffixes_AzureVirtualDesktop[?environment().name] ?? cloudSuffix}' // Azure Virtual Desktop
-  'privatelink.file.${environment().suffixes.storage}' // Azure Files
-  'privatelink.queue.${environment().suffixes.storage}' // Azure Queues
-  'privatelink.table.${environment().suffixes.storage}' // Azure Tables
-  'privatelink.blob.${environment().suffixes.storage}' // Azure Blobs
-  'privatelink${replace(environment().suffixes.keyvaultDns, 'vault', 'vaultcore')}' // Key Vault
-  'privatelink.monitor.${privateDnsZoneSuffixes_Monitor[?environment().name] ?? cloudSuffix}' // Azure Monitor
-  'privatelink.ods.opinsights.${privateDnsZoneSuffixes_Monitor[?environment().name] ?? cloudSuffix}' // Azure Monitor
-  'privatelink.oms.opinsights.${privateDnsZoneSuffixes_Monitor[?environment().name] ?? cloudSuffix}' // Azure Monitor
-  'privatelink${environment().suffixes.sqlServerHostname}'  // Azure SQL Server
-], []) // privateDnsZoneNames_Backup) // Recovery Services has been disabled for now.
+var virtualNetworks = union([
+  {
+    name: split(hubVirtualNetworkResourceId, '/')[8]
+    resourceGroupName: split(hubVirtualNetworkResourceId, '/')[4]
+    subscriptionId: split(hubVirtualNetworkResourceId, '/')[2]
+  }
+], deployIdentity ? [
+  {
+    name: split(identityVirtualNetworkResourceId, '/')[8]
+    resourceGroupName: split(identityVirtualNetworkResourceId, '/')[4]
+    subscriptionId: split(identityVirtualNetworkResourceId, '/')[2]
+  }
+] : [])
 
-// The following variable is only needed for Recovery Services which has been disabled for now.
-// var privateDnsZoneNames_Backup = [for location in items(locations): 'privatelink.${location.value.recoveryServicesGeo}.backup.windowsazure.${privateDnsZoneSuffixes_Backup[environment().name] ?? cloudSuffix}']
+module privateDnsZones 'private-dns-zone.bicep' = [for (name, i) in privateDnsZoneNames: {
+  name: 'deploy-pvt-dns-zone-${i}-${deploymentNameSuffix}'
+  scope: resourceGroup(subscriptionId, resourceGroupName)
+  params: {
+    name: name
+    tags: union(tags[?'Microsoft.Network/privateDnsZones'] ?? {}, mlzTags)
+  }
+}]
 
-var privateDnsZoneSuffixes_AzureAutomation = {
-  AzureCloud: 'net'
-  AzureUSGovernment: 'us'
+@batchSize(1)
+module virtualNetworkLinks 'virtual-network-link.bicep' = [for (virtualNetwork, i) in virtualNetworks:{
+  name: 'deploy-vnet-links-${i}-${deploymentNameSuffix}'
+  scope: resourceGroup(virtualNetwork.resourceGroupName, virtualNetwork.subscriptionId)
+  params: {
+    privateDnsZoneNames: privateDnsZoneNames
+    virtualNetworkName: virtualNetwork.name
+    virtualNetworkResourceGroupName: virtualNetwork.resourceGroupName
+    virtualNetworkSubscriptionId: virtualNetwork.subscriptionId
+  }
+  dependsOn: [
+    privateDnsZones
+  ]
+}]
+
+output privateDnsZoneResourceIds object = {
+  agentSvc: resourceId('Microsoft.Network/privateDnsZones', filter(privateDnsZoneNames, name => startsWith(name, 'privatelink.agentsvc'))[0])
+  blob: resourceId('Microsoft.Network/privateDnsZones', filter(privateDnsZoneNames, name => contains(name, 'blob'))[0])
+  file: resourceId('Microsoft.Network/privateDnsZones', filter(privateDnsZoneNames, name => contains(name, 'file'))[0])
+  keyVault: resourceId('Microsoft.Network/privateDnsZones', filter(privateDnsZoneNames, name => contains(name, 'vaultcore'))[0])
+  monitor: resourceId('Microsoft.Network/privateDnsZones', filter(privateDnsZoneNames, name => contains(name, 'monitor'))[0])
+  ods: resourceId('Microsoft.Network/privateDnsZones', filter(privateDnsZoneNames, name => contains(name, 'ods.opinsights'))[0])
+  oms: resourceId('Microsoft.Network/privateDnsZones', filter(privateDnsZoneNames, name => contains(name, 'oms.opinsights'))[0])
+  queue: resourceId('Microsoft.Network/privateDnsZones', filter(privateDnsZoneNames, name => contains(name, 'queue'))[0])
+  table: resourceId('Microsoft.Network/privateDnsZones', filter(privateDnsZoneNames, name => contains(name, 'table'))[0])
 }
-var privateDnsZoneSuffixes_AzureVirtualDesktop = {
-  AzureCloud: 'microsoft.com'
-  AzureUSGovernment: 'azure.us'
-}
-var privateDnsZoneSuffixes_AzureWebSites = {
-  AzureCloud: 'azurewebsites.net'
-  AzureUSGovernment: 'azurewebsites.us'
-}
-
-// The following variable is only needed for Recovery Services which has been disabled for now.
-/* var privateDnsZoneSuffixes_Backup = {
-  AzureCloud: 'com'
-  AzureUSGovernment: 'us'
-} */
-
-var privateDnsZoneSuffixes_Monitor = {
-  AzureCloud: 'azure.com'
-  AzureUSGovernment: 'azure.us'
-}
-
-output names array = privateDnsZoneNames

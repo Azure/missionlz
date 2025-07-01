@@ -3,16 +3,17 @@ Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
 
+targetScope = 'subscription'
+
 param azureGatewaySubnetAddressPrefix string
-param bastionHostNetworkSecurityGroup string
 param bastionHostSubnetAddressPrefix string
 param deployAzureGatewaySubnet bool
 param deployBastion bool
+param deploymentNameSuffix string
 param dnsServers array
 param enableProxy bool
 param firewallClientPrivateIpAddress string
 param firewallClientPublicIPAddressAvailabilityZones array
-param firewallClientPublicIPAddressName string
 param firewallClientSubnetAddressPrefix string
 @allowed([
   'Alert'
@@ -21,10 +22,7 @@ param firewallClientSubnetAddressPrefix string
 ])
 param firewallIntrusionDetectionMode string
 param firewallManagementPublicIPAddressAvailabilityZones array
-param firewallManagementPublicIPAddressName string
 param firewallManagementSubnetAddressPrefix string
-param firewallName string
-param firewallPolicyName string
 param firewallSkuTier string
 
 @allowed([
@@ -35,14 +33,10 @@ param firewallSkuTier string
 param firewallThreatIntelMode string
 param location string
 param mlzTags object
-param networkSecurityGroupName string
-param networkSecurityGroupRules array
-param routeTableName string
-param subnetAddressPrefix string
-param subnetName string
+param resourceGroupName string
+param subscriptionId string
 param tags object
-param virtualNetworkAddressPrefix string
-param virtualNetworkName string
+param tier object
 param vNetDnsServers array
 param firewallRuleCollectionGroups array
 
@@ -62,9 +56,9 @@ var subnets = union([
     }
   }
   {
-    name: subnetName
+    name: tier.namingConvention.subnet
     properties: {
-      addressPrefix: subnetAddressPrefix
+      addressPrefix: tier.subnetAddressPrefix
       defaultOutboundAccess: false
       networkSecurityGroup: {
         id: networkSecurityGroup.outputs.id
@@ -219,47 +213,50 @@ var bastionNetworkSecurityGroupRules = [
 ]
 
 module networkSecurityGroup '../modules/network-security-group.bicep' = {
-  name: 'networkSecurityGroup'
+  name: 'deploy-hub-nsg-${deploymentNameSuffix}'
+  scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
     location: location
     mlzTags: mlzTags
-    name: networkSecurityGroupName
-    securityRules: networkSecurityGroupRules
+    name: tier.namingConvention.networkSecurityGroup
+    securityRules: tier.nsgRules
     tags: tags
   }
 }
 
-
 module bastionNetworkSecurityGroup '../modules/network-security-group.bicep' = if (deployBastion) {
-  name: 'bastionNSG'
+  name: 'deploy-hub-bastion-nsg-${deploymentNameSuffix}'
+  scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
     location: location
     mlzTags: mlzTags
-    name: bastionHostNetworkSecurityGroup
+    name: tier.namingConvention.bastionHostNetworkSecurityGroup
     securityRules: bastionNetworkSecurityGroupRules
     tags: tags
   }
 }
 
 module routeTable '../modules/route-table.bicep' = {
-  name: 'routeTable'
+  name: 'deploy-hub-rt-${deploymentNameSuffix}'
+  scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
     disableBgpRoutePropagation: false
     location: location
     mlzTags: mlzTags
-    name: routeTableName
+    name: tier.namingConvention.routeTable
     routeNextHopIpAddress: firewallClientPrivateIpAddress
     tags: tags
   }
 }
 
 module virtualNetwork '../modules/virtual-network.bicep' = {
-  name: 'virtualNetwork'
+  name: 'deploy-hub-vnet-${deploymentNameSuffix}'
+  scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
-    addressPrefix: virtualNetworkAddressPrefix
+    addressPrefix: tier.vnetAddressPrefix
     location: location
     mlzTags: mlzTags
-    name: virtualNetworkName
+    name: tier.namingConvention.virtualNetwork
     subnets: subnets
     tags: tags
     vNetDnsServers: vNetDnsServers
@@ -267,12 +264,13 @@ module virtualNetwork '../modules/virtual-network.bicep' = {
 }
 
 module firewallClientPublicIPAddress '../modules/public-ip-address.bicep' = {
-  name: 'firewallClientPublicIPAddress'
+  name: 'deploy-hub-fw-client-pip-${deploymentNameSuffix}'
+  scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
     availabilityZones: firewallClientPublicIPAddressAvailabilityZones
     location: location
     mlzTags: mlzTags
-    name: firewallClientPublicIPAddressName
+    name: '${tier.namingConvention.azureFirewallPublicIPAddress}${tier.delimiter}client'
     publicIpAllocationMethod: 'Static'
     skuName: 'Standard'
     tags: tags
@@ -280,12 +278,13 @@ module firewallClientPublicIPAddress '../modules/public-ip-address.bicep' = {
 }
 
 module firewallManagementPublicIPAddress '../modules/public-ip-address.bicep' = {
-  name: 'firewallManagementPublicIPAddress'
+  name: 'deploy-hub-fw-mgmt-pip-${deploymentNameSuffix}'
+  scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
     availabilityZones: firewallManagementPublicIPAddressAvailabilityZones
     location: location
     mlzTags: mlzTags
-    name: firewallManagementPublicIPAddressName
+    name: '${tier.namingConvention.azureFirewallPublicIPAddress}${tier.delimiter}management'
     publicIpAllocationMethod: 'Static'
     skuName: 'Standard'
     tags: tags
@@ -293,19 +292,20 @@ module firewallManagementPublicIPAddress '../modules/public-ip-address.bicep' = 
 }
 
 module firewall '../modules/firewall.bicep' = {
-  name: 'firewall'
+  name: 'deploy-hub-fw-${deploymentNameSuffix}'
+  scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
     clientIpConfigurationPublicIPAddressResourceId: firewallClientPublicIPAddress.outputs.id
     clientIpConfigurationSubnetResourceId: '${virtualNetwork.outputs.id}/subnets/AzureFirewallSubnet'
     dnsServers: dnsServers
     enableProxy: enableProxy
-    firewallPolicyName: firewallPolicyName
+    firewallPolicyName: tier.namingConvention.azureFirewallPolicy
     intrusionDetectionMode: firewallIntrusionDetectionMode
     location: location
     managementIpConfigurationPublicIPAddressResourceId: firewallManagementPublicIPAddress.outputs.id
     managementIpConfigurationSubnetResourceId: '${virtualNetwork.outputs.id}/subnets/AzureFirewallManagementSubnet'
     mlzTags: mlzTags
-    name: firewallName
+    name: tier.namingConvention.azureFirewall
     skuTier: firewallSkuTier
     tags: tags
     threatIntelMode: firewallThreatIntelMode
@@ -325,4 +325,3 @@ output subnetName string = virtualNetwork.outputs.subnets[2].name
 output subnetResourceId string = virtualNetwork.outputs.subnets[2].id
 output virtualNetworkName string = virtualNetwork.outputs.name
 output virtualNetworkResourceId string = virtualNetwork.outputs.id
-

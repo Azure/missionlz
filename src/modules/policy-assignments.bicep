@@ -9,13 +9,12 @@ param deploymentNameSuffix string
 param location string
 param logAnalyticsWorkspaceResourceId string
 param policy string
-param resourceGroupNames array
 param tiers array
 param windowsAdministratorsGroupMembership string
 
 module policyAssignment 'policy-assignment.bicep' = [for (tier, i) in tiers: {
   name: 'assign-policy-${tier.name}-${deploymentNameSuffix}'
-  scope: resourceGroup(tier.subscriptionId, resourceGroupNames[i])
+  scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
   params: {
     builtInAssignment: policy
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId

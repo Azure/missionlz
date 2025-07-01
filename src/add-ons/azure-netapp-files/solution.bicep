@@ -5,8 +5,6 @@ Licensed under the MIT License.
 
 targetScope = 'subscription'
 
-
-
 @description('The resource ID of the Azure Firewall in the HUB.')
 param azureFirewallResourceId string
 
@@ -217,8 +215,8 @@ module rg '../../modules/resource-group.bicep' = {
   name: 'deploy-rg-${deploymentNameSuffix}'
   params: {
     location: location
-    mlzTags: tier3.outputs.mlzTags
-    name: '${tier3.outputs.namingConvention.resourceGroup}${tier3.outputs.delimiter}netAppFiles'
+    mlzTags: tier3.outputs.tier.mlzTags
+    name: '${tier3.outputs.tier.namingConvention.resourceGroup}${tier3.outputs.tier.delimiter}netAppFiles'
     tags: tags
   }
 }
@@ -227,21 +225,21 @@ module rg '../../modules/resource-group.bicep' = {
 module netAppFiles 'modules/azureNetAppFiles.bicep' = {
   name: 'deploy-netapp-files-${deploymentNameSuffix}'
   params: {
-    delegatedSubnetResourceId: filter(tier3.outputs.subnets, subnet => contains(subnet.name, 'azure-netapp-files'))[0].id
-    delimiter: tier3.outputs.delimiter
+    delegatedSubnetResourceId: filter(tier3.outputs.tier.subnets, subnet => contains(subnet.name, 'azure-netapp-files'))[0].id
+    delimiter: tier3.outputs.tier.delimiter
     deploymentNameSuffix: deploymentNameSuffix
-    dnsServers: join(tier3.outputs.dnsServers, ',')
+    dnsServers: join(tier3.outputs.tier.dnsServers, ',')
     domainJoinPassword: domainJoinPassword
     domainJoinUserPrincipalName: domainJoinUserPrincipalName
     domainName: domainName
     fileShareName: fileShareName
     location: location
-    mlzTags: tier3.outputs.mlzTags
-    netAppAccountName: tier3.outputs.namingConvention.netAppAccount
-    netAppCapacityPoolName: tier3.outputs.namingConvention.netAppAccountCapacityPool
+    mlzTags: tier3.outputs.tier.mlzTags
+    netAppAccountName: tier3.outputs.tier.namingConvention.netAppAccount
+    netAppCapacityPoolName: tier3.outputs.tier.namingConvention.netAppAccountCapacityPool
     organizationalUnitPath: organizationalUnitPath
     resourceGroupName: rg.outputs.name
-    smbServerName: tier3.outputs.namingConvention.netAppAccountSmbServer
+    smbServerName: tier3.outputs.tier.namingConvention.netAppAccountSmbServer
     sku: sku
     tags: tags
   }

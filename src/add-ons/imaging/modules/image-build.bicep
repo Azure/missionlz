@@ -7,7 +7,6 @@ targetScope = 'subscription'
 
 param arcGisProInstaller string = ''
 param computeGalleryImageResourceId string = ''
-param computeGalleryName string
 param containerName string
 param customizations array = []
 param deploymentNameSuffix string = utcNow('yyMMddHHs')
@@ -19,7 +18,6 @@ param imageDefinitionName string
 param imageMajorVersion int
 param imageMinorVersion int
 param imagePatchVersion int
-param imageVirtualMachineName string
 param installAccess bool = false
 param installArcGisPro bool = false
 param installExcel bool = false
@@ -35,23 +33,19 @@ param installUpdates bool = false
 param installVirtualDesktopOptimizationTool bool = false
 param installVisio bool = false
 param installWord bool = false
-param keyVaultName string
 param location string = deployment().location
-param managementVirtualMachineName string
 param marketplaceImageOffer string
 param marketplaceImagePublisher string
 param marketplaceImageSKU string
-param mlzTags object = {}
 param msrdcwebrtcsvcInstaller string = ''
 param officeInstaller string = ''
 param replicaCount int = 1
-param resourceGroupName string
 param runbookExecution bool = false
 param sourceImageType string = 'AzureMarketplace'
 param storageAccountResourceId string
-param subnetResourceId string
 param tags object = {}
 param teamsInstaller string = ''
+param tier object
 param updateService string = 'MU'
 param userAssignedIdentityClientId string
 param userAssignedIdentityPrincipalId string
@@ -66,26 +60,26 @@ param virtualMachineSize string
 param wsusServer string = ''
 
 var autoImageVersion = '${imageMajorVersion}.${imageMinorVersion}.${imagePatchVersion}'
+var managementVirtualMachineName = '${tier.namingConvention.virtualMachine}wm'
 var storageAccountName = split(storageAccountResourceId, '/')[8]
 var storageEndpoint = environment().suffixes.storage
-var subscriptionId = subscription().subscriptionId
 
 resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' existing =
   if (runbookExecution) {
-    name: keyVaultName
-    scope: resourceGroup(subscriptionId, resourceGroupName)
+    name: tier.namingConvention.keyVault
+    scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
   }
 
 module managementVM 'management-virtual-machine.bicep' =
   if (!enableBuildAutomation) {
     name: 'management-vm-${deploymentNameSuffix}'
-    scope: resourceGroup(subscriptionId, resourceGroupName)
+    scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
     params: {
       diskEncryptionSetResourceId: diskEncryptionSetResourceId
       hybridUseBenefit: hybridUseBenefit
       location: location
-      mlzTags: mlzTags
-      subnetResourceId: subnetResourceId
+      mlzTags: tier.mlzTags
+      subnetResourceId: tier.subnetResourceId
       tags: tags
       userAssignedIdentityResourceId: userAssignedIdentityResourceId
       virtualMachineAdminPassword: virtualMachineAdminPassword
@@ -97,17 +91,17 @@ module managementVM 'management-virtual-machine.bicep' =
 
 module virtualMachine 'virtual-machine.bicep' = {
   name: 'image-vm-${deploymentNameSuffix}'
-  scope: resourceGroup(subscriptionId, resourceGroupName)
+  scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
   params: {
     // diskEncryptionSetResourceId: diskEncryptionSetResourceId
     location: location
     marketplaceImageOffer: marketplaceImageOffer
     marketplaceImagePublisher: marketplaceImagePublisher
     marketplaceImageSKU: marketplaceImageSKU
-    mlzTags: mlzTags
+    mlzTags: tier.mlzTags
     computeGalleryImageResourceId: computeGalleryImageResourceId
     sourceImageType: sourceImageType
-    subnetResourceId: subnetResourceId
+    subnetResourceId: tier.subnetResourceId
     tags: tags
     userAssignedIdentityResourceId: userAssignedIdentityResourceId
     virtualMachineAdminPassword: runbookExecution
@@ -116,7 +110,7 @@ module virtualMachine 'virtual-machine.bicep' = {
     virtualMachineAdminUsername: runbookExecution
       ? keyVault.getSecret('VirtualMachineAdminUsername')
       : virtualMachineAdminUsername
-    virtualMachineName: imageVirtualMachineName
+    virtualMachineName: '${tier.namingConvention.virtualMachine}wb'
     virtualMachineSize: virtualMachineSize
   }
   dependsOn: []
@@ -124,7 +118,7 @@ module virtualMachine 'virtual-machine.bicep' = {
 
 module addCustomizations 'customizations.bicep' = {
   name: 'customizations-${deploymentNameSuffix}'
-  scope: resourceGroup(subscriptionId, resourceGroupName)
+  scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
   params: {
     arcGisProInstaller: arcGisProInstaller
     containerName: containerName
@@ -144,7 +138,7 @@ module addCustomizations 'customizations.bicep' = {
     installVisio: installVisio
     installWord: installWord
     location: location
-    mlzTags: mlzTags
+    mlzTags: tier.mlzTags
     msrdcwebrtcsvcInstaller: msrdcwebrtcsvcInstaller
     officeInstaller: officeInstaller
     storageAccountName: storageAccountName
@@ -160,12 +154,12 @@ module addCustomizations 'customizations.bicep' = {
 
 module restartVirtualMachine1 'restart-virtual-machine.bicep' = {
   name: 'restart-vm-1-${deploymentNameSuffix}'
-  scope: resourceGroup(subscriptionId, resourceGroupName)
+  scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
   params: {
     imageVirtualMachineName: virtualMachine.outputs.name
-    resourceGroupName: resourceGroupName
+    resourceGroupName: tier.resourceGroupName
     location: location
-    mlzTags: mlzTags
+    mlzTags: tier.mlzTags
     tags: tags
     userAssignedIdentityClientId: userAssignedIdentityClientId
     virtualMachineName: enableBuildAutomation ? managementVirtualMachineName : managementVM.outputs.name
@@ -178,11 +172,11 @@ module restartVirtualMachine1 'restart-virtual-machine.bicep' = {
 module microsoftUdpates 'microsoft-updates.bicep' =
   if (installUpdates) {
     name: 'microsoft-updates-${deploymentNameSuffix}'
-    scope: resourceGroup(subscriptionId, resourceGroupName)
+    scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
     params: {
       imageVirtualMachineName: virtualMachine.outputs.name
       location: location
-      mlzTags: mlzTags
+      mlzTags: tier.mlzTags
       tags: tags
       updateService: updateService
       wsusServer: wsusServer
@@ -194,12 +188,12 @@ module microsoftUdpates 'microsoft-updates.bicep' =
 
 module restartVirtualMachine2 'restart-virtual-machine.bicep' = if (installUpdates) {
   name: 'restart-vm-2-${deploymentNameSuffix}'
-  scope: resourceGroup(subscriptionId, resourceGroupName)
+  scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
   params: {
     imageVirtualMachineName: virtualMachine.outputs.name
-    resourceGroupName: resourceGroupName
+    resourceGroupName: tier.resourceGroupName
     location: location
-    mlzTags: mlzTags
+    mlzTags: tier.mlzTags
     tags: tags
     userAssignedIdentityClientId: userAssignedIdentityClientId
     virtualMachineName: enableBuildAutomation ? managementVirtualMachineName : managementVM.outputs.name
@@ -210,10 +204,10 @@ module restartVirtualMachine2 'restart-virtual-machine.bicep' = if (installUpdat
 }
 module sysprepVirtualMachine 'sysprep-virtual-machine.bicep' = {
   name: 'sysprep-vm-${deploymentNameSuffix}'
-  scope: resourceGroup(subscriptionId, resourceGroupName)
+  scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
   params: {
     location: location
-    mlzTags: mlzTags
+    mlzTags: tier.mlzTags
     tags: tags
     virtualMachineName: virtualMachine.outputs.name
   }
@@ -225,12 +219,12 @@ module sysprepVirtualMachine 'sysprep-virtual-machine.bicep' = {
 
 module generalizeVirtualMachine 'generalize-virtual-machine.bicep' = {
   name: 'generalize-vm-${deploymentNameSuffix}'
-  scope: resourceGroup(subscriptionId, resourceGroupName)
+  scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
   params: {
     imageVirtualMachineName: virtualMachine.outputs.name
-    resourceGroupName: resourceGroupName
+    resourceGroupName: tier.resourceGroupName
     location: location
-    mlzTags: mlzTags
+    mlzTags: tier.mlzTags
     tags: tags
     userAssignedIdentityClientId: userAssignedIdentityClientId
     virtualMachineName: enableBuildAutomation ? managementVirtualMachineName : managementVM.outputs.name
@@ -242,10 +236,10 @@ module generalizeVirtualMachine 'generalize-virtual-machine.bicep' = {
 
 module imageVersion 'image-version.bicep' = {
   name: 'image-version-${deploymentNameSuffix}'
-  scope: resourceGroup(subscriptionId, resourceGroupName)
+  scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
   params: {
     computeGalleryImageResourceId: computeGalleryImageResourceId
-    computeGalleryName: computeGalleryName
+    computeGalleryName: tier.namingConvention.computeGallery
     //diskEncryptionSetResourceId: diskEncryptionSetResourceId
     excludeFromLatest: excludeFromLatest
     imageDefinitionName: imageDefinitionName
@@ -254,7 +248,7 @@ module imageVersion 'image-version.bicep' = {
     location: location
     marketplaceImageOffer: marketplaceImageOffer
     marketplaceImagePublisher: marketplaceImagePublisher
-    mlzTags: mlzTags
+    mlzTags: tier.mlzTags
     replicaCount: replicaCount
     tags: tags
   }
@@ -265,12 +259,12 @@ module imageVersion 'image-version.bicep' = {
 
 module removeVirtualMachine 'remove-virtual-machine.bicep' = {
   name: 'remove-vm-${deploymentNameSuffix}'
-  scope: resourceGroup(subscriptionId, resourceGroupName)
+  scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
   params: {
     enableBuildAutomation: enableBuildAutomation
     imageVirtualMachineName: virtualMachine.outputs.name
     location: location
-    mlzTags: mlzTags
+    mlzTags: tier.mlzTags
     tags: tags
     userAssignedIdentityClientId: userAssignedIdentityClientId
     virtualMachineName: enableBuildAutomation ? managementVirtualMachineName : managementVM.outputs.name

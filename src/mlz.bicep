@@ -598,83 +598,6 @@ param windowsVmStorageAccountType string = 'StandardSSD_LRS'
 var firewallClientPrivateIpAddress = firewallClientUsableIpAddresses[3]
 var firewallClientUsableIpAddresses = [for i in range(0, 4): cidrHost(firewallClientSubnetAddressPrefix, i)]
 
-// LOGIC FOR DEPLOYMENTS
-
-module logic 'modules/logic.bicep' = {
-  name: 'get-logic-${deploymentNameSuffix}'
-  params: {
-    deploymentNameSuffix: deploymentNameSuffix
-    environmentAbbreviation: environmentAbbreviation
-    identifier: identifier
-    location: location
-    networks: union(
-      [
-        {
-          name: 'hub'
-          shortName: 'hub'
-          subscriptionId: hubSubscriptionId
-          nsgDiagLogs: hubNetworkSecurityGroupDiagnosticsLogs
-          nsgRules: hubNetworkSecurityGroupRules
-          vnetAddressPrefix: hubVirtualNetworkAddressPrefix
-          vnetDiagLogs: hubVirtualNetworkDiagnosticsLogs
-          vnetDiagMetrics: hubVirtualNetworkDiagnosticsMetrics
-          subnetAddressPrefix: hubSubnetAddressPrefix
-        }
-        {
-          name: 'operations'
-          shortName: 'ops'
-          subscriptionId: operationsSubscriptionId
-          nsgDiagLogs: operationsNetworkSecurityGroupDiagnosticsLogs
-          nsgRules: operationsNetworkSecurityGroupRules
-          vnetAddressPrefix: operationsVirtualNetworkAddressPrefix
-          vnetDiagLogs: operationsVirtualNetworkDiagnosticsLogs
-          vnetDiagMetrics: operationsVirtualNetworkDiagnosticsMetrics
-          subnetAddressPrefix: operationsSubnetAddressPrefix
-        }
-        {
-          name: 'sharedServices'
-          shortName: 'svcs'
-          subscriptionId: sharedServicesSubscriptionId
-          nsgDiagLogs: sharedServicesNetworkSecurityGroupDiagnosticsLogs
-          nsgRules: sharedServicesNetworkSecurityGroupRules
-          vnetAddressPrefix: sharedServicesVirtualNetworkAddressPrefix
-          vnetDiagLogs: sharedServicesVirtualNetworkDiagnosticsLogs
-          vnetDiagMetrics: sharedServicesVirtualNetworkDiagnosticsMetrics
-          subnetAddressPrefix: sharedServicesSubnetAddressPrefix
-        }
-      ],
-      deployIdentity
-        ? [
-            {
-              name: 'identity'
-              shortName: 'id'
-              subscriptionId: identitySubscriptionId
-              nsgDiagLogs: identityNetworkSecurityGroupDiagnosticsLogs
-              nsgRules: identityNetworkSecurityGroupRules
-              vnetAddressPrefix: identityVirtualNetworkAddressPrefix
-              vnetDiagLogs: identityVirtualNetworkDiagnosticsLogs
-              vnetDiagMetrics: identityVirtualNetworkDiagnosticsMetrics
-              subnetAddressPrefix: identitySubnetAddressPrefix
-            }
-          ]
-        : []
-    )
-  }
-}
-
-// RESOURCE GROUPS
-
-module resourceGroups 'modules/resource-groups.bicep' = {
-  name: 'deploy-resource-groups-${deploymentNameSuffix}'
-  params: {
-    deploymentNameSuffix: deploymentNameSuffix
-    location: location
-    mlzTags: logic.outputs.mlzTags
-    tiers: logic.outputs.tiers
-    tags: tags
-  }
-}
-
 // NETWORKING
 
 module networking 'modules/networking.bicep' = {
@@ -693,6 +616,7 @@ module networking 'modules/networking.bicep' = {
         ]
       : dnsServers
     enableProxy: enableProxy
+    environmentAbbreviation: environmentAbbreviation
     firewallSettings: {
       clientPrivateIpAddress: firewallClientPrivateIpAddress
       clientPublicIPAddressAvailabilityZones: firewallClientPublicIPAddressAvailabilityZones
@@ -866,12 +790,61 @@ module networking 'modules/networking.bicep' = {
           }
         ]
       : customFirewallRuleCollectionGroups
+    identifier: identifier
     location: location
-    mlzTags: logic.outputs.mlzTags
-    privateDnsZoneNames: logic.outputs.privateDnsZones
-    resourceGroupNames: resourceGroups.outputs.names
+    networks: union(
+      [
+        {
+          name: 'hub'
+          shortName: 'hub'
+          subscriptionId: hubSubscriptionId
+          nsgDiagLogs: hubNetworkSecurityGroupDiagnosticsLogs
+          nsgRules: hubNetworkSecurityGroupRules
+          vnetAddressPrefix: hubVirtualNetworkAddressPrefix
+          vnetDiagLogs: hubVirtualNetworkDiagnosticsLogs
+          vnetDiagMetrics: hubVirtualNetworkDiagnosticsMetrics
+          subnetAddressPrefix: hubSubnetAddressPrefix
+        }
+        {
+          name: 'operations'
+          shortName: 'ops'
+          subscriptionId: operationsSubscriptionId
+          nsgDiagLogs: operationsNetworkSecurityGroupDiagnosticsLogs
+          nsgRules: operationsNetworkSecurityGroupRules
+          vnetAddressPrefix: operationsVirtualNetworkAddressPrefix
+          vnetDiagLogs: operationsVirtualNetworkDiagnosticsLogs
+          vnetDiagMetrics: operationsVirtualNetworkDiagnosticsMetrics
+          subnetAddressPrefix: operationsSubnetAddressPrefix
+        }
+        {
+          name: 'sharedServices'
+          shortName: 'svcs'
+          subscriptionId: sharedServicesSubscriptionId
+          nsgDiagLogs: sharedServicesNetworkSecurityGroupDiagnosticsLogs
+          nsgRules: sharedServicesNetworkSecurityGroupRules
+          vnetAddressPrefix: sharedServicesVirtualNetworkAddressPrefix
+          vnetDiagLogs: sharedServicesVirtualNetworkDiagnosticsLogs
+          vnetDiagMetrics: sharedServicesVirtualNetworkDiagnosticsMetrics
+          subnetAddressPrefix: sharedServicesSubnetAddressPrefix
+        }
+      ],
+      deployIdentity
+        ? [
+            {
+              name: 'identity'
+              shortName: 'id'
+              subscriptionId: identitySubscriptionId
+              nsgDiagLogs: identityNetworkSecurityGroupDiagnosticsLogs
+              nsgRules: identityNetworkSecurityGroupRules
+              vnetAddressPrefix: identityVirtualNetworkAddressPrefix
+              vnetDiagLogs: identityVirtualNetworkDiagnosticsLogs
+              vnetDiagMetrics: identityVirtualNetworkDiagnosticsMetrics
+              subnetAddressPrefix: identitySubnetAddressPrefix
+            }
+          ]
+        : []
+    )
     tags: tags
-    tiers: logic.outputs.tiers
   }
 }
 
@@ -886,11 +859,8 @@ module monitoring 'modules/monitoring.bicep' = {
     logAnalyticsWorkspaceCappingDailyQuotaGb: logAnalyticsWorkspaceCappingDailyQuotaGb
     logAnalyticsWorkspaceRetentionInDays: logAnalyticsWorkspaceRetentionInDays
     logAnalyticsWorkspaceSkuName: logAnalyticsWorkspaceSkuName
-    mlzTags: logic.outputs.mlzTags
-    tier: filter(logic.outputs.tiers, tier => tier.name == 'operations')[0]
-    opsResourceGroupName: filter(resourceGroups.outputs.names, name => contains(name, 'operations'))[0]
+    tier: filter(networking.outputs.tiers, tier => tier.name == 'operations')[0]
     privateDnsZoneResourceIds: networking.outputs.privateDnsZoneResourceIds
-    subnetResourceId: networking.outputs.operationsSubnetResourceId
     tags: tags
   }
 }
@@ -912,11 +882,9 @@ module activeDirectoryDomainServices 'modules/active-directory-domain-services.b
     imageVersion: windowsVmImageVersion
     keyVaultPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.keyVault
     location: location
-    mlzTags: logic.outputs.mlzTags
     safeModeAdminPassword: addsSafeModeAdminPassword
-    subnetResourceId: networking.outputs.identitySubnetResourceId
     tags: tags
-    tier: filter(logic.outputs.tiers, tier => tier.name == 'identity')[0]
+    tier: filter(networking.outputs.tiers, tier => tier.name == 'identity')[0]
     vmSize: addsVmSize
   }
 }
@@ -935,9 +903,6 @@ module remoteAccess 'modules/remote-access.bicep' = {
     deploymentNameSuffix: deploymentNameSuffix
     deployWindowsVirtualMachine: deployWindowsVirtualMachine
     environmentAbbreviation: environmentAbbreviation
-    hubNetworkSecurityGroupResourceId: networking.outputs.hubNetworkSecurityGroupResourceId
-    hubResourceGroupName: filter(resourceGroups.outputs.names, name => contains(name, 'hub'))[0]
-    hubSubnetResourceId: networking.outputs.hubSubnetResourceId
     hybridUseBenefit: hybridUseBenefit
     keyVaultPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.keyVault
     linuxVmAdminPasswordOrKey: linuxVmAdminPasswordOrKey
@@ -950,9 +915,8 @@ module remoteAccess 'modules/remote-access.bicep' = {
     linuxVmOsDiskType: linuxVmOsDiskType
     linuxVmSize: linuxVmSize
     location: location
-    mlzTags: logic.outputs.mlzTags
     tags: tags
-    tier: filter(logic.outputs.tiers, tier => tier.name == 'hub')[0]
+    tier: filter(networking.outputs.tiers, tier => tier.name == 'hub')[0]
     windowsVmAdminPassword: windowsVmAdminPassword
     windowsVmAdminUsername: windowsVmAdminUsername
     windowsVmImageOffer: windowsVmImageOffer
@@ -969,21 +933,14 @@ module remoteAccess 'modules/remote-access.bicep' = {
 module storage 'modules/storage.bicep' = {
   name: 'deploy-log-storage-${deploymentNameSuffix}'
   params: {
-    blobsPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.blob
     //deployIdentity: deployIdentity
     deploymentNameSuffix: deploymentNameSuffix
     environmentAbbreviation: environmentAbbreviation
-    filesPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.file
-    keyVaultPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.keyVault
     location: location
     logStorageSkuName: logStorageSkuName
-    mlzTags: logic.outputs.mlzTags
-    queuesPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.queue
-    resourceGroupNames: resourceGroups.outputs.names
-    subnetResourceId: networking.outputs.hubSubnetResourceId
-    tablesPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.table
+    privateDnsZoneResourceIds: networking.outputs.privateDnsZoneResourceIds
     tags: tags
-    tiers: logic.outputs.tiers
+    tiers: networking.outputs.tiers
   }
   dependsOn: [
     activeDirectoryDomainServices // This is needed to ensure the first two IPs in the identity subnet are availabile for the domain controllers
@@ -1029,10 +986,9 @@ module diagnosticSettings 'modules/diagnostic-settings.bicep' = {
     networkWatcherFlowLogsType: networkWatcherFlowLogsType
     publicIPAddressDiagnosticsLogs: publicIPAddressDiagnosticsLogs
     publicIPAddressDiagnosticsMetrics: publicIPAddressDiagnosticsMetrics
-    resourceGroupNames: resourceGroups.outputs.names
     storageAccountResourceIds: storage.outputs.storageAccountResourceIds
     supportedClouds: supportedClouds
-    tiers: logic.outputs.tiers
+    tiers: networking.outputs.tiers
   }
 }
 
@@ -1051,16 +1007,14 @@ module security 'modules/security.bicep' = {
     location: location
     logAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
     policy: policy
-    resourceGroupNames: resourceGroups.outputs.names
-    tiers: logic.outputs.tiers
+    tiers: networking.outputs.tiers
     windowsAdministratorsGroupMembership: windowsVmAdminUsername
   }
 }
 
 output azureFirewallResourceId string = networking.outputs.azureFirewallResourceId
 output hubVirtualNetworkResourceId string = networking.outputs.hubVirtualNetworkResourceId
-output identitySubnetResourceId string = networking.outputs.identitySubnetResourceId
 output logAnalyticsWorkspaceResourceId string = monitoring.outputs.logAnalyticsWorkspaceResourceId
 output privateLinkScopeResourceId string = monitoring.outputs.privateLinkScopeResourceId
 output sharedServicesSubnetResourceId string = networking.outputs.sharedServicesSubnetResourceId
-output tiers array = logic.outputs.tiers
+output tiers array = networking.outputs.tiers

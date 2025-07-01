@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.36.1.42791",
-      "templateHash": "12669853371766212804"
+      "templateHash": "2146687631758778481"
     }
   },
   "parameters": {
@@ -16,9 +16,6 @@
     "computeGalleryImageResourceId": {
       "type": "string",
       "defaultValue": ""
-    },
-    "computeGalleryName": {
-      "type": "string"
     },
     "containerName": {
       "type": "string"
@@ -57,9 +54,6 @@
     },
     "imagePatchVersion": {
       "type": "int"
-    },
-    "imageVirtualMachineName": {
-      "type": "string"
     },
     "installAccess": {
       "type": "bool",
@@ -121,15 +115,9 @@
       "type": "bool",
       "defaultValue": false
     },
-    "keyVaultName": {
-      "type": "string"
-    },
     "location": {
       "type": "string",
       "defaultValue": "[deployment().location]"
-    },
-    "managementVirtualMachineName": {
-      "type": "string"
     },
     "marketplaceImageOffer": {
       "type": "string"
@@ -139,10 +127,6 @@
     },
     "marketplaceImageSKU": {
       "type": "string"
-    },
-    "mlzTags": {
-      "type": "object",
-      "defaultValue": {}
     },
     "msrdcwebrtcsvcInstaller": {
       "type": "string",
@@ -156,9 +140,6 @@
       "type": "int",
       "defaultValue": 1
     },
-    "resourceGroupName": {
-      "type": "string"
-    },
     "runbookExecution": {
       "type": "bool",
       "defaultValue": false
@@ -170,9 +151,6 @@
     "storageAccountResourceId": {
       "type": "string"
     },
-    "subnetResourceId": {
-      "type": "string"
-    },
     "tags": {
       "type": "object",
       "defaultValue": {}
@@ -180,6 +158,9 @@
     "teamsInstaller": {
       "type": "string",
       "defaultValue": ""
+    },
+    "tier": {
+      "type": "object"
     },
     "updateService": {
       "type": "string",
@@ -220,9 +201,9 @@
   },
   "variables": {
     "autoImageVersion": "[format('{0}.{1}.{2}', parameters('imageMajorVersion'), parameters('imageMinorVersion'), parameters('imagePatchVersion'))]",
+    "managementVirtualMachineName": "[format('{0}wm', parameters('tier').namingConvention.virtualMachine)]",
     "storageAccountName": "[split(parameters('storageAccountResourceId'), '/')[8]]",
-    "storageEndpoint": "[environment().suffixes.storage]",
-    "subscriptionId": "[subscription().subscriptionId]"
+    "storageEndpoint": "[environment().suffixes.storage]"
   },
   "resources": [
     {
@@ -230,8 +211,8 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('management-vm-{0}', parameters('deploymentNameSuffix'))]",
-      "subscriptionId": "[variables('subscriptionId')]",
-      "resourceGroup": "[parameters('resourceGroupName')]",
+      "subscriptionId": "[parameters('tier').subscriptionId]",
+      "resourceGroup": "[parameters('tier').resourceGroupName]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -248,10 +229,10 @@
             "value": "[parameters('location')]"
           },
           "mlzTags": {
-            "value": "[parameters('mlzTags')]"
+            "value": "[parameters('tier').mlzTags]"
           },
           "subnetResourceId": {
-            "value": "[parameters('subnetResourceId')]"
+            "value": "[parameters('tier').subnetResourceId]"
           },
           "tags": {
             "value": "[parameters('tags')]"
@@ -266,7 +247,7 @@
             "value": "[parameters('virtualMachineAdminUsername')]"
           },
           "virtualMachineName": {
-            "value": "[parameters('managementVirtualMachineName')]"
+            "value": "[variables('managementVirtualMachineName')]"
           },
           "virtualMachineSize": {
             "value": "[parameters('virtualMachineSize')]"
@@ -435,8 +416,8 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('image-vm-{0}', parameters('deploymentNameSuffix'))]",
-      "subscriptionId": "[variables('subscriptionId')]",
-      "resourceGroup": "[parameters('resourceGroupName')]",
+      "subscriptionId": "[parameters('tier').subscriptionId]",
+      "resourceGroup": "[parameters('tier').resourceGroupName]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -456,7 +437,7 @@
             "value": "[parameters('marketplaceImageSKU')]"
           },
           "mlzTags": {
-            "value": "[parameters('mlzTags')]"
+            "value": "[parameters('tier').mlzTags]"
           },
           "computeGalleryImageResourceId": {
             "value": "[parameters('computeGalleryImageResourceId')]"
@@ -465,7 +446,7 @@
             "value": "[parameters('sourceImageType')]"
           },
           "subnetResourceId": {
-            "value": "[parameters('subnetResourceId')]"
+            "value": "[parameters('tier').subnetResourceId]"
           },
           "tags": {
             "value": "[parameters('tags')]"
@@ -473,10 +454,10 @@
           "userAssignedIdentityResourceId": {
             "value": "[parameters('userAssignedIdentityResourceId')]"
           },
-          "virtualMachineAdminPassword": "[if(parameters('runbookExecution'), createObject('reference', createObject('keyVault', createObject('id', extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.KeyVault/vaults', parameters('keyVaultName'))), 'secretName', 'VirtualMachineAdminPassword')), createObject('value', parameters('virtualMachineAdminPassword')))]",
-          "virtualMachineAdminUsername": "[if(parameters('runbookExecution'), createObject('reference', createObject('keyVault', createObject('id', extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.KeyVault/vaults', parameters('keyVaultName'))), 'secretName', 'VirtualMachineAdminUsername')), createObject('value', parameters('virtualMachineAdminUsername')))]",
+          "virtualMachineAdminPassword": "[if(parameters('runbookExecution'), createObject('reference', createObject('keyVault', createObject('id', extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.KeyVault/vaults', parameters('tier').namingConvention.keyVault)), 'secretName', 'VirtualMachineAdminPassword')), createObject('value', parameters('virtualMachineAdminPassword')))]",
+          "virtualMachineAdminUsername": "[if(parameters('runbookExecution'), createObject('reference', createObject('keyVault', createObject('id', extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.KeyVault/vaults', parameters('tier').namingConvention.keyVault)), 'secretName', 'VirtualMachineAdminUsername')), createObject('value', parameters('virtualMachineAdminUsername')))]",
           "virtualMachineName": {
-            "value": "[parameters('imageVirtualMachineName')]"
+            "value": "[format('{0}wb', parameters('tier').namingConvention.virtualMachine)]"
           },
           "virtualMachineSize": {
             "value": "[parameters('virtualMachineSize')]"
@@ -637,8 +618,8 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('customizations-{0}', parameters('deploymentNameSuffix'))]",
-      "subscriptionId": "[variables('subscriptionId')]",
-      "resourceGroup": "[parameters('resourceGroupName')]",
+      "subscriptionId": "[parameters('tier').subscriptionId]",
+      "resourceGroup": "[parameters('tier').resourceGroupName]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -700,7 +681,7 @@
             "value": "[parameters('location')]"
           },
           "mlzTags": {
-            "value": "[parameters('mlzTags')]"
+            "value": "[parameters('tier').mlzTags]"
           },
           "msrdcwebrtcsvcInstaller": {
             "value": "[parameters('msrdcwebrtcsvcInstaller')]"
@@ -730,7 +711,7 @@
             "value": "[parameters('vDOTInstaller')]"
           },
           "virtualMachineName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('image-vm-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('image-vm-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
           }
         },
         "template": {
@@ -1121,15 +1102,15 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('image-vm-{0}', parameters('deploymentNameSuffix')))]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('image-vm-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('restart-vm-1-{0}', parameters('deploymentNameSuffix'))]",
-      "subscriptionId": "[variables('subscriptionId')]",
-      "resourceGroup": "[parameters('resourceGroupName')]",
+      "subscriptionId": "[parameters('tier').subscriptionId]",
+      "resourceGroup": "[parameters('tier').resourceGroupName]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -1137,16 +1118,16 @@
         "mode": "Incremental",
         "parameters": {
           "imageVirtualMachineName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('image-vm-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('image-vm-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
           },
           "resourceGroupName": {
-            "value": "[parameters('resourceGroupName')]"
+            "value": "[parameters('tier').resourceGroupName]"
           },
           "location": {
             "value": "[parameters('location')]"
           },
           "mlzTags": {
-            "value": "[parameters('mlzTags')]"
+            "value": "[parameters('tier').mlzTags]"
           },
           "tags": {
             "value": "[parameters('tags')]"
@@ -1154,7 +1135,7 @@
           "userAssignedIdentityClientId": {
             "value": "[parameters('userAssignedIdentityClientId')]"
           },
-          "virtualMachineName": "[if(parameters('enableBuildAutomation'), createObject('value', parameters('managementVirtualMachineName')), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('management-vm-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value))]"
+          "virtualMachineName": "[if(parameters('enableBuildAutomation'), createObject('value', variables('managementVirtualMachineName')), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('management-vm-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value))]"
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -1222,9 +1203,9 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('customizations-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('management-vm-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('image-vm-{0}', parameters('deploymentNameSuffix')))]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('customizations-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('management-vm-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('image-vm-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
     {
@@ -1232,8 +1213,8 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('microsoft-updates-{0}', parameters('deploymentNameSuffix'))]",
-      "subscriptionId": "[variables('subscriptionId')]",
-      "resourceGroup": "[parameters('resourceGroupName')]",
+      "subscriptionId": "[parameters('tier').subscriptionId]",
+      "resourceGroup": "[parameters('tier').resourceGroupName]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -1241,13 +1222,13 @@
         "mode": "Incremental",
         "parameters": {
           "imageVirtualMachineName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('image-vm-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('image-vm-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
           },
           "location": {
             "value": "[parameters('location')]"
           },
           "mlzTags": {
-            "value": "[parameters('mlzTags')]"
+            "value": "[parameters('tier').mlzTags]"
           },
           "tags": {
             "value": "[parameters('tags')]"
@@ -1309,8 +1290,8 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('restart-vm-1-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('image-vm-{0}', parameters('deploymentNameSuffix')))]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('restart-vm-1-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('image-vm-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
     {
@@ -1318,8 +1299,8 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('restart-vm-2-{0}', parameters('deploymentNameSuffix'))]",
-      "subscriptionId": "[variables('subscriptionId')]",
-      "resourceGroup": "[parameters('resourceGroupName')]",
+      "subscriptionId": "[parameters('tier').subscriptionId]",
+      "resourceGroup": "[parameters('tier').resourceGroupName]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -1327,16 +1308,16 @@
         "mode": "Incremental",
         "parameters": {
           "imageVirtualMachineName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('image-vm-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('image-vm-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
           },
           "resourceGroupName": {
-            "value": "[parameters('resourceGroupName')]"
+            "value": "[parameters('tier').resourceGroupName]"
           },
           "location": {
             "value": "[parameters('location')]"
           },
           "mlzTags": {
-            "value": "[parameters('mlzTags')]"
+            "value": "[parameters('tier').mlzTags]"
           },
           "tags": {
             "value": "[parameters('tags')]"
@@ -1344,7 +1325,7 @@
           "userAssignedIdentityClientId": {
             "value": "[parameters('userAssignedIdentityClientId')]"
           },
-          "virtualMachineName": "[if(parameters('enableBuildAutomation'), createObject('value', parameters('managementVirtualMachineName')), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('management-vm-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value))]"
+          "virtualMachineName": "[if(parameters('enableBuildAutomation'), createObject('value', variables('managementVirtualMachineName')), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('management-vm-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value))]"
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -1412,17 +1393,17 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('management-vm-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('microsoft-updates-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('image-vm-{0}', parameters('deploymentNameSuffix')))]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('management-vm-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('microsoft-updates-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('image-vm-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('sysprep-vm-{0}', parameters('deploymentNameSuffix'))]",
-      "subscriptionId": "[variables('subscriptionId')]",
-      "resourceGroup": "[parameters('resourceGroupName')]",
+      "subscriptionId": "[parameters('tier').subscriptionId]",
+      "resourceGroup": "[parameters('tier').resourceGroupName]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -1433,13 +1414,13 @@
             "value": "[parameters('location')]"
           },
           "mlzTags": {
-            "value": "[parameters('mlzTags')]"
+            "value": "[parameters('tier').mlzTags]"
           },
           "tags": {
             "value": "[parameters('tags')]"
           },
           "virtualMachineName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('image-vm-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('image-vm-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
           }
         },
         "template": {
@@ -1486,17 +1467,17 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('restart-vm-1-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('restart-vm-2-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('image-vm-{0}', parameters('deploymentNameSuffix')))]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('restart-vm-1-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('restart-vm-2-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('image-vm-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('generalize-vm-{0}', parameters('deploymentNameSuffix'))]",
-      "subscriptionId": "[variables('subscriptionId')]",
-      "resourceGroup": "[parameters('resourceGroupName')]",
+      "subscriptionId": "[parameters('tier').subscriptionId]",
+      "resourceGroup": "[parameters('tier').resourceGroupName]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -1504,16 +1485,16 @@
         "mode": "Incremental",
         "parameters": {
           "imageVirtualMachineName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('image-vm-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('image-vm-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
           },
           "resourceGroupName": {
-            "value": "[parameters('resourceGroupName')]"
+            "value": "[parameters('tier').resourceGroupName]"
           },
           "location": {
             "value": "[parameters('location')]"
           },
           "mlzTags": {
-            "value": "[parameters('mlzTags')]"
+            "value": "[parameters('tier').mlzTags]"
           },
           "tags": {
             "value": "[parameters('tags')]"
@@ -1521,7 +1502,7 @@
           "userAssignedIdentityClientId": {
             "value": "[parameters('userAssignedIdentityClientId')]"
           },
-          "virtualMachineName": "[if(parameters('enableBuildAutomation'), createObject('value', parameters('managementVirtualMachineName')), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('management-vm-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value))]"
+          "virtualMachineName": "[if(parameters('enableBuildAutomation'), createObject('value', variables('managementVirtualMachineName')), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('management-vm-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value))]"
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -1590,17 +1571,17 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('management-vm-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('sysprep-vm-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('image-vm-{0}', parameters('deploymentNameSuffix')))]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('management-vm-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('sysprep-vm-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('image-vm-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('image-version-{0}', parameters('deploymentNameSuffix'))]",
-      "subscriptionId": "[variables('subscriptionId')]",
-      "resourceGroup": "[parameters('resourceGroupName')]",
+      "subscriptionId": "[parameters('tier').subscriptionId]",
+      "resourceGroup": "[parameters('tier').resourceGroupName]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -1611,7 +1592,7 @@
             "value": "[parameters('computeGalleryImageResourceId')]"
           },
           "computeGalleryName": {
-            "value": "[parameters('computeGalleryName')]"
+            "value": "[parameters('tier').namingConvention.computeGallery]"
           },
           "excludeFromLatest": {
             "value": "[parameters('excludeFromLatest')]"
@@ -1623,7 +1604,7 @@
             "value": "[variables('autoImageVersion')]"
           },
           "imageVirtualMachineResourceId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('image-vm-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('image-vm-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
           },
           "location": {
             "value": "[parameters('location')]"
@@ -1635,7 +1616,7 @@
             "value": "[parameters('marketplaceImagePublisher')]"
           },
           "mlzTags": {
-            "value": "[parameters('mlzTags')]"
+            "value": "[parameters('tier').mlzTags]"
           },
           "replicaCount": {
             "value": "[parameters('replicaCount')]"
@@ -1764,16 +1745,16 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('generalize-vm-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('image-vm-{0}', parameters('deploymentNameSuffix')))]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('generalize-vm-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('image-vm-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('remove-vm-{0}', parameters('deploymentNameSuffix'))]",
-      "subscriptionId": "[variables('subscriptionId')]",
-      "resourceGroup": "[parameters('resourceGroupName')]",
+      "subscriptionId": "[parameters('tier').subscriptionId]",
+      "resourceGroup": "[parameters('tier').resourceGroupName]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -1784,13 +1765,13 @@
             "value": "[parameters('enableBuildAutomation')]"
           },
           "imageVirtualMachineName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('image-vm-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('image-vm-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
           },
           "location": {
             "value": "[parameters('location')]"
           },
           "mlzTags": {
-            "value": "[parameters('mlzTags')]"
+            "value": "[parameters('tier').mlzTags]"
           },
           "tags": {
             "value": "[parameters('tags')]"
@@ -1798,7 +1779,7 @@
           "userAssignedIdentityClientId": {
             "value": "[parameters('userAssignedIdentityClientId')]"
           },
-          "virtualMachineName": "[if(parameters('enableBuildAutomation'), createObject('value', parameters('managementVirtualMachineName')), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('management-vm-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value))]"
+          "virtualMachineName": "[if(parameters('enableBuildAutomation'), createObject('value', variables('managementVirtualMachineName')), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('management-vm-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value))]"
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -1875,16 +1856,16 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('image-version-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('management-vm-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('image-vm-{0}', parameters('deploymentNameSuffix')))]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('image-version-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('management-vm-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('image-vm-{0}', parameters('deploymentNameSuffix')))]"
       ]
     }
   ],
   "outputs": {
     "imageDefinitionResourceId": {
       "type": "string",
-      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('image-version-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.imageDefinitionResourceId.value]"
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('image-version-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.imageDefinitionResourceId.value]"
     }
   }
 }

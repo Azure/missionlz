@@ -6,70 +6,92 @@ Licensed under the MIT License.
 targetScope = 'subscription'
 
 param additionalSubnets array
+param deploymentIndex string
 param deploymentNameSuffix string
+param environmentAbbreviation string
 param hubVirtualNetworkResourceId string
+param identifier string
 param location string
-param mlzTags object
-param networkSecurityGroupName string
-param networkSecurityGroupRules array
-param resourceGroupName string
-param routeTableName string
+param network object
 param routeTableRouteNextHopIpAddress string
-param subnetAddressPrefix string
+param stampIndex string
 param subnetName string
-param subscriptionId string
 param tags object
 param vNetDnsServers array
-param virtualNetworkAddressPrefix string
-param virtualNetworkName string
-param workloadShortName string
+
+module logic '../../../modules/logic.bicep' = {
+  name: 'get-logic-${network.shortName}-${deploymentIndex}${deploymentNameSuffix}'
+  params: {
+    deploymentNameSuffix: deploymentNameSuffix
+    environmentAbbreviation: environmentAbbreviation
+    identifier: identifier
+    location: location
+    networks: [network]
+    stampIndex: stampIndex
+  }
+}
+
+module rg '../../../modules/resource-group.bicep' = {
+  name: 'deploy-rg-${network.shortName}-${deploymentIndex}${deploymentNameSuffix}'
+  params: {
+    location: location
+    mlzTags: logic.outputs.mlzTags
+    name: '${logic.outputs.tiers[0].namingConvention.resourceGroup}${logic.outputs.tiers[0].delimiter}network'
+    tags: tags
+  }
+}
 
 module spokeNetwork '../../../modules/spoke-network.bicep' = {
-  name: 'deploy-spoke-${workloadShortName}-${deploymentNameSuffix}'
+  name: 'deploy-spoke-${network.shortName}-${deploymentNameSuffix}'
   params: {
     additionalSubnets: additionalSubnets
+    customSubnetName: subnetName
     location: location
-    mlzTags: mlzTags
-    networkSecurityGroupName: networkSecurityGroupName
-    networkSecurityGroupRules: networkSecurityGroupRules
-    resourceGroupName: resourceGroupName
-    routeTableName: routeTableName
+    mlzTags: logic.outputs.mlzTags
+    resourceGroupName: rg.outputs.name
     routeTableRouteNextHopIpAddress: routeTableRouteNextHopIpAddress
-    subnetAddressPrefix: subnetAddressPrefix
-    subnetName: subnetName
-    subscriptionId: subscriptionId
     tags: tags
-    virtualNetworkAddressPrefix: virtualNetworkAddressPrefix
-    virtualNetworkName: virtualNetworkName
+    tier: logic.outputs.tiers[0]
     vNetDnsServers: vNetDnsServers
   }
 }
 
 module workloadVirtualNetworkPeerings '../../../modules/spoke-network-peering.bicep' = {
-  name: 'deploy-spoke-peering-${workloadShortName}-${deploymentNameSuffix}'
+  name: 'deploy-spoke-peering-${network.shortName}-${deploymentNameSuffix}'
   params: {
     deploymentNameSuffix: deploymentNameSuffix
     hubVirtualNetworkResourceId: hubVirtualNetworkResourceId
-    resourceGroupName: resourceGroupName
-    spokeShortName: workloadShortName
+    resourceGroupName: rg.outputs.name
+    spokeShortName: network.shortName
     spokeVirtualNetworkName: spokeNetwork.outputs.virtualNetworkName
-    subscriptionId: subscriptionId
+    subscriptionId: network.subscriptionId
   }
 }
 
 module hubToWorkloadVirtualNetworkPeering '../../../modules/hub-network-peerings.bicep' = {
-  name: 'deploy-hub-peering-${workloadShortName}-${deploymentNameSuffix}'
+  name: 'deploy-hub-peering-${network.shortName}-${deploymentNameSuffix}'
   params: {
     deploymentNameSuffix: deploymentNameSuffix
     hubVirtualNetworkName: split(hubVirtualNetworkResourceId, '/')[8]
     resourceGroupName: split(hubVirtualNetworkResourceId, '/')[4]
-    spokeShortName: workloadShortName
+    spokeShortName: network.shortName
     spokeVirtualNetworkResourceId: spokeNetwork.outputs.virtualNetworkResourceId
     subscriptionId: split(hubVirtualNetworkResourceId, '/')[2]
   }
 }
 
-output networkSecurityGroupName string = spokeNetwork.outputs.networkSecurityGroupName
-output networkSecurityGroupResourceId string = spokeNetwork.outputs.networkSecurityGroupResourceId
-output subnets array = spokeNetwork.outputs.subnets
+output privateDnsZones array = logic.outputs.privateDnsZones
 output virtualNetworkName string = spokeNetwork.outputs.virtualNetworkName
+output tier object = {
+  delimiter: logic.outputs.tiers[0].delimiter
+  locationProperties: logic.outputs.tiers[0].locationProperties
+  mlzTags: logic.outputs.mlzTags
+  name: network.name
+  namingConvention: logic.outputs.tiers[0].namingConvention
+  networkSecurityGroupResourceId: spokeNetwork.outputs.networkSecurityGroupResourceId
+  resourceGroupName: rg.outputs.name
+  shortName: network.shortName
+  subnetResourceId: spokeNetwork.outputs.subnets[0].id
+  subnets: spokeNetwork.outputs.subnets
+  subscriptionId: network.subscriptionId
+}

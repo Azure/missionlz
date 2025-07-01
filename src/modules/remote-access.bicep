@@ -16,9 +16,6 @@ param deployLinuxVirtualMachine bool
 param deploymentNameSuffix string
 param deployWindowsVirtualMachine bool
 param environmentAbbreviation string
-param hubNetworkSecurityGroupResourceId string
-param hubResourceGroupName string
-param hubSubnetResourceId string
 param hybridUseBenefit bool
 param keyVaultPrivateDnsZoneResourceId string
 @secure()
@@ -37,7 +34,6 @@ param linuxVmImageVersion string
 param linuxVmSize string
 param linuxVmOsDiskType string
 param location string
-param mlzTags object
 param tags object
 param tier object
 @secure()
@@ -57,7 +53,7 @@ module rg 'resource-group.bicep' = {
   name: 'deploy-ra-rg-${tier.name}-${deploymentNameSuffix}'
   scope: subscription(tier.subscriptionId)
   params: {
-    mlzTags: mlzTags
+    mlzTags: tier.mlzTags
     name: jbResourceGroupName
     location: location
     tags: tags
@@ -73,9 +69,6 @@ module customerManagedKeys 'customer-managed-keys.bicep' = {
     keyName: tier.namingConvention.diskEncryptionSet
     keyVaultPrivateDnsZoneResourceId: keyVaultPrivateDnsZoneResourceId
     location: location
-    mlzTags: mlzTags
-    resourceGroupName: jbResourceGroupName
-    subnetResourceId: hubSubnetResourceId
     tags: tags
     tier: tier
     workload: 'jumpBoxes'
@@ -94,18 +87,18 @@ module diskEncryptionSet '../modules/disk-encryption-set.bicep' = if (deployLinu
     keyUrl: customerManagedKeys.outputs.keyUriWithVersion
     keyVaultResourceId: customerManagedKeys.outputs.keyVaultResourceId
     location: location
-    mlzTags: mlzTags
+    mlzTags: tier.mlzTags
     tags: tags
   }
 }
 
 module bastionHost '../modules/bastion-host.bicep' = if (deployBastion) {
   name: 'deploy-ra-bastion-host-${deploymentNameSuffix}'
-  scope: resourceGroup(tier.subscriptionId, hubResourceGroupName)
+  scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
   params: {
     bastionHostSubnetResourceId: bastionHostSubnetResourceId
     location: location
-    mlzTags: mlzTags
+    mlzTags: tier.mlzTags
     name: tier.namingConvention.bastionHost
     publicIPAddressAllocationMethod: bastionHostPublicIPAddressAllocationMethod
     publicIPAddressAvailabilityZones: bastionHostPublicIPAddressAvailabilityZones
@@ -131,11 +124,11 @@ module linuxVirtualMachine '../modules/virtual-machine.bicep' = if (deployLinuxV
     imageSku: linuxVmImageSku
     imageVersion: linuxVmImageVersion
     location: location
-    mlzTags: mlzTags
+    mlzTags: tier.mlzTags
     networkInterfaceName: '${tier.namingConvention.virtualMachineNetworkInterface}${tier.delimiter}lra' // lra = Linux Remote Access
-    networkSecurityGroupResourceId: hubNetworkSecurityGroupResourceId
+    networkSecurityGroupResourceId: tier.networkSecurityGroupResourceId
     storageAccountType: linuxVmOsDiskType
-    subnetResourceId: hubSubnetResourceId
+    subnetResourceId: tier.subnetResourceId
     tags: tags
     virtualMachineName: '${tier.namingConvention.virtualMachine}lra' // lra = Linux Remote Access
     virtualMachineSize: linuxVmSize
@@ -159,11 +152,11 @@ module windowsVirtualMachine '../modules/virtual-machine.bicep' = if (deployWind
     imageSku: windowsVmImageSku
     imageVersion: windowsVmVersion
     location: location
-    mlzTags: mlzTags
+    mlzTags: tier.mlzTags
     networkInterfaceName: '${tier.namingConvention.virtualMachineNetworkInterface}${tier.delimiter}wra' // wra = Windows Remote Access
-    networkSecurityGroupResourceId: hubNetworkSecurityGroupResourceId
+    networkSecurityGroupResourceId: tier.networkSecurityGroupResourceId
     storageAccountType: windowsVmStorageAccountType
-    subnetResourceId: hubSubnetResourceId
+    subnetResourceId: tier.subnetResourceId
     tags: tags
     virtualMachineName: '${tier.namingConvention.virtualMachine}wra' // wra = Windows Remote Access
     virtualMachineSize: windowsVmSize

@@ -10,24 +10,21 @@ param environmentAbbreviation string
 param keyName string
 param keyVaultPrivateDnsZoneResourceId string
 param location string
-param mlzTags object
-param resourceGroupName string
-param subnetResourceId string
 param tags object
 param tier object
 param workload string = ''
 
 module keyVault 'key-vault.bicep' = {
   name: 'deploy-cmk-kv-${deploymentNameSuffix}'
-  scope: resourceGroup(tier.subscriptionId, resourceGroupName)
+  scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
   params: {
     environmentAbbreviation: environmentAbbreviation
     keyName: keyName
     keyVaultPrivateDnsZoneResourceId: keyVaultPrivateDnsZoneResourceId
     location: location
-    mlzTags: mlzTags
+    mlzTags: tier.mlzTags
     resourceAbbreviations: tier.resourceAbbreviations
-    subnetResourceId: subnetResourceId
+    subnetResourceId: tier.subnetResourceId
     tags: tags
     tier: tier
     workload: workload
@@ -36,11 +33,11 @@ module keyVault 'key-vault.bicep' = {
 
 module userAssignedIdentity 'user-assigned-identity.bicep' = {
   name: 'deploy-cmk-id-${deploymentNameSuffix}'
-  scope: resourceGroup(tier.subscriptionId, resourceGroupName)
+  scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
   params: {
     keyVaultName: keyVault.outputs.keyVaultName
     location: location
-    mlzTags: mlzTags
+    mlzTags: tier.mlzTags
     tags: tags
     userAssignedIdentityName: tier.namingConvention.userAssignedIdentity
   }
@@ -49,7 +46,7 @@ module userAssignedIdentity 'user-assigned-identity.bicep' = {
 output keyVaultProperties object = {
   diagnosticSettingName: '${tier.namingConvention.keyVaultDiagnosticSetting}${empty(workload) ? '' : '${tier.delimiter}${workload}'}'
   name: keyVault.outputs.keyVaultName
-  resourceGroupName: resourceGroupName
+  resourceGroupName: tier.resourceGroupName
   subscriptionId: tier.subscriptionId
   tierName: tier.name
 }

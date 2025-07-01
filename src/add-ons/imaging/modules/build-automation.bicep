@@ -5,9 +5,7 @@ Licensed under the MIT License.
 
 targetScope = 'subscription'
 
-param actionGroupName string
 param arcGisProInstaller string
-param automationAccountName string
 param automationAccountPrivateDnsZoneResourceId string
 param computeGalleryResourceId string
 param containerName string
@@ -26,7 +24,6 @@ param imageDefinitionName string
 param imageMajorVersion int
 param imageMinorVersion int
 param imagePatchVersion int
-param imageVirtualMachineName string
 param installAccess bool
 param installArcGisPro bool
 param installExcel bool
@@ -42,28 +39,22 @@ param installUpdates bool
 param installVirtualDesktopOptimizationTool bool
 param installVisio bool
 param installWord bool
-param keyVaultName string
 param keyVaultPrivateDnsZoneResourceId string
 param location string
 param logAnalyticsWorkspaceResourceId string
-param managementVirtualMachineName string
 param marketplaceImageOffer string
 param marketplaceImagePublisher string
 param marketplaceImageSKU string
-param mlzTags object
 param msrdcwebrtcsvcInstaller string
 param officeInstaller string
 param oUPath string
 param replicaCount int
-param resourceGroupName string
 param computeGalleryImageResourceId string
 param sourceImageType string
 param storageAccountResourceId string
-param subnetResourceId string
-param subscriptionId string
 param tags object
 param teamsInstaller string
-param timeZone string
+param tier object
 param updateService string
 param userAssignedIdentityClientId string
 param userAssignedIdentityPrincipalId string
@@ -95,72 +86,69 @@ resource roleDefinition 'Microsoft.Authorization/roleDefinitions@2022-04-01' = {
 }
 
 module virtualNetwork 'virtual-network.bicep' = {
-  scope: resourceGroup(split(subnetResourceId, '/')[2], split(subnetResourceId, '/')[4])
+  scope: resourceGroup(split(tier.subnetResourceId, '/')[2], split(tier.subnetResourceId, '/')[4])
   name: 'virtual-network-${deploymentNameSuffix}'
   params: {
     principalId: userAssignedIdentityPrincipalId
-    virtualNetworkName: split(subnetResourceId, '/')[8]
+    virtualNetworkName: split(tier.subnetResourceId, '/')[8]
   }
 }
 
 module keyVault 'key-vault.bicep' = {
-  scope: resourceGroup(subscriptionId, resourceGroupName)
+  scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
   name: 'key-vault-${deploymentNameSuffix}'
   params: {
     domainJoinPassword: domainJoinPassword
     domainJoinUserPrincipalName: domainJoinUserPrincipalName
-    keyVaultName: keyVaultName
+    keyVaultName: tier.namingConvention.keyVault
     keyVaultPrivateDnsZoneResourceId: keyVaultPrivateDnsZoneResourceId
     virtualMachineAdminPassword: virtualMachineAdminPassword
     virtualMachineAdminUsername: virtualMachineAdminUsername
     location: location
-    mlzTags: mlzTags
+    mlzTags: tier.mlzTags
     roleDefinitionResourceId: roleDefinition.id
-    subnetResourceId: subnetResourceId
+    subnetResourceId: tier.subnetResourceId
     tags: tags
     userAssignedIdentityPrincipalId: userAssignedIdentityPrincipalId
   }
 }
 
 module templateSpec 'template-spec.bicep' = {
-  scope: resourceGroup(subscriptionId, resourceGroupName)
+  scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
   name: 'template-spec-${deploymentNameSuffix}'
   params: {
     imageDefinitionName: imageDefinitionName
     location: location
-    mlzTags: mlzTags
+    mlzTags: tier.mlzTags
     tags: tags
   }
 }
 
 module managementVM 'management-virtual-machine.bicep' = {
   name: 'management-vm-${deploymentNameSuffix}'
-  scope: resourceGroup(subscriptionId, resourceGroupName)
+  scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
   params: {
-
     diskEncryptionSetResourceId: diskEncryptionSetResourceId
     hybridUseBenefit: hybridUseBenefit
     virtualMachineAdminPassword: virtualMachineAdminPassword
     virtualMachineAdminUsername: virtualMachineAdminUsername
     location: location
-    mlzTags: mlzTags
-
-    subnetResourceId: subnetResourceId
+    mlzTags: tier.mlzTags
+    subnetResourceId: tier.subnetResourceId
     tags: tags
-
     userAssignedIdentityResourceId: userAssignedIdentityResourceId
-    virtualMachineName: managementVirtualMachineName
+    virtualMachineName: '${tier.namingConvention.virtualMachine}wm'
     virtualMachineSize: virtualMachineSize
   }
 }
 
 module automationAccount 'automation-account.bicep' = {
-  scope: resourceGroup(subscriptionId, resourceGroupName)
+  scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
   name: 'automation-account-${deploymentNameSuffix}'
   params: {
     arcGisProInstaller: arcGisProInstaller
-    actionGroupName: actionGroupName
-    automationAccountName: automationAccountName
+    actionGroupName: tier.namingConvention.actionGroup
+    automationAccountName: tier.namingConvention.automationAccount
     automationAccountPrivateDnsZoneResourceId: automationAccountPrivateDnsZoneResourceId
     computeGalleryImageResourceId: computeGalleryImageResourceId
     computeGalleryResourceId: computeGalleryResourceId
@@ -179,7 +167,7 @@ module automationAccount 'automation-account.bicep' = {
     imageMajorVersion: imageMajorVersion
     imageMinorVersion: imageMinorVersion
     imagePatchVersion: imagePatchVersion
-    imageVirtualMachineName: imageVirtualMachineName
+    imageVirtualMachineName: '${tier.namingConvention.virtualMachine}wb'
     installAccess: installAccess
     installArcGisPro: installArcGisPro
     installExcel: installExcel
@@ -195,26 +183,26 @@ module automationAccount 'automation-account.bicep' = {
     installVirtualDesktopOptimizationTool: installVirtualDesktopOptimizationTool
     installVisio: installVisio
     installWord: installWord
-    keyVaultName: keyVaultName
+    keyVaultName: tier.namingConvention.keyVault
     location: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     managementVirtualMachineName: managementVM.outputs.name
     marketplaceImageOffer: marketplaceImageOffer
     marketplaceImagePublisher: marketplaceImagePublisher
     marketplaceImageSKU: marketplaceImageSKU
-    mlzTags: mlzTags
+    mlzTags: tier.mlzTags
     msrdcwebrtcsvcInstaller: msrdcwebrtcsvcInstaller
     officeInstaller: officeInstaller
     oUPath: oUPath
     replicaCount: replicaCount
-    resourceGroupName: resourceGroupName
+    resourceGroupName: tier.resourceGroupName
     sourceImageType: sourceImageType
     storageAccountResourceId: storageAccountResourceId
-    subnetResourceId: subnetResourceId
+    subnetResourceId: tier.subnetResourceId
     tags: tags
     teamsInstaller: teamsInstaller
     templateSpecResourceId: templateSpec.outputs.resourceId
-    timeZone: timeZone
+    timeZone: tier.locationProperties.timeZone
     updateService: updateService
     userAssignedIdentityClientId: userAssignedIdentityClientId
     userAssignedIdentityPrincipalId: userAssignedIdentityPrincipalId

@@ -23,13 +23,12 @@ param networkWatcherFlowLogsRetentionDays int
 param networkWatcherFlowLogsType string
 param publicIPAddressDiagnosticsLogs array
 param publicIPAddressDiagnosticsMetrics array
-param resourceGroupNames array
 param storageAccountResourceIds array
 param supportedClouds array
 param tiers array
 
 var hub = (filter(tiers, tier => tier.name == 'hub'))[0]
-var hubResourceGroupName = filter(resourceGroupNames, name => contains(name, 'hub'))[0]
+var hubResourceGroupName = filter(hub.resourceGroupName, name => contains(name, 'hub'))[0]
 var networkSecurityGroups = union(networkSecurityGroups_Tiers, networkSecurityGroup_Bastion)
 var networkSecurityGroups_Tiers = [for (tier, i) in tiers: {
   diagnosticLogs: tiers[i].nsgDiagLogs
@@ -37,7 +36,7 @@ var networkSecurityGroups_Tiers = [for (tier, i) in tiers: {
   flowLogsName: tiers[i].namingConvention.networkWatcherFlowLogsNetworkSecurityGroup
   name: tiers[i].namingConvention.networkSecurityGroup
   namingConvention: tiers[i].namingConvention
-  resourceGroupName: resourceGroupNames[i]
+  resourceGroupName: tier[i].resourceGroupName
   storageAccountResourceId: storageAccountResourceIds[i]
   subscriptionId: tiers[i].subscriptionId
   tierName: tiers[i].name
@@ -56,7 +55,6 @@ var networkSecurityGroup_Bastion = deployBastion ? [
   }
 ] : []
 var operations = first(filter(tiers, tier => tier.name == 'operations'))
-var operationsResourceGroupName = filter(resourceGroupNames, name => contains(name, 'operations'))[0]
 var publicIPAddresses = union([
   {
     name: '${hub.namingConvention.azureFirewallPublicIPAddress}${hub.delimiter}client'
@@ -84,7 +82,7 @@ module activityLogDiagnosticSettings 'activity-log-diagnostic-settings.bicep' = 
 
 module logAnalyticsWorkspaceDiagnosticSetting 'log-analytics-diagnostic-setting.bicep' = {
   name: 'deploy-law-diag-${deploymentNameSuffix}'
-  scope: resourceGroup(operations.subscriptionId, operationsResourceGroupName)
+  scope: resourceGroup(operations.subscriptionId, operations.resourceGroupName)
   params: {
     diagnosticStorageAccountName: split(storageAccountResourceIds[1], '/')[8]
     logAnalyticsWorkspaceDiagnosticSettingName: operations.namingConvention.logAnalyticsWorkspaceDiagnosticSetting
@@ -116,7 +114,7 @@ module networkSecurityGroupDiagnostics '../modules/network-security-group-diagno
 @batchSize(1)
 module virtualNetworkDiagnostics '../modules/virtual-network-diagnostics.bicep' = [for (tier, i) in tiers: {
   name: 'deploy-vnet-diags-${tier.name}-${deploymentNameSuffix}'
-  scope: resourceGroup(tier.subscriptionId, resourceGroupNames[i])
+  scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
   params: {
     deploymentNameSuffix: deploymentNameSuffix
     deployNetworkWatcherTrafficAnalytics: deployNetworkWatcherTrafficAnalytics

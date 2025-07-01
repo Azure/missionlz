@@ -13,6 +13,7 @@ param locationVirtualMachines string
 param logAnalyticsWorkspaceRetention int
 param logAnalyticsWorkspaceSku string
 param privateDnsZoneResourceIdPrefix string
+param privateDnsZones array
 param privateLinkScopeResourceId string
 param tags object
 param tier object
@@ -109,7 +110,7 @@ module functionApp 'function-app.bicep' = if (fslogixStorageService == 'AzureFil
     mlzTags: tier.mlzTags
     names: tier.namingConvention
     privateDnsZoneResourceIdPrefix: privateDnsZoneResourceIdPrefix
-    privateDnsZones: tier.privateDnsZones
+    privateDnsZones: privateDnsZones
     privateLinkScopeResourceId: privateLinkScopeResourceId
     resourceGroupFslogix: resourceGroupFslogix
     subnetResourceId: tier.subnets[0].id
