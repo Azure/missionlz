@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.36.1.42791",
-      "templateHash": "8460177065397630614"
+      "templateHash": "18330633957197426391"
     }
   },
   "parameters": {
@@ -681,7 +681,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.36.1.42791",
-              "templateHash": "3325836528404050518"
+              "templateHash": "3072044343046789256"
             }
           },
           "parameters": {
@@ -1018,6 +1018,7 @@
               }
             },
             {
+              "condition": "[not(empty(parameters('customFirewallRuleCollectionGroups')))]",
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
               "name": "[format('deploy-firewall-rules-{0}-{1}{2}', parameters('workloadShortName'), variables('deploymentIndex'), parameters('deploymentNameSuffix'))]",
@@ -1032,7 +1033,9 @@
                   "firewallPolicyName": {
                     "value": "[split(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('firewallResourceId'), '/')[2], split(parameters('firewallResourceId'), '/')[4]), 'Microsoft.Network/azureFirewalls', split(parameters('firewallResourceId'), '/')[8]), '2020-11-01').firewallPolicy.id, '/')[8]]"
                   },
-                  "firewallRuleCollectionGroups": "[if(empty(parameters('customFirewallRuleCollectionGroups')), createObject('value', createArray(createObject('name', 'Tier3-NetworkCollectionGroup', 'properties', createObject('priority', 200, 'ruleCollections', createArray(createObject('name', 'AllowMonitorToLAW', 'priority', 150, 'ruleCollectionType', 'FirewallPolicyFilterRuleCollection', 'action', createObject('type', 'Allow'), 'rules', createArray(createObject('name', 'AllowMonitorToLAW', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Tcp'), 'sourceAddresses', createArray(parameters('virtualNetworkAddressPrefix')), 'destinationAddresses', createArray(cidrHost(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-ops-vnet-{0}{1}', variables('deploymentIndex'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.addressPrefix.value, 3)), 'destinationPorts', createArray('443'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray(), 'destinationFqdns', createArray())))))))), createObject('value', parameters('customFirewallRuleCollectionGroups')))]"
+                  "firewallRuleCollectionGroups": {
+                    "value": "[parameters('customFirewallRuleCollectionGroups')]"
+                  }
                 },
                 "template": {
                   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -1067,10 +1070,7 @@
                     }
                   ]
                 }
-              },
-              "dependsOn": [
-                "[subscriptionResourceId('Microsoft.Resources/deployments', format('get-ops-vnet-{0}{1}', variables('deploymentIndex'), parameters('deploymentNameSuffix')))]"
-              ]
+              }
             },
             {
               "type": "Microsoft.Resources/deployments",
