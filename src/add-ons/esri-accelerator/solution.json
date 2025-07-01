@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.36.1.42791",
-      "templateHash": "13701847458467810214"
+      "templateHash": "6886507940357657381"
     }
   },
   "parameters": {
@@ -123,7 +123,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.36.1.42791",
-              "templateHash": "2264111855905162294"
+              "templateHash": "9712208255227738445"
             }
           },
           "parameters": {
@@ -1182,7 +1182,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.36.1.42791",
-                      "templateHash": "9337072832680890110"
+                      "templateHash": "192360604857516390"
                     }
                   },
                   "parameters": {
@@ -4115,7 +4115,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.36.1.42791",
-                              "templateHash": "5807965836338352220"
+                              "templateHash": "10349591628255528374"
                             }
                           },
                           "parameters": {
@@ -4214,8 +4214,8 @@
                               "type": "Microsoft.Resources/deployments",
                               "apiVersion": "2022-09-01",
                               "name": "[format('deploy-vnet-links-{0}-{1}', copyIndex(), parameters('deploymentNameSuffix'))]",
-                              "subscriptionId": "[variables('virtualNetworks')[copyIndex()].resourceGroupName]",
-                              "resourceGroup": "[variables('virtualNetworks')[copyIndex()].subscriptionId]",
+                              "subscriptionId": "[variables('virtualNetworks')[copyIndex()].subscriptionId]",
+                              "resourceGroup": "[variables('virtualNetworks')[copyIndex()].resourceGroupName]",
                               "properties": {
                                 "expressionEvaluationOptions": {
                                   "scope": "inner"

@@ -21,11 +21,8 @@ param location string
 param networks array
 param tags object
 
-// var hub = filter(tiers, tier => tier.name == 'hub')[0]
-// var hubResourceGroupName = filter(resourceGroupNames, name => contains(name, 'hub'))[0]
 var hubSubscriptionId = filter(networks, network => network.name == 'hub')[0].subscriptionId
 var spokes = filter(networks, network => network.name != 'hub')
-// var spokeResourceGroupNames = filter(resourceGroupNames, name => !contains(name, 'hub'))
 
 module logic 'logic.bicep' = {
   name: 'get-logic-${deploymentNameSuffix}'

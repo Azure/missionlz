@@ -41,7 +41,7 @@ module privateDnsZones 'private-dns-zone.bicep' = [for (name, i) in privateDnsZo
 @batchSize(1)
 module virtualNetworkLinks 'virtual-network-link.bicep' = [for (virtualNetwork, i) in virtualNetworks:{
   name: 'deploy-vnet-links-${i}-${deploymentNameSuffix}'
-  scope: resourceGroup(virtualNetwork.resourceGroupName, virtualNetwork.subscriptionId)
+  scope: resourceGroup(virtualNetwork.subscriptionId, virtualNetwork.resourceGroupName)
   params: {
     privateDnsZoneNames: privateDnsZoneNames
     virtualNetworkName: virtualNetwork.name
