@@ -179,42 +179,12 @@ module virtualNetwork_operations '../../modules/existing-vnet-address-prefix.bic
   }
 }
 
-module firewallRules '../../modules/firewall-rules.bicep' = {
+module firewallRules '../../modules/firewall-rules.bicep' = if (!empty(customFirewallRuleCollectionGroups)) {
   name: 'deploy-firewall-rules-${workloadShortName}-${deploymentIndex}${deploymentNameSuffix}'
   scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)
   params: {
     firewallPolicyName: split(azureFirewall.properties.firewallPolicy.id, '/')[8]
-    firewallRuleCollectionGroups: empty(customFirewallRuleCollectionGroups) ? [
-      {
-        name: 'Tier3-NetworkCollectionGroup'
-        properties: {
-          priority: 200
-          ruleCollections: [
-            {
-              name: 'AllowMonitorToLAW'
-              priority: 150
-              ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
-              action: {
-                type: 'Allow'
-              }
-              rules: [
-                {
-                  name: 'AllowMonitorToLAW'
-                  ruleType: 'NetworkRule'
-                  ipProtocols: ['Tcp']
-                  sourceAddresses: [virtualNetworkAddressPrefix]
-                  destinationAddresses: [cidrHost(virtualNetwork_operations.outputs.addressPrefix, 3)] // Network of the Log Analytics Workspace, could be narrowed using parameters file post deployment
-                  destinationPorts: ['443'] // HTTPS port for Azure Monitor
-                  sourceIpGroups: []
-                  destinationIpGroups: []
-                  destinationFqdns: []
-                }
-              ]
-            }
-          ]
-        }
-      }
-    ] : customFirewallRuleCollectionGroups
+    firewallRuleCollectionGroups: customFirewallRuleCollectionGroups
   }
 }
 

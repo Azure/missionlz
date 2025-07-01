@@ -498,37 +498,6 @@ resource partnerTelemetry 'Microsoft.Resources/deployments@2021-04-01' = if (ena
 module tier3_shared '../tier3/solution.bicep' = {
   name: 'deploy-tier3-avd-shared-${deploymentNameSuffix}'
   params: {
-    customFirewallRuleCollectionGroups: [
-      {
-        name: 'AVD-CollapsedCollectionGroup-${toUpper(identifier)}-${toUpper(environmentAbbreviation)}-${toUpper(locationVirtualMachines)}-SHARED'
-        properties: {
-          priority: 200
-          ruleCollections: [
-            {
-              name: 'AllowMonitorToLAW'
-              priority: 150
-              ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
-              action: {
-                type: 'Allow'
-              }
-              rules: [
-                {
-                  name: 'AllowMonitorToLAW'
-                  ruleType: 'NetworkRule'
-                  ipProtocols: ['Tcp']
-                  sourceAddresses: [sharedVirtualNetworkAddressPrefix]
-                  destinationAddresses: [cidrHost(virtualNetwork_operations.outputs.addressPrefix, 3)] // Network of the Log Analytics Workspace, could be narrowed using parameters file post deployment
-                  destinationPorts: ['443'] // HTTPS port for Azure Monitor
-                  sourceIpGroups: []
-                  destinationIpGroups: []
-                  destinationFqdns: []
-                }
-              ]
-            }
-          ]
-        }
-      }
-    ]
     deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
     deployDefender: deployDefender
     deploymentNameSuffix: deploymentNameSuffix
@@ -570,10 +539,61 @@ module tier3_stamp '../tier3/solution.bicep' = {
     customFirewallRuleCollectionGroups: empty(customFirewallRuleCollectionGroups)
       ? [
           {
-            name: 'AVD-CollapsedCollectionGroup-${toUpper(identifier)}-${toUpper(environmentAbbreviation)}-${toUpper(locationVirtualMachines)}-${stampIndex}'
+            name: 'AVD-CollapsedCollectionGroup-${toUpper(identifier)}-${toUpper(environmentAbbreviation)}-${toUpper(locationVirtualMachines)}-${string(stampIndex)}'
             properties: {
               priority: 200
               ruleCollections: [
+                {
+                  name: 'NetworkRules'
+                  priority: 100
+                  ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
+                  action: {
+                    type: 'Allow'
+                  }
+                  rules: concat(
+                    [
+                      {
+                        name: 'KMS-Endpoint'
+                        ruleType: 'NetworkRule'
+                        ipProtocols: [
+                          'Tcp'
+                        ]
+                        sourceAddresses: [
+                          stampVirtualNetworkAddressPrefix
+                        ]
+                        destinationAddresses: []
+                        destinationFqdns: [
+                          'azkms.${environment().suffixes.storage}'
+                          'kms.${environment().suffixes.storage}'
+                        ]
+                        destinationPorts: [
+                          '1688'
+                        ]
+                        sourceIpGroups: []
+                        destinationIpGroups: []
+                      }
+                    ],
+                    [
+                      {
+                        name: 'AzureCloudforLogin'
+                        ruleType: 'NetworkRule'
+                        ipProtocols: [
+                          'Tcp'
+                        ]
+                        sourceAddresses: [
+                          stampVirtualNetworkAddressPrefix
+                        ]
+                        destinationAddresses: ['AzureActiveDirectory']
+                        destinationFqdns: []
+                        destinationPorts: [
+                          '443'
+                        ]
+                        sourceIpGroups: []
+                        destinationIpGroups: []
+                      }
+                    ]
+                  )
+                }
                 {
                   name: 'ApplicationRules'
                   priority: 200
@@ -666,57 +686,6 @@ module tier3_stamp '../tier3/solution.bicep' = {
                           }
                         ]
                       : []
-                  )
-                }
-                {
-                  name: 'NetworkRules'
-                  priority: 200
-                  ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
-                  action: {
-                    type: 'Allow'
-                  }
-                  rules: concat(
-                    [
-                      {
-                        name: 'KMS-Endpoint'
-                        ruleType: 'NetworkRule'
-                        ipProtocols: [
-                          'Tcp'
-                        ]
-                        sourceAddresses: [
-                          stampVirtualNetworkAddressPrefix
-                        ]
-                        destinationAddresses: []
-                        destinationFqdns: [
-                          'azkms.${environment().suffixes.storage}'
-                          'kms.${environment().suffixes.storage}'
-                        ]
-                        destinationPorts: [
-                          '1688'
-                        ]
-                        sourceIpGroups: []
-                        destinationIpGroups: []
-                      }
-                    ],
-                    [
-                      {
-                        name: 'AzureCloudforLogin'
-                        ruleType: 'NetworkRule'
-                        ipProtocols: [
-                          'Tcp'
-                        ]
-                        sourceAddresses: [
-                          stampVirtualNetworkAddressPrefix
-                        ]
-                        destinationAddresses: ['AzureActiveDirectory']
-                        destinationFqdns: []
-                        destinationPorts: [
-                          '443'
-                        ]
-                        sourceIpGroups: []
-                        destinationIpGroups: []
-                      }
-                    ]
                   )
                 }
               ]
