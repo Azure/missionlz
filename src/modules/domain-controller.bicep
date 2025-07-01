@@ -23,7 +23,6 @@ param mlzTags object
 param privateIPAddressOffset int = 3
 @secure()
 param safeModeAdminPassword string
-param storageAccountType string
 param subnetResourceId string
 param tags object = {}
 param tier object
@@ -50,7 +49,7 @@ module virtualMachine 'virtual-machine.bicep' = {
         diskEncryptionSet: {
           id: diskEncryptionSetResourceId
         }
-        storageAccountType: storageAccountType
+        storageAccountType: 'Premium_LRS'
       }
       name: '${tier.namingConvention.virtualMachineDisk}${delimiter}dc${delimiter}${index}${delimiter}1'
     }]
@@ -69,7 +68,7 @@ module virtualMachine 'virtual-machine.bicep' = {
     networkInterfaceName: '${tier.namingConvention.virtualMachineNetworkInterface}${delimiter}dc${delimiter}${index}'
     networkSecurityGroupResourceId: virtualNetwork.properties.subnets[0].properties.networkSecurityGroup.id
     privateIPAddress: cidrHost(virtualNetwork.properties.subnets[0].properties.addressPrefix, index + privateIPAddressOffset)
-    storageAccountType: storageAccountType
+    storageAccountType: 'Premium_LRS'
     subnetResourceId: subnetResourceId
     tags: tags
     virtualMachineName: '${tier.namingConvention.virtualMachine}dc${index}'
@@ -109,3 +108,5 @@ module runCommand_DomainControllerPromotion 'run-command.bicep' = {
     virtualMachineName: virtualMachine.outputs.virtualMachineName
   }
 }
+
+output networkInterfaceResourceId string = virtualMachine.outputs.networkInterfaceResourceId
