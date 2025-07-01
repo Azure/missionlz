@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.36.1.42791",
-      "templateHash": "8444381172611742878"
+      "templateHash": "13636501021427192387"
     }
   },
   "parameters": {
@@ -412,7 +412,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.36.1.42791",
-              "templateHash": "1633401933726385684"
+              "templateHash": "3325836528404050518"
             }
           },
           "parameters": {
@@ -2612,382 +2612,6 @@
               "condition": "[not(empty(parameters('virtualNetworkAddressPrefix')))]",
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
-              "name": "[format('deploy-cmk-{0}-{1}{2}', parameters('workloadShortName'), variables('deploymentIndex'), parameters('deploymentNameSuffix'))]",
-              "location": "[deployment().location]",
-              "properties": {
-                "expressionEvaluationOptions": {
-                  "scope": "inner"
-                },
-                "mode": "Incremental",
-                "parameters": {
-                  "deploymentNameSuffix": {
-                    "value": "[parameters('deploymentNameSuffix')]"
-                  },
-                  "environmentAbbreviation": {
-                    "value": "[parameters('environmentAbbreviation')]"
-                  },
-                  "keyVaultPrivateDnsZoneResourceId": {
-                    "value": "[resourceId(variables('hubSubscriptionId'), variables('hubResourceGroupName'), 'Microsoft.Network/privateDnsZones', replace(format('privatelink{0}', environment().suffixes.keyvaultDns), 'vault', 'vaultcore'))]"
-                  },
-                  "location": {
-                    "value": "[parameters('location')]"
-                  },
-                  "mlzTags": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}{2}', parameters('workloadShortName'), variables('deploymentIndex'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
-                  },
-                  "resourceGroupName": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}{2}', parameters('workloadShortName'), variables('deploymentIndex'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
-                  },
-                  "subnetResourceId": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}{2}', parameters('workloadShortName'), variables('deploymentIndex'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnets.value[0].id]"
-                  },
-                  "tags": {
-                    "value": "[parameters('tags')]"
-                  },
-                  "tier": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}{2}', parameters('workloadShortName'), variables('deploymentIndex'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tiers.value[0]]"
-                  }
-                },
-                "template": {
-                  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
-                  "contentVersion": "1.0.0.0",
-                  "metadata": {
-                    "_generator": {
-                      "name": "bicep",
-                      "version": "0.36.1.42791",
-                      "templateHash": "7714805651872437778"
-                    }
-                  },
-                  "parameters": {
-                    "deploymentNameSuffix": {
-                      "type": "string"
-                    },
-                    "environmentAbbreviation": {
-                      "type": "string"
-                    },
-                    "keyVaultPrivateDnsZoneResourceId": {
-                      "type": "string"
-                    },
-                    "location": {
-                      "type": "string"
-                    },
-                    "mlzTags": {
-                      "type": "object"
-                    },
-                    "resourceGroupName": {
-                      "type": "string"
-                    },
-                    "subnetResourceId": {
-                      "type": "string"
-                    },
-                    "tags": {
-                      "type": "object"
-                    },
-                    "tier": {
-                      "type": "object"
-                    }
-                  },
-                  "resources": [
-                    {
-                      "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2022-09-01",
-                      "name": "[format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))]",
-                      "subscriptionId": "[parameters('tier').subscriptionId]",
-                      "resourceGroup": "[parameters('resourceGroupName')]",
-                      "properties": {
-                        "expressionEvaluationOptions": {
-                          "scope": "inner"
-                        },
-                        "mode": "Incremental",
-                        "parameters": {
-                          "environmentAbbreviation": {
-                            "value": "[parameters('environmentAbbreviation')]"
-                          },
-                          "keyVaultPrivateDnsZoneResourceId": {
-                            "value": "[parameters('keyVaultPrivateDnsZoneResourceId')]"
-                          },
-                          "location": {
-                            "value": "[parameters('location')]"
-                          },
-                          "mlzTags": {
-                            "value": "[parameters('mlzTags')]"
-                          },
-                          "resourceAbbreviations": {
-                            "value": "[parameters('tier').resourceAbbreviations]"
-                          },
-                          "subnetResourceId": {
-                            "value": "[parameters('subnetResourceId')]"
-                          },
-                          "tags": {
-                            "value": "[parameters('tags')]"
-                          },
-                          "tier": {
-                            "value": "[parameters('tier')]"
-                          }
-                        },
-                        "template": {
-                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                          "contentVersion": "1.0.0.0",
-                          "metadata": {
-                            "_generator": {
-                              "name": "bicep",
-                              "version": "0.36.1.42791",
-                              "templateHash": "16283382072963443385"
-                            }
-                          },
-                          "parameters": {
-                            "environmentAbbreviation": {
-                              "type": "string"
-                            },
-                            "keyVaultPrivateDnsZoneResourceId": {
-                              "type": "string"
-                            },
-                            "location": {
-                              "type": "string"
-                            },
-                            "mlzTags": {
-                              "type": "object"
-                            },
-                            "resourceAbbreviations": {
-                              "type": "object"
-                            },
-                            "subnetResourceId": {
-                              "type": "string"
-                            },
-                            "tags": {
-                              "type": "object"
-                            },
-                            "tier": {
-                              "type": "object"
-                            }
-                          },
-                          "variables": {
-                            "keyVaultPrivateEndpointName": "[parameters('tier').namingConvention.keyVaultPrivateEndpoint]"
-                          },
-                          "resources": [
-                            {
-                              "type": "Microsoft.KeyVault/vaults",
-                              "apiVersion": "2022-07-01",
-                              "name": "[format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id))]",
-                              "location": "[parameters('location')]",
-                              "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.KeyVault/vaults'), createObject()), parameters('mlzTags'))]",
-                              "properties": {
-                                "enabledForDeployment": false,
-                                "enabledForDiskEncryption": false,
-                                "enabledForTemplateDeployment": false,
-                                "enablePurgeProtection": true,
-                                "enableRbacAuthorization": true,
-                                "enableSoftDelete": true,
-                                "networkAcls": {
-                                  "bypass": "AzureServices",
-                                  "defaultAction": "Deny",
-                                  "ipRules": [],
-                                  "virtualNetworkRules": []
-                                },
-                                "publicNetworkAccess": "Disabled",
-                                "sku": {
-                                  "family": "A",
-                                  "name": "premium"
-                                },
-                                "softDeleteRetentionInDays": "[if(or(equals(parameters('environmentAbbreviation'), 'dev'), equals(parameters('environmentAbbreviation'), 'test')), 7, 90)]",
-                                "tenantId": "[subscription().tenantId]"
-                              }
-                            },
-                            {
-                              "type": "Microsoft.Network/privateEndpoints",
-                              "apiVersion": "2023-04-01",
-                              "name": "[variables('keyVaultPrivateEndpointName')]",
-                              "location": "[parameters('location')]",
-                              "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/privateEndpoints'), createObject()), parameters('mlzTags'))]",
-                              "properties": {
-                                "customNetworkInterfaceName": "[parameters('tier').namingConvention.keyVaultNetworkInterface]",
-                                "privateLinkServiceConnections": [
-                                  {
-                                    "name": "[variables('keyVaultPrivateEndpointName')]",
-                                    "properties": {
-                                      "privateLinkServiceId": "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id)))]",
-                                      "groupIds": [
-                                        "vault"
-                                      ]
-                                    }
-                                  }
-                                ],
-                                "subnet": {
-                                  "id": "[parameters('subnetResourceId')]"
-                                }
-                              },
-                              "dependsOn": [
-                                "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id)))]"
-                              ]
-                            },
-                            {
-                              "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
-                              "apiVersion": "2021-08-01",
-                              "name": "[format('{0}/{1}', variables('keyVaultPrivateEndpointName'), format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id)))]",
-                              "properties": {
-                                "privateDnsZoneConfigs": [
-                                  {
-                                    "name": "ipconfig1",
-                                    "properties": {
-                                      "privateDnsZoneId": "[parameters('keyVaultPrivateDnsZoneResourceId')]"
-                                    }
-                                  }
-                                ]
-                              },
-                              "dependsOn": [
-                                "[resourceId('Microsoft.Network/privateEndpoints', variables('keyVaultPrivateEndpointName'))]",
-                                "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id)))]"
-                              ]
-                            }
-                          ],
-                          "outputs": {
-                            "keyVaultResourceId": {
-                              "type": "string",
-                              "value": "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id)))]"
-                            },
-                            "keyVaultName": {
-                              "type": "string",
-                              "value": "[format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id))]"
-                            },
-                            "keyVaultUri": {
-                              "type": "string",
-                              "value": "[reference(resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id))), '2022-07-01').vaultUri]"
-                            },
-                            "networkInterfaceResourceId": {
-                              "type": "string",
-                              "value": "[reference(resourceId('Microsoft.Network/privateEndpoints', variables('keyVaultPrivateEndpointName')), '2023-04-01').networkInterfaces[0].id]"
-                            }
-                          }
-                        }
-                      }
-                    },
-                    {
-                      "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2022-09-01",
-                      "name": "[format('deploy-cmk-id-{0}', parameters('deploymentNameSuffix'))]",
-                      "subscriptionId": "[parameters('tier').subscriptionId]",
-                      "resourceGroup": "[parameters('resourceGroupName')]",
-                      "properties": {
-                        "expressionEvaluationOptions": {
-                          "scope": "inner"
-                        },
-                        "mode": "Incremental",
-                        "parameters": {
-                          "keyVaultName": {
-                            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultName.value]"
-                          },
-                          "location": {
-                            "value": "[parameters('location')]"
-                          },
-                          "mlzTags": {
-                            "value": "[parameters('mlzTags')]"
-                          },
-                          "tags": {
-                            "value": "[parameters('tags')]"
-                          },
-                          "userAssignedIdentityName": {
-                            "value": "[parameters('tier').namingConvention.userAssignedIdentity]"
-                          }
-                        },
-                        "template": {
-                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                          "contentVersion": "1.0.0.0",
-                          "metadata": {
-                            "_generator": {
-                              "name": "bicep",
-                              "version": "0.36.1.42791",
-                              "templateHash": "13811958128925204892"
-                            }
-                          },
-                          "parameters": {
-                            "keyVaultName": {
-                              "type": "string"
-                            },
-                            "location": {
-                              "type": "string"
-                            },
-                            "mlzTags": {
-                              "type": "object"
-                            },
-                            "tags": {
-                              "type": "object"
-                            },
-                            "userAssignedIdentityName": {
-                              "type": "string"
-                            }
-                          },
-                          "resources": [
-                            {
-                              "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
-                              "apiVersion": "2018-11-30",
-                              "name": "[parameters('userAssignedIdentityName')]",
-                              "location": "[parameters('location')]",
-                              "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.ManagedIdentity/userAssignedIdentities'), createObject()), parameters('mlzTags'))]"
-                            },
-                            {
-                              "type": "Microsoft.Authorization/roleAssignments",
-                              "apiVersion": "2020-04-01-preview",
-                              "scope": "[format('Microsoft.KeyVault/vaults/{0}', parameters('keyVaultName'))]",
-                              "name": "[guid(parameters('userAssignedIdentityName'), 'e147488a-f6f5-4113-8e2d-b22465e65bf6', parameters('keyVaultName'))]",
-                              "properties": {
-                                "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('userAssignedIdentityName')), '2018-11-30').principalId]",
-                                "principalType": "ServicePrincipal",
-                                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'e147488a-f6f5-4113-8e2d-b22465e65bf6')]"
-                              },
-                              "dependsOn": [
-                                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('userAssignedIdentityName'))]"
-                              ]
-                            }
-                          ],
-                          "outputs": {
-                            "resourceId": {
-                              "type": "string",
-                              "value": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('userAssignedIdentityName'))]"
-                            }
-                          }
-                        }
-                      },
-                      "dependsOn": [
-                        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix')))]"
-                      ]
-                    }
-                  ],
-                  "outputs": {
-                    "keyVaultName": {
-                      "type": "string",
-                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultName.value]"
-                    },
-                    "keyVaultUri": {
-                      "type": "string",
-                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultUri.value]"
-                    },
-                    "keyVaultResourceId": {
-                      "type": "string",
-                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultResourceId.value]"
-                    },
-                    "networkInterfaceResourceIds": {
-                      "type": "array",
-                      "value": [
-                        "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkInterfaceResourceId.value]"
-                      ]
-                    },
-                    "userAssignedIdentityResourceId": {
-                      "type": "string",
-                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-id-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
-                    }
-                  }
-                }
-              },
-              "dependsOn": [
-                "[subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}{2}', parameters('workloadShortName'), variables('deploymentIndex'), parameters('deploymentNameSuffix')))]",
-                "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}{2}', parameters('workloadShortName'), variables('deploymentIndex'), parameters('deploymentNameSuffix')))]",
-                "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}{2}', parameters('workloadShortName'), variables('deploymentIndex'), parameters('deploymentNameSuffix')))]"
-              ]
-            },
-            {
-              "condition": "[not(empty(parameters('virtualNetworkAddressPrefix')))]",
-              "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2022-09-01",
               "name": "[format('deploy-storage-{0}-{1}{2}', parameters('workloadShortName'), variables('deploymentIndex'), parameters('deploymentNameSuffix'))]",
               "location": "[deployment().location]",
               "properties": {
@@ -3004,12 +2628,6 @@
                   },
                   "filesPrivateDnsZoneResourceId": {
                     "value": "[resourceId(variables('hubSubscriptionId'), variables('hubResourceGroupName'), 'Microsoft.Network/privateDnsZones', format('privatelink.file.{0}', environment().suffixes.storage))]"
-                  },
-                  "keyVaultResourceId": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-{0}-{1}{2}', parameters('workloadShortName'), variables('deploymentIndex'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultResourceId.value]"
-                  },
-                  "keyVaultUri": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-{0}-{1}{2}', parameters('workloadShortName'), variables('deploymentIndex'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultUri.value]"
                   },
                   "location": {
                     "value": "[parameters('location')]"
@@ -3038,8 +2656,20 @@
                   "tier": {
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}{2}', parameters('workloadShortName'), variables('deploymentIndex'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tiers.value[0]]"
                   },
-                  "userAssignedIdentityResourceId": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-{0}-{1}{2}', parameters('workloadShortName'), variables('deploymentIndex'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.userAssignedIdentityResourceId.value]"
+                  "deploymentIndex": {
+                    "value": "[variables('deploymentIndex')]"
+                  },
+                  "environmentAbbreviation": {
+                    "value": "[parameters('environmentAbbreviation')]"
+                  },
+                  "hubResourceGroupName": {
+                    "value": "[variables('hubResourceGroupName')]"
+                  },
+                  "hubSubscriptionId": {
+                    "value": "[variables('hubSubscriptionId')]"
+                  },
+                  "workloadShortName": {
+                    "value": "[parameters('workloadShortName')]"
                   }
                 },
                 "template": {
@@ -3049,23 +2679,29 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.36.1.42791",
-                      "templateHash": "10454665379701602076"
+                      "templateHash": "3397838842642747792"
                     }
                   },
                   "parameters": {
                     "blobsPrivateDnsZoneResourceId": {
                       "type": "string"
                     },
+                    "deploymentIndex": {
+                      "type": "string"
+                    },
                     "deploymentNameSuffix": {
+                      "type": "string"
+                    },
+                    "environmentAbbreviation": {
                       "type": "string"
                     },
                     "filesPrivateDnsZoneResourceId": {
                       "type": "string"
                     },
-                    "keyVaultResourceId": {
+                    "hubSubscriptionId": {
                       "type": "string"
                     },
-                    "keyVaultUri": {
+                    "hubResourceGroupName": {
                       "type": "string"
                     },
                     "logStorageSkuName": {
@@ -3095,7 +2731,7 @@
                     "tier": {
                       "type": "object"
                     },
-                    "userAssignedIdentityResourceId": {
+                    "workloadShortName": {
                       "type": "string"
                     }
                   },
@@ -3103,93 +2739,457 @@
                     {
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2022-09-01",
-                      "name": "[format('deploy-ra-key-{0}-{1}', parameters('tier').name, parameters('deploymentNameSuffix'))]",
-                      "subscriptionId": "[split(parameters('keyVaultResourceId'), '/')[2]]",
-                      "resourceGroup": "[split(parameters('keyVaultResourceId'), '/')[4]]",
+                      "name": "[format('deploy-cmk-{0}-{1}{2}', parameters('workloadShortName'), parameters('deploymentIndex'), parameters('deploymentNameSuffix'))]",
+                      "location": "[deployment().location]",
                       "properties": {
                         "expressionEvaluationOptions": {
                           "scope": "inner"
                         },
                         "mode": "Incremental",
                         "parameters": {
-                          "keyName": {
-                            "value": "[format('storage-{0}', parameters('tier').name)]"
+                          "deploymentNameSuffix": {
+                            "value": "[parameters('deploymentNameSuffix')]"
                           },
-                          "keyVaultName": {
-                            "value": "[split(parameters('keyVaultResourceId'), '/')[8]]"
+                          "environmentAbbreviation": {
+                            "value": "[parameters('environmentAbbreviation')]"
+                          },
+                          "keyName": {
+                            "value": "StorageEncryptionKey"
+                          },
+                          "keyVaultPrivateDnsZoneResourceId": {
+                            "value": "[resourceId(parameters('hubSubscriptionId'), parameters('hubResourceGroupName'), 'Microsoft.Network/privateDnsZones', replace(format('privatelink{0}', environment().suffixes.keyvaultDns), 'vault', 'vaultcore'))]"
+                          },
+                          "location": {
+                            "value": "[parameters('location')]"
+                          },
+                          "mlzTags": {
+                            "value": "[parameters('mlzTags')]"
+                          },
+                          "resourceGroupName": {
+                            "value": "[parameters('resourceGroupName')]"
+                          },
+                          "subnetResourceId": {
+                            "value": "[parameters('subnetResourceId')]"
+                          },
+                          "tags": {
+                            "value": "[parameters('tags')]"
+                          },
+                          "tier": {
+                            "value": "[parameters('tier')]"
                           }
                         },
                         "template": {
-                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
                           "contentVersion": "1.0.0.0",
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
                               "version": "0.36.1.42791",
-                              "templateHash": "324375692783637608"
+                              "templateHash": "12318488169971067206"
                             }
                           },
                           "parameters": {
-                            "keyExpirationInDays": {
-                              "type": "int",
-                              "defaultValue": 30
+                            "deploymentNameSuffix": {
+                              "type": "string"
+                            },
+                            "environmentAbbreviation": {
+                              "type": "string"
                             },
                             "keyName": {
                               "type": "string"
                             },
-                            "keyVaultName": {
+                            "keyVaultPrivateDnsZoneResourceId": {
                               "type": "string"
+                            },
+                            "location": {
+                              "type": "string"
+                            },
+                            "mlzTags": {
+                              "type": "object"
+                            },
+                            "resourceGroupName": {
+                              "type": "string"
+                            },
+                            "subnetResourceId": {
+                              "type": "string"
+                            },
+                            "tags": {
+                              "type": "object"
+                            },
+                            "tier": {
+                              "type": "object"
+                            },
+                            "workload": {
+                              "type": "string",
+                              "defaultValue": ""
                             }
                           },
                           "resources": [
                             {
-                              "type": "Microsoft.KeyVault/vaults/keys",
-                              "apiVersion": "2022-07-01",
-                              "name": "[format('{0}/{1}', parameters('keyVaultName'), parameters('keyName'))]",
+                              "type": "Microsoft.Resources/deployments",
+                              "apiVersion": "2022-09-01",
+                              "name": "[format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))]",
+                              "subscriptionId": "[parameters('tier').subscriptionId]",
+                              "resourceGroup": "[parameters('resourceGroupName')]",
                               "properties": {
-                                "attributes": {
-                                  "enabled": true
+                                "expressionEvaluationOptions": {
+                                  "scope": "inner"
                                 },
-                                "keySize": 4096,
-                                "kty": "RSA-HSM",
-                                "rotationPolicy": {
-                                  "attributes": {
-                                    "expiryTime": "[format('P{0}D', string(parameters('keyExpirationInDays')))]"
+                                "mode": "Incremental",
+                                "parameters": {
+                                  "environmentAbbreviation": {
+                                    "value": "[parameters('environmentAbbreviation')]"
                                   },
-                                  "lifetimeActions": [
+                                  "keyName": {
+                                    "value": "[parameters('keyName')]"
+                                  },
+                                  "keyVaultPrivateDnsZoneResourceId": {
+                                    "value": "[parameters('keyVaultPrivateDnsZoneResourceId')]"
+                                  },
+                                  "location": {
+                                    "value": "[parameters('location')]"
+                                  },
+                                  "mlzTags": {
+                                    "value": "[parameters('mlzTags')]"
+                                  },
+                                  "resourceAbbreviations": {
+                                    "value": "[parameters('tier').resourceAbbreviations]"
+                                  },
+                                  "subnetResourceId": {
+                                    "value": "[parameters('subnetResourceId')]"
+                                  },
+                                  "tags": {
+                                    "value": "[parameters('tags')]"
+                                  },
+                                  "tier": {
+                                    "value": "[parameters('tier')]"
+                                  },
+                                  "workload": {
+                                    "value": "[parameters('workload')]"
+                                  }
+                                },
+                                "template": {
+                                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                                  "contentVersion": "1.0.0.0",
+                                  "metadata": {
+                                    "_generator": {
+                                      "name": "bicep",
+                                      "version": "0.36.1.42791",
+                                      "templateHash": "4452583593906992986"
+                                    }
+                                  },
+                                  "parameters": {
+                                    "environmentAbbreviation": {
+                                      "type": "string"
+                                    },
+                                    "keyExpirationInDays": {
+                                      "type": "int",
+                                      "defaultValue": 30
+                                    },
+                                    "keyName": {
+                                      "type": "string"
+                                    },
+                                    "keyVaultPrivateDnsZoneResourceId": {
+                                      "type": "string"
+                                    },
+                                    "location": {
+                                      "type": "string"
+                                    },
+                                    "mlzTags": {
+                                      "type": "object"
+                                    },
+                                    "resourceAbbreviations": {
+                                      "type": "object"
+                                    },
+                                    "subnetResourceId": {
+                                      "type": "string"
+                                    },
+                                    "tags": {
+                                      "type": "object"
+                                    },
+                                    "tier": {
+                                      "type": "object"
+                                    },
+                                    "workload": {
+                                      "type": "string",
+                                      "defaultValue": ""
+                                    }
+                                  },
+                                  "variables": {
+                                    "keyVaultPrivateEndpointName": "[parameters('tier').namingConvention.keyVaultPrivateEndpoint]"
+                                  },
+                                  "resources": [
                                     {
-                                      "action": {
-                                        "type": "Notify"
-                                      },
-                                      "trigger": {
-                                        "timeBeforeExpiry": "P10D"
+                                      "type": "Microsoft.KeyVault/vaults",
+                                      "apiVersion": "2022-07-01",
+                                      "name": "[format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id, parameters('workload')))]",
+                                      "location": "[parameters('location')]",
+                                      "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.KeyVault/vaults'), createObject()), parameters('mlzTags'))]",
+                                      "properties": {
+                                        "enabledForDeployment": false,
+                                        "enabledForDiskEncryption": false,
+                                        "enabledForTemplateDeployment": false,
+                                        "enablePurgeProtection": true,
+                                        "enableRbacAuthorization": true,
+                                        "enableSoftDelete": true,
+                                        "networkAcls": {
+                                          "bypass": "AzureServices",
+                                          "defaultAction": "Deny",
+                                          "ipRules": [],
+                                          "virtualNetworkRules": []
+                                        },
+                                        "publicNetworkAccess": "Disabled",
+                                        "sku": {
+                                          "family": "A",
+                                          "name": "premium"
+                                        },
+                                        "softDeleteRetentionInDays": "[if(or(equals(parameters('environmentAbbreviation'), 'dev'), equals(parameters('environmentAbbreviation'), 'test')), 7, 90)]",
+                                        "tenantId": "[subscription().tenantId]"
                                       }
                                     },
                                     {
-                                      "action": {
-                                        "type": "Rotate"
+                                      "type": "Microsoft.Network/privateEndpoints",
+                                      "apiVersion": "2023-04-01",
+                                      "name": "[variables('keyVaultPrivateEndpointName')]",
+                                      "location": "[parameters('location')]",
+                                      "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/privateEndpoints'), createObject()), parameters('mlzTags'))]",
+                                      "properties": {
+                                        "customNetworkInterfaceName": "[parameters('tier').namingConvention.keyVaultNetworkInterface]",
+                                        "privateLinkServiceConnections": [
+                                          {
+                                            "name": "[variables('keyVaultPrivateEndpointName')]",
+                                            "properties": {
+                                              "privateLinkServiceId": "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id, parameters('workload'))))]",
+                                              "groupIds": [
+                                                "vault"
+                                              ]
+                                            }
+                                          }
+                                        ],
+                                        "subnet": {
+                                          "id": "[parameters('subnetResourceId')]"
+                                        }
                                       },
-                                      "trigger": {
-                                        "timeAfterCreate": "[format('P{0}D', string(sub(parameters('keyExpirationInDays'), 7)))]"
-                                      }
+                                      "dependsOn": [
+                                        "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id, parameters('workload'))))]"
+                                      ]
+                                    },
+                                    {
+                                      "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+                                      "apiVersion": "2021-08-01",
+                                      "name": "[format('{0}/{1}', variables('keyVaultPrivateEndpointName'), format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id, parameters('workload'))))]",
+                                      "properties": {
+                                        "privateDnsZoneConfigs": [
+                                          {
+                                            "name": "ipconfig1",
+                                            "properties": {
+                                              "privateDnsZoneId": "[parameters('keyVaultPrivateDnsZoneResourceId')]"
+                                            }
+                                          }
+                                        ]
+                                      },
+                                      "dependsOn": [
+                                        "[resourceId('Microsoft.Network/privateEndpoints', variables('keyVaultPrivateEndpointName'))]",
+                                        "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id, parameters('workload'))))]"
+                                      ]
+                                    },
+                                    {
+                                      "type": "Microsoft.KeyVault/vaults/keys",
+                                      "apiVersion": "2022-07-01",
+                                      "name": "[format('{0}/{1}', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id, parameters('workload'))), parameters('keyName'))]",
+                                      "properties": {
+                                        "attributes": {
+                                          "enabled": true
+                                        },
+                                        "keySize": 4096,
+                                        "kty": "RSA-HSM",
+                                        "rotationPolicy": {
+                                          "attributes": {
+                                            "expiryTime": "[format('P{0}D', string(parameters('keyExpirationInDays')))]"
+                                          },
+                                          "lifetimeActions": [
+                                            {
+                                              "action": {
+                                                "type": "Notify"
+                                              },
+                                              "trigger": {
+                                                "timeBeforeExpiry": "P10D"
+                                              }
+                                            },
+                                            {
+                                              "action": {
+                                                "type": "Rotate"
+                                              },
+                                              "trigger": {
+                                                "timeAfterCreate": "[format('P{0}D', string(sub(parameters('keyExpirationInDays'), 7)))]"
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      "dependsOn": [
+                                        "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id, parameters('workload'))))]"
+                                      ]
                                     }
-                                  ]
+                                  ],
+                                  "outputs": {
+                                    "keyName": {
+                                      "type": "string",
+                                      "value": "[parameters('keyName')]"
+                                    },
+                                    "keyUriWithVersion": {
+                                      "type": "string",
+                                      "value": "[reference(resourceId('Microsoft.KeyVault/vaults/keys', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id, parameters('workload'))), parameters('keyName')), '2022-07-01').keyUriWithVersion]"
+                                    },
+                                    "keyVaultName": {
+                                      "type": "string",
+                                      "value": "[format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id, parameters('workload')))]"
+                                    },
+                                    "keyVaultResourceId": {
+                                      "type": "string",
+                                      "value": "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id, parameters('workload'))))]"
+                                    },
+                                    "keyVaultUri": {
+                                      "type": "string",
+                                      "value": "[reference(resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id, parameters('workload')))), '2022-07-01').vaultUri]"
+                                    },
+                                    "networkInterfaceResourceId": {
+                                      "type": "string",
+                                      "value": "[reference(resourceId('Microsoft.Network/privateEndpoints', variables('keyVaultPrivateEndpointName')), '2023-04-01').networkInterfaces[0].id]"
+                                    }
+                                  }
                                 }
                               }
+                            },
+                            {
+                              "type": "Microsoft.Resources/deployments",
+                              "apiVersion": "2022-09-01",
+                              "name": "[format('deploy-cmk-id-{0}', parameters('deploymentNameSuffix'))]",
+                              "subscriptionId": "[parameters('tier').subscriptionId]",
+                              "resourceGroup": "[parameters('resourceGroupName')]",
+                              "properties": {
+                                "expressionEvaluationOptions": {
+                                  "scope": "inner"
+                                },
+                                "mode": "Incremental",
+                                "parameters": {
+                                  "keyVaultName": {
+                                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultName.value]"
+                                  },
+                                  "location": {
+                                    "value": "[parameters('location')]"
+                                  },
+                                  "mlzTags": {
+                                    "value": "[parameters('mlzTags')]"
+                                  },
+                                  "tags": {
+                                    "value": "[parameters('tags')]"
+                                  },
+                                  "userAssignedIdentityName": {
+                                    "value": "[parameters('tier').namingConvention.userAssignedIdentity]"
+                                  }
+                                },
+                                "template": {
+                                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                                  "contentVersion": "1.0.0.0",
+                                  "metadata": {
+                                    "_generator": {
+                                      "name": "bicep",
+                                      "version": "0.36.1.42791",
+                                      "templateHash": "13811958128925204892"
+                                    }
+                                  },
+                                  "parameters": {
+                                    "keyVaultName": {
+                                      "type": "string"
+                                    },
+                                    "location": {
+                                      "type": "string"
+                                    },
+                                    "mlzTags": {
+                                      "type": "object"
+                                    },
+                                    "tags": {
+                                      "type": "object"
+                                    },
+                                    "userAssignedIdentityName": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "resources": [
+                                    {
+                                      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+                                      "apiVersion": "2018-11-30",
+                                      "name": "[parameters('userAssignedIdentityName')]",
+                                      "location": "[parameters('location')]",
+                                      "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.ManagedIdentity/userAssignedIdentities'), createObject()), parameters('mlzTags'))]"
+                                    },
+                                    {
+                                      "type": "Microsoft.Authorization/roleAssignments",
+                                      "apiVersion": "2020-04-01-preview",
+                                      "scope": "[format('Microsoft.KeyVault/vaults/{0}', parameters('keyVaultName'))]",
+                                      "name": "[guid(parameters('userAssignedIdentityName'), 'e147488a-f6f5-4113-8e2d-b22465e65bf6', parameters('keyVaultName'))]",
+                                      "properties": {
+                                        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('userAssignedIdentityName')), '2018-11-30').principalId]",
+                                        "principalType": "ServicePrincipal",
+                                        "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'e147488a-f6f5-4113-8e2d-b22465e65bf6')]"
+                                      },
+                                      "dependsOn": [
+                                        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('userAssignedIdentityName'))]"
+                                      ]
+                                    }
+                                  ],
+                                  "outputs": {
+                                    "resourceId": {
+                                      "type": "string",
+                                      "value": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('userAssignedIdentityName'))]"
+                                    }
+                                  }
+                                }
+                              },
+                              "dependsOn": [
+                                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix')))]"
+                              ]
                             }
                           ],
                           "outputs": {
+                            "keyVaultProperties": {
+                              "type": "object",
+                              "value": {
+                                "diagnosticSettingName": "[format('{0}{1}', parameters('tier').namingConvention.keyVaultDiagnosticSetting, if(empty(parameters('workload')), '', format('{0}{1}', parameters('tier').delimiter, parameters('workload'))))]",
+                                "name": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultName.value]",
+                                "resourceGroupName": "[parameters('resourceGroupName')]",
+                                "subscriptionId": "[parameters('tier').subscriptionId]",
+                                "tierName": "[parameters('tier').name]"
+                              }
+                            },
                             "keyName": {
                               "type": "string",
-                              "value": "[parameters('keyName')]"
+                              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyName.value]"
                             },
                             "keyUriWithVersion": {
                               "type": "string",
-                              "value": "[reference(resourceId('Microsoft.KeyVault/vaults/keys', parameters('keyVaultName'), parameters('keyName')), '2022-07-01').keyUriWithVersion]"
+                              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyUriWithVersion.value]"
+                            },
+                            "keyVaultName": {
+                              "type": "string",
+                              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultName.value]"
                             },
                             "keyVaultUri": {
                               "type": "string",
-                              "value": "[reference(resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName')), '2022-07-01').vaultUri]"
+                              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultUri.value]"
+                            },
+                            "keyVaultResourceId": {
+                              "type": "string",
+                              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultResourceId.value]"
+                            },
+                            "keyVaultNetworkInterfaceResourceId": {
+                              "type": "string",
+                              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkInterfaceResourceId.value]"
+                            },
+                            "userAssignedIdentityResourceId": {
+                              "type": "string",
+                              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-id-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
                             }
                           }
                         }
@@ -3214,7 +3214,7 @@
                             "value": "[parameters('filesPrivateDnsZoneResourceId')]"
                           },
                           "keyVaultUri": {
-                            "value": "[parameters('keyVaultUri')]"
+                            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-{0}-{1}{2}', parameters('workloadShortName'), parameters('deploymentIndex'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultUri.value]"
                           },
                           "location": {
                             "value": "[parameters('location')]"
@@ -3229,7 +3229,7 @@
                             "value": "[parameters('logStorageSkuName')]"
                           },
                           "storageEncryptionKeyName": {
-                            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('keyVaultResourceId'), '/')[2], split(parameters('keyVaultResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('deploy-ra-key-{0}-{1}', parameters('tier').name, parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyName.value]"
+                            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-{0}-{1}{2}', parameters('workloadShortName'), parameters('deploymentIndex'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyName.value]"
                           },
                           "subnetResourceId": {
                             "value": "[parameters('subnetResourceId')]"
@@ -3244,7 +3244,7 @@
                             "value": "[parameters('tier')]"
                           },
                           "userAssignedIdentityResourceId": {
-                            "value": "[parameters('userAssignedIdentityResourceId')]"
+                            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-{0}-{1}{2}', parameters('workloadShortName'), parameters('deploymentIndex'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.userAssignedIdentityResourceId.value]"
                           }
                         },
                         "template": {
@@ -3458,24 +3458,35 @@
                         }
                       },
                       "dependsOn": [
-                        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('keyVaultResourceId'), '/')[2], split(parameters('keyVaultResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('deploy-ra-key-{0}-{1}', parameters('tier').name, parameters('deploymentNameSuffix')))]"
+                        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-{0}-{1}{2}', parameters('workloadShortName'), parameters('deploymentIndex'), parameters('deploymentNameSuffix')))]"
                       ]
                     }
                   ],
                   "outputs": {
+                    "keyVaultName": {
+                      "type": "string",
+                      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-{0}-{1}{2}', parameters('workloadShortName'), parameters('deploymentIndex'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultName.value]"
+                    },
+                    "keyVaultUri": {
+                      "type": "string",
+                      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-{0}-{1}{2}', parameters('workloadShortName'), parameters('deploymentIndex'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultUri.value]"
+                    },
                     "networkInterfaceResourceIds": {
                       "type": "array",
-                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-sa-log-{0}-{1}', parameters('tier').name, parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkInterfaceResourceIds.value]"
+                      "value": "[union(createArray(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-{0}-{1}{2}', parameters('workloadShortName'), parameters('deploymentIndex'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultNetworkInterfaceResourceId.value), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-sa-log-{0}-{1}', parameters('tier').name, parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkInterfaceResourceIds.value)]"
                     },
                     "storageAccountResourceId": {
                       "type": "string",
                       "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-sa-log-{0}-{1}', parameters('tier').name, parameters('deploymentNameSuffix'))), '2022-09-01').outputs.id.value]"
+                    },
+                    "userAssignedIdentityResourceId": {
+                      "type": "string",
+                      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-{0}-{1}{2}', parameters('workloadShortName'), parameters('deploymentIndex'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.userAssignedIdentityResourceId.value]"
                     }
                   }
                 }
               },
               "dependsOn": [
-                "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-{0}-{1}{2}', parameters('workloadShortName'), variables('deploymentIndex'), parameters('deploymentNameSuffix')))]",
                 "[subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}{2}', parameters('workloadShortName'), variables('deploymentIndex'), parameters('deploymentNameSuffix')))]",
                 "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}{2}', parameters('workloadShortName'), variables('deploymentIndex'), parameters('deploymentNameSuffix')))]",
                 "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}{2}', parameters('workloadShortName'), variables('deploymentIndex'), parameters('deploymentNameSuffix')))]"
@@ -3509,7 +3520,7 @@
                     "value": "[parameters('keyVaultDiagnosticMetrics')]"
                   },
                   "keyVaultName": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-{0}-{1}{2}', parameters('workloadShortName'), variables('deploymentIndex'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultName.value]"
+                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-storage-{0}-{1}{2}', parameters('workloadShortName'), variables('deploymentIndex'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultName.value]"
                   },
                   "location": {
                     "value": "[parameters('location')]"
@@ -3521,7 +3532,7 @@
                     "value": "[parameters('networkInterfaceDiagnosticsMetrics')]"
                   },
                   "networkInterfaceResourceIds": {
-                    "value": "[union(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-{0}-{1}{2}', parameters('workloadShortName'), variables('deploymentIndex'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkInterfaceResourceIds.value, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-storage-{0}-{1}{2}', parameters('workloadShortName'), variables('deploymentIndex'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkInterfaceResourceIds.value)]"
+                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-storage-{0}-{1}{2}', parameters('workloadShortName'), variables('deploymentIndex'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkInterfaceResourceIds.value]"
                   },
                   "networkSecurityGroupDiagnosticsLogs": {
                     "value": "[parameters('networkSecurityGroupDiagnosticsLogs')]"
@@ -4323,7 +4334,6 @@
                 }
               },
               "dependsOn": [
-                "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-{0}-{1}{2}', parameters('workloadShortName'), variables('deploymentIndex'), parameters('deploymentNameSuffix')))]",
                 "[subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}{2}', parameters('workloadShortName'), variables('deploymentIndex'), parameters('deploymentNameSuffix')))]",
                 "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}{2}', parameters('workloadShortName'), variables('deploymentIndex'), parameters('deploymentNameSuffix')))]",
                 "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}-{1}{2}', parameters('workloadShortName'), variables('deploymentIndex'), parameters('deploymentNameSuffix')))]",
@@ -4892,7 +4902,7 @@
             },
             "keyVaultUri": {
               "type": "string",
-              "value": "[if(empty(parameters('virtualNetworkAddressPrefix')), '', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-{0}-{1}{2}', parameters('workloadShortName'), variables('deploymentIndex'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultUri.value)]"
+              "value": "[if(empty(parameters('virtualNetworkAddressPrefix')), '', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-storage-{0}-{1}{2}', parameters('workloadShortName'), variables('deploymentIndex'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultUri.value)]"
             },
             "locationProperties": {
               "type": "object",
@@ -4932,7 +4942,7 @@
             },
             "userAssignedIdentityResourceId": {
               "type": "string",
-              "value": "[if(empty(parameters('virtualNetworkAddressPrefix')), '', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-{0}-{1}{2}', parameters('workloadShortName'), variables('deploymentIndex'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.userAssignedIdentityResourceId.value)]"
+              "value": "[if(empty(parameters('virtualNetworkAddressPrefix')), '', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-storage-{0}-{1}{2}', parameters('workloadShortName'), variables('deploymentIndex'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.userAssignedIdentityResourceId.value)]"
             }
           }
         }
