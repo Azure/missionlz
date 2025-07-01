@@ -707,46 +707,32 @@ module networking 'modules/networking.bicep' = {
     firewallRuleCollectionGroups: empty(customFirewallRuleCollectionGroups)
       ? [
           {
-            name: 'MLZ-NetworkCollectionGroup'
+            name: 'MLZ-DefaultCollectionGroup'
             properties: {
-              priority: 150
-              ruleCollections: union(
-                [
-                  {
-                    name: 'AzureMonitor'
-                    priority: 150
-                    ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
-                    action: {
-                      type: 'Allow'
-                    }
-                    rules: [
+              priority: 100
+              ruleCollections: [
+                {
+                  name: 'NetworkRules'
+                  priority: 100
+                  ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
+                  action: {
+                    type: 'Allow'
+                  }
+                  rules: union(
+                    [
                       {
-                        name: 'AllowMonitorToLAW'
+                        name: 'Allow-LAW-TCP'
                         ruleType: 'NetworkRule'
                         ipProtocols: ['Tcp']
-                        sourceAddresses: concat(
-                          [
-                            hubVirtualNetworkAddressPrefix // Hub network
-                            sharedServicesVirtualNetworkAddressPrefix // Shared network
-                          ],
-                          deployIdentity ? [identityVirtualNetworkAddressPrefix] : [] // Include Identity network only if it has a value
-                        )
+                        sourceAddresses: [
+                          firewallSupernetIPAddress
+                        ]
                         destinationAddresses: [cidrHost(operationsVirtualNetworkAddressPrefix, 3)] // LAW private endpoint network
                         destinationPorts: ['443'] // HTTPS port for Azure Monitor
                       }
-                    ]
-                  }
-                ],
-                deployActiveDirectoryDomainServices
-                  ? [
-                      {
-                        name: 'ActiveDirectoryDomainServices'
-                        priority: 200
-                        ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
-                        action: {
-                          type: 'Allow'
-                        }
-                        rules: [
+                    ],
+                    deployActiveDirectoryDomainServices
+                      ? [
                           {
                             name: 'Allow-ADDS-TCP'
                             ruleType: 'NetworkRule'
@@ -759,15 +745,15 @@ module networking 'modules/networking.bicep' = {
                               cidrHost(identityVirtualNetworkAddressPrefix, 4)
                             ]
                             destinationPorts: [
-                              '53'    // DNS
-                              '88'    // Kerberos
-                              '135'   // RPC
-                              '389'   // LDAP
-                              '445'   // SMB
-                              '464'   // Kerberos Change/Set Password
-                              '636'   // LDAPS
-                              '3268'  // Global Catalog
-                              '3269'  // Global Catalog over SSL
+                              '53' // DNS
+                              '88' // Kerberos
+                              '135' // RPC
+                              '389' // LDAP
+                              '445' // SMB
+                              '464' // Kerberos Change/Set Password
+                              '636' // LDAPS
+                              '3268' // Global Catalog
+                              '3269' // Global Catalog over SSL
                             ]
                           }
                           {
@@ -778,21 +764,104 @@ module networking 'modules/networking.bicep' = {
                               firewallSupernetIPAddress
                             ]
                             destinationAddresses: [
-                              cidrHost(identityVirtualNetworkAddressPrefix, 3)
-                              cidrHost(identityVirtualNetworkAddressPrefix, 4)
+                              cidrHost(identitySubnetAddressPrefix, 3)
+                              cidrHost(identitySubnetAddressPrefix, 4)
                             ]
                             destinationPorts: [
                               '53' // DNS over UDP
                               '88' // Kerberos over UDP
+                              '123' // Time Synchronization
                               '389' // LDAP over UDP
                               '464' // Kerberos Change/Set Password over UDP
                             ]
                           }
                         ]
-                      }
-                    ]
-                  : []
-              )
+                      : [],
+                    deployLinuxVirtualMachine || deployWindowsVirtualMachine
+                      ? [
+                          {
+                            name: 'Allow-KMS-TCP'
+                            ruleType: 'NetworkRule'
+                            ipProtocols: ['Tcp']
+                            sourceAddresses: union(
+                              deployLinuxVirtualMachine && deployWindowsVirtualMachine
+                                ? [
+                                    cidrHost(hubSubnetAddressPrefix, 4)
+                                    cidrHost(hubSubnetAddressPrefix, 5)
+                                  ]
+                                : [
+                                    cidrHost(hubSubnetAddressPrefix, 4)
+                                  ],
+                              deployActiveDirectoryDomainServices
+                                ? [
+                                    cidrHost(identitySubnetAddressPrefix, 3)
+                                    cidrHost(identitySubnetAddressPrefix, 4)
+                                  ]
+                                : []
+                            )
+                            destinationAddresses: []
+                            destinationFqdns: [
+                              'azkms.${environment().suffixes.storage}'
+                              'kms.${environment().suffixes.storage}'
+                            ]
+                            destinationPorts: [
+                              '1688'
+                            ]
+                            sourceIpGroups: []
+                            destinationIpGroups: []
+                          }
+                        ]
+                      : []
+                  )
+                }
+                {
+                  name: 'ApplicationRules'
+                  priority: 200
+                  ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
+                  action: {
+                    type: 'Allow'
+                  }
+                  rules: deployLinuxVirtualMachine || deployWindowsVirtualMachine
+                    ? [
+                        {
+                          name: 'Allow-WindowsUpdate'
+                          ruleType: 'ApplicationRule'
+                          protocols: [
+                            {
+                              protocolType: 'Https'
+                              port: 443
+                            }
+                          ]
+                          fqdnTags: [
+                            'WindowsUpdate'
+                          ]
+                          webCategories: []
+                          targetFqdns: []
+                          targetUrls: []
+                          terminateTLS: false
+                          sourceAddresses: union(
+                            deployLinuxVirtualMachine && deployWindowsVirtualMachine
+                              ? [
+                                  cidrHost(hubSubnetAddressPrefix, 4)
+                                  cidrHost(hubSubnetAddressPrefix, 5)
+                                ]
+                              : [
+                                  cidrHost(hubSubnetAddressPrefix, 4)
+                                ],
+                            deployActiveDirectoryDomainServices
+                              ? [
+                                  cidrHost(identitySubnetAddressPrefix, 3)
+                                  cidrHost(identitySubnetAddressPrefix, 4)
+                                ]
+                              : []
+                          )
+                          destinationAddresses: []
+                          sourceIpGroups: []
+                        }
+                      ]
+                    : []
+                }
+              ]
             }
           }
         ]
@@ -803,23 +872,6 @@ module networking 'modules/networking.bicep' = {
     resourceGroupNames: resourceGroups.outputs.names
     tags: tags
     tiers: logic.outputs.tiers
-  }
-}
-
-// CUSTOMER MANAGED KEYS
-
-module customerManagedKeys 'modules/customer-managed-keys.bicep' = {
-  name: 'deploy-cmk-${deploymentNameSuffix}'
-  params: {
-    deploymentNameSuffix: deploymentNameSuffix
-    environmentAbbreviation: environmentAbbreviation
-    keyVaultPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.keyVault
-    location: location
-    mlzTags: logic.outputs.mlzTags
-    resourceGroupName: filter(resourceGroups.outputs.names, name => contains(name, 'hub'))[0]
-    subnetResourceId: networking.outputs.hubSubnetResourceId
-    tags: tags
-    tier: filter(logic.outputs.tiers, tier => tier.name == 'hub')[0]
   }
 }
 
@@ -862,7 +914,6 @@ module activeDirectoryDomainServices 'modules/active-directory-domain-services.b
     location: location
     mlzTags: logic.outputs.mlzTags
     safeModeAdminPassword: addsSafeModeAdminPassword
-    storageAccountType: windowsVmStorageAccountType
     subnetResourceId: networking.outputs.identitySubnetResourceId
     tags: tags
     tier: filter(logic.outputs.tiers, tier => tier.name == 'identity')[0]
@@ -883,11 +934,12 @@ module remoteAccess 'modules/remote-access.bicep' = {
     deployLinuxVirtualMachine: deployLinuxVirtualMachine
     deploymentNameSuffix: deploymentNameSuffix
     deployWindowsVirtualMachine: deployWindowsVirtualMachine
+    environmentAbbreviation: environmentAbbreviation
     hubNetworkSecurityGroupResourceId: networking.outputs.hubNetworkSecurityGroupResourceId
     hubResourceGroupName: filter(resourceGroups.outputs.names, name => contains(name, 'hub'))[0]
     hubSubnetResourceId: networking.outputs.hubSubnetResourceId
     hybridUseBenefit: hybridUseBenefit
-    keyVaultResourceId: customerManagedKeys.outputs.keyVaultResourceId
+    keyVaultPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.keyVault
     linuxVmAdminPasswordOrKey: linuxVmAdminPasswordOrKey
     linuxVmAdminUsername: linuxVmAdminUsername
     linuxVmAuthenticationType: linuxVmAuthenticationType
@@ -920,17 +972,18 @@ module storage 'modules/storage.bicep' = {
     blobsPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.blob
     //deployIdentity: deployIdentity
     deploymentNameSuffix: deploymentNameSuffix
+    environmentAbbreviation: environmentAbbreviation
     filesPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.file
-    keyVaultResourceId: customerManagedKeys.outputs.keyVaultResourceId
+    keyVaultPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.keyVault
     location: location
     logStorageSkuName: logStorageSkuName
     mlzTags: logic.outputs.mlzTags
     queuesPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.queue
     resourceGroupNames: resourceGroups.outputs.names
+    subnetResourceId: networking.outputs.hubSubnetResourceId
     tablesPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.table
     tags: tags
     tiers: logic.outputs.tiers
-    userAssignedIdentityResourceId: customerManagedKeys.outputs.userAssignedIdentityResourceId
   }
   dependsOn: [
     activeDirectoryDomainServices // This is needed to ensure the first two IPs in the identity subnet are availabile for the domain controllers
@@ -950,14 +1003,24 @@ module diagnosticSettings 'modules/diagnostic-settings.bicep' = {
     deploymentNameSuffix: deploymentNameSuffix
     firewallDiagnosticsLogs: firewallDiagnosticsLogs
     firewallDiagnosticsMetrics: firewallDiagnosticsMetrics
-    keyVaultName: customerManagedKeys.outputs.keyVaultName
+    keyVaults: union(
+      [
+        storage.outputs.keyVaultProperties
+      ],
+      deployActiveDirectoryDomainServices ? [
+        activeDirectoryDomainServices.outputs.keyVaultProperties
+      ] : [],
+      deployLinuxVirtualMachine || deployWindowsVirtualMachine ? [
+        remoteAccess.outputs.keyVaultProperties
+      ] : []
+    )
     keyVaultDiagnosticLogs: keyVaultDiagnosticsLogs
     keyVaultDiagnosticMetrics: keyVaultDiagnosticsMetrics
     location: location
     logAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
     networkInterfaceDiagnosticsMetrics: networkInterfaceDiagnosticsMetrics
     networkInterfaceResourceIds: union(
-      customerManagedKeys.outputs.networkInterfaceResourceIds,
+      activeDirectoryDomainServices.outputs.networkInterfaceResourceIds,
       monitoring.outputs.networkInterfaceResourceIds,
       remoteAccess.outputs.networkInterfaceResourceIds,
       flatten(storage.outputs.networkInterfaceResourceIds)
