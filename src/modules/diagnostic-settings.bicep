@@ -14,7 +14,7 @@ param firewallDiagnosticsLogs array
 param firewallDiagnosticsMetrics array
 param keyVaultDiagnosticLogs array
 param keyVaultDiagnosticMetrics array
-param keyVaultName string
+param keyVaults array
 param location string
 param logAnalyticsWorkspaceResourceId string
 param networkInterfaceDiagnosticsMetrics array
@@ -134,7 +134,7 @@ module virtualNetworkDiagnostics '../modules/virtual-network-diagnostics.bicep' 
   }
 }]
 
-module publicIpAddressDiagnostics '../modules/public-ip-address-diagnostics.bicep' = [for (publicIPAddress, i) in publicIPAddresses: {
+module publicIpAddressDiagnosticSettings '../modules/public-ip-address-diagnostics.bicep' = [for (publicIPAddress, i) in publicIPAddresses: {
   name: 'deploy-pip-diags-${i}-${deploymentNameSuffix}'
   scope: resourceGroup(hub.subscriptionId, hubResourceGroupName)
   params: {
@@ -147,7 +147,7 @@ module publicIpAddressDiagnostics '../modules/public-ip-address-diagnostics.bice
   }
 }]
 
-module firewallDiagnostics '../modules/firewall-diagnostics.bicep' = {
+module firewallDiagnosticSetting '../modules/firewall-diagnostics.bicep' = {
   name: 'deploy-afw-diags-${deploymentNameSuffix}'
   scope: resourceGroup(hub.subscriptionId, hubResourceGroupName)
   params: {
@@ -160,18 +160,18 @@ module firewallDiagnostics '../modules/firewall-diagnostics.bicep' = {
   }
 }
 
-module keyVaultDiagnostics '../modules/key-vault-diagnostics.bicep' = {
-  name: 'deploy-kv-diags-${deploymentNameSuffix}'
-  scope: resourceGroup(hub.subscriptionId, hubResourceGroupName)
+module keyVaultDiagnosticSettings '../modules/key-vault-diagnostics.bicep' = [for (keyVault, i) in keyVaults: {
+  name: 'deploy-kv-diags-${i}-${deploymentNameSuffix}'
+  scope: resourceGroup(keyVault.subscriptionId, keyVault.resourceGroupName)
   params: {
-    keyVaultDiagnosticSettingName: hub.namingConvention.keyVaultDiagnosticSetting
-    keyVaultName: keyVaultName
-    keyVaultStorageAccountId: storageAccountResourceIds[0]
+    keyVaultDiagnosticSettingName: keyVault.diagnosticSettingName
+    keyVaultName: keyVault.name
+    keyVaultStorageAccountId: filter(storageAccountResourceIds, id => contains(id, keyVault.tierName))[0]
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     logs: keyVaultDiagnosticLogs
     metrics: keyVaultDiagnosticMetrics
   }
-}
+}]
 
 module bastionDiagnostics '../modules/bastion-diagnostics.bicep' = if (deployBastion) {
   name: 'deploy-bastion-diags-${deploymentNameSuffix}'
