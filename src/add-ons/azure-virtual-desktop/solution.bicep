@@ -452,27 +452,6 @@ resource virtualNetwork_hub 'Microsoft.Network/virtualNetworks@2023-11-01' exist
   scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
 }
 
-// Gets the address prefix for the identity virtual network to configure the firewall rules
-module virtualNetwork_identity '../../modules/existing-vnet-address-prefix.bicep' = if (contains(
-  activeDirectorySolution,
-  'DomainServices'
-)) {
-  name: 'get-id-vnet-${deploymentNameSuffix}'
-  params: {
-    networkName: 'identity'
-    peerings: virtualNetwork_hub.properties.virtualNetworkPeerings
-  }
-}
-
-// Gets the address prefix for the operations virtual network to configure the firewall rules
-module virtualNetwork_operations '../../modules/existing-vnet-address-prefix.bicep' = {
-  name: 'get-ops-vnet-${deploymentNameSuffix}'
-  params: {
-    networkName: 'operations'
-    peerings: virtualNetwork_hub.properties.virtualNetworkPeerings
-  }
-}
-
 // Gets the application group references if the AVD feed workspace already exists
 resource workspace 'Microsoft.DesktopVirtualization/workspaces@2023-09-05' existing = if (!empty(existingFeedWorkspaceResourceId)) {
   scope: resourceGroup(split(existingFeedWorkspaceResourceId, '/')[2], split(existingFeedWorkspaceResourceId, '/')[4])
@@ -500,7 +479,6 @@ module tier3_shared '../tier3/solution.bicep' = {
   params: {
     deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
     deployDefender: deployDefender
-    deploymentNameSuffix: deploymentNameSuffix
     deployNetworkWatcherTrafficAnalytics: deployNetworkWatcherTrafficAnalytics
     deployPolicy: deployPolicy
     emailSecurityContact: emailSecurityContact

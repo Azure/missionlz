@@ -171,14 +171,6 @@ resource virtualNetwork_hub 'Microsoft.Network/virtualNetworks@2023-11-01' exist
   scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
 }
 
-module virtualNetwork_operations '../../modules/existing-vnet-address-prefix.bicep' = {
-  name: 'get-ops-vnet-${deploymentIndex}${deploymentNameSuffix}'
-  params: {
-    networkName: 'operations'
-    peerings: virtualNetwork_hub.properties.virtualNetworkPeerings
-  }
-}
-
 module firewallRules '../../modules/firewall-rules.bicep' = if (!empty(customFirewallRuleCollectionGroups)) {
   name: 'deploy-firewall-rules-${workloadShortName}-${deploymentIndex}${deploymentNameSuffix}'
   scope: resourceGroup(hubSubscriptionId, hubResourceGroupName)

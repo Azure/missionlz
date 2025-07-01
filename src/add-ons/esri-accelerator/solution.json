@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.36.1.42791",
-      "templateHash": "911986565826582133"
+      "templateHash": "31495654844210676"
     }
   },
   "parameters": {
@@ -11609,7 +11609,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.36.1.42791",
-              "templateHash": "18010074128519415214"
+              "templateHash": "13901212065224748561"
             }
           },
           "parameters": {
@@ -12361,105 +12361,6 @@
               }
             },
             {
-              "condition": "[contains(parameters('activeDirectorySolution'), 'DomainServices')]",
-              "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2022-09-01",
-              "name": "[format('get-id-vnet-{0}', parameters('deploymentNameSuffix'))]",
-              "location": "[deployment().location]",
-              "properties": {
-                "expressionEvaluationOptions": {
-                  "scope": "inner"
-                },
-                "mode": "Incremental",
-                "parameters": {
-                  "networkName": {
-                    "value": "identity"
-                  },
-                  "peerings": {
-                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01').virtualNetworkPeerings]"
-                  }
-                },
-                "template": {
-                  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
-                  "contentVersion": "1.0.0.0",
-                  "metadata": {
-                    "_generator": {
-                      "name": "bicep",
-                      "version": "0.36.1.42791",
-                      "templateHash": "11113244651227998479"
-                    }
-                  },
-                  "parameters": {
-                    "networkName": {
-                      "type": "string"
-                    },
-                    "peerings": {
-                      "type": "array"
-                    }
-                  },
-                  "variables": {
-                    "virtualNetworkResourceId": "[filter(parameters('peerings'), lambda('peer', contains(lambdaVariables('peer').name, format('-{0}-', parameters('networkName')))))[0].properties.remoteVirtualNetwork.id]"
-                  },
-                  "resources": [],
-                  "outputs": {
-                    "addressPrefix": {
-                      "type": "string",
-                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(variables('virtualNetworkResourceId'), '/')[2], split(variables('virtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(variables('virtualNetworkResourceId'), '/')[8]), '2023-11-01').addressSpace.addressPrefixes[0]]"
-                    }
-                  }
-                }
-              }
-            },
-            {
-              "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2022-09-01",
-              "name": "[format('get-ops-vnet-{0}', parameters('deploymentNameSuffix'))]",
-              "location": "[deployment().location]",
-              "properties": {
-                "expressionEvaluationOptions": {
-                  "scope": "inner"
-                },
-                "mode": "Incremental",
-                "parameters": {
-                  "networkName": {
-                    "value": "operations"
-                  },
-                  "peerings": {
-                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01').virtualNetworkPeerings]"
-                  }
-                },
-                "template": {
-                  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
-                  "contentVersion": "1.0.0.0",
-                  "metadata": {
-                    "_generator": {
-                      "name": "bicep",
-                      "version": "0.36.1.42791",
-                      "templateHash": "11113244651227998479"
-                    }
-                  },
-                  "parameters": {
-                    "networkName": {
-                      "type": "string"
-                    },
-                    "peerings": {
-                      "type": "array"
-                    }
-                  },
-                  "variables": {
-                    "virtualNetworkResourceId": "[filter(parameters('peerings'), lambda('peer', contains(lambdaVariables('peer').name, format('-{0}-', parameters('networkName')))))[0].properties.remoteVirtualNetwork.id]"
-                  },
-                  "resources": [],
-                  "outputs": {
-                    "addressPrefix": {
-                      "type": "string",
-                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(variables('virtualNetworkResourceId'), '/')[2], split(variables('virtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(variables('virtualNetworkResourceId'), '/')[8]), '2023-11-01').addressSpace.addressPrefixes[0]]"
-                    }
-                  }
-                }
-              }
-            },
-            {
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
               "name": "[format('deploy-tier3-avd-shared-{0}', parameters('deploymentNameSuffix'))]",
@@ -12475,9 +12376,6 @@
                   },
                   "deployDefender": {
                     "value": "[parameters('deployDefender')]"
-                  },
-                  "deploymentNameSuffix": {
-                    "value": "[parameters('deploymentNameSuffix')]"
                   },
                   "deployNetworkWatcherTrafficAnalytics": {
                     "value": "[parameters('deployNetworkWatcherTrafficAnalytics')]"
@@ -12568,7 +12466,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.36.1.42791",
-                      "templateHash": "3072044343046789256"
+                      "templateHash": "16564047533158310908"
                     }
                   },
                   "parameters": {
@@ -12855,55 +12753,6 @@
                     "subscriptionId": "[subscription().subscriptionId]"
                   },
                   "resources": [
-                    {
-                      "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2022-09-01",
-                      "name": "[format('get-ops-vnet-{0}{1}', variables('deploymentIndex'), parameters('deploymentNameSuffix'))]",
-                      "location": "[deployment().location]",
-                      "properties": {
-                        "expressionEvaluationOptions": {
-                          "scope": "inner"
-                        },
-                        "mode": "Incremental",
-                        "parameters": {
-                          "networkName": {
-                            "value": "operations"
-                          },
-                          "peerings": {
-                            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01').virtualNetworkPeerings]"
-                          }
-                        },
-                        "template": {
-                          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
-                          "contentVersion": "1.0.0.0",
-                          "metadata": {
-                            "_generator": {
-                              "name": "bicep",
-                              "version": "0.36.1.42791",
-                              "templateHash": "11113244651227998479"
-                            }
-                          },
-                          "parameters": {
-                            "networkName": {
-                              "type": "string"
-                            },
-                            "peerings": {
-                              "type": "array"
-                            }
-                          },
-                          "variables": {
-                            "virtualNetworkResourceId": "[filter(parameters('peerings'), lambda('peer', contains(lambdaVariables('peer').name, format('-{0}-', parameters('networkName')))))[0].properties.remoteVirtualNetwork.id]"
-                          },
-                          "resources": [],
-                          "outputs": {
-                            "addressPrefix": {
-                              "type": "string",
-                              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(variables('virtualNetworkResourceId'), '/')[2], split(variables('virtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(variables('virtualNetworkResourceId'), '/')[8]), '2023-11-01').addressSpace.addressPrefixes[0]]"
-                            }
-                          }
-                        }
-                      }
-                    },
                     {
                       "condition": "[not(empty(parameters('customFirewallRuleCollectionGroups')))]",
                       "type": "Microsoft.Resources/deployments",
@@ -17217,7 +17066,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.36.1.42791",
-                      "templateHash": "3072044343046789256"
+                      "templateHash": "16564047533158310908"
                     }
                   },
                   "parameters": {
@@ -17504,55 +17353,6 @@
                     "subscriptionId": "[subscription().subscriptionId]"
                   },
                   "resources": [
-                    {
-                      "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2022-09-01",
-                      "name": "[format('get-ops-vnet-{0}{1}', variables('deploymentIndex'), parameters('deploymentNameSuffix'))]",
-                      "location": "[deployment().location]",
-                      "properties": {
-                        "expressionEvaluationOptions": {
-                          "scope": "inner"
-                        },
-                        "mode": "Incremental",
-                        "parameters": {
-                          "networkName": {
-                            "value": "operations"
-                          },
-                          "peerings": {
-                            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01').virtualNetworkPeerings]"
-                          }
-                        },
-                        "template": {
-                          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
-                          "contentVersion": "1.0.0.0",
-                          "metadata": {
-                            "_generator": {
-                              "name": "bicep",
-                              "version": "0.36.1.42791",
-                              "templateHash": "11113244651227998479"
-                            }
-                          },
-                          "parameters": {
-                            "networkName": {
-                              "type": "string"
-                            },
-                            "peerings": {
-                              "type": "array"
-                            }
-                          },
-                          "variables": {
-                            "virtualNetworkResourceId": "[filter(parameters('peerings'), lambda('peer', contains(lambdaVariables('peer').name, format('-{0}-', parameters('networkName')))))[0].properties.remoteVirtualNetwork.id]"
-                          },
-                          "resources": [],
-                          "outputs": {
-                            "addressPrefix": {
-                              "type": "string",
-                              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(variables('virtualNetworkResourceId'), '/')[2], split(variables('virtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(variables('virtualNetworkResourceId'), '/')[8]), '2023-11-01').addressSpace.addressPrefixes[0]]"
-                            }
-                          }
-                        }
-                      }
-                    },
                     {
                       "condition": "[not(empty(parameters('customFirewallRuleCollectionGroups')))]",
                       "type": "Microsoft.Resources/deployments",
