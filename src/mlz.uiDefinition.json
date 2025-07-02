@@ -1037,7 +1037,7 @@
               "name": "forestSection",
               "label": "Forest settings",
               "type": "Microsoft.Common.Section",
-              "visible": "[steps('identity').addsSection.deployADDS]",
+              "visible": "[and(steps('basics').identitySection.deployIdentity, steps('identity').addsSection.deployADDS)]",
               "elements": [
                 {
                   "name": "domainName",
@@ -1070,7 +1070,7 @@
               "name": "vmSection",
               "label": "Virtual machine settings",
               "type": "Microsoft.Common.Section",
-              "visible": "[steps('identity').addsSection.deployADDS]",
+              "visible": "[and(steps('basics').identitySection.deployIdentity, steps('identity').addsSection.deployADDS)]",
               "elements": [
                 {
                   "name": "vmImageSku",
