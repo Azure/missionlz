@@ -37,7 +37,7 @@ module rg '../../../modules/resource-group.bicep' = {
   params: {
     location: location
     mlzTags: logic.outputs.mlzTags
-    name: '${logic.outputs.tiers[0].namingConvention.resourceGroup}${logic.outputs.tiers[0].delimiter}network'
+    name: '${logic.outputs.tiers[0].namingConvention.resourceGroup}${logic.outputs.delimiter}network'
     tags: tags
   }
 }

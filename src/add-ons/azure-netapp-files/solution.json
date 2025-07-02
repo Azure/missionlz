@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.36.1.42791",
-      "templateHash": "14012488194003539454"
+      "templateHash": "3335292737064718979"
     }
   },
   "parameters": {
@@ -412,7 +412,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.36.1.42791",
-              "templateHash": "12481896528786313583"
+              "templateHash": "3480119604931839823"
             }
           },
           "parameters": {
@@ -876,7 +876,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.36.1.42791",
-                      "templateHash": "3179742660392817140"
+                      "templateHash": "6410796631948251699"
                     }
                   },
                   "parameters": {
@@ -1716,7 +1716,7 @@
                             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}{2}', parameters('network').shortName, parameters('deploymentIndex'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
                           },
                           "name": {
-                            "value": "[format('{0}{1}network', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}{2}', parameters('network').shortName, parameters('deploymentIndex'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tiers.value[0].namingConvention.resourceGroup, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}{2}', parameters('network').shortName, parameters('deploymentIndex'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tiers.value[0].delimiter)]"
+                            "value": "[format('{0}{1}network', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}{2}', parameters('network').shortName, parameters('deploymentIndex'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tiers.value[0].namingConvention.resourceGroup, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}{2}', parameters('network').shortName, parameters('deploymentIndex'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.delimiter.value)]"
                           },
                           "tags": {
                             "value": "[parameters('tags')]"
