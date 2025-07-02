@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.36.1.42791",
-      "templateHash": "12535882321240420172"
+      "templateHash": "5647975311356105515"
     }
   },
   "parameters": {
@@ -680,7 +680,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.36.1.42791",
-              "templateHash": "11045061134358462743"
+              "templateHash": "12964865139242906348"
             }
           },
           "parameters": {
@@ -2826,7 +2826,7 @@
                     "value": "[parameters('logStorageSkuName')]"
                   },
                   "mlzTags": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}{2}', parameters('workloadShortName'), variables('deploymentIndex'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tier.value.mlzTags]"
+                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}{2}', parameters('workloadShortName'), variables('deploymentIndex'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
                   },
                   "queuesPrivateDnsZoneResourceId": {
                     "value": "[resourceId(variables('hubSubscriptionId'), variables('hubResourceGroupName'), 'Microsoft.Network/privateDnsZones', format('privatelink.queue.{0}', environment().suffixes.storage))]"
@@ -2872,7 +2872,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.36.1.42791",
-                      "templateHash": "8953951796609128996"
+                      "templateHash": "5148052245688389581"
                     }
                   },
                   "parameters": {
@@ -2964,6 +2964,9 @@
                           "location": {
                             "value": "[parameters('location')]"
                           },
+                          "mlzTags": {
+                            "value": "[parameters('mlzTags')]"
+                          },
                           "resourceAbbreviations": {
                             "value": "[parameters('resourceAbbreviations')]"
                           },
@@ -2981,7 +2984,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.36.1.42791",
-                              "templateHash": "15835841359092988258"
+                              "templateHash": "15954686574831080109"
                             }
                           },
                           "parameters": {
@@ -3002,6 +3005,9 @@
                             },
                             "location": {
                               "type": "string"
+                            },
+                            "mlzTags": {
+                              "type": "object"
                             },
                             "resourceAbbreviations": {
                               "type": "object"
@@ -3043,7 +3049,7 @@
                                     "value": "[parameters('location')]"
                                   },
                                   "mlzTags": {
-                                    "value": "[parameters('tier').mlzTags]"
+                                    "value": "[parameters('mlzTags')]"
                                   },
                                   "resourceAbbreviations": {
                                     "value": "[parameters('resourceAbbreviations')]"
@@ -3273,7 +3279,7 @@
                                     "value": "[parameters('location')]"
                                   },
                                   "mlzTags": {
-                                    "value": "[parameters('tier').mlzTags]"
+                                    "value": "[parameters('mlzTags')]"
                                   },
                                   "tags": {
                                     "value": "[parameters('tags')]"
@@ -5067,6 +5073,10 @@
               "type": "object",
               "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}{2}', parameters('workloadShortName'), variables('deploymentIndex'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.locationProperties.value]"
             },
+            "mlzTags": {
+              "type": "object",
+              "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}{2}', parameters('workloadShortName'), variables('deploymentIndex'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
+            },
             "privateDnsZones": {
               "type": "array",
               "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}{2}', parameters('workloadShortName'), variables('deploymentIndex'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.privateDnsZones.value]"
@@ -5115,6 +5125,9 @@
           "location": {
             "value": "[parameters('location')]"
           },
+          "mlzTags": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
+          },
           "resourceAbbreviations": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceAbbreviations.value]"
           },
@@ -5136,7 +5149,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.36.1.42791",
-              "templateHash": "15953973164705207749"
+              "templateHash": "3118424262849123097"
             }
           },
           "parameters": {
@@ -5160,6 +5173,9 @@
             },
             "location": {
               "type": "string"
+            },
+            "mlzTags": {
+              "type": "object"
             },
             "resourceAbbreviations": {
               "type": "object"
@@ -5191,7 +5207,7 @@
                     "value": "[parameters('location')]"
                   },
                   "mlzTags": {
-                    "value": "[parameters('tier').mlzTags]"
+                    "value": "[parameters('mlzTags')]"
                   },
                   "name": {
                     "value": "[parameters('tier').namingConvention.userAssignedIdentity]"
@@ -5399,6 +5415,9 @@
                   "location": {
                     "value": "[parameters('location')]"
                   },
+                  "mlzTags": {
+                    "value": "[parameters('mlzTags')]"
+                  },
                   "resourceAbbreviations": {
                     "value": "[parameters('resourceAbbreviations')]"
                   },
@@ -5416,7 +5435,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.36.1.42791",
-                      "templateHash": "15835841359092988258"
+                      "templateHash": "15954686574831080109"
                     }
                   },
                   "parameters": {
@@ -5437,6 +5456,9 @@
                     },
                     "location": {
                       "type": "string"
+                    },
+                    "mlzTags": {
+                      "type": "object"
                     },
                     "resourceAbbreviations": {
                       "type": "object"
@@ -5478,7 +5500,7 @@
                             "value": "[parameters('location')]"
                           },
                           "mlzTags": {
-                            "value": "[parameters('tier').mlzTags]"
+                            "value": "[parameters('mlzTags')]"
                           },
                           "resourceAbbreviations": {
                             "value": "[parameters('resourceAbbreviations')]"
@@ -5708,7 +5730,7 @@
                             "value": "[parameters('location')]"
                           },
                           "mlzTags": {
-                            "value": "[parameters('tier').mlzTags]"
+                            "value": "[parameters('mlzTags')]"
                           },
                           "tags": {
                             "value": "[parameters('tags')]"
@@ -5854,7 +5876,7 @@
                     "value": "[reference('customerManagedKeys').outputs.keyVaultResourceId.value]"
                   },
                   "mlzTags": {
-                    "value": "[parameters('tier').mlzTags]"
+                    "value": "[parameters('mlzTags')]"
                   }
                 },
                 "template": {
@@ -6083,7 +6105,7 @@
                     "value": "[parameters('location')]"
                   },
                   "mlzTags": {
-                    "value": "[parameters('tier').mlzTags]"
+                    "value": "[parameters('mlzTags')]"
                   },
                   "tags": {
                     "value": "[parameters('tags')]"
@@ -6364,12 +6386,6 @@
           "keyVaultPrivateDnsZoneResourceId": {
             "value": "[variables('keyVaultPrivateDnsZoneResourceId')]"
           },
-          "virtualMachineAdminPassword": {
-            "value": "[parameters('virtualMachineAdminPassword')]"
-          },
-          "virtualMachineAdminUsername": {
-            "value": "[parameters('virtualMachineAdminUsername')]"
-          },
           "location": {
             "value": "[parameters('location')]"
           },
@@ -6387,6 +6403,9 @@
           },
           "marketplaceImageSKU": {
             "value": "[parameters('marketplaceImageSKU')]"
+          },
+          "mlzTags": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
           },
           "msrdcwebrtcsvcInstaller": {
             "value": "[parameters('msrdcwebrtcsvcInstaller')]"
@@ -6409,11 +6428,11 @@
           "tags": {
             "value": "[parameters('tags')]"
           },
-          "tier": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tier.value]"
-          },
           "teamsInstaller": {
             "value": "[parameters('teamsInstaller')]"
+          },
+          "tier": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tier.value]"
           },
           "updateService": {
             "value": "[parameters('updateService')]"
@@ -6433,6 +6452,12 @@
           "vDOTInstaller": {
             "value": "[parameters('vDOTInstaller')]"
           },
+          "virtualMachineAdminPassword": {
+            "value": "[parameters('virtualMachineAdminPassword')]"
+          },
+          "virtualMachineAdminUsername": {
+            "value": "[parameters('virtualMachineAdminUsername')]"
+          },
           "virtualMachineSize": {
             "value": "[parameters('virtualMachineSize')]"
           },
@@ -6447,7 +6472,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.36.1.42791",
-              "templateHash": "1786638234387594157"
+              "templateHash": "888282634723730217"
             }
           },
           "parameters": {
@@ -6570,6 +6595,9 @@
             },
             "marketplaceImageSKU": {
               "type": "string"
+            },
+            "mlzTags": {
+              "type": "object"
             },
             "msrdcwebrtcsvcInstaller": {
               "type": "string"
@@ -6742,7 +6770,7 @@
                     "value": "[parameters('location')]"
                   },
                   "mlzTags": {
-                    "value": "[parameters('tier').mlzTags]"
+                    "value": "[parameters('mlzTags')]"
                   },
                   "roleDefinitionResourceId": {
                     "value": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', guid(subscription().id, 'KeyVaultDeployAction'))]"
@@ -6961,7 +6989,7 @@
                     "value": "[parameters('location')]"
                   },
                   "mlzTags": {
-                    "value": "[parameters('tier').mlzTags]"
+                    "value": "[parameters('mlzTags')]"
                   },
                   "tags": {
                     "value": "[parameters('tags')]"
@@ -6974,7 +7002,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.36.1.42791",
-                      "templateHash": "13441589918953708526"
+                      "templateHash": "5061888082868490764"
                     }
                   },
                   "parameters": {
@@ -6999,7 +7027,7 @@
                         "_generator": {
                           "name": "bicep",
                           "version": "0.36.1.42791",
-                          "templateHash": "2146687631758778481"
+                          "templateHash": "136556041450187830"
                         }
                       },
                       "parameters": {
@@ -7122,6 +7150,9 @@
                         "marketplaceImageSKU": {
                           "type": "string"
                         },
+                        "mlzTags": {
+                          "type": "object"
+                        },
                         "msrdcwebrtcsvcInstaller": {
                           "type": "string",
                           "defaultValue": ""
@@ -7223,7 +7254,7 @@
                                 "value": "[[parameters('location')]"
                               },
                               "mlzTags": {
-                                "value": "[[parameters('tier').mlzTags]"
+                                "value": "[[parameters('mlzTags')]"
                               },
                               "subnetResourceId": {
                                 "value": "[[parameters('tier').subnetResourceId]"
@@ -7431,7 +7462,7 @@
                                 "value": "[[parameters('marketplaceImageSKU')]"
                               },
                               "mlzTags": {
-                                "value": "[[parameters('tier').mlzTags]"
+                                "value": "[[parameters('mlzTags')]"
                               },
                               "computeGalleryImageResourceId": {
                                 "value": "[[parameters('computeGalleryImageResourceId')]"
@@ -7675,7 +7706,7 @@
                                 "value": "[[parameters('location')]"
                               },
                               "mlzTags": {
-                                "value": "[[parameters('tier').mlzTags]"
+                                "value": "[[parameters('mlzTags')]"
                               },
                               "msrdcwebrtcsvcInstaller": {
                                 "value": "[[parameters('msrdcwebrtcsvcInstaller')]"
@@ -8121,7 +8152,7 @@
                                 "value": "[[parameters('location')]"
                               },
                               "mlzTags": {
-                                "value": "[[parameters('tier').mlzTags]"
+                                "value": "[[parameters('mlzTags')]"
                               },
                               "tags": {
                                 "value": "[[parameters('tags')]"
@@ -8222,7 +8253,7 @@
                                 "value": "[[parameters('location')]"
                               },
                               "mlzTags": {
-                                "value": "[[parameters('tier').mlzTags]"
+                                "value": "[[parameters('mlzTags')]"
                               },
                               "tags": {
                                 "value": "[[parameters('tags')]"
@@ -8311,7 +8342,7 @@
                                 "value": "[[parameters('location')]"
                               },
                               "mlzTags": {
-                                "value": "[[parameters('tier').mlzTags]"
+                                "value": "[[parameters('mlzTags')]"
                               },
                               "tags": {
                                 "value": "[[parameters('tags')]"
@@ -8408,7 +8439,7 @@
                                 "value": "[[parameters('location')]"
                               },
                               "mlzTags": {
-                                "value": "[[parameters('tier').mlzTags]"
+                                "value": "[[parameters('mlzTags')]"
                               },
                               "tags": {
                                 "value": "[[parameters('tags')]"
@@ -8488,7 +8519,7 @@
                                 "value": "[[parameters('location')]"
                               },
                               "mlzTags": {
-                                "value": "[[parameters('tier').mlzTags]"
+                                "value": "[[parameters('mlzTags')]"
                               },
                               "tags": {
                                 "value": "[[parameters('tags')]"
@@ -8610,7 +8641,7 @@
                                 "value": "[[parameters('marketplaceImagePublisher')]"
                               },
                               "mlzTags": {
-                                "value": "[[parameters('tier').mlzTags]"
+                                "value": "[[parameters('mlzTags')]"
                               },
                               "replicaCount": {
                                 "value": "[[parameters('replicaCount')]"
@@ -8765,7 +8796,7 @@
                                 "value": "[[parameters('location')]"
                               },
                               "mlzTags": {
-                                "value": "[[parameters('tier').mlzTags]"
+                                "value": "[[parameters('mlzTags')]"
                               },
                               "tags": {
                                 "value": "[[parameters('tags')]"
@@ -8927,7 +8958,7 @@
                     "value": "[parameters('location')]"
                   },
                   "mlzTags": {
-                    "value": "[parameters('tier').mlzTags]"
+                    "value": "[parameters('mlzTags')]"
                   },
                   "subnetResourceId": {
                     "value": "[parameters('tier').subnetResourceId]"
@@ -9249,7 +9280,7 @@
                     "value": "[parameters('marketplaceImageSKU')]"
                   },
                   "mlzTags": {
-                    "value": "[parameters('tier').mlzTags]"
+                    "value": "[parameters('mlzTags')]"
                   },
                   "msrdcwebrtcsvcInstaller": {
                     "value": "[parameters('msrdcwebrtcsvcInstaller')]"
@@ -10155,6 +10186,9 @@
           "marketplaceImageSKU": {
             "value": "[parameters('marketplaceImageSKU')]"
           },
+          "mlzTags": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
+          },
           "msrdcwebrtcsvcInstaller": {
             "value": "[parameters('msrdcwebrtcsvcInstaller')]"
           },
@@ -10211,7 +10245,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.36.1.42791",
-              "templateHash": "2146687631758778481"
+              "templateHash": "136556041450187830"
             }
           },
           "parameters": {
@@ -10334,6 +10368,9 @@
             "marketplaceImageSKU": {
               "type": "string"
             },
+            "mlzTags": {
+              "type": "object"
+            },
             "msrdcwebrtcsvcInstaller": {
               "type": "string",
               "defaultValue": ""
@@ -10435,7 +10472,7 @@
                     "value": "[parameters('location')]"
                   },
                   "mlzTags": {
-                    "value": "[parameters('tier').mlzTags]"
+                    "value": "[parameters('mlzTags')]"
                   },
                   "subnetResourceId": {
                     "value": "[parameters('tier').subnetResourceId]"
@@ -10643,7 +10680,7 @@
                     "value": "[parameters('marketplaceImageSKU')]"
                   },
                   "mlzTags": {
-                    "value": "[parameters('tier').mlzTags]"
+                    "value": "[parameters('mlzTags')]"
                   },
                   "computeGalleryImageResourceId": {
                     "value": "[parameters('computeGalleryImageResourceId')]"
@@ -10887,7 +10924,7 @@
                     "value": "[parameters('location')]"
                   },
                   "mlzTags": {
-                    "value": "[parameters('tier').mlzTags]"
+                    "value": "[parameters('mlzTags')]"
                   },
                   "msrdcwebrtcsvcInstaller": {
                     "value": "[parameters('msrdcwebrtcsvcInstaller')]"
@@ -11333,7 +11370,7 @@
                     "value": "[parameters('location')]"
                   },
                   "mlzTags": {
-                    "value": "[parameters('tier').mlzTags]"
+                    "value": "[parameters('mlzTags')]"
                   },
                   "tags": {
                     "value": "[parameters('tags')]"
@@ -11434,7 +11471,7 @@
                     "value": "[parameters('location')]"
                   },
                   "mlzTags": {
-                    "value": "[parameters('tier').mlzTags]"
+                    "value": "[parameters('mlzTags')]"
                   },
                   "tags": {
                     "value": "[parameters('tags')]"
@@ -11523,7 +11560,7 @@
                     "value": "[parameters('location')]"
                   },
                   "mlzTags": {
-                    "value": "[parameters('tier').mlzTags]"
+                    "value": "[parameters('mlzTags')]"
                   },
                   "tags": {
                     "value": "[parameters('tags')]"
@@ -11620,7 +11657,7 @@
                     "value": "[parameters('location')]"
                   },
                   "mlzTags": {
-                    "value": "[parameters('tier').mlzTags]"
+                    "value": "[parameters('mlzTags')]"
                   },
                   "tags": {
                     "value": "[parameters('tags')]"
@@ -11700,7 +11737,7 @@
                     "value": "[parameters('location')]"
                   },
                   "mlzTags": {
-                    "value": "[parameters('tier').mlzTags]"
+                    "value": "[parameters('mlzTags')]"
                   },
                   "tags": {
                     "value": "[parameters('tags')]"
@@ -11822,7 +11859,7 @@
                     "value": "[parameters('marketplaceImagePublisher')]"
                   },
                   "mlzTags": {
-                    "value": "[parameters('tier').mlzTags]"
+                    "value": "[parameters('mlzTags')]"
                   },
                   "replicaCount": {
                     "value": "[parameters('replicaCount')]"
@@ -11977,7 +12014,7 @@
                     "value": "[parameters('location')]"
                   },
                   "mlzTags": {
-                    "value": "[parameters('tier').mlzTags]"
+                    "value": "[parameters('mlzTags')]"
                   },
                   "tags": {
                     "value": "[parameters('tags')]"

@@ -11,6 +11,7 @@ param deploymentNameSuffix string
 param environmentAbbreviation string
 param location string
 param logStorageSkuName string
+param mlzTags object
 param privateDnsZoneResourceIds object
 param resourceAbbreviations object
 param tags object
@@ -25,6 +26,7 @@ module customerManagedKeys 'customer-managed-keys.bicep' = {
     keyName: 'StorageEncryptionKey'
     keyVaultPrivateDnsZoneResourceId: privateDnsZoneResourceIds.keyVault
     location: location
+    mlzTags: mlzTags
     resourceAbbreviations: resourceAbbreviations
     tags: tags
     tier: filter(tiers, tier => tier.name == 'hub')[0]
@@ -40,7 +42,7 @@ module storageAccounts 'storage-account.bicep' = [for (tier, i) in tiers: {
     filesPrivateDnsZoneResourceId: privateDnsZoneResourceIds.file
     keyVaultUri: customerManagedKeys.outputs.keyVaultUri
     location: location
-    mlzTags: tier.mlzTags
+    mlzTags: mlzTags
     queuesPrivateDnsZoneResourceId: privateDnsZoneResourceIds.queue
     skuName: logStorageSkuName
     storageEncryptionKeyName: customerManagedKeys.outputs.keyName

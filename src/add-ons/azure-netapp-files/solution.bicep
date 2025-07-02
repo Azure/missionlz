@@ -215,7 +215,7 @@ module rg '../../modules/resource-group.bicep' = {
   name: 'deploy-rg-${deploymentNameSuffix}'
   params: {
     location: location
-    mlzTags: tier3.outputs.tier.mlzTags
+    mlzTags: tier3.outputs.mlzTags
     name: '${tier3.outputs.tier.namingConvention.resourceGroup}${tier3.outputs.delimiter}netAppFiles'
     tags: tags
   }
@@ -234,7 +234,7 @@ module netAppFiles 'modules/azureNetAppFiles.bicep' = {
     domainName: domainName
     fileShareName: fileShareName
     location: location
-    mlzTags: tier3.outputs.tier.mlzTags
+    mlzTags: tier3.outputs.mlzTags
     netAppAccountName: tier3.outputs.tier.namingConvention.netAppAccount
     netAppCapacityPoolName: tier3.outputs.tier.namingConvention.netAppAccountCapacityPool
     organizationalUnitPath: organizationalUnitPath

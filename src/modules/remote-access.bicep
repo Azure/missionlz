@@ -35,6 +35,7 @@ param linuxVmImageVersion string
 param linuxVmSize string
 param linuxVmOsDiskType string
 param location string
+param mlzTags object
 param resourceAbbreviations object
 param tags object
 param tier object
@@ -55,7 +56,7 @@ module rg 'resource-group.bicep' = {
   name: 'deploy-ra-rg-${tier.name}-${deploymentNameSuffix}'
   scope: subscription(tier.subscriptionId)
   params: {
-    mlzTags: tier.mlzTags
+    mlzTags: mlzTags
     name: jbResourceGroupName
     location: location
     tags: tags
@@ -72,6 +73,7 @@ module customerManagedKeys 'customer-managed-keys.bicep' = {
     keyName: tier.namingConvention.diskEncryptionSet
     keyVaultPrivateDnsZoneResourceId: keyVaultPrivateDnsZoneResourceId
     location: location
+    mlzTags: mlzTags
     resourceAbbreviations: resourceAbbreviations
     tags: tags
     tier: tier
@@ -91,7 +93,7 @@ module diskEncryptionSet '../modules/disk-encryption-set.bicep' = if (deployLinu
     keyUrl: customerManagedKeys.outputs.keyUriWithVersion
     keyVaultResourceId: customerManagedKeys.outputs.keyVaultResourceId
     location: location
-    mlzTags: tier.mlzTags
+    mlzTags: mlzTags
     tags: tags
   }
 }
@@ -102,7 +104,7 @@ module bastionHost '../modules/bastion-host.bicep' = if (deployBastion) {
   params: {
     bastionHostSubnetResourceId: bastionHostSubnetResourceId
     location: location
-    mlzTags: tier.mlzTags
+    mlzTags: mlzTags
     name: tier.namingConvention.bastionHost
     publicIPAddressAllocationMethod: bastionHostPublicIPAddressAllocationMethod
     publicIPAddressAvailabilityZones: bastionHostPublicIPAddressAvailabilityZones
@@ -128,7 +130,7 @@ module linuxVirtualMachine '../modules/virtual-machine.bicep' = if (deployLinuxV
     imageSku: linuxVmImageSku
     imageVersion: linuxVmImageVersion
     location: location
-    mlzTags: tier.mlzTags
+    mlzTags: mlzTags
     networkInterfaceName: '${tier.namingConvention.virtualMachineNetworkInterface}${delimiter}lra' // lra = Linux Remote Access
     networkSecurityGroupResourceId: tier.networkSecurityGroupResourceId
     storageAccountType: linuxVmOsDiskType
@@ -156,7 +158,7 @@ module windowsVirtualMachine '../modules/virtual-machine.bicep' = if (deployWind
     imageSku: windowsVmImageSku
     imageVersion: windowsVmVersion
     location: location
-    mlzTags: tier.mlzTags
+    mlzTags: mlzTags
     networkInterfaceName: '${tier.namingConvention.virtualMachineNetworkInterface}${delimiter}wra' // wra = Windows Remote Access
     networkSecurityGroupResourceId: tier.networkSecurityGroupResourceId
     storageAccountType: windowsVmStorageAccountType

@@ -23,6 +23,7 @@ param locationVirtualMachines string
 param logAnalyticsWorkspaceResourceId string
 param managementVirtualMachineName string
 param maxSessionLimit int
+param mlzTags object
 param resourceGroupManagement string
 param resourceGroupShared string
 param securityPrincipalObjectIds array
@@ -66,7 +67,7 @@ module hostPool 'host-pool.bicep' = {
     location: locationControlPlane
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     maxSessionLimit: maxSessionLimit
-    mlzTags: stampTier.mlzTags
+    mlzTags: mlzTags
     sessionHostNamePrefix: stampTier.namingConvention.virtualMachine
     subnetResourceId: stampTier.subnets[0].id
     tags: tags
@@ -85,7 +86,7 @@ module applicationGroup 'application-group.bicep' = {
     hostPoolResourceId: hostPool.outputs.resourceId
     locationControlPlane: locationControlPlane
     locationVirtualMachines: locationVirtualMachines
-    mlzTags: stampTier.mlzTags
+    mlzTags: mlzTags
     securityPrincipalObjectIds: securityPrincipalObjectIds
     desktopFriendlyName: desktopFriendlyName
     tags: tags
@@ -108,7 +109,7 @@ module workspace_feed '../shared/workspace-feed.bicep' = {
     locationControlPlane: locationControlPlane
     locationVirtualMachines: locationVirtualMachines
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
-    mlzTags: sharedTier.mlzTags
+    mlzTags: mlzTags
     resourceGroupManagement: resourceGroupManagement
     subnetResourceId: sharedTier.subnets[0].id
     tags: tags

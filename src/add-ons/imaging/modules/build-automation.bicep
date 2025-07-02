@@ -46,6 +46,7 @@ param logAnalyticsWorkspaceResourceId string
 param marketplaceImageOffer string
 param marketplaceImagePublisher string
 param marketplaceImageSKU string
+param mlzTags object
 param msrdcwebrtcsvcInstaller string
 param officeInstaller string
 param oUPath string
@@ -106,7 +107,7 @@ module keyVault 'key-vault.bicep' = {
     virtualMachineAdminPassword: virtualMachineAdminPassword
     virtualMachineAdminUsername: virtualMachineAdminUsername
     location: location
-    mlzTags: tier.mlzTags
+    mlzTags: mlzTags
     roleDefinitionResourceId: roleDefinition.id
     subnetResourceId: tier.subnetResourceId
     tags: tags
@@ -120,7 +121,7 @@ module templateSpec 'template-spec.bicep' = {
   params: {
     imageDefinitionName: imageDefinitionName
     location: location
-    mlzTags: tier.mlzTags
+    mlzTags: mlzTags
     tags: tags
   }
 }
@@ -134,7 +135,7 @@ module managementVM 'management-virtual-machine.bicep' = {
     virtualMachineAdminPassword: virtualMachineAdminPassword
     virtualMachineAdminUsername: virtualMachineAdminUsername
     location: location
-    mlzTags: tier.mlzTags
+    mlzTags: mlzTags
     subnetResourceId: tier.subnetResourceId
     tags: tags
     userAssignedIdentityResourceId: userAssignedIdentityResourceId
@@ -191,7 +192,7 @@ module automationAccount 'automation-account.bicep' = {
     marketplaceImageOffer: marketplaceImageOffer
     marketplaceImagePublisher: marketplaceImagePublisher
     marketplaceImageSKU: marketplaceImageSKU
-    mlzTags: tier.mlzTags
+    mlzTags: mlzTags
     msrdcwebrtcsvcInstaller: msrdcwebrtcsvcInstaller
     officeInstaller: officeInstaller
     oUPath: oUPath

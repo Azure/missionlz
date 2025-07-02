@@ -11,6 +11,7 @@ param domainName string
 param environmentAbbreviation string
 param locationControlPlane string
 param locationVirtualMachines string
+param mlzTags object
 param organizationalUnitPath string
 param privateDnsZoneResourceIdPrefix string
 param privateDnsZones array
@@ -27,7 +28,7 @@ var resourceGroupManagement = '${tier.namingConvention.resourceGroup}${delimiter
 resource resourceGroup 'Microsoft.Resources/resourceGroups@2023-07-01' = {
   name: resourceGroupManagement
   location: locationControlPlane
-  tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Resources/resourceGroups'] ?? {}, tier.mlzTags)
+  tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Resources/resourceGroups'] ?? {}, mlzTags)
 }
 
 module deploymentUserAssignedIdentity 'user-assigned-identity.bicep' = {
@@ -36,7 +37,7 @@ module deploymentUserAssignedIdentity 'user-assigned-identity.bicep' = {
   params: {
     location: locationVirtualMachines
     name: '${tier.namingConvention.userAssignedIdentity}${delimiter}deployment'
-    tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.ManagedIdentity/userAssignedIdentities'] ?? {}, tier.mlzTags)
+    tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.ManagedIdentity/userAssignedIdentities'] ?? {}, mlzTags)
   }
 }
 
@@ -72,7 +73,7 @@ module diskAccess 'disk-access.bicep' = {
     azureBlobsPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(privateDnsZones, name => contains(name, 'blob'))[0]}'
     hostPoolResourceId: hostPoolResourceId
     location: locationVirtualMachines
-    mlzTags: tier.mlzTags
+    mlzTags: mlzTags
     names: tier.namingConvention
     subnetResourceId: tier.subnets[0].id
     tags: tags
@@ -109,6 +110,7 @@ module customerManagedKeys '../../../../modules/customer-managed-keys.bicep' = {
     keyName: tier.namingConvention.diskEncryptionSet
     keyVaultPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(privateDnsZones, name => contains(name, 'vaultcore'))[0]}'
     location: locationVirtualMachines
+    mlzTags: mlzTags
     resourceAbbreviations: resourceAbbreviations
     tags: tags
     tier: tier
@@ -124,7 +126,7 @@ module diskEncryptionSet '../../../../modules/disk-encryption-set.bicep' = {
     keyUrl: customerManagedKeys.outputs.keyUriWithVersion
     keyVaultResourceId: customerManagedKeys.outputs.keyVaultResourceId
     location: locationVirtualMachines
-    mlzTags: tier.mlzTags
+    mlzTags: mlzTags
     tags: tags
   }
 }
@@ -145,7 +147,7 @@ module virtualMachine 'virtual-machine.bicep' = {
     domainName: domainName
     hostPoolResourceId: hostPoolResourceId
     location: locationVirtualMachines
-    mlzTags: tier.mlzTags
+    mlzTags: mlzTags
     networkInterfaceName: '${tier.namingConvention.virtualMachineNetworkInterface}${delimiter}mgt'
     organizationalUnitPath: organizationalUnitPath
     subnetResourceId: tier.subnets[0].id

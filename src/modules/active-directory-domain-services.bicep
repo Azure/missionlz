@@ -54,6 +54,7 @@ module customerManagedKeys 'customer-managed-keys.bicep' = {
     keyName: tier.namingConvention.diskEncryptionSet
     keyVaultPrivateDnsZoneResourceId: keyVaultPrivateDnsZoneResourceId
     location: location
+    mlzTags: mlzTags
     resourceAbbreviations: resourceAbbreviations
     tags: tags
     tier: tier
@@ -72,7 +73,7 @@ module diskEncryptionSet 'disk-encryption-set.bicep' = {
     keyUrl: customerManagedKeys.outputs.keyUriWithVersion
     keyVaultResourceId: customerManagedKeys.outputs.keyVaultResourceId
     location: location
-    mlzTags: tier.mlzTags
+    mlzTags: mlzTags
     tags: tags
   }
   dependsOn: [
@@ -86,7 +87,7 @@ module availabilitySet 'availability-set.bicep' = {
   params: {
     availabilitySetName: tier.namingConvention.availabilitySet
     location: location
-    mlzTags: tier.mlzTags
+    mlzTags: mlzTags
     tags: tags
   }
   dependsOn: [
@@ -115,7 +116,7 @@ module domainControllers 'domain-controller.bicep' = [
       imageVersion: imageVersion
       index: i
       location: location
-      mlzTags: tier.mlzTags
+      mlzTags: mlzTags
       privateIPAddressOffset: hubSubscriptionId == identitySubscriptionId ? 3 : 4
       safeModeAdminPassword: safeModeAdminPassword
       subnetResourceId: tier.subnetResourceId

@@ -12,6 +12,7 @@ param environmentAbbreviation string
 param exemptPolicyAssignmentIds array
 param keyVaultPrivateDnsZoneResourceId string
 param location string
+param mlzTags object
 param resourceAbbreviations object
 param storageAccountResourceId string
 param tags object
@@ -22,7 +23,7 @@ module userAssignedIdentity 'user-assigned-identity.bicep' = {
   name: 'user-assigned-identity-${deploymentNameSuffix}'
   params: {
     location: location
-    mlzTags: tier.mlzTags
+    mlzTags: mlzTags
     name: tier.namingConvention.userAssignedIdentity
     tags: tags
   }
@@ -53,6 +54,7 @@ module customerManagedKeys '../../../modules/customer-managed-keys.bicep' = {
     keyName: tier.namingConvention.diskEncryptionSet
     keyVaultPrivateDnsZoneResourceId: keyVaultPrivateDnsZoneResourceId
     location: location
+    mlzTags: mlzTags
     resourceAbbreviations: resourceAbbreviations
     tags: tags
     tier: tier
@@ -69,7 +71,7 @@ module diskEncryptionSet '../../../modules/disk-encryption-set.bicep' = {
     diskEncryptionSetName: tier.namingConvention.diskEncryptionSet
     keyUrl: customerManagedKeys.outputs.keyUriWithVersion
     keyVaultResourceId: customerManagedKeys.outputs.keyVaultResourceId
-    mlzTags: tier.mlzTags
+    mlzTags: mlzTags
   }
 }
 
@@ -89,7 +91,7 @@ module computeGallery 'compute-gallery.bicep' = {
     computeGalleryName: tier.namingConvention.computeGallery
     enableBuildAutomation: enableBuildAutomation
     location: location
-    mlzTags: tier.mlzTags
+    mlzTags: mlzTags
     tags: tags
     userAssignedIdentityPrincipalId: userAssignedIdentity.outputs.principalId
   }

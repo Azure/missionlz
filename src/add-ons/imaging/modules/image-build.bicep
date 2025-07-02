@@ -37,6 +37,7 @@ param location string = deployment().location
 param marketplaceImageOffer string
 param marketplaceImagePublisher string
 param marketplaceImageSKU string
+param mlzTags object
 param msrdcwebrtcsvcInstaller string = ''
 param officeInstaller string = ''
 param replicaCount int = 1
@@ -78,7 +79,7 @@ module managementVM 'management-virtual-machine.bicep' =
       diskEncryptionSetResourceId: diskEncryptionSetResourceId
       hybridUseBenefit: hybridUseBenefit
       location: location
-      mlzTags: tier.mlzTags
+      mlzTags: mlzTags
       subnetResourceId: tier.subnetResourceId
       tags: tags
       userAssignedIdentityResourceId: userAssignedIdentityResourceId
@@ -98,7 +99,7 @@ module virtualMachine 'virtual-machine.bicep' = {
     marketplaceImageOffer: marketplaceImageOffer
     marketplaceImagePublisher: marketplaceImagePublisher
     marketplaceImageSKU: marketplaceImageSKU
-    mlzTags: tier.mlzTags
+    mlzTags: mlzTags
     computeGalleryImageResourceId: computeGalleryImageResourceId
     sourceImageType: sourceImageType
     subnetResourceId: tier.subnetResourceId
@@ -138,7 +139,7 @@ module addCustomizations 'customizations.bicep' = {
     installVisio: installVisio
     installWord: installWord
     location: location
-    mlzTags: tier.mlzTags
+    mlzTags: mlzTags
     msrdcwebrtcsvcInstaller: msrdcwebrtcsvcInstaller
     officeInstaller: officeInstaller
     storageAccountName: storageAccountName
@@ -159,7 +160,7 @@ module restartVirtualMachine1 'restart-virtual-machine.bicep' = {
     imageVirtualMachineName: virtualMachine.outputs.name
     resourceGroupName: tier.resourceGroupName
     location: location
-    mlzTags: tier.mlzTags
+    mlzTags: mlzTags
     tags: tags
     userAssignedIdentityClientId: userAssignedIdentityClientId
     virtualMachineName: enableBuildAutomation ? managementVirtualMachineName : managementVM.outputs.name
@@ -176,7 +177,7 @@ module microsoftUdpates 'microsoft-updates.bicep' =
     params: {
       imageVirtualMachineName: virtualMachine.outputs.name
       location: location
-      mlzTags: tier.mlzTags
+      mlzTags: mlzTags
       tags: tags
       updateService: updateService
       wsusServer: wsusServer
@@ -193,7 +194,7 @@ module restartVirtualMachine2 'restart-virtual-machine.bicep' = if (installUpdat
     imageVirtualMachineName: virtualMachine.outputs.name
     resourceGroupName: tier.resourceGroupName
     location: location
-    mlzTags: tier.mlzTags
+    mlzTags: mlzTags
     tags: tags
     userAssignedIdentityClientId: userAssignedIdentityClientId
     virtualMachineName: enableBuildAutomation ? managementVirtualMachineName : managementVM.outputs.name
@@ -207,7 +208,7 @@ module sysprepVirtualMachine 'sysprep-virtual-machine.bicep' = {
   scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
   params: {
     location: location
-    mlzTags: tier.mlzTags
+    mlzTags: mlzTags
     tags: tags
     virtualMachineName: virtualMachine.outputs.name
   }
@@ -224,7 +225,7 @@ module generalizeVirtualMachine 'generalize-virtual-machine.bicep' = {
     imageVirtualMachineName: virtualMachine.outputs.name
     resourceGroupName: tier.resourceGroupName
     location: location
-    mlzTags: tier.mlzTags
+    mlzTags: mlzTags
     tags: tags
     userAssignedIdentityClientId: userAssignedIdentityClientId
     virtualMachineName: enableBuildAutomation ? managementVirtualMachineName : managementVM.outputs.name
@@ -248,7 +249,7 @@ module imageVersion 'image-version.bicep' = {
     location: location
     marketplaceImageOffer: marketplaceImageOffer
     marketplaceImagePublisher: marketplaceImagePublisher
-    mlzTags: tier.mlzTags
+    mlzTags: mlzTags
     replicaCount: replicaCount
     tags: tags
   }
@@ -264,7 +265,7 @@ module removeVirtualMachine 'remove-virtual-machine.bicep' = {
     enableBuildAutomation: enableBuildAutomation
     imageVirtualMachineName: virtualMachine.outputs.name
     location: location
-    mlzTags: tier.mlzTags
+    mlzTags: mlzTags
     tags: tags
     userAssignedIdentityClientId: userAssignedIdentityClientId
     virtualMachineName: enableBuildAutomation ? managementVirtualMachineName : managementVM.outputs.name

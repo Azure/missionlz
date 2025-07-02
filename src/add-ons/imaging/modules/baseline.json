@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.36.1.42791",
-      "templateHash": "15953973164705207749"
+      "templateHash": "3118424262849123097"
     }
   },
   "parameters": {
@@ -30,6 +30,9 @@
     },
     "location": {
       "type": "string"
+    },
+    "mlzTags": {
+      "type": "object"
     },
     "resourceAbbreviations": {
       "type": "object"
@@ -61,7 +64,7 @@
             "value": "[parameters('location')]"
           },
           "mlzTags": {
-            "value": "[parameters('tier').mlzTags]"
+            "value": "[parameters('mlzTags')]"
           },
           "name": {
             "value": "[parameters('tier').namingConvention.userAssignedIdentity]"
@@ -269,6 +272,9 @@
           "location": {
             "value": "[parameters('location')]"
           },
+          "mlzTags": {
+            "value": "[parameters('mlzTags')]"
+          },
           "resourceAbbreviations": {
             "value": "[parameters('resourceAbbreviations')]"
           },
@@ -286,7 +292,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.36.1.42791",
-              "templateHash": "15835841359092988258"
+              "templateHash": "15954686574831080109"
             }
           },
           "parameters": {
@@ -307,6 +313,9 @@
             },
             "location": {
               "type": "string"
+            },
+            "mlzTags": {
+              "type": "object"
             },
             "resourceAbbreviations": {
               "type": "object"
@@ -348,7 +357,7 @@
                     "value": "[parameters('location')]"
                   },
                   "mlzTags": {
-                    "value": "[parameters('tier').mlzTags]"
+                    "value": "[parameters('mlzTags')]"
                   },
                   "resourceAbbreviations": {
                     "value": "[parameters('resourceAbbreviations')]"
@@ -578,7 +587,7 @@
                     "value": "[parameters('location')]"
                   },
                   "mlzTags": {
-                    "value": "[parameters('tier').mlzTags]"
+                    "value": "[parameters('mlzTags')]"
                   },
                   "tags": {
                     "value": "[parameters('tags')]"
@@ -724,7 +733,7 @@
             "value": "[reference('customerManagedKeys').outputs.keyVaultResourceId.value]"
           },
           "mlzTags": {
-            "value": "[parameters('tier').mlzTags]"
+            "value": "[parameters('mlzTags')]"
           }
         },
         "template": {
@@ -953,7 +962,7 @@
             "value": "[parameters('location')]"
           },
           "mlzTags": {
-            "value": "[parameters('tier').mlzTags]"
+            "value": "[parameters('mlzTags')]"
           },
           "tags": {
             "value": "[parameters('tags')]"

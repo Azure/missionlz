@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.36.1.42791",
-      "templateHash": "2146687631758778481"
+      "templateHash": "136556041450187830"
     }
   },
   "parameters": {
@@ -128,6 +128,9 @@
     "marketplaceImageSKU": {
       "type": "string"
     },
+    "mlzTags": {
+      "type": "object"
+    },
     "msrdcwebrtcsvcInstaller": {
       "type": "string",
       "defaultValue": ""
@@ -229,7 +232,7 @@
             "value": "[parameters('location')]"
           },
           "mlzTags": {
-            "value": "[parameters('tier').mlzTags]"
+            "value": "[parameters('mlzTags')]"
           },
           "subnetResourceId": {
             "value": "[parameters('tier').subnetResourceId]"
@@ -437,7 +440,7 @@
             "value": "[parameters('marketplaceImageSKU')]"
           },
           "mlzTags": {
-            "value": "[parameters('tier').mlzTags]"
+            "value": "[parameters('mlzTags')]"
           },
           "computeGalleryImageResourceId": {
             "value": "[parameters('computeGalleryImageResourceId')]"
@@ -681,7 +684,7 @@
             "value": "[parameters('location')]"
           },
           "mlzTags": {
-            "value": "[parameters('tier').mlzTags]"
+            "value": "[parameters('mlzTags')]"
           },
           "msrdcwebrtcsvcInstaller": {
             "value": "[parameters('msrdcwebrtcsvcInstaller')]"
@@ -1127,7 +1130,7 @@
             "value": "[parameters('location')]"
           },
           "mlzTags": {
-            "value": "[parameters('tier').mlzTags]"
+            "value": "[parameters('mlzTags')]"
           },
           "tags": {
             "value": "[parameters('tags')]"
@@ -1228,7 +1231,7 @@
             "value": "[parameters('location')]"
           },
           "mlzTags": {
-            "value": "[parameters('tier').mlzTags]"
+            "value": "[parameters('mlzTags')]"
           },
           "tags": {
             "value": "[parameters('tags')]"
@@ -1317,7 +1320,7 @@
             "value": "[parameters('location')]"
           },
           "mlzTags": {
-            "value": "[parameters('tier').mlzTags]"
+            "value": "[parameters('mlzTags')]"
           },
           "tags": {
             "value": "[parameters('tags')]"
@@ -1414,7 +1417,7 @@
             "value": "[parameters('location')]"
           },
           "mlzTags": {
-            "value": "[parameters('tier').mlzTags]"
+            "value": "[parameters('mlzTags')]"
           },
           "tags": {
             "value": "[parameters('tags')]"
@@ -1494,7 +1497,7 @@
             "value": "[parameters('location')]"
           },
           "mlzTags": {
-            "value": "[parameters('tier').mlzTags]"
+            "value": "[parameters('mlzTags')]"
           },
           "tags": {
             "value": "[parameters('tags')]"
@@ -1616,7 +1619,7 @@
             "value": "[parameters('marketplaceImagePublisher')]"
           },
           "mlzTags": {
-            "value": "[parameters('tier').mlzTags]"
+            "value": "[parameters('mlzTags')]"
           },
           "replicaCount": {
             "value": "[parameters('replicaCount')]"
@@ -1771,7 +1774,7 @@
             "value": "[parameters('location')]"
           },
           "mlzTags": {
-            "value": "[parameters('tier').mlzTags]"
+            "value": "[parameters('mlzTags')]"
           },
           "tags": {
             "value": "[parameters('tags')]"

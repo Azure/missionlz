@@ -13,6 +13,7 @@ param locationControlPlane string
 param locationVirtualMachines string
 param logAnalyticsWorkspaceRetention int
 param logAnalyticsWorkspaceSku string
+param mlzTags object
 param privateDnsZoneResourceIdPrefix string
 param privateDnsZones array
 param privateLinkScopeResourceId string
@@ -28,7 +29,7 @@ var resourceGroupManagement = '${tier.namingConvention.resourceGroup}${delimiter
 resource resourceGroup_shared 'Microsoft.Resources/resourceGroups@2023-07-01' = {
   name: resourceGroupShared
   location: locationControlPlane
-  tags: union(tags[?'Microsoft.Resources/resourceGroups'] ?? {}, tier.mlzTags)
+  tags: union(tags[?'Microsoft.Resources/resourceGroups'] ?? {}, mlzTags)
 }
 
 // Monitoring Resources for AVD Insights
@@ -44,7 +45,7 @@ module monitoring 'monitoring.bicep' = if (enableApplicationInsights || enableAv
     location: locationVirtualMachines
     logAnalyticsWorkspaceRetention: logAnalyticsWorkspaceRetention
     logAnalyticsWorkspaceSku: logAnalyticsWorkspaceSku
-    mlzTags: tier.mlzTags
+    mlzTags: mlzTags
     names: tier.namingConvention
     privateLinkScopeResourceId: privateLinkScopeResourceId
     tags: tags
@@ -108,7 +109,7 @@ module functionApp 'function-app.bicep' = if (fslogixStorageService == 'AzureFil
     environmentAbbreviation: environmentAbbreviation
     hostPoolResourceId: hostPoolResourceId
     logAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
-    mlzTags: tier.mlzTags
+    mlzTags: mlzTags
     names: tier.namingConvention
     privateDnsZoneResourceIdPrefix: privateDnsZoneResourceIdPrefix
     privateDnsZones: privateDnsZones

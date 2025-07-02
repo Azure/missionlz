@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.36.1.42791",
-      "templateHash": "750999103660376310"
+      "templateHash": "16135745976734388603"
     }
   },
   "parameters": {
@@ -123,7 +123,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.36.1.42791",
-              "templateHash": "11295722573944374616"
+              "templateHash": "5396401772156151607"
             }
           },
           "parameters": {
@@ -4417,14 +4417,17 @@
                   "logAnalyticsWorkspaceSkuName": {
                     "value": "[parameters('logAnalyticsWorkspaceSkuName')]"
                   },
-                  "tier": {
-                    "value": "[filter(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tiers.value, lambda('tier', equals(lambdaVariables('tier').name, 'operations')))[0]]"
-                  },
                   "privateDnsZoneResourceIds": {
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.privateDnsZoneResourceIds.value]"
                   },
+                  "mlzTags": {
+                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
+                  },
                   "tags": {
                     "value": "[parameters('tags')]"
+                  },
+                  "tier": {
+                    "value": "[filter(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tiers.value, lambda('tier', equals(lambdaVariables('tier').name, 'operations')))[0]]"
                   }
                 },
                 "template": {
@@ -4434,7 +4437,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.36.1.42791",
-                      "templateHash": "13650576878855148084"
+                      "templateHash": "7390768914307294578"
                     }
                   },
                   "parameters": {
@@ -4455,6 +4458,9 @@
                     },
                     "logAnalyticsWorkspaceSkuName": {
                       "type": "string"
+                    },
+                    "mlzTags": {
+                      "type": "object"
                     },
                     "privateDnsZoneResourceIds": {
                       "type": "object"
@@ -4486,7 +4492,7 @@
                             "value": "[parameters('location')]"
                           },
                           "mlzTags": {
-                            "value": "[parameters('tier').mlzTags]"
+                            "value": "[parameters('mlzTags')]"
                           },
                           "name": {
                             "value": "[parameters('tier').namingConvention.logAnalyticsWorkspace]"
@@ -4745,7 +4751,7 @@
                             "value": "[parameters('location')]"
                           },
                           "mlzTags": {
-                            "value": "[parameters('tier').mlzTags]"
+                            "value": "[parameters('mlzTags')]"
                           },
                           "name": {
                             "value": "[parameters('tier').namingConvention.privateLinkScopePrivateEndpoint]"
@@ -4983,7 +4989,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.36.1.42791",
-                      "templateHash": "7793014130789881085"
+                      "templateHash": "10405788259247665394"
                     }
                   },
                   "parameters": {
@@ -5171,6 +5177,9 @@
                           "location": {
                             "value": "[parameters('location')]"
                           },
+                          "mlzTags": {
+                            "value": "[parameters('mlzTags')]"
+                          },
                           "resourceAbbreviations": {
                             "value": "[parameters('resourceAbbreviations')]"
                           },
@@ -5188,7 +5197,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.36.1.42791",
-                              "templateHash": "15835841359092988258"
+                              "templateHash": "15954686574831080109"
                             }
                           },
                           "parameters": {
@@ -5209,6 +5218,9 @@
                             },
                             "location": {
                               "type": "string"
+                            },
+                            "mlzTags": {
+                              "type": "object"
                             },
                             "resourceAbbreviations": {
                               "type": "object"
@@ -5250,7 +5262,7 @@
                                     "value": "[parameters('location')]"
                                   },
                                   "mlzTags": {
-                                    "value": "[parameters('tier').mlzTags]"
+                                    "value": "[parameters('mlzTags')]"
                                   },
                                   "resourceAbbreviations": {
                                     "value": "[parameters('resourceAbbreviations')]"
@@ -5480,7 +5492,7 @@
                                     "value": "[parameters('location')]"
                                   },
                                   "mlzTags": {
-                                    "value": "[parameters('tier').mlzTags]"
+                                    "value": "[parameters('mlzTags')]"
                                   },
                                   "tags": {
                                     "value": "[parameters('tags')]"
@@ -5626,7 +5638,7 @@
                             "value": "[parameters('location')]"
                           },
                           "mlzTags": {
-                            "value": "[parameters('tier').mlzTags]"
+                            "value": "[parameters('mlzTags')]"
                           },
                           "tags": {
                             "value": "[parameters('tags')]"
@@ -5796,7 +5808,7 @@
                             "value": "[parameters('location')]"
                           },
                           "mlzTags": {
-                            "value": "[parameters('tier').mlzTags]"
+                            "value": "[parameters('mlzTags')]"
                           },
                           "tags": {
                             "value": "[parameters('tags')]"
@@ -5918,7 +5930,7 @@
                             "value": "[parameters('location')]"
                           },
                           "mlzTags": {
-                            "value": "[parameters('tier').mlzTags]"
+                            "value": "[parameters('mlzTags')]"
                           },
                           "privateIPAddressOffset": "[if(equals(variables('hubSubscriptionId'), variables('identitySubscriptionId')), createObject('value', 3), createObject('value', 4))]",
                           "safeModeAdminPassword": {
@@ -6781,6 +6793,9 @@
                   "location": {
                     "value": "[parameters('location')]"
                   },
+                  "mlzTags": {
+                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
+                  },
                   "resourceAbbreviations": {
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceAbbreviations.value]"
                   },
@@ -6822,7 +6837,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.36.1.42791",
-                      "templateHash": "5306180183914183104"
+                      "templateHash": "17873057930719536525"
                     }
                   },
                   "parameters": {
@@ -6897,6 +6912,9 @@
                     "location": {
                       "type": "string"
                     },
+                    "mlzTags": {
+                      "type": "object"
+                    },
                     "resourceAbbreviations": {
                       "type": "object"
                     },
@@ -6949,7 +6967,7 @@
                         "mode": "Incremental",
                         "parameters": {
                           "mlzTags": {
-                            "value": "[parameters('tier').mlzTags]"
+                            "value": "[parameters('mlzTags')]"
                           },
                           "name": {
                             "value": "[variables('jbResourceGroupName')]"
@@ -7046,6 +7064,9 @@
                           "location": {
                             "value": "[parameters('location')]"
                           },
+                          "mlzTags": {
+                            "value": "[parameters('mlzTags')]"
+                          },
                           "resourceAbbreviations": {
                             "value": "[parameters('resourceAbbreviations')]"
                           },
@@ -7066,7 +7087,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.36.1.42791",
-                              "templateHash": "15835841359092988258"
+                              "templateHash": "15954686574831080109"
                             }
                           },
                           "parameters": {
@@ -7087,6 +7108,9 @@
                             },
                             "location": {
                               "type": "string"
+                            },
+                            "mlzTags": {
+                              "type": "object"
                             },
                             "resourceAbbreviations": {
                               "type": "object"
@@ -7128,7 +7152,7 @@
                                     "value": "[parameters('location')]"
                                   },
                                   "mlzTags": {
-                                    "value": "[parameters('tier').mlzTags]"
+                                    "value": "[parameters('mlzTags')]"
                                   },
                                   "resourceAbbreviations": {
                                     "value": "[parameters('resourceAbbreviations')]"
@@ -7358,7 +7382,7 @@
                                     "value": "[parameters('location')]"
                                   },
                                   "mlzTags": {
-                                    "value": "[parameters('tier').mlzTags]"
+                                    "value": "[parameters('mlzTags')]"
                                   },
                                   "tags": {
                                     "value": "[parameters('tags')]"
@@ -7505,7 +7529,7 @@
                             "value": "[parameters('location')]"
                           },
                           "mlzTags": {
-                            "value": "[parameters('tier').mlzTags]"
+                            "value": "[parameters('mlzTags')]"
                           },
                           "tags": {
                             "value": "[parameters('tags')]"
@@ -7675,7 +7699,7 @@
                             "value": "[parameters('location')]"
                           },
                           "mlzTags": {
-                            "value": "[parameters('tier').mlzTags]"
+                            "value": "[parameters('mlzTags')]"
                           },
                           "name": {
                             "value": "[parameters('tier').namingConvention.bastionHost]"
@@ -7823,7 +7847,7 @@
                             "value": "[parameters('location')]"
                           },
                           "mlzTags": {
-                            "value": "[parameters('tier').mlzTags]"
+                            "value": "[parameters('mlzTags')]"
                           },
                           "networkInterfaceName": {
                             "value": "[format('{0}{1}lra', parameters('tier').namingConvention.virtualMachineNetworkInterface, parameters('delimiter'))]"
@@ -8317,7 +8341,7 @@
                             "value": "[parameters('location')]"
                           },
                           "mlzTags": {
-                            "value": "[parameters('tier').mlzTags]"
+                            "value": "[parameters('mlzTags')]"
                           },
                           "networkInterfaceName": {
                             "value": "[format('{0}{1}wra', parameters('tier').namingConvention.virtualMachineNetworkInterface, parameters('delimiter'))]"
@@ -8807,6 +8831,9 @@
                   "logStorageSkuName": {
                     "value": "[parameters('logStorageSkuName')]"
                   },
+                  "mlzTags": {
+                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
+                  },
                   "privateDnsZoneResourceIds": {
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.privateDnsZoneResourceIds.value]"
                   },
@@ -8827,7 +8854,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.36.1.42791",
-                      "templateHash": "17105651896007755471"
+                      "templateHash": "14323273810885575204"
                     }
                   },
                   "parameters": {
@@ -8845,6 +8872,9 @@
                     },
                     "logStorageSkuName": {
                       "type": "string"
+                    },
+                    "mlzTags": {
+                      "type": "object"
                     },
                     "privateDnsZoneResourceIds": {
                       "type": "object"
@@ -8889,6 +8919,9 @@
                           "location": {
                             "value": "[parameters('location')]"
                           },
+                          "mlzTags": {
+                            "value": "[parameters('mlzTags')]"
+                          },
                           "resourceAbbreviations": {
                             "value": "[parameters('resourceAbbreviations')]"
                           },
@@ -8906,7 +8939,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.36.1.42791",
-                              "templateHash": "15835841359092988258"
+                              "templateHash": "15954686574831080109"
                             }
                           },
                           "parameters": {
@@ -8927,6 +8960,9 @@
                             },
                             "location": {
                               "type": "string"
+                            },
+                            "mlzTags": {
+                              "type": "object"
                             },
                             "resourceAbbreviations": {
                               "type": "object"
@@ -8968,7 +9004,7 @@
                                     "value": "[parameters('location')]"
                                   },
                                   "mlzTags": {
-                                    "value": "[parameters('tier').mlzTags]"
+                                    "value": "[parameters('mlzTags')]"
                                   },
                                   "resourceAbbreviations": {
                                     "value": "[parameters('resourceAbbreviations')]"
@@ -9198,7 +9234,7 @@
                                     "value": "[parameters('location')]"
                                   },
                                   "mlzTags": {
-                                    "value": "[parameters('tier').mlzTags]"
+                                    "value": "[parameters('mlzTags')]"
                                   },
                                   "tags": {
                                     "value": "[parameters('tags')]"
@@ -9344,7 +9380,7 @@
                             "value": "[parameters('location')]"
                           },
                           "mlzTags": {
-                            "value": "[parameters('tiers')[copyIndex()].mlzTags]"
+                            "value": "[parameters('mlzTags')]"
                           },
                           "queuesPrivateDnsZoneResourceId": {
                             "value": "[parameters('privateDnsZoneResourceIds').queue]"
@@ -11530,7 +11566,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.36.1.42791",
-              "templateHash": "13638301676526208816"
+              "templateHash": "18309080235956400725"
             }
           },
           "parameters": {
@@ -12387,7 +12423,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.36.1.42791",
-                      "templateHash": "11045061134358462743"
+                      "templateHash": "12964865139242906348"
                     }
                   },
                   "parameters": {
@@ -14533,7 +14569,7 @@
                             "value": "[parameters('logStorageSkuName')]"
                           },
                           "mlzTags": {
-                            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}{2}', parameters('workloadShortName'), variables('deploymentIndex'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tier.value.mlzTags]"
+                            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}{2}', parameters('workloadShortName'), variables('deploymentIndex'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
                           },
                           "queuesPrivateDnsZoneResourceId": {
                             "value": "[resourceId(variables('hubSubscriptionId'), variables('hubResourceGroupName'), 'Microsoft.Network/privateDnsZones', format('privatelink.queue.{0}', environment().suffixes.storage))]"
@@ -14579,7 +14615,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.36.1.42791",
-                              "templateHash": "8953951796609128996"
+                              "templateHash": "5148052245688389581"
                             }
                           },
                           "parameters": {
@@ -14671,6 +14707,9 @@
                                   "location": {
                                     "value": "[parameters('location')]"
                                   },
+                                  "mlzTags": {
+                                    "value": "[parameters('mlzTags')]"
+                                  },
                                   "resourceAbbreviations": {
                                     "value": "[parameters('resourceAbbreviations')]"
                                   },
@@ -14688,7 +14727,7 @@
                                     "_generator": {
                                       "name": "bicep",
                                       "version": "0.36.1.42791",
-                                      "templateHash": "15835841359092988258"
+                                      "templateHash": "15954686574831080109"
                                     }
                                   },
                                   "parameters": {
@@ -14709,6 +14748,9 @@
                                     },
                                     "location": {
                                       "type": "string"
+                                    },
+                                    "mlzTags": {
+                                      "type": "object"
                                     },
                                     "resourceAbbreviations": {
                                       "type": "object"
@@ -14750,7 +14792,7 @@
                                             "value": "[parameters('location')]"
                                           },
                                           "mlzTags": {
-                                            "value": "[parameters('tier').mlzTags]"
+                                            "value": "[parameters('mlzTags')]"
                                           },
                                           "resourceAbbreviations": {
                                             "value": "[parameters('resourceAbbreviations')]"
@@ -14980,7 +15022,7 @@
                                             "value": "[parameters('location')]"
                                           },
                                           "mlzTags": {
-                                            "value": "[parameters('tier').mlzTags]"
+                                            "value": "[parameters('mlzTags')]"
                                           },
                                           "tags": {
                                             "value": "[parameters('tags')]"
@@ -16773,6 +16815,10 @@
                     "locationProperties": {
                       "type": "object",
                       "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}{2}', parameters('workloadShortName'), variables('deploymentIndex'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.locationProperties.value]"
+                    },
+                    "mlzTags": {
+                      "type": "object",
+                      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}{2}', parameters('workloadShortName'), variables('deploymentIndex'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
                     },
                     "privateDnsZones": {
                       "type": "array",
@@ -16903,7 +16949,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.36.1.42791",
-                      "templateHash": "11045061134358462743"
+                      "templateHash": "12964865139242906348"
                     }
                   },
                   "parameters": {
@@ -19049,7 +19095,7 @@
                             "value": "[parameters('logStorageSkuName')]"
                           },
                           "mlzTags": {
-                            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}{2}', parameters('workloadShortName'), variables('deploymentIndex'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tier.value.mlzTags]"
+                            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}{2}', parameters('workloadShortName'), variables('deploymentIndex'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
                           },
                           "queuesPrivateDnsZoneResourceId": {
                             "value": "[resourceId(variables('hubSubscriptionId'), variables('hubResourceGroupName'), 'Microsoft.Network/privateDnsZones', format('privatelink.queue.{0}', environment().suffixes.storage))]"
@@ -19095,7 +19141,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.36.1.42791",
-                              "templateHash": "8953951796609128996"
+                              "templateHash": "5148052245688389581"
                             }
                           },
                           "parameters": {
@@ -19187,6 +19233,9 @@
                                   "location": {
                                     "value": "[parameters('location')]"
                                   },
+                                  "mlzTags": {
+                                    "value": "[parameters('mlzTags')]"
+                                  },
                                   "resourceAbbreviations": {
                                     "value": "[parameters('resourceAbbreviations')]"
                                   },
@@ -19204,7 +19253,7 @@
                                     "_generator": {
                                       "name": "bicep",
                                       "version": "0.36.1.42791",
-                                      "templateHash": "15835841359092988258"
+                                      "templateHash": "15954686574831080109"
                                     }
                                   },
                                   "parameters": {
@@ -19225,6 +19274,9 @@
                                     },
                                     "location": {
                                       "type": "string"
+                                    },
+                                    "mlzTags": {
+                                      "type": "object"
                                     },
                                     "resourceAbbreviations": {
                                       "type": "object"
@@ -19266,7 +19318,7 @@
                                             "value": "[parameters('location')]"
                                           },
                                           "mlzTags": {
-                                            "value": "[parameters('tier').mlzTags]"
+                                            "value": "[parameters('mlzTags')]"
                                           },
                                           "resourceAbbreviations": {
                                             "value": "[parameters('resourceAbbreviations')]"
@@ -19496,7 +19548,7 @@
                                             "value": "[parameters('location')]"
                                           },
                                           "mlzTags": {
-                                            "value": "[parameters('tier').mlzTags]"
+                                            "value": "[parameters('mlzTags')]"
                                           },
                                           "tags": {
                                             "value": "[parameters('tags')]"
@@ -21290,6 +21342,10 @@
                       "type": "object",
                       "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}{2}', parameters('workloadShortName'), variables('deploymentIndex'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.locationProperties.value]"
                     },
+                    "mlzTags": {
+                      "type": "object",
+                      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}{2}', parameters('workloadShortName'), variables('deploymentIndex'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
+                    },
                     "privateDnsZones": {
                       "type": "array",
                       "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}{2}', parameters('workloadShortName'), variables('deploymentIndex'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.privateDnsZones.value]"
@@ -21350,6 +21406,9 @@
                   "locationVirtualMachines": {
                     "value": "[parameters('locationVirtualMachines')]"
                   },
+                  "mlzTags": {
+                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
+                  },
                   "organizationalUnitPath": {
                     "value": "[parameters('organizationalUnitPath')]"
                   },
@@ -21382,7 +21441,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.36.1.42791",
-                      "templateHash": "16960489837160379548"
+                      "templateHash": "17518141489120104288"
                     }
                   },
                   "parameters": {
@@ -21415,6 +21474,9 @@
                     },
                     "locationVirtualMachines": {
                       "type": "string"
+                    },
+                    "mlzTags": {
+                      "type": "object"
                     },
                     "organizationalUnitPath": {
                       "type": "string"
@@ -21451,7 +21513,7 @@
                       "apiVersion": "2023-07-01",
                       "name": "[variables('resourceGroupManagement')]",
                       "location": "[parameters('locationControlPlane')]",
-                      "tags": "[union(createObject('cm-resource-parent', variables('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Resources/resourceGroups'), createObject()), parameters('tier').mlzTags)]"
+                      "tags": "[union(createObject('cm-resource-parent', variables('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Resources/resourceGroups'), createObject()), parameters('mlzTags'))]"
                     },
                     {
                       "type": "Microsoft.Authorization/roleAssignments",
@@ -21480,7 +21542,7 @@
                             "value": "[format('{0}{1}deployment', parameters('tier').namingConvention.userAssignedIdentity, parameters('delimiter'))]"
                           },
                           "tags": {
-                            "value": "[union(createObject('cm-resource-parent', variables('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.ManagedIdentity/userAssignedIdentities'), createObject()), parameters('tier').mlzTags)]"
+                            "value": "[union(createObject('cm-resource-parent', variables('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.ManagedIdentity/userAssignedIdentities'), createObject()), parameters('mlzTags'))]"
                           }
                         },
                         "template": {
@@ -21615,7 +21677,7 @@
                             "value": "[parameters('locationVirtualMachines')]"
                           },
                           "mlzTags": {
-                            "value": "[parameters('tier').mlzTags]"
+                            "value": "[parameters('mlzTags')]"
                           },
                           "names": {
                             "value": "[parameters('tier').namingConvention]"
@@ -21915,6 +21977,9 @@
                           "location": {
                             "value": "[parameters('locationVirtualMachines')]"
                           },
+                          "mlzTags": {
+                            "value": "[parameters('mlzTags')]"
+                          },
                           "resourceAbbreviations": {
                             "value": "[parameters('resourceAbbreviations')]"
                           },
@@ -21932,7 +21997,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.36.1.42791",
-                              "templateHash": "15835841359092988258"
+                              "templateHash": "15954686574831080109"
                             }
                           },
                           "parameters": {
@@ -21953,6 +22018,9 @@
                             },
                             "location": {
                               "type": "string"
+                            },
+                            "mlzTags": {
+                              "type": "object"
                             },
                             "resourceAbbreviations": {
                               "type": "object"
@@ -21994,7 +22062,7 @@
                                     "value": "[parameters('location')]"
                                   },
                                   "mlzTags": {
-                                    "value": "[parameters('tier').mlzTags]"
+                                    "value": "[parameters('mlzTags')]"
                                   },
                                   "resourceAbbreviations": {
                                     "value": "[parameters('resourceAbbreviations')]"
@@ -22224,7 +22292,7 @@
                                     "value": "[parameters('location')]"
                                   },
                                   "mlzTags": {
-                                    "value": "[parameters('tier').mlzTags]"
+                                    "value": "[parameters('mlzTags')]"
                                   },
                                   "tags": {
                                     "value": "[parameters('tags')]"
@@ -22366,7 +22434,7 @@
                             "value": "[parameters('locationVirtualMachines')]"
                           },
                           "mlzTags": {
-                            "value": "[parameters('tier').mlzTags]"
+                            "value": "[parameters('mlzTags')]"
                           },
                           "tags": {
                             "value": "[parameters('tags')]"
@@ -22559,7 +22627,7 @@
                             "value": "[parameters('locationVirtualMachines')]"
                           },
                           "mlzTags": {
-                            "value": "[parameters('tier').mlzTags]"
+                            "value": "[parameters('mlzTags')]"
                           },
                           "networkInterfaceName": {
                             "value": "[format('{0}{1}mgt', parameters('tier').namingConvention.virtualMachineNetworkInterface, parameters('delimiter'))]"
@@ -22985,6 +23053,9 @@
                   "logAnalyticsWorkspaceSku": {
                     "value": "[parameters('logAnalyticsWorkspaceSku')]"
                   },
+                  "mlzTags": {
+                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-shared-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
+                  },
                   "privateDnsZoneResourceIdPrefix": {
                     "value": "[variables('privateDnsZoneResourceIdPrefix')]"
                   },
@@ -23008,7 +23079,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.36.1.42791",
-                      "templateHash": "15490179888882088198"
+                      "templateHash": "16124213608092764494"
                     }
                   },
                   "parameters": {
@@ -23051,6 +23122,9 @@
                     "logAnalyticsWorkspaceSku": {
                       "type": "string"
                     },
+                    "mlzTags": {
+                      "type": "object"
+                    },
                     "privateDnsZoneResourceIdPrefix": {
                       "type": "string"
                     },
@@ -23079,7 +23153,7 @@
                       "apiVersion": "2023-07-01",
                       "name": "[variables('resourceGroupShared')]",
                       "location": "[parameters('locationControlPlane')]",
-                      "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Resources/resourceGroups'), createObject()), parameters('tier').mlzTags)]"
+                      "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Resources/resourceGroups'), createObject()), parameters('mlzTags'))]"
                     },
                     {
                       "condition": "[or(parameters('enableApplicationInsights'), parameters('enableAvdInsights'))]",
@@ -23115,7 +23189,7 @@
                             "value": "[parameters('logAnalyticsWorkspaceSku')]"
                           },
                           "mlzTags": {
-                            "value": "[parameters('tier').mlzTags]"
+                            "value": "[parameters('mlzTags')]"
                           },
                           "names": {
                             "value": "[parameters('tier').namingConvention]"
@@ -23636,7 +23710,7 @@
                             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupShared')), 'Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.logAnalyticsWorkspaceResourceId.value]"
                           },
                           "mlzTags": {
-                            "value": "[parameters('tier').mlzTags]"
+                            "value": "[parameters('mlzTags')]"
                           },
                           "names": {
                             "value": "[parameters('tier').namingConvention]"
@@ -24543,6 +24617,9 @@
                   "maxSessionLimit": {
                     "value": "[mul(parameters('usersPerCore'), parameters('virtualMachineVirtualCpuCount'))]"
                   },
+                  "mlzTags": {
+                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
+                  },
                   "resourceGroupManagement": {
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceGroupName.value]"
                   },
@@ -24581,7 +24658,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.36.1.42791",
-                      "templateHash": "8673647197221096050"
+                      "templateHash": "88969114537282756"
                     }
                   },
                   "parameters": {
@@ -24653,6 +24730,9 @@
                     },
                     "maxSessionLimit": {
                       "type": "int"
+                    },
+                    "mlzTags": {
+                      "type": "object"
                     },
                     "resourceGroupManagement": {
                       "type": "string"
@@ -24767,7 +24847,7 @@
                             "value": "[parameters('maxSessionLimit')]"
                           },
                           "mlzTags": {
-                            "value": "[variables('stampTier').mlzTags]"
+                            "value": "[parameters('mlzTags')]"
                           },
                           "sessionHostNamePrefix": {
                             "value": "[variables('stampTier').namingConvention.virtualMachine]"
@@ -25017,7 +25097,7 @@
                             "value": "[parameters('locationVirtualMachines')]"
                           },
                           "mlzTags": {
-                            "value": "[variables('stampTier').mlzTags]"
+                            "value": "[parameters('mlzTags')]"
                           },
                           "securityPrincipalObjectIds": {
                             "value": "[parameters('securityPrincipalObjectIds')]"
@@ -25281,7 +25361,7 @@
                             "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
                           },
                           "mlzTags": {
-                            "value": "[variables('sharedTier').mlzTags]"
+                            "value": "[parameters('mlzTags')]"
                           },
                           "resourceGroupManagement": {
                             "value": "[parameters('resourceGroupManagement')]"
@@ -25638,6 +25718,9 @@
                   "locationControlPlane": {
                     "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01', 'full').location]"
                   },
+                  "mlzTags": {
+                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-shared-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
+                  },
                   "sharedServicesSubnetResourceId": {
                     "value": "[parameters('sharedServicesSubnetResourceId')]"
                   },
@@ -25655,7 +25738,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.36.1.42791",
-                      "templateHash": "16897424695386814982"
+                      "templateHash": "16948151502759378621"
                     }
                   },
                   "parameters": {
@@ -25673,6 +25756,9 @@
                     },
                     "locationControlPlane": {
                       "type": "string"
+                    },
+                    "mlzTags": {
+                      "type": "object"
                     },
                     "sharedServicesSubnetResourceId": {
                       "type": "string"
@@ -25693,7 +25779,7 @@
                       "apiVersion": "2023-07-01",
                       "name": "[variables('resourceGroupWorkspaceGlobal')]",
                       "location": "[parameters('locationControlPlane')]",
-                      "tags": "[parameters('tier').mlzTags]"
+                      "tags": "[parameters('mlzTags')]"
                     },
                     {
                       "type": "Microsoft.Resources/deployments",
@@ -25716,7 +25802,7 @@
                             "value": "[parameters('sharedServicesSubnetResourceId')]"
                           },
                           "tags": {
-                            "value": "[parameters('tier').mlzTags]"
+                            "value": "[parameters('mlzTags')]"
                           },
                           "workspaceGlobalName": {
                             "value": "[format('{0}{1}global', replace(replace(parameters('tier').namingConvention.workspace, parameters('identifier'), parameters('identifierHub')), parameters('tier').name, 'sharedServices'), parameters('delimiter'))]"
@@ -25905,6 +25991,9 @@
                   "managementVirtualMachineName": {
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.virtualMachineName.value]"
                   },
+                  "mlzTags": {
+                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
+                  },
                   "netbios": {
                     "value": "[variables('netbios')]"
                   },
@@ -25946,7 +26035,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.36.1.42791",
-                      "templateHash": "4958925514892160610"
+                      "templateHash": "2881907969075666852"
                     }
                   },
                   "parameters": {
@@ -26013,6 +26102,9 @@
                     "managementVirtualMachineName": {
                       "type": "string"
                     },
+                    "mlzTags": {
+                      "type": "object"
+                    },
                     "netbios": {
                       "type": "string"
                     },
@@ -26053,7 +26145,7 @@
                       "apiVersion": "2023-07-01",
                       "name": "[format('{0}{1}fslogix', parameters('tier').namingConvention.resourceGroup, parameters('delimiter'))]",
                       "location": "[parameters('location')]",
-                      "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Resources/resourceGroups'), createObject()), parameters('tier').mlzTags)]"
+                      "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Resources/resourceGroups'), createObject()), parameters('mlzTags'))]"
                     },
                     {
                       "type": "Microsoft.Resources/deployments",
@@ -26216,7 +26308,7 @@
                             "value": "[parameters('location')]"
                           },
                           "mlzTags": {
-                            "value": "[parameters('tier').mlzTags]"
+                            "value": "[parameters('mlzTags')]"
                           },
                           "netAppAccountNamePrefix": {
                             "value": "[parameters('tier').namingConvention.netAppAccount]"
@@ -26458,7 +26550,7 @@
                             "value": "[parameters('location')]"
                           },
                           "mlzTags": {
-                            "value": "[parameters('tier').mlzTags]"
+                            "value": "[parameters('mlzTags')]"
                           },
                           "names": {
                             "value": "[parameters('tier').namingConvention]"
@@ -27249,6 +27341,9 @@
                   "maxResourcesPerTemplateDeployment": {
                     "value": "[variables('maxResourcesPerTemplateDeployment')]"
                   },
+                  "mlzTags": {
+                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
+                  },
                   "netAppFileShares": "[if(variables('deployFslogix'), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-fslogix-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.netAppShares.value), createObject('value', createArray('None')))]",
                   "organizationalUnitPath": {
                     "value": "[parameters('organizationalUnitPath')]"
@@ -27316,7 +27411,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.36.1.42791",
-                      "templateHash": "18158399489002102855"
+                      "templateHash": "5355507881242779779"
                     }
                   },
                   "parameters": {
@@ -27437,6 +27532,9 @@
                     "maxResourcesPerTemplateDeployment": {
                       "type": "int"
                     },
+                    "mlzTags": {
+                      "type": "object"
+                    },
                     "netAppFileShares": {
                       "type": "array"
                     },
@@ -27504,7 +27602,7 @@
                   "variables": {
                     "$fxv#0": "Param(\r\n    [string]$HostPoolResourceId,\r\n    [string]$ResourceGroupName,\r\n    [string]$ResourceManagerUri,\r\n    [string]$ScalingPlanName,\r\n    [string]$SubscriptionId,\r\n    [string]$UserAssignedIdentityClientId\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n$WarningPreference = 'SilentlyContinue'\r\n\r\n# Fix the resource manager URI since only AzureCloud contains a trailing slash\r\n$ResourceManagerUriFixed = if($ResourceManagerUri[-1] -eq '/'){$ResourceManagerUri} else {$ResourceManagerUri + '/'}\r\n\r\n# Get an access token for Azure resources\r\n$AzureManagementAccessToken = (Invoke-RestMethod `\r\n    -Headers @{Metadata=\"true\"} `\r\n    -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n# Set header for Azure Management API\r\n$AzureManagementHeader = @{\r\n    'Content-Type'='application/json'\r\n    'Authorization'='Bearer ' + $AzureManagementAccessToken\r\n}\r\n\r\n# Check if the scaling plan exists: https://learn.microsoft.com/rest/api/desktopvirtualization/scaling-plans/list-by-resource-group\r\n$ScalingPlanExists = (Invoke-RestMethod `\r\n    -Headers $AzureManagementHeader `\r\n    -Method 'GET' `\r\n    -Uri $($ResourceManagerUriFixed + 'subscriptions/' + $SubscriptionId + '/resourceGroups/' + $ResourceGroupName + '/providers/Microsoft.DesktopVirtualization/scalingPlans?api-version=2023-09-05')).value | Where-Object {$_.name -eq $ScalingPlanName}\r\n\r\n# Disable autoscale for the host pool: https://learn.microsoft.com/rest/api/desktopvirtualization/scaling-plans/update\r\nif ($ScalingPlanExists)\r\n{\r\n    Invoke-RestMethod `\r\n        -Body (@{properties = @{hostPoolReferences = @(@{hostPoolArmPath = $HostPoolResourceId; scalingPlanEnabled = $false})}} | ConvertTo-Json -Depth 3) `\r\n        -Headers $AzureManagementHeader `\r\n        -Method 'PATCH' `\r\n        -Uri $($ResourceManagerUriFixed + 'subscriptions/' + $SubscriptionId + '/resourceGroups/' + $ResourceGroupName + '/providers/Microsoft.DesktopVirtualization/scalingPlans/' + $ScalingPlanName + '?api-version=2023-09-05') | Out-Null\r\n}",
                     "availabilitySetNamePrefix": "[parameters('tier').namingConvention.availabilitySet]",
-                    "tagsVirtualMachines": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/virtualMachines'), createObject()), parameters('tier').mlzTags)]",
+                    "tagsVirtualMachines": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/virtualMachines'), createObject()), parameters('mlzTags'))]",
                     "uniqueToken": "[uniqueString(parameters('identifier'), parameters('environmentAbbreviation'), subscription().subscriptionId)]"
                   },
                   "resources": [
@@ -27513,7 +27611,7 @@
                       "apiVersion": "2023-07-01",
                       "name": "[format('{0}{1}hosts', parameters('tier').namingConvention.resourceGroup, parameters('delimiter'))]",
                       "location": "[parameters('location')]",
-                      "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Resources/resourceGroups'), createObject()), parameters('tier').mlzTags)]"
+                      "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Resources/resourceGroups'), createObject()), parameters('mlzTags'))]"
                     },
                     {
                       "type": "Microsoft.Resources/deployments",
@@ -27619,7 +27717,7 @@
                             "value": "[parameters('location')]"
                           },
                           "tagsAvailabilitySets": {
-                            "value": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/availabilitySets'), createObject()), parameters('tier').mlzTags)]"
+                            "value": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/availabilitySets'), createObject()), parameters('mlzTags'))]"
                           }
                         },
                         "template": {
@@ -27998,7 +28096,7 @@
                             "value": "[parameters('tier').subnets[0].id]"
                           },
                           "tagsNetworkInterfaces": {
-                            "value": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Network/networkInterfaces'), createObject()), parameters('tier').mlzTags)]"
+                            "value": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Network/networkInterfaces'), createObject()), parameters('mlzTags'))]"
                           },
                           "tagsVirtualMachines": {
                             "value": "[variables('tagsVirtualMachines')]"
@@ -28912,7 +29010,7 @@
                             "value": "[parameters('tier').namingConvention.scalingPlan]"
                           },
                           "tags": {
-                            "value": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.DesktopVirtualization/scalingPlans'), createObject()), parameters('tier').mlzTags)]"
+                            "value": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.DesktopVirtualization/scalingPlans'), createObject()), parameters('mlzTags'))]"
                           },
                           "timeZone": {
                             "value": "[parameters('locationProperties').timeZone]"

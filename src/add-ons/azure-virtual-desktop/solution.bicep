@@ -721,6 +721,7 @@ module management 'modules/management/management.bicep' = {
     environmentAbbreviation: environmentAbbreviation
     locationControlPlane: virtualNetwork_hub.location
     locationVirtualMachines: locationVirtualMachines
+    mlzTags: tier3_stamp.outputs.mlzTags
     organizationalUnitPath: organizationalUnitPath
     privateDnsZoneResourceIdPrefix: privateDnsZoneResourceIdPrefix
     privateDnsZones: tier3_stamp.outputs.privateDnsZones
@@ -751,6 +752,7 @@ module shared 'modules/shared/shared.bicep' = {
     locationVirtualMachines: locationVirtualMachines
     logAnalyticsWorkspaceRetention: logAnalyticsWorkspaceRetention
     logAnalyticsWorkspaceSku: logAnalyticsWorkspaceSku
+    mlzTags: tier3_shared.outputs.mlzTags
     privateDnsZoneResourceIdPrefix: privateDnsZoneResourceIdPrefix
     privateDnsZones: tier3_stamp.outputs.privateDnsZones
     privateLinkScopeResourceId: privateLinkScopeResourceId
@@ -785,6 +787,7 @@ module controlPlane 'modules/control-plane/control-plane.bicep' = {
     logAnalyticsWorkspaceResourceId: shared.outputs.logAnalyticsWorkspaceResourceId
     managementVirtualMachineName: management.outputs.virtualMachineName
     maxSessionLimit: usersPerCore * virtualMachineVirtualCpuCount
+    mlzTags: tier3_stamp.outputs.mlzTags
     resourceGroupManagement: management.outputs.resourceGroupName
     resourceGroupShared: shared.outputs.resourceGroupName
     securityPrincipalObjectIds: map(securityPrincipals, item => item.objectId)
@@ -810,6 +813,7 @@ module sharedServices 'modules/shared-services/shared-services.bicep' = {
     identifier: identifier
     identifierHub: virtualNetwork_hub.tags.identifier
     locationControlPlane: virtualNetwork_hub.location
+    mlzTags: tier3_shared.outputs.mlzTags
     sharedServicesSubnetResourceId: sharedServicesSubnetResourceId
     tier: tier3_shared.outputs.tier
     workspaceGlobalPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3_stamp.outputs.privateDnsZones, name => startsWith(name, 'privatelink-global.wvd'))[0]}'
@@ -841,6 +845,7 @@ module fslogix 'modules/fslogix/fslogix.bicep' = if (deployFslogix) {
     keyVaultUri: management.outputs.keyVaultUri
     location: locationVirtualMachines
     managementVirtualMachineName: management.outputs.virtualMachineName
+    mlzTags: tier3_stamp.outputs.mlzTags
     netbios: netbios
     organizationalUnitPath: organizationalUnitPath
     resourceGroupManagement: management.outputs.resourceGroupName
@@ -898,6 +903,7 @@ module sessionHosts 'modules/session-hosts/session-hosts.bicep' = {
     logAnalyticsWorkspaceResourceId: shared.outputs.logAnalyticsWorkspaceResourceId
     managementVirtualMachineName: management.outputs.virtualMachineName
     maxResourcesPerTemplateDeployment: maxResourcesPerTemplateDeployment
+    mlzTags: tier3_stamp.outputs.mlzTags
     netAppFileShares: deployFslogix
       ? fslogix.outputs.netAppShares
       : [

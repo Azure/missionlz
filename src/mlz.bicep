@@ -859,9 +859,10 @@ module monitoring 'modules/monitoring.bicep' = {
     logAnalyticsWorkspaceCappingDailyQuotaGb: logAnalyticsWorkspaceCappingDailyQuotaGb
     logAnalyticsWorkspaceRetentionInDays: logAnalyticsWorkspaceRetentionInDays
     logAnalyticsWorkspaceSkuName: logAnalyticsWorkspaceSkuName
-    tier: filter(networking.outputs.tiers, tier => tier.name == 'operations')[0]
     privateDnsZoneResourceIds: networking.outputs.privateDnsZoneResourceIds
+    mlzTags: networking.outputs.mlzTags
     tags: tags
+    tier: filter(networking.outputs.tiers, tier => tier.name == 'operations')[0]
   }
 }
 
@@ -919,6 +920,7 @@ module remoteAccess 'modules/remote-access.bicep' = {
     linuxVmOsDiskType: linuxVmOsDiskType
     linuxVmSize: linuxVmSize
     location: location
+    mlzTags: networking.outputs.mlzTags
     resourceAbbreviations: networking.outputs.resourceAbbreviations
     tags: tags
     tier: filter(networking.outputs.tiers, tier => tier.name == 'hub')[0]
@@ -944,6 +946,7 @@ module storage 'modules/storage.bicep' = {
     environmentAbbreviation: environmentAbbreviation
     location: location
     logStorageSkuName: logStorageSkuName
+    mlzTags: networking.outputs.mlzTags
     privateDnsZoneResourceIds: networking.outputs.privateDnsZoneResourceIds
     resourceAbbreviations: networking.outputs.resourceAbbreviations
     tags: tags

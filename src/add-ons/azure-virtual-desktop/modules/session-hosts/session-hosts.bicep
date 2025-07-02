@@ -40,6 +40,7 @@ param locationProperties object
 param logAnalyticsWorkspaceResourceId string
 param managementVirtualMachineName string
 param maxResourcesPerTemplateDeployment int
+param mlzTags object
 param netAppFileShares array
 param organizationalUnitPath string
 param profile string
@@ -64,7 +65,7 @@ param virtualMachineAdminUsername string
 param virtualMachineSize string
 
 var availabilitySetNamePrefix = tier.namingConvention.availabilitySet
-var tagsVirtualMachines = union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Compute/virtualMachines'] ?? {}, tier.mlzTags)
+var tagsVirtualMachines = union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Compute/virtualMachines'] ?? {}, mlzTags)
 var uniqueToken = uniqueString(identifier, environmentAbbreviation, subscription().subscriptionId)
 
 resource computeGallery 'Microsoft.Compute/galleries@2023-07-03' existing = if (!empty(imageVersionResourceId)) {
@@ -81,7 +82,7 @@ resource computeGalleryImage 'Microsoft.Compute/galleries/images@2023-07-03' exi
 resource rg 'Microsoft.Resources/resourceGroups@2023-07-01' = {
   name: '${tier.namingConvention.resourceGroup}${delimiter}hosts'
   location: location
-  tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Resources/resourceGroups'] ?? {}, tier.mlzTags)
+  tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Resources/resourceGroups'] ?? {}, mlzTags)
 }
 
 // Sets an Azure policy to disable public network access to managed disks
@@ -106,7 +107,7 @@ module availabilitySets 'availability-sets.bicep' = if (hostPoolType == 'Pooled'
     availabilitySetsIndex: availabilitySetsIndex
     delimiter: delimiter
     location: location
-    tagsAvailabilitySets: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Compute/availabilitySets'] ?? {}, tier.mlzTags)
+    tagsAvailabilitySets: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Compute/availabilitySets'] ?? {}, mlzTags)
   }
 }
 
@@ -226,7 +227,7 @@ module virtualMachines 'virtual-machines.bicep' = [for i in range(1, sessionHost
     storageService: storageService
     storageSuffix: storageSuffix
     subnetResourceId: tier.subnets[0].id
-    tagsNetworkInterfaces: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Network/networkInterfaces'] ?? {}, tier.mlzTags)
+    tagsNetworkInterfaces: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Network/networkInterfaces'] ?? {}, mlzTags)
     tagsVirtualMachines: tagsVirtualMachines
     uniqueToken: uniqueToken
     virtualMachineNamePrefix: tier.namingConvention.virtualMachine
@@ -274,7 +275,7 @@ module scalingPlan '../control-plane/scaling-plan.bicep' = {
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     scalingPlanDiagnosticSettingName: tier.namingConvention.scalingPlanDiagnosticSetting
     scalingPlanName: tier.namingConvention.scalingPlan
-    tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.DesktopVirtualization/scalingPlans'] ?? {}, tier.mlzTags)
+    tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.DesktopVirtualization/scalingPlans'] ?? {}, mlzTags)
     timeZone: locationProperties.timeZone
     weekdaysOffPeakStartTime: scalingWeekdaysOffPeakStartTime
     weekdaysPeakStartTime: scalingWeekdaysPeakStartTime

@@ -11,6 +11,7 @@ param location string
 param logAnalyticsWorkspaceCappingDailyQuotaGb int
 param logAnalyticsWorkspaceRetentionInDays int
 param logAnalyticsWorkspaceSkuName string
+param mlzTags object
 param privateDnsZoneResourceIds object
 param tags object
 param tier object
@@ -21,7 +22,7 @@ module logAnalyticsWorkspace 'log-analytics-workspace.bicep' = {
   params: {
     deploySentinel: deploySentinel
     location: location
-    mlzTags: tier.mlzTags
+    mlzTags: mlzTags
     name: tier.namingConvention.logAnalyticsWorkspace
     retentionInDays: logAnalyticsWorkspaceRetentionInDays
     skuName: logAnalyticsWorkspaceSkuName
@@ -48,7 +49,7 @@ module privateEndpoint 'private-endpoint.bicep' = {
       'azuremonitor'
     ]
     location: location
-    mlzTags: tier.mlzTags
+    mlzTags: mlzTags
     name: tier.namingConvention.privateLinkScopePrivateEndpoint
     networkInterfaceName: tier.namingConvention.privateLinkScopeNetworkInterface
     privateDnsZoneConfigs: [

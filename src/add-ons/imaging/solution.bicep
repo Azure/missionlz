@@ -351,6 +351,7 @@ module baseline 'modules/baseline.bicep' = {
     exemptPolicyAssignmentIds: exemptPolicyAssignmentIds
     keyVaultPrivateDnsZoneResourceId: keyVaultPrivateDnsZoneResourceId
     location: location
+    mlzTags: tier3.outputs.mlzTags
     resourceAbbreviations: tier3.outputs.resourceAbbreviations
     storageAccountResourceId: storageAccountResourceId
     tags: tags
@@ -396,14 +397,13 @@ module buildAutomation 'modules/build-automation.bicep' = if (enableBuildAutomat
     installVisio: installVisio
     installWord: installWord
     keyVaultPrivateDnsZoneResourceId: keyVaultPrivateDnsZoneResourceId
-    virtualMachineAdminPassword: virtualMachineAdminPassword
-    virtualMachineAdminUsername: virtualMachineAdminUsername
     location: location
     locationProperties: tier3.outputs.locationProperties
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     marketplaceImageOffer: marketplaceImageOffer
     marketplaceImagePublisher: marketplaceImagePublisher
     marketplaceImageSKU: marketplaceImageSKU
+    mlzTags: tier3.outputs.mlzTags
     msrdcwebrtcsvcInstaller: msrdcwebrtcsvcInstaller
     officeInstaller: officeInstaller
     oUPath: oUPath
@@ -411,14 +411,16 @@ module buildAutomation 'modules/build-automation.bicep' = if (enableBuildAutomat
     sourceImageType: sourceImageType
     storageAccountResourceId: storageAccountResourceId
     tags: tags
-    tier: tier3.outputs.tier
     teamsInstaller: teamsInstaller
+    tier: tier3.outputs.tier
     updateService: updateService
     userAssignedIdentityClientId: baseline.outputs.userAssignedIdentityClientId
     userAssignedIdentityPrincipalId: baseline.outputs.userAssignedIdentityPrincipalId
     userAssignedIdentityResourceId: baseline.outputs.userAssignedIdentityResourceId
     vcRedistInstaller: vcRedistInstaller
     vDOTInstaller: vDOTInstaller
+    virtualMachineAdminPassword: virtualMachineAdminPassword
+    virtualMachineAdminUsername: virtualMachineAdminUsername
     virtualMachineSize: virtualMachineSize
     wsusServer: wsusServer
   }
@@ -461,6 +463,7 @@ module imageBuild 'modules/image-build.bicep' = {
     marketplaceImageOffer: marketplaceImageOffer
     marketplaceImagePublisher: marketplaceImagePublisher
     marketplaceImageSKU: marketplaceImageSKU
+    mlzTags: tier3.outputs.mlzTags
     msrdcwebrtcsvcInstaller: msrdcwebrtcsvcInstaller
     officeInstaller: officeInstaller
     replicaCount: replicaCount

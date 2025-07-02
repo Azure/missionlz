@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.36.1.42791",
-      "templateHash": "9926083078848860711"
+      "templateHash": "2748572540344230041"
     }
   },
   "parameters": {
@@ -412,7 +412,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.36.1.42791",
-              "templateHash": "11045061134358462743"
+              "templateHash": "12964865139242906348"
             }
           },
           "parameters": {
@@ -2558,7 +2558,7 @@
                     "value": "[parameters('logStorageSkuName')]"
                   },
                   "mlzTags": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}{2}', parameters('workloadShortName'), variables('deploymentIndex'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tier.value.mlzTags]"
+                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}{2}', parameters('workloadShortName'), variables('deploymentIndex'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
                   },
                   "queuesPrivateDnsZoneResourceId": {
                     "value": "[resourceId(variables('hubSubscriptionId'), variables('hubResourceGroupName'), 'Microsoft.Network/privateDnsZones', format('privatelink.queue.{0}', environment().suffixes.storage))]"
@@ -2604,7 +2604,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.36.1.42791",
-                      "templateHash": "8953951796609128996"
+                      "templateHash": "5148052245688389581"
                     }
                   },
                   "parameters": {
@@ -2696,6 +2696,9 @@
                           "location": {
                             "value": "[parameters('location')]"
                           },
+                          "mlzTags": {
+                            "value": "[parameters('mlzTags')]"
+                          },
                           "resourceAbbreviations": {
                             "value": "[parameters('resourceAbbreviations')]"
                           },
@@ -2713,7 +2716,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.36.1.42791",
-                              "templateHash": "15835841359092988258"
+                              "templateHash": "15954686574831080109"
                             }
                           },
                           "parameters": {
@@ -2734,6 +2737,9 @@
                             },
                             "location": {
                               "type": "string"
+                            },
+                            "mlzTags": {
+                              "type": "object"
                             },
                             "resourceAbbreviations": {
                               "type": "object"
@@ -2775,7 +2781,7 @@
                                     "value": "[parameters('location')]"
                                   },
                                   "mlzTags": {
-                                    "value": "[parameters('tier').mlzTags]"
+                                    "value": "[parameters('mlzTags')]"
                                   },
                                   "resourceAbbreviations": {
                                     "value": "[parameters('resourceAbbreviations')]"
@@ -3005,7 +3011,7 @@
                                     "value": "[parameters('location')]"
                                   },
                                   "mlzTags": {
-                                    "value": "[parameters('tier').mlzTags]"
+                                    "value": "[parameters('mlzTags')]"
                                   },
                                   "tags": {
                                     "value": "[parameters('tags')]"
@@ -4799,6 +4805,10 @@
               "type": "object",
               "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}{2}', parameters('workloadShortName'), variables('deploymentIndex'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.locationProperties.value]"
             },
+            "mlzTags": {
+              "type": "object",
+              "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}{2}', parameters('workloadShortName'), variables('deploymentIndex'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
+            },
             "privateDnsZones": {
               "type": "array",
               "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}{2}', parameters('workloadShortName'), variables('deploymentIndex'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.privateDnsZones.value]"
@@ -4830,7 +4840,7 @@
             "value": "[parameters('location')]"
           },
           "mlzTags": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tier.value.mlzTags]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
           },
           "name": {
             "value": "[format('{0}{1}netAppFiles', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tier.value.namingConvention.resourceGroup, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.delimiter.value)]"
@@ -4936,7 +4946,7 @@
             "value": "[parameters('location')]"
           },
           "mlzTags": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tier.value.mlzTags]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.mlzTags.value]"
           },
           "netAppAccountName": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tier.value.namingConvention.netAppAccount]"

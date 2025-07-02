@@ -23,6 +23,7 @@ param keyVaultName string
 param keyVaultUri string
 param location string
 param managementVirtualMachineName string
+param mlzTags object
 param netbios string
 param organizationalUnitPath string
 // param recoveryServices bool
@@ -39,7 +40,7 @@ param tier object
 resource resourceGroup 'Microsoft.Resources/resourceGroups@2023-07-01' = {
   name: '${tier.namingConvention.resourceGroup}${delimiter}fslogix'
   location: location
-  tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Resources/resourceGroups'] ?? {}, tier.mlzTags)
+  tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Resources/resourceGroups'] ?? {}, mlzTags)
 }
 
 // Role Assignment for FSLogix
@@ -80,7 +81,7 @@ module azureNetAppFiles 'azure-netapp-files.bicep' = if (storageService == 'Azur
     fileShares: fileShares
     hostPoolResourceId: hostPoolResourceId
     location: location
-    mlzTags: tier.mlzTags
+    mlzTags: mlzTags
     netAppAccountNamePrefix: tier.namingConvention.netAppAccount
     netAppCapacityPoolNamePrefix: tier.namingConvention.netAppAccountCapacityPool
     organizationalUnitPath: organizationalUnitPath
@@ -108,7 +109,7 @@ module azureFiles 'azure-files/azure-files.bicep' = if (storageService == 'Azure
     keyVaultName: keyVaultName
     keyVaultUri: keyVaultUri
     location: location
-    mlzTags: tier.mlzTags
+    mlzTags: mlzTags
     names: tier.namingConvention
     resourceGroupManagement: resourceGroupManagement
     securityPrincipalObjectIds: securityPrincipalObjectIds

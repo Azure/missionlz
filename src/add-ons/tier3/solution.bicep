@@ -228,7 +228,7 @@ module storage 'modules/storage.bicep' = {
     filesPrivateDnsZoneResourceId: resourceId(hubSubscriptionId, hubResourceGroupName, 'Microsoft.Network/privateDnsZones', 'privatelink.file.${environment().suffixes.storage}')
     location: location
     logStorageSkuName: logStorageSkuName
-    mlzTags: networking.outputs.tier.mlzTags
+    mlzTags: networking.outputs.mlzTags
     queuesPrivateDnsZoneResourceId: resourceId(hubSubscriptionId, hubResourceGroupName, 'Microsoft.Network/privateDnsZones', 'privatelink.queue.${environment().suffixes.storage}')
     resourceAbbreviations: networking.outputs.resourceAbbreviations
     resourceGroupName: networking.outputs.tier.resourceGroupName
@@ -293,6 +293,7 @@ module defenderForCloud '../../modules/defender-for-cloud.bicep' =
 
 output delimiter string = networking.outputs.delimiter
 output locationProperties object = networking.outputs.locationProperties
+output mlzTags object = networking.outputs.mlzTags
 output privateDnsZones array = networking.outputs.privateDnsZones
 output resourceAbbreviations object = networking.outputs.resourceAbbreviations
 output tier object = union({
