@@ -987,7 +987,7 @@ module diagnosticSettings 'modules/diagnostic-settings.bicep' = {
     logAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
     networkInterfaceDiagnosticsMetrics: networkInterfaceDiagnosticsMetrics
     networkInterfaceResourceIds: union(
-      activeDirectoryDomainServices.outputs.networkInterfaceResourceIds,
+      deployActiveDirectoryDomainServices && deployIdentity ? activeDirectoryDomainServices.outputs.networkInterfaceResourceIds : [],
       monitoring.outputs.networkInterfaceResourceIds,
       remoteAccess.outputs.networkInterfaceResourceIds,
       flatten(storage.outputs.networkInterfaceResourceIds)
