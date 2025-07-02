@@ -161,21 +161,23 @@ output sharedServicesSubnetResourceId string = spokeNetworks[1].outputs.networkS
 output tiers array = [for (network, i) in networks: {
   name: network.name
   namingConvention: logic.outputs.tiers[i].namingConvention
-  networkSecurityGroupResourceId: [
+  networkSecurityGroupResourceId: union([
     hubNetwork.outputs.networkSecurityGroupResourceId
     spokeNetworks[0].outputs.networkSecurityGroupResourceId // Operations
     spokeNetworks[1].outputs.networkSecurityGroupResourceId // Shared Services
+  ], deployIdentity ? [
     spokeNetworks[2].outputs.networkSecurityGroupResourceId // Identity
-  ][i]
+  ] : [])[i]
   nsgDiagLogs: network.nsgDiagLogs
   resourceGroupName: filter(resourceGroups.outputs.names, name => contains(name, network.name))[0]
   shortName: network.shortName
-  subnetResourceId: [
+  subnetResourceId: union([
     hubNetwork.outputs.subnetResourceId
     spokeNetworks[0].outputs.subnets[0].id // Operations
     spokeNetworks[1].outputs.subnets[0].id // Shared Services
+  ], deployIdentity ? [
     spokeNetworks[2].outputs.subnets[0].id // Identity
-  ][i]
+  ] : [])[i]
   subscriptionId: network.subscriptionId
   vnetDiagLogs: network.vnetDiagLogs
   vnetDiagMetrics: network.vnetDiagMetrics
