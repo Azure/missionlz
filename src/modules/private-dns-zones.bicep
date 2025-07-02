@@ -53,14 +53,4 @@ module virtualNetworkLinks 'virtual-network-link.bicep' = [for (virtualNetwork, 
   ]
 }]
 
-output privateDnsZoneResourceIds object = {
-  agentSvc: resourceId('Microsoft.Network/privateDnsZones', filter(privateDnsZoneNames, name => startsWith(name, 'privatelink.agentsvc'))[0])
-  blob: resourceId('Microsoft.Network/privateDnsZones', filter(privateDnsZoneNames, name => contains(name, 'blob'))[0])
-  file: resourceId('Microsoft.Network/privateDnsZones', filter(privateDnsZoneNames, name => contains(name, 'file'))[0])
-  keyVault: resourceId('Microsoft.Network/privateDnsZones', filter(privateDnsZoneNames, name => contains(name, 'vaultcore'))[0])
-  monitor: resourceId('Microsoft.Network/privateDnsZones', filter(privateDnsZoneNames, name => contains(name, 'monitor'))[0])
-  ods: resourceId('Microsoft.Network/privateDnsZones', filter(privateDnsZoneNames, name => contains(name, 'ods.opinsights'))[0])
-  oms: resourceId('Microsoft.Network/privateDnsZones', filter(privateDnsZoneNames, name => contains(name, 'oms.opinsights'))[0])
-  queue: resourceId('Microsoft.Network/privateDnsZones', filter(privateDnsZoneNames, name => contains(name, 'queue'))[0])
-  table: resourceId('Microsoft.Network/privateDnsZones', filter(privateDnsZoneNames, name => contains(name, 'table'))[0])
-}
+output privateDnsZoneResourceIds array = [for (name, i) in privateDnsZoneNames: privateDnsZones[i].outputs.resourceId]
