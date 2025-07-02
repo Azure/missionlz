@@ -1,5 +1,6 @@
 targetScope = 'subscription'
 
+param delimiter string
 param deploymentNameSuffix string
 param deploymentUserAssignedIdentityPrincipalId string
 param enableApplicationInsights bool
@@ -19,9 +20,9 @@ param tags object
 param tier object
 
 var hostPoolResourceId = '${subscription().id}/resourceGroups/${resourceGroupManagement}/providers/Microsoft.DesktopVirtualization/hostpools/${tier.namingConvention.hostPool}'
-var resourceGroupShared = '${tier.namingConvention.resourceGroup}${tier.delimiter}shared'
-var resourceGroupFslogix = '${tier.namingConvention.resourceGroup}${tier.delimiter}fslogix'
-var resourceGroupManagement = '${tier.namingConvention.resourceGroup}${tier.delimiter}management'
+var resourceGroupShared = '${tier.namingConvention.resourceGroup}${delimiter}shared'
+var resourceGroupFslogix = '${tier.namingConvention.resourceGroup}${delimiter}fslogix'
+var resourceGroupManagement = '${tier.namingConvention.resourceGroup}${delimiter}management'
 
 // Deploys the resource group for the shared resources
 resource resourceGroup_shared 'Microsoft.Resources/resourceGroups@2023-07-01' = {
@@ -36,7 +37,7 @@ module monitoring 'monitoring.bicep' = if (enableApplicationInsights || enableAv
   name: 'deploy-monitoring-${deploymentNameSuffix}'
   scope: resourceGroup_shared
   params: {
-    delimiter: tier.delimiter
+    delimiter: delimiter
     deploymentNameSuffix: deploymentNameSuffix
     enableAvdInsights: enableAvdInsights
     hostPoolResourceId: hostPoolResourceId
@@ -101,7 +102,7 @@ module functionApp 'function-app.bicep' = if (fslogixStorageService == 'AzureFil
   scope: resourceGroup_shared
   params: {
     delegatedSubnetResourceId: filter(tier.subnets, subnet => contains(subnet.name, 'function-app-outbound'))[0].id
-    delimiter: tier.delimiter
+    delimiter: delimiter
     deploymentNameSuffix: deploymentNameSuffix
     enableApplicationInsights: enableApplicationInsights
     environmentAbbreviation: environmentAbbreviation

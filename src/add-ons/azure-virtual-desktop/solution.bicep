@@ -712,6 +712,7 @@ module management 'modules/management/management.bicep' = {
   name: 'deploy-management-${deploymentNameSuffix}'
   params: {
     avdObjectId: avdObjectId
+    delimiter: tier3_stamp.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
     diskSku: diskSku
     domainJoinPassword: domainJoinPassword
@@ -723,6 +724,7 @@ module management 'modules/management/management.bicep' = {
     organizationalUnitPath: organizationalUnitPath
     privateDnsZoneResourceIdPrefix: privateDnsZoneResourceIdPrefix
     privateDnsZones: tier3_stamp.outputs.privateDnsZones
+    resourceAbbreviations: tier3_stamp.outputs.resourceAbbreviations
     tags: tags
     tier: tier3_stamp.outputs.tier
     virtualMachineAdminPassword: virtualMachineAdminPassword
@@ -734,6 +736,7 @@ module management 'modules/management/management.bicep' = {
 module shared 'modules/shared/shared.bicep' = {
   name: 'deploy-shared-${deploymentNameSuffix}'
   params: {
+    delimiter: tier3_shared.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedIdentityPrincipalId: management.outputs.deploymentUserAssignedIdentityPrincipalId
     enableApplicationInsights: enableApplicationInsights
@@ -763,6 +766,7 @@ module controlPlane 'modules/control-plane/control-plane.bicep' = {
     avdPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3_stamp.outputs.privateDnsZones, name => startsWith(name, 'privatelink.wvd'))[0]}'
     customImageId: customImageId
     customRdpProperty: customRdpProperty
+    delimiter: tier3_stamp.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedIdentityClientId: management.outputs.deploymentUserAssignedIdentityClientId
     desktopFriendlyName: desktopFriendlyName
@@ -801,6 +805,7 @@ module sharedServices 'modules/shared-services/shared-services.bicep' = {
   name: 'deploy-shared-services-${deploymentNameSuffix}'
   scope: subscription(split(sharedServicesSubnetResourceId, '/')[2])
   params: {
+    delimiter: tier3_shared.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
     identifier: identifier
     identifierHub: virtualNetwork_hub.tags.identifier
@@ -818,6 +823,7 @@ module fslogix 'modules/fslogix/fslogix.bicep' = if (deployFslogix) {
     activeDirectorySolution: activeDirectorySolution
     availability: availability
     azureFilesPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3_stamp.outputs.privateDnsZones, name => contains(name, 'file'))[0]}'
+    delimiter: tier3_stamp.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedIdentityClientId: management.outputs.deploymentUserAssignedIdentityClientId
     deploymentUserAssignedIdentityPrincipalId: management.outputs.deploymentUserAssignedIdentityPrincipalId
@@ -860,6 +866,7 @@ module sessionHosts 'modules/session-hosts/session-hosts.bicep' = {
     availabilityZones: availabilityZones
     avdConfigurationZipFileName: avdConfigurationZipFileName
     dataCollectionRuleResourceId: shared.outputs.dataCollectionRuleResourceId
+    delimiter: tier3_stamp.outputs.delimiter
     deployFslogix: deployFslogix
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedIdentityClientId: management.outputs.deploymentUserAssignedIdentityClientId
@@ -887,6 +894,7 @@ module sessionHosts 'modules/session-hosts/session-hosts.bicep' = {
     imageSku: imageSku
     imageVersionResourceId: imageVersionResourceId
     location: locationVirtualMachines
+    locationProperties: tier3_stamp.outputs.locationProperties
     logAnalyticsWorkspaceResourceId: shared.outputs.logAnalyticsWorkspaceResourceId
     managementVirtualMachineName: management.outputs.virtualMachineName
     maxResourcesPerTemplateDeployment: maxResourcesPerTemplateDeployment

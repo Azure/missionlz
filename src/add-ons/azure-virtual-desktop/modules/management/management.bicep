@@ -1,6 +1,7 @@
 targetScope = 'subscription'
 
 param avdObjectId string
+param delimiter string
 param deploymentNameSuffix string
 param diskSku string
 @secure()
@@ -13,6 +14,7 @@ param locationVirtualMachines string
 param organizationalUnitPath string
 param privateDnsZoneResourceIdPrefix string
 param privateDnsZones array
+param resourceAbbreviations object
 param tags object
 param tier object
 @secure()
@@ -20,7 +22,7 @@ param virtualMachineAdminPassword string
 param virtualMachineAdminUsername string
 
 var hostPoolResourceId = resourceId(subscription().subscriptionId, resourceGroupManagement, 'Microsoft.DesktopVirtualization/hostpools', tier.namingConvention.hostPool)
-var resourceGroupManagement = '${tier.namingConvention.resourceGroup}${tier.delimiter}management'
+var resourceGroupManagement = '${tier.namingConvention.resourceGroup}${delimiter}management'
 
 resource resourceGroup 'Microsoft.Resources/resourceGroups@2023-07-01' = {
   name: resourceGroupManagement
@@ -33,7 +35,7 @@ module deploymentUserAssignedIdentity 'user-assigned-identity.bicep' = {
   name: 'deploy-id-deployment-${deploymentNameSuffix}'
   params: {
     location: locationVirtualMachines
-    name: '${tier.namingConvention.userAssignedIdentity}${tier.delimiter}deployment'
+    name: '${tier.namingConvention.userAssignedIdentity}${delimiter}deployment'
     tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.ManagedIdentity/userAssignedIdentities'] ?? {}, tier.mlzTags)
   }
 }
@@ -101,11 +103,13 @@ module policyAssignment 'policy-assignment.bicep' = {
 module customerManagedKeys '../../../../modules/customer-managed-keys.bicep' = {
   name: 'deploy-cmk-${deploymentNameSuffix}'
   params: {
+    delimiter: delimiter
     deploymentNameSuffix: deploymentNameSuffix
     environmentAbbreviation: environmentAbbreviation
     keyName: tier.namingConvention.diskEncryptionSet
     keyVaultPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(privateDnsZones, name => contains(name, 'vaultcore'))[0]}'
     location: locationVirtualMachines
+    resourceAbbreviations: resourceAbbreviations
     tags: tags
     tier: tier
   }
@@ -134,7 +138,7 @@ module virtualMachine 'virtual-machine.bicep' = {
     deploymentUserAssignedIdentityPrincipalId: deploymentUserAssignedIdentity.outputs.principalId
     deploymentUserAssignedIdentityResourceId: deploymentUserAssignedIdentity.outputs.resourceId
     diskEncryptionSetResourceId: diskEncryptionSet.outputs.resourceId
-    diskName: '${tier.namingConvention.virtualMachineDisk}${tier.delimiter}mgt'
+    diskName: '${tier.namingConvention.virtualMachineDisk}${delimiter}mgt'
     diskSku: diskSku
     domainJoinPassword: domainJoinPassword
     domainJoinUserPrincipalName: domainJoinUserPrincipalName
@@ -142,7 +146,7 @@ module virtualMachine 'virtual-machine.bicep' = {
     hostPoolResourceId: hostPoolResourceId
     location: locationVirtualMachines
     mlzTags: tier.mlzTags
-    networkInterfaceName: '${tier.namingConvention.virtualMachineNetworkInterface}${tier.delimiter}mgt'
+    networkInterfaceName: '${tier.namingConvention.virtualMachineNetworkInterface}${delimiter}mgt'
     organizationalUnitPath: organizationalUnitPath
     subnetResourceId: tier.subnets[0].id
     tags: tags

@@ -6,6 +6,7 @@ Licensed under the MIT License.
 targetScope = 'subscription'
 
 param blobsPrivateDnsZoneResourceId string
+param delimiter string
 param deploymentIndex string
 param deploymentNameSuffix string
 param environmentAbbreviation string
@@ -16,6 +17,7 @@ param logStorageSkuName string
 param location string
 param mlzTags object
 param queuesPrivateDnsZoneResourceId string
+param resourceAbbreviations object
 param resourceGroupName string
 param subnetResourceId string
 param tablesPrivateDnsZoneResourceId string
@@ -26,6 +28,7 @@ param workloadShortName string
 module customerManagedKeys '../../../modules/customer-managed-keys.bicep' = {
   name: 'deploy-cmk-${workloadShortName}-${deploymentIndex}${deploymentNameSuffix}'
   params: {
+    delimiter: delimiter
     deploymentNameSuffix: deploymentNameSuffix
     environmentAbbreviation: environmentAbbreviation
     keyName: 'StorageEncryptionKey'
@@ -36,6 +39,7 @@ module customerManagedKeys '../../../modules/customer-managed-keys.bicep' = {
       replace('privatelink${environment().suffixes.keyvaultDns}', 'vault', 'vaultcore')
     )
     location: location
+    resourceAbbreviations: resourceAbbreviations
     tags: tags
     tier: tier
   }

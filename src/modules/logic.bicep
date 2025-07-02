@@ -5,6 +5,7 @@ Licensed under the MIT License.
 
 targetScope = 'subscription'
 
+param delimiter string
 param deploymentNameSuffix string
 param environmentAbbreviation string
 param identifier string
@@ -12,10 +13,27 @@ param location string
 param networks array
 param stampIndex string = ''
 
+var directionShortNames = {
+  east: 'e'
+  eastcentral: 'ec'
+  north: 'n'
+  northcentral: 'nc'
+  south: 's'
+  southcentral: 'sc'
+  west: 'w'
+  westcentral: 'wc'
+}
 var environmentName = {
   dev: 'Development'
   prod: 'Production'
   test: 'Test'
+}
+var locations = loadJsonContent('../data/locations.json')[?environment().name] ?? {
+  '${location}': {
+    abbreviation: directionShortNames[skip(location, length(location) - 4)]
+    timeDifference: contains(location, 'east') ? '-5:00' : contains(location, 'west') ? '-8:00' : '0:00'
+    timeZone: contains(location, 'east') ? 'Eastern Standard Time' : contains(location, 'west') ? 'Pacific Standard Time' : 'GMT Standard Time'
+  }
 }
 var mlzTags = {
   environment: environmentName[environmentAbbreviation]
@@ -23,20 +41,17 @@ var mlzTags = {
   landingZoneName: 'MissionLandingZone'
   landingZoneVersion: loadTextContent('../data/version.txt')
 }
-
-/*
-
-  RESOURCE NAMES
-
-*/
+var resourceAbbreviations = loadJsonContent('../data/resource-abbreviations.json')
 
 module namingConventions 'naming-convention.bicep' = [for network in networks: {
   name: 'naming-convention-${network.shortName}-${deploymentNameSuffix}'
   params: {
+    delimiter: delimiter
     environmentAbbreviation: environmentAbbreviation
     identifier: identifier
-    location: location
+    locationAbbreviation: locations[location].abbreviation
     networkName: network.name
+    resourceAbbreviations: resourceAbbreviations
     stampIndex: stampIndex
   }
 }]
@@ -48,16 +63,16 @@ module privateDnsZones 'private-dns-zone-names.bicep' = {
   }
 }
 
+output delimiter string = delimiter
+output locationProperties object = locations[location]
 output mlzTags object = mlzTags
 output privateDnsZones array = privateDnsZones.outputs.names
+output resourceAbbreviations object = resourceAbbreviations
 output tiers array = [for (network, i) in networks: {
-  delimiter: namingConventions[i].outputs.delimiter
-  locationProperties: namingConventions[i].outputs.locations[location]
   name: network.name
   namingConvention: namingConventions[i].outputs.names
   nsgDiagLogs: network.?nsgDiagLogs ?? []
   nsgRules: network.?nsgRules ?? []
-  resourceAbbreviations: namingConventions[i].outputs.resourceAbbreviations
   shortName: network.shortName
   subnetAddressPrefix: network.?subnetAddressPrefix ?? ''
   subscriptionId: network.subscriptionId

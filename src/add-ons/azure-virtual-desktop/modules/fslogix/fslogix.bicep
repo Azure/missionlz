@@ -3,6 +3,7 @@ targetScope = 'subscription'
 param activeDirectorySolution string
 param availability string
 param azureFilesPrivateDnsZoneResourceId string
+param delimiter string
 param deploymentNameSuffix string
 param deploymentUserAssignedIdentityClientId string
 param deploymentUserAssignedIdentityPrincipalId string
@@ -36,7 +37,7 @@ param tags object
 param tier object
 
 resource resourceGroup 'Microsoft.Resources/resourceGroups@2023-07-01' = {
-  name: '${tier.namingConvention.resourceGroup}${tier.delimiter}fslogix'
+  name: '${tier.namingConvention.resourceGroup}${delimiter}fslogix'
   location: location
   tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Resources/resourceGroups'] ?? {}, tier.mlzTags)
 }
@@ -71,7 +72,7 @@ module azureNetAppFiles 'azure-netapp-files.bicep' = if (storageService == 'Azur
   scope: resourceGroup
   params: {
     delegatedSubnetResourceId: filter(tier.subnets, subnet => contains(subnet.name, 'azure-netapp-files'))[0].id
-    delimiter: tier.delimiter
+    delimiter: delimiter
     dnsServers: join(tier.dnsServers, ',')
     domainJoinPassword: domainJoinPassword
     domainJoinUserPrincipalName: domainJoinUserPrincipalName
@@ -98,7 +99,7 @@ module azureFiles 'azure-files/azure-files.bicep' = if (storageService == 'Azure
     activeDirectorySolution: activeDirectorySolution
     availability: availability
     azureFilesPrivateDnsZoneResourceId: azureFilesPrivateDnsZoneResourceId
-    delimiter: tier.delimiter
+    delimiter: delimiter
     deploymentNameSuffix: deploymentNameSuffix
     encryptionUserAssignedIdentityResourceId: encryptionUserAssignedIdentityResourceId
     fileShares: fileShares

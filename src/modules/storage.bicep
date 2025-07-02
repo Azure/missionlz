@@ -5,23 +5,27 @@ Licensed under the MIT License.
 
 targetScope = 'subscription'
 
+param delimiter string
 //param deployIdentity bool
 param deploymentNameSuffix string
 param environmentAbbreviation string
 param location string
 param logStorageSkuName string
 param privateDnsZoneResourceIds object
+param resourceAbbreviations object
 param tags object
 param tiers array
 
 module customerManagedKeys 'customer-managed-keys.bicep' = {
   name: 'deploy-st-cmk-${deploymentNameSuffix}'
   params: {
+    delimiter: delimiter
     deploymentNameSuffix: deploymentNameSuffix
     environmentAbbreviation: environmentAbbreviation
     keyName: 'StorageEncryptionKey'
     keyVaultPrivateDnsZoneResourceId: privateDnsZoneResourceIds.keyVault
     location: location
+    resourceAbbreviations: resourceAbbreviations
     tags: tags
     tier: filter(tiers, tier => tier.name == 'hub')[0]
   }

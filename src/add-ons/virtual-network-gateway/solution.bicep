@@ -55,11 +55,29 @@ param virtualNetworkResourceIdList array
 
 var azureFirewallIpConfigurationResourceId = filter(virtualNetwork_hub.properties.subnets, subnet => subnet.name == 'AzureFirewallSubnet')[0].properties.ipConfigurations[0].id
 var azureFirewallResourceId = resourceId(split(azureFirewallIpConfigurationResourceId, '/')[2], split(azureFirewallIpConfigurationResourceId, '/')[4], 'Microsoft.Network/azureFirewalls', split(azureFirewallIpConfigurationResourceId, '/')[8])
+var delimiter = '-'
+var directionShortNames = {
+  east: 'e'
+  eastcentral: 'ec'
+  north: 'n'
+  northcentral: 'nc'
+  south: 's'
+  southcentral: 'sc'
+  west: 'w'
+  westcentral: 'wc'
+}
 var hubResourceGroupName = split(hubVirtualNetworkResourceId, '/')[4]
 var hubVirtualNetworkName = split(hubVirtualNetworkResourceId, '/')[8]
 var hubRouteTableName = split(filter(virtualNetwork_hub.properties.subnets, subnet => !contains(subnet.name, 'Subnet'))[0].properties.routeTable.id, '/')[8]
 var isValidUri = contains(keyVaultCertificateUri, 'https://') && contains(keyVaultCertificateUri, '/secrets/')
 var location = virtualNetwork_hub.location
+var locations = loadJsonContent('../../data/locations.json')[?environment().name] ?? {
+  '${location}': {
+    abbreviation: directionShortNames[skip(location, length(location) - 4)]
+    timeDifference: contains(location, 'east') ? '-5:00' : contains(location, 'west') ? '-8:00' : '0:00'
+    timeZone: contains(location, 'east') ? 'Eastern Standard Time' : contains(location, 'west') ? 'Pacific Standard Time' : 'GMT Standard Time'
+  }
+}
 var vpnKeyVaultUri = !useSharedKey ? keyVaultCertificateUri : ''
 var vpnSharedKey = useSharedKey ? sharedKey : ''
 
@@ -80,10 +98,12 @@ module firewallPolicy 'modules/firewall-policy.bicep' = {
 module namingConvention '../../modules/naming-convention.bicep' = {
   name: 'get-naming-mgmt-${deploymentNameSuffix}'
   params: {
+    delimiter: delimiter
     environmentAbbreviation: environmentAbbreviation
-    location: location
-    networkName: 'hub'
     identifier: identifier
+    locationAbbreviation: locations[location].abbreviation
+    networkName: 'hub'
+    resourceAbbreviations: loadJsonContent('../../data/resource-abbreviations.json')
   }
 }
 
@@ -158,7 +178,7 @@ module vpnGatewayModule 'modules/vpn-gateway.bicep' = {
   name: 'vpnGateway-${deploymentNameSuffix}'
   scope: resourceGroup(hubResourceGroupName)
   params: {
-    delimiter: namingConvention.outputs.delimiter
+    delimiter: delimiter
     location: location
     publicIpAddressName: namingConvention.outputs.names.publicIpAddress
     virtualNetworkGatewayName: namingConvention.outputs.names.virtualNetworkGateway

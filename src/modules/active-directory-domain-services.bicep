@@ -8,6 +8,7 @@ targetScope = 'subscription'
 @secure()
 param adminPassword string
 param adminUsername string
+param delimiter string
 param deploymentNameSuffix string
 param dnsForwarder string = '168.63.129.16'
 param domainName string
@@ -19,6 +20,8 @@ param imageSku string
 param imageVersion string
 param keyVaultPrivateDnsZoneResourceId string
 param location string = deployment().location
+param mlzTags object
+param resourceAbbreviations object
 @secure()
 param safeModeAdminPassword string
 param tags object = {}
@@ -28,13 +31,13 @@ param vmSize string
 
 var hubSubscriptionId = subscription().subscriptionId
 var identitySubscriptionId = tier.subscriptionId
-var resourceGroupName = '${tier.namingConvention.resourceGroup}${tier.delimiter}domainControllers'
+var resourceGroupName = '${tier.namingConvention.resourceGroup}${delimiter}domainControllers'
 
 module rg 'resource-group.bicep' = {
   name: 'deploy-adds-rg-${tier.name}-${deploymentNameSuffix}'
   scope: subscription(tier.subscriptionId)
   params: {
-    mlzTags: tier.mlzTags
+    mlzTags: mlzTags
     name: resourceGroupName
     location: location
     tags: tags
@@ -45,11 +48,13 @@ module customerManagedKeys 'customer-managed-keys.bicep' = {
   name: 'deploy-adds-cmk-${deploymentNameSuffix}'
   scope: subscription(tier.subscriptionId)
   params: {
+    delimiter: delimiter
     deploymentNameSuffix: deploymentNameSuffix
     environmentAbbreviation: environmentAbbreviation
     keyName: tier.namingConvention.diskEncryptionSet
     keyVaultPrivateDnsZoneResourceId: keyVaultPrivateDnsZoneResourceId
     location: location
+    resourceAbbreviations: resourceAbbreviations
     tags: tags
     tier: tier
   }
@@ -98,7 +103,7 @@ module domainControllers 'domain-controller.bicep' = [
       adminPassword: adminPassword
       adminUsername: adminUsername
       availabilitySetResourceId: availabilitySet.outputs.resourceId
-      delimiter: tier.delimiter
+      delimiter: delimiter
       deploymentNameSuffix: deploymentNameSuffix
       diskEncryptionSetResourceId: diskEncryptionSet.outputs.resourceId
       dnsForwarder: dnsForwarder

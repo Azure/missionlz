@@ -22,6 +22,7 @@ param vNetDnsServers array
 module logic '../../../modules/logic.bicep' = {
   name: 'get-logic-${network.shortName}-${deploymentIndex}${deploymentNameSuffix}'
   params: {
+    delimiter: '-'
     deploymentNameSuffix: deploymentNameSuffix
     environmentAbbreviation: environmentAbbreviation
     identifier: identifier
@@ -80,12 +81,12 @@ module hubToWorkloadVirtualNetworkPeering '../../../modules/hub-network-peerings
   }
 }
 
+output delimiter string = logic.outputs.delimiter
+output locationProperties object = logic.outputs.locationProperties
+output mlzTags object = logic.outputs.mlzTags
 output privateDnsZones array = logic.outputs.privateDnsZones
-output virtualNetworkName string = spokeNetwork.outputs.virtualNetworkName
-output tier object = {
-  delimiter: logic.outputs.tiers[0].delimiter
-  locationProperties: logic.outputs.tiers[0].locationProperties
-  mlzTags: logic.outputs.mlzTags
+output resourceAbbreviations object = logic.outputs.resourceAbbreviations
+output tier object = {  
   name: network.name
   namingConvention: logic.outputs.tiers[0].namingConvention
   networkSecurityGroupResourceId: spokeNetwork.outputs.networkSecurityGroupResourceId
@@ -95,3 +96,4 @@ output tier object = {
   subnets: spokeNetwork.outputs.subnets
   subscriptionId: network.subscriptionId
 }
+output virtualNetworkName string = spokeNetwork.outputs.virtualNetworkName

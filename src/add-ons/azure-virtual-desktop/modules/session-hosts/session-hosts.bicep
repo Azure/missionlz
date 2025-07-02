@@ -7,6 +7,7 @@ param availabilitySetsIndex int
 param availabilityZones array
 param avdConfigurationZipFileName string
 param dataCollectionRuleResourceId string
+param delimiter string
 param deployFslogix bool
 param deploymentNameSuffix string
 param deploymentUserAssignedIdentityClientId string
@@ -35,6 +36,7 @@ param imagePublisher string
 param imageSku string
 param imageVersionResourceId string
 param location string
+param locationProperties object
 param logAnalyticsWorkspaceResourceId string
 param managementVirtualMachineName string
 param maxResourcesPerTemplateDeployment int
@@ -77,7 +79,7 @@ resource computeGalleryImage 'Microsoft.Compute/galleries/images@2023-07-03' exi
 
 
 resource rg 'Microsoft.Resources/resourceGroups@2023-07-01' = {
-  name: '${tier.namingConvention.resourceGroup}${tier.delimiter}hosts'
+  name: '${tier.namingConvention.resourceGroup}${delimiter}hosts'
   location: location
   tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Resources/resourceGroups'] ?? {}, tier.mlzTags)
 }
@@ -102,7 +104,7 @@ module availabilitySets 'availability-sets.bicep' = if (hostPoolType == 'Pooled'
     availabilitySetNamePrefix: availabilitySetNamePrefix
     availabilitySetsCount: availabilitySetsCount
     availabilitySetsIndex: availabilitySetsIndex
-    delimiter: tier.delimiter
+    delimiter: delimiter
     location: location
     tagsAvailabilitySets: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Compute/availabilitySets'] ?? {}, tier.mlzTags)
   }
@@ -183,7 +185,7 @@ module virtualMachines 'virtual-machines.bicep' = [for i in range(1, sessionHost
     batchCount: i
     dataCollectionRuleAssociationName: tier.namingConvention.dataCollectionRuleAssociation
     dataCollectionRuleResourceId: dataCollectionRuleResourceId
-    delimiter: tier.delimiter
+    delimiter: delimiter
     deployFslogix: deployFslogix
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedidentityClientId: deploymentUserAssignedIdentityClientId
@@ -273,7 +275,7 @@ module scalingPlan '../control-plane/scaling-plan.bicep' = {
     scalingPlanDiagnosticSettingName: tier.namingConvention.scalingPlanDiagnosticSetting
     scalingPlanName: tier.namingConvention.scalingPlan
     tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.DesktopVirtualization/scalingPlans'] ?? {}, tier.mlzTags)
-    timeZone: tier.locationProperties.timeZone
+    timeZone: locationProperties.timeZone
     weekdaysOffPeakStartTime: scalingWeekdaysOffPeakStartTime
     weekdaysPeakStartTime: scalingWeekdaysPeakStartTime
     weekendsOffPeakStartTime: scalingWeekendsOffPeakStartTime

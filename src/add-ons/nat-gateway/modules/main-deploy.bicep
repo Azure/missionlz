@@ -41,7 +41,25 @@ resource vnet 'Microsoft.Network/virtualNetworks@2022-09-01' existing = {
   name: vnetName
   scope: resourceGroup(subscriptionId, resourceGroupName)
 }
+
+var directionShortNames = {
+  east: 'e'
+  eastcentral: 'ec'
+  north: 'n'
+  northcentral: 'nc'
+  south: 's'
+  southcentral: 'sc'
+  west: 'w'
+  westcentral: 'wc'
+}
 var location = vnet.location
+var locations = loadJsonContent('../../../data/locations.json')[?environment().name] ?? {
+  '${location}': {
+    abbreviation: directionShortNames[skip(location, length(location) - 4)]
+    timeDifference: contains(location, 'east') ? '-5:00' : contains(location, 'west') ? '-8:00' : '0:00'
+    timeZone: contains(location, 'east') ? 'Eastern Standard Time' : contains(location, 'west') ? 'Pacific Standard Time' : 'GMT Standard Time'
+  }
+}
 
 // Generate names using your naming convention module
 module namingConvention '../../../modules/naming-convention.bicep' = {
@@ -50,10 +68,10 @@ module namingConvention '../../../modules/naming-convention.bicep' = {
   params: {
     delimiter: '-'
     environmentAbbreviation: environmentAbbreviation
-    location: location
-    networkName: networkName
     identifier:  identifier
-    stampIndex: ''
+    locationAbbreviation: locations[location].abbreviation
+    networkName: networkName
+    resourceAbbreviations: loadJsonContent('../../../data/resource-abbreviations.json')
   }
 }
 

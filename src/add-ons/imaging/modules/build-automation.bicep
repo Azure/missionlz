@@ -41,6 +41,7 @@ param installVisio bool
 param installWord bool
 param keyVaultPrivateDnsZoneResourceId string
 param location string
+param locationProperties object
 param logAnalyticsWorkspaceResourceId string
 param marketplaceImageOffer string
 param marketplaceImagePublisher string
@@ -202,7 +203,7 @@ module automationAccount 'automation-account.bicep' = {
     tags: tags
     teamsInstaller: teamsInstaller
     templateSpecResourceId: templateSpec.outputs.resourceId
-    timeZone: tier.locationProperties.timeZone
+    timeZone: locationProperties.timeZone
     updateService: updateService
     userAssignedIdentityClientId: userAssignedIdentityClientId
     userAssignedIdentityPrincipalId: userAssignedIdentityPrincipalId

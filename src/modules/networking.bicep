@@ -27,6 +27,7 @@ var spokes = filter(networks, network => network.name != 'hub')
 module logic 'logic.bicep' = {
   name: 'get-logic-${deploymentNameSuffix}'
   params: {
+    delimiter: '-'
     deploymentNameSuffix: deploymentNameSuffix
     environmentAbbreviation: environmentAbbreviation
     identifier: identifier
@@ -38,6 +39,7 @@ module logic 'logic.bicep' = {
 module resourceGroups 'resource-groups.bicep' = {
   name: 'deploy-resource-groups-${deploymentNameSuffix}'
   params: {
+    delimiter: logic.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
     location: location
     mlzTags: logic.outputs.mlzTags
@@ -51,6 +53,7 @@ module hubNetwork 'hub-network.bicep' = {
   params: {
     azureGatewaySubnetAddressPrefix: azureGatewaySubnetAddressPrefix
     bastionHostSubnetAddressPrefix: bastionHostSubnetAddressPrefix
+    delimiter: logic.outputs.delimiter
     deployAzureGatewaySubnet: deployAzureGatewaySubnet
     deployBastion: deployBastion
     deploymentNameSuffix: deploymentNameSuffix
@@ -116,7 +119,7 @@ module spokeVirtualNetworkPeerings 'spoke-network-peering.bicep' = [for (spoke, 
   }
 }]
 
-// PRIVATE DNS
+// PRIVATE DNS ZONES
 
 module privateDnsZones 'private-dns-zones.bicep' = {
   name: 'deploy-private-dns-zones-${deploymentNameSuffix}'
@@ -137,14 +140,15 @@ module privateDnsZones 'private-dns-zones.bicep' = {
 }
 
 output azureFirewallResourceId string = hubNetwork.outputs.firewallResourceId
-output hubVirtualNetworkResourceId string = hubNetwork.outputs.virtualNetworkResourceId
 output bastionHostSubnetResourceId string = hubNetwork.outputs.bastionHostSubnetResourceId
+output delimiter string = logic.outputs.delimiter
+output hubVirtualNetworkResourceId string = hubNetwork.outputs.virtualNetworkResourceId
+output locationProperties object = logic.outputs.locationProperties
+output mlzTags object = logic.outputs.mlzTags
 output privateDnsZoneResourceIds object = privateDnsZones.outputs.privateDnsZoneResourceIds
+output resourceAbbreviations object = logic.outputs.resourceAbbreviations
 output sharedServicesSubnetResourceId string = spokeNetworks[1].outputs.networkSecurityGroupResourceId 
 output tiers array = [for (network, i) in networks: {
-  delimiter: logic.outputs.tiers[i].delimiter
-  locationProperties: logic.outputs.tiers[0].locationProperties
-  mlzTags: logic.outputs.mlzTags
   name: network.name
   namingConvention: logic.outputs.tiers[i].namingConvention
   networkSecurityGroupResourceId: [

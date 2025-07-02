@@ -872,6 +872,7 @@ module activeDirectoryDomainServices 'modules/active-directory-domain-services.b
   params: {
     adminPassword: addsVmAdminPassword
     adminUsername: addsVmAdminUsername
+    delimiter: networking.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
     domainName: addsDomainName
     environmentAbbreviation: environmentAbbreviation
@@ -882,6 +883,8 @@ module activeDirectoryDomainServices 'modules/active-directory-domain-services.b
     imageVersion: windowsVmImageVersion
     keyVaultPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.keyVault
     location: location
+    mlzTags: networking.outputs.mlzTags
+    resourceAbbreviations: networking.outputs.resourceAbbreviations
     safeModeAdminPassword: addsSafeModeAdminPassword
     tags: tags
     tier: filter(networking.outputs.tiers, tier => tier.name == 'identity')[0]
@@ -898,6 +901,7 @@ module remoteAccess 'modules/remote-access.bicep' = {
     bastionHostPublicIPAddressAvailabilityZones: bastionHostPublicIPAddressAvailabilityZones
     bastionHostPublicIPAddressSkuName: 'Standard'
     bastionHostSubnetResourceId: networking.outputs.bastionHostSubnetResourceId
+    delimiter: networking.outputs.delimiter
     deployBastion: deployBastion
     deployLinuxVirtualMachine: deployLinuxVirtualMachine
     deploymentNameSuffix: deploymentNameSuffix
@@ -915,6 +919,7 @@ module remoteAccess 'modules/remote-access.bicep' = {
     linuxVmOsDiskType: linuxVmOsDiskType
     linuxVmSize: linuxVmSize
     location: location
+    resourceAbbreviations: networking.outputs.resourceAbbreviations
     tags: tags
     tier: filter(networking.outputs.tiers, tier => tier.name == 'hub')[0]
     windowsVmAdminPassword: windowsVmAdminPassword
@@ -933,12 +938,14 @@ module remoteAccess 'modules/remote-access.bicep' = {
 module storage 'modules/storage.bicep' = {
   name: 'deploy-log-storage-${deploymentNameSuffix}'
   params: {
+    delimiter: networking.outputs.delimiter
     //deployIdentity: deployIdentity
     deploymentNameSuffix: deploymentNameSuffix
     environmentAbbreviation: environmentAbbreviation
     location: location
     logStorageSkuName: logStorageSkuName
     privateDnsZoneResourceIds: networking.outputs.privateDnsZoneResourceIds
+    resourceAbbreviations: networking.outputs.resourceAbbreviations
     tags: tags
     tiers: networking.outputs.tiers
   }

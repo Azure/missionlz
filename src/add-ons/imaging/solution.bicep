@@ -344,12 +344,14 @@ module tier3 '../tier3/solution.bicep' = {
 module baseline 'modules/baseline.bicep' = {
   name: 'deploy-imaging-baseline-${deploymentNameSuffix}'
   params: {
+    delimiter: tier3.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
     enableBuildAutomation: enableBuildAutomation
     environmentAbbreviation: environmentAbbreviation
     exemptPolicyAssignmentIds: exemptPolicyAssignmentIds
     keyVaultPrivateDnsZoneResourceId: keyVaultPrivateDnsZoneResourceId
     location: location
+    resourceAbbreviations: tier3.outputs.resourceAbbreviations
     storageAccountResourceId: storageAccountResourceId
     tags: tags
     tier: tier3.outputs.tier
@@ -397,6 +399,7 @@ module buildAutomation 'modules/build-automation.bicep' = if (enableBuildAutomat
     virtualMachineAdminPassword: virtualMachineAdminPassword
     virtualMachineAdminUsername: virtualMachineAdminUsername
     location: location
+    locationProperties: tier3.outputs.locationProperties
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     marketplaceImageOffer: marketplaceImageOffer
     marketplaceImagePublisher: marketplaceImagePublisher

@@ -5,11 +5,13 @@ Licensed under the MIT License.
 
 targetScope = 'subscription'
 
+param delimiter string
 param deploymentNameSuffix string
 param environmentAbbreviation string
 param keyName string
 param keyVaultPrivateDnsZoneResourceId string
 param location string
+param resourceAbbreviations object
 param tags object
 param tier object
 param workload string = ''
@@ -23,7 +25,7 @@ module keyVault 'key-vault.bicep' = {
     keyVaultPrivateDnsZoneResourceId: keyVaultPrivateDnsZoneResourceId
     location: location
     mlzTags: tier.mlzTags
-    resourceAbbreviations: tier.resourceAbbreviations
+    resourceAbbreviations: resourceAbbreviations
     subnetResourceId: tier.subnetResourceId
     tags: tags
     tier: tier
@@ -44,7 +46,7 @@ module userAssignedIdentity 'user-assigned-identity.bicep' = {
 }
 
 output keyVaultProperties object = {
-  diagnosticSettingName: '${tier.namingConvention.keyVaultDiagnosticSetting}${empty(workload) ? '' : '${tier.delimiter}${workload}'}'
+  diagnosticSettingName: '${tier.namingConvention.keyVaultDiagnosticSetting}${empty(workload) ? '' : '${delimiter}${workload}'}'
   name: keyVault.outputs.keyVaultName
   resourceGroupName: tier.resourceGroupName
   subscriptionId: tier.subscriptionId

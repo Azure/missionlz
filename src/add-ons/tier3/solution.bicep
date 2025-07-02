@@ -219,16 +219,18 @@ module networking 'modules/networking.bicep' = {
   }
 }
 
-module storage 'modules/storage.bicep' = if (!(empty(virtualNetworkAddressPrefix))) {
+module storage 'modules/storage.bicep' = {
   name: 'deploy-storage-${workloadShortName}-${deploymentIndex}${deploymentNameSuffix}'
   params: {
     blobsPrivateDnsZoneResourceId: resourceId(hubSubscriptionId, hubResourceGroupName, 'Microsoft.Network/privateDnsZones', 'privatelink.blob.${environment().suffixes.storage}')
+    delimiter: networking.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
     filesPrivateDnsZoneResourceId: resourceId(hubSubscriptionId, hubResourceGroupName, 'Microsoft.Network/privateDnsZones', 'privatelink.file.${environment().suffixes.storage}')
     location: location
     logStorageSkuName: logStorageSkuName
     mlzTags: networking.outputs.tier.mlzTags
     queuesPrivateDnsZoneResourceId: resourceId(hubSubscriptionId, hubResourceGroupName, 'Microsoft.Network/privateDnsZones', 'privatelink.queue.${environment().suffixes.storage}')
+    resourceAbbreviations: networking.outputs.resourceAbbreviations
     resourceGroupName: networking.outputs.tier.resourceGroupName
     subnetResourceId: networking.outputs.tier.subnetResourceId
     tablesPrivateDnsZoneResourceId: resourceId(hubSubscriptionId, hubResourceGroupName, 'Microsoft.Network/privateDnsZones', 'privatelink.table.${environment().suffixes.storage}')
@@ -242,7 +244,7 @@ module storage 'modules/storage.bicep' = if (!(empty(virtualNetworkAddressPrefix
   }
 }
 
-module diagnostics 'modules/diagnostics.bicep' = if (!(empty(virtualNetworkAddressPrefix))) {
+module diagnostics 'modules/diagnostics.bicep' = {
   name: 'deploy-diag-${workloadShortName}-${deploymentIndex}${deploymentNameSuffix}'
   params: {
     deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
@@ -267,7 +269,7 @@ module diagnostics 'modules/diagnostics.bicep' = if (!(empty(virtualNetworkAddre
 }
 
 module policyAssignments '../../modules/policy-assignments.bicep' =
-  if (deployPolicy && (!(empty(virtualNetworkAddressPrefix)))) {
+  if (deployPolicy) {
     name: 'assign-policy-${workloadShortName}-${deploymentIndex}${deploymentNameSuffix}'
     params: {
       deploymentNameSuffix: deploymentNameSuffix
@@ -282,14 +284,17 @@ module policyAssignments '../../modules/policy-assignments.bicep' =
   }
 
 module defenderForCloud '../../modules/defender-for-cloud.bicep' =
-  if (deployDefender && (!(empty(virtualNetworkAddressPrefix)))) {
+  if (deployDefender) {
     name: 'set-defender-${workloadShortName}-${deploymentIndex}${deploymentNameSuffix}'
     params: {
       emailSecurityContact: emailSecurityContact
     }
   }
 
+output delimiter string = networking.outputs.delimiter
+output locationProperties object = networking.outputs.locationProperties
 output privateDnsZones array = networking.outputs.privateDnsZones
+output resourceAbbreviations object = networking.outputs.resourceAbbreviations
 output tier object = union({
   dnsServers: virtualNetwork_hub.properties.?dhcpOptions.dnsServers ?? []
   logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId

@@ -5,12 +5,14 @@ Licensed under the MIT License.
 
 targetScope = 'subscription'
 
+param delimiter string
 param deploymentNameSuffix string
 param enableBuildAutomation bool
 param environmentAbbreviation string
 param exemptPolicyAssignmentIds array
 param keyVaultPrivateDnsZoneResourceId string
 param location string
+param resourceAbbreviations object
 param storageAccountResourceId string
 param tags object
 param tier object
@@ -45,12 +47,14 @@ module storageAccount 'storage-account.bicep' = {
 
 module customerManagedKeys '../../../modules/customer-managed-keys.bicep' = {
   params: {
-    location: location
-    tags: tags
+    delimiter: delimiter
     deploymentNameSuffix: deploymentNameSuffix
     environmentAbbreviation: environmentAbbreviation
     keyName: tier.namingConvention.diskEncryptionSet
     keyVaultPrivateDnsZoneResourceId: keyVaultPrivateDnsZoneResourceId
+    location: location
+    resourceAbbreviations: resourceAbbreviations
+    tags: tags
     tier: tier
   }
 }

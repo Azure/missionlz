@@ -4,6 +4,7 @@ param activeDirectorySolution string
 param avdPrivateDnsZoneResourceId string
 param customImageId string
 param customRdpProperty string
+param delimiter string
 param deploymentNameSuffix string
 param deploymentUserAssignedIdentityClientId string
 param desktopFriendlyName string
@@ -112,10 +113,10 @@ module workspace_feed '../shared/workspace-feed.bicep' = {
     subnetResourceId: sharedTier.subnets[0].id
     tags: tags
     virtualMachineName: managementVirtualMachineName
-    workspaceFeedDiagnoticSettingName: '${sharedTier.namingConvention.workspaceDiagnosticSetting}${sharedTier.delimiter}feed'
-    workspaceFeedName: '${sharedTier.namingConvention.workspace}${sharedTier.delimiter}feed'
-    workspaceFeedNetworkInterfaceName: '${sharedTier.namingConvention.workspaceNetworkInterface}${sharedTier.delimiter}feed'
-    workspaceFeedPrivateEndpointName: '${sharedTier.namingConvention.workspacePrivateEndpoint}${sharedTier.delimiter}feed'
+    workspaceFeedDiagnoticSettingName: '${sharedTier.namingConvention.workspaceDiagnosticSetting}${delimiter}feed'
+    workspaceFeedName: '${sharedTier.namingConvention.workspace}${delimiter}feed'
+    workspaceFeedNetworkInterfaceName: '${sharedTier.namingConvention.workspaceNetworkInterface}${delimiter}feed'
+    workspaceFeedPrivateEndpointName: '${sharedTier.namingConvention.workspacePrivateEndpoint}${delimiter}feed'
     workspaceFriendlyName: empty(workspaceFriendlyName) ? sharedTier.namingConvention.workspace : '${workspaceFriendlyName} (${locationControlPlane})'
     workspacePublicNetworkAccess: workspacePublicNetworkAccess
   }

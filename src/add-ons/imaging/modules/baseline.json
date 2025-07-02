@@ -6,10 +6,13 @@
     "_generator": {
       "name": "bicep",
       "version": "0.36.1.42791",
-      "templateHash": "12458839815298734968"
+      "templateHash": "15953973164705207749"
     }
   },
   "parameters": {
+    "delimiter": {
+      "type": "string"
+    },
     "deploymentNameSuffix": {
       "type": "string"
     },
@@ -27,6 +30,9 @@
     },
     "location": {
       "type": "string"
+    },
+    "resourceAbbreviations": {
+      "type": "object"
     },
     "storageAccountResourceId": {
       "type": "string"
@@ -245,11 +251,8 @@
         },
         "mode": "Incremental",
         "parameters": {
-          "location": {
-            "value": "[parameters('location')]"
-          },
-          "tags": {
-            "value": "[parameters('tags')]"
+          "delimiter": {
+            "value": "[parameters('delimiter')]"
           },
           "deploymentNameSuffix": {
             "value": "[parameters('deploymentNameSuffix')]"
@@ -263,6 +266,15 @@
           "keyVaultPrivateDnsZoneResourceId": {
             "value": "[parameters('keyVaultPrivateDnsZoneResourceId')]"
           },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "resourceAbbreviations": {
+            "value": "[parameters('resourceAbbreviations')]"
+          },
+          "tags": {
+            "value": "[parameters('tags')]"
+          },
           "tier": {
             "value": "[parameters('tier')]"
           }
@@ -274,10 +286,13 @@
             "_generator": {
               "name": "bicep",
               "version": "0.36.1.42791",
-              "templateHash": "4434202945226688946"
+              "templateHash": "15835841359092988258"
             }
           },
           "parameters": {
+            "delimiter": {
+              "type": "string"
+            },
             "deploymentNameSuffix": {
               "type": "string"
             },
@@ -292,6 +307,9 @@
             },
             "location": {
               "type": "string"
+            },
+            "resourceAbbreviations": {
+              "type": "object"
             },
             "tags": {
               "type": "object"
@@ -333,7 +351,7 @@
                     "value": "[parameters('tier').mlzTags]"
                   },
                   "resourceAbbreviations": {
-                    "value": "[parameters('tier').resourceAbbreviations]"
+                    "value": "[parameters('resourceAbbreviations')]"
                   },
                   "subnetResourceId": {
                     "value": "[parameters('tier').subnetResourceId]"
@@ -636,7 +654,7 @@
             "keyVaultProperties": {
               "type": "object",
               "value": {
-                "diagnosticSettingName": "[format('{0}{1}', parameters('tier').namingConvention.keyVaultDiagnosticSetting, if(empty(parameters('workload')), '', format('{0}{1}', parameters('tier').delimiter, parameters('workload'))))]",
+                "diagnosticSettingName": "[format('{0}{1}', parameters('tier').namingConvention.keyVaultDiagnosticSetting, if(empty(parameters('workload')), '', format('{0}{1}', parameters('delimiter'), parameters('workload'))))]",
                 "name": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultName.value]",
                 "resourceGroupName": "[parameters('tier').resourceGroupName]",
                 "subscriptionId": "[parameters('tier').subscriptionId]",

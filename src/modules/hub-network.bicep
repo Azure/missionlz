@@ -7,6 +7,7 @@ targetScope = 'subscription'
 
 param azureGatewaySubnetAddressPrefix string
 param bastionHostSubnetAddressPrefix string
+param delimiter string
 param deployAzureGatewaySubnet bool
 param deployBastion bool
 param deploymentNameSuffix string
@@ -270,7 +271,7 @@ module firewallClientPublicIPAddress '../modules/public-ip-address.bicep' = {
     availabilityZones: firewallClientPublicIPAddressAvailabilityZones
     location: location
     mlzTags: mlzTags
-    name: '${tier.namingConvention.azureFirewallPublicIPAddress}${tier.delimiter}client'
+    name: '${tier.namingConvention.azureFirewallPublicIPAddress}${delimiter}client'
     publicIpAllocationMethod: 'Static'
     skuName: 'Standard'
     tags: tags
@@ -284,7 +285,7 @@ module firewallManagementPublicIPAddress '../modules/public-ip-address.bicep' = 
     availabilityZones: firewallManagementPublicIPAddressAvailabilityZones
     location: location
     mlzTags: mlzTags
-    name: '${tier.namingConvention.azureFirewallPublicIPAddress}${tier.delimiter}management'
+    name: '${tier.namingConvention.azureFirewallPublicIPAddress}${delimiter}management'
     publicIpAllocationMethod: 'Static'
     skuName: 'Standard'
     tags: tags

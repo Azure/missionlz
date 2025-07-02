@@ -9,32 +9,14 @@ targetScope = 'subscription'
   '' // none
   '-' // hyphen
 ])
-param delimiter string = '-'
+param delimiter string
 param environmentAbbreviation string
-param location string
-param networkName string
 param identifier string
+param locationAbbreviation string
+param networkName string
+param resourceAbbreviations object
 param stampIndex string = '' // Enables multiple deployments of the same workload within a namespace
 
-var directionShortNames = {
-  east: 'e'
-  eastcentral: 'ec'
-  north: 'n'
-  northcentral: 'nc'
-  south: 's'
-  southcentral: 'sc'
-  west: 'w'
-  westcentral: 'wc'
-}
-var locations = loadJsonContent('../data/locations.json')[?environment().name] ?? {
-  '${location}': {
-    abbreviation: directionShortNames[skip(location, length(location) - 4)]
-    timeDifference: contains(location, 'east') ? '-5:00' : contains(location, 'west') ? '-8:00' : '0:00'
-    timeZone: contains(location, 'east') ? 'Eastern Standard Time' : contains(location, 'west') ? 'Pacific Standard Time' : 'GMT Standard Time'
-  }
-}
-var locationAbbreviation = locations[location].abbreviation
-var resourceAbbreviations = loadJsonContent('../data/resource-abbreviations.json')
 var tokens = {
   resource: 'resource_token'
   service: 'service_token'
@@ -162,7 +144,4 @@ var names = {
   workspacePrivateEndpoint: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.privateEndpoints), tokens.service, resourceAbbreviations.workspaces)
 }
 
-output delimiter string = delimiter
-output locations object = locations
 output names object = names
-output resourceAbbreviations object = resourceAbbreviations
