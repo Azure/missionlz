@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.36.1.42791",
-      "templateHash": "2905905196286011592"
+      "templateHash": "3949103168397403985"
     }
   },
   "parameters": {
@@ -123,7 +123,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.36.1.42791",
-              "templateHash": "8361415845177741561"
+              "templateHash": "13737327957863522727"
             }
           },
           "parameters": {
@@ -1182,7 +1182,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.36.1.42791",
-                      "templateHash": "10736760469921285754"
+                      "templateHash": "5578626678682483704"
                     }
                   },
                   "parameters": {
@@ -4390,7 +4390,9 @@
                           "resourceGroupName": "[filter(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-resource-groups-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.names.value, lambda('name', contains(lambdaVariables('name'), parameters('networks')[copyIndex()].name)))[0]]",
                           "shortName": "[parameters('networks')[copyIndex()].shortName]",
                           "subnetResourceId": "[createArray(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnetResourceId.value, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-vnet-{0}-{1}', variables('spokes')[0].name, parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnets.value[0].id, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-vnet-{0}-{1}', variables('spokes')[1].name, parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnets.value[0].id, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-vnet-{0}-{1}', variables('spokes')[2].name, parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnets.value[0].id)[copyIndex()]]",
-                          "subscriptionId": "[parameters('networks')[copyIndex()].subscriptionId]"
+                          "subscriptionId": "[parameters('networks')[copyIndex()].subscriptionId]",
+                          "vnetDiagLogs": "[parameters('networks')[copyIndex()].vnetDiagLogs]",
+                          "vnetDiagMetrics": "[parameters('networks')[copyIndex()].vnetDiagMetrics]"
                         }
                       }
                     }
@@ -9963,7 +9965,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.36.1.42791",
-                      "templateHash": "3483989967527297404"
+                      "templateHash": "6858044352763437005"
                     }
                   },
                   "parameters": {
@@ -10041,8 +10043,7 @@
                           "diagnosticSettingName": "[parameters('tiers')[copyIndex('networkSecurityGroups_Tiers')].namingConvention.networkSecurityGroupDiagnosticSetting]",
                           "flowLogsName": "[parameters('tiers')[copyIndex('networkSecurityGroups_Tiers')].namingConvention.networkWatcherFlowLogsNetworkSecurityGroup]",
                           "name": "[parameters('tiers')[copyIndex('networkSecurityGroups_Tiers')].namingConvention.networkSecurityGroup]",
-                          "namingConvention": "[parameters('tiers')[copyIndex('networkSecurityGroups_Tiers')].namingConvention]",
-                          "resourceGroupName": "[parameters('tiers')[copyIndex('networkSecurityGroups_Tiers')][copyIndex('networkSecurityGroups_Tiers')].resourceGroupName]",
+                          "resourceGroupName": "[parameters('tiers')[copyIndex('networkSecurityGroups_Tiers')].resourceGroupName]",
                           "storageAccountResourceId": "[parameters('storageAccountResourceIds')[copyIndex('networkSecurityGroups_Tiers')]]",
                           "subscriptionId": "[parameters('tiers')[copyIndex('networkSecurityGroups_Tiers')].subscriptionId]",
                           "tierName": "[parameters('tiers')[copyIndex('networkSecurityGroups_Tiers')].name]"
@@ -10058,8 +10059,8 @@
                     "hub": "[filter(parameters('tiers'), lambda('tier', equals(lambdaVariables('tier').name, 'hub')))[0]]",
                     "hubResourceGroupName": "[filter(variables('hub').resourceGroupName, lambda('name', contains(lambdaVariables('name'), 'hub')))[0]]",
                     "networkSecurityGroups": "[union(variables('networkSecurityGroups_Tiers'), variables('networkSecurityGroup_Bastion'))]",
-                    "networkSecurityGroup_Bastion": "[if(parameters('deployBastion'), createArray(createObject('diagnosticLogs', variables('hub').nsgDiagLogs, 'diagnosticSettingName', variables('hub').namingConvention.bastionHostNetworkSecurityGroupDiagnosticSetting, 'flowLogsName', format('{0}{1}bastion', variables('hub').namingConvention.networkWatcherFlowLogsNetworkSecurityGroup, variables('hub').delimiter), 'name', variables('hub').namingConvention.bastionHostNetworkSecurityGroup, 'namingConvention', variables('hub').namingConvention, 'resourceGroupName', variables('hubResourceGroupName'), 'storageAccountResourceId', parameters('storageAccountResourceIds')[0], 'subscriptionId', variables('hub').subscriptionId, 'tierName', format('hub{0}bas', variables('hub').delimiter))), createArray())]",
-                    "operations": "[first(filter(parameters('tiers'), lambda('tier', equals(lambdaVariables('tier').name, 'operations'))))]",
+                    "networkSecurityGroup_Bastion": "[if(parameters('deployBastion'), createArray(createObject('diagnosticLogs', variables('hub').nsgDiagLogs, 'diagnosticSettingName', variables('hub').namingConvention.bastionHostNetworkSecurityGroupDiagnosticSetting, 'flowLogsName', format('{0}{1}bastion', variables('hub').namingConvention.networkWatcherFlowLogsNetworkSecurityGroup, variables('hub').delimiter), 'name', variables('hub').namingConvention.bastionHostNetworkSecurityGroup, 'resourceGroupName', variables('hubResourceGroupName'), 'storageAccountResourceId', parameters('storageAccountResourceIds')[0], 'subscriptionId', variables('hub').subscriptionId, 'tierName', format('hub{0}bas', variables('hub').delimiter))), createArray())]",
+                    "operations": "[filter(parameters('tiers'), lambda('tier', equals(lambdaVariables('tier').name, 'operations')))[0]]",
                     "publicIPAddresses": "[union(createArray(createObject('name', format('{0}{1}client', variables('hub').namingConvention.azureFirewallPublicIPAddress, variables('hub').delimiter), 'diagName', format('{0}{1}client', variables('hub').namingConvention.azureFirewallPublicIPAddressDiagnosticSetting, variables('hub').delimiter)), createObject('name', format('{0}{1}management', variables('hub').namingConvention.azureFirewallPublicIPAddress, variables('hub').delimiter), 'diagName', format('{0}{1}management', variables('hub').namingConvention.azureFirewallPublicIPAddressDiagnosticSetting, variables('hub').delimiter))), if(parameters('deployBastion'), createArray(createObject('name', variables('hub').namingConvention.bastionHostPublicIPAddress, 'diagName', variables('hub').namingConvention.bastionHostPublicIPAddressDiagnosticSetting)), createArray()))]"
                   },
                   "resources": [

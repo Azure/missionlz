@@ -28,19 +28,18 @@ param supportedClouds array
 param tiers array
 
 var dedupedSubscriptionIds = union(subscriptionIds, [])
-var hub = (filter(tiers, tier => tier.name == 'hub'))[0]
+var hub = filter(tiers, tier => tier.name == 'hub')[0]
 var hubResourceGroupName = filter(hub.resourceGroupName, name => contains(name, 'hub'))[0]
 var networkSecurityGroups = union(networkSecurityGroups_Tiers, networkSecurityGroup_Bastion)
 var networkSecurityGroups_Tiers = [for (tier, i) in tiers: {
-  diagnosticLogs: tiers[i].nsgDiagLogs
-  diagnosticSettingName: tiers[i].namingConvention.networkSecurityGroupDiagnosticSetting
-  flowLogsName: tiers[i].namingConvention.networkWatcherFlowLogsNetworkSecurityGroup
-  name: tiers[i].namingConvention.networkSecurityGroup
-  namingConvention: tiers[i].namingConvention
-  resourceGroupName: tier[i].resourceGroupName
+  diagnosticLogs: tier.nsgDiagLogs
+  diagnosticSettingName: tier.namingConvention.networkSecurityGroupDiagnosticSetting
+  flowLogsName: tier.namingConvention.networkWatcherFlowLogsNetworkSecurityGroup
+  name: tier.namingConvention.networkSecurityGroup
+  resourceGroupName: tier.resourceGroupName
   storageAccountResourceId: storageAccountResourceIds[i]
-  subscriptionId: tiers[i].subscriptionId
-  tierName: tiers[i].name
+  subscriptionId: tier.subscriptionId
+  tierName: tier.name
 }]
 var networkSecurityGroup_Bastion = deployBastion ? [
   {
@@ -48,14 +47,13 @@ var networkSecurityGroup_Bastion = deployBastion ? [
     diagnosticSettingName: hub.namingConvention.bastionHostNetworkSecurityGroupDiagnosticSetting
     flowLogsName: '${hub.namingConvention.networkWatcherFlowLogsNetworkSecurityGroup}${hub.delimiter}bastion'
     name: hub.namingConvention.bastionHostNetworkSecurityGroup
-    namingConvention: hub.namingConvention
     resourceGroupName: hubResourceGroupName
     storageAccountResourceId: storageAccountResourceIds[0]
     subscriptionId: hub.subscriptionId
     tierName: 'hub${hub.delimiter}bas'
   }
 ] : []
-var operations = first(filter(tiers, tier => tier.name == 'operations'))
+var operations = filter(tiers, tier => tier.name == 'operations')[0]
 var publicIPAddresses = union([
   {
     name: '${hub.namingConvention.azureFirewallPublicIPAddress}${hub.delimiter}client'

@@ -177,4 +177,6 @@ output tiers array = [for (network, i) in networks: {
     spokeNetworks[2].outputs.subnets[0].id // Identity
   ][i]
   subscriptionId: network.subscriptionId
+  vnetDiagLogs: network.vnetDiagLogs
+  vnetDiagMetrics: network.vnetDiagMetrics
 }]
