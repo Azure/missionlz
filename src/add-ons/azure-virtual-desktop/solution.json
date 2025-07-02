@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.36.1.42791",
-      "templateHash": "18309080235956400725"
+      "templateHash": "6270435284889457480"
     }
   },
   "parameters": {
@@ -862,7 +862,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.36.1.42791",
-              "templateHash": "12964865139242906348"
+              "templateHash": "12481896528786313583"
             }
           },
           "parameters": {
@@ -3054,7 +3054,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.36.1.42791",
-                      "templateHash": "5148052245688389581"
+                      "templateHash": "14759798621515733780"
                     }
                   },
                   "parameters": {
@@ -3152,11 +3152,17 @@
                           "resourceAbbreviations": {
                             "value": "[parameters('resourceAbbreviations')]"
                           },
+                          "resourceGroupName": {
+                            "value": "[parameters('tier').resourceGroupName]"
+                          },
                           "tags": {
                             "value": "[parameters('tags')]"
                           },
                           "tier": {
                             "value": "[parameters('tier')]"
+                          },
+                          "type": {
+                            "value": "storageAccount"
                           }
                         },
                         "template": {
@@ -3166,7 +3172,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.36.1.42791",
-                              "templateHash": "15954686574831080109"
+                              "templateHash": "5527491738976255572"
                             }
                           },
                           "parameters": {
@@ -3194,16 +3200,25 @@
                             "resourceAbbreviations": {
                               "type": "object"
                             },
+                            "resourceGroupName": {
+                              "type": "string"
+                            },
                             "tags": {
                               "type": "object"
                             },
                             "tier": {
                               "type": "object"
                             },
-                            "workload": {
+                            "type": {
                               "type": "string",
-                              "defaultValue": ""
+                              "allowedValues": [
+                                "storageAccount",
+                                "virtualMachine"
+                              ]
                             }
+                          },
+                          "variables": {
+                            "workload": "cmk"
                           },
                           "resources": [
                             {
@@ -3211,7 +3226,7 @@
                               "apiVersion": "2022-09-01",
                               "name": "[format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))]",
                               "subscriptionId": "[parameters('tier').subscriptionId]",
-                              "resourceGroup": "[parameters('tier').resourceGroupName]",
+                              "resourceGroup": "[parameters('resourceGroupName')]",
                               "properties": {
                                 "expressionEvaluationOptions": {
                                   "scope": "inner"
@@ -3224,8 +3239,17 @@
                                   "keyName": {
                                     "value": "[parameters('keyName')]"
                                   },
+                                  "keyVaultName": {
+                                    "value": "[format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, parameters('resourceGroupName'), parameters('tier').namingConvention.keyVault, variables('workload')))]"
+                                  },
+                                  "keyVaultNetworkInterfaceName": {
+                                    "value": "[format('{0}{1}{2}', parameters('tier').namingConvention.keyVaultNetworkInterface, parameters('delimiter'), variables('workload'))]"
+                                  },
                                   "keyVaultPrivateDnsZoneResourceId": {
                                     "value": "[parameters('keyVaultPrivateDnsZoneResourceId')]"
+                                  },
+                                  "keyVaultPrivateEndpointName": {
+                                    "value": "[format('{0}{1}{2}', parameters('tier').namingConvention.keyVaultPrivateEndpoint, parameters('delimiter'), variables('workload'))]"
                                   },
                                   "location": {
                                     "value": "[parameters('location')]"
@@ -3233,20 +3257,11 @@
                                   "mlzTags": {
                                     "value": "[parameters('mlzTags')]"
                                   },
-                                  "resourceAbbreviations": {
-                                    "value": "[parameters('resourceAbbreviations')]"
-                                  },
                                   "subnetResourceId": {
                                     "value": "[parameters('tier').subnetResourceId]"
                                   },
                                   "tags": {
                                     "value": "[parameters('tags')]"
-                                  },
-                                  "tier": {
-                                    "value": "[parameters('tier')]"
-                                  },
-                                  "workload": {
-                                    "value": "[parameters('workload')]"
                                   }
                                 },
                                 "template": {
@@ -3256,7 +3271,7 @@
                                     "_generator": {
                                       "name": "bicep",
                                       "version": "0.36.1.42791",
-                                      "templateHash": "4452583593906992986"
+                                      "templateHash": "8629117296478688013"
                                     }
                                   },
                                   "parameters": {
@@ -3270,7 +3285,16 @@
                                     "keyName": {
                                       "type": "string"
                                     },
+                                    "keyVaultName": {
+                                      "type": "string"
+                                    },
+                                    "keyVaultNetworkInterfaceName": {
+                                      "type": "string"
+                                    },
                                     "keyVaultPrivateDnsZoneResourceId": {
+                                      "type": "string"
+                                    },
+                                    "keyVaultPrivateEndpointName": {
                                       "type": "string"
                                     },
                                     "location": {
@@ -3279,31 +3303,18 @@
                                     "mlzTags": {
                                       "type": "object"
                                     },
-                                    "resourceAbbreviations": {
-                                      "type": "object"
-                                    },
                                     "subnetResourceId": {
                                       "type": "string"
                                     },
                                     "tags": {
                                       "type": "object"
-                                    },
-                                    "tier": {
-                                      "type": "object"
-                                    },
-                                    "workload": {
-                                      "type": "string",
-                                      "defaultValue": ""
                                     }
-                                  },
-                                  "variables": {
-                                    "keyVaultPrivateEndpointName": "[parameters('tier').namingConvention.keyVaultPrivateEndpoint]"
                                   },
                                   "resources": [
                                     {
                                       "type": "Microsoft.KeyVault/vaults",
                                       "apiVersion": "2022-07-01",
-                                      "name": "[format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id, parameters('workload')))]",
+                                      "name": "[parameters('keyVaultName')]",
                                       "location": "[parameters('location')]",
                                       "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.KeyVault/vaults'), createObject()), parameters('mlzTags'))]",
                                       "properties": {
@@ -3331,16 +3342,16 @@
                                     {
                                       "type": "Microsoft.Network/privateEndpoints",
                                       "apiVersion": "2023-04-01",
-                                      "name": "[variables('keyVaultPrivateEndpointName')]",
+                                      "name": "[parameters('keyVaultPrivateEndpointName')]",
                                       "location": "[parameters('location')]",
                                       "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/privateEndpoints'), createObject()), parameters('mlzTags'))]",
                                       "properties": {
-                                        "customNetworkInterfaceName": "[parameters('tier').namingConvention.keyVaultNetworkInterface]",
+                                        "customNetworkInterfaceName": "[parameters('keyVaultNetworkInterfaceName')]",
                                         "privateLinkServiceConnections": [
                                           {
-                                            "name": "[variables('keyVaultPrivateEndpointName')]",
+                                            "name": "[parameters('keyVaultPrivateEndpointName')]",
                                             "properties": {
-                                              "privateLinkServiceId": "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id, parameters('workload'))))]",
+                                              "privateLinkServiceId": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
                                               "groupIds": [
                                                 "vault"
                                               ]
@@ -3352,13 +3363,13 @@
                                         }
                                       },
                                       "dependsOn": [
-                                        "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id, parameters('workload'))))]"
+                                        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
                                       ]
                                     },
                                     {
                                       "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                                       "apiVersion": "2021-08-01",
-                                      "name": "[format('{0}/{1}', variables('keyVaultPrivateEndpointName'), format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id, parameters('workload'))))]",
+                                      "name": "[format('{0}/{1}', parameters('keyVaultPrivateEndpointName'), parameters('keyVaultName'))]",
                                       "properties": {
                                         "privateDnsZoneConfigs": [
                                           {
@@ -3370,14 +3381,14 @@
                                         ]
                                       },
                                       "dependsOn": [
-                                        "[resourceId('Microsoft.Network/privateEndpoints', variables('keyVaultPrivateEndpointName'))]",
-                                        "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id, parameters('workload'))))]"
+                                        "[resourceId('Microsoft.Network/privateEndpoints', parameters('keyVaultPrivateEndpointName'))]",
+                                        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
                                       ]
                                     },
                                     {
                                       "type": "Microsoft.KeyVault/vaults/keys",
                                       "apiVersion": "2022-07-01",
-                                      "name": "[format('{0}/{1}', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id, parameters('workload'))), parameters('keyName'))]",
+                                      "name": "[format('{0}/{1}', parameters('keyVaultName'), parameters('keyName'))]",
                                       "properties": {
                                         "attributes": {
                                           "enabled": true
@@ -3409,7 +3420,7 @@
                                         }
                                       },
                                       "dependsOn": [
-                                        "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id, parameters('workload'))))]"
+                                        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
                                       ]
                                     }
                                   ],
@@ -3420,23 +3431,23 @@
                                     },
                                     "keyUriWithVersion": {
                                       "type": "string",
-                                      "value": "[reference(resourceId('Microsoft.KeyVault/vaults/keys', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id, parameters('workload'))), parameters('keyName')), '2022-07-01').keyUriWithVersion]"
+                                      "value": "[reference(resourceId('Microsoft.KeyVault/vaults/keys', parameters('keyVaultName'), parameters('keyName')), '2022-07-01').keyUriWithVersion]"
                                     },
                                     "keyVaultName": {
                                       "type": "string",
-                                      "value": "[format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id, parameters('workload')))]"
+                                      "value": "[parameters('keyVaultName')]"
                                     },
                                     "keyVaultResourceId": {
                                       "type": "string",
-                                      "value": "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id, parameters('workload'))))]"
+                                      "value": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
                                     },
                                     "keyVaultUri": {
                                       "type": "string",
-                                      "value": "[reference(resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id, parameters('workload')))), '2022-07-01').vaultUri]"
+                                      "value": "[reference(resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName')), '2022-07-01').vaultUri]"
                                     },
                                     "networkInterfaceResourceId": {
                                       "type": "string",
-                                      "value": "[reference(resourceId('Microsoft.Network/privateEndpoints', variables('keyVaultPrivateEndpointName')), '2023-04-01').networkInterfaces[0].id]"
+                                      "value": "[reference(resourceId('Microsoft.Network/privateEndpoints', parameters('keyVaultPrivateEndpointName')), '2023-04-01').networkInterfaces[0].id]"
                                     }
                                   }
                                 }
@@ -3447,7 +3458,7 @@
                               "apiVersion": "2022-09-01",
                               "name": "[format('deploy-cmk-id-{0}', parameters('deploymentNameSuffix'))]",
                               "subscriptionId": "[parameters('tier').subscriptionId]",
-                              "resourceGroup": "[parameters('tier').resourceGroupName]",
+                              "resourceGroup": "[parameters('resourceGroupName')]",
                               "properties": {
                                 "expressionEvaluationOptions": {
                                   "scope": "inner"
@@ -3455,7 +3466,7 @@
                                 "mode": "Incremental",
                                 "parameters": {
                                   "keyVaultName": {
-                                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultName.value]"
+                                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultName.value]"
                                   },
                                   "location": {
                                     "value": "[parameters('location')]"
@@ -3467,7 +3478,7 @@
                                     "value": "[parameters('tags')]"
                                   },
                                   "userAssignedIdentityName": {
-                                    "value": "[parameters('tier').namingConvention.userAssignedIdentity]"
+                                    "value": "[format('{0}{1}{2}', parameters('tier').namingConvention.userAssignedIdentity, parameters('delimiter'), variables('workload'))]"
                                   }
                                 },
                                 "template": {
@@ -3529,48 +3540,231 @@
                                 }
                               },
                               "dependsOn": [
-                                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix')))]"
+                                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix')))]"
+                              ]
+                            },
+                            {
+                              "condition": "[equals(parameters('type'), 'virtualMachine')]",
+                              "type": "Microsoft.Resources/deployments",
+                              "apiVersion": "2022-09-01",
+                              "name": "[format('deploy-cmk-des-{0}', parameters('deploymentNameSuffix'))]",
+                              "subscriptionId": "[parameters('tier').subscriptionId]",
+                              "resourceGroup": "[parameters('resourceGroupName')]",
+                              "properties": {
+                                "expressionEvaluationOptions": {
+                                  "scope": "inner"
+                                },
+                                "mode": "Incremental",
+                                "parameters": {
+                                  "deploymentNameSuffix": {
+                                    "value": "[parameters('deploymentNameSuffix')]"
+                                  },
+                                  "diskEncryptionSetName": {
+                                    "value": "[format('{0}{1}{2}', parameters('tier').namingConvention.diskEncryptionSet, parameters('delimiter'), variables('workload'))]"
+                                  },
+                                  "keyUrl": {
+                                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyUriWithVersion.value]"
+                                  },
+                                  "keyVaultResourceId": {
+                                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultResourceId.value]"
+                                  },
+                                  "location": {
+                                    "value": "[parameters('location')]"
+                                  },
+                                  "mlzTags": {
+                                    "value": "[parameters('mlzTags')]"
+                                  },
+                                  "tags": {
+                                    "value": "[parameters('tags')]"
+                                  }
+                                },
+                                "template": {
+                                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                                  "contentVersion": "1.0.0.0",
+                                  "metadata": {
+                                    "_generator": {
+                                      "name": "bicep",
+                                      "version": "0.36.1.42791",
+                                      "templateHash": "9165382936196467237"
+                                    }
+                                  },
+                                  "parameters": {
+                                    "deploymentNameSuffix": {
+                                      "type": "string"
+                                    },
+                                    "diskEncryptionSetName": {
+                                      "type": "string"
+                                    },
+                                    "keyUrl": {
+                                      "type": "string"
+                                    },
+                                    "keyVaultResourceId": {
+                                      "type": "string"
+                                    },
+                                    "location": {
+                                      "type": "string"
+                                    },
+                                    "mlzTags": {
+                                      "type": "object"
+                                    },
+                                    "tags": {
+                                      "type": "object"
+                                    }
+                                  },
+                                  "resources": [
+                                    {
+                                      "type": "Microsoft.Compute/diskEncryptionSets",
+                                      "apiVersion": "2023-04-02",
+                                      "name": "[parameters('diskEncryptionSetName')]",
+                                      "location": "[parameters('location')]",
+                                      "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/diskEncryptionSets'), createObject()), parameters('mlzTags'))]",
+                                      "identity": {
+                                        "type": "SystemAssigned"
+                                      },
+                                      "properties": {
+                                        "activeKey": {
+                                          "sourceVault": {
+                                            "id": "[parameters('keyVaultResourceId')]"
+                                          },
+                                          "keyUrl": "[parameters('keyUrl')]"
+                                        },
+                                        "encryptionType": "EncryptionAtRestWithPlatformAndCustomerKeys",
+                                        "rotationToLatestKeyVersionEnabled": true
+                                      }
+                                    },
+                                    {
+                                      "type": "Microsoft.Resources/deployments",
+                                      "apiVersion": "2022-09-01",
+                                      "name": "[format('assign-role-des-{0}', parameters('deploymentNameSuffix'))]",
+                                      "properties": {
+                                        "expressionEvaluationOptions": {
+                                          "scope": "inner"
+                                        },
+                                        "mode": "Incremental",
+                                        "parameters": {
+                                          "principalId": {
+                                            "value": "[reference(resourceId('Microsoft.Compute/diskEncryptionSets', parameters('diskEncryptionSetName')), '2023-04-02', 'full').identity.principalId]"
+                                          },
+                                          "principalType": {
+                                            "value": "ServicePrincipal"
+                                          },
+                                          "roleDefinitionId": {
+                                            "value": "[resourceId('Microsoft.Authorization/roleDefinitions', 'e147488a-f6f5-4113-8e2d-b22465e65bf6')]"
+                                          },
+                                          "targetResourceId": {
+                                            "value": "[resourceGroup().id]"
+                                          }
+                                        },
+                                        "template": {
+                                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                                          "contentVersion": "1.0.0.0",
+                                          "metadata": {
+                                            "_generator": {
+                                              "name": "bicep",
+                                              "version": "0.36.1.42791",
+                                              "templateHash": "3395848543463052807"
+                                            }
+                                          },
+                                          "parameters": {
+                                            "targetResourceId": {
+                                              "type": "string"
+                                            },
+                                            "roleDefinitionId": {
+                                              "type": "string"
+                                            },
+                                            "principalId": {
+                                              "type": "string"
+                                            },
+                                            "principalType": {
+                                              "type": "string",
+                                              "defaultValue": "ServicePrincipal",
+                                              "allowedValues": [
+                                                "ForeignGroup",
+                                                "Group",
+                                                "ServicePrincipal",
+                                                "User"
+                                              ]
+                                            },
+                                            "description": {
+                                              "type": "string",
+                                              "defaultValue": ""
+                                            }
+                                          },
+                                          "resources": [
+                                            {
+                                              "type": "Microsoft.Authorization/roleAssignments",
+                                              "apiVersion": "2020-04-01-preview",
+                                              "name": "[guid(parameters('targetResourceId'), parameters('roleDefinitionId'), parameters('principalId'))]",
+                                              "properties": {
+                                                "principalId": "[parameters('principalId')]",
+                                                "principalType": "[parameters('principalType')]",
+                                                "roleDefinitionId": "[parameters('roleDefinitionId')]",
+                                                "description": "[parameters('description')]"
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      "dependsOn": [
+                                        "[resourceId('Microsoft.Compute/diskEncryptionSets', parameters('diskEncryptionSetName'))]"
+                                      ]
+                                    }
+                                  ],
+                                  "outputs": {
+                                    "resourceId": {
+                                      "type": "string",
+                                      "value": "[resourceId('Microsoft.Compute/diskEncryptionSets', parameters('diskEncryptionSetName'))]"
+                                    }
+                                  }
+                                }
+                              },
+                              "dependsOn": [
+                                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix')))]"
                               ]
                             }
                           ],
                           "outputs": {
+                            "diskEncryptionSetResourceId": {
+                              "type": "string",
+                              "value": "[if(equals(parameters('type'), 'virtualMachine'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-des-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value, '')]"
+                            },
                             "keyVaultProperties": {
                               "type": "object",
                               "value": {
-                                "diagnosticSettingName": "[format('{0}{1}', parameters('tier').namingConvention.keyVaultDiagnosticSetting, if(empty(parameters('workload')), '', format('{0}{1}', parameters('delimiter'), parameters('workload'))))]",
-                                "name": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultName.value]",
-                                "resourceGroupName": "[parameters('tier').resourceGroupName]",
+                                "diagnosticSettingName": "[format('{0}{1}{2}', parameters('tier').namingConvention.keyVaultDiagnosticSetting, parameters('delimiter'), variables('workload'))]",
+                                "name": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultName.value]",
+                                "resourceGroupName": "[parameters('resourceGroupName')]",
                                 "subscriptionId": "[parameters('tier').subscriptionId]",
                                 "tierName": "[parameters('tier').name]"
                               }
                             },
                             "keyName": {
                               "type": "string",
-                              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyName.value]"
+                              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyName.value]"
                             },
                             "keyUriWithVersion": {
                               "type": "string",
-                              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyUriWithVersion.value]"
+                              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyUriWithVersion.value]"
                             },
                             "keyVaultName": {
                               "type": "string",
-                              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultName.value]"
+                              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultName.value]"
                             },
                             "keyVaultUri": {
                               "type": "string",
-                              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultUri.value]"
+                              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultUri.value]"
                             },
                             "keyVaultResourceId": {
                               "type": "string",
-                              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultResourceId.value]"
+                              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultResourceId.value]"
                             },
                             "keyVaultNetworkInterfaceResourceId": {
                               "type": "string",
-                              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkInterfaceResourceId.value]"
+                              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkInterfaceResourceId.value]"
                             },
                             "userAssignedIdentityResourceId": {
                               "type": "string",
-                              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-cmk-id-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
+                              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-id-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
                             }
                           }
                         }
@@ -5388,7 +5582,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.36.1.42791",
-              "templateHash": "12964865139242906348"
+              "templateHash": "12481896528786313583"
             }
           },
           "parameters": {
@@ -7580,7 +7774,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.36.1.42791",
-                      "templateHash": "5148052245688389581"
+                      "templateHash": "14759798621515733780"
                     }
                   },
                   "parameters": {
@@ -7678,11 +7872,17 @@
                           "resourceAbbreviations": {
                             "value": "[parameters('resourceAbbreviations')]"
                           },
+                          "resourceGroupName": {
+                            "value": "[parameters('tier').resourceGroupName]"
+                          },
                           "tags": {
                             "value": "[parameters('tags')]"
                           },
                           "tier": {
                             "value": "[parameters('tier')]"
+                          },
+                          "type": {
+                            "value": "storageAccount"
                           }
                         },
                         "template": {
@@ -7692,7 +7892,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.36.1.42791",
-                              "templateHash": "15954686574831080109"
+                              "templateHash": "5527491738976255572"
                             }
                           },
                           "parameters": {
@@ -7720,16 +7920,25 @@
                             "resourceAbbreviations": {
                               "type": "object"
                             },
+                            "resourceGroupName": {
+                              "type": "string"
+                            },
                             "tags": {
                               "type": "object"
                             },
                             "tier": {
                               "type": "object"
                             },
-                            "workload": {
+                            "type": {
                               "type": "string",
-                              "defaultValue": ""
+                              "allowedValues": [
+                                "storageAccount",
+                                "virtualMachine"
+                              ]
                             }
+                          },
+                          "variables": {
+                            "workload": "cmk"
                           },
                           "resources": [
                             {
@@ -7737,7 +7946,7 @@
                               "apiVersion": "2022-09-01",
                               "name": "[format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))]",
                               "subscriptionId": "[parameters('tier').subscriptionId]",
-                              "resourceGroup": "[parameters('tier').resourceGroupName]",
+                              "resourceGroup": "[parameters('resourceGroupName')]",
                               "properties": {
                                 "expressionEvaluationOptions": {
                                   "scope": "inner"
@@ -7750,8 +7959,17 @@
                                   "keyName": {
                                     "value": "[parameters('keyName')]"
                                   },
+                                  "keyVaultName": {
+                                    "value": "[format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, parameters('resourceGroupName'), parameters('tier').namingConvention.keyVault, variables('workload')))]"
+                                  },
+                                  "keyVaultNetworkInterfaceName": {
+                                    "value": "[format('{0}{1}{2}', parameters('tier').namingConvention.keyVaultNetworkInterface, parameters('delimiter'), variables('workload'))]"
+                                  },
                                   "keyVaultPrivateDnsZoneResourceId": {
                                     "value": "[parameters('keyVaultPrivateDnsZoneResourceId')]"
+                                  },
+                                  "keyVaultPrivateEndpointName": {
+                                    "value": "[format('{0}{1}{2}', parameters('tier').namingConvention.keyVaultPrivateEndpoint, parameters('delimiter'), variables('workload'))]"
                                   },
                                   "location": {
                                     "value": "[parameters('location')]"
@@ -7759,20 +7977,11 @@
                                   "mlzTags": {
                                     "value": "[parameters('mlzTags')]"
                                   },
-                                  "resourceAbbreviations": {
-                                    "value": "[parameters('resourceAbbreviations')]"
-                                  },
                                   "subnetResourceId": {
                                     "value": "[parameters('tier').subnetResourceId]"
                                   },
                                   "tags": {
                                     "value": "[parameters('tags')]"
-                                  },
-                                  "tier": {
-                                    "value": "[parameters('tier')]"
-                                  },
-                                  "workload": {
-                                    "value": "[parameters('workload')]"
                                   }
                                 },
                                 "template": {
@@ -7782,7 +7991,7 @@
                                     "_generator": {
                                       "name": "bicep",
                                       "version": "0.36.1.42791",
-                                      "templateHash": "4452583593906992986"
+                                      "templateHash": "8629117296478688013"
                                     }
                                   },
                                   "parameters": {
@@ -7796,7 +8005,16 @@
                                     "keyName": {
                                       "type": "string"
                                     },
+                                    "keyVaultName": {
+                                      "type": "string"
+                                    },
+                                    "keyVaultNetworkInterfaceName": {
+                                      "type": "string"
+                                    },
                                     "keyVaultPrivateDnsZoneResourceId": {
+                                      "type": "string"
+                                    },
+                                    "keyVaultPrivateEndpointName": {
                                       "type": "string"
                                     },
                                     "location": {
@@ -7805,31 +8023,18 @@
                                     "mlzTags": {
                                       "type": "object"
                                     },
-                                    "resourceAbbreviations": {
-                                      "type": "object"
-                                    },
                                     "subnetResourceId": {
                                       "type": "string"
                                     },
                                     "tags": {
                                       "type": "object"
-                                    },
-                                    "tier": {
-                                      "type": "object"
-                                    },
-                                    "workload": {
-                                      "type": "string",
-                                      "defaultValue": ""
                                     }
-                                  },
-                                  "variables": {
-                                    "keyVaultPrivateEndpointName": "[parameters('tier').namingConvention.keyVaultPrivateEndpoint]"
                                   },
                                   "resources": [
                                     {
                                       "type": "Microsoft.KeyVault/vaults",
                                       "apiVersion": "2022-07-01",
-                                      "name": "[format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id, parameters('workload')))]",
+                                      "name": "[parameters('keyVaultName')]",
                                       "location": "[parameters('location')]",
                                       "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.KeyVault/vaults'), createObject()), parameters('mlzTags'))]",
                                       "properties": {
@@ -7857,16 +8062,16 @@
                                     {
                                       "type": "Microsoft.Network/privateEndpoints",
                                       "apiVersion": "2023-04-01",
-                                      "name": "[variables('keyVaultPrivateEndpointName')]",
+                                      "name": "[parameters('keyVaultPrivateEndpointName')]",
                                       "location": "[parameters('location')]",
                                       "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/privateEndpoints'), createObject()), parameters('mlzTags'))]",
                                       "properties": {
-                                        "customNetworkInterfaceName": "[parameters('tier').namingConvention.keyVaultNetworkInterface]",
+                                        "customNetworkInterfaceName": "[parameters('keyVaultNetworkInterfaceName')]",
                                         "privateLinkServiceConnections": [
                                           {
-                                            "name": "[variables('keyVaultPrivateEndpointName')]",
+                                            "name": "[parameters('keyVaultPrivateEndpointName')]",
                                             "properties": {
-                                              "privateLinkServiceId": "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id, parameters('workload'))))]",
+                                              "privateLinkServiceId": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
                                               "groupIds": [
                                                 "vault"
                                               ]
@@ -7878,13 +8083,13 @@
                                         }
                                       },
                                       "dependsOn": [
-                                        "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id, parameters('workload'))))]"
+                                        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
                                       ]
                                     },
                                     {
                                       "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                                       "apiVersion": "2021-08-01",
-                                      "name": "[format('{0}/{1}', variables('keyVaultPrivateEndpointName'), format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id, parameters('workload'))))]",
+                                      "name": "[format('{0}/{1}', parameters('keyVaultPrivateEndpointName'), parameters('keyVaultName'))]",
                                       "properties": {
                                         "privateDnsZoneConfigs": [
                                           {
@@ -7896,14 +8101,14 @@
                                         ]
                                       },
                                       "dependsOn": [
-                                        "[resourceId('Microsoft.Network/privateEndpoints', variables('keyVaultPrivateEndpointName'))]",
-                                        "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id, parameters('workload'))))]"
+                                        "[resourceId('Microsoft.Network/privateEndpoints', parameters('keyVaultPrivateEndpointName'))]",
+                                        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
                                       ]
                                     },
                                     {
                                       "type": "Microsoft.KeyVault/vaults/keys",
                                       "apiVersion": "2022-07-01",
-                                      "name": "[format('{0}/{1}', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id, parameters('workload'))), parameters('keyName'))]",
+                                      "name": "[format('{0}/{1}', parameters('keyVaultName'), parameters('keyName'))]",
                                       "properties": {
                                         "attributes": {
                                           "enabled": true
@@ -7935,7 +8140,7 @@
                                         }
                                       },
                                       "dependsOn": [
-                                        "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id, parameters('workload'))))]"
+                                        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
                                       ]
                                     }
                                   ],
@@ -7946,23 +8151,23 @@
                                     },
                                     "keyUriWithVersion": {
                                       "type": "string",
-                                      "value": "[reference(resourceId('Microsoft.KeyVault/vaults/keys', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id, parameters('workload'))), parameters('keyName')), '2022-07-01').keyUriWithVersion]"
+                                      "value": "[reference(resourceId('Microsoft.KeyVault/vaults/keys', parameters('keyVaultName'), parameters('keyName')), '2022-07-01').keyUriWithVersion]"
                                     },
                                     "keyVaultName": {
                                       "type": "string",
-                                      "value": "[format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id, parameters('workload')))]"
+                                      "value": "[parameters('keyVaultName')]"
                                     },
                                     "keyVaultResourceId": {
                                       "type": "string",
-                                      "value": "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id, parameters('workload'))))]"
+                                      "value": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
                                     },
                                     "keyVaultUri": {
                                       "type": "string",
-                                      "value": "[reference(resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id, parameters('workload')))), '2022-07-01').vaultUri]"
+                                      "value": "[reference(resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName')), '2022-07-01').vaultUri]"
                                     },
                                     "networkInterfaceResourceId": {
                                       "type": "string",
-                                      "value": "[reference(resourceId('Microsoft.Network/privateEndpoints', variables('keyVaultPrivateEndpointName')), '2023-04-01').networkInterfaces[0].id]"
+                                      "value": "[reference(resourceId('Microsoft.Network/privateEndpoints', parameters('keyVaultPrivateEndpointName')), '2023-04-01').networkInterfaces[0].id]"
                                     }
                                   }
                                 }
@@ -7973,7 +8178,7 @@
                               "apiVersion": "2022-09-01",
                               "name": "[format('deploy-cmk-id-{0}', parameters('deploymentNameSuffix'))]",
                               "subscriptionId": "[parameters('tier').subscriptionId]",
-                              "resourceGroup": "[parameters('tier').resourceGroupName]",
+                              "resourceGroup": "[parameters('resourceGroupName')]",
                               "properties": {
                                 "expressionEvaluationOptions": {
                                   "scope": "inner"
@@ -7981,7 +8186,7 @@
                                 "mode": "Incremental",
                                 "parameters": {
                                   "keyVaultName": {
-                                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultName.value]"
+                                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultName.value]"
                                   },
                                   "location": {
                                     "value": "[parameters('location')]"
@@ -7993,7 +8198,7 @@
                                     "value": "[parameters('tags')]"
                                   },
                                   "userAssignedIdentityName": {
-                                    "value": "[parameters('tier').namingConvention.userAssignedIdentity]"
+                                    "value": "[format('{0}{1}{2}', parameters('tier').namingConvention.userAssignedIdentity, parameters('delimiter'), variables('workload'))]"
                                   }
                                 },
                                 "template": {
@@ -8055,48 +8260,231 @@
                                 }
                               },
                               "dependsOn": [
-                                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix')))]"
+                                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix')))]"
+                              ]
+                            },
+                            {
+                              "condition": "[equals(parameters('type'), 'virtualMachine')]",
+                              "type": "Microsoft.Resources/deployments",
+                              "apiVersion": "2022-09-01",
+                              "name": "[format('deploy-cmk-des-{0}', parameters('deploymentNameSuffix'))]",
+                              "subscriptionId": "[parameters('tier').subscriptionId]",
+                              "resourceGroup": "[parameters('resourceGroupName')]",
+                              "properties": {
+                                "expressionEvaluationOptions": {
+                                  "scope": "inner"
+                                },
+                                "mode": "Incremental",
+                                "parameters": {
+                                  "deploymentNameSuffix": {
+                                    "value": "[parameters('deploymentNameSuffix')]"
+                                  },
+                                  "diskEncryptionSetName": {
+                                    "value": "[format('{0}{1}{2}', parameters('tier').namingConvention.diskEncryptionSet, parameters('delimiter'), variables('workload'))]"
+                                  },
+                                  "keyUrl": {
+                                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyUriWithVersion.value]"
+                                  },
+                                  "keyVaultResourceId": {
+                                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultResourceId.value]"
+                                  },
+                                  "location": {
+                                    "value": "[parameters('location')]"
+                                  },
+                                  "mlzTags": {
+                                    "value": "[parameters('mlzTags')]"
+                                  },
+                                  "tags": {
+                                    "value": "[parameters('tags')]"
+                                  }
+                                },
+                                "template": {
+                                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                                  "contentVersion": "1.0.0.0",
+                                  "metadata": {
+                                    "_generator": {
+                                      "name": "bicep",
+                                      "version": "0.36.1.42791",
+                                      "templateHash": "9165382936196467237"
+                                    }
+                                  },
+                                  "parameters": {
+                                    "deploymentNameSuffix": {
+                                      "type": "string"
+                                    },
+                                    "diskEncryptionSetName": {
+                                      "type": "string"
+                                    },
+                                    "keyUrl": {
+                                      "type": "string"
+                                    },
+                                    "keyVaultResourceId": {
+                                      "type": "string"
+                                    },
+                                    "location": {
+                                      "type": "string"
+                                    },
+                                    "mlzTags": {
+                                      "type": "object"
+                                    },
+                                    "tags": {
+                                      "type": "object"
+                                    }
+                                  },
+                                  "resources": [
+                                    {
+                                      "type": "Microsoft.Compute/diskEncryptionSets",
+                                      "apiVersion": "2023-04-02",
+                                      "name": "[parameters('diskEncryptionSetName')]",
+                                      "location": "[parameters('location')]",
+                                      "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/diskEncryptionSets'), createObject()), parameters('mlzTags'))]",
+                                      "identity": {
+                                        "type": "SystemAssigned"
+                                      },
+                                      "properties": {
+                                        "activeKey": {
+                                          "sourceVault": {
+                                            "id": "[parameters('keyVaultResourceId')]"
+                                          },
+                                          "keyUrl": "[parameters('keyUrl')]"
+                                        },
+                                        "encryptionType": "EncryptionAtRestWithPlatformAndCustomerKeys",
+                                        "rotationToLatestKeyVersionEnabled": true
+                                      }
+                                    },
+                                    {
+                                      "type": "Microsoft.Resources/deployments",
+                                      "apiVersion": "2022-09-01",
+                                      "name": "[format('assign-role-des-{0}', parameters('deploymentNameSuffix'))]",
+                                      "properties": {
+                                        "expressionEvaluationOptions": {
+                                          "scope": "inner"
+                                        },
+                                        "mode": "Incremental",
+                                        "parameters": {
+                                          "principalId": {
+                                            "value": "[reference(resourceId('Microsoft.Compute/diskEncryptionSets', parameters('diskEncryptionSetName')), '2023-04-02', 'full').identity.principalId]"
+                                          },
+                                          "principalType": {
+                                            "value": "ServicePrincipal"
+                                          },
+                                          "roleDefinitionId": {
+                                            "value": "[resourceId('Microsoft.Authorization/roleDefinitions', 'e147488a-f6f5-4113-8e2d-b22465e65bf6')]"
+                                          },
+                                          "targetResourceId": {
+                                            "value": "[resourceGroup().id]"
+                                          }
+                                        },
+                                        "template": {
+                                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                                          "contentVersion": "1.0.0.0",
+                                          "metadata": {
+                                            "_generator": {
+                                              "name": "bicep",
+                                              "version": "0.36.1.42791",
+                                              "templateHash": "3395848543463052807"
+                                            }
+                                          },
+                                          "parameters": {
+                                            "targetResourceId": {
+                                              "type": "string"
+                                            },
+                                            "roleDefinitionId": {
+                                              "type": "string"
+                                            },
+                                            "principalId": {
+                                              "type": "string"
+                                            },
+                                            "principalType": {
+                                              "type": "string",
+                                              "defaultValue": "ServicePrincipal",
+                                              "allowedValues": [
+                                                "ForeignGroup",
+                                                "Group",
+                                                "ServicePrincipal",
+                                                "User"
+                                              ]
+                                            },
+                                            "description": {
+                                              "type": "string",
+                                              "defaultValue": ""
+                                            }
+                                          },
+                                          "resources": [
+                                            {
+                                              "type": "Microsoft.Authorization/roleAssignments",
+                                              "apiVersion": "2020-04-01-preview",
+                                              "name": "[guid(parameters('targetResourceId'), parameters('roleDefinitionId'), parameters('principalId'))]",
+                                              "properties": {
+                                                "principalId": "[parameters('principalId')]",
+                                                "principalType": "[parameters('principalType')]",
+                                                "roleDefinitionId": "[parameters('roleDefinitionId')]",
+                                                "description": "[parameters('description')]"
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      "dependsOn": [
+                                        "[resourceId('Microsoft.Compute/diskEncryptionSets', parameters('diskEncryptionSetName'))]"
+                                      ]
+                                    }
+                                  ],
+                                  "outputs": {
+                                    "resourceId": {
+                                      "type": "string",
+                                      "value": "[resourceId('Microsoft.Compute/diskEncryptionSets', parameters('diskEncryptionSetName'))]"
+                                    }
+                                  }
+                                }
+                              },
+                              "dependsOn": [
+                                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix')))]"
                               ]
                             }
                           ],
                           "outputs": {
+                            "diskEncryptionSetResourceId": {
+                              "type": "string",
+                              "value": "[if(equals(parameters('type'), 'virtualMachine'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-des-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value, '')]"
+                            },
                             "keyVaultProperties": {
                               "type": "object",
                               "value": {
-                                "diagnosticSettingName": "[format('{0}{1}', parameters('tier').namingConvention.keyVaultDiagnosticSetting, if(empty(parameters('workload')), '', format('{0}{1}', parameters('delimiter'), parameters('workload'))))]",
-                                "name": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultName.value]",
-                                "resourceGroupName": "[parameters('tier').resourceGroupName]",
+                                "diagnosticSettingName": "[format('{0}{1}{2}', parameters('tier').namingConvention.keyVaultDiagnosticSetting, parameters('delimiter'), variables('workload'))]",
+                                "name": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultName.value]",
+                                "resourceGroupName": "[parameters('resourceGroupName')]",
                                 "subscriptionId": "[parameters('tier').subscriptionId]",
                                 "tierName": "[parameters('tier').name]"
                               }
                             },
                             "keyName": {
                               "type": "string",
-                              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyName.value]"
+                              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyName.value]"
                             },
                             "keyUriWithVersion": {
                               "type": "string",
-                              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyUriWithVersion.value]"
+                              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyUriWithVersion.value]"
                             },
                             "keyVaultName": {
                               "type": "string",
-                              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultName.value]"
+                              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultName.value]"
                             },
                             "keyVaultUri": {
                               "type": "string",
-                              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultUri.value]"
+                              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultUri.value]"
                             },
                             "keyVaultResourceId": {
                               "type": "string",
-                              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultResourceId.value]"
+                              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultResourceId.value]"
                             },
                             "keyVaultNetworkInterfaceResourceId": {
                               "type": "string",
-                              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkInterfaceResourceId.value]"
+                              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkInterfaceResourceId.value]"
                             },
                             "userAssignedIdentityResourceId": {
                               "type": "string",
-                              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-cmk-id-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
+                              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-id-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
                             }
                           }
                         }
@@ -9880,7 +10268,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.36.1.42791",
-              "templateHash": "17518141489120104288"
+              "templateHash": "16512103853643252691"
             }
           },
           "parameters": {
@@ -10422,11 +10810,17 @@
                   "resourceAbbreviations": {
                     "value": "[parameters('resourceAbbreviations')]"
                   },
+                  "resourceGroupName": {
+                    "value": "[variables('resourceGroupManagement')]"
+                  },
                   "tags": {
                     "value": "[parameters('tags')]"
                   },
                   "tier": {
                     "value": "[parameters('tier')]"
+                  },
+                  "type": {
+                    "value": "virtualMachine"
                   }
                 },
                 "template": {
@@ -10436,7 +10830,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.36.1.42791",
-                      "templateHash": "15954686574831080109"
+                      "templateHash": "5527491738976255572"
                     }
                   },
                   "parameters": {
@@ -10464,16 +10858,25 @@
                     "resourceAbbreviations": {
                       "type": "object"
                     },
+                    "resourceGroupName": {
+                      "type": "string"
+                    },
                     "tags": {
                       "type": "object"
                     },
                     "tier": {
                       "type": "object"
                     },
-                    "workload": {
+                    "type": {
                       "type": "string",
-                      "defaultValue": ""
+                      "allowedValues": [
+                        "storageAccount",
+                        "virtualMachine"
+                      ]
                     }
+                  },
+                  "variables": {
+                    "workload": "cmk"
                   },
                   "resources": [
                     {
@@ -10481,7 +10884,7 @@
                       "apiVersion": "2022-09-01",
                       "name": "[format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))]",
                       "subscriptionId": "[parameters('tier').subscriptionId]",
-                      "resourceGroup": "[parameters('tier').resourceGroupName]",
+                      "resourceGroup": "[parameters('resourceGroupName')]",
                       "properties": {
                         "expressionEvaluationOptions": {
                           "scope": "inner"
@@ -10494,8 +10897,17 @@
                           "keyName": {
                             "value": "[parameters('keyName')]"
                           },
+                          "keyVaultName": {
+                            "value": "[format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, parameters('resourceGroupName'), parameters('tier').namingConvention.keyVault, variables('workload')))]"
+                          },
+                          "keyVaultNetworkInterfaceName": {
+                            "value": "[format('{0}{1}{2}', parameters('tier').namingConvention.keyVaultNetworkInterface, parameters('delimiter'), variables('workload'))]"
+                          },
                           "keyVaultPrivateDnsZoneResourceId": {
                             "value": "[parameters('keyVaultPrivateDnsZoneResourceId')]"
+                          },
+                          "keyVaultPrivateEndpointName": {
+                            "value": "[format('{0}{1}{2}', parameters('tier').namingConvention.keyVaultPrivateEndpoint, parameters('delimiter'), variables('workload'))]"
                           },
                           "location": {
                             "value": "[parameters('location')]"
@@ -10503,20 +10915,11 @@
                           "mlzTags": {
                             "value": "[parameters('mlzTags')]"
                           },
-                          "resourceAbbreviations": {
-                            "value": "[parameters('resourceAbbreviations')]"
-                          },
                           "subnetResourceId": {
                             "value": "[parameters('tier').subnetResourceId]"
                           },
                           "tags": {
                             "value": "[parameters('tags')]"
-                          },
-                          "tier": {
-                            "value": "[parameters('tier')]"
-                          },
-                          "workload": {
-                            "value": "[parameters('workload')]"
                           }
                         },
                         "template": {
@@ -10526,7 +10929,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.36.1.42791",
-                              "templateHash": "4452583593906992986"
+                              "templateHash": "8629117296478688013"
                             }
                           },
                           "parameters": {
@@ -10540,7 +10943,16 @@
                             "keyName": {
                               "type": "string"
                             },
+                            "keyVaultName": {
+                              "type": "string"
+                            },
+                            "keyVaultNetworkInterfaceName": {
+                              "type": "string"
+                            },
                             "keyVaultPrivateDnsZoneResourceId": {
+                              "type": "string"
+                            },
+                            "keyVaultPrivateEndpointName": {
                               "type": "string"
                             },
                             "location": {
@@ -10549,31 +10961,18 @@
                             "mlzTags": {
                               "type": "object"
                             },
-                            "resourceAbbreviations": {
-                              "type": "object"
-                            },
                             "subnetResourceId": {
                               "type": "string"
                             },
                             "tags": {
                               "type": "object"
-                            },
-                            "tier": {
-                              "type": "object"
-                            },
-                            "workload": {
-                              "type": "string",
-                              "defaultValue": ""
                             }
-                          },
-                          "variables": {
-                            "keyVaultPrivateEndpointName": "[parameters('tier').namingConvention.keyVaultPrivateEndpoint]"
                           },
                           "resources": [
                             {
                               "type": "Microsoft.KeyVault/vaults",
                               "apiVersion": "2022-07-01",
-                              "name": "[format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id, parameters('workload')))]",
+                              "name": "[parameters('keyVaultName')]",
                               "location": "[parameters('location')]",
                               "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.KeyVault/vaults'), createObject()), parameters('mlzTags'))]",
                               "properties": {
@@ -10601,16 +11000,16 @@
                             {
                               "type": "Microsoft.Network/privateEndpoints",
                               "apiVersion": "2023-04-01",
-                              "name": "[variables('keyVaultPrivateEndpointName')]",
+                              "name": "[parameters('keyVaultPrivateEndpointName')]",
                               "location": "[parameters('location')]",
                               "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/privateEndpoints'), createObject()), parameters('mlzTags'))]",
                               "properties": {
-                                "customNetworkInterfaceName": "[parameters('tier').namingConvention.keyVaultNetworkInterface]",
+                                "customNetworkInterfaceName": "[parameters('keyVaultNetworkInterfaceName')]",
                                 "privateLinkServiceConnections": [
                                   {
-                                    "name": "[variables('keyVaultPrivateEndpointName')]",
+                                    "name": "[parameters('keyVaultPrivateEndpointName')]",
                                     "properties": {
-                                      "privateLinkServiceId": "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id, parameters('workload'))))]",
+                                      "privateLinkServiceId": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
                                       "groupIds": [
                                         "vault"
                                       ]
@@ -10622,13 +11021,13 @@
                                 }
                               },
                               "dependsOn": [
-                                "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id, parameters('workload'))))]"
+                                "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
                               ]
                             },
                             {
                               "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                               "apiVersion": "2021-08-01",
-                              "name": "[format('{0}/{1}', variables('keyVaultPrivateEndpointName'), format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id, parameters('workload'))))]",
+                              "name": "[format('{0}/{1}', parameters('keyVaultPrivateEndpointName'), parameters('keyVaultName'))]",
                               "properties": {
                                 "privateDnsZoneConfigs": [
                                   {
@@ -10640,14 +11039,14 @@
                                 ]
                               },
                               "dependsOn": [
-                                "[resourceId('Microsoft.Network/privateEndpoints', variables('keyVaultPrivateEndpointName'))]",
-                                "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id, parameters('workload'))))]"
+                                "[resourceId('Microsoft.Network/privateEndpoints', parameters('keyVaultPrivateEndpointName'))]",
+                                "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
                               ]
                             },
                             {
                               "type": "Microsoft.KeyVault/vaults/keys",
                               "apiVersion": "2022-07-01",
-                              "name": "[format('{0}/{1}', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id, parameters('workload'))), parameters('keyName'))]",
+                              "name": "[format('{0}/{1}', parameters('keyVaultName'), parameters('keyName'))]",
                               "properties": {
                                 "attributes": {
                                   "enabled": true
@@ -10679,7 +11078,7 @@
                                 }
                               },
                               "dependsOn": [
-                                "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id, parameters('workload'))))]"
+                                "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
                               ]
                             }
                           ],
@@ -10690,23 +11089,23 @@
                             },
                             "keyUriWithVersion": {
                               "type": "string",
-                              "value": "[reference(resourceId('Microsoft.KeyVault/vaults/keys', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id, parameters('workload'))), parameters('keyName')), '2022-07-01').keyUriWithVersion]"
+                              "value": "[reference(resourceId('Microsoft.KeyVault/vaults/keys', parameters('keyVaultName'), parameters('keyName')), '2022-07-01').keyUriWithVersion]"
                             },
                             "keyVaultName": {
                               "type": "string",
-                              "value": "[format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id, parameters('workload')))]"
+                              "value": "[parameters('keyVaultName')]"
                             },
                             "keyVaultResourceId": {
                               "type": "string",
-                              "value": "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id, parameters('workload'))))]"
+                              "value": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
                             },
                             "keyVaultUri": {
                               "type": "string",
-                              "value": "[reference(resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').namingConvention.keyVault, resourceGroup().id, parameters('workload')))), '2022-07-01').vaultUri]"
+                              "value": "[reference(resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName')), '2022-07-01').vaultUri]"
                             },
                             "networkInterfaceResourceId": {
                               "type": "string",
-                              "value": "[reference(resourceId('Microsoft.Network/privateEndpoints', variables('keyVaultPrivateEndpointName')), '2023-04-01').networkInterfaces[0].id]"
+                              "value": "[reference(resourceId('Microsoft.Network/privateEndpoints', parameters('keyVaultPrivateEndpointName')), '2023-04-01').networkInterfaces[0].id]"
                             }
                           }
                         }
@@ -10717,7 +11116,7 @@
                       "apiVersion": "2022-09-01",
                       "name": "[format('deploy-cmk-id-{0}', parameters('deploymentNameSuffix'))]",
                       "subscriptionId": "[parameters('tier').subscriptionId]",
-                      "resourceGroup": "[parameters('tier').resourceGroupName]",
+                      "resourceGroup": "[parameters('resourceGroupName')]",
                       "properties": {
                         "expressionEvaluationOptions": {
                           "scope": "inner"
@@ -10725,7 +11124,7 @@
                         "mode": "Incremental",
                         "parameters": {
                           "keyVaultName": {
-                            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultName.value]"
+                            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultName.value]"
                           },
                           "location": {
                             "value": "[parameters('location')]"
@@ -10737,7 +11136,7 @@
                             "value": "[parameters('tags')]"
                           },
                           "userAssignedIdentityName": {
-                            "value": "[parameters('tier').namingConvention.userAssignedIdentity]"
+                            "value": "[format('{0}{1}{2}', parameters('tier').namingConvention.userAssignedIdentity, parameters('delimiter'), variables('workload'))]"
                           }
                         },
                         "template": {
@@ -10799,161 +11198,42 @@
                         }
                       },
                       "dependsOn": [
-                        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix')))]"
+                        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix')))]"
                       ]
-                    }
-                  ],
-                  "outputs": {
-                    "keyVaultProperties": {
-                      "type": "object",
-                      "value": {
-                        "diagnosticSettingName": "[format('{0}{1}', parameters('tier').namingConvention.keyVaultDiagnosticSetting, if(empty(parameters('workload')), '', format('{0}{1}', parameters('delimiter'), parameters('workload'))))]",
-                        "name": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultName.value]",
-                        "resourceGroupName": "[parameters('tier').resourceGroupName]",
-                        "subscriptionId": "[parameters('tier').subscriptionId]",
-                        "tierName": "[parameters('tier').name]"
-                      }
-                    },
-                    "keyName": {
-                      "type": "string",
-                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyName.value]"
-                    },
-                    "keyUriWithVersion": {
-                      "type": "string",
-                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyUriWithVersion.value]"
-                    },
-                    "keyVaultName": {
-                      "type": "string",
-                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultName.value]"
-                    },
-                    "keyVaultUri": {
-                      "type": "string",
-                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultUri.value]"
-                    },
-                    "keyVaultResourceId": {
-                      "type": "string",
-                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultResourceId.value]"
-                    },
-                    "keyVaultNetworkInterfaceResourceId": {
-                      "type": "string",
-                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkInterfaceResourceId.value]"
-                    },
-                    "userAssignedIdentityResourceId": {
-                      "type": "string",
-                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-cmk-id-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
-                    }
-                  }
-                }
-              }
-            },
-            {
-              "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2022-09-01",
-              "name": "[format('deploy-adds-des-{0}', parameters('deploymentNameSuffix'))]",
-              "resourceGroup": "[variables('resourceGroupManagement')]",
-              "properties": {
-                "expressionEvaluationOptions": {
-                  "scope": "inner"
-                },
-                "mode": "Incremental",
-                "parameters": {
-                  "deploymentNameSuffix": {
-                    "value": "[parameters('deploymentNameSuffix')]"
-                  },
-                  "diskEncryptionSetName": {
-                    "value": "[parameters('tier').namingConvention.diskEncryptionSet]"
-                  },
-                  "keyUrl": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyUriWithVersion.value]"
-                  },
-                  "keyVaultResourceId": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultResourceId.value]"
-                  },
-                  "location": {
-                    "value": "[parameters('locationVirtualMachines')]"
-                  },
-                  "mlzTags": {
-                    "value": "[parameters('mlzTags')]"
-                  },
-                  "tags": {
-                    "value": "[parameters('tags')]"
-                  }
-                },
-                "template": {
-                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                  "contentVersion": "1.0.0.0",
-                  "metadata": {
-                    "_generator": {
-                      "name": "bicep",
-                      "version": "0.36.1.42791",
-                      "templateHash": "9165382936196467237"
-                    }
-                  },
-                  "parameters": {
-                    "deploymentNameSuffix": {
-                      "type": "string"
-                    },
-                    "diskEncryptionSetName": {
-                      "type": "string"
-                    },
-                    "keyUrl": {
-                      "type": "string"
-                    },
-                    "keyVaultResourceId": {
-                      "type": "string"
-                    },
-                    "location": {
-                      "type": "string"
-                    },
-                    "mlzTags": {
-                      "type": "object"
-                    },
-                    "tags": {
-                      "type": "object"
-                    }
-                  },
-                  "resources": [
-                    {
-                      "type": "Microsoft.Compute/diskEncryptionSets",
-                      "apiVersion": "2023-04-02",
-                      "name": "[parameters('diskEncryptionSetName')]",
-                      "location": "[parameters('location')]",
-                      "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/diskEncryptionSets'), createObject()), parameters('mlzTags'))]",
-                      "identity": {
-                        "type": "SystemAssigned"
-                      },
-                      "properties": {
-                        "activeKey": {
-                          "sourceVault": {
-                            "id": "[parameters('keyVaultResourceId')]"
-                          },
-                          "keyUrl": "[parameters('keyUrl')]"
-                        },
-                        "encryptionType": "EncryptionAtRestWithPlatformAndCustomerKeys",
-                        "rotationToLatestKeyVersionEnabled": true
-                      }
                     },
                     {
+                      "condition": "[equals(parameters('type'), 'virtualMachine')]",
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2022-09-01",
-                      "name": "[format('assign-role-des-{0}', parameters('deploymentNameSuffix'))]",
+                      "name": "[format('deploy-cmk-des-{0}', parameters('deploymentNameSuffix'))]",
+                      "subscriptionId": "[parameters('tier').subscriptionId]",
+                      "resourceGroup": "[parameters('resourceGroupName')]",
                       "properties": {
                         "expressionEvaluationOptions": {
                           "scope": "inner"
                         },
                         "mode": "Incremental",
                         "parameters": {
-                          "principalId": {
-                            "value": "[reference(resourceId('Microsoft.Compute/diskEncryptionSets', parameters('diskEncryptionSetName')), '2023-04-02', 'full').identity.principalId]"
+                          "deploymentNameSuffix": {
+                            "value": "[parameters('deploymentNameSuffix')]"
                           },
-                          "principalType": {
-                            "value": "ServicePrincipal"
+                          "diskEncryptionSetName": {
+                            "value": "[format('{0}{1}{2}', parameters('tier').namingConvention.diskEncryptionSet, parameters('delimiter'), variables('workload'))]"
                           },
-                          "roleDefinitionId": {
-                            "value": "[resourceId('Microsoft.Authorization/roleDefinitions', 'e147488a-f6f5-4113-8e2d-b22465e65bf6')]"
+                          "keyUrl": {
+                            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyUriWithVersion.value]"
                           },
-                          "targetResourceId": {
-                            "value": "[resourceGroup().id]"
+                          "keyVaultResourceId": {
+                            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultResourceId.value]"
+                          },
+                          "location": {
+                            "value": "[parameters('location')]"
+                          },
+                          "mlzTags": {
+                            "value": "[parameters('mlzTags')]"
+                          },
+                          "tags": {
+                            "value": "[parameters('tags')]"
                           }
                         },
                         "template": {
@@ -10963,64 +11243,191 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.36.1.42791",
-                              "templateHash": "3395848543463052807"
+                              "templateHash": "9165382936196467237"
                             }
                           },
                           "parameters": {
-                            "targetResourceId": {
+                            "deploymentNameSuffix": {
                               "type": "string"
                             },
-                            "roleDefinitionId": {
+                            "diskEncryptionSetName": {
                               "type": "string"
                             },
-                            "principalId": {
+                            "keyUrl": {
                               "type": "string"
                             },
-                            "principalType": {
-                              "type": "string",
-                              "defaultValue": "ServicePrincipal",
-                              "allowedValues": [
-                                "ForeignGroup",
-                                "Group",
-                                "ServicePrincipal",
-                                "User"
-                              ]
+                            "keyVaultResourceId": {
+                              "type": "string"
                             },
-                            "description": {
-                              "type": "string",
-                              "defaultValue": ""
+                            "location": {
+                              "type": "string"
+                            },
+                            "mlzTags": {
+                              "type": "object"
+                            },
+                            "tags": {
+                              "type": "object"
                             }
                           },
                           "resources": [
                             {
-                              "type": "Microsoft.Authorization/roleAssignments",
-                              "apiVersion": "2020-04-01-preview",
-                              "name": "[guid(parameters('targetResourceId'), parameters('roleDefinitionId'), parameters('principalId'))]",
+                              "type": "Microsoft.Compute/diskEncryptionSets",
+                              "apiVersion": "2023-04-02",
+                              "name": "[parameters('diskEncryptionSetName')]",
+                              "location": "[parameters('location')]",
+                              "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/diskEncryptionSets'), createObject()), parameters('mlzTags'))]",
+                              "identity": {
+                                "type": "SystemAssigned"
+                              },
                               "properties": {
-                                "principalId": "[parameters('principalId')]",
-                                "principalType": "[parameters('principalType')]",
-                                "roleDefinitionId": "[parameters('roleDefinitionId')]",
-                                "description": "[parameters('description')]"
+                                "activeKey": {
+                                  "sourceVault": {
+                                    "id": "[parameters('keyVaultResourceId')]"
+                                  },
+                                  "keyUrl": "[parameters('keyUrl')]"
+                                },
+                                "encryptionType": "EncryptionAtRestWithPlatformAndCustomerKeys",
+                                "rotationToLatestKeyVersionEnabled": true
                               }
+                            },
+                            {
+                              "type": "Microsoft.Resources/deployments",
+                              "apiVersion": "2022-09-01",
+                              "name": "[format('assign-role-des-{0}', parameters('deploymentNameSuffix'))]",
+                              "properties": {
+                                "expressionEvaluationOptions": {
+                                  "scope": "inner"
+                                },
+                                "mode": "Incremental",
+                                "parameters": {
+                                  "principalId": {
+                                    "value": "[reference(resourceId('Microsoft.Compute/diskEncryptionSets', parameters('diskEncryptionSetName')), '2023-04-02', 'full').identity.principalId]"
+                                  },
+                                  "principalType": {
+                                    "value": "ServicePrincipal"
+                                  },
+                                  "roleDefinitionId": {
+                                    "value": "[resourceId('Microsoft.Authorization/roleDefinitions', 'e147488a-f6f5-4113-8e2d-b22465e65bf6')]"
+                                  },
+                                  "targetResourceId": {
+                                    "value": "[resourceGroup().id]"
+                                  }
+                                },
+                                "template": {
+                                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                                  "contentVersion": "1.0.0.0",
+                                  "metadata": {
+                                    "_generator": {
+                                      "name": "bicep",
+                                      "version": "0.36.1.42791",
+                                      "templateHash": "3395848543463052807"
+                                    }
+                                  },
+                                  "parameters": {
+                                    "targetResourceId": {
+                                      "type": "string"
+                                    },
+                                    "roleDefinitionId": {
+                                      "type": "string"
+                                    },
+                                    "principalId": {
+                                      "type": "string"
+                                    },
+                                    "principalType": {
+                                      "type": "string",
+                                      "defaultValue": "ServicePrincipal",
+                                      "allowedValues": [
+                                        "ForeignGroup",
+                                        "Group",
+                                        "ServicePrincipal",
+                                        "User"
+                                      ]
+                                    },
+                                    "description": {
+                                      "type": "string",
+                                      "defaultValue": ""
+                                    }
+                                  },
+                                  "resources": [
+                                    {
+                                      "type": "Microsoft.Authorization/roleAssignments",
+                                      "apiVersion": "2020-04-01-preview",
+                                      "name": "[guid(parameters('targetResourceId'), parameters('roleDefinitionId'), parameters('principalId'))]",
+                                      "properties": {
+                                        "principalId": "[parameters('principalId')]",
+                                        "principalType": "[parameters('principalType')]",
+                                        "roleDefinitionId": "[parameters('roleDefinitionId')]",
+                                        "description": "[parameters('description')]"
+                                      }
+                                    }
+                                  ]
+                                }
+                              },
+                              "dependsOn": [
+                                "[resourceId('Microsoft.Compute/diskEncryptionSets', parameters('diskEncryptionSetName'))]"
+                              ]
                             }
-                          ]
+                          ],
+                          "outputs": {
+                            "resourceId": {
+                              "type": "string",
+                              "value": "[resourceId('Microsoft.Compute/diskEncryptionSets', parameters('diskEncryptionSetName'))]"
+                            }
+                          }
                         }
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Compute/diskEncryptionSets', parameters('diskEncryptionSetName'))]"
+                        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix')))]"
                       ]
                     }
                   ],
                   "outputs": {
-                    "resourceId": {
+                    "diskEncryptionSetResourceId": {
                       "type": "string",
-                      "value": "[resourceId('Microsoft.Compute/diskEncryptionSets', parameters('diskEncryptionSetName'))]"
+                      "value": "[if(equals(parameters('type'), 'virtualMachine'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-des-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value, '')]"
+                    },
+                    "keyVaultProperties": {
+                      "type": "object",
+                      "value": {
+                        "diagnosticSettingName": "[format('{0}{1}{2}', parameters('tier').namingConvention.keyVaultDiagnosticSetting, parameters('delimiter'), variables('workload'))]",
+                        "name": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultName.value]",
+                        "resourceGroupName": "[parameters('resourceGroupName')]",
+                        "subscriptionId": "[parameters('tier').subscriptionId]",
+                        "tierName": "[parameters('tier').name]"
+                      }
+                    },
+                    "keyName": {
+                      "type": "string",
+                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyName.value]"
+                    },
+                    "keyUriWithVersion": {
+                      "type": "string",
+                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyUriWithVersion.value]"
+                    },
+                    "keyVaultName": {
+                      "type": "string",
+                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultName.value]"
+                    },
+                    "keyVaultUri": {
+                      "type": "string",
+                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultUri.value]"
+                    },
+                    "keyVaultResourceId": {
+                      "type": "string",
+                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultResourceId.value]"
+                    },
+                    "keyVaultNetworkInterfaceResourceId": {
+                      "type": "string",
+                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-kv-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkInterfaceResourceId.value]"
+                    },
+                    "userAssignedIdentityResourceId": {
+                      "type": "string",
+                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-cmk-id-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
                     }
                   }
                 }
               },
               "dependsOn": [
-                "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-{0}', parameters('deploymentNameSuffix')))]",
                 "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('resourceGroupManagement'))]"
               ]
             },
@@ -11042,7 +11449,7 @@
                     "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-id-deployment-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
                   },
                   "diskEncryptionSetResourceId": {
-                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-adds-des-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
+                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.diskEncryptionSetResourceId.value]"
                   },
                   "diskName": {
                     "value": "[format('{0}{1}mgt', parameters('tier').namingConvention.virtualMachineDisk, parameters('delimiter'))]"
@@ -11378,8 +11785,8 @@
                 }
               },
               "dependsOn": [
+                "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-{0}', parameters('deploymentNameSuffix')))]",
                 "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-id-deployment-{0}', parameters('deploymentNameSuffix')))]",
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-adds-des-{0}', parameters('deploymentNameSuffix')))]",
                 "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('resourceGroupManagement'))]"
               ]
             }
@@ -11411,7 +11818,7 @@
             },
             "diskEncryptionSetResourceId": {
               "type": "string",
-              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-adds-des-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.resourceId.value]"
+              "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-cmk-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.diskEncryptionSetResourceId.value]"
             },
             "encryptionUserAssignedIdentityResourceId": {
               "type": "string",
