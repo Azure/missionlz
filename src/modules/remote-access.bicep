@@ -52,7 +52,7 @@ param windowsVmVersion string
 
 var jbResourceGroupName = '${tier.namingConvention.resourceGroup}${delimiter}jumpBoxes'
 
-module rg 'resource-group.bicep' = {
+module rg 'resource-group.bicep' = if (deployLinuxVirtualMachine || deployWindowsVirtualMachine) {
   name: 'deploy-ra-rg-${tier.name}-${deploymentNameSuffix}'
   scope: subscription(tier.subscriptionId)
   params: {
@@ -63,7 +63,7 @@ module rg 'resource-group.bicep' = {
   }
 }
 
-module customerManagedKeys 'customer-managed-keys.bicep' = {
+module customerManagedKeys 'customer-managed-keys.bicep' = if (deployLinuxVirtualMachine || deployWindowsVirtualMachine) {
   name: 'deploy-ra-cmk-${deploymentNameSuffix}'
   scope: subscription(tier.subscriptionId)
   params: {
@@ -83,22 +83,6 @@ module customerManagedKeys 'customer-managed-keys.bicep' = {
   dependsOn: [
     rg
   ]
-}
-
-module bastionHost '../modules/bastion-host.bicep' = if (deployBastion) {
-  name: 'deploy-ra-bastion-host-${deploymentNameSuffix}'
-  scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
-  params: {
-    bastionHostSubnetResourceId: bastionHostSubnetResourceId
-    location: location
-    mlzTags: mlzTags
-    name: tier.namingConvention.bastionHost
-    publicIPAddressAllocationMethod: bastionHostPublicIPAddressAllocationMethod
-    publicIPAddressAvailabilityZones: bastionHostPublicIPAddressAvailabilityZones
-    publicIPAddressName: tier.namingConvention.bastionHostPublicIPAddress
-    publicIPAddressSkuName: bastionHostPublicIPAddressSkuName
-    tags: tags
-  }
 }
 
 module linuxVirtualMachine '../modules/virtual-machine.bicep' = if (deployLinuxVirtualMachine) {
@@ -127,7 +111,7 @@ module linuxVirtualMachine '../modules/virtual-machine.bicep' = if (deployLinuxV
     virtualMachineSize: linuxVmSize
   }
   dependsOn: [
-    bastionHost
+    rg
   ]
 }
 
@@ -158,8 +142,24 @@ module windowsVirtualMachine '../modules/virtual-machine.bicep' = if (deployWind
     virtualMachineSize: windowsVmSize
   }
   dependsOn: [
-    bastionHost
+    rg
   ]
+}
+
+module bastionHost '../modules/bastion-host.bicep' = if (deployBastion) {
+  name: 'deploy-ra-bastion-host-${deploymentNameSuffix}'
+  scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
+  params: {
+    bastionHostSubnetResourceId: bastionHostSubnetResourceId
+    location: location
+    mlzTags: mlzTags
+    name: tier.namingConvention.bastionHost
+    publicIPAddressAllocationMethod: bastionHostPublicIPAddressAllocationMethod
+    publicIPAddressAvailabilityZones: bastionHostPublicIPAddressAvailabilityZones
+    publicIPAddressName: tier.namingConvention.bastionHostPublicIPAddress
+    publicIPAddressSkuName: bastionHostPublicIPAddressSkuName
+    tags: tags
+  }
 }
 
 output keyVaultProperties object = customerManagedKeys.outputs.keyVaultProperties
