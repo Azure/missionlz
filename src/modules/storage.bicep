@@ -28,8 +28,10 @@ module customerManagedKeys 'customer-managed-keys.bicep' = {
     location: location
     mlzTags: mlzTags
     resourceAbbreviations: resourceAbbreviations
+    resourceGroupName: filter(tiers, tier => tier.name == 'hub')[0].resourceGroupName
     tags: tags
     tier: filter(tiers, tier => tier.name == 'hub')[0]
+    type: 'storageAccount'
   }
 }
 

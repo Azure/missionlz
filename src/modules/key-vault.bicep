@@ -6,19 +6,17 @@ Licensed under the MIT License.
 param environmentAbbreviation string
 param keyExpirationInDays int = 30
 param keyName string
+param keyVaultName string
+param keyVaultNetworkInterfaceName string
 param keyVaultPrivateDnsZoneResourceId string
+param keyVaultPrivateEndpointName string
 param location string
 param mlzTags object
-param resourceAbbreviations object
 param subnetResourceId string
 param tags object
-param tier object
-param workload string = ''
-
-var keyVaultPrivateEndpointName = tier.namingConvention.keyVaultPrivateEndpoint
 
 resource vault 'Microsoft.KeyVault/vaults@2022-07-01' = {
-  name: '${resourceAbbreviations.keyVaults}${uniqueString(tier.namingConvention.keyVault, resourceGroup().id, workload)}'
+  name: keyVaultName
   location: location
   tags: union(tags[?'Microsoft.KeyVault/vaults'] ?? {}, mlzTags)
   properties: {
@@ -49,7 +47,7 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = {
   location: location
   tags: union(tags[?'Microsoft.Network/privateEndpoints'] ?? {}, mlzTags)
   properties: {
-    customNetworkInterfaceName: tier.namingConvention.keyVaultNetworkInterface
+    customNetworkInterfaceName: keyVaultNetworkInterfaceName
     privateLinkServiceConnections: [
       {
         name: keyVaultPrivateEndpointName

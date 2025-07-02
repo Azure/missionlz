@@ -56,25 +56,10 @@ module customerManagedKeys 'customer-managed-keys.bicep' = {
     location: location
     mlzTags: mlzTags
     resourceAbbreviations: resourceAbbreviations
+    resourceGroupName: resourceGroupName
     tags: tags
     tier: tier
-  }
-  dependsOn: [
-    rg
-  ]
-}
-
-module diskEncryptionSet 'disk-encryption-set.bicep' = {
-  name: 'deploy-adds-des-${deploymentNameSuffix}'
-  scope: resourceGroup(tier.subscriptionId, resourceGroupName)
-  params: {
-    deploymentNameSuffix: deploymentNameSuffix
-    diskEncryptionSetName: tier.namingConvention.diskEncryptionSet
-    keyUrl: customerManagedKeys.outputs.keyUriWithVersion
-    keyVaultResourceId: customerManagedKeys.outputs.keyVaultResourceId
-    location: location
-    mlzTags: mlzTags
-    tags: tags
+    type: 'virtualMachine'
   }
   dependsOn: [
     rg
@@ -106,7 +91,7 @@ module domainControllers 'domain-controller.bicep' = [
       availabilitySetResourceId: availabilitySet.outputs.resourceId
       delimiter: delimiter
       deploymentNameSuffix: deploymentNameSuffix
-      diskEncryptionSetResourceId: diskEncryptionSet.outputs.resourceId
+      diskEncryptionSetResourceId: customerManagedKeys.outputs.diskEncryptionSetResourceId
       dnsForwarder: dnsForwarder
       domainName: domainName
       hybridUseBenefit: hybridUseBenefit

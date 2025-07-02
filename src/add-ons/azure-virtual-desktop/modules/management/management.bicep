@@ -112,22 +112,10 @@ module customerManagedKeys '../../../../modules/customer-managed-keys.bicep' = {
     location: locationVirtualMachines
     mlzTags: mlzTags
     resourceAbbreviations: resourceAbbreviations
+    resourceGroupName: resourceGroup.name
     tags: tags
     tier: tier
-  }
-}
-
-module diskEncryptionSet '../../../../modules/disk-encryption-set.bicep' = {
-  name: 'deploy-adds-des-${deploymentNameSuffix}'
-  scope: resourceGroup
-  params: {
-    deploymentNameSuffix: deploymentNameSuffix
-    diskEncryptionSetName: tier.namingConvention.diskEncryptionSet
-    keyUrl: customerManagedKeys.outputs.keyUriWithVersion
-    keyVaultResourceId: customerManagedKeys.outputs.keyVaultResourceId
-    location: locationVirtualMachines
-    mlzTags: mlzTags
-    tags: tags
+    type: 'virtualMachine'
   }
 }
 
@@ -139,7 +127,7 @@ module virtualMachine 'virtual-machine.bicep' = {
   params: {
     deploymentUserAssignedIdentityPrincipalId: deploymentUserAssignedIdentity.outputs.principalId
     deploymentUserAssignedIdentityResourceId: deploymentUserAssignedIdentity.outputs.resourceId
-    diskEncryptionSetResourceId: diskEncryptionSet.outputs.resourceId
+    diskEncryptionSetResourceId: customerManagedKeys.outputs.diskEncryptionSetResourceId
     diskName: '${tier.namingConvention.virtualMachineDisk}${delimiter}mgt'
     diskSku: diskSku
     domainJoinPassword: domainJoinPassword
@@ -164,7 +152,7 @@ output deploymentUserAssignedIdentityResourceId string = deploymentUserAssignedI
 output diskAccessPolicyDefinitionId string = policy.outputs.policyDefinitionId
 output diskAccessPolicyDisplayName string = policy.outputs.policyDisplayName
 output diskAccessResourceId string = diskAccess.outputs.resourceId
-output diskEncryptionSetResourceId string = diskEncryptionSet.outputs.resourceId
+output diskEncryptionSetResourceId string = customerManagedKeys.outputs.diskEncryptionSetResourceId
 output encryptionUserAssignedIdentityResourceId string = customerManagedKeys.outputs.userAssignedIdentityResourceId
 output keyVaultName string = customerManagedKeys.outputs.keyVaultName
 output keyVaultUri string = customerManagedKeys.outputs.keyVaultUri

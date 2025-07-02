@@ -75,27 +75,14 @@ module customerManagedKeys 'customer-managed-keys.bicep' = {
     location: location
     mlzTags: mlzTags
     resourceAbbreviations: resourceAbbreviations
+    resourceGroupName: jbResourceGroupName
     tags: tags
     tier: tier
-    workload: 'jumpBoxes'
+    type: 'virtualMachine'
   }
   dependsOn: [
     rg
   ]
-}
-
-module diskEncryptionSet '../modules/disk-encryption-set.bicep' = if (deployLinuxVirtualMachine || deployWindowsVirtualMachine) {
-  name: 'deploy-ra-disk-encryption-set-${deploymentNameSuffix}'
-  scope: resourceGroup(tier.subscriptionId, jbResourceGroupName)
-  params: {
-    deploymentNameSuffix: deploymentNameSuffix
-    diskEncryptionSetName: tier.namingConvention.diskEncryptionSet
-    keyUrl: customerManagedKeys.outputs.keyUriWithVersion
-    keyVaultResourceId: customerManagedKeys.outputs.keyVaultResourceId
-    location: location
-    mlzTags: mlzTags
-    tags: tags
-  }
 }
 
 module bastionHost '../modules/bastion-host.bicep' = if (deployBastion) {
@@ -123,7 +110,7 @@ module linuxVirtualMachine '../modules/virtual-machine.bicep' = if (deployLinuxV
     authenticationType: linuxVmAuthenticationType
     // dataCollectionRuleAssociationName: dataCollectionRuleAssociationName
     // dataCollectionRuleResourceId: dataCollectionRuleResourceId
-    diskEncryptionSetResourceId: diskEncryptionSet.outputs.resourceId
+    diskEncryptionSetResourceId: customerManagedKeys.outputs.diskEncryptionSetResourceId
     diskName: '${tier.namingConvention.virtualMachineDisk}${delimiter}lra' // lra = Linux Remote Access
     imageOffer: linuxVmImageOffer
     imagePublisher: linuxVmImagePublisher
@@ -139,6 +126,9 @@ module linuxVirtualMachine '../modules/virtual-machine.bicep' = if (deployLinuxV
     virtualMachineName: '${tier.namingConvention.virtualMachine}lra' // lra = Linux Remote Access
     virtualMachineSize: linuxVmSize
   }
+  dependsOn: [
+    bastionHost
+  ]
 }
 
 module windowsVirtualMachine '../modules/virtual-machine.bicep' = if (deployWindowsVirtualMachine) {
@@ -150,7 +140,7 @@ module windowsVirtualMachine '../modules/virtual-machine.bicep' = if (deployWind
     authenticationType: 'password'
     // dataCollectionRuleAssociationName: dataCollectionRuleAssociationName
     // dataCollectionRuleResourceId: dataCollectionRuleResourceId
-    diskEncryptionSetResourceId: diskEncryptionSet.outputs.resourceId
+    diskEncryptionSetResourceId: customerManagedKeys.outputs.diskEncryptionSetResourceId
     diskName: '${tier.namingConvention.virtualMachineDisk}${delimiter}wra' // wra = Windows Remote Access
     hybridUseBenefit: hybridUseBenefit
     imageOffer: windowsVmImageOffer
@@ -167,6 +157,9 @@ module windowsVirtualMachine '../modules/virtual-machine.bicep' = if (deployWind
     virtualMachineName: '${tier.namingConvention.virtualMachine}wra' // wra = Windows Remote Access
     virtualMachineSize: windowsVmSize
   }
+  dependsOn: [
+    bastionHost
+  ]
 }
 
 output keyVaultProperties object = customerManagedKeys.outputs.keyVaultProperties

@@ -41,8 +41,10 @@ module customerManagedKeys '../../../modules/customer-managed-keys.bicep' = {
     location: location
     mlzTags: mlzTags
     resourceAbbreviations: resourceAbbreviations
+    resourceGroupName: tier.resourceGroupName
     tags: tags
     tier: tier
+    type: 'storageAccount'
   }
 }
 
