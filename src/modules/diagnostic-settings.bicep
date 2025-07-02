@@ -27,6 +27,7 @@ param storageAccountResourceIds array
 param supportedClouds array
 param tiers array
 
+var dedupedSubscriptionIds = union(subscriptionIds, [])
 var hub = (filter(tiers, tier => tier.name == 'hub'))[0]
 var hubResourceGroupName = filter(hub.resourceGroupName, name => contains(name, 'hub'))[0]
 var networkSecurityGroups = union(networkSecurityGroups_Tiers, networkSecurityGroup_Bastion)
@@ -70,11 +71,11 @@ var publicIPAddresses = union([
     diagName: hub.namingConvention.bastionHostPublicIPAddressDiagnosticSetting
   }
 ] : [])
+var subscriptionIds = [for tier in tiers: tier.subscriptionId]
 
-@batchSize(1)
-module activityLogDiagnosticSettings 'activity-log-diagnostic-settings.bicep' = [for (tier, i) in tiers: {
-  name: 'deploy-activity-diags-${tier.name}-${deploymentNameSuffix}'
-  scope: subscription(tier.subscriptionId)
+module activityLogDiagnosticSettings 'activity-log-diagnostic-settings.bicep' = [for (subscriptionId, i) in dedupedSubscriptionIds: {
+  name: 'deploy-activity-diags-${i}-${deploymentNameSuffix}'
+  scope: subscription(subscriptionId)
   params: {
     logAnalyticsWorkspaceId: logAnalyticsWorkspaceResourceId
   }

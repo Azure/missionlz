@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.36.1.42791",
-      "templateHash": "15398299798861683556"
+      "templateHash": "2905905196286011592"
     }
   },
   "parameters": {
@@ -123,7 +123,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.36.1.42791",
-              "templateHash": "4790841375249073114"
+              "templateHash": "8361415845177741561"
             }
           },
           "parameters": {
@@ -1182,7 +1182,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.36.1.42791",
-                      "templateHash": "15566672583706708796"
+                      "templateHash": "10736760469921285754"
                     }
                   },
                   "parameters": {
@@ -4386,6 +4386,7 @@
                           "name": "[parameters('networks')[copyIndex()].name]",
                           "namingConvention": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tiers.value[copyIndex()].namingConvention]",
                           "networkSecurityGroupResourceId": "[createArray(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkSecurityGroupResourceId.value, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-vnet-{0}-{1}', variables('spokes')[0].name, parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkSecurityGroupResourceId.value, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-vnet-{0}-{1}', variables('spokes')[1].name, parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkSecurityGroupResourceId.value, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-vnet-{0}-{1}', variables('spokes')[2].name, parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkSecurityGroupResourceId.value)[copyIndex()]]",
+                          "nsgDiagLogs": "[parameters('networks')[copyIndex()].nsgDiagLogs]",
                           "resourceGroupName": "[filter(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-resource-groups-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.names.value, lambda('name', contains(lambdaVariables('name'), parameters('networks')[copyIndex()].name)))[0]]",
                           "shortName": "[parameters('networks')[copyIndex()].shortName]",
                           "subnetResourceId": "[createArray(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnetResourceId.value, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-vnet-{0}-{1}', variables('spokes')[0].name, parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnets.value[0].id, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-vnet-{0}-{1}', variables('spokes')[1].name, parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnets.value[0].id, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-vnet-{0}-{1}', variables('spokes')[2].name, parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnets.value[0].id)[copyIndex()]]",
@@ -8892,7 +8893,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.36.1.42791",
-                      "templateHash": "18125245650350667918"
+                      "templateHash": "5019754391165553658"
                     }
                   },
                   "parameters": {
@@ -9584,9 +9585,7 @@
                     {
                       "copy": {
                         "name": "storageAccounts",
-                        "count": "[length(parameters('tiers'))]",
-                        "mode": "serial",
-                        "batchSize": 1
+                        "count": "[length(parameters('tiers'))]"
                       },
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2022-09-01",
@@ -9964,7 +9963,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.36.1.42791",
-                      "templateHash": "4115628238268904763"
+                      "templateHash": "3483989967527297404"
                     }
                   },
                   "parameters": {
@@ -10048,8 +10047,14 @@
                           "subscriptionId": "[parameters('tiers')[copyIndex('networkSecurityGroups_Tiers')].subscriptionId]",
                           "tierName": "[parameters('tiers')[copyIndex('networkSecurityGroups_Tiers')].name]"
                         }
+                      },
+                      {
+                        "name": "subscriptionIds",
+                        "count": "[length(parameters('tiers'))]",
+                        "input": "[parameters('tiers')[copyIndex('subscriptionIds')].subscriptionId]"
                       }
                     ],
+                    "dedupedSubscriptionIds": "[union(variables('subscriptionIds'), createArray())]",
                     "hub": "[filter(parameters('tiers'), lambda('tier', equals(lambdaVariables('tier').name, 'hub')))[0]]",
                     "hubResourceGroupName": "[filter(variables('hub').resourceGroupName, lambda('name', contains(lambdaVariables('name'), 'hub')))[0]]",
                     "networkSecurityGroups": "[union(variables('networkSecurityGroups_Tiers'), variables('networkSecurityGroup_Bastion'))]",
@@ -10061,14 +10066,12 @@
                     {
                       "copy": {
                         "name": "activityLogDiagnosticSettings",
-                        "count": "[length(parameters('tiers'))]",
-                        "mode": "serial",
-                        "batchSize": 1
+                        "count": "[length(variables('dedupedSubscriptionIds'))]"
                       },
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2022-09-01",
-                      "name": "[format('deploy-activity-diags-{0}-{1}', parameters('tiers')[copyIndex()].name, parameters('deploymentNameSuffix'))]",
-                      "subscriptionId": "[parameters('tiers')[copyIndex()].subscriptionId]",
+                      "name": "[format('deploy-activity-diags-{0}-{1}', copyIndex(), parameters('deploymentNameSuffix'))]",
+                      "subscriptionId": "[variables('dedupedSubscriptionIds')[copyIndex()]]",
                       "location": "[deployment().location]",
                       "properties": {
                         "expressionEvaluationOptions": {

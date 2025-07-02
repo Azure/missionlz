@@ -35,7 +35,6 @@ module customerManagedKeys 'customer-managed-keys.bicep' = {
   }
 }
 
-@batchSize(1)
 module storageAccounts 'storage-account.bicep' = [for (tier, i) in tiers: {
   name: 'deploy-storage-account-${tier.name}-${deploymentNameSuffix}'
   scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)

@@ -167,6 +167,7 @@ output tiers array = [for (network, i) in networks: {
     spokeNetworks[1].outputs.networkSecurityGroupResourceId // Shared Services
     spokeNetworks[2].outputs.networkSecurityGroupResourceId // Identity
   ][i]
+  nsgDiagLogs: network.nsgDiagLogs
   resourceGroupName: filter(resourceGroups.outputs.names, name => contains(name, network.name))[0]
   shortName: network.shortName
   subnetResourceId: [
