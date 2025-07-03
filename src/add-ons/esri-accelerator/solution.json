@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.36.1.42791",
-      "templateHash": "8286206146977844548"
+      "templateHash": "14887409376476263733"
     }
   },
   "parameters": {
@@ -123,7 +123,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.36.1.42791",
-              "templateHash": "17213496683906818557"
+              "templateHash": "1281973615558952289"
             }
           },
           "parameters": {
@@ -8900,7 +8900,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.36.1.42791",
-                      "templateHash": "10682021576593479057"
+                      "templateHash": "9466968917756271621"
                     }
                   },
                   "parameters": {
@@ -9593,7 +9593,9 @@
                     {
                       "copy": {
                         "name": "storageAccounts",
-                        "count": "[length(parameters('tiers'))]"
+                        "count": "[length(parameters('tiers'))]",
+                        "mode": "serial",
+                        "batchSize": 1
                       },
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2022-09-01",
