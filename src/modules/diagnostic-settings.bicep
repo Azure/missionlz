@@ -29,7 +29,6 @@ param tiers array
 
 var dedupedSubscriptionIds = union(subscriptionIds, [])
 var hub = filter(tiers, tier => tier.name == 'hub')[0]
-var hubResourceGroupName = filter(hub.resourceGroupName, name => contains(name, 'hub'))[0]
 var networkSecurityGroups = union(networkSecurityGroups_Tiers, networkSecurityGroup_Bastion)
 var networkSecurityGroups_Tiers = [for (tier, i) in tiers: {
   diagnosticLogs: tier.nsgDiagLogs
@@ -47,7 +46,7 @@ var networkSecurityGroup_Bastion = deployBastion ? [
     diagnosticSettingName: hub.namingConvention.bastionHostNetworkSecurityGroupDiagnosticSetting
     flowLogsName: '${hub.namingConvention.networkWatcherFlowLogsNetworkSecurityGroup}${hub.delimiter}bastion'
     name: hub.namingConvention.bastionHostNetworkSecurityGroup
-    resourceGroupName: hubResourceGroupName
+    resourceGroupName: hub.resourceGroupName
     storageAccountResourceId: storageAccountResourceIds[0]
     subscriptionId: hub.subscriptionId
     tierName: 'hub${hub.delimiter}bas'
@@ -133,7 +132,7 @@ module virtualNetworkDiagnostics '../modules/virtual-network-diagnostics.bicep' 
 
 module publicIpAddressDiagnosticSettings '../modules/public-ip-address-diagnostics.bicep' = [for (publicIPAddress, i) in publicIPAddresses: {
   name: 'deploy-pip-diags-${i}-${deploymentNameSuffix}'
-  scope: resourceGroup(hub.subscriptionId, hubResourceGroupName)
+  scope: resourceGroup(hub.subscriptionId, hub.resourceGroupName)
   params: {
     hubStorageAccountResourceId: storageAccountResourceIds[0]
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
@@ -146,7 +145,7 @@ module publicIpAddressDiagnosticSettings '../modules/public-ip-address-diagnosti
 
 module firewallDiagnosticSetting '../modules/firewall-diagnostics.bicep' = {
   name: 'deploy-afw-diags-${deploymentNameSuffix}'
-  scope: resourceGroup(hub.subscriptionId, hubResourceGroupName)
+  scope: resourceGroup(hub.subscriptionId, hub.resourceGroupName)
   params: {
     firewallDiagnosticSettingsName: hub.namingConvention.azureFirewallDiagnosticSetting
     firewallName: hub.namingConvention.azureFirewall
@@ -172,7 +171,7 @@ module keyVaultDiagnosticSettings '../modules/key-vault-diagnostics.bicep' = [fo
 
 module bastionDiagnostics '../modules/bastion-diagnostics.bicep' = if (deployBastion) {
   name: 'deploy-bastion-diags-${deploymentNameSuffix}'
-  scope: resourceGroup(hub.subscriptionId, hubResourceGroupName)
+  scope: resourceGroup(hub.subscriptionId, hub.resourceGroupName)
   params: {
     diagnosticSettingName: hub.namingConvention.bastionHostDiagnosticSetting
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
