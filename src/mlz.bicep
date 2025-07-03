@@ -989,7 +989,7 @@ module diagnosticSettings 'modules/diagnostic-settings.bicep' = {
     networkInterfaceResourceIds: union(
       deployActiveDirectoryDomainServices && deployIdentity ? activeDirectoryDomainServices.outputs.networkInterfaceResourceIds : [],
       monitoring.outputs.networkInterfaceResourceIds,
-      remoteAccess.outputs.networkInterfaceResourceIds,
+      deployLinuxVirtualMachine || deployWindowsVirtualMachine ? remoteAccess.outputs.networkInterfaceResourceIds : [],
       flatten(storage.outputs.networkInterfaceResourceIds)
     )
     networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
