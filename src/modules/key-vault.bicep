@@ -42,44 +42,6 @@ resource vault 'Microsoft.KeyVault/vaults@2022-07-01' = {
   }
 }
 
-resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = {
-  name: keyVaultPrivateEndpointName
-  location: location
-  tags: union(tags[?'Microsoft.Network/privateEndpoints'] ?? {}, mlzTags)
-  properties: {
-    customNetworkInterfaceName: keyVaultNetworkInterfaceName
-    privateLinkServiceConnections: [
-      {
-        name: keyVaultPrivateEndpointName
-        properties: {
-          privateLinkServiceId: vault.id
-          groupIds: [
-            'vault'
-          ]
-        }
-      }
-    ]
-    subnet: {
-      id: subnetResourceId
-    }
-  }
-}
-
-resource privateDnsZoneGroups 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2021-08-01' = {
-  parent: privateEndpoint
-  name: vault.name
-  properties: {
-    privateDnsZoneConfigs: [
-      {
-        name: 'ipconfig1'
-        properties: {
-          privateDnsZoneId: keyVaultPrivateDnsZoneResourceId
-        }
-      }
-    ]
-  }
-}
-
 resource key 'Microsoft.KeyVault/vaults/keys@2022-07-01' = {
   parent: vault
   name: keyName
@@ -112,6 +74,47 @@ resource key 'Microsoft.KeyVault/vaults/keys@2022-07-01' = {
         }
       ]
     }
+  }
+}
+
+resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = {
+  name: keyVaultPrivateEndpointName
+  location: location
+  tags: union(tags[?'Microsoft.Network/privateEndpoints'] ?? {}, mlzTags)
+  properties: {
+    customNetworkInterfaceName: keyVaultNetworkInterfaceName
+    privateLinkServiceConnections: [
+      {
+        name: keyVaultPrivateEndpointName
+        properties: {
+          privateLinkServiceId: vault.id
+          groupIds: [
+            'vault'
+          ]
+        }
+      }
+    ]
+    subnet: {
+      id: subnetResourceId
+    }
+  }
+  dependsOn: [
+    key
+  ]
+}
+
+resource privateDnsZoneGroups 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2021-08-01' = {
+  parent: privateEndpoint
+  name: vault.name
+  properties: {
+    privateDnsZoneConfigs: [
+      {
+        name: 'ipconfig1'
+        properties: {
+          privateDnsZoneId: keyVaultPrivateDnsZoneResourceId
+        }
+      }
+    ]
   }
 }
 

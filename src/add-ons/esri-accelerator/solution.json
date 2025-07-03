@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.36.1.42791",
-      "templateHash": "16318138845402194439"
+      "templateHash": "8286206146977844548"
     }
   },
   "parameters": {
@@ -123,7 +123,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.36.1.42791",
-              "templateHash": "13737327957863522727"
+              "templateHash": "17213496683906818557"
             }
           },
           "parameters": {
@@ -1182,7 +1182,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.36.1.42791",
-                      "templateHash": "5578626678682483704"
+                      "templateHash": "8263260303873545477"
                     }
                   },
                   "parameters": {
@@ -4385,11 +4385,11 @@
                         "input": {
                           "name": "[parameters('networks')[copyIndex()].name]",
                           "namingConvention": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.tiers.value[copyIndex()].namingConvention]",
-                          "networkSecurityGroupResourceId": "[createArray(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkSecurityGroupResourceId.value, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-vnet-{0}-{1}', variables('spokes')[0].name, parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkSecurityGroupResourceId.value, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-vnet-{0}-{1}', variables('spokes')[1].name, parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkSecurityGroupResourceId.value, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-vnet-{0}-{1}', variables('spokes')[2].name, parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkSecurityGroupResourceId.value)[copyIndex()]]",
+                          "networkSecurityGroupResourceId": "[union(createArray(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkSecurityGroupResourceId.value, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-vnet-{0}-{1}', variables('spokes')[0].name, parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkSecurityGroupResourceId.value, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-vnet-{0}-{1}', variables('spokes')[1].name, parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkSecurityGroupResourceId.value), if(parameters('deployIdentity'), createArray(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-vnet-{0}-{1}', variables('spokes')[2].name, parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkSecurityGroupResourceId.value), createArray()))[copyIndex()]]",
                           "nsgDiagLogs": "[parameters('networks')[copyIndex()].nsgDiagLogs]",
                           "resourceGroupName": "[filter(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-resource-groups-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.names.value, lambda('name', contains(lambdaVariables('name'), parameters('networks')[copyIndex()].name)))[0]]",
                           "shortName": "[parameters('networks')[copyIndex()].shortName]",
-                          "subnetResourceId": "[createArray(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnetResourceId.value, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-vnet-{0}-{1}', variables('spokes')[0].name, parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnets.value[0].id, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-vnet-{0}-{1}', variables('spokes')[1].name, parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnets.value[0].id, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-vnet-{0}-{1}', variables('spokes')[2].name, parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnets.value[0].id)[copyIndex()]]",
+                          "subnetResourceId": "[union(createArray(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-vnet-hub-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnetResourceId.value, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-vnet-{0}-{1}', variables('spokes')[0].name, parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnets.value[0].id, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-vnet-{0}-{1}', variables('spokes')[1].name, parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnets.value[0].id), if(parameters('deployIdentity'), createArray(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-vnet-{0}-{1}', variables('spokes')[2].name, parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnets.value[0].id), createArray()))[copyIndex()]]",
                           "subscriptionId": "[parameters('networks')[copyIndex()].subscriptionId]",
                           "vnetDiagLogs": "[parameters('networks')[copyIndex()].vnetDiagLogs]",
                           "vnetDiagMetrics": "[parameters('networks')[copyIndex()].vnetDiagMetrics]"
@@ -5001,7 +5001,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.36.1.42791",
-                      "templateHash": "8505675549047036510"
+                      "templateHash": "11962515131168161344"
                     }
                   },
                   "parameters": {
@@ -5215,7 +5215,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.36.1.42791",
-                              "templateHash": "5527491738976255572"
+                              "templateHash": "16405874712645547830"
                             }
                           },
                           "parameters": {
@@ -5314,7 +5314,7 @@
                                     "_generator": {
                                       "name": "bicep",
                                       "version": "0.36.1.42791",
-                                      "templateHash": "8629117296478688013"
+                                      "templateHash": "2910131328655411355"
                                     }
                                   },
                                   "parameters": {
@@ -5383,52 +5383,6 @@
                                       }
                                     },
                                     {
-                                      "type": "Microsoft.Network/privateEndpoints",
-                                      "apiVersion": "2023-04-01",
-                                      "name": "[parameters('keyVaultPrivateEndpointName')]",
-                                      "location": "[parameters('location')]",
-                                      "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/privateEndpoints'), createObject()), parameters('mlzTags'))]",
-                                      "properties": {
-                                        "customNetworkInterfaceName": "[parameters('keyVaultNetworkInterfaceName')]",
-                                        "privateLinkServiceConnections": [
-                                          {
-                                            "name": "[parameters('keyVaultPrivateEndpointName')]",
-                                            "properties": {
-                                              "privateLinkServiceId": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
-                                              "groupIds": [
-                                                "vault"
-                                              ]
-                                            }
-                                          }
-                                        ],
-                                        "subnet": {
-                                          "id": "[parameters('subnetResourceId')]"
-                                        }
-                                      },
-                                      "dependsOn": [
-                                        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
-                                      ]
-                                    },
-                                    {
-                                      "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
-                                      "apiVersion": "2021-08-01",
-                                      "name": "[format('{0}/{1}', parameters('keyVaultPrivateEndpointName'), parameters('keyVaultName'))]",
-                                      "properties": {
-                                        "privateDnsZoneConfigs": [
-                                          {
-                                            "name": "ipconfig1",
-                                            "properties": {
-                                              "privateDnsZoneId": "[parameters('keyVaultPrivateDnsZoneResourceId')]"
-                                            }
-                                          }
-                                        ]
-                                      },
-                                      "dependsOn": [
-                                        "[resourceId('Microsoft.Network/privateEndpoints', parameters('keyVaultPrivateEndpointName'))]",
-                                        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
-                                      ]
-                                    },
-                                    {
                                       "type": "Microsoft.KeyVault/vaults/keys",
                                       "apiVersion": "2022-07-01",
                                       "name": "[format('{0}/{1}', parameters('keyVaultName'), parameters('keyName'))]",
@@ -5463,6 +5417,53 @@
                                         }
                                       },
                                       "dependsOn": [
+                                        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+                                      ]
+                                    },
+                                    {
+                                      "type": "Microsoft.Network/privateEndpoints",
+                                      "apiVersion": "2023-04-01",
+                                      "name": "[parameters('keyVaultPrivateEndpointName')]",
+                                      "location": "[parameters('location')]",
+                                      "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/privateEndpoints'), createObject()), parameters('mlzTags'))]",
+                                      "properties": {
+                                        "customNetworkInterfaceName": "[parameters('keyVaultNetworkInterfaceName')]",
+                                        "privateLinkServiceConnections": [
+                                          {
+                                            "name": "[parameters('keyVaultPrivateEndpointName')]",
+                                            "properties": {
+                                              "privateLinkServiceId": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
+                                              "groupIds": [
+                                                "vault"
+                                              ]
+                                            }
+                                          }
+                                        ],
+                                        "subnet": {
+                                          "id": "[parameters('subnetResourceId')]"
+                                        }
+                                      },
+                                      "dependsOn": [
+                                        "[resourceId('Microsoft.KeyVault/vaults/keys', parameters('keyVaultName'), parameters('keyName'))]",
+                                        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+                                      ]
+                                    },
+                                    {
+                                      "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+                                      "apiVersion": "2021-08-01",
+                                      "name": "[format('{0}/{1}', parameters('keyVaultPrivateEndpointName'), parameters('keyVaultName'))]",
+                                      "properties": {
+                                        "privateDnsZoneConfigs": [
+                                          {
+                                            "name": "ipconfig1",
+                                            "properties": {
+                                              "privateDnsZoneId": "[parameters('keyVaultPrivateDnsZoneResourceId')]"
+                                            }
+                                          }
+                                        ]
+                                      },
+                                      "dependsOn": [
+                                        "[resourceId('Microsoft.Network/privateEndpoints', parameters('keyVaultPrivateEndpointName'))]",
                                         "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
                                       ]
                                     }
@@ -6744,6 +6745,7 @@
               ]
             },
             {
+              "condition": "[or(or(parameters('deployBastion'), parameters('deployLinuxVirtualMachine')), parameters('deployWindowsVirtualMachine'))]",
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
               "name": "[format('deploy-remote-access-{0}', parameters('deploymentNameSuffix'))]",
@@ -6864,7 +6866,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.36.1.42791",
-                      "templateHash": "10099390372197003809"
+                      "templateHash": "9237182995054636387"
                     }
                   },
                   "parameters": {
@@ -6982,6 +6984,7 @@
                   },
                   "resources": [
                     {
+                      "condition": "[or(parameters('deployLinuxVirtualMachine'), parameters('deployWindowsVirtualMachine'))]",
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2022-09-01",
                       "name": "[format('deploy-ra-rg-{0}-{1}', parameters('tier').name, parameters('deploymentNameSuffix'))]",
@@ -7062,6 +7065,7 @@
                       }
                     },
                     {
+                      "condition": "[or(parameters('deployLinuxVirtualMachine'), parameters('deployWindowsVirtualMachine'))]",
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2022-09-01",
                       "name": "[format('deploy-ra-cmk-{0}', parameters('deploymentNameSuffix'))]",
@@ -7117,7 +7121,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.36.1.42791",
-                              "templateHash": "5527491738976255572"
+                              "templateHash": "16405874712645547830"
                             }
                           },
                           "parameters": {
@@ -7216,7 +7220,7 @@
                                     "_generator": {
                                       "name": "bicep",
                                       "version": "0.36.1.42791",
-                                      "templateHash": "8629117296478688013"
+                                      "templateHash": "2910131328655411355"
                                     }
                                   },
                                   "parameters": {
@@ -7285,52 +7289,6 @@
                                       }
                                     },
                                     {
-                                      "type": "Microsoft.Network/privateEndpoints",
-                                      "apiVersion": "2023-04-01",
-                                      "name": "[parameters('keyVaultPrivateEndpointName')]",
-                                      "location": "[parameters('location')]",
-                                      "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/privateEndpoints'), createObject()), parameters('mlzTags'))]",
-                                      "properties": {
-                                        "customNetworkInterfaceName": "[parameters('keyVaultNetworkInterfaceName')]",
-                                        "privateLinkServiceConnections": [
-                                          {
-                                            "name": "[parameters('keyVaultPrivateEndpointName')]",
-                                            "properties": {
-                                              "privateLinkServiceId": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
-                                              "groupIds": [
-                                                "vault"
-                                              ]
-                                            }
-                                          }
-                                        ],
-                                        "subnet": {
-                                          "id": "[parameters('subnetResourceId')]"
-                                        }
-                                      },
-                                      "dependsOn": [
-                                        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
-                                      ]
-                                    },
-                                    {
-                                      "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
-                                      "apiVersion": "2021-08-01",
-                                      "name": "[format('{0}/{1}', parameters('keyVaultPrivateEndpointName'), parameters('keyVaultName'))]",
-                                      "properties": {
-                                        "privateDnsZoneConfigs": [
-                                          {
-                                            "name": "ipconfig1",
-                                            "properties": {
-                                              "privateDnsZoneId": "[parameters('keyVaultPrivateDnsZoneResourceId')]"
-                                            }
-                                          }
-                                        ]
-                                      },
-                                      "dependsOn": [
-                                        "[resourceId('Microsoft.Network/privateEndpoints', parameters('keyVaultPrivateEndpointName'))]",
-                                        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
-                                      ]
-                                    },
-                                    {
                                       "type": "Microsoft.KeyVault/vaults/keys",
                                       "apiVersion": "2022-07-01",
                                       "name": "[format('{0}/{1}', parameters('keyVaultName'), parameters('keyName'))]",
@@ -7365,6 +7323,53 @@
                                         }
                                       },
                                       "dependsOn": [
+                                        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+                                      ]
+                                    },
+                                    {
+                                      "type": "Microsoft.Network/privateEndpoints",
+                                      "apiVersion": "2023-04-01",
+                                      "name": "[parameters('keyVaultPrivateEndpointName')]",
+                                      "location": "[parameters('location')]",
+                                      "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/privateEndpoints'), createObject()), parameters('mlzTags'))]",
+                                      "properties": {
+                                        "customNetworkInterfaceName": "[parameters('keyVaultNetworkInterfaceName')]",
+                                        "privateLinkServiceConnections": [
+                                          {
+                                            "name": "[parameters('keyVaultPrivateEndpointName')]",
+                                            "properties": {
+                                              "privateLinkServiceId": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
+                                              "groupIds": [
+                                                "vault"
+                                              ]
+                                            }
+                                          }
+                                        ],
+                                        "subnet": {
+                                          "id": "[parameters('subnetResourceId')]"
+                                        }
+                                      },
+                                      "dependsOn": [
+                                        "[resourceId('Microsoft.KeyVault/vaults/keys', parameters('keyVaultName'), parameters('keyName'))]",
+                                        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+                                      ]
+                                    },
+                                    {
+                                      "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+                                      "apiVersion": "2021-08-01",
+                                      "name": "[format('{0}/{1}', parameters('keyVaultPrivateEndpointName'), parameters('keyVaultName'))]",
+                                      "properties": {
+                                        "privateDnsZoneConfigs": [
+                                          {
+                                            "name": "ipconfig1",
+                                            "properties": {
+                                              "privateDnsZoneId": "[parameters('keyVaultPrivateDnsZoneResourceId')]"
+                                            }
+                                          }
+                                        ]
+                                      },
+                                      "dependsOn": [
+                                        "[resourceId('Microsoft.Network/privateEndpoints', parameters('keyVaultPrivateEndpointName'))]",
                                         "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
                                       ]
                                     }
@@ -7717,130 +7722,6 @@
                       "dependsOn": [
                         "[subscriptionResourceId(parameters('tier').subscriptionId, 'Microsoft.Resources/deployments', format('deploy-ra-rg-{0}-{1}', parameters('tier').name, parameters('deploymentNameSuffix')))]"
                       ]
-                    },
-                    {
-                      "condition": "[parameters('deployBastion')]",
-                      "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2022-09-01",
-                      "name": "[format('deploy-ra-bastion-host-{0}', parameters('deploymentNameSuffix'))]",
-                      "subscriptionId": "[parameters('tier').subscriptionId]",
-                      "resourceGroup": "[parameters('tier').resourceGroupName]",
-                      "properties": {
-                        "expressionEvaluationOptions": {
-                          "scope": "inner"
-                        },
-                        "mode": "Incremental",
-                        "parameters": {
-                          "bastionHostSubnetResourceId": {
-                            "value": "[parameters('bastionHostSubnetResourceId')]"
-                          },
-                          "location": {
-                            "value": "[parameters('location')]"
-                          },
-                          "mlzTags": {
-                            "value": "[parameters('mlzTags')]"
-                          },
-                          "name": {
-                            "value": "[parameters('tier').namingConvention.bastionHost]"
-                          },
-                          "publicIPAddressAllocationMethod": {
-                            "value": "[parameters('bastionHostPublicIPAddressAllocationMethod')]"
-                          },
-                          "publicIPAddressAvailabilityZones": {
-                            "value": "[parameters('bastionHostPublicIPAddressAvailabilityZones')]"
-                          },
-                          "publicIPAddressName": {
-                            "value": "[parameters('tier').namingConvention.bastionHostPublicIPAddress]"
-                          },
-                          "publicIPAddressSkuName": {
-                            "value": "[parameters('bastionHostPublicIPAddressSkuName')]"
-                          },
-                          "tags": {
-                            "value": "[parameters('tags')]"
-                          }
-                        },
-                        "template": {
-                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                          "contentVersion": "1.0.0.0",
-                          "metadata": {
-                            "_generator": {
-                              "name": "bicep",
-                              "version": "0.36.1.42791",
-                              "templateHash": "5461814492641054952"
-                            }
-                          },
-                          "parameters": {
-                            "bastionHostSubnetResourceId": {
-                              "type": "string"
-                            },
-                            "location": {
-                              "type": "string"
-                            },
-                            "mlzTags": {
-                              "type": "object"
-                            },
-                            "name": {
-                              "type": "string"
-                            },
-                            "publicIPAddressAllocationMethod": {
-                              "type": "string"
-                            },
-                            "publicIPAddressAvailabilityZones": {
-                              "type": "array"
-                            },
-                            "publicIPAddressName": {
-                              "type": "string"
-                            },
-                            "publicIPAddressSkuName": {
-                              "type": "string"
-                            },
-                            "tags": {
-                              "type": "object"
-                            }
-                          },
-                          "resources": [
-                            {
-                              "type": "Microsoft.Network/publicIPAddresses",
-                              "apiVersion": "2021-02-01",
-                              "name": "[parameters('publicIPAddressName')]",
-                              "location": "[parameters('location')]",
-                              "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/publicIPAddresses'), createObject()), parameters('mlzTags'))]",
-                              "sku": {
-                                "name": "[parameters('publicIPAddressSkuName')]"
-                              },
-                              "properties": {
-                                "publicIPAllocationMethod": "[parameters('publicIPAddressAllocationMethod')]"
-                              },
-                              "zones": "[parameters('publicIPAddressAvailabilityZones')]"
-                            },
-                            {
-                              "type": "Microsoft.Network/bastionHosts",
-                              "apiVersion": "2021-02-01",
-                              "name": "[parameters('name')]",
-                              "location": "[parameters('location')]",
-                              "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/bastionHosts'), createObject()), parameters('mlzTags'))]",
-                              "properties": {
-                                "ipConfigurations": [
-                                  {
-                                    "name": "ipconfig",
-                                    "properties": {
-                                      "subnet": {
-                                        "id": "[parameters('bastionHostSubnetResourceId')]"
-                                      },
-                                      "publicIPAddress": {
-                                        "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddressName'))]"
-                                      }
-                                    }
-                                  }
-                                ]
-                              },
-                              "dependsOn": [
-                                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddressName'))]"
-                              ]
-                            }
-                          ]
-                        }
-                      }
                     },
                     {
                       "condition": "[parameters('deployLinuxVirtualMachine')]",
@@ -8330,8 +8211,8 @@
                         }
                       },
                       "dependsOn": [
-                        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-ra-bastion-host-{0}', parameters('deploymentNameSuffix')))]",
-                        "[subscriptionResourceId(parameters('tier').subscriptionId, 'Microsoft.Resources/deployments', format('deploy-ra-cmk-{0}', parameters('deploymentNameSuffix')))]"
+                        "[subscriptionResourceId(parameters('tier').subscriptionId, 'Microsoft.Resources/deployments', format('deploy-ra-cmk-{0}', parameters('deploymentNameSuffix')))]",
+                        "[subscriptionResourceId(parameters('tier').subscriptionId, 'Microsoft.Resources/deployments', format('deploy-ra-rg-{0}-{1}', parameters('tier').name, parameters('deploymentNameSuffix')))]"
                       ]
                     },
                     {
@@ -8825,9 +8706,133 @@
                         }
                       },
                       "dependsOn": [
-                        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, parameters('tier').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-ra-bastion-host-{0}', parameters('deploymentNameSuffix')))]",
-                        "[subscriptionResourceId(parameters('tier').subscriptionId, 'Microsoft.Resources/deployments', format('deploy-ra-cmk-{0}', parameters('deploymentNameSuffix')))]"
+                        "[subscriptionResourceId(parameters('tier').subscriptionId, 'Microsoft.Resources/deployments', format('deploy-ra-cmk-{0}', parameters('deploymentNameSuffix')))]",
+                        "[subscriptionResourceId(parameters('tier').subscriptionId, 'Microsoft.Resources/deployments', format('deploy-ra-rg-{0}-{1}', parameters('tier').name, parameters('deploymentNameSuffix')))]"
                       ]
+                    },
+                    {
+                      "condition": "[parameters('deployBastion')]",
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2022-09-01",
+                      "name": "[format('deploy-ra-bastion-host-{0}', parameters('deploymentNameSuffix'))]",
+                      "subscriptionId": "[parameters('tier').subscriptionId]",
+                      "resourceGroup": "[parameters('tier').resourceGroupName]",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "parameters": {
+                          "bastionHostSubnetResourceId": {
+                            "value": "[parameters('bastionHostSubnetResourceId')]"
+                          },
+                          "location": {
+                            "value": "[parameters('location')]"
+                          },
+                          "mlzTags": {
+                            "value": "[parameters('mlzTags')]"
+                          },
+                          "name": {
+                            "value": "[parameters('tier').namingConvention.bastionHost]"
+                          },
+                          "publicIPAddressAllocationMethod": {
+                            "value": "[parameters('bastionHostPublicIPAddressAllocationMethod')]"
+                          },
+                          "publicIPAddressAvailabilityZones": {
+                            "value": "[parameters('bastionHostPublicIPAddressAvailabilityZones')]"
+                          },
+                          "publicIPAddressName": {
+                            "value": "[parameters('tier').namingConvention.bastionHostPublicIPAddress]"
+                          },
+                          "publicIPAddressSkuName": {
+                            "value": "[parameters('bastionHostPublicIPAddressSkuName')]"
+                          },
+                          "tags": {
+                            "value": "[parameters('tags')]"
+                          }
+                        },
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "0.36.1.42791",
+                              "templateHash": "5461814492641054952"
+                            }
+                          },
+                          "parameters": {
+                            "bastionHostSubnetResourceId": {
+                              "type": "string"
+                            },
+                            "location": {
+                              "type": "string"
+                            },
+                            "mlzTags": {
+                              "type": "object"
+                            },
+                            "name": {
+                              "type": "string"
+                            },
+                            "publicIPAddressAllocationMethod": {
+                              "type": "string"
+                            },
+                            "publicIPAddressAvailabilityZones": {
+                              "type": "array"
+                            },
+                            "publicIPAddressName": {
+                              "type": "string"
+                            },
+                            "publicIPAddressSkuName": {
+                              "type": "string"
+                            },
+                            "tags": {
+                              "type": "object"
+                            }
+                          },
+                          "resources": [
+                            {
+                              "type": "Microsoft.Network/publicIPAddresses",
+                              "apiVersion": "2021-02-01",
+                              "name": "[parameters('publicIPAddressName')]",
+                              "location": "[parameters('location')]",
+                              "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/publicIPAddresses'), createObject()), parameters('mlzTags'))]",
+                              "sku": {
+                                "name": "[parameters('publicIPAddressSkuName')]"
+                              },
+                              "properties": {
+                                "publicIPAllocationMethod": "[parameters('publicIPAddressAllocationMethod')]"
+                              },
+                              "zones": "[parameters('publicIPAddressAvailabilityZones')]"
+                            },
+                            {
+                              "type": "Microsoft.Network/bastionHosts",
+                              "apiVersion": "2021-02-01",
+                              "name": "[parameters('name')]",
+                              "location": "[parameters('location')]",
+                              "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/bastionHosts'), createObject()), parameters('mlzTags'))]",
+                              "properties": {
+                                "ipConfigurations": [
+                                  {
+                                    "name": "ipconfig",
+                                    "properties": {
+                                      "subnet": {
+                                        "id": "[parameters('bastionHostSubnetResourceId')]"
+                                      },
+                                      "publicIPAddress": {
+                                        "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddressName'))]"
+                                      }
+                                    }
+                                  }
+                                ]
+                              },
+                              "dependsOn": [
+                                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddressName'))]"
+                              ]
+                            }
+                          ]
+                        }
+                      }
                     }
                   ],
                   "outputs": {
@@ -8837,7 +8842,7 @@
                     },
                     "networkInterfaceResourceIds": {
                       "type": "array",
-                      "value": "[union(createArray(reference(subscriptionResourceId(parameters('tier').subscriptionId, 'Microsoft.Resources/deployments', format('deploy-ra-cmk-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultNetworkInterfaceResourceId.value), if(parameters('deployLinuxVirtualMachine'), createArray(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, variables('jbResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-ra-linux-vm-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkInterfaceResourceId.value), createArray()), if(parameters('deployWindowsVirtualMachine'), createArray(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, variables('jbResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-ra-windows-vm-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkInterfaceResourceId.value), createArray()))]"
+                      "value": "[union(if(or(parameters('deployLinuxVirtualMachine'), parameters('deployWindowsVirtualMachine')), createArray(reference(subscriptionResourceId(parameters('tier').subscriptionId, 'Microsoft.Resources/deployments', format('deploy-ra-cmk-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultNetworkInterfaceResourceId.value), createArray()), if(parameters('deployLinuxVirtualMachine'), createArray(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, variables('jbResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-ra-linux-vm-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkInterfaceResourceId.value), createArray()), if(parameters('deployWindowsVirtualMachine'), createArray(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, variables('jbResourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-ra-windows-vm-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkInterfaceResourceId.value), createArray()))]"
                     }
                   }
                 }
@@ -8895,7 +8900,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.36.1.42791",
-                      "templateHash": "5019754391165553658"
+                      "templateHash": "10682021576593479057"
                     }
                   },
                   "parameters": {
@@ -8986,7 +8991,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.36.1.42791",
-                              "templateHash": "5527491738976255572"
+                              "templateHash": "16405874712645547830"
                             }
                           },
                           "parameters": {
@@ -9085,7 +9090,7 @@
                                     "_generator": {
                                       "name": "bicep",
                                       "version": "0.36.1.42791",
-                                      "templateHash": "8629117296478688013"
+                                      "templateHash": "2910131328655411355"
                                     }
                                   },
                                   "parameters": {
@@ -9154,52 +9159,6 @@
                                       }
                                     },
                                     {
-                                      "type": "Microsoft.Network/privateEndpoints",
-                                      "apiVersion": "2023-04-01",
-                                      "name": "[parameters('keyVaultPrivateEndpointName')]",
-                                      "location": "[parameters('location')]",
-                                      "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/privateEndpoints'), createObject()), parameters('mlzTags'))]",
-                                      "properties": {
-                                        "customNetworkInterfaceName": "[parameters('keyVaultNetworkInterfaceName')]",
-                                        "privateLinkServiceConnections": [
-                                          {
-                                            "name": "[parameters('keyVaultPrivateEndpointName')]",
-                                            "properties": {
-                                              "privateLinkServiceId": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
-                                              "groupIds": [
-                                                "vault"
-                                              ]
-                                            }
-                                          }
-                                        ],
-                                        "subnet": {
-                                          "id": "[parameters('subnetResourceId')]"
-                                        }
-                                      },
-                                      "dependsOn": [
-                                        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
-                                      ]
-                                    },
-                                    {
-                                      "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
-                                      "apiVersion": "2021-08-01",
-                                      "name": "[format('{0}/{1}', parameters('keyVaultPrivateEndpointName'), parameters('keyVaultName'))]",
-                                      "properties": {
-                                        "privateDnsZoneConfigs": [
-                                          {
-                                            "name": "ipconfig1",
-                                            "properties": {
-                                              "privateDnsZoneId": "[parameters('keyVaultPrivateDnsZoneResourceId')]"
-                                            }
-                                          }
-                                        ]
-                                      },
-                                      "dependsOn": [
-                                        "[resourceId('Microsoft.Network/privateEndpoints', parameters('keyVaultPrivateEndpointName'))]",
-                                        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
-                                      ]
-                                    },
-                                    {
                                       "type": "Microsoft.KeyVault/vaults/keys",
                                       "apiVersion": "2022-07-01",
                                       "name": "[format('{0}/{1}', parameters('keyVaultName'), parameters('keyName'))]",
@@ -9234,6 +9193,53 @@
                                         }
                                       },
                                       "dependsOn": [
+                                        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+                                      ]
+                                    },
+                                    {
+                                      "type": "Microsoft.Network/privateEndpoints",
+                                      "apiVersion": "2023-04-01",
+                                      "name": "[parameters('keyVaultPrivateEndpointName')]",
+                                      "location": "[parameters('location')]",
+                                      "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/privateEndpoints'), createObject()), parameters('mlzTags'))]",
+                                      "properties": {
+                                        "customNetworkInterfaceName": "[parameters('keyVaultNetworkInterfaceName')]",
+                                        "privateLinkServiceConnections": [
+                                          {
+                                            "name": "[parameters('keyVaultPrivateEndpointName')]",
+                                            "properties": {
+                                              "privateLinkServiceId": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
+                                              "groupIds": [
+                                                "vault"
+                                              ]
+                                            }
+                                          }
+                                        ],
+                                        "subnet": {
+                                          "id": "[parameters('subnetResourceId')]"
+                                        }
+                                      },
+                                      "dependsOn": [
+                                        "[resourceId('Microsoft.KeyVault/vaults/keys', parameters('keyVaultName'), parameters('keyName'))]",
+                                        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+                                      ]
+                                    },
+                                    {
+                                      "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+                                      "apiVersion": "2021-08-01",
+                                      "name": "[format('{0}/{1}', parameters('keyVaultPrivateEndpointName'), parameters('keyVaultName'))]",
+                                      "properties": {
+                                        "privateDnsZoneConfigs": [
+                                          {
+                                            "name": "ipconfig1",
+                                            "properties": {
+                                              "privateDnsZoneId": "[parameters('keyVaultPrivateDnsZoneResourceId')]"
+                                            }
+                                          }
+                                        ]
+                                      },
+                                      "dependsOn": [
+                                        "[resourceId('Microsoft.Network/privateEndpoints', parameters('keyVaultPrivateEndpointName'))]",
                                         "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
                                       ]
                                     }
@@ -9900,6 +9906,9 @@
                   "bastionDiagnosticsMetrics": {
                     "value": "[parameters('bastionDiagnosticsMetrics')]"
                   },
+                  "delimiter": {
+                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.delimiter.value]"
+                  },
                   "deployBastion": {
                     "value": "[parameters('deployBastion')]"
                   },
@@ -9934,7 +9943,7 @@
                     "value": "[parameters('networkInterfaceDiagnosticsMetrics')]"
                   },
                   "networkInterfaceResourceIds": {
-                    "value": "[union(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-adds-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkInterfaceResourceIds.value, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkInterfaceResourceIds.value, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-remote-access-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkInterfaceResourceIds.value, flatten(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-log-storage-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkInterfaceResourceIds.value))]"
+                    "value": "[union(if(and(parameters('deployActiveDirectoryDomainServices'), parameters('deployIdentity')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-adds-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkInterfaceResourceIds.value, createArray()), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkInterfaceResourceIds.value, if(or(parameters('deployLinuxVirtualMachine'), parameters('deployWindowsVirtualMachine')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-remote-access-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkInterfaceResourceIds.value, createArray()), flatten(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-log-storage-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkInterfaceResourceIds.value))]"
                   },
                   "networkWatcherFlowLogsRetentionDays": {
                     "value": "[parameters('networkWatcherFlowLogsRetentionDays')]"
@@ -9965,7 +9974,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.36.1.42791",
-                      "templateHash": "6858044352763437005"
+                      "templateHash": "3395683973816987876"
                     }
                   },
                   "parameters": {
@@ -9974,6 +9983,9 @@
                     },
                     "bastionDiagnosticsMetrics": {
                       "type": "array"
+                    },
+                    "delimiter": {
+                      "type": "string"
                     },
                     "deployBastion": {
                       "type": "bool"
@@ -10057,11 +10069,10 @@
                     ],
                     "dedupedSubscriptionIds": "[union(variables('subscriptionIds'), createArray())]",
                     "hub": "[filter(parameters('tiers'), lambda('tier', equals(lambdaVariables('tier').name, 'hub')))[0]]",
-                    "hubResourceGroupName": "[filter(variables('hub').resourceGroupName, lambda('name', contains(lambdaVariables('name'), 'hub')))[0]]",
                     "networkSecurityGroups": "[union(variables('networkSecurityGroups_Tiers'), variables('networkSecurityGroup_Bastion'))]",
-                    "networkSecurityGroup_Bastion": "[if(parameters('deployBastion'), createArray(createObject('diagnosticLogs', variables('hub').nsgDiagLogs, 'diagnosticSettingName', variables('hub').namingConvention.bastionHostNetworkSecurityGroupDiagnosticSetting, 'flowLogsName', format('{0}{1}bastion', variables('hub').namingConvention.networkWatcherFlowLogsNetworkSecurityGroup, variables('hub').delimiter), 'name', variables('hub').namingConvention.bastionHostNetworkSecurityGroup, 'resourceGroupName', variables('hubResourceGroupName'), 'storageAccountResourceId', parameters('storageAccountResourceIds')[0], 'subscriptionId', variables('hub').subscriptionId, 'tierName', format('hub{0}bas', variables('hub').delimiter))), createArray())]",
+                    "networkSecurityGroup_Bastion": "[if(parameters('deployBastion'), createArray(createObject('diagnosticLogs', variables('hub').nsgDiagLogs, 'diagnosticSettingName', variables('hub').namingConvention.bastionHostNetworkSecurityGroupDiagnosticSetting, 'flowLogsName', format('{0}{1}bastion', variables('hub').namingConvention.networkWatcherFlowLogsNetworkSecurityGroup, parameters('delimiter')), 'name', variables('hub').namingConvention.bastionHostNetworkSecurityGroup, 'resourceGroupName', variables('hub').resourceGroupName, 'storageAccountResourceId', parameters('storageAccountResourceIds')[0], 'subscriptionId', variables('hub').subscriptionId, 'tierName', format('hub{0}bas', parameters('delimiter')))), createArray())]",
                     "operations": "[filter(parameters('tiers'), lambda('tier', equals(lambdaVariables('tier').name, 'operations')))[0]]",
-                    "publicIPAddresses": "[union(createArray(createObject('name', format('{0}{1}client', variables('hub').namingConvention.azureFirewallPublicIPAddress, variables('hub').delimiter), 'diagName', format('{0}{1}client', variables('hub').namingConvention.azureFirewallPublicIPAddressDiagnosticSetting, variables('hub').delimiter)), createObject('name', format('{0}{1}management', variables('hub').namingConvention.azureFirewallPublicIPAddress, variables('hub').delimiter), 'diagName', format('{0}{1}management', variables('hub').namingConvention.azureFirewallPublicIPAddressDiagnosticSetting, variables('hub').delimiter))), if(parameters('deployBastion'), createArray(createObject('name', variables('hub').namingConvention.bastionHostPublicIPAddress, 'diagName', variables('hub').namingConvention.bastionHostPublicIPAddressDiagnosticSetting)), createArray()))]"
+                    "publicIPAddresses": "[union(createArray(createObject('name', format('{0}{1}client', variables('hub').namingConvention.azureFirewallPublicIPAddress, parameters('delimiter')), 'diagName', format('{0}{1}client', variables('hub').namingConvention.azureFirewallPublicIPAddressDiagnosticSetting, parameters('delimiter'))), createObject('name', format('{0}{1}management', variables('hub').namingConvention.azureFirewallPublicIPAddress, parameters('delimiter')), 'diagName', format('{0}{1}management', variables('hub').namingConvention.azureFirewallPublicIPAddressDiagnosticSetting, parameters('delimiter')))), if(parameters('deployBastion'), createArray(createObject('name', variables('hub').namingConvention.bastionHostPublicIPAddress, 'diagName', variables('hub').namingConvention.bastionHostPublicIPAddressDiagnosticSetting)), createArray()))]"
                   },
                   "resources": [
                     {
@@ -10690,7 +10701,7 @@
                       "apiVersion": "2022-09-01",
                       "name": "[format('deploy-pip-diags-{0}-{1}', copyIndex(), parameters('deploymentNameSuffix'))]",
                       "subscriptionId": "[variables('hub').subscriptionId]",
-                      "resourceGroup": "[variables('hubResourceGroupName')]",
+                      "resourceGroup": "[variables('hub').resourceGroupName]",
                       "properties": {
                         "expressionEvaluationOptions": {
                           "scope": "inner"
@@ -10768,7 +10779,7 @@
                       "apiVersion": "2022-09-01",
                       "name": "[format('deploy-afw-diags-{0}', parameters('deploymentNameSuffix'))]",
                       "subscriptionId": "[variables('hub').subscriptionId]",
-                      "resourceGroup": "[variables('hubResourceGroupName')]",
+                      "resourceGroup": "[variables('hub').resourceGroupName]",
                       "properties": {
                         "expressionEvaluationOptions": {
                           "scope": "inner"
@@ -10935,7 +10946,7 @@
                       "apiVersion": "2022-09-01",
                       "name": "[format('deploy-bastion-diags-{0}', parameters('deploymentNameSuffix'))]",
                       "subscriptionId": "[variables('hub').subscriptionId]",
-                      "resourceGroup": "[variables('hubResourceGroupName')]",
+                      "resourceGroup": "[variables('hub').resourceGroupName]",
                       "properties": {
                         "expressionEvaluationOptions": {
                           "scope": "inner"
@@ -11802,7 +11813,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.36.1.42791",
-              "templateHash": "4854814372126518925"
+              "templateHash": "17641276527901430757"
             }
           },
           "parameters": {
@@ -12659,7 +12670,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.36.1.42791",
-                      "templateHash": "3480119604931839823"
+                      "templateHash": "11352867271459925423"
                     }
                   },
                   "parameters": {
@@ -14851,7 +14862,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.36.1.42791",
-                              "templateHash": "14759798621515733780"
+                              "templateHash": "2095560749524451594"
                             }
                           },
                           "parameters": {
@@ -14969,7 +14980,7 @@
                                     "_generator": {
                                       "name": "bicep",
                                       "version": "0.36.1.42791",
-                                      "templateHash": "5527491738976255572"
+                                      "templateHash": "16405874712645547830"
                                     }
                                   },
                                   "parameters": {
@@ -15068,7 +15079,7 @@
                                             "_generator": {
                                               "name": "bicep",
                                               "version": "0.36.1.42791",
-                                              "templateHash": "8629117296478688013"
+                                              "templateHash": "2910131328655411355"
                                             }
                                           },
                                           "parameters": {
@@ -15137,52 +15148,6 @@
                                               }
                                             },
                                             {
-                                              "type": "Microsoft.Network/privateEndpoints",
-                                              "apiVersion": "2023-04-01",
-                                              "name": "[parameters('keyVaultPrivateEndpointName')]",
-                                              "location": "[parameters('location')]",
-                                              "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/privateEndpoints'), createObject()), parameters('mlzTags'))]",
-                                              "properties": {
-                                                "customNetworkInterfaceName": "[parameters('keyVaultNetworkInterfaceName')]",
-                                                "privateLinkServiceConnections": [
-                                                  {
-                                                    "name": "[parameters('keyVaultPrivateEndpointName')]",
-                                                    "properties": {
-                                                      "privateLinkServiceId": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
-                                                      "groupIds": [
-                                                        "vault"
-                                                      ]
-                                                    }
-                                                  }
-                                                ],
-                                                "subnet": {
-                                                  "id": "[parameters('subnetResourceId')]"
-                                                }
-                                              },
-                                              "dependsOn": [
-                                                "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
-                                              ]
-                                            },
-                                            {
-                                              "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
-                                              "apiVersion": "2021-08-01",
-                                              "name": "[format('{0}/{1}', parameters('keyVaultPrivateEndpointName'), parameters('keyVaultName'))]",
-                                              "properties": {
-                                                "privateDnsZoneConfigs": [
-                                                  {
-                                                    "name": "ipconfig1",
-                                                    "properties": {
-                                                      "privateDnsZoneId": "[parameters('keyVaultPrivateDnsZoneResourceId')]"
-                                                    }
-                                                  }
-                                                ]
-                                              },
-                                              "dependsOn": [
-                                                "[resourceId('Microsoft.Network/privateEndpoints', parameters('keyVaultPrivateEndpointName'))]",
-                                                "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
-                                              ]
-                                            },
-                                            {
                                               "type": "Microsoft.KeyVault/vaults/keys",
                                               "apiVersion": "2022-07-01",
                                               "name": "[format('{0}/{1}', parameters('keyVaultName'), parameters('keyName'))]",
@@ -15217,6 +15182,53 @@
                                                 }
                                               },
                                               "dependsOn": [
+                                                "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+                                              ]
+                                            },
+                                            {
+                                              "type": "Microsoft.Network/privateEndpoints",
+                                              "apiVersion": "2023-04-01",
+                                              "name": "[parameters('keyVaultPrivateEndpointName')]",
+                                              "location": "[parameters('location')]",
+                                              "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/privateEndpoints'), createObject()), parameters('mlzTags'))]",
+                                              "properties": {
+                                                "customNetworkInterfaceName": "[parameters('keyVaultNetworkInterfaceName')]",
+                                                "privateLinkServiceConnections": [
+                                                  {
+                                                    "name": "[parameters('keyVaultPrivateEndpointName')]",
+                                                    "properties": {
+                                                      "privateLinkServiceId": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
+                                                      "groupIds": [
+                                                        "vault"
+                                                      ]
+                                                    }
+                                                  }
+                                                ],
+                                                "subnet": {
+                                                  "id": "[parameters('subnetResourceId')]"
+                                                }
+                                              },
+                                              "dependsOn": [
+                                                "[resourceId('Microsoft.KeyVault/vaults/keys', parameters('keyVaultName'), parameters('keyName'))]",
+                                                "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+                                              ]
+                                            },
+                                            {
+                                              "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+                                              "apiVersion": "2021-08-01",
+                                              "name": "[format('{0}/{1}', parameters('keyVaultPrivateEndpointName'), parameters('keyVaultName'))]",
+                                              "properties": {
+                                                "privateDnsZoneConfigs": [
+                                                  {
+                                                    "name": "ipconfig1",
+                                                    "properties": {
+                                                      "privateDnsZoneId": "[parameters('keyVaultPrivateDnsZoneResourceId')]"
+                                                    }
+                                                  }
+                                                ]
+                                              },
+                                              "dependsOn": [
+                                                "[resourceId('Microsoft.Network/privateEndpoints', parameters('keyVaultPrivateEndpointName'))]",
                                                 "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
                                               ]
                                             }
@@ -17379,7 +17391,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.36.1.42791",
-                      "templateHash": "3480119604931839823"
+                      "templateHash": "11352867271459925423"
                     }
                   },
                   "parameters": {
@@ -19571,7 +19583,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.36.1.42791",
-                              "templateHash": "14759798621515733780"
+                              "templateHash": "2095560749524451594"
                             }
                           },
                           "parameters": {
@@ -19689,7 +19701,7 @@
                                     "_generator": {
                                       "name": "bicep",
                                       "version": "0.36.1.42791",
-                                      "templateHash": "5527491738976255572"
+                                      "templateHash": "16405874712645547830"
                                     }
                                   },
                                   "parameters": {
@@ -19788,7 +19800,7 @@
                                             "_generator": {
                                               "name": "bicep",
                                               "version": "0.36.1.42791",
-                                              "templateHash": "8629117296478688013"
+                                              "templateHash": "2910131328655411355"
                                             }
                                           },
                                           "parameters": {
@@ -19857,52 +19869,6 @@
                                               }
                                             },
                                             {
-                                              "type": "Microsoft.Network/privateEndpoints",
-                                              "apiVersion": "2023-04-01",
-                                              "name": "[parameters('keyVaultPrivateEndpointName')]",
-                                              "location": "[parameters('location')]",
-                                              "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/privateEndpoints'), createObject()), parameters('mlzTags'))]",
-                                              "properties": {
-                                                "customNetworkInterfaceName": "[parameters('keyVaultNetworkInterfaceName')]",
-                                                "privateLinkServiceConnections": [
-                                                  {
-                                                    "name": "[parameters('keyVaultPrivateEndpointName')]",
-                                                    "properties": {
-                                                      "privateLinkServiceId": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
-                                                      "groupIds": [
-                                                        "vault"
-                                                      ]
-                                                    }
-                                                  }
-                                                ],
-                                                "subnet": {
-                                                  "id": "[parameters('subnetResourceId')]"
-                                                }
-                                              },
-                                              "dependsOn": [
-                                                "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
-                                              ]
-                                            },
-                                            {
-                                              "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
-                                              "apiVersion": "2021-08-01",
-                                              "name": "[format('{0}/{1}', parameters('keyVaultPrivateEndpointName'), parameters('keyVaultName'))]",
-                                              "properties": {
-                                                "privateDnsZoneConfigs": [
-                                                  {
-                                                    "name": "ipconfig1",
-                                                    "properties": {
-                                                      "privateDnsZoneId": "[parameters('keyVaultPrivateDnsZoneResourceId')]"
-                                                    }
-                                                  }
-                                                ]
-                                              },
-                                              "dependsOn": [
-                                                "[resourceId('Microsoft.Network/privateEndpoints', parameters('keyVaultPrivateEndpointName'))]",
-                                                "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
-                                              ]
-                                            },
-                                            {
                                               "type": "Microsoft.KeyVault/vaults/keys",
                                               "apiVersion": "2022-07-01",
                                               "name": "[format('{0}/{1}', parameters('keyVaultName'), parameters('keyName'))]",
@@ -19937,6 +19903,53 @@
                                                 }
                                               },
                                               "dependsOn": [
+                                                "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+                                              ]
+                                            },
+                                            {
+                                              "type": "Microsoft.Network/privateEndpoints",
+                                              "apiVersion": "2023-04-01",
+                                              "name": "[parameters('keyVaultPrivateEndpointName')]",
+                                              "location": "[parameters('location')]",
+                                              "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/privateEndpoints'), createObject()), parameters('mlzTags'))]",
+                                              "properties": {
+                                                "customNetworkInterfaceName": "[parameters('keyVaultNetworkInterfaceName')]",
+                                                "privateLinkServiceConnections": [
+                                                  {
+                                                    "name": "[parameters('keyVaultPrivateEndpointName')]",
+                                                    "properties": {
+                                                      "privateLinkServiceId": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
+                                                      "groupIds": [
+                                                        "vault"
+                                                      ]
+                                                    }
+                                                  }
+                                                ],
+                                                "subnet": {
+                                                  "id": "[parameters('subnetResourceId')]"
+                                                }
+                                              },
+                                              "dependsOn": [
+                                                "[resourceId('Microsoft.KeyVault/vaults/keys', parameters('keyVaultName'), parameters('keyName'))]",
+                                                "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+                                              ]
+                                            },
+                                            {
+                                              "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+                                              "apiVersion": "2021-08-01",
+                                              "name": "[format('{0}/{1}', parameters('keyVaultPrivateEndpointName'), parameters('keyVaultName'))]",
+                                              "properties": {
+                                                "privateDnsZoneConfigs": [
+                                                  {
+                                                    "name": "ipconfig1",
+                                                    "properties": {
+                                                      "privateDnsZoneId": "[parameters('keyVaultPrivateDnsZoneResourceId')]"
+                                                    }
+                                                  }
+                                                ]
+                                              },
+                                              "dependsOn": [
+                                                "[resourceId('Microsoft.Network/privateEndpoints', parameters('keyVaultPrivateEndpointName'))]",
                                                 "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
                                               ]
                                             }
@@ -22065,7 +22078,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.36.1.42791",
-                      "templateHash": "16512103853643252691"
+                      "templateHash": "16234931267802551881"
                     }
                   },
                   "parameters": {
@@ -22627,7 +22640,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.36.1.42791",
-                              "templateHash": "5527491738976255572"
+                              "templateHash": "16405874712645547830"
                             }
                           },
                           "parameters": {
@@ -22726,7 +22739,7 @@
                                     "_generator": {
                                       "name": "bicep",
                                       "version": "0.36.1.42791",
-                                      "templateHash": "8629117296478688013"
+                                      "templateHash": "2910131328655411355"
                                     }
                                   },
                                   "parameters": {
@@ -22795,52 +22808,6 @@
                                       }
                                     },
                                     {
-                                      "type": "Microsoft.Network/privateEndpoints",
-                                      "apiVersion": "2023-04-01",
-                                      "name": "[parameters('keyVaultPrivateEndpointName')]",
-                                      "location": "[parameters('location')]",
-                                      "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/privateEndpoints'), createObject()), parameters('mlzTags'))]",
-                                      "properties": {
-                                        "customNetworkInterfaceName": "[parameters('keyVaultNetworkInterfaceName')]",
-                                        "privateLinkServiceConnections": [
-                                          {
-                                            "name": "[parameters('keyVaultPrivateEndpointName')]",
-                                            "properties": {
-                                              "privateLinkServiceId": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
-                                              "groupIds": [
-                                                "vault"
-                                              ]
-                                            }
-                                          }
-                                        ],
-                                        "subnet": {
-                                          "id": "[parameters('subnetResourceId')]"
-                                        }
-                                      },
-                                      "dependsOn": [
-                                        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
-                                      ]
-                                    },
-                                    {
-                                      "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
-                                      "apiVersion": "2021-08-01",
-                                      "name": "[format('{0}/{1}', parameters('keyVaultPrivateEndpointName'), parameters('keyVaultName'))]",
-                                      "properties": {
-                                        "privateDnsZoneConfigs": [
-                                          {
-                                            "name": "ipconfig1",
-                                            "properties": {
-                                              "privateDnsZoneId": "[parameters('keyVaultPrivateDnsZoneResourceId')]"
-                                            }
-                                          }
-                                        ]
-                                      },
-                                      "dependsOn": [
-                                        "[resourceId('Microsoft.Network/privateEndpoints', parameters('keyVaultPrivateEndpointName'))]",
-                                        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
-                                      ]
-                                    },
-                                    {
                                       "type": "Microsoft.KeyVault/vaults/keys",
                                       "apiVersion": "2022-07-01",
                                       "name": "[format('{0}/{1}', parameters('keyVaultName'), parameters('keyName'))]",
@@ -22875,6 +22842,53 @@
                                         }
                                       },
                                       "dependsOn": [
+                                        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+                                      ]
+                                    },
+                                    {
+                                      "type": "Microsoft.Network/privateEndpoints",
+                                      "apiVersion": "2023-04-01",
+                                      "name": "[parameters('keyVaultPrivateEndpointName')]",
+                                      "location": "[parameters('location')]",
+                                      "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/privateEndpoints'), createObject()), parameters('mlzTags'))]",
+                                      "properties": {
+                                        "customNetworkInterfaceName": "[parameters('keyVaultNetworkInterfaceName')]",
+                                        "privateLinkServiceConnections": [
+                                          {
+                                            "name": "[parameters('keyVaultPrivateEndpointName')]",
+                                            "properties": {
+                                              "privateLinkServiceId": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
+                                              "groupIds": [
+                                                "vault"
+                                              ]
+                                            }
+                                          }
+                                        ],
+                                        "subnet": {
+                                          "id": "[parameters('subnetResourceId')]"
+                                        }
+                                      },
+                                      "dependsOn": [
+                                        "[resourceId('Microsoft.KeyVault/vaults/keys', parameters('keyVaultName'), parameters('keyName'))]",
+                                        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+                                      ]
+                                    },
+                                    {
+                                      "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+                                      "apiVersion": "2021-08-01",
+                                      "name": "[format('{0}/{1}', parameters('keyVaultPrivateEndpointName'), parameters('keyVaultName'))]",
+                                      "properties": {
+                                        "privateDnsZoneConfigs": [
+                                          {
+                                            "name": "ipconfig1",
+                                            "properties": {
+                                              "privateDnsZoneId": "[parameters('keyVaultPrivateDnsZoneResourceId')]"
+                                            }
+                                          }
+                                        ]
+                                      },
+                                      "dependsOn": [
+                                        "[resourceId('Microsoft.Network/privateEndpoints', parameters('keyVaultPrivateEndpointName'))]",
                                         "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
                                       ]
                                     }
