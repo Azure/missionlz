@@ -895,7 +895,7 @@ module activeDirectoryDomainServices 'modules/active-directory-domain-services.b
 
 // REMOTE ACCESS
 
-module remoteAccess 'modules/remote-access.bicep' = {
+module remoteAccess 'modules/remote-access.bicep' = if (deployBastion || deployLinuxVirtualMachine || deployWindowsVirtualMachine) {
   name: 'deploy-remote-access-${deploymentNameSuffix}'
   params: {
     bastionHostPublicIPAddressAllocationMethod: 'Static'
