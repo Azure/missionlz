@@ -5,6 +5,8 @@ Licensed under the MIT License.
 
 param clientIpConfigurationSubnetResourceId string
 param clientIpConfigurationPublicIPAddressResourceId string
+param customPipCount int = 0
+param customPublicIPAddressNamePrefix string = ''
 param dnsServers array
 param enableProxy bool
 param firewallPolicyName string
@@ -20,11 +22,13 @@ param managementIpConfigurationSubnetResourceId string
 param managementIpConfigurationPublicIPAddressResourceId string
 param mlzTags object
 param name string
+param resourceGroupName string
 @allowed([
   'Premium'
   'Standard'
 ])
 param skuTier string
+param subscriptionId string
 param tags object = {}
 @allowed([
   'Alert'
@@ -42,6 +46,32 @@ var dnsSettings = {
   enableProxy: enableProxy
   servers: dnsServers
 }
+
+// Build the primary IP configuration
+var primaryIpConfiguration = {
+  name: 'ipconfig-client'
+  properties: {
+    subnet: {
+      id: clientIpConfigurationSubnetResourceId
+    }
+    publicIPAddress: {
+      id: clientIpConfigurationPublicIPAddressResourceId
+    }
+  }
+}
+
+// Build additional IP configurations for custom PIPs
+var customIpConfigurations = [for i in range(1, customPipCount): {
+  name: 'ipconfig-client-${i}'
+  properties: {
+    publicIPAddress: {
+      id: resourceId(subscriptionId, resourceGroupName, 'Microsoft.Network/publicIPAddresses', '${customPublicIPAddressNamePrefix}${i}')
+    }
+  }
+}]
+
+// Combine all IP configurations
+var allIpConfigurations = customPipCount > 0 ? union([primaryIpConfiguration], customIpConfigurations) : [primaryIpConfiguration]
 
 
 // Define the firewall policy
@@ -78,19 +108,7 @@ resource firewall 'Microsoft.Network/azureFirewalls@2021-02-01' = {
   location: location
   tags: union(tags[?'Microsoft.Network/azureFirewalls'] ?? {}, mlzTags)
   properties: {
-    ipConfigurations: [
-      {
-        name: 'ipconfig-client'
-        properties: {
-          subnet: {
-            id: clientIpConfigurationSubnetResourceId
-          }
-          publicIPAddress: {
-            id: clientIpConfigurationPublicIPAddressResourceId
-          }
-        }
-      }
-    ]
+    ipConfigurations: allIpConfigurations
     managementIpConfiguration: {
       name: 'ipconfig-management'
       properties: {

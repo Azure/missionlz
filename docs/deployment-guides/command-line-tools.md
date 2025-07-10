@@ -106,6 +106,34 @@ Parameter Name    | Default Value | Description
 `firewallThreatIntelMode` | Alert | [Alert/Deny/Off] The Azure Firewall Threat Intelligence Rule triggered logging behavior.
 `customFirewallRuleCollectionGroups` | Firewall collection group definition | Firewall rules associated with the MLZ deployment.  
 
+#### Azure Firewall: Multiple Public IPs
+
+To deploy the MLZ with multiple static public IP addresses for the Azure Firewall, use the `additionalFwPipCount` parameter. For example:
+
+```
+az deployment sub create \
+  --location <location> \
+  --template-file src/mlz.bicep \
+  --parameters additionalFwPipCount=2
+```
+
+This will create two additional static public IPs for the firewall.
+
+### Azure Firewall Public IP Addresses
+
+You can control the number of static public IP addresses (PIPs) assigned to Azure Firewall by setting the `additionalFwPipCount` parameter. This is useful for advanced NAT rule scenarios.
+
+**Example CLI usage:**
+
+```sh
+az deployment sub create \
+  --location <location> \
+  --template-file src/mlz.bicep \
+  --parameters additionalFwPipCount=2
+```
+
+This will provision two additional static PIPs for the Azure Firewall, in addition to the default one.
+
 ### Monitoring
 
 Set the following settings to enable the capture of resource logs and metrics:

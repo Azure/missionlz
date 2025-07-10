@@ -59,6 +59,11 @@ param bastionHostSubnetAddressPrefix string = '10.0.128.192/26'
 @description('The firewall rules that will be applied to the Azure Firewall.')
 param customFirewallRuleCollectionGroups array = []
 
+@minValue(0)
+@maxValue(10)
+@description('Number of additional static public IP addresses to create for the Azure Firewall. Default value = "0". These will be static/reserved IP addresses that can be used for NAT rules.')
+param additionalFwPipCount int = 0
+
 @allowed([
   'Standard'
   'Free'
@@ -621,6 +626,7 @@ module networking 'modules/networking.bicep' = {
       clientPrivateIpAddress: firewallClientPrivateIpAddress
       clientPublicIPAddressAvailabilityZones: firewallClientPublicIPAddressAvailabilityZones
       clientSubnetAddressPrefix: firewallClientSubnetAddressPrefix
+      customPipCount: additionalFwPipCount
       intrusionDetectionMode: firewallIntrusionDetectionMode
       managementPublicIPAddressAvailabilityZones: firewallManagementPublicIPAddressAvailabilityZones
       managementSubnetAddressPrefix: firewallManagementSubnetAddressPrefix

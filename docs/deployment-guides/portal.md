@@ -155,6 +155,12 @@ Review and validate the values selected for element in the UI. Once the values h
 > [!NOTE]
 > Deployment time can vary depending on options selected.
 
+### Azure Firewall Public IP Addresses
+
+When deploying via the Azure portal, you can set the `additionalFwPipCount` parameter to control the number of static public IP addresses (PIPs) assigned to Azure Firewall. This enables advanced NAT rule scenarios.
+
+- **Parameter:** `additionalFwPipCount` (int, default: 0)
+
 ## Remove MLZ in the Azure Portal
 
 If necessary, the deployment of a Mission Landing Zone can be deleted with these steps:
