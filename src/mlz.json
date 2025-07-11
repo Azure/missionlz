@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.36.1.42791",
-      "templateHash": "17927940184029605120"
+      "templateHash": "2429922639447854977"
     }
   },
   "parameters": {
@@ -107,6 +107,15 @@
       "defaultValue": [],
       "metadata": {
         "description": "The firewall rules that will be applied to the Azure Firewall."
+      }
+    },
+    "additionalFwPipCount": {
+      "type": "int",
+      "defaultValue": 0,
+      "minValue": 0,
+      "maxValue": 10,
+      "metadata": {
+        "description": "Number of additional static public IP addresses to create for the Azure Firewall. Default value = \"0\". These will be static/reserved IP addresses that can be used for NAT rules."
       }
     },
     "defenderSkuTier": {
@@ -1035,6 +1044,7 @@
               "clientPrivateIpAddress": "[variables('firewallClientPrivateIpAddress')]",
               "clientPublicIPAddressAvailabilityZones": "[parameters('firewallClientPublicIPAddressAvailabilityZones')]",
               "clientSubnetAddressPrefix": "[parameters('firewallClientSubnetAddressPrefix')]",
+              "customPipCount": "[parameters('additionalFwPipCount')]",
               "intrusionDetectionMode": "[parameters('firewallIntrusionDetectionMode')]",
               "managementPublicIPAddressAvailabilityZones": "[parameters('firewallManagementPublicIPAddressAvailabilityZones')]",
               "managementSubnetAddressPrefix": "[parameters('firewallManagementSubnetAddressPrefix')]",
@@ -1064,7 +1074,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.36.1.42791",
-              "templateHash": "8263260303873545477"
+              "templateHash": "16451122570802472639"
             }
           },
           "parameters": {
@@ -2096,6 +2106,9 @@
                   "firewallClientSubnetAddressPrefix": {
                     "value": "[parameters('firewallSettings').clientSubnetAddressPrefix]"
                   },
+                  "firewallCustomPipCount": {
+                    "value": "[parameters('firewallSettings').customPipCount]"
+                  },
                   "firewallIntrusionDetectionMode": {
                     "value": "[parameters('firewallSettings').intrusionDetectionMode]"
                   },
@@ -2145,7 +2158,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.36.1.42791",
-                      "templateHash": "16615224944866045897"
+                      "templateHash": "16639440669062866787"
                     }
                   },
                   "parameters": {
@@ -2181,6 +2194,9 @@
                     },
                     "firewallClientSubnetAddressPrefix": {
                       "type": "string"
+                    },
+                    "firewallCustomPipCount": {
+                      "type": "int"
                     },
                     "firewallIntrusionDetectionMode": {
                       "type": "string",
@@ -2922,6 +2938,103 @@
                       }
                     },
                     {
+                      "copy": {
+                        "name": "firewallCustomPublicIPAddresses",
+                        "count": "[length(range(1, parameters('firewallCustomPipCount')))]"
+                      },
+                      "condition": "[greater(parameters('firewallCustomPipCount'), 0)]",
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2022-09-01",
+                      "name": "[format('deploy-hub-fw-custom-pip-{0}-{1}', range(1, parameters('firewallCustomPipCount'))[copyIndex()], parameters('deploymentNameSuffix'))]",
+                      "subscriptionId": "[parameters('subscriptionId')]",
+                      "resourceGroup": "[parameters('resourceGroupName')]",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "parameters": {
+                          "availabilityZones": {
+                            "value": "[parameters('firewallClientPublicIPAddressAvailabilityZones')]"
+                          },
+                          "location": {
+                            "value": "[parameters('location')]"
+                          },
+                          "mlzTags": {
+                            "value": "[parameters('mlzTags')]"
+                          },
+                          "name": {
+                            "value": "[format('{0}{1}client{2}{3}', parameters('tier').namingConvention.azureFirewallPublicIPAddress, parameters('delimiter'), parameters('delimiter'), range(1, parameters('firewallCustomPipCount'))[copyIndex()])]"
+                          },
+                          "publicIpAllocationMethod": {
+                            "value": "Static"
+                          },
+                          "skuName": {
+                            "value": "Standard"
+                          },
+                          "tags": {
+                            "value": "[parameters('tags')]"
+                          }
+                        },
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "0.36.1.42791",
+                              "templateHash": "6621511533279836879"
+                            }
+                          },
+                          "parameters": {
+                            "availabilityZones": {
+                              "type": "array"
+                            },
+                            "location": {
+                              "type": "string"
+                            },
+                            "mlzTags": {
+                              "type": "object"
+                            },
+                            "name": {
+                              "type": "string"
+                            },
+                            "publicIpAllocationMethod": {
+                              "type": "string"
+                            },
+                            "skuName": {
+                              "type": "string"
+                            },
+                            "tags": {
+                              "type": "object"
+                            }
+                          },
+                          "resources": [
+                            {
+                              "type": "Microsoft.Network/publicIPAddresses",
+                              "apiVersion": "2021-02-01",
+                              "name": "[parameters('name')]",
+                              "location": "[parameters('location')]",
+                              "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/publicIPAddresses'), createObject()), parameters('mlzTags'))]",
+                              "sku": {
+                                "name": "[parameters('skuName')]"
+                              },
+                              "properties": {
+                                "publicIPAllocationMethod": "[parameters('publicIpAllocationMethod')]"
+                              },
+                              "zones": "[parameters('availabilityZones')]"
+                            }
+                          ],
+                          "outputs": {
+                            "id": {
+                              "type": "string",
+                              "value": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('name'))]"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2022-09-01",
                       "name": "[format('deploy-hub-fw-{0}', parameters('deploymentNameSuffix'))]",
@@ -2938,6 +3051,12 @@
                           },
                           "clientIpConfigurationSubnetResourceId": {
                             "value": "[format('{0}/subnets/AzureFirewallSubnet', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-hub-vnet-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.id.value)]"
+                          },
+                          "customPipCount": {
+                            "value": "[parameters('firewallCustomPipCount')]"
+                          },
+                          "customPublicIPAddressNamePrefix": {
+                            "value": "[format('{0}{1}client{2}', parameters('tier').namingConvention.azureFirewallPublicIPAddress, parameters('delimiter'), parameters('delimiter'))]"
                           },
                           "dnsServers": {
                             "value": "[parameters('dnsServers')]"
@@ -2966,8 +3085,14 @@
                           "name": {
                             "value": "[parameters('tier').namingConvention.azureFirewall]"
                           },
+                          "resourceGroupName": {
+                            "value": "[parameters('resourceGroupName')]"
+                          },
                           "skuTier": {
                             "value": "[parameters('firewallSkuTier')]"
+                          },
+                          "subscriptionId": {
+                            "value": "[parameters('subscriptionId')]"
                           },
                           "tags": {
                             "value": "[parameters('tags')]"
@@ -2986,7 +3111,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.36.1.42791",
-                              "templateHash": "15239520937355254502"
+                              "templateHash": "15624608497194812505"
                             }
                           },
                           "parameters": {
@@ -2995,6 +3120,14 @@
                             },
                             "clientIpConfigurationPublicIPAddressResourceId": {
                               "type": "string"
+                            },
+                            "customPipCount": {
+                              "type": "int",
+                              "defaultValue": 0
+                            },
+                            "customPublicIPAddressNamePrefix": {
+                              "type": "string",
+                              "defaultValue": ""
                             },
                             "dnsServers": {
                               "type": "array"
@@ -3028,12 +3161,18 @@
                             "name": {
                               "type": "string"
                             },
+                            "resourceGroupName": {
+                              "type": "string"
+                            },
                             "skuTier": {
                               "type": "string",
                               "allowedValues": [
                                 "Premium",
                                 "Standard"
                               ]
+                            },
+                            "subscriptionId": {
+                              "type": "string"
                             },
                             "tags": {
                               "type": "object",
@@ -3052,13 +3191,39 @@
                             }
                           },
                           "variables": {
+                            "copy": [
+                              {
+                                "name": "customIpConfigurations",
+                                "count": "[length(range(1, parameters('customPipCount')))]",
+                                "input": {
+                                  "name": "[format('ipconfig-client-{0}', range(1, parameters('customPipCount'))[copyIndex('customIpConfigurations')])]",
+                                  "properties": {
+                                    "publicIPAddress": {
+                                      "id": "[resourceId(parameters('subscriptionId'), parameters('resourceGroupName'), 'Microsoft.Network/publicIPAddresses', format('{0}{1}', parameters('customPublicIPAddressNamePrefix'), range(1, parameters('customPipCount'))[copyIndex('customIpConfigurations')]))]"
+                                    }
+                                  }
+                                }
+                              }
+                            ],
                             "intrusionDetectionObject": {
                               "mode": "[parameters('intrusionDetectionMode')]"
                             },
                             "dnsSettings": {
                               "enableProxy": "[parameters('enableProxy')]",
                               "servers": "[parameters('dnsServers')]"
-                            }
+                            },
+                            "primaryIpConfiguration": {
+                              "name": "ipconfig-client",
+                              "properties": {
+                                "subnet": {
+                                  "id": "[parameters('clientIpConfigurationSubnetResourceId')]"
+                                },
+                                "publicIPAddress": {
+                                  "id": "[parameters('clientIpConfigurationPublicIPAddressResourceId')]"
+                                }
+                              }
+                            },
+                            "allIpConfigurations": "[if(greater(parameters('customPipCount'), 0), union(createArray(variables('primaryIpConfiguration')), variables('customIpConfigurations')), createArray(variables('primaryIpConfiguration')))]"
                           },
                           "resources": [
                             {
@@ -3086,19 +3251,7 @@
                               "location": "[parameters('location')]",
                               "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/azureFirewalls'), createObject()), parameters('mlzTags'))]",
                               "properties": {
-                                "ipConfigurations": [
-                                  {
-                                    "name": "ipconfig-client",
-                                    "properties": {
-                                      "subnet": {
-                                        "id": "[parameters('clientIpConfigurationSubnetResourceId')]"
-                                      },
-                                      "publicIPAddress": {
-                                        "id": "[parameters('clientIpConfigurationPublicIPAddressResourceId')]"
-                                      }
-                                    }
-                                  }
-                                ],
+                                "ipConfigurations": "[variables('allIpConfigurations')]",
                                 "managementIpConfiguration": {
                                   "name": "ipconfig-management",
                                   "properties": {
@@ -3198,6 +3351,7 @@
                       },
                       "dependsOn": [
                         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-hub-fw-client-pip-{0}', parameters('deploymentNameSuffix')))]",
+                        "firewallCustomPublicIPAddresses",
                         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-hub-fw-mgmt-pip-{0}', parameters('deploymentNameSuffix')))]",
                         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-hub-vnet-{0}', parameters('deploymentNameSuffix')))]"
                       ]

@@ -16,6 +16,7 @@ param enableProxy bool
 param firewallClientPrivateIpAddress string
 param firewallClientPublicIPAddressAvailabilityZones array
 param firewallClientSubnetAddressPrefix string
+param firewallCustomPipCount int
 @allowed([
   'Alert'
   'Deny'
@@ -292,12 +293,28 @@ module firewallManagementPublicIPAddress '../modules/public-ip-address.bicep' = 
   }
 }
 
+module firewallCustomPublicIPAddresses '../modules/public-ip-address.bicep' = [for i in range(1, firewallCustomPipCount): if (firewallCustomPipCount > 0) {
+  name: 'deploy-hub-fw-custom-pip-${i}-${deploymentNameSuffix}'
+  scope: resourceGroup(subscriptionId, resourceGroupName)
+  params: {
+    availabilityZones: firewallClientPublicIPAddressAvailabilityZones
+    location: location
+    mlzTags: mlzTags
+    name: '${tier.namingConvention.azureFirewallPublicIPAddress}${delimiter}client${delimiter}${i}'
+    publicIpAllocationMethod: 'Static'
+    skuName: 'Standard'
+    tags: tags
+  }
+}]
+
 module firewall '../modules/firewall.bicep' = {
   name: 'deploy-hub-fw-${deploymentNameSuffix}'
   scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
     clientIpConfigurationPublicIPAddressResourceId: firewallClientPublicIPAddress.outputs.id
     clientIpConfigurationSubnetResourceId: '${virtualNetwork.outputs.id}/subnets/AzureFirewallSubnet'
+    customPipCount: firewallCustomPipCount
+    customPublicIPAddressNamePrefix: '${tier.namingConvention.azureFirewallPublicIPAddress}${delimiter}client${delimiter}'
     dnsServers: dnsServers
     enableProxy: enableProxy
     firewallPolicyName: tier.namingConvention.azureFirewallPolicy
@@ -307,11 +324,16 @@ module firewall '../modules/firewall.bicep' = {
     managementIpConfigurationSubnetResourceId: '${virtualNetwork.outputs.id}/subnets/AzureFirewallManagementSubnet'
     mlzTags: mlzTags
     name: tier.namingConvention.azureFirewall
+    resourceGroupName: resourceGroupName
     skuTier: firewallSkuTier
+    subscriptionId: subscriptionId
     tags: tags
     threatIntelMode: firewallThreatIntelMode
     firewallRuleCollectionGroups: firewallRuleCollectionGroups
   }
+  dependsOn: [
+    firewallCustomPublicIPAddresses
+  ]
 }
 
 output bastionHostSubnetResourceId string = deployBastion ? virtualNetwork.outputs.subnets[3].id : ''

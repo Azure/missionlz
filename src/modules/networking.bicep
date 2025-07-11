@@ -62,6 +62,7 @@ module hubNetwork 'hub-network.bicep' = {
     firewallClientPrivateIpAddress: firewallSettings.clientPrivateIpAddress
     firewallClientPublicIPAddressAvailabilityZones: firewallSettings.clientPublicIPAddressAvailabilityZones
     firewallClientSubnetAddressPrefix: firewallSettings.clientSubnetAddressPrefix
+    firewallCustomPipCount: firewallSettings.customPipCount
     firewallIntrusionDetectionMode: firewallSettings.intrusionDetectionMode
     firewallManagementPublicIPAddressAvailabilityZones: firewallSettings.managementPublicIPAddressAvailabilityZones
     firewallManagementSubnetAddressPrefix: firewallSettings.managementSubnetAddressPrefix

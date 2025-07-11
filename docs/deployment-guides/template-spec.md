@@ -132,6 +132,20 @@ Use the following steps to create the Template Spec resource using CloudShell:
 - **UIFormDefinitionFile | ui-form-definition:** the file path to the ARM template in the Azure Files share used by CloudShell.
 - **Force | yes:** this switch ensures the template spec is forcibly updated without confirmation if the resource and version already exist.
 
+### Azure Firewall Public IP Addresses
+
+The `additionalFwPipCount` parameter allows you to specify the number of additional static public IP addresses (PIPs) for Azure Firewall when deploying via Template Spec. All PIPs are static and follow the same naming and diagnostic logging conventions.
+
+**Example parameter file snippet:**
+
+```json
+"additionalFwPipCount": {
+  "value": 2
+}
+```
+
+This will provision two additional static public IPs for the firewall.
+
 ### Deploy MLZ
 
 1. Open the template spec resource in the Azure Portal.

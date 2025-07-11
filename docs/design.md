@@ -73,6 +73,22 @@ Please review [Command Line Tools](./deployment-guides/command-line-tools.md) fo
 
 To deploy Mission LZ using Azure Stack Hub and an F5 BIG-IP Virtual Edition instead of Azure Firewall Premium, there is an alternate repository with instructions [found here](https://github.com/Azure/missionlz-edge).
 
+### Azure Firewall Public IP Addresses
+
+The MLZ Bicep deployment allows you to provision multiple static public IP addresses for Azure Firewall using the `additionalFwPipCount` parameter. This enables advanced NAT rule scenarios and supports robust, static egress IP requirements.
+
+- **Parameter:** `additionalFwPipCount` (int, default: 0)
+- **Purpose:** Number of additional static public IP addresses to create for the Azure Firewall. All PIPs are static and receive identical diagnostic logging.
+- **Backward Compatibility:** If not set, the deployment defaults to a single static PIP as before.
+
+**Example:**
+
+```bicep
+param additionalFwPipCount int = 3
+```
+
+See [networking.md](networking.md) for more technical details.
+
 ## Product Roadmap
 
 See the [Projects](https://github.com/Azure/missionlz/projects) page for the release timeline and feature areas.

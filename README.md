@@ -42,3 +42,19 @@ Mission Landing Zone can be deployed from the Azure Portal, or with Azure comman
 
 > [!NOTE]  
 > Be sure to check out our **[add-ons](./src/add-ons/README.md)** to accelerate workload deployments.
+
+## Azure Firewall Public IP Addresses
+
+The MLZ deployment supports multiple static public IP addresses (PIPs) for Azure Firewall. Use the `additionalFwPipCount` parameter to specify the number of additional static PIPs to create for NAT rules. All PIPs are static and follow the same naming and diagnostic logging conventions. See [networking.md](docs/networking.md) for details and examples.
+
+**Parameter:**
+
+- `additionalFwPipCount` (int, default: 0): Number of additional static public IP addresses to create for the Azure Firewall. Set to 0 for default behavior (single PIP), or increase as needed for your NAT scenarios.
+
+**Example:**
+
+```bicep
+param additionalFwPipCount int = 2
+```
+
+This will provision two additional static PIPs for the Azure Firewall, in addition to the default one.

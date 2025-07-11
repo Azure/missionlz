@@ -31,3 +31,23 @@ This repository has carefully planned default address prefixes configured throug
 | Add-On   | Azure Virtual Desktop, Stamp Index 8 | 10.0.156.0/23  |
 | Add-On   | Azure Virtual Desktop, Stamp Index 9 | 10.0.158.0/23  |
 | Add-On   | Azure NetApp Files                   | 10.0.160.0/23  |
+
+## Azure Firewall Public IP Addresses
+
+The MLZ deployment supports multiple static public IP addresses (PIPs) for Azure Firewall. Use the `additionalFwPipCount` parameter to specify the number of additional static PIPs to create for NAT rules. All PIPs are static and follow the same naming and diagnostic logging conventions.
+
+### Parameter Reference
+
+- `additionalFwPipCount` (int, default: 0): Number of additional static public IP addresses to create for the Azure Firewall. Set to 0 for default behavior (single PIP), or increase as needed for your NAT scenarios.
+
+### Example Usage
+
+```bicep
+param additionalFwPipCount int = 2
+```
+
+This will provision two additional static PIPs for the Azure Firewall, in addition to the default one.
+
+### Notes
+- Deleting and recreating a static PIP will not retain the same IP address (Azure behavior).
+- All custom and original firewall PIPs are static, use the same naming logic, and receive identical diagnostic logging.
