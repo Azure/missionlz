@@ -6,7 +6,7 @@ param convertedEpoch int = dateTimeToEpoch(dateTimeAdd(utcNow(), 'P1D'))
 param debugMode bool
 param dscConfiguration string
 param dscScript string
-param enableVirtualMachineDataDisk bool
+// param enableVirtualMachineDataDisk bool
 param externalDNSHostName string
 param fileShareName string = 'fileshare'
 param fileShareVirtualMachineName string
@@ -18,7 +18,7 @@ param tags object
 @secure()
 param virtualMachineAdminPassword string
 param virtualMachineAdminUsername string
-param virtualMachineOSDiskSize int
+// param virtualMachineOSDiskSize int
 
 var dscModuleUrl = '${storageUriPrefix}DSC.zip'
 
@@ -59,11 +59,11 @@ resource dscEsriFileShare 'Microsoft.Compute/virtualMachines/extensions@2018-06-
       }
       configurationArguments: {
          DebugMode: debugMode
-         EnableDataDisk: enableVirtualMachineDataDisk
+         //EnableDataDisk: enableVirtualMachineDataDisk
          ExternalDNSHostName: externalDNSHostName
          IsBaseDeployment: 'True'
          FileShareName: fileShareName
-         OSDiskSize: virtualMachineOSDiskSize
+        //  OSDiskSize: virtualMachineOSDiskSize
          PortalContext: portalContext
          ServiceCredentialIsDomainAccount: arcgisServiceAccountIsDomainAccount
         }

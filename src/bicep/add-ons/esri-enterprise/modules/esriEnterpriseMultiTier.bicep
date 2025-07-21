@@ -82,9 +82,11 @@ param userAssignedIdenityResourceId string
 @secure()
 param virtualMachineAdminPassword string
 param virtualMachineAdminUsername string
-param virtualMachineOSDiskSize int
+// param virtualMachineOSDiskSize int
 param virtualNetworkName string
+param virtualNetworkResourceGroup string
 param windowsDomainName string
+
 
 module dscFileShare 'dscEsriFileShare.bicep' = if (architecture == 'multitier') {
   name: 'deploy-fileshare-dsc-${deploymentNameSuffix}'
@@ -96,7 +98,7 @@ module dscFileShare 'dscEsriFileShare.bicep' = if (architecture == 'multitier') 
     debugMode: debugMode
     dscConfiguration: fileShareDscScriptFunction
     dscScript: 'FileShareConfiguration.ps1'
-    enableVirtualMachineDataDisk: enableVirtualMachineDataDisk
+    // enableVirtualMachineDataDisk: enableVirtualMachineDataDisk
     externalDNSHostName: externalDnsHostname
     fileShareVirtualMachineName: fileShareVirtualMachineName
     location: location
@@ -104,9 +106,9 @@ module dscFileShare 'dscEsriFileShare.bicep' = if (architecture == 'multitier') 
     storageAccountName: storageAccountName
     storageUriPrefix: storageUriPrefix
     tags: tags
-    virtualMachineAdminPassword: virtualMachineAdminUsername
-    virtualMachineAdminUsername: virtualMachineAdminPassword
-    virtualMachineOSDiskSize: virtualMachineOSDiskSize
+    virtualMachineAdminPassword: virtualMachineAdminPassword
+    virtualMachineAdminUsername: virtualMachineAdminUsername
+    //virtualMachineSize: virtualMachineOSDiskSize
   }
   dependsOn: [
   ]
@@ -114,7 +116,7 @@ module dscFileShare 'dscEsriFileShare.bicep' = if (architecture == 'multitier') 
 
 module applicationGateway 'applicationGateway.bicep' = if (architecture == 'multitier') {
   name: 'deploy-applicationgateway-${deploymentNameSuffix}'
-  scope: resourceGroup(subscriptionId, resourceGroupName)
+  scope: resourceGroup(subscriptionId, virtualNetworkResourceGroup)
   params: {
     applicationGatewayName: applicationGatewayName
     applicationGatewayPrivateIpAddress: applicationGatewayPrivateIPAddress
@@ -126,7 +128,7 @@ module applicationGateway 'applicationGateway.bicep' = if (architecture == 'mult
     portalBackendSslCert: portalBackendSslCert
     portalVirtualMachineNames: portalVirtualMachineNames
     publicIpId: publicIpId
-    resourceGroup: resourceGroupName
+    resourceGroup: virtualNetworkResourceGroup
     resourceSuffix: resourceSuffix
     serverBackendSSLCert: serverBackendSSLCert
     serverVirtualMachineNames: serverVirtualMachineNames
@@ -152,14 +154,14 @@ module dscEsriServers 'dscEsriServer.bicep' =  [for (server, i) in serverVirtual
     dscConfiguration: dscServerScriptFunction
     dscScript: '${dscServerScriptFunction}.ps1'
     enableServerLogHarvesterPlugin: enableServerLogHarvesterPlugin
-    enableVirtualMachineDataDisk: enableVirtualMachineDataDisk
+    // enableVirtualMachineDataDisk: enableVirtualMachineDataDisk
     externalDnsHostName: externalDnsHostname
     fileShareVirtualMachineName: fileShareVirtualMachineName
     isUpdatingCertificates: isUpdatingCertificates
     location: location
     primarySiteAdministratorAccountPassword: primarySiteAdministratorAccountPassword
     primarySiteAdministratorAccountUserName: primarySiteAdministratorAccountUserName
-    publicKeySSLCertificateFileName: 'wildcard${externalDnsHostname}-PublicKey.cer'
+    publicKeySSLCertificateFileName: 'wildcard.${externalDnsHostname}-PublicKey.cer'
     serverContext: serverContext
     serverLicenseFileName: serverLicenseFileName
     serverVirtualMachineNames: serverVirtualMachineNames
@@ -169,7 +171,7 @@ module dscEsriServers 'dscEsriServer.bicep' =  [for (server, i) in serverVirtual
     useAzureFiles: useAzureFiles
     useCloudStorage: useCloudStorage
     virtualMachineNames: server
-    virtualMachineOSDiskSize: virtualMachineOSDiskSize
+    // virtualMachineOSDiskSize: virtualMachineOSDiskSize
     selfSignedSSLCertificatePassword: selfSignedSSLCertificatePassword
   }
   dependsOn: [
@@ -377,7 +379,7 @@ module dscEsriPortalServers 'dscEsriPortal.bicep' = [for (server, i) in portalVi
     portalVirtualMachineOSDiskSize: portalVirtualMachineOSDiskSize
     primarySiteAdministratorAccountPassword: primarySiteAdministratorAccountPassword
     primarySiteAdministratorAccountUserName: primarySiteAdministratorAccountUserName
-    publicKeySSLCertificateFileName: 'wildcard${externalDnsHostname}-PublicKey.cer'
+    publicKeySSLCertificateFileName: 'wildcard.${externalDnsHostname}-PublicKey.cer'
     secondaryDnsHostName:  secondaryDnsHostName
     serverContext: serverContext
     serverVirtualMachineNames: serverVirtualMachineNames

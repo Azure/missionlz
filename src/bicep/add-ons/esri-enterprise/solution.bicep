@@ -13,12 +13,6 @@ param arcgisServiceAccountPassword string
 @description('The username for the ArcGIS service account.')
 param arcgisServiceAccountUsername string
 
-@description('The resource ID of the storage account for the deployment artifacts.')
-param artifactsStorageAccountResourceId string
-
-@description('The name of the Azure Blobs container for the deployment artifacts.')
-param artifactsContainerName string
-
 @allowed([
   'singletier'
   'multitier'
@@ -195,9 +189,6 @@ param networkSecurityGroupDiagnosticsLogs array = [
     enabled: true
   }
 ]
-
-@description('The metrics to monitor for the Network Security Group.')
-param networkSecurityGroupDiagnosticsMetrics array = []
 
 @description('The rules to apply to the Network Security Group.')
 param networkSecurityGroupRules array = []
@@ -516,8 +507,6 @@ module tier3 '../tier3/solution.bicep' = {
     subnetName: 'EsriEnterpise'
     tags: tags
     virtualNetworkAddressPrefix: virtualNetworkAddressPrefix
-    virtualNetworkDiagnosticsLogs: networkSecurityGroupDiagnosticsLogs
-    virtualNetworkDiagnosticsMetrics: networkSecurityGroupDiagnosticsMetrics
     windowsAdministratorsGroupMembership: virtualMachineAdminUsername
     workloadName: 'esriEnt'
     workloadShortName: 'ent'
@@ -554,7 +543,7 @@ module keyVault './modules/keyVault.bicep' = {
     primarySiteAdministratorAccountPassword: primarySiteAdministratorAccountPassword
     primarySiteAdministratorAccountUserName: primarySiteAdministratorAccountUserName
     resourcePrefix: resourcePrefix
-    subnetResourceId: tier3.outputs.subnets[0].subnetResourceId
+    subnetResourceId: tier3.outputs.subnets[0].Id
     tags: tags
     userAssignedIdentityPrincipalId: userAssignedIdentity.outputs.principalId
   }
@@ -570,7 +559,7 @@ module storage './modules/storageAccount.bicep' = {
     useCloudStorage: useCloudStorage
     blobsPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3.outputs.privateDnsZones, name => startsWith(name, 'privatelink.blob'))[0]}'
     filePrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3.outputs.privateDnsZones, name => startsWith(name, 'privatelink.file'))[0]}'
-    subnetResourceId: tier3.outputs.subnets[0].subnetResourceId
+    subnetResourceId: tier3.outputs.subnets[0].id
     keyVaultUri: keyVault.outputs.keyVaultUri
     storageEncryptionKeyName: keyVault.outputs.storageKeyName
     userAssignedIdentityResourceId: userAssignedIdentity.outputs.resourceId
@@ -702,7 +691,7 @@ module singleTierVirtualMachine 'modules/virtualMachine.bicep' =
       ouPath: ouPath
       serverFunction: 'singletier'
       storageAccountName: storage.outputs.storageAccountName
-      subnetResourceId: architecture == 'singletier' ? tier3.outputs.subnets[0].subnetResourceId : 'none'
+      subnetResourceId: architecture == 'singletier' ? tier3.outputs.subnets[0].id : 'none'
       tags: tags
       userAssignedIdentityResourceId: architecture == 'singletier' ? userAssignedIdentity.outputs.resourceId : 'none'
       virtualMachineName: virtualMachineName
@@ -732,7 +721,7 @@ module multiTierServerVirtualMachines 'modules/virtualMachine.bicep' = [
       ouPath: ouPath
       serverFunction: 'server'
       storageAccountName: storage.outputs.storageAccountName
-      subnetResourceId: tier3.outputs.subnets[0].subnetResourceId
+      subnetResourceId: tier3.outputs.subnets[0].id
       tags: tags
       userAssignedIdentityResourceId: userAssignedIdentity.outputs.resourceId
       virtualMachineName: server
@@ -763,7 +752,7 @@ module multiTierPortalVirtualMachines 'modules/virtualMachine.bicep' = [
       ouPath: ouPath
       serverFunction: 'portal'
       storageAccountName: storage.outputs.storageAccountName
-      subnetResourceId: tier3.outputs.subnets[0].subnetResourceId
+      subnetResourceId: tier3.outputs.subnets[0].id
       tags: tags
       userAssignedIdentityResourceId: userAssignedIdentity.outputs.resourceId
       virtualMachineName: server
@@ -794,7 +783,7 @@ module multiTierDatastoreServerVirtualMachines 'modules/virtualMachine.bicep' = 
       ouPath: ouPath
       serverFunction: 'datastore'
       storageAccountName: storage.outputs.storageAccountName
-      subnetResourceId: tier3.outputs.subnets[0].subnetResourceId
+      subnetResourceId: tier3.outputs.subnets[0].id
       tags: tags
       userAssignedIdentityResourceId: userAssignedIdentity.outputs.resourceId
       virtualMachineName: server
@@ -825,7 +814,7 @@ module multiTierFileServerVirtualMachines 'modules/virtualMachine.bicep' = [
       ouPath: ouPath
       serverFunction: 'fileshare'
       storageAccountName: storage.outputs.storageAccountName
-      subnetResourceId: tier3.outputs.subnets[0].subnetResourceId
+      subnetResourceId: tier3.outputs.subnets[0].id
       tags: tags
       userAssignedIdentityResourceId: userAssignedIdentity.outputs.resourceId
       virtualMachineName: server
@@ -858,7 +847,7 @@ module multiTierSpatiotemporalBigDataStoreVirtualMachines 'modules/virtualMachin
       ouPath: ouPath
       serverFunction: 'spatiotemporal'
       storageAccountName: storage.outputs.storageAccountName
-      subnetResourceId: tier3.outputs.subnets[0].subnetResourceId
+      subnetResourceId: tier3.outputs.subnets[0].id
       tags: tags
       userAssignedIdentityResourceId: userAssignedIdentity.outputs.resourceId
       virtualMachineName: server
@@ -891,7 +880,7 @@ module multiTierTileCacheVirtualMachines 'modules/virtualMachine.bicep' = [
       ouPath: ouPath
       serverFunction: 'tilecache'
       storageAccountName: storage.outputs.storageAccountName
-      subnetResourceId: tier3.outputs.subnets[0].subnetResourceId
+      subnetResourceId: tier3.outputs.subnets[0].id
       tags: tags
       userAssignedIdentityResourceId: userAssignedIdentity.outputs.resourceId
       virtualMachineName: server
@@ -924,7 +913,7 @@ module multiTierGraphVirtualMachines 'modules/virtualMachine.bicep' = [
       ouPath: ouPath
       serverFunction: 'graph'
       storageAccountName: storage.outputs.storageAccountName
-      subnetResourceId: tier3.outputs.subnets[0].subnetResourceId
+      subnetResourceId: tier3.outputs.subnets[0].id
       tags: tags
       userAssignedIdentityResourceId: userAssignedIdentity.outputs.resourceId
       virtualMachineName: server
@@ -957,7 +946,7 @@ module multiTierObjectDataStoreVirtualMachines 'modules/virtualMachine.bicep' = 
       ouPath: ouPath
       serverFunction: 'objectDataStore'
       storageAccountName: storage.outputs.storageAccountName
-      subnetResourceId: tier3.outputs.subnets[0].subnetResourceId
+      subnetResourceId: tier3.outputs.subnets[0].id
       tags: tags
       userAssignedIdentityResourceId: userAssignedIdentity.outputs.resourceId
       virtualMachineName: server
@@ -1007,8 +996,8 @@ module managementVm './modules/managementVirtualMachine.bicep' = {
   scope: rg
   name: 'deploy-management-vm-${deploymentNameSuffix}'
   params: {
-    artifactsContainerName: artifactsContainerName
-    artifactsStorageAccountName: split(artifactsStorageAccountResourceId, '/')[8]
+    artifactsContainerName: container
+    artifactsStorageAccountName: storage.outputs.storageAccountName
     certificateFileName: certificateFileName
     certificatePassword: certificatePassword
     diskEncryptionSetResourceId: tier3.outputs.diskEncryptionSetResourceId
@@ -1024,7 +1013,7 @@ module managementVm './modules/managementVirtualMachine.bicep' = {
     resourcePrefix: resourcePrefix
     serverLicenseFile: serverLicenseFile
     serverLicenseFileName: serverLicenseFileName
-    subnetResourceId: tier3.outputs.subnets[0].subnetResourceId
+    subnetResourceId: tier3.outputs.subnets[0].Id
     tags: tags
     userAssignedIdentityClientId: userAssignedIdentity.outputs.clientId
     userAssignedIdentityPrincipalId: userAssignedIdentity.outputs.principalId
@@ -1148,7 +1137,7 @@ module configureEsriMultiTier './modules/esriEnterpriseMultiTier.bicep' =
       useAzureFiles: useAzureFiles
       useCloudStorage: useCloudStorage
       userAssignedIdenityResourceId: userAssignedIdentity.outputs.resourceId
-      virtualMachineOSDiskSize: virtualMachineOSDiskSize
+      // virtualMachineOSDiskSize: virtualMachineOSDiskSize
       virtualNetworkName: tier3.outputs.namingConvention.virtualNetwork
       windowsDomainName: joinWindowsDomain ? windowsDomainName : 'none'
     }
@@ -1202,7 +1191,7 @@ module configuration './modules/esriEnterpriseSingleTier.bicep' =
       primarySiteAdministratorAccountPassword: primarySiteAdministratorAccountPassword
       primarySiteAdministratorAccountUserName: primarySiteAdministratorAccountUserName
       publicIpId: publicIpAddress.outputs.pipId
-      publicKeySSLCertificateFileName: 'wildcard${externalDnsHostname}-PublicKey.cer'
+      publicKeySSLCertificateFileName: 'wildcard.${externalDnsHostname}-PublicKey.cer'
       resourceGroupName: rg.name
       resourceSuffix: resourceSuffix
       selfSignedSSLCertificatePassword: selfSignedCertificatePassword

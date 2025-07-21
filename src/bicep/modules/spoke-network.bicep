@@ -48,6 +48,7 @@ var subnets = union([
     name: subnetName
     properties: {
       addressPrefix: subnetAddressPrefix
+      defaultRoute: 'true'
     }
   }
 ], additionalSubnets)
@@ -94,9 +95,9 @@ module virtualNetwork '../modules/virtual-network.bicep' = {
         networkSecurityGroup: {
           id: networkSecurityGroup.outputs.id
         }
-        routeTable: {
+        routeTable: ( subnet.properties.defaultRoute == 'true') ? {
           id: routeTable.outputs.id
-        }
+        } : null
         privateEndpointNetworkPolicies: 'Disabled'
         privateLinkServiceNetworkPolicies: 'Disabled'
       }

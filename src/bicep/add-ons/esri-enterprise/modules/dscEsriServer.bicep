@@ -9,7 +9,7 @@ param debugMode bool
 param dscConfiguration string
 param dscScript string
 param enableServerLogHarvesterPlugin bool
-param enableVirtualMachineDataDisk bool
+//param enableVirtualMachineDataDisk bool
 param fileShareName string = 'fileshare'
 param fileShareVirtualMachineName string
 param externalDnsHostName string
@@ -28,7 +28,7 @@ param tags object
 param useAzureFiles bool
 param useCloudStorage bool
 param virtualMachineNames string
-param virtualMachineOSDiskSize int
+// param virtualMachineOSDiskSize int
 @secure()
 param selfSignedSSLCertificatePassword string
 
@@ -70,14 +70,14 @@ resource dscEsriServer 'Microsoft.Compute/virtualMachines/extensions@2018-10-01'
         function: dscConfiguration
       }
       configurationArguments: {
-         DebugMode: string(debugMode)
-         EnableDataDisk: string(enableVirtualMachineDataDisk)
-         EnableLogHarvesterPlugin: string(enableServerLogHarvesterPlugin)
+         DebugMode: bool(debugMode)
+         // EnableDataDisk: bool(enableVirtualMachineDataDisk)
+         EnableLogHarvesterPlugin: bool(enableServerLogHarvesterPlugin)
          ExternalDNSHostName: externalDnsHostName
          FileShareMachineName: fileShareVirtualMachineName
          FileShareName: fileShareName
          IsUpdatingCertificates: isUpdatingCertificates
-         OSDiskSize: virtualMachineOSDiskSize
+         // OSDiskSize: virtualMachineOSDiskSize
          PublicKeySSLCertificateFileUrl: '${storageUriPrefix}${publicKeySSLCertificateFileName}?${storageAccount.listAccountSAS('2021-04-01', sasProperties).accountSasToken}'
          ServerContext: serverContext
          ServerMachineNames: serverVirtualMachineNames
