@@ -482,6 +482,15 @@ module singleTierDataStoreTypes 'modules/singleTierDatastoreTypes.bicep' =
 module tier3 '../tier3/solution.bicep' = {
   name: 'deploy-tier3-${deploymentNameSuffix}'
   params: {
+    additionalSubnets: [
+      {
+        name: 'appGatewaySubnet'
+        properties: {
+          addressprefix: applicationGatewaySubnetAddressPrefix
+          defaultRoute: 'false'
+        }
+      }
+    ]
     deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
     deployDefender: deployDefender
     deploymentNameSuffix: deploymentNameSuffix
