@@ -1139,6 +1139,7 @@ module configureEsriMultiTier './modules/esriEnterpriseMultiTier.bicep' =
       userAssignedIdenityResourceId: userAssignedIdentity.outputs.resourceId
       // virtualMachineOSDiskSize: virtualMachineOSDiskSize
       virtualNetworkName: tier3.outputs.namingConvention.virtualNetwork
+      virtualNetworkResourceGroup: '${tier3.outputs.namingConvention.resourceGroup}${tier3.outputs.delimiter}network'
       windowsDomainName: joinWindowsDomain ? windowsDomainName : 'none'
     }
     dependsOn: [
