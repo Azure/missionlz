@@ -94,7 +94,7 @@ module linuxVirtualMachine '../modules/virtual-machine.bicep' = if (deployLinuxV
     authenticationType: linuxVmAuthenticationType
     // dataCollectionRuleAssociationName: dataCollectionRuleAssociationName
     // dataCollectionRuleResourceId: dataCollectionRuleResourceId
-    diskEncryptionSetResourceId: customerManagedKeys.outputs.diskEncryptionSetResourceId
+    diskEncryptionSetResourceId: customerManagedKeys!.outputs.diskEncryptionSetResourceId
     diskName: '${tier.namingConvention.virtualMachineDisk}${delimiter}lra' // lra = Linux Remote Access
     imageOffer: linuxVmImageOffer
     imagePublisher: linuxVmImagePublisher
@@ -124,7 +124,7 @@ module windowsVirtualMachine '../modules/virtual-machine.bicep' = if (deployWind
     authenticationType: 'password'
     // dataCollectionRuleAssociationName: dataCollectionRuleAssociationName
     // dataCollectionRuleResourceId: dataCollectionRuleResourceId
-    diskEncryptionSetResourceId: customerManagedKeys.outputs.diskEncryptionSetResourceId
+    diskEncryptionSetResourceId: customerManagedKeys!.outputs.diskEncryptionSetResourceId
     diskName: '${tier.namingConvention.virtualMachineDisk}${delimiter}wra' // wra = Windows Remote Access
     hybridUseBenefit: hybridUseBenefit
     imageOffer: windowsVmImageOffer
@@ -162,21 +162,21 @@ module bastionHost '../modules/bastion-host.bicep' = if (deployBastion) {
   }
 }
 
-output keyVaultProperties object = customerManagedKeys.outputs.keyVaultProperties
+output keyVaultProperties object = customerManagedKeys!.outputs.keyVaultProperties
 output networkInterfaceResourceIds array = union(
   deployLinuxVirtualMachine || deployWindowsVirtualMachine 
     ? [
-        customerManagedKeys.outputs.keyVaultNetworkInterfaceResourceId
+        customerManagedKeys!.outputs.keyVaultNetworkInterfaceResourceId
       ] 
     : [],
   deployLinuxVirtualMachine
     ? [
-        linuxVirtualMachine.outputs.networkInterfaceResourceId
+        linuxVirtualMachine!.outputs.networkInterfaceResourceId
       ]
     : [],
   deployWindowsVirtualMachine
     ? [
-        windowsVirtualMachine.outputs.networkInterfaceResourceId
+        windowsVirtualMachine!.outputs.networkInterfaceResourceId
       ]
     : []
 )
