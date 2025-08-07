@@ -162,7 +162,7 @@ module bastionHost '../modules/bastion-host.bicep' = if (deployBastion) {
   }
 }
 
-output keyVaultProperties object = customerManagedKeys!.outputs.keyVaultProperties
+output keyVaultProperties object = deployLinuxVirtualMachine || deployWindowsVirtualMachine ? customerManagedKeys!.outputs.keyVaultProperties : {}
 output networkInterfaceResourceIds array = union(
   deployLinuxVirtualMachine || deployWindowsVirtualMachine 
     ? [

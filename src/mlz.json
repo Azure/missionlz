@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.37.4.10188",
-      "templateHash": "522409384882937290"
+      "templateHash": "15042154672186651794"
     }
   },
   "parameters": {
@@ -6902,7 +6902,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.37.4.10188",
-              "templateHash": "3235053274052491794"
+              "templateHash": "17958932770512977506"
             }
           },
           "parameters": {
@@ -8874,7 +8874,7 @@
           "outputs": {
             "keyVaultProperties": {
               "type": "object",
-              "value": "[reference(subscriptionResourceId(parameters('tier').subscriptionId, 'Microsoft.Resources/deployments', format('deploy-ra-cmk-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultProperties.value]"
+              "value": "[if(or(parameters('deployLinuxVirtualMachine'), parameters('deployWindowsVirtualMachine')), reference(subscriptionResourceId(parameters('tier').subscriptionId, 'Microsoft.Resources/deployments', format('deploy-ra-cmk-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.keyVaultProperties.value, createObject())]"
             },
             "networkInterfaceResourceIds": {
               "type": "array",
