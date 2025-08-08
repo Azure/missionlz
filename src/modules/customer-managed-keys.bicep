@@ -67,7 +67,7 @@ module diskEncryptionSet 'disk-encryption-set.bicep' = if (type == 'virtualMachi
   }
 }
 
-output diskEncryptionSetResourceId string = diskEncryptionSet!.outputs.resourceId
+output diskEncryptionSetResourceId string = type == 'virtualMachine' ? diskEncryptionSet!.outputs.resourceId : ''
 // The following output is needed to setup the diagnostic setting for the key vault
 output keyVaultProperties object = {
   diagnosticSettingName: '${tier.namingConvention.keyVaultDiagnosticSetting}${delimiter}${workload}'
