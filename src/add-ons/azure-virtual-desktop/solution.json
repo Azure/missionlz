@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.37.4.10188",
-      "templateHash": "15802652175827713442"
+      "templateHash": "15551583174746406881"
     }
   },
   "parameters": {
@@ -46,7 +46,7 @@
     },
     "avdConfigurationZipFileUri": {
       "type": "string",
-      "defaultValue": "[format('https://wvdportalstorageblob.blob.{0}/galleryartifacts/Configuration_1.0.03047.739.zip', environment().suffixes.storage)]",
+      "defaultValue": "",
       "metadata": {
         "description": "The file name for the ZIP file containing the AVD agents and DSC configuration."
       }
@@ -16088,9 +16088,7 @@
           "availabilityZones": {
             "value": "[parameters('availabilityZones')]"
           },
-          "avdConfigurationZipFileUri": {
-            "value": "[parameters('avdConfigurationZipFileUri')]"
-          },
+          "avdConfigurationZipFileUri": "[if(empty(parameters('avdConfigurationZipFileUri')), createObject('value', format('https://wvdportalstorageblob.blob.{0}/galleryartifacts/Configuration_1.0.03047.739.zip', environment().suffixes.storage)), createObject('value', parameters('avdConfigurationZipFileUri')))]",
           "dataCollectionRuleResourceId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-shared-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.dataCollectionRuleResourceId.value]"
           },

@@ -21,7 +21,7 @@ param availability string = 'AvailabilityZones'
 param availabilityZones array = ['1', '2', '3']
 
 @description('The file name for the ZIP file containing the AVD agents and DSC configuration.')
-param avdConfigurationZipFileUri string = 'https://wvdportalstorageblob.blob.${environment().suffixes.storage}/galleryartifacts/Configuration_1.0.03047.739.zip'
+param avdConfigurationZipFileUri string = ''
 
 @description('The object ID for the Azure Virtual Desktop enterprise application in Microsoft Entra ID.  The object ID can found by selecting Microsoft Applications using the Application type filter in the Enterprise Applications blade of Microsoft Entra ID.')
 param avdObjectId string
@@ -869,7 +869,7 @@ module sessionHosts 'modules/session-hosts/session-hosts.bicep' = {
     availabilitySetsCount: availabilitySetsCount
     availabilitySetsIndex: beginAvSetRange
     availabilityZones: availabilityZones
-    avdConfigurationZipFileUri: avdConfigurationZipFileUri
+    avdConfigurationZipFileUri: empty(avdConfigurationZipFileUri) ? 'https://wvdportalstorageblob.blob.${environment().suffixes.storage}/galleryartifacts/Configuration_1.0.03047.739.zip' : avdConfigurationZipFileUri
     dataCollectionRuleResourceId: shared.outputs.dataCollectionRuleResourceId
     delimiter: tier3_stamp.outputs.delimiter
     deployFslogix: deployFslogix
