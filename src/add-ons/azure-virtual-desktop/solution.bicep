@@ -745,7 +745,7 @@ module shared 'modules/shared/shared.bicep' = {
     environmentAbbreviation: environmentAbbreviation
     existingApplicationGroupReferences: empty(existingFeedWorkspaceResourceId)
       ? []
-      : workspace.properties.applicationGroupReferences
+      : workspace!.properties.applicationGroupReferences
     existingFeedWorkspaceResourceId: existingFeedWorkspaceResourceId
     fslogixStorageService: fslogixStorageService
     locationControlPlane: virtualNetwork_hub.location
@@ -905,7 +905,7 @@ module sessionHosts 'modules/session-hosts/session-hosts.bicep' = {
     maxResourcesPerTemplateDeployment: maxResourcesPerTemplateDeployment
     mlzTags: tier3_stamp.outputs.mlzTags
     netAppFileShares: deployFslogix
-      ? fslogix.outputs.netAppShares
+      ? fslogix!.outputs.netAppShares
       : [
           'None'
         ]
@@ -919,7 +919,7 @@ module sessionHosts 'modules/session-hosts/session-hosts.bicep' = {
     securityPrincipalObjectIds: map(securityPrincipals, item => item.objectId)
     sessionHostBatchCount: sessionHostBatchCount
     sessionHostIndex: sessionHostIndex
-    storageAccountNamePrefix: deployFslogix ? fslogix.outputs.storageAccountNamePrefix : ''
+    storageAccountNamePrefix: deployFslogix ? fslogix!.outputs.storageAccountNamePrefix : ''
     storageCount: storageCount
     storageIndex: storageIndex
     storageService: storageService
