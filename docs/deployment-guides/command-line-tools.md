@@ -110,7 +110,7 @@ Parameter Name    | Default Value | Description
 
 To deploy the MLZ with multiple static public IP addresses for the Azure Firewall, use the `additionalFwPipCount` parameter. For example:
 
-```
+```BASH
 az deployment sub create \
   --location <location> \
   --template-file src/mlz.bicep \
@@ -125,7 +125,7 @@ You can control the number of static public IP addresses (PIPs) assigned to Azur
 
 **Example CLI usage:**
 
-```sh
+```BASH
 az deployment sub create \
   --location <location> \
   --template-file src/mlz.bicep \
