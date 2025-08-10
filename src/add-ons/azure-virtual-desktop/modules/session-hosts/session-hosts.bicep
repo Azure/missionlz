@@ -5,7 +5,7 @@ param availability string
 param availabilitySetsCount int
 param availabilitySetsIndex int
 param availabilityZones array
-param avdConfigurationZipFileName string
+param avdConfigurationZipFileUri string
 param dataCollectionRuleResourceId string
 param delimiter string
 param deployFslogix bool
@@ -182,7 +182,7 @@ module virtualMachines 'virtual-machines.bicep' = [for i in range(1, sessionHost
     availability: availability
     availabilitySetNamePrefix: availabilitySetNamePrefix
     availabilityZones: availabilityZones
-    avdConfigurationZipFileName: avdConfigurationZipFileName
+    avdConfigurationZipFileUri: avdConfigurationZipFileUri
     batchCount: i
     dataCollectionRuleAssociationName: tier.namingConvention.dataCollectionRuleAssociation
     dataCollectionRuleResourceId: dataCollectionRuleResourceId
