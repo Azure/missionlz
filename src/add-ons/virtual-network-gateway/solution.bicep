@@ -180,7 +180,7 @@ module vpnGatewayModule 'modules/vpn-gateway.bicep' = {
   params: {
     delimiter: delimiter
     location: location
-    publicIpAddressName: namingConvention.outputs.names.publicIpAddress
+    publicIpAddressName: namingConvention.outputs.names.virtualNetworkGatewayPublicIpAddress
     virtualNetworkGatewayName: namingConvention.outputs.names.virtualNetworkGateway
     virtualNetworkGatewaySku: virtualNetworkGatewaySku
     virtualNetworkName: hubVirtualNetworkName
