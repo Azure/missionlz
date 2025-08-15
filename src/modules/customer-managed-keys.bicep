@@ -24,6 +24,17 @@ param type string
 
 var workload = 'cmk'
 
+module userAssignedIdentity 'user-assigned-identity.bicep' = {
+  name: 'deploy-cmk-id-${deploymentNameSuffix}'
+  scope: resourceGroup(tier.subscriptionId, resourceGroupName)
+  params: {
+    location: location
+    mlzTags: mlzTags
+    tags: tags
+    userAssignedIdentityName: '${tier.namingConvention.userAssignedIdentity}${delimiter}${workload}'
+  }
+}
+
 module keyVault 'key-vault.bicep' = {
   name: 'deploy-cmk-kv-${deploymentNameSuffix}'
   scope: resourceGroup(tier.subscriptionId, resourceGroupName)
@@ -39,18 +50,9 @@ module keyVault 'key-vault.bicep' = {
     subnetResourceId: tier.subnetResourceId
     tags: tags
   }
-}
-
-module userAssignedIdentity 'user-assigned-identity.bicep' = {
-  name: 'deploy-cmk-id-${deploymentNameSuffix}'
-  scope: resourceGroup(tier.subscriptionId, resourceGroupName)
-  params: {
-    keyVaultName: keyVault.outputs.keyVaultName
-    location: location
-    mlzTags: mlzTags
-    tags: tags
-    userAssignedIdentityName: '${tier.namingConvention.userAssignedIdentity}${delimiter}${workload}'
-  }
+  dependsOn: [
+    userAssignedIdentity
+  ]
 }
 
 module diskEncryptionSet 'disk-encryption-set.bicep' = if (type == 'virtualMachine') {
