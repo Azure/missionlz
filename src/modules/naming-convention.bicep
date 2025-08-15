@@ -138,6 +138,7 @@ var names = {
   virtualNetwork: replace(namingConvention, tokens.resource, resourceAbbreviations.virtualNetworks)
   virtualNetworkDiagnosticSetting: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.diagnosticSettings), tokens.service, resourceAbbreviations.virtualNetworks)
   virtualNetworkGateway: replace(namingConvention, tokens.resource, resourceAbbreviations.virtualNetworkGateways)
+  virtualNetworkGatewayPublicIpAddress: replace(namingConvention, tokens.resource, resourceAbbreviations.publicIPAddresses)
   workspace: replace(namingConvention, tokens.resource, resourceAbbreviations.workspaces)
   workspaceDiagnosticSetting: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.diagnosticSettings), tokens.service, resourceAbbreviations.workspaces)
   workspaceNetworkInterface: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.networkInterfaces), tokens.service, resourceAbbreviations.workspaces)
