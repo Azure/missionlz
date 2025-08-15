@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.36.1.42791",
-      "templateHash": "2717985164103295934"
+      "version": "0.37.4.10188",
+      "templateHash": "9175991123941370621"
     }
   },
   "parameters": {
@@ -61,8 +61,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.36.1.42791",
-              "templateHash": "12764025216174081342"
+              "version": "0.37.4.10188",
+              "templateHash": "12442426738424557202"
             }
           },
           "parameters": {
@@ -571,8 +571,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.36.1.42791",
-                      "templateHash": "5138772364248677930"
+                      "version": "0.37.4.10188",
+                      "templateHash": "3588003737726937200"
                     }
                   },
                   "parameters": {
@@ -694,6 +694,7 @@
                       "virtualNetwork": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').virtualNetworks)]",
                       "virtualNetworkDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, parameters('resourceAbbreviations').virtualNetworks)]",
                       "virtualNetworkGateway": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').virtualNetworkGateways)]",
+                      "virtualNetworkGatewayPublicIpAddress": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').publicIPAddresses), variables('tokens').service, parameters('resourceAbbreviations').virtualNetworkGateways)]",
                       "workspace": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').workspaces)]",
                       "workspaceDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, parameters('resourceAbbreviations').workspaces)]",
                       "workspaceNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), variables('tokens').service, parameters('resourceAbbreviations').workspaces)]",
@@ -750,8 +751,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.36.1.42791",
-                      "templateHash": "2917237334703069298"
+                      "version": "0.37.4.10188",
+                      "templateHash": "10613866504467648393"
                     }
                   },
                   "parameters": {
@@ -896,8 +897,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.36.1.42791",
-                      "templateHash": "15904383694708222527"
+                      "version": "0.37.4.10188",
+                      "templateHash": "9323514993409270080"
                     }
                   },
                   "parameters": {
@@ -1014,8 +1015,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.36.1.42791",
-                      "templateHash": "12941992335107766710"
+                      "version": "0.37.4.10188",
+                      "templateHash": "6066377428920514013"
                     }
                   },
                   "parameters": {
