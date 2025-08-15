@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.37.4.10188",
-      "templateHash": "2773370439849631832"
+      "templateHash": "4599017434628162388"
     }
   },
   "parameters": {
@@ -1074,7 +1074,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.37.4.10188",
-              "templateHash": "18291713701495901127"
+              "templateHash": "24486264643328333"
             }
           },
           "parameters": {
@@ -1166,7 +1166,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.37.4.10188",
-                      "templateHash": "14542323787898529805"
+                      "templateHash": "15959537477658129803"
                     }
                   },
                   "parameters": {
@@ -1668,7 +1668,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.37.4.10188",
-                              "templateHash": "14720695848903151943"
+                              "templateHash": "12421269017067274135"
                             }
                           },
                           "parameters": {
@@ -1790,6 +1790,7 @@
                               "virtualNetwork": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').virtualNetworks)]",
                               "virtualNetworkDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, parameters('resourceAbbreviations').virtualNetworks)]",
                               "virtualNetworkGateway": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').virtualNetworkGateways)]",
+                              "virtualNetworkGatewayPublicIpAddress": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').publicIPAddresses)]",
                               "workspace": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').workspaces)]",
                               "workspaceDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, parameters('resourceAbbreviations').workspaces)]",
                               "workspaceNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), variables('tokens').service, parameters('resourceAbbreviations').workspaces)]",
