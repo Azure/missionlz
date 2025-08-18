@@ -1,0 +1,1037 @@
+/*
+Copyright (c) Microsoft Corporation.
+Licensed under the MIT License.
+*/
+
+targetScope = 'subscription'
+
+@description('The root domain name for the new forest in Active Directory Domain Services. Required when deployActiveDirectoryDomainServices is true.')
+param addsDomainName string = ''
+
+@secure()
+@description('The password for the safe mode administrator account. Required when deployActiveDirectoryDomainServices is true.')
+param addsSafeModeAdminPassword string = ''
+
+@description('The password for the local administrator accounts on the Active Directory Domain Services (ADDS) domain controllers. Required when deployActiveDirectoryDomainServices is true.')
+@secure()
+param addsVmAdminPassword string = ''
+
+@description('The username for the local administrator accounts on the Active Directory Domain Services (ADDS) domain controllers. Required when deployActiveDirectoryDomainServices is true.')
+param addsVmAdminUsername string = ''
+
+@allowed([
+  '2019-datacenter-core-g2' // Windows Server 2019 Datacenter Core Gen2
+  '2019-datacenter-gensecond' // Windows Server 2019 Datacenter Gen2
+  '2022-datacenter-core-g2' // Windows Server 2022 Datacenter Core Gen2
+  '2022-datacenter-g2' // Windows Server 2022 Datacenter Gen2
+])
+@description('The Windows image SKU in the Azure marketplace for the Active Directory Domain Services (ADDS) domain controllers.')
+param addsVmImageSku string = '2019-datacenter-gensecond'
+
+@description('The virtual machine size for the Active Directory Domain Services (ADDS) domain controllers.')
+param addsVmSize string = 'Standard_D2s_v3'
+
+@description('The CIDR Subnet Address Prefix for the Azure Gateway Subnet. It must be in the Hub Virtual Network space. It must be /26.')
+param azureGatewaySubnetAddressPrefix string = '10.0.129.192/26'
+
+@description('An array of Bastion Diagnostic Logs categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/bastion/monitor-bastion#collect-data-with-azure-monitor.')
+param bastionDiagnosticsLogs array = [
+  {
+    category: 'BastionAuditLogs'
+    enabled: true
+  }
+]
+
+@description('An array of Bastion Diagnostic Metrics categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/bastion/monitor-bastion#collect-data-with-azure-monitor.')
+param bastionDiagnosticsMetrics array = [
+  {
+    category: 'AllMetrics'
+    enabled: true
+  }
+]
+
+@description('The Azure Bastion Public IP Address Availability Zones. Default value = "No-Zone" because Availability Zones are not available in every cloud. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-network/ip-services/public-ip-addresses#sku.')
+param bastionHostPublicIPAddressAvailabilityZones array = []
+
+@description('The CIDR Subnet Address Prefix for the Azure Bastion Subnet. It must be in the Hub Virtual Network space "hubVirtualNetworkAddressPrefix" parameter value. It must be /27 or larger.')
+param bastionHostSubnetAddressPrefix string = '10.0.128.192/26'
+
+@description('The firewall rules that will be applied to the Azure Firewall.')
+param customFirewallRuleCollectionGroups array = []
+
+@minValue(0)
+@maxValue(10)
+@description('Number of additional static public IP addresses to create for the Azure Firewall. Default value = "0". These will be static/reserved IP addresses that can be used for NAT rules.')
+param additionalFwPipCount int = 0
+
+@allowed([
+  'Standard'
+  'Free'
+])
+@description('[Standard/Free] The SKU for Defender for Cloud. Default value = "Free".')
+param defenderSkuTier string = 'Free'
+
+@description('When set to "true", deploys Active Directory Domain Services (ADDS) domain controllers in the identity tier. Requires deployIdentity to be true. Default value = "false".')
+param deployActiveDirectoryDomainServices bool = false
+
+@description('When set to "true", provisions Azure Gateway Subnet only. Default value = "false".')
+param deployAzureGatewaySubnet bool = false
+
+@description('When set to "true", provisions Azure Bastion Host using the Standard SKU. Default value = "false".')
+param deployBastion bool = false
+
+@description('When set to "true", enables Microsoft Defender for Cloud for the subscriptions used in the deployment. Default value = "false".')
+param deployDefender bool = true
+
+// Allowed Values for paid workload protection Plans.  
+// Users must select a plan from portal ui def or manually specify any of the plans that are available in the desired cloud.  
+// The portal does not parse the allowed values field for arrays  correctly at this time.
+// As a default, the array is set to ['VirtualMachines'].
+/*   'Api'
+  'AppServices'
+  'Arm'
+  'CloudPosture'
+  //'ContainerRegistry' (deprecated)
+  'Containers'
+  'CosmosDbs'
+  //'Dns' (deprecated)
+  'KeyVaults'
+  //'KubernetesService' (deprecated)
+  'OpenSourceRelationalDatabases'
+  'SqlServers'
+  'SqlServerVirtualMachines'
+  'StorageAccounts'
+  'VirtualMachine*/
+
+@description('The Paid Workload Protection plans for Defender for Cloud. Default value = "VirtualMachines". See the following URL for valid settings: https://learn.microsoft.com/rest/api/defenderforcloud-composite/pricings/update?view=rest-defenderforcloud-composite-latest&tabs=HTTP.')
+param deployDefenderPlans array = ['VirtualMachines']
+
+@description('Choose to deploy the identity resources. The identity resoures are not required if you plan to use cloud identities.')
+param deployIdentity bool = false
+
+@description('When set to "true", provisions Linux Virtual Machine Host only. Default value = "false".')
+param deployLinuxVirtualMachine bool = false
+
+@description('A suffix to use for naming deployments uniquely. Default value = "utcNow()".')
+param deploymentNameSuffix string = utcNow()
+
+@description('When set to true, deploys Network Watcher Traffic Analytics. Default value = "false".')
+param deployNetworkWatcherTrafficAnalytics bool = false
+
+@description('When set to "true", deploys the Azure Policy set defined at by the parameter "policy" to the resource groups generated in the deployment. Default value = "false".')
+param deployPolicy bool = false
+
+@description('When set to "true", enables Microsoft Sentinel within the Log Analytics Workspace created in this deployment. Default value = "false".')
+param deploySentinel bool = false
+
+@description('When set to "true", provisions Windows Virtual Machine Host only. Default value = "false".')
+param deployWindowsVirtualMachine bool = false
+
+@description('The Azure Firewall DNS Proxy will forward all DNS traffic. When this value is set to true, you must provide a value for "servers". This should be a comma separated list of IP addresses to forward DNS traffic.')
+param dnsServers array = ['168.63.129.16']
+
+@description('The email address for Defender for Cloud alert notifications, in the form of john@contoso.com.')
+param emailSecurityContact string = ''
+
+@description('The Azure Firewall DNS Proxy will forward all DNS traffic. Default value = "true".')
+param enableProxy bool = true
+
+@allowed([
+  'dev'
+  'prod'
+  'test'
+])
+@description('[dev/prod/test] The abbreviation for the target environment.')
+param environmentAbbreviation string = 'dev'
+
+@description('An array of Azure Firewall Public IP Address Availability Zones. Default value = "[]" because Availability Zones are not available in every cloud. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-network/ip-services/public-ip-addresses#sku.')
+param firewallClientPublicIPAddressAvailabilityZones array = []
+
+@description('The CIDR Subnet Address Prefix for the Azure Firewall Subnet. It must be in the Hub Virtual Network space. It must be /26.')
+param firewallClientSubnetAddressPrefix string = '10.0.128.0/26'
+
+@description('An array of Firewall Diagnostic Logs categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/firewall/monitor-firewall#enable-diagnostic-logging-through-the-azure-portal.')
+param firewallDiagnosticsLogs array = [
+  {
+    category: 'AzureFirewallApplicationRule'
+    enabled: true
+  }
+  {
+    category: 'AzureFirewallNetworkRule'
+    enabled: true
+  }
+  {
+    category: 'AzureFirewallDnsProxy'
+    enabled: enableProxy
+  }
+  {
+    category: 'AZFWNetworkRule'
+    enabled: true
+  }
+  {
+    category: 'AZFWApplicationRule'
+    enabled: true
+  }
+  {
+    category: 'AZFWNatRule'
+    enabled: true
+  }
+  {
+    category: 'AZFWThreatIntel'
+    enabled: true
+  }
+  {
+    category: 'AZFWIdpsSignature'
+    enabled: true
+  }
+  {
+    category: 'AZFWDnsQuery'
+    enabled: true
+  }
+  {
+    category: 'AZFWFqdnResolveFailure'
+    enabled: true
+  }
+  {
+    category: 'AZFWFatFlow'
+    enabled: true
+  }
+  {
+    category: 'AZFWFlowTrace'
+    enabled: true
+  }
+  {
+    category: 'AZFWApplicationRuleAggregation'
+    enabled: true
+  }
+  {
+    category: 'AZFWNetworkRuleAggregation'
+    enabled: true
+  }
+  {
+    category: 'AZFWNatRuleAggregation'
+    enabled: true
+  }
+]
+
+@description('An array of Firewall Diagnostic Metrics categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/firewall/monitor-firewall#enable-diagnostic-logging-through-the-azure-portal.')
+param firewallDiagnosticsMetrics array = [
+  {
+    category: 'AllMetrics'
+    enabled: true
+  }
+]
+
+@allowed([
+  'Alert'
+  'Deny'
+  'Off'
+])
+@description('[Alert/Deny/Off] The Azure Firewall Intrusion Detection mode. Valid values are "Alert", "Deny", or "Off". The default value is "Alert".')
+param firewallIntrusionDetectionMode string = 'Alert'
+
+@description('An array of Azure Firewall Public IP Address Availability Zones. Default value = "[]" because Availability Zones are not available in every cloud. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-network/ip-services/public-ip-addresses#sku.')
+param firewallManagementPublicIPAddressAvailabilityZones array = []
+
+@description('The CIDR Subnet Address Prefix for the Azure Firewall Management Subnet. It must be in the Hub Virtual Network space. It must be /26.')
+param firewallManagementSubnetAddressPrefix string = '10.0.128.64/26'
+
+@allowed([
+  'Premium'
+  'Standard'
+])
+@description('[Premium/Standard] The SKU for Azure Firewall. Default value = "Premium". Selecting a value other than Premium is not recommended for environments that are required to be SCCA compliant.')
+param firewallSkuTier string = 'Premium'
+
+@description('Supernet CIDR address for the entire network of vnets, this address allows for communication between spokes. Recommended to use a Supernet calculator if modifying vnet addresses.')
+param firewallSupernetIPAddress string = '10.0.128.0/18'
+
+@allowed([
+  'Alert'
+  'Deny'
+  'Off'
+])
+@description('[Alert/Deny/Off] The Azure Firewall Threat Intelligence Rule triggered logging behavior. Valid values are "Alert", "Deny", or "Off". The default value is "Alert".')
+param firewallThreatIntelMode string = 'Alert'
+
+@description('An array of Network Security Group diagnostic logs to apply to the Hub Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-network/virtual-network-nsg-manage-log#log-categories.')
+param hubNetworkSecurityGroupDiagnosticsLogs array = [
+  {
+    category: 'NetworkSecurityGroupEvent'
+    enabled: true
+  }
+  {
+    category: 'NetworkSecurityGroupRuleCounter'
+    enabled: true
+  }
+]
+
+@description('An array of Network Security Group Rules to apply to the Hub Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/templates/microsoft.network/networksecuritygroups/securityrules?tabs=bicep&pivots=deployment-language-bicep#securityrulepropertiesformat.')
+param hubNetworkSecurityGroupRules array = []
+
+@description('The CIDR Subnet Address Prefix for the default Hub subnet. It must be in the Hub Virtual Network space.')
+param hubSubnetAddressPrefix string = '10.0.128.128/26'
+
+@description('The subscription ID for the Hub Network and resources. Default value = "subscription().subscriptionId".')
+param hubSubscriptionId string = subscription().subscriptionId
+
+@description('The CIDR Virtual Network Address Prefix for the Hub Virtual Network.')
+param hubVirtualNetworkAddressPrefix string = '10.0.128.0/23'
+
+@description('An array of Network Diagnostic Logs to enable for the Hub Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#logs.')
+param hubVirtualNetworkDiagnosticsLogs array = [
+  {
+    category: 'VMProtectionAlerts'
+    enabled: true
+  }
+]
+
+@description('An array of Network Diagnostic Metrics to enable for the Hub Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics.')
+param hubVirtualNetworkDiagnosticsMetrics array = [
+  {
+    category: 'AllMetrics'
+    enabled: true
+  }
+]
+
+@description('The hybrid use benefit provides a discount on virtual machines when a customer has an on-premises Windows Server license with Software Assurance. Default value = "false".')
+param hybridUseBenefit bool = false
+
+@minLength(1)
+@maxLength(5)
+@description('1-5 alphanumeric characters without whitespace, used to name resources and generate uniqueness for resources within your subscription. Ideally, the value should represent an organization, department, or business unit.')
+param identifier string
+
+@description('An array of Network Security Group diagnostic logs to apply to the Identity Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-network/virtual-network-nsg-manage-log#log-categories.')
+param identityNetworkSecurityGroupDiagnosticsLogs array = [
+  {
+    category: 'NetworkSecurityGroupEvent'
+    enabled: true
+  }
+  {
+    category: 'NetworkSecurityGroupRuleCounter'
+    enabled: true
+  }
+]
+
+@description('An array of Network Security Group Rules to apply to the Identity Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/templates/microsoft.network/networksecuritygroups/securityrules?tabs=bicep#securityrulepropertiesformat.')
+param identityNetworkSecurityGroupRules array = []
+
+@description('The CIDR Subnet Address Prefix for the default Identity subnet. It must be in the Identity Virtual Network space.')
+param identitySubnetAddressPrefix string = '10.0.130.0/24'
+
+@description('The subscription ID for the Identity Network and resources. Default value = "subscription().subscriptionId".')
+param identitySubscriptionId string = subscription().subscriptionId
+
+@description('The CIDR Virtual Network Address Prefix for the Identity Virtual Network.')
+param identityVirtualNetworkAddressPrefix string = '10.0.130.0/24'
+
+@description('An array of Network Diagnostic Logs to enable for the Identity Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#logs.')
+param identityVirtualNetworkDiagnosticsLogs array = [
+  {
+    category: 'VMProtectionAlerts'
+    enabled: true
+  }
+]
+
+@description('An array of Network Diagnostic Metrics to enable for the Identity Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics.')
+param identityVirtualNetworkDiagnosticsMetrics array = [
+  {
+    category: 'AllMetrics'
+    enabled: true
+  }
+]
+
+@description('An array of Key Vault Diagnostic Logs categories to collect. See the following URL for valid settings: "https://learn.microsoft.com/azure/key-vault/general/logging?tabs=Vault".')
+param keyVaultDiagnosticsLogs array = [
+  {
+    category: 'AuditEvent'
+    enabled: true
+  }
+  {
+    category: 'AzurePolicyEvaluationDetails'
+    enabled: true
+  }
+]
+
+@description('The Key Vault Diagnostic Metrics to collect. See the following URL for valid settings: "https://learn.microsoft.com/azure/key-vault/general/logging?tabs=Vault".')
+param keyVaultDiagnosticsMetrics array = [
+  {
+    category: 'AllMetrics'
+    enabled: true
+  }
+]
+
+@minLength(12)
+@secure()
+@description('The administrator password or public SSH key for the Linux Virtual Machine for remote access. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-machines/linux/faq#what-are-the-password-requirements-when-creating-a-vm-.')
+param linuxVmAdminPasswordOrKey string = deployLinuxVirtualMachine ? '' : newGuid()
+
+@description('The administrator username for the Linux Virtual Machine for remote access. Default value = "xadmin".')
+param linuxVmAdminUsername string = 'xadmin'
+
+@allowed([
+  'sshPublicKey'
+  'password'
+])
+@description('[sshPublicKey/password] The authentication type for the Linux Virtual Machine for remote access. Default value = "password".')
+param linuxVmAuthenticationType string = 'password'
+
+@allowed([
+  'ubuntuserver'
+  '0001-com-ubuntu-server-focal'
+  '0001-com-ubuntu-server-jammy'
+  'RHEL'
+  'Debian-12'
+])
+@description('[ubuntuserver/0001-com-ubuntu-server-focal/0001-com-ubuntu-server-jammy/RHEL/Debian-12] The Linux image offer in the Azure marketplace. Default value = "0001-com-ubuntu-server-focal".')
+param linuxVmImageOffer string = '0001-com-ubuntu-server-focal'
+
+@allowed([
+  'Canonical'
+  'RedHat'
+  'Debian'
+])
+@description('[Canonical/RedHat/Debian] The Linux image publisher in the Azure marketplace. Default value = "Canonical".')
+param linuxVmImagePublisher string = 'Canonical'
+
+@description('The Linux image SKU in the Azure marketplace. Default value = "20_04-lts-gen2".')
+param linuxVmImageSku string = '20_04-lts-gen2'
+
+@description('The Linux image version in the Azure marketplace. Default value = "latest".')
+param linuxVmImageVersion string = 'latest'
+
+@description('The disk type of the Linux Virtual Machine for remote access. Default value = "Standard_LRS".')
+param linuxVmOsDiskType string = 'Standard_LRS'
+
+@description('The size of the Linux virtual machine. Default value = "Standard_D2s_v3".')
+param linuxVmSize string = 'Standard_D2s_v3'
+
+@description('The region to deploy resources into. Default value = "deployment().location".')
+param location string = deployment().location
+
+@description('The daily quota for Log Analytics Workspace logs in Gigabytes. Default value = "-1", meaning no quota.')
+param logAnalyticsWorkspaceCappingDailyQuotaGb int = -1
+
+@description('The number of days to retain Log Analytics Workspace logs without Sentinel. Default value = "30".')
+param logAnalyticsWorkspaceRetentionInDays int = 30
+
+@allowed([
+  'Free'
+  'Standard'
+  'Premium'
+  'PerNode'
+  'PerGB2018'
+  'Standalone'
+])
+@description('[Free/Standard/Premium/PerNode/PerGB2018/Standalone] The SKU for the Log Analytics Workspace. Default value = "PerGB2018". See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/logs/resource-manager-workspace.')
+param logAnalyticsWorkspaceSkuName string = 'PerGB2018'
+
+@description('The Storage Account SKU to use for log storage. Default value = "Standard_GRS". See the following URL for valid settings: https://learn.microsoft.com/rest/api/storagerp/srp_sku_types.')
+param logStorageSkuName string = 'Standard_GRS'
+
+@description('An array of metrics to enable on the diagnostic setting for network interfaces.')
+param networkInterfaceDiagnosticsMetrics array = [
+  {
+    category: 'AllMetrics'
+    enabled: true
+  }
+]
+
+@description('The number of days to retain Network Watcher Flow Logs. Default value = "30".')
+param networkWatcherFlowLogsRetentionDays int = 30
+
+@allowed([
+  'NetworkSecurityGroup'
+  'VirtualNetwork'
+])
+@description('[NetworkSecurityGroup/VirtualNetwork] The type of network watcher flow logs to enable. Default value = "VirtualNetwork" since they provide more data and NSG flow logs will be deprecated in June 2025.')
+param networkWatcherFlowLogsType string = 'VirtualNetwork'
+
+@description('An array of Network Security Group diagnostic logs to apply to the Operations Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-network/virtual-network-nsg-manage-log#log-categories.')
+param operationsNetworkSecurityGroupDiagnosticsLogs array = [
+  {
+    category: 'NetworkSecurityGroupEvent'
+    enabled: true
+  }
+  {
+    category: 'NetworkSecurityGroupRuleCounter'
+    enabled: true
+  }
+]
+
+@description('An array of Network Security Group rules to apply to the Operations Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/templates/microsoft.network/networksecuritygroups/securityrules?tabs=bicep#securityrulepropertiesformat.')
+param operationsNetworkSecurityGroupRules array = []
+
+@description('The CIDR Subnet Address Prefix for the default Operations subnet. It must be in the Operations Virtual Network space.')
+param operationsSubnetAddressPrefix string = '10.0.131.0/24'
+
+@description('The subscription ID for the Operations Network and resources. Default value = "subscription().subscriptionId".')
+param operationsSubscriptionId string = subscription().subscriptionId
+
+@description('The CIDR Virtual Network Address Prefix for the Operations Virtual Network.')
+param operationsVirtualNetworkAddressPrefix string = '10.0.131.0/24'
+
+@description('An array of Network Diagnostic Logs to enable for the Operations Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#logs.')
+param operationsVirtualNetworkDiagnosticsLogs array = [
+  {
+    category: 'VMProtectionAlerts'
+    enabled: true
+  }
+]
+
+@description('An array of Network Diagnostic Metrics to enable for the Operations Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics.')
+param operationsVirtualNetworkDiagnosticsMetrics array = [
+  {
+    category: 'AllMetrics'
+    enabled: true
+  }
+]
+
+@allowed([
+  'NISTRev4'
+  'NISTRev5'
+  'IL5' // AzureUsGoverment only, trying to deploy IL5 in AzureCloud will switch to NISTRev4
+  'CMMC'
+])
+@description('[NISTRev4/NISTRev5/IL5/CMMC] Built-in policy assignments to assign, Default value = "NISTRev4". IL5 is only available for AzureUsGovernment and will switch to NISTRev4 if tried in AzureCloud.')
+param policy string = 'NISTRev4'
+
+@description('An array of Public IP Address Diagnostic Logs for the Azure Firewall. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/tutorial-resource-logs?tabs=DDoSProtectionNotifications#configure-ddos-diagnostic-logs.')
+param publicIPAddressDiagnosticsLogs array = [
+  {
+    category: 'DDoSProtectionNotifications'
+    enabled: true
+  }
+  {
+    category: 'DDoSMitigationFlowLogs'
+    enabled: true
+  }
+  {
+    category: 'DDoSMitigationReports'
+    enabled: true
+  }
+]
+
+@description('An array of Public IP Address Diagnostic Metrics for the Azure Firewall. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/tutorial-resource-logs?tabs=DDoSProtectionNotifications.')
+param publicIPAddressDiagnosticsMetrics array = [
+  {
+    category: 'AllMetrics'
+    enabled: true
+  }
+]
+
+@description('An array of Network Security Group diagnostic logs to apply to the SharedServices Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-network/virtual-network-nsg-manage-log#log-categories.')
+param sharedServicesNetworkSecurityGroupDiagnosticsLogs array = [
+  {
+    category: 'NetworkSecurityGroupEvent'
+    enabled: true
+  }
+  {
+    category: 'NetworkSecurityGroupRuleCounter'
+    enabled: true
+  }
+]
+
+@description('An array of Network Security Group rules to apply to the SharedServices Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/templates/microsoft.network/networksecuritygroups/securityrules?tabs=bicep#securityrulepropertiesformat.')
+param sharedServicesNetworkSecurityGroupRules array = []
+
+@description('The CIDR Subnet Address Prefix for the default Shared Services subnet. It must be in the Shared Services Virtual Network space. Default value = "10.0.132.0/24".')
+param sharedServicesSubnetAddressPrefix string = '10.0.132.0/24'
+
+@description('The subscription ID for the Shared Services Network and resources. Default value = "subscription().subscriptionId".')
+param sharedServicesSubscriptionId string = subscription().subscriptionId
+
+@description('The CIDR Virtual Network Address Prefix for the Shared Services Virtual Network. Default value = "10.0.132.0/24".')
+param sharedServicesVirtualNetworkAddressPrefix string = '10.0.132.0/24'
+
+@description('An array of Network Diagnostic Logs to enable for the SharedServices Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#logs.')
+param sharedServicesVirtualNetworkDiagnosticsLogs array = [
+  {
+    category: 'VMProtectionAlerts'
+    enabled: true
+  }
+]
+
+@description('An array of Network Diagnostic Metrics to enable for the SharedServices Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics.')
+param sharedServicesVirtualNetworkDiagnosticsMetrics array = [
+  {
+    category: 'AllMetrics'
+    enabled: true
+  }
+]
+
+@description('The Azure clouds that support specific service features. Default value = "[\'AzureCloud\',\'AzureUSGovernment\']".')
+param supportedClouds array = [
+  'AzureCloud'
+  'AzureUSGovernment'
+]
+
+@description('A string dictionary of tags to add to deployed resources. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-resource-manager/management/tag-resources?tabs=json#arm-templates.')
+param tags object = {}
+
+@minLength(12)
+@secure()
+@description('The administrator password the Windows Virtual Machine for remote access. It must be > 12 characters in length. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-machines/windows/faq#what-are-the-password-requirements-when-creating-a-vm-.')
+param windowsVmAdminPassword string = deployWindowsVirtualMachine ? '' : newGuid()
+
+@description('The administrator username for the Windows Virtual Machine for remote access. Default value = "xadmin".')
+param windowsVmAdminUsername string = 'xadmin'
+
+@description('The Windows image offer in the Azure marketplace. Default value = "WindowsServer".')
+param windowsVmImageOffer string = 'WindowsServer'
+
+@description('The Windows image publisher in the Azure marketplace. Default value = "MicrosoftWindowsServer".')
+param windowsVmImagePublisher string = 'MicrosoftWindowsServer'
+
+@allowed([
+  '2019-datacenter-gensecond'
+  '2022-datacenter-g2'
+])
+@description('[2019-datacenter-gensecond/2022-datacenter-g2] The Windows image SKU in the Azure marketplace. Default value = "2019-datacenter-gensecond".')
+param windowsVmImageSku string = '2019-datacenter-gensecond'
+
+@description('The Windows image version in the Azure marketplace. Default value = "latest".')
+param windowsVmImageVersion string = 'latest'
+
+@description('The size of the Windows Virtual Machine for remote access. Default value = "Standard_DS1_v2".')
+param windowsVmSize string = 'Standard_DS1_v2'
+
+@description('The storage account type of the Windows Virtual Machine for remote access. Default value = "StandardSSD_LRS".')
+param windowsVmStorageAccountType string = 'StandardSSD_LRS'
+
+var firewallClientPrivateIpAddress = firewallClientUsableIpAddresses[3]
+var firewallClientUsableIpAddresses = [for i in range(0, 4): cidrHost(firewallClientSubnetAddressPrefix, i)]
+
+// NETWORKING
+
+module networking 'modules/networking.bicep' = {
+  name: 'deploy-networking-${deploymentNameSuffix}'
+  params: {
+    bastionHostSubnetAddressPrefix: bastionHostSubnetAddressPrefix
+    azureGatewaySubnetAddressPrefix: azureGatewaySubnetAddressPrefix
+    deployIdentity: deployIdentity
+    deploymentNameSuffix: deploymentNameSuffix
+    deployBastion: deployBastion
+    deployAzureGatewaySubnet: deployAzureGatewaySubnet
+    dnsServers: deployIdentity && deployActiveDirectoryDomainServices
+      ? [
+          cidrHost(identitySubnetAddressPrefix, hubSubscriptionId == identitySubscriptionId ? 3 : 4) // when the sub IDs are the same, a key vault is not deployed in the identity spoke
+          cidrHost(identitySubnetAddressPrefix, hubSubscriptionId == identitySubscriptionId ? 4 : 5) // when the sub IDs are the same, a key vault is not deployed in the identity spoke
+        ]
+      : dnsServers
+    enableProxy: enableProxy
+    environmentAbbreviation: environmentAbbreviation
+    firewallSettings: {
+      clientPrivateIpAddress: firewallClientPrivateIpAddress
+      clientPublicIPAddressAvailabilityZones: firewallClientPublicIPAddressAvailabilityZones
+      clientSubnetAddressPrefix: firewallClientSubnetAddressPrefix
+      customPipCount: additionalFwPipCount
+      intrusionDetectionMode: firewallIntrusionDetectionMode
+      managementPublicIPAddressAvailabilityZones: firewallManagementPublicIPAddressAvailabilityZones
+      managementSubnetAddressPrefix: firewallManagementSubnetAddressPrefix
+      skuTier: firewallSkuTier
+      supernetIPAddress: firewallSupernetIPAddress
+      threatIntelMode: firewallThreatIntelMode
+    }
+    firewallRuleCollectionGroups: empty(customFirewallRuleCollectionGroups)
+      ? [
+          {
+            name: 'MLZ-DefaultCollectionGroup'
+            properties: {
+              priority: 100
+              ruleCollections: [
+                {
+                  name: 'NetworkRules'
+                  priority: 100
+                  ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
+                  action: {
+                    type: 'Allow'
+                  }
+                  rules: union(
+                    [
+                      {
+                        name: 'Allow-LAW-TCP'
+                        ruleType: 'NetworkRule'
+                        ipProtocols: ['Tcp']
+                        sourceAddresses: [
+                          firewallSupernetIPAddress
+                        ]
+                        destinationAddresses: [cidrHost(operationsVirtualNetworkAddressPrefix, 3)] // LAW private endpoint network
+                        destinationPorts: ['443'] // HTTPS port for Azure Monitor
+                      }
+                    ],
+                    deployActiveDirectoryDomainServices
+                      ? [
+                          {
+                            name: 'Allow-ADDS-TCP'
+                            ruleType: 'NetworkRule'
+                            ipProtocols: ['TCP']
+                            sourceAddresses: [
+                              firewallSupernetIPAddress
+                            ]
+                            destinationAddresses: [
+                              cidrHost(identityVirtualNetworkAddressPrefix, 3)
+                              cidrHost(identityVirtualNetworkAddressPrefix, 4)
+                            ]
+                            destinationPorts: [
+                              '53' // DNS
+                              '88' // Kerberos
+                              '135' // RPC
+                              '389' // LDAP
+                              '445' // SMB
+                              '464' // Kerberos Change/Set Password
+                              '636' // LDAPS
+                              '3268' // Global Catalog
+                              '3269' // Global Catalog over SSL
+                            ]
+                          }
+                          {
+                            name: 'Allow-ADDS-UDP'
+                            ruleType: 'NetworkRule'
+                            ipProtocols: ['UDP']
+                            sourceAddresses: [
+                              firewallSupernetIPAddress
+                            ]
+                            destinationAddresses: [
+                              cidrHost(identitySubnetAddressPrefix, 3)
+                              cidrHost(identitySubnetAddressPrefix, 4)
+                            ]
+                            destinationPorts: [
+                              '53' // DNS over UDP
+                              '88' // Kerberos over UDP
+                              '123' // Time Synchronization
+                              '389' // LDAP over UDP
+                              '464' // Kerberos Change/Set Password over UDP
+                            ]
+                          }
+                        ]
+                      : [],
+                    deployLinuxVirtualMachine || deployWindowsVirtualMachine
+                      ? [
+                          {
+                            name: 'Allow-KMS-TCP'
+                            ruleType: 'NetworkRule'
+                            ipProtocols: ['Tcp']
+                            sourceAddresses: union(
+                              deployLinuxVirtualMachine && deployWindowsVirtualMachine
+                                ? [
+                                    cidrHost(hubSubnetAddressPrefix, 4)
+                                    cidrHost(hubSubnetAddressPrefix, 5)
+                                  ]
+                                : [
+                                    cidrHost(hubSubnetAddressPrefix, 4)
+                                  ],
+                              deployActiveDirectoryDomainServices
+                                ? [
+                                    cidrHost(identitySubnetAddressPrefix, 3)
+                                    cidrHost(identitySubnetAddressPrefix, 4)
+                                  ]
+                                : []
+                            )
+                            destinationAddresses: []
+                            destinationFqdns: [
+                              'azkms.${environment().suffixes.storage}'
+                              'kms.${environment().suffixes.storage}'
+                            ]
+                            destinationPorts: [
+                              '1688'
+                            ]
+                            sourceIpGroups: []
+                            destinationIpGroups: []
+                          }
+                        ]
+                      : []
+                  )
+                }
+                {
+                  name: 'ApplicationRules'
+                  priority: 200
+                  ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
+                  action: {
+                    type: 'Allow'
+                  }
+                  rules: deployLinuxVirtualMachine || deployWindowsVirtualMachine
+                    ? [
+                        {
+                          name: 'Allow-WindowsUpdate'
+                          ruleType: 'ApplicationRule'
+                          protocols: [
+                            {
+                              protocolType: 'Https'
+                              port: 443
+                            }
+                          ]
+                          fqdnTags: [
+                            'WindowsUpdate'
+                          ]
+                          webCategories: []
+                          targetFqdns: []
+                          targetUrls: []
+                          terminateTLS: false
+                          sourceAddresses: union(
+                            deployLinuxVirtualMachine && deployWindowsVirtualMachine
+                              ? [
+                                  cidrHost(hubSubnetAddressPrefix, 4)
+                                  cidrHost(hubSubnetAddressPrefix, 5)
+                                ]
+                              : [
+                                  cidrHost(hubSubnetAddressPrefix, 4)
+                                ],
+                            deployActiveDirectoryDomainServices
+                              ? [
+                                  cidrHost(identitySubnetAddressPrefix, 3)
+                                  cidrHost(identitySubnetAddressPrefix, 4)
+                                ]
+                              : []
+                          )
+                          destinationAddresses: []
+                          sourceIpGroups: []
+                        }
+                      ]
+                    : []
+                }
+              ]
+            }
+          }
+        ]
+      : customFirewallRuleCollectionGroups
+    identifier: identifier
+    location: location
+    networks: union(
+      [
+        {
+          name: 'hub'
+          shortName: 'hub'
+          subscriptionId: hubSubscriptionId
+          nsgDiagLogs: hubNetworkSecurityGroupDiagnosticsLogs
+          nsgRules: hubNetworkSecurityGroupRules
+          vnetAddressPrefix: hubVirtualNetworkAddressPrefix
+          vnetDiagLogs: hubVirtualNetworkDiagnosticsLogs
+          vnetDiagMetrics: hubVirtualNetworkDiagnosticsMetrics
+          subnetAddressPrefix: hubSubnetAddressPrefix
+        }
+        {
+          name: 'operations'
+          shortName: 'ops'
+          subscriptionId: operationsSubscriptionId
+          nsgDiagLogs: operationsNetworkSecurityGroupDiagnosticsLogs
+          nsgRules: operationsNetworkSecurityGroupRules
+          vnetAddressPrefix: operationsVirtualNetworkAddressPrefix
+          vnetDiagLogs: operationsVirtualNetworkDiagnosticsLogs
+          vnetDiagMetrics: operationsVirtualNetworkDiagnosticsMetrics
+          subnetAddressPrefix: operationsSubnetAddressPrefix
+        }
+        {
+          name: 'sharedServices'
+          shortName: 'svcs'
+          subscriptionId: sharedServicesSubscriptionId
+          nsgDiagLogs: sharedServicesNetworkSecurityGroupDiagnosticsLogs
+          nsgRules: sharedServicesNetworkSecurityGroupRules
+          vnetAddressPrefix: sharedServicesVirtualNetworkAddressPrefix
+          vnetDiagLogs: sharedServicesVirtualNetworkDiagnosticsLogs
+          vnetDiagMetrics: sharedServicesVirtualNetworkDiagnosticsMetrics
+          subnetAddressPrefix: sharedServicesSubnetAddressPrefix
+        }
+      ],
+      deployIdentity
+        ? [
+            {
+              name: 'identity'
+              shortName: 'id'
+              subscriptionId: identitySubscriptionId
+              nsgDiagLogs: identityNetworkSecurityGroupDiagnosticsLogs
+              nsgRules: identityNetworkSecurityGroupRules
+              vnetAddressPrefix: identityVirtualNetworkAddressPrefix
+              vnetDiagLogs: identityVirtualNetworkDiagnosticsLogs
+              vnetDiagMetrics: identityVirtualNetworkDiagnosticsMetrics
+              subnetAddressPrefix: identitySubnetAddressPrefix
+            }
+          ]
+        : []
+    )
+    tags: tags
+  }
+}
+
+// MONITORING
+
+module monitoring 'modules/monitoring.bicep' = {
+  name: 'deploy-monitoring-${deploymentNameSuffix}'
+  params: {
+    deploymentNameSuffix: deploymentNameSuffix
+    deploySentinel: deploySentinel
+    location: location
+    logAnalyticsWorkspaceCappingDailyQuotaGb: logAnalyticsWorkspaceCappingDailyQuotaGb
+    logAnalyticsWorkspaceRetentionInDays: logAnalyticsWorkspaceRetentionInDays
+    logAnalyticsWorkspaceSkuName: logAnalyticsWorkspaceSkuName
+    privateDnsZoneResourceIds: networking.outputs.privateDnsZoneResourceIds
+    mlzTags: networking.outputs.mlzTags
+    tags: tags
+    tier: filter(networking.outputs.tiers, tier => tier.name == 'operations')[0]
+  }
+}
+
+// ACTIVE DIRECTORY DOMAIN SERVICES
+
+module activeDirectoryDomainServices 'modules/active-directory-domain-services.bicep' = if (deployActiveDirectoryDomainServices && deployIdentity) {
+  name: 'deploy-adds-${deploymentNameSuffix}'
+  params: {
+    adminPassword: addsVmAdminPassword
+    adminUsername: addsVmAdminUsername
+    delimiter: networking.outputs.delimiter
+    deploymentNameSuffix: deploymentNameSuffix
+    domainName: addsDomainName
+    environmentAbbreviation: environmentAbbreviation
+    hybridUseBenefit: hybridUseBenefit
+    imageOffer: 'WindowsServer'
+    imagePublisher: 'MicrosoftWindowsServer'
+    imageSku: addsVmImageSku
+    imageVersion: windowsVmImageVersion
+    keyVaultPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.keyVault
+    location: location
+    mlzTags: networking.outputs.mlzTags
+    resourceAbbreviations: networking.outputs.resourceAbbreviations
+    safeModeAdminPassword: addsSafeModeAdminPassword
+    tags: tags
+    tier: filter(networking.outputs.tiers, tier => tier.name == 'identity')[0]
+    vmSize: addsVmSize
+  }
+}
+
+// REMOTE ACCESS
+
+module remoteAccess 'modules/remote-access.bicep' = if (deployBastion || deployLinuxVirtualMachine || deployWindowsVirtualMachine) {
+  name: 'deploy-remote-access-${deploymentNameSuffix}'
+  params: {
+    bastionHostPublicIPAddressAllocationMethod: 'Static'
+    bastionHostPublicIPAddressAvailabilityZones: bastionHostPublicIPAddressAvailabilityZones
+    bastionHostPublicIPAddressSkuName: 'Standard'
+    bastionHostSubnetResourceId: networking.outputs.bastionHostSubnetResourceId
+    delimiter: networking.outputs.delimiter
+    deployBastion: deployBastion
+    deployLinuxVirtualMachine: deployLinuxVirtualMachine
+    deploymentNameSuffix: deploymentNameSuffix
+    deployWindowsVirtualMachine: deployWindowsVirtualMachine
+    environmentAbbreviation: environmentAbbreviation
+    hybridUseBenefit: hybridUseBenefit
+    keyVaultPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.keyVault
+    linuxVmAdminPasswordOrKey: linuxVmAdminPasswordOrKey
+    linuxVmAdminUsername: linuxVmAdminUsername
+    linuxVmAuthenticationType: linuxVmAuthenticationType
+    linuxVmImageOffer: linuxVmImageOffer
+    linuxVmImagePublisher: linuxVmImagePublisher
+    linuxVmImageSku: linuxVmImageSku
+    linuxVmImageVersion: linuxVmImageVersion
+    linuxVmOsDiskType: linuxVmOsDiskType
+    linuxVmSize: linuxVmSize
+    location: location
+    mlzTags: networking.outputs.mlzTags
+    resourceAbbreviations: networking.outputs.resourceAbbreviations
+    tags: tags
+    tier: filter(networking.outputs.tiers, tier => tier.name == 'hub')[0]
+    windowsVmAdminPassword: windowsVmAdminPassword
+    windowsVmAdminUsername: windowsVmAdminUsername
+    windowsVmImageOffer: windowsVmImageOffer
+    windowsVmImagePublisher: windowsVmImagePublisher
+    windowsVmImageSku: windowsVmImageSku
+    windowsVmSize: windowsVmSize
+    windowsVmStorageAccountType: windowsVmStorageAccountType
+    windowsVmVersion: windowsVmImageVersion
+  }
+}
+
+// STORAGE FOR LOGGING
+
+module storage 'modules/storage.bicep' = {
+  name: 'deploy-log-storage-${deploymentNameSuffix}'
+  params: {
+    delimiter: networking.outputs.delimiter
+    //deployIdentity: deployIdentity
+    deploymentNameSuffix: deploymentNameSuffix
+    environmentAbbreviation: environmentAbbreviation
+    location: location
+    logStorageSkuName: logStorageSkuName
+    mlzTags: networking.outputs.mlzTags
+    privateDnsZoneResourceIds: networking.outputs.privateDnsZoneResourceIds
+    resourceAbbreviations: networking.outputs.resourceAbbreviations
+    tags: tags
+    tiers: networking.outputs.tiers
+  }
+  dependsOn: [
+    activeDirectoryDomainServices // This is needed to ensure the first two IPs in the identity subnet are availabile for the domain controllers
+    remoteAccess
+  ]
+}
+
+// DIAGONSTIC SETTINGS FOR LOGGING
+
+module diagnosticSettings 'modules/diagnostic-settings.bicep' = {
+  name: 'deploy-diagnostic-settings-${deploymentNameSuffix}'
+  params: {
+    bastionDiagnosticsLogs: bastionDiagnosticsLogs
+    bastionDiagnosticsMetrics: bastionDiagnosticsMetrics
+    delimiter: networking.outputs.delimiter
+    deployBastion: deployBastion
+    deployNetworkWatcherTrafficAnalytics: deployNetworkWatcherTrafficAnalytics
+    deploymentNameSuffix: deploymentNameSuffix
+    firewallDiagnosticsLogs: firewallDiagnosticsLogs
+    firewallDiagnosticsMetrics: firewallDiagnosticsMetrics
+    keyVaults: union(
+      [
+        storage.outputs.keyVaultProperties
+      ],
+      deployActiveDirectoryDomainServices ? [
+        activeDirectoryDomainServices.outputs.keyVaultProperties
+      ] : [],
+      deployLinuxVirtualMachine || deployWindowsVirtualMachine ? [
+        remoteAccess.outputs.keyVaultProperties
+      ] : []
+    )
+    keyVaultDiagnosticLogs: keyVaultDiagnosticsLogs
+    keyVaultDiagnosticMetrics: keyVaultDiagnosticsMetrics
+    location: location
+    logAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
+    networkInterfaceDiagnosticsMetrics: networkInterfaceDiagnosticsMetrics
+    networkInterfaceResourceIds: union(
+      deployActiveDirectoryDomainServices && deployIdentity ? activeDirectoryDomainServices.outputs.networkInterfaceResourceIds : [],
+      monitoring.outputs.networkInterfaceResourceIds,
+      deployLinuxVirtualMachine || deployWindowsVirtualMachine ? remoteAccess.outputs.networkInterfaceResourceIds : [],
+      flatten(storage.outputs.networkInterfaceResourceIds)
+    )
+    networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
+    networkWatcherFlowLogsType: networkWatcherFlowLogsType
+    publicIPAddressDiagnosticsLogs: publicIPAddressDiagnosticsLogs
+    publicIPAddressDiagnosticsMetrics: publicIPAddressDiagnosticsMetrics
+    storageAccountResourceIds: storage.outputs.storageAccountResourceIds
+    supportedClouds: supportedClouds
+    tiers: networking.outputs.tiers
+  }
+}
+
+// SECURITY AND COMPLIANCE
+// Enables Microsoft Defender for Cloud and assigns the selected built-in policy.
+
+module security 'modules/security.bicep' = {
+  name: 'deploy-security-${deploymentNameSuffix}'
+  params: {
+    defenderPlans: deployDefenderPlans
+    defenderSkuTier: defenderSkuTier
+    deployDefender: deployDefender
+    deployPolicy: deployPolicy
+    deploymentNameSuffix: deploymentNameSuffix
+    emailSecurityContact: emailSecurityContact
+    location: location
+    logAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
+    policy: policy
+    tiers: networking.outputs.tiers
+    windowsAdministratorsGroupMembership: windowsVmAdminUsername
+  }
+}
+
+output azureFirewallResourceId string = networking.outputs.azureFirewallResourceId
+output hubVirtualNetworkResourceId string = networking.outputs.hubVirtualNetworkResourceId
+output logAnalyticsWorkspaceResourceId string = monitoring.outputs.logAnalyticsWorkspaceResourceId
+output privateLinkScopeResourceId string = monitoring.outputs.privateLinkScopeResourceId
+output sharedServicesSubnetResourceId string = networking.outputs.sharedServicesSubnetResourceId
+output tiers array = networking.outputs.tiers

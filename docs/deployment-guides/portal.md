@@ -1,6 +1,6 @@
 # Mission Landing Zone - Deployment Guide using the Azure Portal
 
-[**Home**](../../README.md) | [**Design**](../design.md) | [**Add-Ons**](../../src/bicep/add-ons/README.md) | [**Resources**](../resources.md)
+[**Home**](../../README.md) | [**Design**](../design.md) | [**Add-Ons**](../../src/add-ons/README.md) | [**Resources**](../resources.md)
 
 ## Table of Contents
 
@@ -24,8 +24,8 @@ Click the appropriate button below to open the deployment UI.
 
 | Cloud  | Deployment Button |
 | :----- | :----- |
-| Azure Commercial | [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fmlz.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fform%2Fmlz.portal.json) |
-| Azure Government |  [![Deploy to Azure Gov](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fmlz.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fbicep%2Fform%2Fmlz.portal.json) |
+| Azure Commercial | [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fmlz.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fmlz.uiDefinition.json) |
+| Azure Government |  [![Deploy to Azure Gov](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fmlz.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fmlz.uiDefinition.json) |
 
 ### STEP 1: Basics
 
@@ -154,6 +154,12 @@ Review and validate the values selected for element in the UI. Once the values h
 
 > [!NOTE]
 > Deployment time can vary depending on options selected.
+
+### Azure Firewall Public IP Addresses
+
+When deploying via the Azure portal, you can set the `additionalFwPipCount` parameter to control the number of static public IP addresses (PIPs) assigned to Azure Firewall. This enables advanced NAT rule scenarios.
+
+- **Parameter:** `additionalFwPipCount` (int, default: 0)
 
 ## Remove MLZ in the Azure Portal
 

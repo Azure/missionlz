@@ -1,0 +1,1885 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2021-09-09/uiFormDefinition.schema.json",
+  "view": {
+    "kind": "Form",
+    "properties": {
+      "title": "Mission Landing Zone Add-On: Azure Virtual Desktop",
+      "steps": [
+        {
+          "name": "basics",
+          "label": "Basics",
+          "elements": [
+            {
+              "name": "description",
+              "type": "Microsoft.Common.TextBlock",
+              "options": {
+                "text": "The Azure Virtual Desktop (AVD) add-on reduces the complexity in deploying AVD with SCCA and zero trust compliance.",
+                "link": {
+                  "label": "Click here to learn more about the AVD add-on",
+                  "uri": "https://github.com/Azure/missionlz/blob/main/src/add-ons/azure-virtual-desktop/README.md"
+                }
+              }
+            },
+            {
+              "name": "scope",
+              "type": "Microsoft.Common.ResourceScope",
+              "instanceDetailsLabel": "",
+              "location": {
+                "resourceTypes": []
+              }
+            },
+            {
+              "name": "subscriptionsApi",
+              "type": "Microsoft.Solutions.ArmApiControl",
+              "request": {
+                "method": "GET",
+                "path": "subscriptions?api-version=2022-12-01"
+              }
+            },
+            {
+              "name": "hub",
+              "label": "Hub Resources",
+              "type": "Microsoft.Common.Section",
+              "elements": [
+                {
+                  "name": "subscription",
+                  "label": "Subscription",
+                  "type": "Microsoft.Common.DropDown",
+                  "defaultValue": "[steps('basics').scope.subscription.displayName]",
+                  "toolTip": "Select the subscription for your Mission Landing Zone Hub network, firewall, and remote access resources.",
+                  "filter": true,
+                  "constraints": {
+                    "allowedValues": "[map(steps('basics').subscriptionsApi.value, (item) => parse(concat('{\"label\":\"', item.displayName, '\",\"value\":\"', item.id, '\",\"description\":\"', 'ID: ', item.subscriptionId, '\"}')))]",
+                    "required": true
+                  }
+                },
+                {
+                  "name": "virtualNetworksApi",
+                  "type": "Microsoft.Solutions.ArmApiControl",
+                  "condition": "[not(empty(steps('basics').hub.subscription))]",
+                  "request": {
+                    "method": "GET",
+                    "path": "[concat(steps('basics').hub.subscription, '/providers/Microsoft.Network/virtualNetworks?api-version=2023-05-01')]"
+                  }
+                },
+                {
+                  "name": "virtualNetwork",
+                  "type": "Microsoft.Common.DropDown",
+                  "visible": true,
+                  "label": "Virtual network",
+                  "defaultValue": "[filter(map(steps('basics').hub.virtualNetworksApi.value, (item) => item.name), (item) => contains(item, 'hub'))]",
+                  "filter": true,
+                  "toolTip": "Select the existing Hub virtual network.",
+                  "constraints": {
+                    "required": true,
+                    "allowedValues": "[map(steps('basics').hub.virtualNetworksApi.value, (item) => parse(concat('{\"label\":\"', item.name, '\",\"value\":\"', item.id, '\"}')))]"
+                  }
+                },
+                {
+                  "name": "azureFirewallsApi",
+                  "type": "Microsoft.Solutions.ArmApiControl",
+                  "condition": "[not(empty(steps('basics').hub.virtualNetwork))]",
+                  "request": {
+                    "method": "GET",
+                    "path": "[concat(steps('basics').hub.subscription, '/resourceGroups/', first(skip(split(steps('basics').hub.virtualNetwork, '/'), 4)), '/providers/Microsoft.Network/azureFirewalls?api-version=2023-09-01')]"
+                  }
+                },
+                {
+                  "name": "azureFirewall",
+                  "type": "Microsoft.Common.DropDown",
+                  "visible": true,
+                  "label": "Azure firewall",
+                  "defaultValue": "[first(map(steps('basics').hub.azureFirewallsApi.value, (item) => item.name))]",
+                  "filter": true,
+                  "toolTip": "Select the existing Hub Azure firewall.",
+                  "constraints": {
+                    "required": true,
+                    "allowedValues": "[map(steps('basics').hub.azureFirewallsApi.value, (item) => parse(concat('{\"label\":\"', item.name, '\",\"value\":\"', item.id, '\"}')))]"
+                  }
+                },
+                {
+                  "name": "azureFirewallApi",
+                  "type": "Microsoft.Solutions.ArmApiControl",
+                  "condition": "[not(empty(steps('basics').hub.azureFirewall))]",
+                  "request": {
+                    "method": "GET",
+                    "path": "[concat(steps('basics').hub.azureFirewall, '?api-version=2024-03-01')]"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "operations",
+              "label": "Operations Resources",
+              "type": "Microsoft.Common.Section",
+              "elements": [
+                {
+                  "name": "subscription",
+                  "label": "Subscription",
+                  "type": "Microsoft.Common.DropDown",
+                  "defaultValue": "[steps('basics').scope.subscription.displayName]",
+                  "toolTip": "Select the subscription for your Mission Landing Zone Hub network, firewall, and remote access resources.",
+                  "filter": true,
+                  "constraints": {
+                    "allowedValues": "[map(steps('basics').subscriptionsApi.value, (item) => parse(concat('{\"label\":\"', item.displayName, '\",\"value\":\"', item.id, '\",\"description\":\"', 'ID: ', item.subscriptionId, '\"}')))]",
+                    "required": true
+                  }
+                },
+                {
+                  "name": "privateLinkScopesApi",
+                  "type": "Microsoft.Solutions.ArmApiControl",
+                  "condition": "[not(empty(steps('basics').operations.subscription))]",
+                  "request": {
+                    "method": "GET",
+                    "path": "[concat(steps('basics').operations.subscription, '/providers/microsoft.insights/privateLinkScopes?api-version=2021-09-01')]"
+                  }
+                },
+                {
+                  "name": "privateLinkScope",
+                  "type": "Microsoft.Common.DropDown",
+                  "visible": true,
+                  "label": "Private link scope",
+                  "defaultValue": "[first(map(steps('basics').operations.privateLinkScopesApi.value, (item) => item.name))]",
+                  "filter": true,
+                  "toolTip": "Select the existing Azure Monitor Private Link Scope in the Operations subscription.",
+                  "constraints": {
+                    "required": true,
+                    "allowedValues": "[map(steps('basics').operations.privateLinkScopesApi.value, (item) => parse(concat('{\"label\":\"', item.name, '\",\"value\":\"', item.id, '\"}')))]"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "naming",
+              "type": "Microsoft.Common.Section",
+              "label": "Naming Components",
+              "elements": [
+                {
+                  "name": "description",
+                  "type": "Microsoft.Common.TextBlock",
+                  "options": {
+                    "text": "The values selected below will be used as components in your naming convention to name your Azure resource groups and resources.",
+                    "link": {
+                      "label": "Click here for more information on the naming convention used in this solution.",
+                      "uri": "https://github.com/Azure/missionlz/blob/main/src/add-ons/azure-virtual-desktop/docs/design/naming.md"
+                    }
+                  }
+                },
+                {
+                  "name": "identifier",
+                  "type": "Microsoft.Common.TextBox",
+                  "label": "Identifier",
+                  "toolTip": "Input a 3 character identifier for the resource group and resource names created with this solution. The identifier should represent a unique value within your organization, such as a business unit or project.",
+                  "placeholder": "Example: it1",
+                  "constraints": {
+                    "required": true,
+                    "regex": "^[a-z][a-z0-9]{1,2}$",
+                    "validationMessage": "The value must be 1 - 3 characters in length, alphanumeric, and lowercase."
+                  }
+                },
+                {
+                  "name": "environment",
+                  "type": "Microsoft.Common.DropDown",
+                  "visible": true,
+                  "label": "Environment Abbreviation",
+                  "defaultValue": "Development (dev)",
+                  "toolTip": "Select the target environment for the solution. The single letter environment abbreviation will be used as part of the naming convention for the resoure groups and resources.",
+                  "constraints": {
+                    "required": true,
+                    "allowedValues": [
+                      {
+                        "label": "Development (dev)",
+                        "value": "dev"
+                      },
+                      {
+                        "label": "Production (prod)",
+                        "value": "prod"
+                      },
+                      {
+                        "label": "Test (test)",
+                        "value": "test"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "stampIndex",
+                  "type": "Microsoft.Common.Slider",
+                  "label": "Stamp Index",
+                  "defaultValue": 0,
+                  "toolTip": "The stamp index differentiates multiple AVD stamps within the same business unit or project. For example, '0' could be used for an office workers host pool and '1' could be used for a developers host pool.",
+                  "min": 0,
+                  "max": 9,
+                  "showStepMarkers": false,
+                  "constraints": {
+                    "required": true
+                  },
+                  "visible": true
+                }
+              ]
+            },
+            {
+              "name": "scenario",
+              "type": "Microsoft.Common.Section",
+              "visible": true,
+              "label": "AVD Scenario",
+              "elements": [
+                {
+                  "name": "profile",
+                  "type": "Microsoft.Common.DropDown",
+                  "label": "Profile",
+                  "filter": true,
+                  "defaultValue": [
+                    "Generic"
+                  ],
+                  "toolTip": "Select the type of image to deploy on the session hosts.",
+                  "constraints": {
+                    "required": true,
+                    "allowedValues": [
+                      {
+                        "label": "ArcGIS Pro",
+                        "description": "Geospatial data analysis and visualization",
+                        "value": "arcGisPro"
+                      },
+                      {
+                        "label": "Generic",
+                        "description": "Common deployment scenario for office workers, developers, and administrators.",
+                        "value": "generic"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "enablePartnerTelemetry",
+                  "type": "Microsoft.Common.CheckBox",
+                  "label": "Enable Partner Telemetry",
+                  "visible": "[equals(steps('basics').scenario.profile, 'arcGisPro')]",
+                  "toolTip": "Choose whether to enable partner telemetry when deploying ArcGIS Pro.",
+                  "constraints": {
+                    "required": false
+                  }
+                },
+                {
+                  "name": "virtualMachineSkusApi",
+                  "type": "Microsoft.Solutions.ArmApiControl",
+                  "request": {
+                    "method": "GET",
+                    "path": "[concat(steps('basics').scope.subscription.id, '/providers/Microsoft.Compute/skus?api-version=2021-07-01&$filter=location eq ', decodeUriComponent('%27'), steps('basics').scope.location.name, decodeUriComponent('%27'))]"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "servicePrincipalsApi",
+              "type": "Microsoft.Solutions.GraphApiControl",
+              "request": {
+                "method": "GET",
+                "path": "/v1.0/serviceprincipals?$filter=appId eq '9cdead84-a844-4324-93f2-b2e6bb768d07'"
+              }
+            },
+            {
+              "name": "hubVirtualNetworkPeeringsApi",
+              "type": "Microsoft.Solutions.ArmApiControl",
+              "condition": "[not(empty(steps('basics').hub.virtualNetwork))]",
+              "request": {
+                "method": "GET",
+                "path": "[concat(steps('basics').hub.virtualNetwork, '/virtualNetworkPeerings?api-version=2024-01-01')]"
+              }
+            },
+            {
+              "name": "operationsLogAnalyticsWorkspaceApi",
+              "type": "Microsoft.Solutions.ArmApiControl",
+              "condition": "[not(empty(steps('basics').hubVirtualNetworkPeeringsApi))]",
+              "request": {
+                "method": "GET",
+                "path": "[concat('subscriptions/', first(skip(split(first(map(filter(steps('basics').hubVirtualNetworkPeeringsApi.value, (item) => contains(item.properties.remoteVirtualNetwork.id, 'operations')), (item) => item.properties.remoteVirtualNetwork.id)), '/'), 2)), '/resourcegroups/', first(skip(split(first(map(filter(steps('basics').hubVirtualNetworkPeeringsApi.value, (item) => contains(item.properties.remoteVirtualNetwork.id, 'operations')), (item) => item.properties.remoteVirtualNetwork.id)), '/'), 4)), '/providers/Microsoft.OperationalInsights/workspaces?api-version=2023-09-01')]"
+              }
+            },
+            {
+              "name": "sharedServicesSubnetsApi",
+              "type": "Microsoft.Solutions.ArmApiControl",
+              "condition": "[not(empty(steps('basics').hubVirtualNetworkPeeringsApi))]",
+              "request": {
+                "method": "GET",
+                "path": "[concat(first(map(filter(steps('basics').hubVirtualNetworkPeeringsApi.value, (item) => contains(item.properties.remoteVirtualNetwork.id, 'sharedServices')), (item) => item.properties.remoteVirtualNetwork.id)), '/subnets?api-version=2022-05-01')]"
+              }
+            }
+          ]
+        },
+        {
+          "name": "controlPlane",
+          "label": "Control Plane",
+          "elements": [
+            {
+              "name": "startVmOnConnect",
+              "type": "Microsoft.Common.Section",
+              "visible": true,
+              "label": "Start VM On Connect",
+              "elements": [
+                {
+                  "name": "description",
+                  "type": "Microsoft.Common.TextBlock",
+                  "options": {
+                    "text": "Start VM On Connect is a feature of AVD that allows the AVD service to start virtual machines in your host pool when a user requests a session and the host is in a stopped or deallocated state. To configure this feature, you must enter the object ID for the \"Azure Virtual Desktop\" or \"Windows Virtual Desktop\" service principal that can be found in Entra ID.",
+                    "link": {
+                      "label": "Click here to learn more about finding the AVD Object ID.",
+                      "uri": "https://learn.microsoft.com/azure/virtual-desktop/service-principal-assign-roles?tabs=portal#assign-an-azure-rbac-role-to-an-azure-virtual-desktop-service-principal"
+                    }
+                  }
+                },
+                {
+                  "name": "avdObjectId",
+                  "type": "Microsoft.Common.TextBox",
+                  "label": "AVD Object ID",
+                  "toolTip": "Input the object ID for the \"Azure Virtual Desktop\" or \"Windows Virtual Desktop\" service principal.",
+                  "defaultValue": "[first(map(steps('basics').servicePrincipalsApi.value, (item) => item.id))]",
+                  "constraints": {
+                    "required": true,
+                    "regex": "[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}$",
+                    "validationMessage": "The value must be in GUID format."
+                  }
+                }
+              ]
+            },
+            {
+              "name": "hostPool",
+              "type": "Microsoft.Common.Section",
+              "visible": true,
+              "label": "Host Pool",
+              "elements": [
+                {
+                  "name": "avdConfigurationZipFileUri",
+                  "type": "Microsoft.Common.TextBox",
+                  "label": "AVD Configuration Zip File URI",
+                  "visible": "[startsWith(steps('basics').scope.location.name, 'usn')]",
+                  "toolTip": "Input the URI for the AVD Configuration Zip File. This value only needs to be updated in some Azure sovereign clouds.",
+                  "defaultValue": "",
+                  "constraints": {
+                    "required": true,
+                    "regex": "^https:\/\/wvd.*\/galleryartifacts\/Configuration.*\\.zip$",
+                    "validationMessage": "The value must be a valid URI."
+                  }
+                },
+                {
+                  "name": "validation",
+                  "type": "Microsoft.Common.CheckBox",
+                  "label": "Validation environment",
+                  "visible": "[not(equals(steps('basics').scenario.profile, 'arcGisPro'))]",
+                  "toolTip": "Choose whether to deploy the host pool as a validation environment. This allows you test preview features for AVD before they are released to production.",
+                  "constraints": {
+                    "required": false
+                  }
+                },
+                {
+                  "name": "hostPoolType",
+                  "type": "Microsoft.Common.DropDown",
+                  "visible": true,
+                  "label": "Host Pool Type",
+                  "defaultValue": "Pooled",
+                  "multiLine": true,
+                  "toolTip": "",
+                  "constraints": {
+                    "required": true,
+                    "allowedValues": [
+                      {
+                        "label": "Pooled",
+                        "value": "Pooled"
+                      },
+                      {
+                        "label": "Personal",
+                        "value": "Personal"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "workloadType",
+                  "type": "Microsoft.Common.DropDown",
+                  "label": "Workload Type",
+                  "visible": "[or(equals(steps('basics').scenario.profile, 'arcGisPro'), and(equals(steps('basics').scenario.profile, 'generic'), equals(steps('controlPlane').hostPool.hostPoolType, 'Pooled')))]",
+                  "filter": true,
+                  "defaultValue": "[if(equals(steps('basics').scenario.profile, 'arcGisPro'), 'Medium', 'Heavy (2 users per core)')]",
+                  "toolTip": "Select the type of image to deploy on the session hosts.",
+                  "multiLine": true,
+                  "constraints": {
+                    "required": true,
+                    "allowedValues": "[if(equals(steps('basics').scenario.profile, 'arcGisPro'), parse('[{\"label\": \"Light\",\"description\": \"Simple 2-D map visualizations, basic analyses, and reporting.\",\"value\": 6},{\"label\": \"Medium\",\"description\": \"Advanced 2-D or 3-D map visualizations, multi-source data analyses leveraging geoprocessing tools, reporting, and editing.\",\"value\": 4},{\"label\": \"Heavy\",\"description\": \"Complex 2-D or 3-D map visualizations including advanced symbology, analyses with visability and line of site, reporting, and editing.\",\"value\": 3}]'), parse('[{\"label\": \"Light (6 users per core)\",\"description\": \"Basic data entry tasks\",\"value\": \"6.0\"},{\"label\": \"Medium (4 users per core)\",\"description\": \"Consultants and market researchers\",\"value\": \"4.0\"},{\"label\": \"Heavy (2 users per core)\",\"description\": \"Software engineers and content creators\",\"value\": \"2.0\"},{\"label\": \"Power (1 user per core)\",\"description\": \"Graphic designers, 3D model makers, and machine learning researchers\",\"value\": \"1.0\"}]'))]"
+                  }
+                },
+                {
+                  "name": "customRdpProperties",
+                  "type": "Microsoft.Common.TextBox",
+                  "visible": true,
+                  "label": "Custom RDP properties",
+                  "defaultValue": "[if(equals(steps('basics').scenario.profile, 'arcGisPro'), 'use multimon:i:1;drivestoredirect:s:;encode redirected video capture:i:1;redirected video capture encoding quality:i:2;audiomode:i:0;devicestoredirect:s:;redirectclipboard:i:0;redirectcomports:i:0;redirectlocation:i:1;redirectprinters:i:0;redirectsmartcards:i:1;redirectwebauthn:i:1;usbdevicestoredirect:s:;keyboardhook:i:2;', 'audiocapturemode:i:1;camerastoredirect:s:*;use multimon:i:0;drivestoredirect:s:;encode redirected video capture:i:1;redirected video capture encoding quality:i:1;audiomode:i:0;devicestoredirect:s:;redirectclipboard:i:0;redirectcomports:i:0;redirectlocation:i:1;redirectprinters:i:0;redirectsmartcards:i:1;redirectwebauthn:i:1;usbdevicestoredirect:s:;keyboardhook:i:2;')]",
+                  "toolTip": "Specify the configuration for the RDP properties on the AVD host pool.",
+                  "constraints": {
+                    "required": true
+                  }
+                },
+                {
+                  "name": "publicNetworkAccess",
+                  "type": "Microsoft.Common.DropDown",
+                  "visible": true,
+                  "label": "Public network access",
+                  "defaultValue": "Enabled",
+                  "multiLine": true,
+                  "toolTip": "Enabled: allows the host pool to be accessed from both public and private networks. Disabled: allows the host pool to only be accessed via private endpoints.",
+                  "constraints": {
+                    "required": true,
+                    "allowedValues": [
+                      {
+                        "label": "Disabled",
+                        "value": "Disabled"
+                      },
+                      {
+                        "label": "Enabled",
+                        "value": "Enabled"
+                      },
+                      {
+                        "label": "Enabled For Clients Only",
+                        "value": "EnabledForClientsOnly"
+                      },
+                      {
+                        "label": "Enabled For Session Hosts Only",
+                        "value": "EnabledForSessionHostsOnly"
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "workspacesApi",
+              "type": "Microsoft.Solutions.ArmApiControl",
+              "request": {
+                "method": "GET",
+                "path": "[concat(steps('basics').scope.subscription.id, '/providers/Microsoft.DesktopVirtualization/workspaces?api-version=2022-02-10-preview')]"
+              }
+            },
+            {
+              "name": "workspace",
+              "type": "Microsoft.Common.Section",
+              "visible": "[empty(first(filter(steps('controlPlane').workspacesApi.value, (item) => and(contains(item.name, steps('basics').naming.identifier), contains(item.name, 'feed'), contains(item.name, steps('basics').naming.environment), equals(item.location, steps('basics').hub.azureFirewallApi.location)))))]",
+              "label": "Workspace",
+              "elements": [
+                {
+                  "name": "publicNetworkAccess",
+                  "type": "Microsoft.Common.DropDown",
+                  "visible": true,
+                  "label": "Public network access (feed)",
+                  "defaultValue": "Enabled",
+                  "multiLine": true,
+                  "toolTip": "Enabled: allows the host pool to be accessed from both public and private networks. Disabled: allows the host pool to only be accessed via private endpoints.",
+                  "constraints": {
+                    "required": true,
+                    "allowedValues": [
+                      {
+                        "label": "Disabled",
+                        "value": "Disabled"
+                      },
+                      {
+                        "label": "Enabled",
+                        "value": "Enabled"
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "assignment",
+              "type": "Microsoft.Common.Section",
+              "label": "Assignment",
+              "visible": true,
+              "elements": [
+                {
+                  "name": "description",
+                  "type": "Microsoft.Common.TextBlock",
+                  "visible": true,
+                  "options": {
+                    "text": "To access Azure Virtual Desktop, your end users will need to be assigned to the Desktop Applicaiton Group and if applicable, be given permissions on the storage service for FSLogix. Select the desired security groups below to give access to this AVD stamp. If deploying FSLogix, storage will be deployed for each group to support sharding. Be sure your groups are sized appropriately for each shard.",
+                    "link": {
+                      "label": "Learn more about FSLogix storage options for sizing your groups.",
+                      "uri": "https://learn.microsoft.com/azure/virtual-desktop/store-fslogix-profile"
+                    }
+                  }
+                },
+                {
+                  "name": "groupPickerBlade",
+                  "type": "Microsoft.Solutions.BladeInvokeControl",
+                  "openBladeStatus": "[steps('controlPlane').assignment.groupSelector.changing]",
+                  "bladeReference": {
+                    "name": "ObjectPickerBlade",
+                    "extension": "Microsoft_AAD_IAM",
+                    "parameters": {
+                      "queries": 32,
+                      "disablers": 4,
+                      "bladeSubtitle": "Pick the groups to assign",
+                      "additionalQueriesOnSearch": 0,
+                      "advancedQueryOptions": {
+                        "suggestedObjectsOptions": {}
+                      },
+                      "selectionMaximum": 100,
+                      "selectionMinimum": 1,
+                      "bladeTitle": "Select Groups",
+                      "informationHeader": {
+                        "informationText": "Select the groups that require access to the AVD stamp",
+                        "informationLink": ""
+                      },
+                      "inviteEnabled": true,
+                      "searchBoxLabel": "Search for a group",
+                      "searchBoxPlaceHolderText": "Enter a string in the group name",
+                      "searchBoxTooltip": "This is the tooltip",
+                      "searchGridNoRowsMessage": "No groups found",
+                      "selectButtonText": "Select Groups",
+                      "selectedGridLabel": "Selected Groups",
+                      "selectedGridNoRowsMessage": "You must select at least one group"
+                    },
+                    "inFullScreen": false
+                  },
+                  "transforms": {
+                    "selection": "selectedObjects|[*].{displayName:displayName, objectId:id}"
+                  }
+                },
+                {
+                  "name": "groupSelector",
+                  "type": "Microsoft.Common.Selector",
+                  "label": "Select Groups",
+                  "keyPath": "displayName",
+                  "descriptionKeyPath": "id",
+                  "value": "[steps('controlPlane').assignment.groupPickerBlade.transformed.selection]",
+                  "visible": true,
+                  "barColor": "[if(empty(steps('controlPlane').assignment.groupPickerBlade), '#FF0000', '#7fba00')]",
+                  "constraints": {
+                    "required": true
+                  },
+                  "link": "[if(empty(steps('controlPlane').assignment.groupPickerBlade), 'Select groups', 'Re-select groups')]"
+                },
+                {
+                  "name": "groupOutput",
+                  "type": "Microsoft.Common.InfoBox",
+                  "visible": "[not(empty(steps('controlPlane').assignment.groupSelector.value))]",
+                  "options": {
+                    "style": "None",
+                    "text": "[replace(replace(replace(replace(string(map(steps('controlPlane').assignment.groupSelector.value, (item) => item.displayName)), '[', ''), ']', ''), '\"', ''), ',', ', ')]"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "friendlyNames",
+              "type": "Microsoft.Common.Section",
+              "label": "Friendly Names for AVD Client",
+              "visible": true,
+              "elements": [
+                {
+                  "name": "custom",
+                  "type": "Microsoft.Common.CheckBox",
+                  "visible": true,
+                  "label": "Custom friendly names?",
+                  "defaultValue": false,
+                  "toolTip": "Choose whether to add custom names to the AVD feed workspace and the desktop for the AVD client."
+                },
+                {
+                  "name": "feedWorkspace",
+                  "type": "Microsoft.Common.TextBox",
+                  "label": "Feed Workspace",
+                  "defaultValue": "",
+                  "placeholder": "Example: Information Technology",
+                  "toolTip": "Input the friendly name for the AVD workspace that will be displayed in the end user's client. This value should apply to all the stamp indexes within the same identifier and would mostly likely represent your business unit or project.",
+                  "visible": "[and(steps('controlPlane').friendlyNames.custom, empty(first(filter(steps('controlPlane').workspacesApi.value, (item) => and(contains(item.name, steps('basics').naming.identifier), contains(item.name, 'feed'), contains(item.name, steps('basics').naming.environment), equals(item.location, steps('basics').hub.azureFirewallApi.location))))))]",
+                  "constraints": {
+                    "required": false,
+                    "regex": "^.{1,64}$",
+                    "validationMessage": "The value must be between 1 and 64 characters in length."
+                  }
+                },
+                {
+                  "name": "sessionDesktop",
+                  "type": "Microsoft.Common.TextBox",
+                  "label": "Desktop",
+                  "defaultValue": "",
+                  "placeholder": "Example: Help Desk",
+                  "toolTip": "Input the friendly name for the AVD Session Desktop application that will be displayed in the end user's client. This value should represent the workload (eg., Help Desk, Development, or Administration) that will be supported on the host pool.",
+                  "visible": "[steps('controlPlane').friendlyNames.custom]",
+                  "constraints": {
+                    "required": false,
+                    "regex": "^.{1,64}$",
+                    "validationMessage": "The value must be between 1 and 64 characters in length."
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "hosts",
+          "label": "Session Hosts",
+          "elements": [
+            {
+              "name": "image",
+              "type": "Microsoft.Common.Section",
+              "visible": true,
+              "label": "Image",
+              "elements": [
+                {
+                  "name": "source",
+                  "type": "Microsoft.Common.DropDown",
+                  "label": "Image Source",
+                  "filter": true,
+                  "defaultValue": "Marketplace",
+                  "toolTip": "Select the type of image to deploy on the session hosts.",
+                  "constraints": {
+                    "required": true,
+                    "allowedValues": [
+                      {
+                        "label": "Marketplace",
+                        "value": "marketplace"
+                      },
+                      {
+                        "label": "Compute Gallery",
+                        "value": "gallery"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "offer",
+                  "type": "Microsoft.Common.DropDown",
+                  "label": "Offer",
+                  "defaultValue": "[if(equals(steps('basics').scenario.profile, 'generic'), 'Windows 11', 'ArcGIS Pro')]",
+                  "toolTip": "Select the desired marketplace image offer.",
+                  "constraints": {
+                    "allowedValues": "[if(equals(steps('basics').scenario.profile, 'generic'), parse('[{\"label\": \"Office 365\",\"value\": \"office-365\"},{\"label\": \"Windows 10\",\"value\": \"Windows-10\"},{\"label\": \"Windows 11\",\"value\": \"windows-11\"}]'), parse('[{\"label\": \"ArcGIS Pro\",\"value\": \"pro-byol\"}]'))]",
+                    "required": true
+                  },
+                  "visible": "[equals(steps('hosts').image.source, 'marketplace')]"
+                },
+                {
+                  "name": "skuApi",
+                  "type": "Microsoft.Solutions.ArmApiControl",
+                  "condition": "[not(empty(steps('hosts').image.offer))]",
+                  "request": {
+                    "method": "GET",
+                    "path": "[concat(steps('basics').scope.subscription.id, '/providers/Microsoft.Compute/locations/', steps('basics').scope.location.name, '/publishers/', if(equals(steps('basics').scenario.profile, 'generic'), 'MicrosoftWindowsDesktop', 'esri'), '/artifacttypes/vmimage/offers/', steps('hosts').image.offer, '/skus?api-version=2022-08-01')]",
+                    "transforms": {
+                      "list": "sort_by(@, &name)[?ends_with(name, '-avd') || ends_with(name, '-ent') || contains(name, '-avd-') || starts_with(name, 'pro-byol-')].{label:name, value:name}"
+                    }
+                  }
+                },
+                {
+                  "name": "sku",
+                  "type": "Microsoft.Common.DropDown",
+                  "label": "SKU",
+                  "defaultValue": "[if(and(equals(steps('controlPlane').hostPool.hostPoolType, 'Pooled'), equals(steps('basics').scenario.profile, 'generic'), not(equals(steps('hosts').image.offer, 'office-365'))), last(take(map(steps('hosts').image.skuApi.transformed.list, (item) => item.label), sub(length(steps('hosts').image.skuApi.transformed.list), 1))), last(map(steps('hosts').image.skuApi.transformed.list, (item) => item.label)))]",
+                  "filter": true,
+                  "toolTip": "Select the desired marketplace image SKU.",
+                  "constraints": {
+                    "allowedValues": "[steps('hosts').image.skuApi.transformed.list]",
+                    "required": true
+                  },
+                  "visible": "[equals(steps('hosts').image.source, 'marketplace')]"
+                },
+                {
+                  "name": "galleryImage",
+                  "type": "Microsoft.Solutions.ResourceSelector",
+                  "visible": "[equals(steps('hosts').image.source, 'gallery')]",
+                  "label": "Image",
+                  "resourceType": "Microsoft.Compute/galleries/images",
+                  "constraints": {
+                    "required": true
+                  }
+                },
+                {
+                  "name": "versionsApi",
+                  "type": "Microsoft.Solutions.ArmApiControl",
+                  "condition": "[not(empty(steps('hosts').image.galleryImage))]",
+                  "request": {
+                    "method": "GET",
+                    "path": "[concat(steps('hosts').image.galleryImage.id, '/versions?api-version=2023-07-03')]"
+                  }
+                },
+                {
+                  "name": "version",
+                  "type": "Microsoft.Common.DropDown",
+                  "label": "Version",
+                  "defaultValue": "[first(map(steps('hosts').image.versionsApi.value, (item) => item.name))]",
+                  "filter": true,
+                  "toolTip": "Select the desired gallery image version.",
+                  "constraints": {
+                    "allowedValues": "[map(steps('hosts').image.versionsApi.value, (item) => parse(concat('{\"label\":\"', item.name, '\",\"value\":\"', item.id, '\"}')))]",
+                    "required": true
+                  },
+                  "visible": "[equals(steps('hosts').image.source, 'gallery')]"
+                }
+              ]
+            },
+            {
+              "name": "virtualMachines",
+              "type": "Microsoft.Common.Section",
+              "visible": true,
+              "label": "Virtual Machines",
+              "elements": [
+                {
+                  "name": "locationsApi",
+                  "type": "Microsoft.Solutions.ArmApiControl",
+                  "request": {
+                    "method": "GET",
+                    "path": "[concat(steps('basics').scope.subscription.id, '/locations?api-version=2022-12-01')]"
+                  }
+                },
+                {
+                  "name": "availability",
+                  "type": "Microsoft.Common.DropDown",
+                  "label": "Availability Options",
+                  "filter": true,
+                  "defaultValue": "[if(equals(length(first(map(filter(steps('hosts').virtualMachines.locationsApi.value, (item) => equals(item.name, steps('basics').scope.location.name)), (item) => item.availabilityZoneMappings))), -1), 'Availability Sets', 'Availability Zones')]",
+                  "toolTip": "Select the redundancy / resiliency for the virtual machines.",
+                  "constraints": {
+                    "required": true,
+                    "allowedValues": "[if(equals(length(first(map(filter(steps('hosts').virtualMachines.locationsApi.value, (item) => equals(item.name, steps('basics').scope.location.name)), (item) => item.availabilityZoneMappings))), -1), parse('[{\"label\":\"Availability Sets\",\"value\":\"AvailabilitySets\"},{\"label\":\"No infrastructure redundancy required\",\"value\": \"None\"}]'), parse('[{\"label\":\"Availability Sets\",\"value\":\"AvailabilitySets\"},{\"label\":\"Availability Zones\",\"value\":\"AvailabilityZones\"},{\"label\":\"No infrastructure redundancy required\",\"value\": \"None\"}]'))]"
+                  }
+                },
+                {
+                  "name": "count",
+                  "type": "Microsoft.Common.Slider",
+                  "label": "Count",
+                  "defaultValue": 1,
+                  "toolTip": "Select the number of virtual machines to deploy in your AVD host pool.",
+                  "min": 1,
+                  "max": 4999,
+                  "showStepMarkers": true,
+                  "constraints": {
+                    "required": true
+                  },
+                  "visible": true
+                },
+                {
+                  "name": "diskSku",
+                  "type": "Microsoft.Common.DropDown",
+                  "label": "OS Disk SKU",
+                  "filter": true,
+                  "defaultValue": "Premium_LRS (Recommended)",
+                  "toolTip": "Select the disk SKU for the operating system disk.",
+                  "constraints": {
+                    "required": true,
+                    "allowedValues": [
+                      {
+                        "label": "Premium_LRS (Recommended)",
+                        "value": "Premium_LRS"
+                      },
+                      {
+                        "label": "Standard_LRS",
+                        "value": "Standard_LRS"
+                      },
+                      {
+                        "label": "StandardSSD_LRS",
+                        "value": "StandardSSD_LRS"
+                      }
+                    ]
+                  },
+                  "visible": "[not(equals(steps('basics').scenario.profile, 'arcGisPro'))]"
+                },
+                {
+                  "name": "sizeGeneric",
+                  "type": "Microsoft.Compute.SizeSelector",
+                  "label": "Size",
+                  "toolTip": "Select the size of the virtual machines. Multi-session hosts should have 4 - 24 vCPUs. Single session host should have 2 or more vCPUs.",
+                  "recommendedSizes": [
+                    "Standard_D4ads_v5"
+                  ],
+                  "constraints": {
+                    "allowedSizes": [],
+                    "numAvailabilityZonesRequired": "[if(equals(steps('hosts').virtualMachines.availability, 'AvailabilityZones'), 3, 1)]"
+                  },
+                  "options": {
+                    "hideDiskTypeFilter": "[if(equals(steps('hosts').virtualMachines.diskSku, 'Premium_LRS'), true, false)]"
+                  },
+                  "osPlatform": "Windows",
+                  "count": "[steps('hosts').virtualMachines.count]",
+                  "visible": "[equals(steps('basics').scenario.profile, 'generic')]"
+                },
+                {
+                  "name": "resourceSkusApi",
+                  "type": "Microsoft.Solutions.ArmApiControl",
+                  "request": {
+                    "method": "GET",
+                    "path": "[concat(steps('basics').scope.subscription.id, '/providers/Microsoft.Compute/skus?api-version=2021-07-01&$filter=location eq ', decodeUriComponent('%27'), steps('basics').scope.location.name, decodeUriComponent('%27'))]"
+                  }
+                },
+                {
+                  "name": "sizeGenericQuotaWarning",
+                  "type": "Microsoft.Common.InfoBox",
+                  "visible": "[equals(steps('basics').scenario.profile, 'generic')]",
+                  "options": {
+                    "style": "Warning",
+                    "text": "[concat('Please ensure you have sufficient quota to deploy the selected virtual machine size and count for the following virtual machine family: <br><br><b>', replace(replace(replace(first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, steps('hosts').virtualMachines.sizeGeneric)), (item) => item.family)), 'standard', 'Standard '), 'Family', ' Family vCPUs'), '  ', ' '), '</b>')]"
+                  }
+                },
+                {
+                  "name": "sizeArcGisProSingleLight",
+                  "type": "Microsoft.Compute.SizeSelector",
+                  "label": "Size",
+                  "toolTip": "Select the size of the virtual machines. Single session hosts should have 2 or more vCPUs.",
+                  "recommendedSizes": [
+                    "Standard_NV4as_v4",
+                    "Standard_NV8as_v4"
+                  ],
+                  "constraints": {
+                    "allowedSizes": [
+                      "Standard_NV4as_v4",
+                      "Standard_NV8as_v4"
+                    ],
+                    "numAvailabilityZonesRequired": "[if(equals(steps('hosts').virtualMachines.availability, 'AvailabilityZones'), 3, 1)]"
+                  },
+                  "options": {
+                    "hideDiskTypeFilter": "[if(equals(steps('hosts').virtualMachines.diskSku, 'Premium_LRS'), true, false)]"
+                  },
+                  "osPlatform": "Windows",
+                  "count": "[steps('hosts').virtualMachines.count]",
+                  "visible": "[and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 6))]"
+                },
+                {
+                  "name": "sizeArcGisProSingleLightQuotaWarning",
+                  "type": "Microsoft.Common.InfoBox",
+                  "visible": "[and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 6))]",
+                  "options": {
+                    "style": "Warning",
+                    "text": "[concat('Please ensure you have sufficient quota to deploy the selected virtual machine size and count for the following virtual machine family: <br><br><b>', replace(replace(replace(first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, steps('hosts').virtualMachines.sizeArcGisProSingleLight)), (item) => item.family)), 'standard', 'Standard '), 'Family', ' Family vCPUs'), '  ', ' '), '</b>')]"
+                  }
+                },
+                {
+                  "name": "sizeArcGisProSingleMedium",
+                  "type": "Microsoft.Compute.SizeSelector",
+                  "label": "Size",
+                  "toolTip": "Select the size of the virtual machines. Single session hosts should have 2 or more vCPUs.",
+                  "recommendedSizes": [
+                    "Standard_NC4as_T4_v3",
+                    "Standard_NC8as_T4_v3",
+                    "Standard_NV6ads_A10_v5",
+                    "Standard_NV16as_v4"
+                  ],
+                  "constraints": {
+                    "allowedSizes": [
+                      "Standard_NC4as_T4_v3",
+                      "Standard_NC8as_T4_v3",
+                      "Standard_NV6ads_A10_v5",
+                      "Standard_NV12s_v3",
+                      "Standard_NV16as_v4"
+                    ],
+                    "numAvailabilityZonesRequired": "[if(equals(steps('hosts').virtualMachines.availability, 'AvailabilityZones'), 3, 1)]"
+                  },
+                  "options": {
+                    "hideDiskTypeFilter": "[if(equals(steps('hosts').virtualMachines.diskSku, 'Premium_LRS'), true, false)]"
+                  },
+                  "osPlatform": "Windows",
+                  "count": "[steps('hosts').virtualMachines.count]",
+                  "visible": "[and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 4))]"
+                },
+                {
+                  "name": "sizeArcGisProSingleMediumQuotaWarning",
+                  "type": "Microsoft.Common.InfoBox",
+                  "visible": "[and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 4))]",
+                  "options": {
+                    "style": "Warning",
+                    "text": "[concat('Please ensure you have sufficient quota to deploy the selected virtual machine size and count for the following virtual machine family: <br><br><b>', replace(replace(replace(first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, steps('hosts').virtualMachines.sizeArcGisProSingleMedium)), (item) => item.family)), 'standard', 'Standard '), 'Family', ' Family vCPUs'), '  ', ' '), '</b>')]"
+                  }
+                },
+                {
+                  "name": "sizeArcGisProSingleHeavy",
+                  "type": "Microsoft.Compute.SizeSelector",
+                  "label": "Size",
+                  "toolTip": "Select the size of the virtual machines. Single session hosts should have 2 or more vCPUs.",
+                  "recommendedSizes": [
+                    "Standard_NC16as_T4_v3",
+                    "Standard_NV12ads_A10_v5",
+                    "Standard_NV18ads_A10_v5"
+                  ],
+                  "constraints": {
+                    "allowedSizes": [
+                      "Standard_NC16as_T4_v3",
+                      "Standard_NV12ads_A10_v5",
+                      "Standard_NV18ads_A10_v5",
+                      "Standard_NV24s_v3"
+                    ],
+                    "numAvailabilityZonesRequired": "[if(equals(steps('hosts').virtualMachines.availability, 'AvailabilityZones'), 3, 1)]"
+                  },
+                  "options": {
+                    "hideDiskTypeFilter": "[if(equals(steps('hosts').virtualMachines.diskSku, 'Premium_LRS'), true, false)]"
+                  },
+                  "osPlatform": "Windows",
+                  "count": "[steps('hosts').virtualMachines.count]",
+                  "visible": "[and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 3))]"
+                },
+                {
+                  "name": "sizeArcGisProSingleHeavyQuotaWarning",
+                  "type": "Microsoft.Common.InfoBox",
+                  "visible": "[and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 3))]",
+                  "options": {
+                    "style": "Warning",
+                    "text": "[concat('Please ensure you have sufficient quota to deploy the selected virtual machine size and count for the following virtual machine family: <br><br><b>', replace(replace(replace(first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, steps('hosts').virtualMachines.sizeArcGisProSingleHeavy)), (item) => item.family)), 'standard', 'Standard '), 'Family', ' Family vCPUs'), '  ', ' '), '</b>')]"
+                  }
+                },
+                {
+                  "name": "sizeArcGisProMulti",
+                  "type": "Microsoft.Compute.SizeSelector",
+                  "label": "Size",
+                  "toolTip": "Select the size of the virtual machines. Multi-session hosts should have 4 - 24 vCPUs.",
+                  "recommendedSizes": [
+                    "Standard_NC16as_T4_v3"
+                  ],
+                  "constraints": {
+                    "allowedSizes": [
+                      "Standard_NC16as_T4_v3",
+                      "Standard_NV12s_v3",
+                      "Standard_NV18ads_A10_v5",
+                      "Standard_NV24s_v3",
+                      "Standard_NV32as_v4"
+                    ],
+                    "numAvailabilityZonesRequired": "[if(equals(steps('hosts').virtualMachines.availability, 'AvailabilityZones'), 3, 1)]"
+                  },
+                  "options": {
+                    "hideDiskTypeFilter": "[if(equals(steps('hosts').virtualMachines.diskSku, 'Premium_LRS'), true, false)]"
+                  },
+                  "osPlatform": "Windows",
+                  "count": "[steps('hosts').virtualMachines.count]",
+                  "visible": "[and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Pooled'))]"
+                },
+                {
+                  "name": "sizeArcGisProMultiQuotaWarning",
+                  "type": "Microsoft.Common.InfoBox",
+                  "visible": "[and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Pooled'))]",
+                  "options": {
+                    "style": "Warning",
+                    "text": "[concat('Please ensure you have sufficient quota to deploy the selected virtual machine size and count for the following virtual machine family: <br><br><b>', replace(replace(replace(first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, steps('hosts').virtualMachines.sizeArcGisProMulti)), (item) => item.family)), 'standard', 'Standard '), 'Family', ' Family vCPUs'), '  ', ' '), '</b>')]"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "identity",
+              "type": "Microsoft.Common.Section",
+              "label": "Identity",
+              "visible": true,
+              "elements": [
+                {
+                  "name": "solution",
+                  "type": "Microsoft.Common.OptionsGroup",
+                  "visible": true,
+                  "label": "Active Directory Solution",
+                  "defaultValue": "Active Directory Domain Services (ADDS)",
+                  "toolTip": "Choose the Active Directory solution that already exists.",
+                  "constraints": {
+                    "required": true,
+                    "allowedValues": [
+                      {
+                        "label": "Active Directory Domain Services (ADDS)",
+                        "value": "ActiveDirectoryDomainServices"
+                      },
+                      {
+                        "label": "Microsoft Entra ID",
+                        "value": "MicrosoftEntraId"
+                      },
+                      {
+                        "label": "Microsoft Entra Domain Services",
+                        "value": "MicrosoftEntraDomainServices"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "intune",
+                  "type": "Microsoft.Common.OptionsGroup",
+                  "visible": "[equals(steps('hosts').identity.solution, 'MicrosoftEntraId')]",
+                  "label": "Intune Enrollment",
+                  "defaultValue": "No",
+                  "toolTip": "If Intune is configured in your Azure AD tenant, you can choose to have the VM automatically enrolled during the deployment by selecting Yes.",
+                  "constraints": {
+                    "required": false,
+                    "allowedValues": [
+                      {
+                        "label": "Yes",
+                        "value": true
+                      },
+                      {
+                        "label": "No",
+                        "value": false
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "domainName",
+                  "type": "Microsoft.Common.TextBox",
+                  "visible": "[not(equals(steps('hosts').identity.solution, 'MicrosoftEntraId'))]",
+                  "label": "Domain Name",
+                  "toolTip": "Provide domain name for the selected Active Directory solution.",
+                  "placeholder": "Example: contoso.com",
+                  "constraints": {
+                    "required": true
+                  }
+                },
+                {
+                  "name": "ouPath",
+                  "type": "Microsoft.Common.TextBox",
+                  "visible": "[not(equals(steps('hosts').identity.solution, 'MicrosoftEntraId'))]",
+                  "label": "OU Path",
+                  "toolTip": "Input the distinguished name of the desired organization unit for the AVD session hosts.",
+                  "defaultValue": "",
+                  "placeholder": "Example: OU=pooled,OU=avd,DC=contoso,DC=com",
+                  "constraints": {
+                    "required": false
+                  }
+                }
+              ]
+            },
+            {
+              "name": "domainJoinCredentials",
+              "type": "Microsoft.Common.Section",
+              "label": "Domain Join Credentials",
+              "visible": "[not(equals(steps('hosts').identity.solution, 'MicrosoftEntraId'))]",
+              "elements": [
+                {
+                  "name": "domainUserPrincipalName",
+                  "type": "Microsoft.Common.TextBox",
+                  "label": "User Principal Name",
+                  "toolTip": "Enter the user principal name with domain join privileges.",
+                  "placeholder": "Example: xadmin@contoso.com",
+                  "constraints": {
+                    "required": true,
+                    "regex": "^[a-z0-9A-Z_.-]+@(?:[a-z0-9]+\\.)+[a-z]+$",
+                    "validationMessage": "The value must be a valid user principal name."
+                  }
+                },
+                {
+                  "name": "domainPassword",
+                  "type": "Microsoft.Common.PasswordBox",
+                  "label": {
+                    "password": "Password"
+                  },
+                  "toolTip": "Enter a password that is alphanumeric, contains at least 12 characters, 1 letter, 1 number and 1 special character.",
+                  "constraints": {
+                    "required": true
+                  },
+                  "options": {
+                    "hideConfirmation": true
+                  }
+                }
+              ]
+            },
+            {
+              "name": "localAdminCredentials",
+              "type": "Microsoft.Common.Section",
+              "visible": true,
+              "label": "Local Administrator Credential",
+              "elements": [
+                {
+                  "name": "localAdminUsername",
+                  "type": "Microsoft.Common.TextBox",
+                  "label": "Username",
+                  "defaultValue": "",
+                  "placeholder": "Example: xadmin",
+                  "toolTip": "Input the username for the local administrator account.",
+                  "constraints": {
+                    "required": true,
+                    "regex": "",
+                    "validationMessage": ""
+                  },
+                  "visible": true
+                },
+                {
+                  "name": "localAdminPassword",
+                  "type": "Microsoft.Common.PasswordBox",
+                  "label": {
+                    "password": "Password",
+                    "confirmPassword": "Confirm Password"
+                  },
+                  "toolTip": "Input the password for the local administrator account.",
+                  "constraints": {
+                    "required": true,
+                    "regex": "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=_!*<>()])(?=\\S+$).{12,123}$",
+                    "validationMessage": "The value must be within 12 to 123 characters, be alphanumeric, and include 1 lower case character, 1 upper case character, 1 number, and 1 special character that is not '\\' or '-'."
+                  },
+                  "options": {
+                    "hideConfirmation": false
+                  },
+                  "visible": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "profiles",
+          "label": "User Profiles",
+          "elements": [
+            {
+              "name": "entraSupportInfoBox",
+              "type": "Microsoft.Common.InfoBox",
+              "visible": "[equals(steps('hosts').identity.solution, 'MicrosoftEntraId')]",
+              "options": {
+                "style": "Info",
+                "text": "Only local profiles may be selected with Entra joined session hosts due to the security risks."
+              }
+            },
+            {
+              "name": "profileSolution",
+              "type": "Microsoft.Common.DropDown",
+              "label": "Profile Solution",
+              "visible": true,
+              "defaultValue": "Local Profiles",
+              "toolTip": "Select the user profile solution for your end users.",
+              "constraints": {
+                "required": true,
+                "allowedValues": "[if(equals(steps('hosts').identity.solution, 'MicrosoftEntraId'), parse('[{\"label\":\"Local Profiles\",\"value\":\"local\"}]'), parse('[{\"label\":\"Local Profiles\",\"value\":\"local\"},{\"label\":\"FSLogix\",\"value\":\"fslogix\"}]'))]"
+              }
+            },
+            {
+              "name": "storage",
+              "type": "Microsoft.Common.Section",
+              "label": "Profile Storage",
+              "visible": "[equals(steps('profiles').profileSolution, 'fslogix')]",
+              "elements": [
+                {
+                  "name": "service",
+                  "type": "Microsoft.Common.DropDown",
+                  "visible": true,
+                  "label": "Service",
+                  "defaultValue": "[if(equals(steps('basics').scenario.profile, 'arcGisPro'), 'Azure NetApp Files Premium (450K IOPS)', 'Azure Files Premium (100K IOPS)')]",
+                  "toolTip": "Select the Azure storage service for the user profiles.",
+                  "constraints": {
+                    "required": true,
+                    "allowedValues": "[if(equals(steps('hosts').identity.solution, 'MicrosoftEntraId'), parse('[{\"label\":\"Azure Files Premium (100K IOPS)\",\"value\":\"AzureFiles Premium\"},{\"label\":\"Azure Files Standard (20K IOPS)\",\"value\":\"AzureFiles Standard\"}]'), parse('[{\"label\":\"Azure Files Premium (100K IOPS)\",\"value\":\"AzureFiles Premium\"},{\"label\":\"Azure Files Standard (20K IOPS)\",\"value\":\"AzureFiles Standard\"},{\"label\":\"Azure NetApp Files Premium (450K IOPS)\",\"value\":\"AzureNetAppFiles Premium\"},{\"label\":\"Azure NetApp Files Standard (320K IOPS)\",\"value\":\"AzureNetAppFiles Standard\"}]'))]"
+                  }
+                },
+                {
+                  "name": "fileShareSize",
+                  "type": "Microsoft.Common.Slider",
+                  "label": "File share size (GB)",
+                  "defaultValue": 100,
+                  "toolTip": "Input the quota size for the SMB file share to support the use of FSLogix.",
+                  "min": 100,
+                  "max": 100000,
+                  "showStepMarkers": false,
+                  "constraints": {
+                    "required": true
+                  },
+                  "visible": "[equals(steps('profiles').profileSolution, 'fslogix')]"
+                },
+                {
+                  "name": "fslogixContainerType",
+                  "type": "Microsoft.Common.DropDown",
+                  "visible": "[equals(steps('profiles').profileSolution, 'fslogix')]",
+                  "label": "FSLogix solution",
+                  "defaultValue": "Profile Container",
+                  "toolTip": "Select the solution for the FSLogix profiles.",
+                  "constraints": {
+                    "required": true,
+                    "allowedValues": [
+                      {
+                        "label": "Cloud Cache, Profile Container",
+                        "value": "CloudCacheProfileContainer"
+                      },
+                      {
+                        "label": "Cloud Cache, Profile & Office Container",
+                        "value": "CloudCacheProfileOfficeContainer"
+                      },
+                      {
+                        "label": "Profile Container",
+                        "value": "ProfileContainer"
+                      },
+                      {
+                        "label": "Profile & Office Container",
+                        "value": "ProfileOfficeContainer"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "management",
+          "label": "Management",
+          "elements": [
+            {
+              "name": "drainMode",
+              "type": "Microsoft.Common.Section",
+              "label": "Drain Mode",
+              "visible": true,
+              "elements": [
+                {
+                  "name": "enableDrainMode",
+                  "type": "Microsoft.Common.CheckBox",
+                  "label": "Enable drain mode?",
+                  "defaultValue": true,
+                  "toolTip": "Enables drain mode on the AVD session hosts so the virtual machines cannot be accessed until they have been validated."
+                }
+              ]
+            },
+            {
+              "name": "scalingPlan",
+              "label": "Scaling Plan",
+              "type": "Microsoft.Common.Section",
+              "visible": true,
+              "elements": [
+                {
+                  "name": "weekdaysPeakStartTime",
+                  "type": "Microsoft.Common.TextBox",
+                  "label": "Weekdays - Peak Start Time",
+                  "visible": true,
+                  "defaultValue": "09:00",
+                  "toolTip": "Input the time when peak hours end for your end users.",
+                  "constraints": {
+                    "required": true,
+                    "validations": [
+                      {
+                        "regex": "^[012][0-9]:[0-5][0-9]$",
+                        "message": "The value must be in a proper time format with a two digit hour and two digit minutes, e.g. 8pm should be input as 20:00."
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "weekdaysOffPeakStartTime",
+                  "type": "Microsoft.Common.TextBox",
+                  "label": "Weekdays - Off Peak Start Time",
+                  "visible": true,
+                  "defaultValue": "17:00",
+                  "toolTip": "Input the time when peak hours begin for your end users during the work week, Monday - Friday.",
+                  "constraints": {
+                    "required": true,
+                    "validations": [
+                      {
+                        "regex": "^[012][0-9]:[0-5][0-9]$",
+                        "message": "The value must be in a proper time format with a two digit hour and two digit minutes, e.g. 12am should be input as 00:00."
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "weekendsPeakStartTime",
+                  "type": "Microsoft.Common.TextBox",
+                  "label": "Weekends - Peak Start Time",
+                  "visible": true,
+                  "defaultValue": "09:00",
+                  "toolTip": "Input the time when peak hours end for your end users.",
+                  "constraints": {
+                    "required": true,
+                    "validations": [
+                      {
+                        "regex": "^[012][0-9]:[0-5][0-9]$",
+                        "message": "The value must be in a proper time format with a two digit hour and two digit minutes, e.g. 8pm should be input as 20:00."
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "weekendsOffPeakStartTime",
+                  "type": "Microsoft.Common.TextBox",
+                  "label": "Weekends - Off Peak Start Time",
+                  "visible": true,
+                  "defaultValue": "17:00",
+                  "toolTip": "Input the time when peak hours begin for your end users during the work week, Monday - Friday.",
+                  "constraints": {
+                    "required": true,
+                    "validations": [
+                      {
+                        "regex": "^[012][0-9]:[0-5][0-9]$",
+                        "message": "The value must be in a proper time format with a two digit hour and two digit minutes, e.g. 12am should be input as 00:00."
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "monitoring",
+              "type": "Microsoft.Common.Section",
+              "label": "Monitoring",
+              "visible": true,
+              "elements": [
+                {
+                  "name": "enableAvdInsights",
+                  "type": "Microsoft.Common.CheckBox",
+                  "visible": true,
+                  "label": "Enable AVD Insights?",
+                  "defaultValue": true,
+                  "toolTip": "Deploy the required resources to enable AVD Insights."
+                },
+                {
+                  "name": "enableApplicationInsights",
+                  "type": "Microsoft.Common.CheckBox",
+                  "visible": "[equals(steps('profiles').storage.service, 'AzureFiles Premium')]",
+                  "label": "Enable Application Insights?",
+                  "defaultValue": true,
+                  "toolTip": "Deploy the required resources to monitor the Auto Increase File Share Solution."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "network",
+          "label": "Networking",
+          "elements": [
+            {
+              "name": "sharedVnet",
+              "label": "AVD Shared Virtual Network",
+              "type": "Microsoft.Common.Section",
+              "visible": true,
+              "elements": [
+                {
+                  "name": "info",
+                  "type": "Microsoft.Common.TextBlock",
+                  "visible": true,
+                  "options": {
+                    "text": "The AVD Shared virtual network is used to host common resources across AVD stamps in the same namespace, e.g. a project, business unit, or department. This virtual network is deployed in the same region as MLZ and is connected to the AVD Stamp virtual network using a VNET peering connection."
+                  }
+                },
+                {
+                  "name": "virtualNetworkAddressCidrRange",
+                  "label": "Virtual network CIDR range",
+                  "type": "Microsoft.Common.TextBox",
+                  "defaultValue": "10.0.139.0/24",
+                  "toolTip": "Specify an address CIDR range within the range [10,26].",
+                  "constraints": {
+                    "required": true,
+                    "validations": [
+                      {
+                        "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(1[0-9]|2[0-4]))$",
+                        "message": "Invalid CIDR range. The address prefix must be in the range [10,24]."
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "subnetAddressCidrRange",
+                  "label": "Subnet CIDR range",
+                  "type": "Microsoft.Common.TextBox",
+                  "visible": true,
+                  "defaultValue": "10.0.139.0/24",
+                  "toolTip": "Specify a CIDR range for the default subnet within the AVD Hosts spoke virtual network range [24,28].",
+                  "constraints": {
+                    "required": true,
+                    "validations": [
+                      {
+                        "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(2[4-8]))$",
+                        "message": "Invalid CIDR range. The address prefix must be in the range [24,28]."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('network').sharedVnet.virtualNetworkAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('network').sharedVnet.virtualNetworkAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('network').sharedVnet.subnetAddressCidrRange, '/')), '.'), 1))), true)]",
+                        "message": "CIDR range not within virtual network CIDR range (first octet)."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('network').sharedVnet.virtualNetworkAddressCidrRange, '/')), 16), equals(last(take(split(first(split(steps('network').sharedVnet.virtualNetworkAddressCidrRange, '/')), '.'), 2)), last(take(split(first(split(steps('network').sharedVnet.subnetAddressCidrRange, '/')), '.'), 2))), true)]",
+                        "message": "CIDR range not within virtual network CIDR range (second octet)."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('network').sharedVnet.virtualNetworkAddressCidrRange, '/')), 24), equals(last(take(split(first(split(steps('network').sharedVnet.virtualNetworkAddressCidrRange, '/')), '.'), 3)), last(take(split(first(split(steps('network').sharedVnet.subnetAddressCidrRange, '/')), '.'), 3))), true)]",
+                        "message": "CIDR range not within virtual network CIDR range (third octet)."
+                      },
+                      {
+                        "isValid": "[lessOrEquals(last(split(steps('network').sharedVnet.virtualNetworkAddressCidrRange, '/')), last(split(steps('network').sharedVnet.subnetAddressCidrRange, '/')))]",
+                        "message": "CIDR range not within virtual network CIDR range (subnet mask)."
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "stampVnet",
+              "label": "AVD Stamp Virtual Network",
+              "type": "Microsoft.Common.Section",
+              "visible": true,
+              "elements": [
+                                {
+                  "name": "info",
+                  "type": "Microsoft.Common.TextBlock",
+                  "visible": true,
+                  "options": {
+                    "text": "The AVD Stamp virtual network is used to host the resources within the specified AVD stamp. This virtual network will be deployed based on the session hosts location and is connected to the AVD Shard virtual network using a VNET peering connection."
+                  }
+                },
+                {
+                  "name": "virtualNetworkAddressCidrRange",
+                  "label": "Virtual network CIDR range",
+                  "type": "Microsoft.Common.TextBox",
+                  "defaultValue": "[concat('10.0.1', string(add(40, mul(2, steps('basics').naming.stampIndex))), '.0/23')]",
+                  "toolTip": "Specify an address CIDR range within the range [10,26].",
+                  "constraints": {
+                    "required": true,
+                    "validations": [
+                      {
+                        "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(1[0-9]|2[0-4]))$",
+                        "message": "Invalid CIDR range. The address prefix must be in the range [10,24]."
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "sessionHostsSubnetAddressCidrRange",
+                  "label": "Session Hosts Subnet CIDR range",
+                  "type": "Microsoft.Common.TextBox",
+                  "visible": true,
+                  "defaultValue": "[concat('10.0.1', string(add(40, mul(2, steps('basics').naming.stampIndex))), '.0/24')]",
+                  "toolTip": "Specify a CIDR range for the default subnet within the AVD Hosts spoke virtual network range [24,28].",
+                  "constraints": {
+                    "required": true,
+                    "validations": [
+                      {
+                        "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(2[4-8]))$",
+                        "message": "Invalid CIDR range. The address prefix must be in the range [24,28]."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('network').stampVnet.sessionHostsSubnetAddressCidrRange, '/')), '.'), 1))), true)]",
+                        "message": "CIDR range not within virtual network CIDR range (first octet)."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), 16), equals(last(take(split(first(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), '.'), 2)), last(take(split(first(split(steps('network').stampVnet.sessionHostsSubnetAddressCidrRange, '/')), '.'), 2))), true)]",
+                        "message": "CIDR range not within virtual network CIDR range (second octet)."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), 24), equals(last(take(split(first(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), '.'), 3)), last(take(split(first(split(steps('network').stampVnet.sessionHostsSubnetAddressCidrRange, '/')), '.'), 3))), true)]",
+                        "message": "CIDR range not within virtual network CIDR range (third octet)."
+                      },
+                      {
+                        "isValid": "[lessOrEquals(last(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), last(split(steps('network').stampVnet.sessionHostsSubnetAddressCidrRange, '/')))]",
+                        "message": "CIDR range not within virtual network CIDR range (subnet mask)."
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "managementSubnetAddressCidrRange",
+                  "label": "Management Subnet CIDR range",
+                  "type": "Microsoft.Common.TextBox",
+                  "defaultValue": "[concat('10.0.1', string(add(41, mul(2, steps('basics').naming.stampIndex))), '.0/26')]",
+                  "toolTip": "Specify a CIDR range for the workload subnet within the AVD spoke virtual network range [24,28].",
+                  "constraints": {
+                    "required": true,
+                    "validations": [
+                      {
+                        "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(2[4-8]))$",
+                        "message": "Invalid CIDR range. The address prefix must be in the range [24,28]."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('network').stampVnet.managementSubnetAddressCidrRange, '/')), '.'), 1))), true)]",
+                        "message": "CIDR range not within virtual network CIDR range (first octet)."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), 16), equals(last(take(split(first(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), '.'), 2)), last(take(split(first(split(steps('network').stampVnet.managementSubnetAddressCidrRange, '/')), '.'), 2))), true)]",
+                        "message": "CIDR range not within virtual network CIDR range (second octet)."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), 24), equals(last(take(split(first(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), '.'), 3)), last(take(split(first(split(steps('network').stampVnet.managementSubnetAddressCidrRange, '/')), '.'), 3))), true)]",
+                        "message": "CIDR range not within virtual network CIDR range (third octet)."
+                      },
+                      {
+                        "isValid": "[lessOrEquals(last(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), last(split(steps('network').stampVnet.managementSubnetAddressCidrRange, '/')))]",
+                        "message": "CIDR range not within virtual network CIDR range (subnet mask)."
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "azureNetAppFilesSubnetAddressCidrRange",
+                  "label": "Azure NetApp Files Subnet CIDR range",
+                  "type": "Microsoft.Common.TextBox",
+                  "visible": "[contains(steps('profiles').storage.service, 'AzureNetAppFiles')]",
+                  "defaultValue": "[concat('10.0.1', string(add(41, mul(2, steps('basics').naming.stampIndex))), '.64/26')]",
+                  "toolTip": "Specify a CIDR range for the Azure NetApp Files subnet within the AVD spoke virtual network range [24,28].",
+                  "constraints": {
+                    "required": true,
+                    "validations": [
+                      {
+                        "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(2[4-8]))$",
+                        "message": "Invalid CIDR range. The address prefix must be in the range [24,28]."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('network').stampVnet.azureNetAppFilesSubnetAddressCidrRange, '/')), '.'), 1))), true)]",
+                        "message": "CIDR range not within virtual network CIDR range (first octet)."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), 16), equals(last(take(split(first(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), '.'), 2)), last(take(split(first(split(steps('network').stampVnet.azureNetAppFilesSubnetAddressCidrRange, '/')), '.'), 2))), true)]",
+                        "message": "CIDR range not within virtual network CIDR range (second octet)."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), 24), equals(last(take(split(first(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), '.'), 3)), last(take(split(first(split(steps('network').stampVnet.azureNetAppFilesSubnetAddressCidrRange, '/')), '.'), 3))), true)]",
+                        "message": "CIDR range not within virtual network CIDR range (third octet)."
+                      },
+                      {
+                        "isValid": "[lessOrEquals(last(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), last(split(steps('network').stampVnet.azureNetAppFilesSubnetAddressCidrRange, '/')))]",
+                        "message": "CIDR range not within virtual network CIDR range (subnet mask)."
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "functionAppSubnetAddressCidrRange",
+                  "label": "Function App Subnet CIDR range",
+                  "type": "Microsoft.Common.TextBox",
+                  "visible": "[equals(steps('profiles').storage.service, 'AzureFiles Premium')]",
+                  "defaultValue": "[concat('10.0.1', string(add(41, mul(2, steps('basics').naming.stampIndex))), '.128/26')]",
+                  "toolTip": "Specify a CIDR range for the Function App subnet within the AVD spoke virtual network range [24,28] for the Scaling Tool and / or the Auto Increase Premium File Share Qutoa tool.",
+                  "constraints": {
+                    "required": true,
+                    "validations": [
+                      {
+                        "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(2[4-8]))$",
+                        "message": "Invalid CIDR range. The address prefix must be in the range [24,28]."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('network').stampVnet.functionAppSubnetAddressCidrRange, '/')), '.'), 1))), true)]",
+                        "message": "CIDR range not within virtual network CIDR range (first octet)."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), 16), equals(last(take(split(first(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), '.'), 2)), last(take(split(first(split(steps('network').stampVnet.functionAppSubnetAddressCidrRange, '/')), '.'), 2))), true)]",
+                        "message": "CIDR range not within virtual network CIDR range (second octet)."
+                      },
+                      {
+                        "isValid": "[if(greaterOrEquals(last(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), 24), equals(last(take(split(first(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), '.'), 3)), last(take(split(first(split(steps('network').stampVnet.functionAppSubnetAddressCidrRange, '/')), '.'), 3))), true)]",
+                        "message": "CIDR range not within virtual network CIDR range (third octet)."
+                      },
+                      {
+                        "isValid": "[lessOrEquals(last(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), last(split(steps('network').stampVnet.functionAppSubnetAddressCidrRange, '/')))]",
+                        "message": "CIDR range not within virtual network CIDR range (subnet mask)."
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "flowLogsSection",
+              "label": "Network Watcher Flow Logs",
+              "type": "Microsoft.Common.Section",
+              "elements": [
+                {
+                  "name": "flowLogsDescription",
+                  "type": "Microsoft.Common.TextBlock",
+                  "options": {
+                    "text": "To support the on-going security and compliance of your landing zone, MLZ configures network watcher flow logs for virtual networks by default. Flow logs capture information about IP traffic flowing through your virtual Networks or network security groups. Flow log data can be used to troubleshoot network connectivity issues, monitor network traffic, and detect and diagnose security threats.",
+                    "link": {
+                      "label": "Click here to learn more about network watcher flow logs",
+                      "uri": "https://learn.microsoft.com/azure/network-watcher/network-watcher-overview#flow-logs"
+                    }
+                  }
+                },
+                {
+                  "name": "flowLogsType",
+                  "label": "Flow Logs Type",
+                  "type": "Microsoft.Common.DropDown",
+                  "defaultValue": "Virtual Network (recommended)",
+                  "toolTip": "Select the type of flow logs to deploy.",
+                  "constraints": {
+                    "allowedValues": [
+                      {
+                        "label": "Virtual Network (recommended)",
+                        "value": "VirtualNetwork"
+                      },
+                      {
+                        "label": "Network Security Group",
+                        "value": "NetworkSecurityGroup"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "nsgFlowLogsRetirementWarning",
+                  "type": "Microsoft.Common.InfoBox",
+                  "visible": "[equals(steps('networking').flowLogsSection.flowLogsType, 'deployNetworkSecurityGroupFlowLogs')]",
+                  "options": {
+                    "style": "Warning",
+                    "text": "NSG flow logs are scheduled for retirement on June 30, 2025. All customers should move to VNet flow logs which offer more logging and visibility. Click here learn more about NSG flow log retirement",
+                    "uri": "https://learn.microsoft.com/azure/network-watcher/nsg-flow-logs-overview"
+                  }
+                },
+                {
+                  "name": "retentionDays",
+                  "label": "Retention Days",
+                  "type": "Microsoft.Common.TextBox",
+                  "defaultValue": "30",
+                  "toolTip": "Enter the number of days to retain the network watcher flow logs. If you want to retain the data forever and do not want to apply any retention policy, set retention (days) to 0.",
+                  "constraints": {
+                    "required": true,
+                    "regex": "^36[0-5]$|^3[0-5][0-9]$|^[1-2][0-9][0-9]$|^[0-9][0-9]$|^[0-9]$",
+                    "message": "The value must be between 0 and 365."
+                  }
+                },
+                {
+                  "name": "deployTrafficAnalytics",
+                  "label": "Enable Traffic Analytics",
+                  "type": "Microsoft.Common.CheckBox",
+                  "defaultValue": false,
+                  "toolTip": "Enable this option to deploy Network Watcher Traffic Analytics."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "compliance",
+          "label": "Compliance",
+          "elements": [
+            {
+              "name": "defenderForCloud",
+              "label": "Defender for Cloud",
+              "type": "Microsoft.Common.Section",
+              "elements": [
+                {
+                  "name": "workspaceSettingsApi",
+                  "type": "Microsoft.Solutions.ArmApiControl",
+                  "request": {
+                    "method": "GET",
+                    "path": "[concat(steps('basics').scope.subscription.id, '/providers/Microsoft.Security/workspaceSettings?api-version=2017-08-01-preview')]"
+                  }
+                },
+                {
+                  "name": "deployDefender",
+                  "type": "Microsoft.Common.CheckBox",
+                  "label": "Enable Defender for Cloud?",
+                  "toolTip": "Check here to to deploy defender for cloud to the target subscription.",
+                  "constraints": {
+                    "required": false
+                  }
+                },
+                {
+                  "name": "emailSecurityContact",
+                  "type": "Microsoft.Common.TextBox",
+                  "label": "Email Address for Security Notifications",
+                  "defaultValue": "",
+                  "toolTip": "Please enter a valid email address for the security team.",
+                  "constraints": {
+                    "required": true,
+                    "regex": "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$",
+                    "validationMessage": "Email is not valid. Please re-enter."
+                  },
+                  "visible": "[steps('compliance').defenderForCloud.deployDefender]"
+                }
+              ]
+            },
+            {
+              "name": "policySection",
+              "label": "Azure Policy",
+              "type": "Microsoft.Common.Section",
+              "elements": [
+                {
+                  "name": "policySubsetDetailsTextBlock",
+                  "type": "Microsoft.Common.TextBlock",
+                  "options": {
+                    "text": "Mission Landing Zone comes bundled with a relevant subset of available Azure policies."
+                  }
+                },
+                {
+                  "name": "policyOptionalTextBlock",
+                  "type": "Microsoft.Common.TextBlock",
+                  "options": {
+                    "text": "Enabling policies is optional, but recommended."
+                  }
+                },
+                {
+                  "name": "deployPolicy",
+                  "type": "Microsoft.Common.CheckBox",
+                  "label": "Deploy policy assignments?",
+                  "toolTip": "Check here to create policy assignments for the resources created by Mission Landing Zone.",
+                  "constraints": {
+                    "required": false
+                  }
+                },
+                {
+                  "name": "policy",
+                  "type": "Microsoft.Common.DropDown",
+                  "label": "Policy Assignment",
+                  "placeholder": "",
+                  "defaultValue": "NIST SP 800-53",
+                  "toolTip": "DoD IL5 is only available in AzureUsGovernment and will switch to NISTRev4 if tried in AzureCloud.",
+                  "multiselect": false,
+                  "selectAll": false,
+                  "filter": true,
+                  "filterPlaceholder": "Filter items ...",
+                  "multiLine": true,
+                  "defaultDescription": "Select one of the bundled built-in policy assignments.",
+                  "constraints": {
+                    "allowedValues": [
+                      {
+                        "label": "NIST SP 800-53 Rev4",
+                        "description": "The US National Institute of Standards and Technology (NIST) publishes a catalog of security and privacy controls, Special Publication (SP) 800-53, for all federal information systems in the United States (except those related to national security).",
+                        "value": "NISTRev4"
+                      },
+                      {
+                        "label": "NIST SP 800-53 Rev5",
+                        "description": "The US National Institute of Standards and Technology (NIST) publishes a catalog of security and privacy controls, Special Publication (SP) 800-53, for all federal information systems in the United States (except those related to national security).",
+                        "value": "NISTRev5"
+                      },
+                      {
+                        "label": "DoD IL5",
+                        "description": "The Defense Information Systems Agency (DISA) is an agency of the US Department of Defense (DoD) that is responsible for developing and maintaining the DoD Cloud Computing Security Requirements Guide (SRG). These policies are only available for AzureUsGovernment and will switch to NISTRev4 if tried in AzureCloud.",
+                        "value": "IL5"
+                      },
+                      {
+                        "label": "CMMC",
+                        "description": "The Cybersecurity Maturity Model Certification (CMMC) is a new framework developed by the US Department of Defense (DoD) that requires formal third-party audits of defense industrial base (DIB) contractor cybersecurity practices.",
+                        "value": "CMMC"
+                      }
+                    ]
+                  },
+                  "visible": "[steps('compliance').policySection.deployPolicy]"
+                }
+              ]
+            },
+            {
+              "name": "logAnalyticsWorkspacesApi",
+              "type": "Microsoft.Solutions.ArmApiControl",
+              "condition": "[not(empty(steps('basics').hubVirtualNetworkPeeringsApi))]",
+              "request": {
+                "method": "GET",
+                "path": "[concat('/subscriptions/', first(skip(split(first(map(filter(steps('basics').hubVirtualNetworkPeeringsApi.value, (item) => contains(item.properties.remoteVirtualNetwork.id, 'operations')), (item) => item.properties.remoteVirtualNetwork.id)), '/'), 2)), '/resourcegroups/', first(skip(split(first(map(filter(steps('basics').hubVirtualNetworkPeeringsApi.value, (item) => contains(item.properties.remoteVirtualNetwork.id, 'operations')), (item) => item.properties.remoteVirtualNetwork.id)), '/'), 4)), '/providers/Microsoft.OperationalInsights/workspaces?api-version=2023-09-01')]"
+              }
+            },
+            {
+              "name": "logAnalyticsWorkspace",
+              "type": "Microsoft.Common.DropDown",
+              "visible": true,
+              "label": "Existing Log Analytics Workspace for Central Logging",
+              "defaultValue": "[first(map(steps('compliance').logAnalyticsWorkspacesApi.value, (item) => item.name))]",
+              "filter": true,
+              "toolTip": "Select the existing Hub Azure firewall.",
+              "constraints": {
+                "required": true,
+                "allowedValues": "[map(steps('compliance').logAnalyticsWorkspacesApi.value, (item) => parse(concat('{\"label\":\"', item.name, '\",\"value\":\"', item.id, '\"}')))]"
+              }
+            },
+            {
+              "name": "diagnosticSettingsApi",
+              "type": "Microsoft.Solutions.ArmApiControl",
+              "request": {
+                "method": "GET",
+                "path": "[concat(steps('basics').scope.subscription.id, '/providers/Microsoft.Insights/diagnosticSettings?api-version=2021-05-01-preview')]"
+              }
+            }
+          ]
+        },
+        {
+          "name": "tags",
+          "label": "Tags",
+          "elements": [
+            {
+              "name": "tags",
+              "type": "Microsoft.Common.TagsByResource",
+              "resources": [
+                "Microsoft.Compute/availabilitySets",
+                "Microsoft.Compute/diskAccesses",
+                "Microsoft.Compute/diskEncryptionSets",
+                "Microsoft.Compute/virtualMachines",
+                "Microsoft.DesktopVirtualization/applicationGroups",
+                "Microsoft.DesktopVirtualization/hostPools",
+                "Microsoft.DesktopVirtualization/scalingPlans",
+                "Microsoft.DesktopVirtualization/workspaces",
+                "Microsoft.Insights/components",
+                "Microsoft.Insights/dataCollectionEndpoints",
+                "Microsoft.Insights/dataCollectionRules",
+                "Microsoft.Insights/privateLinkScopes",
+                "Microsoft.KeyVault/vaults",
+                "Microsoft.ManagedIdentity/userAssignedIdentities",
+                "Microsoft.NetApp/netAppAccounts",
+                "Microsoft.Network/networkInterfaces",
+                "Microsoft.Network/networkSecurityGroups",
+                "Microsoft.Network/privateEndpoints",
+                "Microsoft.Network/routeTables",
+                "Microsoft.Network/virtualNetworks",
+                "Microsoft.OperationalInsights/workspaces",
+                "Microsoft.Resources/resourceGroups",
+                "Microsoft.Storage/storageAccounts",
+                "Microsoft.Web/serverfarms",
+                "Microsoft.Web/sites"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "outputs": {
+      "parameters": {
+        "activeDirectorySolution": "[if(and(equals(steps('hosts').identity.solution, 'MicrosoftEntraId'), steps('hosts').identity.intune), 'MicrosoftEntraIdIntuneEnrollment', steps('hosts').identity.solution)]",
+        "availability": "[steps('hosts').virtualMachines.availability]",
+        "availabilityZones": "[first(map(first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Pooled')), steps('hosts').virtualMachines.sizeArcGisProMulti, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 6)), steps('hosts').virtualMachines.sizeArcGisProSingleLight, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 4)), steps('hosts').virtualMachines.sizeArcGisProSingleMedium, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 3)), steps('hosts').virtualMachines.sizeArcGisProSingleHeavy, steps('hosts').virtualMachines.sizeGeneric)))))), (item) => item.locationInfo)), (item) => item.zones))]",
+        "avdConfigurationZipFileUri": "[if(startsWith(steps('basics').scope.location.name, 'usn'), steps('controlPlane').hostPool.avdConfigurationZipFileUri, '')]",
+        "avdObjectId": "[steps('controlPlane').startVmOnConnect.avdObjectId]",
+        "azureNetAppFilesSubnetAddressPrefix": "[steps('network').stampVnet.azureNetAppFilesSubnetAddressCidrRange]",
+        "customRdpProperty": "[steps('controlPlane').hostPool.customRdpProperties]",
+        "deployActivityLogDiagnosticSetting": "[empty(steps('compliance').diagnosticSettingsApi.value)]",
+        "deployDefender": "[and(steps('compliance').defenderForCloud.deployDefender, empty(steps('compliance').defenderForCloud.workspaceSettingsApi.value))]",
+        "deployNetworkWatcherTrafficAnalytics": "[steps('network').flowLogsSection.deployTrafficAnalytics]",
+        "deployPolicy": "[steps('compliance').policySection.deployPolicy]",
+        "desktopFriendlyName": "[steps('controlPlane').friendlyNames.sessionDesktop]",
+        "diskSku": "[if(equals(steps('basics').scenario.profile, 'arcGisPro'), 'Premium_LRS', steps('hosts').virtualMachines.diskSku)]",
+        "domainJoinPassword": "[steps('hosts').domainJoinCredentials.domainPassword]",
+        "domainJoinUserPrincipalName": "[steps('hosts').domainJoinCredentials.domainUserPrincipalName]",
+        "domainName": "[steps('hosts').identity.domainName]",
+        "drainMode": "[steps('management').drainMode.enableDrainMode]",
+        "emailSecurityContact": "[if(and(steps('compliance').defenderForCloud.deployDefender, empty(steps('compliance').defenderForCloud.workspaceSettingsApi.value)), steps('compliance').defenderForCloud.emailSecurityContact, '')]",
+        "enableAcceleratedNetworking": "[bool(first(map(filter(first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Pooled')), steps('hosts').virtualMachines.sizeArcGisProMulti, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 6)), steps('hosts').virtualMachines.sizeArcGisProSingleLight, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 4)), steps('hosts').virtualMachines.sizeArcGisProSingleMedium, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 3)), steps('hosts').virtualMachines.sizeArcGisProSingleHeavy, steps('hosts').virtualMachines.sizeGeneric)))))), (item) => item.capabilities)), (item) => equals(item.name, 'AcceleratedNetworkingEnabled')), (item) => item.value)))]",
+        "enableApplicationInsights": "[steps('management').monitoring.enableApplicationInsights]",
+        "enableAvdInsights": "[steps('management').monitoring.enableAvdInsights]",
+        "enableTelemetry": "[steps('basics').scenario.enablePartnerTelemetry]",
+        "environmentAbbreviation": "[steps('basics').naming.environment]",
+        "existingFeedWorkspaceResourceId": "[if(empty(steps('controlPlane').workspacesApi.value), '', first(map(filter(steps('controlPlane').workspacesApi.value, (item) => and(contains(item.name, steps('basics').naming.identifier), contains(item.name, 'feed'), contains(item.name, steps('basics').naming.environment), equals(item.location, steps('basics').hub.azureFirewallApi.location))), (item) => item.id)))]",
+        "fslogixShareSizeInGB": "[if(equals(steps('profiles').profileSolution, 'local'), 100, steps('profiles').storage.fileShareSize)]",
+        "fslogixContainerType": "[steps('profiles').storage.fslogixContainerType]",
+        "fslogixStorageService": "[if(equals(steps('profiles').profileSolution, 'local'), 'None', steps('profiles').storage.service)]",
+        "functionAppSubnetAddressPrefix": "[steps('network').stampVnet.functionAppSubnetAddressCidrRange]",
+        "hostPoolPublicNetworkAccess": "[steps('controlPlane').hostPool.publicNetworkAccess]",
+        "hostPoolType": "[steps('controlPlane').hostPool.hostPoolType]",
+        "hubAzureFirewallResourceId": "[steps('basics').hub.azureFirewall]",
+        "hubVirtualNetworkResourceId": "[steps('basics').hub.virtualNetwork]",
+        "identifier": "[steps('basics').naming.identifier]",
+        "imageOffer": "[steps('hosts').image.offer]",
+        "imagePublisher": "[if(equals(steps('basics').scenario.profile, 'generic'), 'MicrosoftWindowsDesktop', 'esri')]",
+        "imageSku": "[steps('hosts').image.sku]",
+        "imageVersionResourceId": "[if(equals(steps('hosts').image.source, 'gallery'), steps('hosts').image.version, '')]",
+        "locationVirtualMachines": "[steps('basics').scope.location.name]",
+        "logAnalyticsWorkspaceRetention": 30,
+        "logAnalyticsWorkspaceSku": "PerGB2018",
+        "managementSubnetAddressPrefix": "[steps('network').stampVnet.managementSubnetAddressCidrRange]",
+        "networkWatcherFlowLogsRetentionDays": "[steps('network').flowLogsSection.retentionDays]",
+        "networkWatcherFlowLogsType": "[steps('network').flowLogsSection.flowLogsType]",
+        "operationsLogAnalyticsWorkspaceResourceId": "[first(map(steps('basics').operationsLogAnalyticsWorkspaceApi.value, (item) => item.id))]",
+        "organizationalUnitPath": "[if(equals(steps('hosts').identity.solution, 'MicrosoftEntraId'), '', steps('hosts').identity.ouPath)]",
+        "policy": "[steps('compliance').policySection.policy]",
+        "privateLinkScopeResourceId": "[steps('basics').operations.privateLinkScope]",
+        "profile": "[steps('basics').scenario.profile]",
+        "scalingWeekdaysOffPeakStartTime": "[steps('management').scalingPlan.weekdaysOffPeakStartTime]",
+        "scalingWeekdaysPeakStartTime": "[steps('management').scalingPlan.weekdaysPeakStartTime]",
+        "scalingWeekendsOffPeakStartTime": "[steps('management').scalingPlan.weekendsOffPeakStartTime]",
+        "scalingWeekendsPeakStartTime": "[steps('management').scalingPlan.weekendsPeakStartTime]",
+        "securityPrincipals": "[steps('controlPlane').assignment.groupPickerBlade.transformed.selection]",
+        "sessionHostCount": "[steps('hosts').virtualMachines.count]",
+        "sessionHostIndex": 0,
+        "sessionHostsSubnetAddressPrefix": "[steps('network').stampVnet.sessionHostsSubnetAddressCidrRange]",
+        "sharedServicesSubnetResourceId": "[first(map(steps('basics').sharedServicesSubnetsApi.value, (item) => item.id))]",
+        "sharedSubnetAddressPrefix": "[steps('network').sharedVnet.subnetAddressCidrRange]",
+        "sharedVirtualNetworkAddressPrefix": "[steps('network').sharedVnet.virtualNetworkAddressCidrRange]",
+        "stampIndex": "[steps('basics').naming.stampIndex]",
+        "stampVirtualNetworkAddressPrefix": "[steps('network').stampVnet.virtualNetworkAddressCidrRange]",
+        "storageCount": "[if(equals(steps('profiles').profileSolution, 'local'), 0, length(steps('controlPlane').assignment.groupPickerBlade.transformed.selection))]",
+        "storageIndex": 0,
+        "tags": "[steps('tags').tags]",
+        "usersPerCore": "[if(equals(steps('controlPlane').hostPool.hostPoolType, 'Pooled'), steps('controlPlane').hostPool.workloadType, 1)]",
+        "validationEnvironment": "[steps('controlPlane').hostPool.validation]",
+        "virtualMachineAdminPassword": "[steps('hosts').localAdminCredentials.localAdminPassword]",
+        "virtualMachineAdminUsername": "[steps('hosts').localAdminCredentials.localAdminUsername]",
+        "virtualMachineSize": "[if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Pooled')), steps('hosts').virtualMachines.sizeArcGisProMulti, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 6)), steps('hosts').virtualMachines.sizeArcGisProSingleLight, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 4)), steps('hosts').virtualMachines.sizeArcGisProSingleMedium, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 3)), steps('hosts').virtualMachines.sizeArcGisProSingleHeavy, steps('hosts').virtualMachines.sizeGeneric))))]",
+        "virtualMachineVirtualCpuCount": "[first(map(filter(first(map(filter(steps('basics').scenario.virtualMachineSkusApi.value, (item) => equals(item.name, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Pooled')), steps('hosts').virtualMachines.sizeArcGisProMulti, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 6)), steps('hosts').virtualMachines.sizeArcGisProSingleLight, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 4)), steps('hosts').virtualMachines.sizeArcGisProSingleMedium, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 3)), steps('hosts').virtualMachines.sizeArcGisProSingleHeavy, steps('hosts').virtualMachines.sizeGeneric)))))), (item) => item.capabilities)), (item) => equals(item.name, 'vCPUs')), (item) => item.value))]",
+        "workspaceFriendlyName": "[if(empty(first(map(filter(steps('controlPlane').workspacesApi.value, (item) => and(contains(item.name, steps('basics').naming.identifier), contains(item.name, 'feed'), contains(item.name, steps('basics').naming.environment), equals(item.location, steps('basics').hub.azureFirewallApi.location))), (item) => item.id))), steps('controlPlane').friendlyNames.feedWorkspace, first(map(filter(steps('controlPlane').workspacesApi.value, (item) => and(contains(item.name, steps('basics').naming.identifier), contains(item.name, 'feed'), contains(item.name, steps('basics').naming.environment), equals(item.location, steps('basics').hub.azureFirewallApi.location))), (item) => item.properties.friendlyName)))]",
+        "workspacePublicNetworkAccess": "[if(empty(first(map(filter(steps('controlPlane').workspacesApi.value, (item) => and(contains(item.name, steps('basics').naming.identifier), contains(item.name, 'feed'), contains(item.name, steps('basics').naming.environment), equals(item.location, steps('basics').hub.azureFirewallApi.location))), (item) => item.id))), steps('controlPlane').workspace.publicNetworkAccess, first(map(filter(steps('controlPlane').workspacesApi.value, (item) => and(contains(item.name, steps('basics').naming.identifier), contains(item.name, 'feed'), contains(item.name, steps('basics').naming.environment), equals(item.location, steps('basics').hub.azureFirewallApi.location))), (item) => item.properties.publicNetworkAccess)))]"
+      },
+      "kind": "Subscription",
+      "location": "[steps('basics').scope.location.name]",
+      "subscriptionId": "[steps('basics').scope.subscription.id]"
+    }
+  }
+}
