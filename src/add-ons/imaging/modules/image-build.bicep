@@ -41,6 +41,7 @@ param mlzTags object
 param msrdcwebrtcsvcInstaller string = ''
 param officeInstaller string = ''
 param replicaCount int = 1
+param resourceGroupName string
 param runbookExecution bool = false
 param sourceImageType string = 'AzureMarketplace'
 param storageAccountResourceId string
@@ -64,17 +65,18 @@ var autoImageVersion = '${imageMajorVersion}.${imageMinorVersion}.${imagePatchVe
 var managementVirtualMachineName = '${tier.namingConvention.virtualMachine}wm'
 var storageAccountName = split(storageAccountResourceId, '/')[8]
 var storageEndpoint = environment().suffixes.storage
+var subscriptionId = subscription().subscriptionId
 
 resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' existing =
   if (runbookExecution) {
     name: tier.namingConvention.keyVault
-    scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
+    scope: resourceGroup(subscriptionId, resourceGroupName)
   }
 
 module managementVM 'management-virtual-machine.bicep' =
   if (!enableBuildAutomation) {
     name: 'management-vm-${deploymentNameSuffix}'
-    scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
+    scope: resourceGroup(subscriptionId, resourceGroupName)
     params: {
       diskEncryptionSetResourceId: diskEncryptionSetResourceId
       hybridUseBenefit: hybridUseBenefit
@@ -92,7 +94,7 @@ module managementVM 'management-virtual-machine.bicep' =
 
 module virtualMachine 'virtual-machine.bicep' = {
   name: 'image-vm-${deploymentNameSuffix}'
-  scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
+  scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
     // diskEncryptionSetResourceId: diskEncryptionSetResourceId
     location: location
@@ -119,7 +121,7 @@ module virtualMachine 'virtual-machine.bicep' = {
 
 module addCustomizations 'customizations.bicep' = {
   name: 'customizations-${deploymentNameSuffix}'
-  scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
+  scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
     arcGisProInstaller: arcGisProInstaller
     containerName: containerName
@@ -155,10 +157,10 @@ module addCustomizations 'customizations.bicep' = {
 
 module restartVirtualMachine1 'restart-virtual-machine.bicep' = {
   name: 'restart-vm-1-${deploymentNameSuffix}'
-  scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
+  scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
     imageVirtualMachineName: virtualMachine.outputs.name
-    resourceGroupName: tier.resourceGroupName
+    resourceGroupName: resourceGroupName
     location: location
     mlzTags: mlzTags
     tags: tags
@@ -173,7 +175,7 @@ module restartVirtualMachine1 'restart-virtual-machine.bicep' = {
 module microsoftUdpates 'microsoft-updates.bicep' =
   if (installUpdates) {
     name: 'microsoft-updates-${deploymentNameSuffix}'
-    scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
+    scope: resourceGroup(subscriptionId, resourceGroupName)
     params: {
       imageVirtualMachineName: virtualMachine.outputs.name
       location: location
@@ -189,10 +191,10 @@ module microsoftUdpates 'microsoft-updates.bicep' =
 
 module restartVirtualMachine2 'restart-virtual-machine.bicep' = if (installUpdates) {
   name: 'restart-vm-2-${deploymentNameSuffix}'
-  scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
+  scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
     imageVirtualMachineName: virtualMachine.outputs.name
-    resourceGroupName: tier.resourceGroupName
+    resourceGroupName: resourceGroupName
     location: location
     mlzTags: mlzTags
     tags: tags
@@ -203,9 +205,10 @@ module restartVirtualMachine2 'restart-virtual-machine.bicep' = if (installUpdat
     microsoftUdpates
   ]
 }
+
 module sysprepVirtualMachine 'sysprep-virtual-machine.bicep' = {
   name: 'sysprep-vm-${deploymentNameSuffix}'
-  scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
+  scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
     location: location
     mlzTags: mlzTags
@@ -220,10 +223,10 @@ module sysprepVirtualMachine 'sysprep-virtual-machine.bicep' = {
 
 module generalizeVirtualMachine 'generalize-virtual-machine.bicep' = {
   name: 'generalize-vm-${deploymentNameSuffix}'
-  scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
+  scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
     imageVirtualMachineName: virtualMachine.outputs.name
-    resourceGroupName: tier.resourceGroupName
+    resourceGroupName: resourceGroupName
     location: location
     mlzTags: mlzTags
     tags: tags
@@ -237,7 +240,7 @@ module generalizeVirtualMachine 'generalize-virtual-machine.bicep' = {
 
 module imageVersion 'image-version.bicep' = {
   name: 'image-version-${deploymentNameSuffix}'
-  scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
+  scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
     computeGalleryImageResourceId: computeGalleryImageResourceId
     computeGalleryName: tier.namingConvention.computeGallery
@@ -260,7 +263,7 @@ module imageVersion 'image-version.bicep' = {
 
 module removeVirtualMachine 'remove-virtual-machine.bicep' = {
   name: 'remove-vm-${deploymentNameSuffix}'
-  scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
+  scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
     enableBuildAutomation: enableBuildAutomation
     imageVirtualMachineName: virtualMachine.outputs.name
