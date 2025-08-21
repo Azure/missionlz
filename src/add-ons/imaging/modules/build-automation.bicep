@@ -7,6 +7,7 @@ targetScope = 'subscription'
 
 param arcGisProInstaller string
 param automationAccountPrivateDnsZoneResourceId string
+param computeGalleryImageResourceId string
 param computeGalleryResourceId string
 param containerName string
 param customizations array
@@ -51,7 +52,7 @@ param msrdcwebrtcsvcInstaller string
 param officeInstaller string
 param oUPath string
 param replicaCount int
-param computeGalleryImageResourceId string
+param resourceGroupName string
 param sourceImageType string
 param storageAccountResourceId string
 param tags object
@@ -69,10 +70,12 @@ param virtualMachineAdminUsername string
 param virtualMachineSize string
 param wsusServer string
 
+var subscriptionId = subscription().subscriptionId
+
 resource roleDefinition 'Microsoft.Authorization/roleDefinitions@2022-04-01' = {
-  name: guid(subscription().id, 'KeyVaultDeployAction')
+  name: guid(subscriptionId, 'KeyVaultDeployAction')
   properties: {
-    roleName: 'KeyVaultDeployAction_${subscription().subscriptionId}'
+    roleName: 'KeyVaultDeployAction_${subscriptionId}'
     description: 'Allows a principal to get but not view Key Vault secrets for ARM template deployments.'
     assignableScopes: [
       subscription().id
@@ -88,7 +91,7 @@ resource roleDefinition 'Microsoft.Authorization/roleDefinitions@2022-04-01' = {
 }
 
 module virtualNetwork 'virtual-network.bicep' = {
-  scope: resourceGroup(split(tier.subnetResourceId, '/')[2], split(tier.subnetResourceId, '/')[4])
+  scope: resourceGroup(subscriptionId, resourceGroupName)
   name: 'virtual-network-${deploymentNameSuffix}'
   params: {
     principalId: userAssignedIdentityPrincipalId
@@ -97,7 +100,7 @@ module virtualNetwork 'virtual-network.bicep' = {
 }
 
 module keyVault 'key-vault.bicep' = {
-  scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
+  scope: resourceGroup(subscriptionId, resourceGroupName)
   name: 'key-vault-${deploymentNameSuffix}'
   params: {
     domainJoinPassword: domainJoinPassword
@@ -116,7 +119,7 @@ module keyVault 'key-vault.bicep' = {
 }
 
 module templateSpec 'template-spec.bicep' = {
-  scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
+  scope: resourceGroup(subscriptionId, resourceGroupName)
   name: 'template-spec-${deploymentNameSuffix}'
   params: {
     imageDefinitionName: imageDefinitionName
@@ -128,7 +131,7 @@ module templateSpec 'template-spec.bicep' = {
 
 module managementVM 'management-virtual-machine.bicep' = {
   name: 'management-vm-${deploymentNameSuffix}'
-  scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
+  scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
     diskEncryptionSetResourceId: diskEncryptionSetResourceId
     hybridUseBenefit: hybridUseBenefit
@@ -145,7 +148,7 @@ module managementVM 'management-virtual-machine.bicep' = {
 }
 
 module automationAccount 'automation-account.bicep' = {
-  scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
+  scope: resourceGroup(subscriptionId, resourceGroupName)
   name: 'automation-account-${deploymentNameSuffix}'
   params: {
     arcGisProInstaller: arcGisProInstaller
@@ -197,7 +200,7 @@ module automationAccount 'automation-account.bicep' = {
     officeInstaller: officeInstaller
     oUPath: oUPath
     replicaCount: replicaCount
-    resourceGroupName: tier.resourceGroupName
+    resourceGroupName: resourceGroupName
     sourceImageType: sourceImageType
     storageAccountResourceId: storageAccountResourceId
     subnetResourceId: tier.subnetResourceId

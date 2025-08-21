@@ -8,16 +8,14 @@ This directory contains add-ons to extend the functionality of Mission Landing Z
 
 Name   | Description
 ------ | -----------
-[Azure Virtual Desktop](./azure-virtual-desktop/README.md) | Allows for the deployment of Zero Trust, SCCA compliant stamps of Azure Virtual Desktop.
-[ESRI Accelerator](../../../docs/esri.md) | Allows for the deployment of both ArcGIS Pro on Azure Virtual Desktop & ESRI Enterprise.
+[Azure NetApp Files](./azure-netapp-files/README.md) | Allows for the deployment of Azure NetApp Files with an SMB file share.
+[Azure Virtual Desktop](./azure-virtual-desktop/README.md) | Deploys Azure Virtual Desktop stamps in either generic or ArcGIS Pro configurations with FSLogix, AutoScale, AVD Insights, and more.
+[ESRI Accelerator](../../docs/esri.md) | Deploys MLZ, the AVD add-on, and the ESRI Enterprise add-on in a single click deployment.
+<!--[ESRI Enterprise](./esri-enterprise) | Deploys ESRI's ArcGIS Enterprise solution, based off their cloud builder product.-->
+<!--[IaaS DNS Forwarders](./iaas-dns-forwarders) | Deploys DNS Forwarder Virtual Machines in the HUB, for proper resolution of Private Endpoint and internal domains accross all Virtual Networks-->
+[NAT Gateway](./nat-gateway) | Deploys a NAT Gateway infront of the Azure Firewall
+[Policy Guardrails Tool](./policy-guardrails-tool/readMe.md) | Deploys Azure Policy guardrails at the subscription scope.
 [Tier3](./tier3/README.md) | Deploys a spoke network peered to the hub in preparation for the manual deployment of a workload.
-[Zero Trust Imaging](./imaging/README.md) | Enables users to create customizable, zero trust images.
-
-<!--[AKS](./aks) | Deploys an AKS cluster.
-[App Service Plan](./app-service-plan) | Deploys an App Service Plan (AKA: Web Server Cluster) to support simple web accessible linux docker containers with optional dynamic auto scaling.
-[Automation Account](./automation-account) | Deploys an Azure Automation account that can be used to execute runbooks.
-[Container Registry](./container-registry/) | Deploys an Azure Container Registry for holding and deploying docker containers.
-[Inherit Tags](./inherit-tags) | Adds or replaces a specified tag and value from the parent resource group when any resource is created or updated.
-[KeyVault](./key-vault/) | Deploys a premium Azure Key Vault with RBAC enabled to support secret, key, and certificate management.
+[VPN Gateway](./virtual-network-gateway) | Deploys a VPN Gateway for a site-to-site connection.
+[Zero Trust Imaging](./imaging/README.md) | Deploys images in an Azure Compute Gallery using a zero trust configuration with several configuration options.
 [Zero Trust (TIC3.0) Workbook](./zero-trust-workbook) | Deploys an Azure Sentinel Zero Trust (TIC3.0) Workbook
-[IaaS DNS Forwarders](./iaas-dns-forwarders) | Deploys DNS Forwarder Virtual Machines in the HUB, for proper resolution of Private Endpoint and internal domains accross all Virtual Networks-->
