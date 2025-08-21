@@ -1224,15 +1224,6 @@
                   "toolTip": "Deploy the required resources to enable monitoring for the automation runbook."
                 },
                 {
-                  "name": "logAnalyticsWorkspace",
-                  "type": "Microsoft.Solutions.ResourceSelector",
-                  "label": "Existing log analytics workspace",
-                  "visible": "[steps('automation').monitoring.enable]",
-                  "resourceType": "Microsoft.OperationalInsights/workspaces",
-                  "toolTip": "Select the log analytics workspace to capture runbook log output.",
-                  "options": {}
-                },
-                {
                   "name": "distributionGroup",
                   "type": "Microsoft.Common.TextBox",
                   "visible": "[steps('automation').monitoring.enable]",
@@ -1585,7 +1576,6 @@
         "installVisio": "[if(steps('customizations').office.installOffice, steps('customizations').office.installVisio,'false')]",
         "installWord": "[if(steps('customizations').office.installOffice, steps('customizations').office.installWord,'false')]",
         "location": "[steps('basics').scope.location.name]",
-        "logAnalyticsWorkspaceResourceId": "[if(and(steps('automation').automation.enable, steps('automation').monitoring.enable), steps('automation').monitoring.logAnalyticsWorkspace.id, '')]",
         "marketplaceImageOffer": "[if(equals(steps('image').source.type, 'AzureMarketplace'), steps('image').source.offer, '')]",
         "marketplaceImagePublisher": "[if(equals(steps('image').source.type, 'AzureMarketplace'), steps('image').source.publisher, '')]",
         "marketplaceImageSKU": "[if(equals(steps('image').source.type, 'AzureMarketplace'), steps('image').source.sku, '')]",
@@ -1597,7 +1587,7 @@
         "policy": "[if(steps('compliance').policySection.deployPolicy, steps('compliance').policySection.policy, '')]",
         "replicaCount": "[steps('image').destination.replicaCount]",
         "sourceImageType": "[steps('image').source.type]",
-        "spokelogAnalyticsWorkspaceResourceId": "[steps('compliance').logAnalyticsWorkspace.id]",
+        "spokeLogAnalyticsWorkspaceResourceId": "[steps('compliance').logAnalyticsWorkspace.id]",
         "storageAccountResourceId": "[steps('basics').artifacts.storageSelector.id]",
         "subnetAddressPrefix": "[steps('network').networkSection.subnetAddressCidrRange]",
         "tags": "[steps('tags').tags]",
