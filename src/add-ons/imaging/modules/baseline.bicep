@@ -21,7 +21,7 @@ param tier object
 var resourceGroupName = '${tier.namingConvention.resourceGroup}${delimiter}${tier.name}'
 
 module rg '../../../modules/resource-group.bicep' = {
-  name: 'deploy-adds-rg-${tier.name}-${deploymentNameSuffix}'
+  name: 'deploy-imaging-rg-${tier.name}-${deploymentNameSuffix}'
   scope: subscription(tier.subscriptionId)
   params: {
     mlzTags: mlzTags
@@ -127,6 +127,7 @@ module policyExemptions 'exemption.bicep' = [
 
 output computeGalleryResourceId string = computeGallery.outputs.computeGalleryResourceId
 output diskEncryptionSetResourceId string = customerManagedKeys.outputs.diskEncryptionSetResourceId
+output resourceGroupName string = resourceGroupName
 output userAssignedIdentityClientId string = userAssignedIdentity.outputs.clientId
 output userAssignedIdentityPrincipalId string = userAssignedIdentity.outputs.principalId
 output userAssignedIdentityResourceId string = userAssignedIdentity.outputs.resourceId
