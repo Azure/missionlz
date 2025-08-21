@@ -12,6 +12,9 @@ param computeGalleryImageResourceId string = ''
 @description('The name of the container in the storage account where the installer files are located.')
 param containerName string
 
+@description('The custom firewall rule collection groups that override the default firewall rule collection groups.')
+param customFirewallRuleCollectionGroups array = []
+
 @description('The array of customizations to apply to the image. Limit of 25 runCommands per virtual machine applies. Depending on other features used, the limit may be lower.')
 param customizations array = []
 
@@ -165,9 +168,6 @@ param keyVaultDiagnosticMetrics array = [
 @description('The location for the resources.')
 param location string = deployment().location
 
-@description('The resource ID of the log analytics workspace if using build automation and desired.')
-param logAnalyticsWorkspaceResourceId string = ''
-
 @description('The Storage Account SKU to use for log storage. It defaults to "Standard_GRS". See the following URL for valid settings: https://learn.microsoft.com/rest/api/storagerp/srp_sku_types.')
 param logStorageSkuName string = 'Standard_GRS'
 
@@ -236,7 +236,7 @@ param replicaCount int
 param sourceImageType string
 
 @description('The resource ID of the log analytics workspace if using build automation and desired.')
-param spokelogAnalyticsWorkspaceResourceId string
+param spokeLogAnalyticsWorkspaceResourceId string
 
 @description('The resource ID of the storage account where the installers and scripts are stored in Azure Blobs.')
 param storageAccountResourceId string
@@ -308,6 +308,129 @@ var workloadShortName = 'img'
 module tier3 '../tier3/solution.bicep' = {
   name: 'deploy-tier3-${deploymentNameSuffix}'
   params: {
+    customFirewallRuleCollectionGroups: empty(customFirewallRuleCollectionGroups)
+      ? [
+          {
+            name: 'IMG-CollapsedCollectionGroup-${toUpper(identifier)}-${toUpper(environmentAbbreviation)}-${toUpper(location)}'
+            properties: {
+              priority: 200
+              ruleCollections: [
+                {
+                  name: 'NetworkRules'
+                  priority: 100
+                  ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
+                  action: {
+                    type: 'Allow'
+                  }
+                  rules: concat(
+                    [
+                      {
+                        name: 'KMS-Endpoint'
+                        ruleType: 'NetworkRule'
+                        ipProtocols: [
+                          'Tcp'
+                        ]
+                        sourceAddresses: [
+                          virtualNetworkAddressPrefix
+                        ]
+                        destinationAddresses: []
+                        destinationFqdns: [
+                          'azkms.${environment().suffixes.storage}'
+                          'kms.${environment().suffixes.storage}'
+                        ]
+                        destinationPorts: [
+                          '1688'
+                        ]
+                        sourceIpGroups: []
+                        destinationIpGroups: []
+                      }
+                    ],
+                    [
+                      {
+                        name: 'AzureCloudforLogin'
+                        ruleType: 'NetworkRule'
+                        ipProtocols: [
+                          'Tcp'
+                        ]
+                        sourceAddresses: [
+                          virtualNetworkAddressPrefix
+                        ]
+                        destinationAddresses: ['AzureActiveDirectory']
+                        destinationFqdns: []
+                        destinationPorts: [
+                          '443'
+                        ]
+                        sourceIpGroups: []
+                        destinationIpGroups: []
+                      }
+                    ]
+                  )
+                }
+                {
+                  name: 'ApplicationRules'
+                  priority: 200
+                  ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
+                  action: {
+                    type: 'Allow'
+                  }
+                  rules: concat(
+                    [
+                      {
+                        name: 'IMG-RequiredDeploymentEndpoints'
+                        ruleType: 'ApplicationRule'
+                        protocols: [
+                          {
+                            protocolType: 'Https'
+                            port: 443
+                          }
+                        ]
+                        fqdnTags: []
+                        webCategories: []
+                        targetFqdns: [
+                          split(environment().resourceManager, '/')[2]
+                        ]
+                        targetUrls: []
+                        terminateTLS: false
+                        sourceAddresses: [
+                          virtualNetworkAddressPrefix
+                        ]
+                        destinationAddresses: []
+                        sourceIpGroups: []
+                      }
+                    ],
+                    installUpdates
+                      ? [
+                          {
+                            name: 'WindowsUpdateEndpoints'
+                            ruleType: 'ApplicationRule'
+                            protocols: [
+                              {
+                                protocolType: 'Https'
+                                port: 443
+                              }
+                            ]
+                            fqdnTags: [
+                              'WindowsUpdate'
+                            ]
+                            webCategories: []
+                            targetFqdns: []
+                            targetUrls: []
+                            terminateTLS: false
+                            sourceAddresses: [
+                              virtualNetworkAddressPrefix
+                            ]
+                            destinationAddresses: []
+                            sourceIpGroups: []
+                          }
+                        ]
+                      : []
+                  )
+                }
+              ]
+            }
+          }
+        ]
+      : customFirewallRuleCollectionGroups
     deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
     deployDefender: deployDefender
     deploymentNameSuffix: deploymentNameSuffix
@@ -321,7 +444,7 @@ module tier3 '../tier3/solution.bicep' = {
     keyVaultDiagnosticLogs: keyVaultDiagnosticLogs
     keyVaultDiagnosticMetrics: keyVaultDiagnosticMetrics
     location: location
-    logAnalyticsWorkspaceResourceId: spokelogAnalyticsWorkspaceResourceId
+    logAnalyticsWorkspaceResourceId: spokeLogAnalyticsWorkspaceResourceId
     logStorageSkuName: logStorageSkuName
     networkInterfaceDiagnosticsMetrics: networkInterfaceDiagnosticsMetrics
     networkSecurityGroupDiagnosticsLogs: networkSecurityGroupDiagnosticsLogs 
@@ -399,7 +522,7 @@ module buildAutomation 'modules/build-automation.bicep' = if (enableBuildAutomat
     keyVaultPrivateDnsZoneResourceId: keyVaultPrivateDnsZoneResourceId
     location: location
     locationProperties: tier3.outputs.locationProperties
-    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
+    logAnalyticsWorkspaceResourceId: spokeLogAnalyticsWorkspaceResourceId
     marketplaceImageOffer: marketplaceImageOffer
     marketplaceImagePublisher: marketplaceImagePublisher
     marketplaceImageSKU: marketplaceImageSKU
@@ -408,6 +531,7 @@ module buildAutomation 'modules/build-automation.bicep' = if (enableBuildAutomat
     officeInstaller: officeInstaller
     oUPath: oUPath
     replicaCount: replicaCount
+    resourceGroupName: baseline.outputs.resourceGroupName
     sourceImageType: sourceImageType
     storageAccountResourceId: storageAccountResourceId
     tags: tags
@@ -457,8 +581,6 @@ module imageBuild 'modules/image-build.bicep' = {
     installVirtualDesktopOptimizationTool: installVirtualDesktopOptimizationTool
     installVisio: installVisio
     installWord: installWord
-    virtualMachineAdminPassword: virtualMachineAdminPassword
-    virtualMachineAdminUsername: virtualMachineAdminUsername
     location: location
     marketplaceImageOffer: marketplaceImageOffer
     marketplaceImagePublisher: marketplaceImagePublisher
@@ -467,6 +589,7 @@ module imageBuild 'modules/image-build.bicep' = {
     msrdcwebrtcsvcInstaller: msrdcwebrtcsvcInstaller
     officeInstaller: officeInstaller
     replicaCount: replicaCount
+    resourceGroupName: baseline.outputs.resourceGroupName
     sourceImageType: sourceImageType
     storageAccountResourceId: storageAccountResourceId
     tags: tags
@@ -478,6 +601,8 @@ module imageBuild 'modules/image-build.bicep' = {
     userAssignedIdentityResourceId: baseline.outputs.userAssignedIdentityResourceId
     vcRedistInstaller: vcRedistInstaller
     vDOTInstaller: vDOTInstaller
+    virtualMachineAdminPassword: virtualMachineAdminPassword
+    virtualMachineAdminUsername: virtualMachineAdminUsername
     virtualMachineSize: virtualMachineSize
     wsusServer: wsusServer
   }
