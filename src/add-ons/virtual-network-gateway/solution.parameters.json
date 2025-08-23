@@ -2,30 +2,14 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "vgwName": {
-      "value": "<example: mlz-vgw-hub-dev-va>"
+    "hubVirtualNetworkResourceId": {
+      "value": "/subscriptions/<subscriptionid>/resourceGroups/<resourcegroupname>/providers/Microsoft.Network/virtualNetworks/<virtualnetworkname>"
     },
-    "vgwLocation": {
-      "value": "usgovvirginia"
-    },
-    "vgwPublicIpAddressNames": {
+  "virtualNetworkResourceIdList": {
       "value": [
-        "<example: mlz-pip-vgw-hub-dev-va-1>",
-        "<example: mlz-pip-vgw-hub-dev-va-2"
-      ]
-    },
-    "localNetworkGatewayName": {
-      "value": "<example: mlz-lng-hub-dev-va>"
-    },
-    "localGatewayIpAddress": {
-      "value": "<publicipaddressforonpremvpntermination>"
-    },
-    "allowedAzureAddressPrefixes": {
-      "value": [
-        "10.0.130.0/24",
-        "10.0.131.0/24",
-        "10.0.132.0/24",
-        "10.0.128.0/23"
+        "/subscriptions/<subscriptionid>/resourceGroups/<resourcegroupname>/providers/Microsoft.Network/virtualNetworks/<virtualnetworkname",
+        "/subscriptions/<subscriptionid>/resourceGroups/<resourcegroupname>/providers/Microsoft.Network/virtualNetworks/<virtualnetworkname",
+        "/subscriptions/<subscriptionid>/resourceGroups/<resourcegroupname>/providers/Microsoft.Network/virtualNetworks/<virtualnetworkname"
       ]
     },
     "localAddressPrefixes": {
@@ -34,27 +18,14 @@
         "192.168.1.0/24"
       ]
     },
-    "useSharedKey": {
-      "value": true
+    "localGatewayIpAddress": {
+      "value": "<onprem_public_ip>"
     },
-    "hubVirtualNetworkResourceId": {
-      "value": "/subscriptions/<subscriptionid>/resourceGroups/<resourcegroupname>/providers/Microsoft.Network/virtualNetworks/<virtualnetworkname>"
+    "sharedKey": {
+      "value": "<shared_key_here>"
     },
-    "vnetResourceIdList": {
-      "value": [
-        "/subscriptions/<subscriptionid>/resourceGroups/<resourcegroupname>/providers/Microsoft.Network/virtualNetworks/<virtualnetworkname",
-        "/subscriptions/<subscriptionid>/resourceGroups/<resourcegroupname>/providers/Microsoft.Network/virtualNetworks/<virtualnetworkname",
-        "/subscriptions/<subscriptionid>/resourceGroups/<resourcegroupname>/providers/Microsoft.Network/virtualNetworks/<virtualnetworkname"
-      ]
-    },
-    "azureFirewallName": {
-      "value": "<example: mlz-afw-hub-dev-va>"
-    },
-    "vgwRouteTableName": {
-      "value": "<example: mlz-vgw-rt-hub-dev-va>"
-    },
-    "hubVnetRouteTableName": {
-      "value": "<example: mlz-rt-hub-dev-va>"
+    "virtualNetworkGatewaySku": {
+      "value": "VpnGw2"
     }
   }
 }
