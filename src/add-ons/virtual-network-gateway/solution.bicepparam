@@ -11,8 +11,5 @@ param localAddressPrefixes = [
   '10.1.0.0/16'
 ]
 param localGatewayIpAddress = '20.158.211.83'
-param sharedKey = ''
-param virtualNetworkGatewaySku = 'VpnGw2'
-param customFirewallRuleCollectionGroups = []
-param includeHubOnPrem = false
+param includeHubOnPrem = true
 

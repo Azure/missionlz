@@ -48,6 +48,10 @@ var idToken = nameTokens[0]
 var envToken = nameTokens[1]
 var locToken = nameTokens[2]
 
+// Remove start-time var causing error; pass VNet list down and let module derive
+// Precompute spoke address prefixes to avoid runtime copy in nested deployment params
+// var spokeAddressPrefixSets = [for (vnetId, i) in virtualNetworkResourceIdList: retrieveVnetInfo[i].outputs.vnetAddressSpace]
+
 // Derived resource names following MLZ conventions without requiring separate parameters
 var vgwRouteTableName = '${idToken}-${envToken}-${locToken}-vgw-rt'
 var vpnGatewayName = '${idToken}-${envToken}-${locToken}-hub-vgw'
@@ -80,12 +84,12 @@ module firewallRules 'modules/firewall-rules-vgw.bicep' = {
   name: 'deploy-vgw-firewall-rules-${deploymentNameSuffix}'
   scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
   params: {
-  firewallPolicyName: firewallPolicy.outputs.name
-  hubAddressPrefixes: virtualNetwork_hub.properties.addressSpace.addressPrefixes
+    firewallPolicyName: firewallPolicy.outputs.name
+    hubAddressPrefixes: virtualNetwork_hub.properties.addressSpace.addressPrefixes
   spokeAddressPrefixSets: [for (vnetId, i) in virtualNetworkResourceIdList: retrieveVnetInfo[i].outputs.vnetAddressSpace]
-  localAddressPrefixes: localAddressPrefixes
-  firewallRuleCollectionGroups: customFirewallRuleCollectionGroups
-  includeHubOnPrem: includeHubOnPrem
+    localAddressPrefixes: localAddressPrefixes
+    firewallRuleCollectionGroups: customFirewallRuleCollectionGroups
+    includeHubOnPrem: includeHubOnPrem
   }
 }
 
