@@ -18,9 +18,9 @@ param localAddressPrefixes array
 @description('IP Address of the Local Network Gateway, must be a public IP address reachable from the MLZ network')
 param localGatewayIpAddress string
 
-@description('The shared key to use for the VPN connection.')
+@description('The shared key to use for the VPN connection. If not provided, a random GUID will be generated.')
 @secure()
-param sharedKey string
+param sharedKey string = newGuid()
 
 @description('The SKU of the virtual network gateway.')
 @allowed(['VpnGw2', 'VpnGw3', 'VpnGw4', 'VpnGw5'])

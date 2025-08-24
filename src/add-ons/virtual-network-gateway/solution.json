@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.36.1.42791",
-      "templateHash": "14462985999333527603"
+      "templateHash": "13993591589426829448"
     }
   },
   "parameters": {
@@ -48,8 +48,9 @@
     },
     "sharedKey": {
       "type": "securestring",
+      "defaultValue": "[newGuid()]",
       "metadata": {
-        "description": "The shared key to use for the VPN connection."
+        "description": "The shared key to use for the VPN connection. If not provided, a random GUID will be generated."
       }
     },
     "virtualNetworkGatewaySku": {
@@ -397,7 +398,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.36.1.42791",
-              "templateHash": "13798692656070283120"
+              "templateHash": "14933222930928137495"
             }
           },
           "parameters": {
@@ -486,8 +487,8 @@
                 }
               },
               "dependsOn": [
-                "[resourceId('Microsoft.Network/publicIPAddresses', format('{0}{1}{2}', parameters('publicIpAddressName'), parameters('delimiter'), padLeft(range(0, 2)[1], 2, '0')))]",
-                "[resourceId('Microsoft.Network/publicIPAddresses', format('{0}{1}{2}', parameters('publicIpAddressName'), parameters('delimiter'), padLeft(range(0, 2)[0], 2, '0')))]"
+                "[resourceId('Microsoft.Network/publicIPAddresses', format('{0}{1}{2}', parameters('publicIpAddressName'), parameters('delimiter'), padLeft(range(0, 2)[0], 2, '0')))]",
+                "[resourceId('Microsoft.Network/publicIPAddresses', format('{0}{1}{2}', parameters('publicIpAddressName'), parameters('delimiter'), padLeft(range(0, 2)[1], 2, '0')))]"
               ]
             }
           ]

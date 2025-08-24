@@ -14,6 +14,7 @@ Provides a minimal, idempotent way to enable Site‑to‑Site VPN for a Mission 
 - Resources created/updated: Virtual Network Gateway (VpnGw SKU), Local Network Gateway, VPN Connection (shared key)
 - Firewall Policy default rule collection group “VGW‑OnPrem” allowing On‑Prem ↔ Spokes; optional Hub ↔ On‑Prem allow rules
 - Virtual Network Gateway diagnostic settings send AllLogs and AllMetrics to the Operations Log Analytics workspace
+- Shared key defaults to a generated GUID if not provided
 
 ## Required parameters
 
@@ -28,7 +29,7 @@ Provides a minimal, idempotent way to enable Site‑to‑Site VPN for a Mission 
 - localGatewayIpAddress (string)
   - Public IP of the on‑prem VPN device.
 - sharedKey (secureString)
-  - Pre‑shared key used for the VPN connection.
+  - Pre‑shared key used for the VPN connection. If omitted, a random GUID is generated.
 
 ## Optional parameters
 
@@ -40,6 +41,55 @@ Provides a minimal, idempotent way to enable Site‑to‑Site VPN for a Mission 
   - When true, adds Hub ↔ On‑Prem allow rules and corresponding hub/on‑prem override routes via the firewall.
 - deploymentNameSuffix (string, default utcNow())
   - Suffix used for module/deployment names.
+
+## Shared key handling
+
+Important
+
+- Best practice is to provide the `sharedKey` securely at deployment time or set it immediately after deployment. The generated default GUID will not match your on‑prem device, so you must align the key on both sides.
+
+Provide securely at deployment time (examples)
+
+- Azure CLI: from Key Vault (recommended)
+
+```powershell
+$secret = az keyvault secret show --vault-name <kv-name> --name <secret-name> --query value -o tsv
+az deployment sub create --name <name> --location <region> `
+  --template-file src/add-ons/virtual-network-gateway/solution.bicep `
+  --parameters src/add-ons/virtual-network-gateway/solution.bicepparam `
+  --parameters sharedKey=$secret
+```
+
+- Azure CLI: prompt in session (avoids saving to file)
+
+```powershell
+$in = Read-Host -Prompt 'Enter shared key' -AsSecureString
+$b = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($in)
+$plain = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($b)
+az deployment sub create --name <name> --location <region> `
+  --template-file src/add-ons/virtual-network-gateway/solution.bicep `
+  --parameters src/add-ons/virtual-network-gateway/solution.bicepparam `
+  --parameters sharedKey=$plain
+[Runtime.InteropServices.Marshal]::ZeroFreeBSTR($b)
+```
+
+Set after deployment (align on‑prem and Azure)
+
+- Azure CLI: update the connection shared key
+
+```powershell
+az network vpn-connection shared-key update `
+  --resource-group <hub-rg> `
+  --name <vpn-connection-name> `
+  --value <your-shared-key>
+```
+
+- Portal: Hub RG > VPN connection > Shared key > Update
+
+Notes
+
+- Avoid storing the shared key in version control or plain-text files. Prefer Key Vault or deployment-time prompts.
+- Changing the shared key requires updating the on‑prem device to the same value.
 
 ## Complex parameter example: custom firewall rules override
 
@@ -279,6 +329,5 @@ Set-AzVirtualNetwork -VirtualNetwork $vnet
 - [VPN gateway](https://learn.microsoft.com/azure/vpn-gateway/vpn-gateway-about-vpngateways)
 - [Local network gateway](https://learn.microsoft.com/azure/vpn-gateway/vpn-gateway-howto-site-to-site-resource-manager-portal)
 - [Azure Firewall Policy](https://learn.microsoft.com/azure/firewall/policy-overview)
-- [Route tables (UDR)](https://learn.microsoft.com/azure/virtual-network/virtual-networks-udr-overview)
 - [Diagnostic settings](https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings)
 - [VNet peering](https://learn.microsoft.com/azure/virtual-network/virtual-network-peering-overview)
