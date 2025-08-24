@@ -23,6 +23,9 @@ param sharedKey string
 @allowed(['VpnGw2', 'VpnGw3', 'VpnGw4', 'VpnGw5'])
 param virtualNetworkGatewaySku string = 'VpnGw2'
 
+@description('Optional: Provide your own Firewall Policy rule collection groups. When non-empty, these override the default VGW-OnPrem group built by this template.')
+param customFirewallRuleCollectionGroups array = []
+
 @description('Default CIDR to use when creating the GatewaySubnet if it does not exist.')
 var defaultGatewaySubnetPrefix = '10.0.129.192/26'
 
@@ -43,6 +46,7 @@ var locToken = nameTokens[2]
 var vgwRouteTableName = '${idToken}-${envToken}-${locToken}-vgw-rt'
 var vpnGatewayName = '${idToken}-${envToken}-${locToken}-hub-vgw'
 var publicIpAddressBaseName = '${idToken}-${envToken}-${locToken}-hub-pip'
+var hubRouteTableName = '${idToken}-${envToken}-${locToken}-hub-rt'
 
 // Determine existing GatewaySubnet prefix (if discovered) or fall back to default
 // Discover GatewaySubnet prefix directly from the hub VNet's subnets (safe even if missing)
@@ -70,9 +74,10 @@ module firewallRules 'modules/firewall-rules-vgw.bicep' = {
   scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
   params: {
     firewallPolicyName: firewallPolicy.outputs.name
-    hubVirtualNetworkResourceId: hubVirtualNetworkResourceId
+  hubVirtualNetworkResourceId: hubVirtualNetworkResourceId
     virtualNetworkResourceIdList: virtualNetworkResourceIdList
-  localAddressPrefixes: localAddressPrefixes
+    localAddressPrefixes: localAddressPrefixes
+  firewallRuleCollectionGroups: customFirewallRuleCollectionGroups
   }
 }
 
@@ -251,6 +256,34 @@ module createHubRoutesToOnPrem 'modules/routes.bicep' = {
   ]
 }
 
+// Also add Hub VNet address prefixes to the VGW route table to steer Hub CIDRs through the firewall
+module createHubCidrRoutes 'modules/routes.bicep' = {
+  name: 'createHubCidrRoutes-${deploymentNameSuffix}'
+  scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
+  params: {
+    routeTableName: vgwRouteTableName
+    addressSpace: virtualNetwork_hub.properties.addressSpace.addressPrefixes
+    routeName: 'route-hub'
+    nextHopType: 'VirtualAppliance'
+    nextHopIpAddress: retrieveRouteTableInfo.outputs.firewallPrivateIp
+  }
+  dependsOn: [
+    createRouteTable
+  ]
+}
+
+// Add the same on-prem override routes to the pre-existing hub workload route table so hub workloads egress to the firewall
+module createHubRouteOverrides 'modules/routes.bicep' = {
+  name: 'createHubRouteOverrides-${deploymentNameSuffix}'
+  scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
+  params: {
+    routeTableName: hubRouteTableName
+    addressSpace: localAddressPrefixes
+    routeName: 'route-onprem-override'
+    nextHopType: 'VirtualAppliance'
+    nextHopIpAddress: retrieveRouteTableInfo.outputs.firewallPrivateIp
+  }
+}
 
 // Associate the vgw route table with the gateway subnet so the gateway routes traffic destined for spokes through the firewall
 module associateRouteTable 'modules/associate-route-table.bicep' = {
