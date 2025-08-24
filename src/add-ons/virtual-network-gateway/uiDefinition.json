@@ -1,5 +1,4 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/0.1.2-preview/CreateUIDefinition.json#",
   "view": {
     "kind": "Form",
     "properties": {
@@ -164,7 +163,7 @@
       "localGatewayIpAddress": "[steps('onprem').localGatewayIp]",
       "sharedKey": "[steps('onprem').sharedKey]",
       "virtualNetworkGatewaySku": "[steps('gateway').gatewaySku]",
-      "customFirewallRuleCollectionGroups": "[if(steps('advanced').useCustomRules, if(equals(trim(steps('advanced').customFirewallRulesJson), ''), json('[]'), parse(steps('advanced').customFirewallRulesJson)), json('[]'))]"
+  "customFirewallRuleCollectionGroups": "[if(steps('advanced').useCustomRules, if(equals(trim(steps('advanced').customFirewallRulesJson), ''), json('[]'), json(steps('advanced').customFirewallRulesJson)), json('[]'))]"
     }
   }
 }
