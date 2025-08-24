@@ -9,41 +9,6 @@ param hubVirtualNetworkResourceId string
 @description('List of peered networks that should use the VPN Gateway once configured.')
 param virtualNetworkResourceIdList array
 
-@description('Optional: Custom firewall rule collection groups to apply. If empty, defaults will be generated.')
-param customFirewallRuleCollectionGroups array = [
-  // Example (uncomment to use):
-  // {
-  //   name: 'Custom-Example'
-  //   properties: {
-  //     priority: 100
-  //     ruleCollections: [
-  //       {
-  //         name: 'Allow-Example-Hub-To-Spoke'
-  //         priority: 100
-  //         ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
-  //         action: {
-  //           type: 'Allow'
-  //         }
-  //         rules: [
-  //           {
-  //             name: 'AllowHubToSpoke'
-  //             ruleType: 'NetworkRule'
-  //             ipProtocols: ['Any']
-  //             sourceAddresses: ['10.0.0.0/16']           // hub CIDR(s)
-  //             destinationAddresses: ['10.1.0.0/16']      // spoke CIDR(s)
-  //             destinationPorts: ['*']
-  //             // Optional fields:
-  //             // sourceIpGroups: []
-  //             // destinationIpGroups: []
-  //             // destinationFqdns: []
-  //           }
-  //         ]
-  //       }
-  //     ]
-  //   }
-  // }
-]
-
 @description('Address prefixes of the Local Network which will be routable through the VPN Gateway')
 param localAddressPrefixes array
 
@@ -108,7 +73,6 @@ module firewallRules 'modules/firewall-rules-vgw.bicep' = {
     hubVirtualNetworkResourceId: hubVirtualNetworkResourceId
     virtualNetworkResourceIdList: virtualNetworkResourceIdList
   localAddressPrefixes: localAddressPrefixes
-  firewallRuleCollectionGroups: customFirewallRuleCollectionGroups
   }
 }
 
