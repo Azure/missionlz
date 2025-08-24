@@ -13,11 +13,14 @@ Provides a minimal, idempotent way to enable Site‑to‑Site VPN for a Mission 
 - Hub and Spoke peerings updated so Spokes use the Hub VPN gateway
 - Resources created/updated: Virtual Network Gateway (VpnGw SKU), Local Network Gateway, VPN Connection (shared key)
 - Firewall Policy default rule collection group “VGW‑OnPrem” allowing On‑Prem ↔ Spokes; optional Hub ↔ On‑Prem allow rules
+- Virtual Network Gateway diagnostic settings send AllLogs and AllMetrics to the Operations Log Analytics workspace
 
 ## Required parameters
 
 - hubVirtualNetworkResourceId (string)
   - Hub VNet resource ID. Must already contain an AzureFirewallSubnet with an Azure Firewall.
+- operationsLogAnalyticsWorkspaceResourceId (string)
+  - Resource ID of the Operations Log Analytics Workspace where VGW diagnostics will be sent. Example: `/subscriptions/<subId>/resourceGroups/<ops-rg>/providers/Microsoft.OperationalInsights/workspaces/<ops-law>`
 - virtualNetworkResourceIdList (array)
   - Resource IDs of Spoke VNets that should use the Hub VPN gateway.
 - localAddressPrefixes (array)
@@ -277,4 +280,5 @@ Set-AzVirtualNetwork -VirtualNetwork $vnet
 - [Local network gateway](https://learn.microsoft.com/azure/vpn-gateway/vpn-gateway-howto-site-to-site-resource-manager-portal)
 - [Azure Firewall Policy](https://learn.microsoft.com/azure/firewall/policy-overview)
 - [Route tables (UDR)](https://learn.microsoft.com/azure/virtual-network/virtual-networks-udr-overview)
+- [Diagnostic settings](https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings)
 - [VNet peering](https://learn.microsoft.com/azure/virtual-network/virtual-network-peering-overview)

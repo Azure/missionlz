@@ -6,6 +6,9 @@ param deploymentNameSuffix string = utcNow()
 @description('The resource ID of the hub virtual network.')
 param hubVirtualNetworkResourceId string
 
+@description('Resource ID of the Operations Log Analytics Workspace where diagnostics should be sent.')
+param operationsLogAnalyticsWorkspaceResourceId string
+
 @description('List of peered networks that should use the VPN Gateway once configured.')
 param virtualNetworkResourceIdList array
 
@@ -102,6 +105,19 @@ module vpnGatewayModule 'modules/vpn-gateway.bicep' = {
   }
   dependsOn: [
     ensureGatewaySubnet
+  ]
+}
+
+// Configure diagnostics to Operations Log Analytics workspace
+module vpnGatewayDiagnostics 'modules/vpn-gateway-diagnostics.bicep' = {
+  name: 'vpnGateway-diagnostics-${deploymentNameSuffix}'
+  scope: resourceGroup(hubResourceGroupName)
+  params: {
+    virtualNetworkGatewayName: vpnGatewayName
+    logAnalyticsWorkspaceResourceId: operationsLogAnalyticsWorkspaceResourceId
+  }
+  dependsOn: [
+    vpnGatewayModule
   ]
 }
 
