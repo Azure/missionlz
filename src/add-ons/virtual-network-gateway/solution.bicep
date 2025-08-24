@@ -80,13 +80,21 @@ module firewallPolicy 'modules/firewall-policy.bicep' = {
   }
 }
 
+module collectSpokeAddresses 'modules/collect-spoke-addresses.bicep' = {
+  name: 'collectSpokeAddresses-${deploymentNameSuffix}'
+  scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
+  params: {
+    virtualNetworkResourceIdList: virtualNetworkResourceIdList
+  }
+}
+
 module firewallRules 'modules/firewall-rules-vgw.bicep' = {
   name: 'deploy-vgw-firewall-rules-${deploymentNameSuffix}'
   scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
   params: {
     firewallPolicyName: firewallPolicy.outputs.name
     hubAddressPrefixes: virtualNetwork_hub.properties.addressSpace.addressPrefixes
-  spokeAddressPrefixSets: [for (vnetId, i) in virtualNetworkResourceIdList: retrieveVnetInfo[i].outputs.vnetAddressSpace]
+    spokeAddressPrefixSets: collectSpokeAddresses.outputs.spokeAddressPrefixSets
     localAddressPrefixes: localAddressPrefixes
     firewallRuleCollectionGroups: customFirewallRuleCollectionGroups
     includeHubOnPrem: includeHubOnPrem
@@ -203,6 +211,9 @@ module updateHubPeerings 'modules/vnet-peerings.bicep' = {
     vnetResourceId: retrieveHubVnetInfo.outputs.peeringsData.vnetResourceId
     peeringsList: retrieveHubVnetInfo.outputs.peeringsData.peeringsList
   }
+  dependsOn: [
+    vpnGatewayModule
+  ]
 }
 
 
@@ -216,6 +227,7 @@ module updatePeerings 'modules/vnet-peerings.bicep' = [for (vnetId, i) in virtua
   }
   dependsOn: [
     updateHubPeerings
+  vpnGatewayModule
   ]
 }]
 
@@ -300,7 +312,8 @@ module associateRouteTable 'modules/associate-route-table.bicep' = {
     subnetAddressPrefix: effectiveGatewaySubnetPrefix
   }
   dependsOn: [
-    ensureGatewaySubnet
+  ensureGatewaySubnet
+  vpnGatewayModule
   ]
 }
 
