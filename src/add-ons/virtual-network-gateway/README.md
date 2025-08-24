@@ -244,12 +244,31 @@ az network vnet peering update --name $spokePeering --resource-group $spokeRg --
 
 Delete VPN resources
 
+Option A: you know the VGW Public IP names
+
 ```powershell
 az network vpn-connection delete --name $vpnConn --resource-group $rg --yes
 az network local-gateway delete --name $lngw --resource-group $rg --yes
 az network vnet-gateway delete --name $vgw --resource-group $rg --yes
 az network public-ip delete --name $pip1 --resource-group $rg --yes
 az network public-ip delete --name $pip2 --resource-group $rg --yes
+```
+
+Option B: capture VGW Public IP IDs first (when names are unknown)
+
+```powershell
+# Capture the VGW public IP resource IDs BEFORE deleting the gateway
+$pipIds = az network vnet-gateway show --name $vgw --resource-group $rg `
+  --query "ipConfigurations[].publicIpAddress.id" -o tsv
+
+az network vpn-connection delete --name $vpnConn --resource-group $rg --yes
+az network local-gateway delete --name $lngw --resource-group $rg --yes
+az network vnet-gateway delete --name $vgw --resource-group $rg --yes
+
+# Delete the public IPs by ID AFTER the gateway has been removed
+foreach ($id in $pipIds) {
+  az network public-ip delete --ids $id --yes
+}
 ```
 
 Optional: delete GatewaySubnet (only if unused)
@@ -309,12 +328,39 @@ Set-AzVirtualNetworkPeering -Name $spokePeering -VirtualNetwork $spokeVnetObj -U
 
 Delete VPN resources
 
+Option A: you know the VGW Public IP names
+
 ```powershell
 Remove-AzVirtualNetworkGatewayConnection -Name $vpnConn -ResourceGroupName $rg -Force
 Remove-AzLocalNetworkGateway -Name $lngw -ResourceGroupName $rg -Force
 Remove-AzVirtualNetworkGateway -Name $vgw -ResourceGroupName $rg -Force
 Remove-AzPublicIpAddress -Name $pip1 -ResourceGroupName $rg -Force
 Remove-AzPublicIpAddress -Name $pip2 -ResourceGroupName $rg -Force
+```
+
+Option B: capture VGW Public IP IDs first (when names are unknown)
+
+```powershell
+# Capture the VGW public IP resource IDs BEFORE deleting the gateway
+$vgwObj = Get-AzVirtualNetworkGateway -Name $vgw -ResourceGroupName $rg
+$pipIds = @()
+foreach ($ipconf in $vgwObj.IpConfigurations) {
+  if ($ipconf.PublicIpAddress -and $ipconf.PublicIpAddress.Id) {
+    $pipIds += $ipconf.PublicIpAddress.Id
+  }
+}
+
+Remove-AzVirtualNetworkGatewayConnection -Name $vpnConn -ResourceGroupName $rg -Force
+Remove-AzLocalNetworkGateway -Name $lngw -ResourceGroupName $rg -Force
+Remove-AzVirtualNetworkGateway -Name $vgw -ResourceGroupName $rg -Force
+
+# Delete the public IPs by ID AFTER the gateway has been removed
+foreach ($pipId in $pipIds) {
+  $parts = $pipId -split '/'
+  $pipRg = $parts[4]
+  $pipName = $parts[-1]
+  Remove-AzPublicIpAddress -Name $pipName -ResourceGroupName $pipRg -Force
+}
 ```
 
 Optional: delete GatewaySubnet (only if unused)
