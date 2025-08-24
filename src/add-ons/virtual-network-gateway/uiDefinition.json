@@ -155,6 +155,16 @@
           "label": "Gateway",
           "elements": [
             {
+              "name": "includeHubOnPrem",
+              "label": "Include Hub ↔ On‑Prem allow rules",
+              "type": "Microsoft.Common.CheckBox",
+              "defaultValue": false,
+              "toolTip": "When enabled, also allow Hub CIDRs to reach On‑Prem and vice versa via the firewall policy.",
+              "constraints": {
+                "required": false
+              }
+            },
+            {
               "name": "gatewaySku",
               "label": "Virtual Network Gateway SKU",
               "type": "Microsoft.Common.DropDown",
@@ -190,7 +200,8 @@
       "localAddressPrefixes": "[if(equals(trim(steps('onprem').localAddressPrefixes), ''), json('[]'), map(where(split(steps('onprem').localAddressPrefixes, ','), (p) => not(equals(trim(p), ''))), (p) => trim(p)))]",
       "localGatewayIpAddress": "[steps('onprem').localGatewayIp]",
       "sharedKey": "[steps('onprem').sharedKey]",
-      "virtualNetworkGatewaySku": "[steps('gateway').gatewaySku]"
+  "virtualNetworkGatewaySku": "[steps('gateway').gatewaySku]",
+  "includeHubOnPrem": "[steps('gateway').includeHubOnPrem]"
     }
   }
 }

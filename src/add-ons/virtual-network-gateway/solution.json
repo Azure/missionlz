@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.36.1.42791",
-      "templateHash": "8511126076736869453"
+      "templateHash": "14262458116935940236"
     }
   },
   "parameters": {
@@ -64,6 +64,13 @@
       "defaultValue": [],
       "metadata": {
         "description": "Optional: Provide your own Firewall Policy rule collection groups. When non-empty, these override the default VGW-OnPrem group built by this template."
+      }
+    },
+    "includeHubOnPrem": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Include Hub <-> On-Prem allow firewall rules in the default group (off by default)."
       }
     }
   },
@@ -138,17 +145,26 @@
           "firewallPolicyName": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('firewallPolicy-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
           },
-          "hubVirtualNetworkResourceId": {
-            "value": "[parameters('hubVirtualNetworkResourceId')]"
+          "hubAddressPrefixes": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01').addressSpace.addressPrefixes]"
           },
-          "virtualNetworkResourceIdList": {
-            "value": "[parameters('virtualNetworkResourceIdList')]"
+          "spokeAddressPrefixSets": {
+            "copy": [
+              {
+                "name": "value",
+                "count": "[length(parameters('virtualNetworkResourceIdList'))]",
+                "input": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('virtualNetworkResourceIdList')[copyIndex()], '/')[2], split(parameters('virtualNetworkResourceIdList')[copyIndex()], '/')[4]), 'Microsoft.Resources/deployments', format('retrieveVnetPeerings-{0}-{1}', parameters('deploymentNameSuffix'), copyIndex('value'))), '2022-09-01').outputs.vnetAddressSpace.value]"
+              }
+            ]
           },
           "localAddressPrefixes": {
             "value": "[parameters('localAddressPrefixes')]"
           },
           "firewallRuleCollectionGroups": {
             "value": "[parameters('customFirewallRuleCollectionGroups')]"
+          },
+          "includeHubOnPrem": {
+            "value": "[parameters('includeHubOnPrem')]"
           }
         },
         "template": {
@@ -158,21 +174,24 @@
             "_generator": {
               "name": "bicep",
               "version": "0.36.1.42791",
-              "templateHash": "18001556524976118841"
+              "templateHash": "12552244860944350601"
             }
           },
           "parameters": {
             "firewallPolicyName": {
               "type": "string"
             },
-            "hubVirtualNetworkResourceId": {
-              "type": "string",
+            "hubAddressPrefixes": {
+              "type": "array",
               "metadata": {
-                "description": "The resource ID of the hub virtual network."
+                "description": "Address prefixes of the Hub virtual network."
               }
             },
-            "virtualNetworkResourceIdList": {
-              "type": "array"
+            "spokeAddressPrefixSets": {
+              "type": "array",
+              "metadata": {
+                "description": "List of address prefix arrays for each Spoke VNet (e.g., [[\"10.2.0.0/16\"],[\"10.3.0.0/16\",\"10.3.1.0/24\"]])."
+              }
             },
             "localAddressPrefixes": {
               "type": "array",
@@ -181,7 +200,128 @@
             "firewallRuleCollectionGroups": {
               "type": "array",
               "defaultValue": []
+            },
+            "includeHubOnPrem": {
+              "type": "bool",
+              "defaultValue": false,
+              "metadata": {
+                "description": "Include Hub <-> On-Prem allow rules in the default rule group"
+              }
             }
+          },
+          "variables": {
+            "copy": [
+              {
+                "name": "onPremToSpokesRules",
+                "count": "[length(parameters('spokeAddressPrefixSets'))]",
+                "input": {
+                  "name": "[format('AllowOnPremToVnet-{0}', copyIndex('onPremToSpokesRules'))]",
+                  "ruleType": "NetworkRule",
+                  "ipProtocols": [
+                    "Any"
+                  ],
+                  "sourceAddresses": "[parameters('localAddressPrefixes')]",
+                  "destinationAddresses": "[parameters('spokeAddressPrefixSets')[copyIndex('onPremToSpokesRules')]]",
+                  "destinationPorts": [
+                    "*"
+                  ],
+                  "sourceIpGroups": [],
+                  "destinationIpGroups": [],
+                  "destinationFqdns": []
+                }
+              },
+              {
+                "name": "spokesToOnPremRules",
+                "count": "[length(parameters('spokeAddressPrefixSets'))]",
+                "input": {
+                  "name": "[format('AllowVnetToOnPrem-{0}', copyIndex('spokesToOnPremRules'))]",
+                  "ruleType": "NetworkRule",
+                  "ipProtocols": [
+                    "Any"
+                  ],
+                  "sourceAddresses": "[parameters('spokeAddressPrefixSets')[copyIndex('spokesToOnPremRules')]]",
+                  "destinationAddresses": "[parameters('localAddressPrefixes')]",
+                  "destinationPorts": [
+                    "*"
+                  ],
+                  "sourceIpGroups": [],
+                  "destinationIpGroups": [],
+                  "destinationFqdns": []
+                }
+              }
+            ],
+            "baseRuleCollections": [
+              {
+                "name": "AllowOnPremToSpokes",
+                "priority": 130,
+                "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                "action": {
+                  "type": "Allow"
+                },
+                "rules": "[variables('onPremToSpokesRules')]"
+              },
+              {
+                "name": "AllowSpokesToOnPrem",
+                "priority": 131,
+                "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                "action": {
+                  "type": "Allow"
+                },
+                "rules": "[variables('spokesToOnPremRules')]"
+              }
+            ],
+            "hubRuleCollections": [
+              {
+                "name": "AllowOnPremToHub",
+                "priority": 132,
+                "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                "action": {
+                  "type": "Allow"
+                },
+                "rules": [
+                  {
+                    "name": "AllowOnPremToHub-All",
+                    "ruleType": "NetworkRule",
+                    "ipProtocols": [
+                      "Any"
+                    ],
+                    "sourceAddresses": "[parameters('localAddressPrefixes')]",
+                    "destinationAddresses": "[parameters('hubAddressPrefixes')]",
+                    "destinationPorts": [
+                      "*"
+                    ],
+                    "sourceIpGroups": [],
+                    "destinationIpGroups": [],
+                    "destinationFqdns": []
+                  }
+                ]
+              },
+              {
+                "name": "AllowHubToOnPrem",
+                "priority": 133,
+                "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                "action": {
+                  "type": "Allow"
+                },
+                "rules": [
+                  {
+                    "name": "AllowHubToOnPrem-All",
+                    "ruleType": "NetworkRule",
+                    "ipProtocols": [
+                      "Any"
+                    ],
+                    "sourceAddresses": "[parameters('hubAddressPrefixes')]",
+                    "destinationAddresses": "[parameters('localAddressPrefixes')]",
+                    "destinationPorts": [
+                      "*"
+                    ],
+                    "sourceIpGroups": [],
+                    "destinationIpGroups": [],
+                    "destinationFqdns": []
+                  }
+                ]
+              }
+            ]
           },
           "resources": [
             {
@@ -203,123 +343,15 @@
               "name": "[format('{0}/{1}', parameters('firewallPolicyName'), 'VGW-OnPrem')]",
               "properties": {
                 "priority": 245,
-                "ruleCollections": [
-                  {
-                    "copy": [
-                      {
-                        "name": "rules",
-                        "count": "[length(parameters('virtualNetworkResourceIdList'))]",
-                        "input": {
-                          "name": "[format('AllowOnPremToVnet-{0}', copyIndex('rules'))]",
-                          "ruleType": "NetworkRule",
-                          "ipProtocols": [
-                            "Any"
-                          ],
-                          "sourceAddresses": "[parameters('localAddressPrefixes')]",
-                          "destinationAddresses": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('virtualNetworkResourceIdList')[copyIndex('rules')], '/')[2], split(parameters('virtualNetworkResourceIdList')[copyIndex('rules')], '/')[4]), 'Microsoft.Network/virtualNetworks', last(split(parameters('virtualNetworkResourceIdList')[copyIndex('rules')], '/'))), '2023-11-01').addressSpace.addressPrefixes]",
-                          "destinationPorts": [
-                            "*"
-                          ],
-                          "sourceIpGroups": [],
-                          "destinationIpGroups": [],
-                          "destinationFqdns": []
-                        }
-                      }
-                    ],
-                    "name": "AllowOnPremToSpokes",
-                    "priority": 130,
-                    "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
-                    "action": {
-                      "type": "Allow"
-                    }
-                  },
-                  {
-                    "copy": [
-                      {
-                        "name": "rules",
-                        "count": "[length(parameters('virtualNetworkResourceIdList'))]",
-                        "input": {
-                          "name": "[format('AllowVnetToOnPrem-{0}', copyIndex('rules'))]",
-                          "ruleType": "NetworkRule",
-                          "ipProtocols": [
-                            "Any"
-                          ],
-                          "sourceAddresses": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('virtualNetworkResourceIdList')[copyIndex('rules')], '/')[2], split(parameters('virtualNetworkResourceIdList')[copyIndex('rules')], '/')[4]), 'Microsoft.Network/virtualNetworks', last(split(parameters('virtualNetworkResourceIdList')[copyIndex('rules')], '/'))), '2023-11-01').addressSpace.addressPrefixes]",
-                          "destinationAddresses": "[parameters('localAddressPrefixes')]",
-                          "destinationPorts": [
-                            "*"
-                          ],
-                          "sourceIpGroups": [],
-                          "destinationIpGroups": [],
-                          "destinationFqdns": []
-                        }
-                      }
-                    ],
-                    "name": "AllowSpokesToOnPrem",
-                    "priority": 131,
-                    "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
-                    "action": {
-                      "type": "Allow"
-                    }
-                  },
-                  {
-                    "name": "AllowOnPremToHub",
-                    "priority": 132,
-                    "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
-                    "action": {
-                      "type": "Allow"
-                    },
-                    "rules": [
-                      {
-                        "name": "AllowOnPremToHub-All",
-                        "ruleType": "NetworkRule",
-                        "ipProtocols": [
-                          "Any"
-                        ],
-                        "sourceAddresses": "[parameters('localAddressPrefixes')]",
-                        "destinationAddresses": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', last(split(parameters('hubVirtualNetworkResourceId'), '/'))), '2023-11-01').addressSpace.addressPrefixes]",
-                        "destinationPorts": [
-                          "*"
-                        ],
-                        "sourceIpGroups": [],
-                        "destinationIpGroups": [],
-                        "destinationFqdns": []
-                      }
-                    ]
-                  },
-                  {
-                    "name": "AllowHubToOnPrem",
-                    "priority": 133,
-                    "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
-                    "action": {
-                      "type": "Allow"
-                    },
-                    "rules": [
-                      {
-                        "name": "AllowHubToOnPrem-All",
-                        "ruleType": "NetworkRule",
-                        "ipProtocols": [
-                          "Any"
-                        ],
-                        "sourceAddresses": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', last(split(parameters('hubVirtualNetworkResourceId'), '/'))), '2023-11-01').addressSpace.addressPrefixes]",
-                        "destinationAddresses": "[parameters('localAddressPrefixes')]",
-                        "destinationPorts": [
-                          "*"
-                        ],
-                        "sourceIpGroups": [],
-                        "destinationIpGroups": [],
-                        "destinationFqdns": []
-                      }
-                    ]
-                  }
-                ]
+                "ruleCollections": "[concat(variables('baseRuleCollections'), if(parameters('includeHubOnPrem'), variables('hubRuleCollections'), createArray()))]"
               }
             }
           ]
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('firewallPolicy-{0}', parameters('deploymentNameSuffix')))]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('firewallPolicy-{0}', parameters('deploymentNameSuffix')))]",
+        "retrieveVnetInfo"
       ]
     },
     {
@@ -716,10 +748,7 @@
             }
           }
         }
-      },
-      "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('vpnConnection-{0}', parameters('deploymentNameSuffix')))]"
-      ]
+      }
     },
     {
       "type": "Microsoft.Resources/deployments",
@@ -805,10 +834,7 @@
             }
           }
         }
-      },
-      "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('vpnConnection-{0}', parameters('deploymentNameSuffix')))]"
-      ]
+      }
     },
     {
       "type": "Microsoft.Resources/deployments",
@@ -900,10 +926,7 @@
             }
           }
         }
-      },
-      "dependsOn": [
-        "updatePeerings"
-      ]
+      }
     },
     {
       "type": "Microsoft.Resources/deployments",
@@ -1051,8 +1074,7 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('retrieveHubVnetPeerings-{0}', parameters('deploymentNameSuffix')))]",
-        "retrieveVnetInfo"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('retrieveHubVnetPeerings-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
     {
@@ -1135,7 +1157,8 @@
         }
       },
       "dependsOn": [
-        "retrieveVnetInfo",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('virtualNetworkResourceIdList')[copyIndex()], '/')[2], split(parameters('virtualNetworkResourceIdList')[copyIndex()], '/')[4]), 'Microsoft.Resources/deployments', format('retrieveVnetPeerings-{0}-{1}', parameters('deploymentNameSuffix'), copyIndex()))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('virtualNetworkResourceIdList')[copyIndex()], '/')[2], split(parameters('virtualNetworkResourceIdList')[copyIndex()], '/')[4]), 'Microsoft.Resources/deployments', format('retrieveVnetPeerings-{0}-{1}', parameters('deploymentNameSuffix'), copyIndex()))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('updateHubPeerings-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
@@ -1191,13 +1214,7 @@
             }
           }
         }
-      },
-      "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('retrieveRouteTableInfo-{0}', parameters('deploymentNameSuffix')))]",
-        "retrieveVnetInfo",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('updateHubPeerings-{0}', parameters('deploymentNameSuffix')))]",
-        "updatePeerings"
-      ]
+      }
     },
     {
       "copy": {
@@ -1298,6 +1315,7 @@
       ]
     },
     {
+      "condition": "[parameters('includeHubOnPrem')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('createOverrideRoutes-{0}', parameters('deploymentNameSuffix'))]",
@@ -1391,6 +1409,7 @@
       ]
     },
     {
+      "condition": "[parameters('includeHubOnPrem')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('createHubCidrRoutes-{0}', parameters('deploymentNameSuffix'))]",
@@ -1484,6 +1503,7 @@
       ]
     },
     {
+      "condition": "[parameters('includeHubOnPrem')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('createHubRouteOverrides-{0}', parameters('deploymentNameSuffix'))]",
