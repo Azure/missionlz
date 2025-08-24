@@ -1,0 +1,170 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/0.1.2-preview/CreateUIDefinition.json#",
+  "view": {
+    "kind": "Form",
+    "properties": {
+      "title": "Virtual Network Gateway Add-on",
+      "isWizard": true,
+      "steps": [
+        {
+          "name": "basics",
+          "label": "Basics",
+          "elements": [
+            {
+              "name": "intro",
+              "type": "Microsoft.Common.TextBlock",
+              "options": {
+                "text": "Configure the Virtual Network Gateway add-on. This connects your hub to on-prem via site-to-site VPN, ensures GatewaySubnet, routes through Azure Firewall, and applies firewall rules.",
+                "link": {
+                  "label": "Mission LZ",
+                  "uri": "https://aka.ms/missionlz"
+                }
+              }
+            },
+            {
+              "name": "resourceScope",
+              "type": "Microsoft.Common.ResourceScope"
+            }
+          ]
+        },
+        {
+          "name": "networks",
+          "label": "Networks",
+          "elements": [
+            {
+              "name": "hubVnet",
+              "label": "Hub Virtual Network",
+              "type": "Microsoft.Common.ResourcePicker",
+              "toolTip": "Pick the existing Hub Virtual Network (must contain AzureFirewallSubnet).",
+              "options": {
+                "resourceType": "Microsoft.Network/virtualNetworks",
+                "allowMultiple": false
+              },
+              "constraints": {
+                "required": true
+              }
+            },
+            {
+              "name": "spokeVnets",
+              "label": "Spoke Virtual Networks",
+              "type": "Microsoft.Common.ResourcePicker",
+              "toolTip": "Pick one or more existing Spoke VNets to use the VPN Gateway.",
+              "options": {
+                "resourceType": "Microsoft.Network/virtualNetworks",
+                "allowMultiple": true
+              },
+              "constraints": {
+                "required": true
+              }
+            }
+          ]
+        },
+        {
+          "name": "onprem",
+          "label": "On‑prem connectivity",
+          "elements": [
+            {
+              "name": "localAddressPrefixes",
+              "label": "Local (on‑prem) address prefixes (comma separated)",
+              "type": "Microsoft.Common.TextBox",
+              "placeholder": "10.1.0.0/16,10.2.0.0/16",
+              "multiLine": true,
+              "toolTip": "Enter one or more CIDR prefixes separated by commas.",
+              "constraints": {
+                "required": true
+              }
+            },
+            {
+              "name": "localGatewayIp",
+              "label": "Local gateway public IP address",
+              "type": "Microsoft.Common.TextBox",
+              "placeholder": "x.x.x.x",
+              "toolTip": "Public IP address of the on‑premises VPN device.",
+              "constraints": {
+                "required": true,
+                "validations": [
+                  {
+                    "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)$",
+                    "message": "Enter a valid IPv4 address."
+                  }
+                ]
+              }
+            },
+            {
+              "name": "sharedKey",
+              "label": "Shared key",
+              "type": "Microsoft.Common.SecureString",
+              "toolTip": "Pre‑shared key used for the VPN connection.",
+              "constraints": {
+                "required": true,
+                "minLength": 1
+              }
+            }
+          ]
+        },
+        {
+          "name": "gateway",
+          "label": "Gateway",
+          "elements": [
+            {
+              "name": "gatewaySku",
+              "label": "Virtual Network Gateway SKU",
+              "type": "Microsoft.Common.DropDown",
+              "defaultValue": "VpnGw2",
+              "constraints": {
+                "required": true,
+                "allowedValues": [
+                  { "label": "VpnGw2", "value": "VpnGw2" },
+                  { "label": "VpnGw3", "value": "VpnGw3" },
+                  { "label": "VpnGw4", "value": "VpnGw4" },
+                  { "label": "VpnGw5", "value": "VpnGw5" }
+                ]
+              }
+            },
+            {
+              "name": "noteGatewaySubnet",
+              "type": "Microsoft.Common.TextBlock",
+              "options": {
+                "text": "GatewaySubnet will be created or updated automatically if missing, and a dedicated route table will be associated to steer traffic through the firewall.",
+                "link": null
+              }
+            }
+          ]
+        },
+        {
+          "name": "advanced",
+          "label": "Advanced",
+          "elements": [
+            {
+              "name": "useCustomRules",
+              "label": "Provide custom firewall rule collection groups (JSON)",
+              "type": "Microsoft.Common.CheckBox"
+            },
+            {
+              "name": "customFirewallRulesJson",
+              "label": "Firewall rule collection groups (JSON)",
+              "type": "Microsoft.Common.TextBox",
+              "visible": "[steps('advanced').useCustomRules]",
+              "multiLine": true,
+              "placeholder": "[]",
+              "toolTip": "Optional. Provide an array of Firewall Policy rule collection groups to deploy instead of the defaults.",
+              "constraints": { "required": false }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "outputs": {
+    "location": "[steps('basics').resourceScope.location]",
+    "parameters": {
+      "hubVirtualNetworkResourceId": "[steps('networks').hubVnet.id]",
+      "virtualNetworkResourceIdList": "[map(steps('networks').spokeVnets, (v) => v.id)]",
+      "localAddressPrefixes": "[if(equals(trim(steps('onprem').localAddressPrefixes), ''), json('[]'), map(where(split(steps('onprem').localAddressPrefixes, ','), (p) => not(equals(trim(p), ''))), (p) => trim(p)))]",
+      "localGatewayIpAddress": "[steps('onprem').localGatewayIp]",
+      "sharedKey": "[steps('onprem').sharedKey]",
+      "virtualNetworkGatewaySku": "[steps('gateway').gatewaySku]",
+      "customFirewallRuleCollectionGroups": "[if(steps('advanced').useCustomRules, if(equals(trim(steps('advanced').customFirewallRulesJson), ''), json('[]'), parse(steps('advanced').customFirewallRulesJson)), json('[]'))]"
+    }
+  }
+}
