@@ -1,5 +1,5 @@
-@description('Resource ID of the hub firewall. Used to derive the resource group and VNet for deployment.')
-param hubFirewallResourceId string
+@description('Resource ID of the hub virtual network (used to derive resource group for NAT resources).')
+param hubVirtualNetworkResourceId string
 
 @description('Azure region for deployment.')
 param location string
@@ -27,8 +27,8 @@ param publicIpPrefixLength int = 30
 @description('The name for the public IP prefix resource.')
 param publicIpPrefixName string = '${natGatewayName}-prefix'
 
-// Derive the resource group name from the firewall resource ID
-var resourceGroupName = split(hubFirewallResourceId, '/')[4]
+// Derive the resource group name from the hub VNet resource ID
+var resourceGroupName = split(hubVirtualNetworkResourceId, '/')[4]
 
 // Zone array for resources (empty array if no zone specified)
 var zoneArray = zone == '' ? [] : [zone]
