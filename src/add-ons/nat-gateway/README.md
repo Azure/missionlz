@@ -4,6 +4,12 @@
 
 Deploy an Azure NAT Gateway and attach it only to the Hub virtual network's AzureFirewallSubnet. Minimal inputs, idempotent behavior, and naming aligned with Mission LZ.
 
+Why use a NAT Gateway here?
+
+- Predictable, allowlist-friendly egress: Use a Public IP Prefix so all outbound traffic leaving through the hub/firewall presents from a bounded, known set of IPs.
+- More SNAT scale and resilience: Offloads outbound SNAT from Azure Firewall to NAT Gateway, reducing SNAT port exhaustion risk and improving throughput for high-connection scenarios (patching, package feeds, ACR/GitHub, etc.).
+- Simple hub-only change: Touches only `AzureFirewallSubnet`, preserving existing NSG/UDR/policies and without modifying spoke subnets.
+
 Creates:
 
 - Standard Public IP Prefix (size you choose)
@@ -36,6 +42,22 @@ Notes
   - Public IP Prefix size. Azure NAT Gateway supports /28 to /31
 - deploymentNameSuffix (string, optional; default: utcNow())
   - Suffix used for unique deployment/module names
+
+## Public IP Prefix sizing chart
+
+Choose a prefix size based on expected outbound concurrency and allowlisting needs. For NAT Gateway, all IPs in the prefix are usable.
+
+| Prefix length | Total IPs |
+| --- | --- |
+| /31 | 2 |
+| /30 | 4 |
+| /29 | 8 |
+| /28 | 16 |
+
+Notes
+
+- NAT Gateway supports attaching Public IP Prefixes sized /28 through /31.
+- Larger prefixes provide more SNAT ports for high-concurrency outbound scenarios.
 
 ## What it changes
 
