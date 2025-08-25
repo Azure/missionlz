@@ -5,12 +5,12 @@ param vnetName string
 param subnetName string
 
 resource vnet 'Microsoft.Network/virtualNetworks@2024-05-01' existing = {
-  name: vnetName
+	name: vnetName
 }
 
 resource subnet 'Microsoft.Network/virtualNetworks/subnets@2024-05-01' existing = {
-  name: subnetName
-  parent: vnet
+	name: subnetName
+	parent: vnet
 }
 
 output vnetName string = vnet.name
