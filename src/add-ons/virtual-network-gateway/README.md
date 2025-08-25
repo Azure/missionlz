@@ -1,4 +1,4 @@
-# Virtual Network Gateway add-on (Mission Landing Zone)
+# Virtual Network Gateway Add-On
 
 ## Purpose
 
