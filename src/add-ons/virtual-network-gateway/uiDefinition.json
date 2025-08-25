@@ -1,0 +1,207 @@
+{
+  "view": {
+    "kind": "Form",
+    "properties": {
+      "title": "Virtual Network Gateway Add-on",
+      "isWizard": true,
+      "steps": [
+        {
+          "name": "basics",
+          "label": "Basics",
+          "elements": [
+            {
+              "name": "intro",
+              "type": "Microsoft.Common.TextBlock",
+              "options": {
+                "text": "Configure the Virtual Network Gateway add-on. This connects your hub to on-prem via site-to-site VPN, ensures GatewaySubnet, routes through Azure Firewall, and applies firewall rules.",
+                "link": {
+                  "label": "Mission LZ",
+                  "uri": "https://aka.ms/missionlz"
+                }
+              }
+            },
+            {
+              "name": "resourceScope",
+              "type": "Microsoft.Common.ResourceScope"
+            },
+            {
+              "name": "subscriptionApi",
+              "type": "Microsoft.Solutions.ArmApiControl",
+              "request": {
+                "method": "GET",
+                "path": "subscriptions?api-version=2020-01-01"
+              }
+            }
+          ]
+        },
+        {
+          "name": "networks",
+          "label": "Networks",
+          "elements": [
+            {
+              "name": "hubSub",
+              "label": "Hub Subscription",
+              "type": "Microsoft.Common.DropDown",
+              "defaultValue": "",
+              "toolTip": "Select the subscription containing the Hub VNet.",
+              "multiselect": false,
+              "filter": true,
+              "constraints": {
+                "required": true,
+                "allowedValues": "[map(steps('basics').subscriptionApi.value, (s) => parse(concat('{\"label\":\"', s.displayName, '\",\"value\":\"', s.subscriptionId, '\",\"description\":\"ID: ', s.subscriptionId, '\"}')))]"
+              }
+            },
+            {
+              "name": "hubVnetsApi",
+              "type": "Microsoft.Solutions.ArmApiControl",
+              "request": {
+                "method": "GET",
+                "path": "[concat('subscriptions/', steps('networks').hubSub, '/providers/Microsoft.Network/virtualNetworks?api-version=2023-11-01')]"
+              }
+            },
+            {
+              "name": "hubVnetDrop",
+              "label": "Hub Virtual Network",
+              "type": "Microsoft.Common.DropDown",
+              "toolTip": "Select the Hub Virtual Network (should contain AzureFirewallSubnet).",
+              "multiselect": false,
+              "filter": true,
+              "constraints": {
+                "required": true,
+                "allowedValues": "[map(steps('networks').hubVnetsApi.value, (v) => parse(concat('{\"label\":\"', v.name, ' (RG: ', last(skip(split(v.id, '/'), 4)), ')\",\"value\":\"', v.id, '\"}')))]"
+              }
+            },
+            {
+              "name": "spokeSub",
+              "label": "Spokes Subscription",
+              "type": "Microsoft.Common.DropDown",
+              "defaultValue": "",
+              "toolTip": "Select the subscription containing the Spoke VNets.",
+              "multiselect": false,
+              "filter": true,
+              "constraints": {
+                "required": true,
+                "allowedValues": "[map(steps('basics').subscriptionApi.value, (s) => parse(concat('{\"label\":\"', s.displayName, '\",\"value\":\"', s.subscriptionId, '\",\"description\":\"ID: ', s.subscriptionId, '\"}')))]"
+              }
+            },
+            {
+              "name": "spokeVnetsApi",
+              "type": "Microsoft.Solutions.ArmApiControl",
+              "request": {
+                "method": "GET",
+                "path": "[concat('subscriptions/', steps('networks').spokeSub, '/providers/Microsoft.Network/virtualNetworks?api-version=2023-11-01')]"
+              }
+            },
+            {
+              "name": "spokeVnetsDrop",
+              "label": "Spoke Virtual Networks",
+              "type": "Microsoft.Common.DropDown",
+              "toolTip": "Select one or more Spoke VNets to use the VPN Gateway.",
+              "multiselect": true,
+              "selectAll": true,
+              "filter": true,
+              "constraints": {
+                "required": true,
+                "allowedValues": "[map(steps('networks').spokeVnetsApi.value, (v) => parse(concat('{\"label\":\"', v.name, ' (RG: ', last(skip(split(v.id, '/'), 4)), ')\",\"value\":\"', v.id, '\"}')))]"
+              }
+            }
+          ]
+        },
+        {
+          "name": "onprem",
+          "label": "On‑prem connectivity",
+          "elements": [
+            {
+              "name": "localAddressPrefixes",
+              "label": "Local (on‑prem) address prefixes",
+              "type": "Microsoft.Common.TextBox",
+              "placeholder": "10.1.0.0/16, 10.2.0.0/16",
+              "multiLine": true,
+              "toolTip": "Enter one or more CIDR prefixes, comma‑separated (e.g., 10.1.0.0/16, 10.2.0.0/16). Use CIDR notation.",
+              "constraints": {
+                "required": true
+              }
+            },
+            {
+              "name": "localGatewayIp",
+              "label": "Local gateway public IP address",
+              "type": "Microsoft.Common.TextBox",
+              "placeholder": "x.x.x.x",
+              "toolTip": "Public IP address of the on‑premises VPN device.",
+              "constraints": {
+                "required": true,
+                "validations": [
+                  {
+                    "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)$",
+                    "message": "Enter a valid IPv4 address."
+                  }
+                ]
+              }
+            },
+            {
+              "name": "sharedKey",
+              "label": "Shared key",
+              "type": "Microsoft.Common.SecureString",
+              "toolTip": "Pre‑shared key used for the VPN connection.",
+              "constraints": {
+                "required": true,
+                "minLength": 1
+              }
+            }
+          ]
+        },
+        {
+          "name": "gateway",
+          "label": "Gateway",
+          "elements": [
+            {
+              "name": "includeHubOnPrem",
+              "label": "Include Hub ↔ On‑Prem allow rules",
+              "type": "Microsoft.Common.CheckBox",
+              "defaultValue": false,
+              "toolTip": "When enabled, also allow Hub CIDRs to reach On‑Prem and vice versa via the firewall policy.",
+              "constraints": {
+                "required": false
+              }
+            },
+            {
+              "name": "gatewaySku",
+              "label": "Virtual Network Gateway SKU",
+              "type": "Microsoft.Common.DropDown",
+              "defaultValue": "VpnGw2",
+              "constraints": {
+                "required": true,
+                "allowedValues": [
+                  { "label": "VpnGw2", "value": "VpnGw2" },
+                  { "label": "VpnGw3", "value": "VpnGw3" },
+                  { "label": "VpnGw4", "value": "VpnGw4" },
+                  { "label": "VpnGw5", "value": "VpnGw5" }
+                ]
+              }
+            },
+            {
+              "name": "noteGatewaySubnet",
+              "type": "Microsoft.Common.TextBlock",
+              "options": {
+                "text": "GatewaySubnet will be created or updated automatically if missing, and a dedicated route table will be associated to steer traffic through the firewall.",
+                "link": null
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "outputs": {
+    "location": "[steps('basics').resourceScope.location]",
+    "parameters": {
+      "hubVirtualNetworkResourceId": "[steps('networks').hubVnetDrop]",
+      "virtualNetworkResourceIdList": "[steps('networks').spokeVnetsDrop]",
+      "localAddressPrefixes": "[if(equals(trim(steps('onprem').localAddressPrefixes), ''), json('[]'), map(where(split(steps('onprem').localAddressPrefixes, ','), (p) => not(equals(trim(p), ''))), (p) => trim(p)))]",
+      "localGatewayIpAddress": "[steps('onprem').localGatewayIp]",
+      "sharedKey": "[steps('onprem').sharedKey]",
+  "virtualNetworkGatewaySku": "[steps('gateway').gatewaySku]",
+  "includeHubOnPrem": "[steps('gateway').includeHubOnPrem]"
+    }
+  }
+}

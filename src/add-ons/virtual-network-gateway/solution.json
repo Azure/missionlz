@@ -5,46 +5,15 @@
     "_generator": {
       "name": "bicep",
       "version": "0.37.4.10188",
-      "templateHash": "14124457678594011421"
+      "templateHash": "14405296143726649037"
     }
   },
   "parameters": {
-    "allowedAzureAddressPrefixes": {
-      "type": "array",
-      "defaultValue": [
-        "10.0.130.0/24",
-        "10.0.131.0/24",
-        "10.0.132.0/24",
-        "10.0.128.0/23"
-      ],
-      "metadata": {
-        "description": "Azure address prefixes allowed to communicate to VPN Gateway to on-premises network"
-      }
-    },
-    "customFirewallRuleCollectionGroups": {
-      "type": "array",
-      "defaultValue": [],
-      "metadata": {
-        "description": "The firewall rules that will be applied to the Azure Firewall."
-      }
-    },
     "deploymentNameSuffix": {
       "type": "string",
       "defaultValue": "[utcNow()]",
       "metadata": {
         "description": "A suffix to use for naming deployments uniquely."
-      }
-    },
-    "environmentAbbreviation": {
-      "type": "string",
-      "defaultValue": "dev",
-      "allowedValues": [
-        "dev",
-        "prod",
-        "test"
-      ],
-      "metadata": {
-        "description": "[dev/prod/test] The abbreviation for the target environment."
       }
     },
     "hubVirtualNetworkResourceId": {
@@ -53,12 +22,16 @@
         "description": "The resource ID of the hub virtual network."
       }
     },
-    "identifier": {
+    "operationsLogAnalyticsWorkspaceResourceId": {
       "type": "string",
-      "minLength": 1,
-      "maxLength": 6,
       "metadata": {
-        "description": "1-6 alphanumeric characters without whitespace, used to name resources and generate uniqueness for resources within your subscription. Ideally, the value should represent an organization, department, or business unit."
+        "description": "Resource ID of the Operations Log Analytics Workspace where diagnostics should be sent."
+      }
+    },
+    "virtualNetworkResourceIdList": {
+      "type": "array",
+      "metadata": {
+        "description": "List of peered networks that should use the VPN Gateway once configured."
       }
     },
     "localAddressPrefixes": {
@@ -70,30 +43,19 @@
     "localGatewayIpAddress": {
       "type": "string",
       "metadata": {
-        "description": "IP Address of the Local Network Gateway, must be a public IP address or be able to be connected to from MLZ network"
-      }
-    },
-    "keyVaultCertificateUri": {
-      "type": "string",
-      "defaultValue": "",
-      "metadata": {
-        "description": "The URI of the Key Vault certificate to use for the VPN connection. If using a Key Vault certificate, this must be a valid URI."
+        "description": "IP Address of the Local Network Gateway, must be a public IP address reachable from the MLZ network"
       }
     },
     "sharedKey": {
       "type": "securestring",
+      "defaultValue": "[newGuid()]",
       "metadata": {
-        "description": "The shared key to use for the VPN connection. If using the shared key, this must be provided."
-      }
-    },
-    "useSharedKey": {
-      "type": "bool",
-      "metadata": {
-        "description": "Choose whether to use a shared key or Key Vault certificate URI for the VPN connection."
+        "description": "The shared key to use for the VPN connection. If not provided, a random GUID will be generated."
       }
     },
     "virtualNetworkGatewaySku": {
       "type": "string",
+      "defaultValue": "VpnGw2",
       "allowedValues": [
         "VpnGw2",
         "VpnGw3",
@@ -104,453 +66,36 @@
         "description": "The SKU of the virtual network gateway."
       }
     },
-    "virtualNetworkResourceIdList": {
+    "customFirewallRuleCollectionGroups": {
       "type": "array",
+      "defaultValue": [],
       "metadata": {
-        "description": "List of peered networks that should use the VPN Gateway once configured."
+        "description": "Optional: Provide your own Firewall Policy rule collection groups. When non-empty, these override the default VGW-OnPrem group built by this template."
+      }
+    },
+    "includeHubOnPrem": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Include Hub <-> On-Prem allow firewall rules in the default group (off by default)."
       }
     }
   },
   "variables": {
-    "$fxv#0": {
-      "AzureChina": {
-        "chinaeast": {
-          "abbreviation": "cne",
-          "recoveryServicesGeo": "sha",
-          "timeDifference": "+8:00",
-          "timeZone": "China Standard Time"
-        },
-        "chinaeast2": {
-          "abbreviation": "cne2",
-          "recoveryServicesGeo": "sha2",
-          "timeDifference": "+8:00",
-          "timeZone": "China Standard Time"
-        },
-        "chinanorth": {
-          "abbreviation": "cnn",
-          "recoveryServicesGeo": "bjb",
-          "timeDifference": "+8:00",
-          "timeZone": "China Standard Time"
-        },
-        "chinanorth2": {
-          "abbreviation": "cnn2",
-          "recoveryServicesGeo": "bjb2",
-          "timeDifference": "+8:00",
-          "timeZone": "China Standard Time"
-        }
-      },
-      "AzureCloud": {
-        "australiacentral": {
-          "abbreviation": "auc",
-          "recoveryServicesGeo": "acl",
-          "timeDifference": "+10:00",
-          "timeZone": "AUS Eastern Standard Time"
-        },
-        "australiacentral2": {
-          "abbreviation": "auc2",
-          "recoveryServicesGeo": "acl2",
-          "timeDifference": "+10:00",
-          "timeZone": "AUS Eastern Standard Time"
-        },
-        "australiaeast": {
-          "abbreviation": "aue",
-          "recoveryServicesGeo": "ae",
-          "timeDifference": "+10:00",
-          "timeZone": "AUS Eastern Standard Time"
-        },
-        "australiasoutheast": {
-          "abbreviation": "ause",
-          "recoveryServicesGeo": "ase",
-          "timeDifference": "+10:00",
-          "timeZone": "AUS Eastern Standard Time"
-        },
-        "brazilsouth": {
-          "abbreviation": "brs",
-          "recoveryServicesGeo": "brs",
-          "timeDifference": "-3:00",
-          "timeZone": "E. South America Standard Time"
-        },
-        "brazilsoutheast": {
-          "abbreviation": "brse",
-          "recoveryServicesGeo": "bse",
-          "timeDifference": "-3:00",
-          "timeZone": "E. South America Standard Time"
-        },
-        "canadacentral": {
-          "abbreviation": "cac",
-          "recoveryServicesGeo": "cnc",
-          "timeDifference": "-5:00",
-          "timeZone": "Eastern Standard Time"
-        },
-        "canadaeast": {
-          "abbreviation": "cae",
-          "recoveryServicesGeo": "cne",
-          "timeDifference": "-5:00",
-          "timeZone": "Eastern Standard Time"
-        },
-        "centralindia": {
-          "abbreviation": "inc",
-          "recoveryServicesGeo": "inc",
-          "timeDifference": "+5:30",
-          "timeZone": "India Standard Time"
-        },
-        "centralus": {
-          "abbreviation": "usc",
-          "recoveryServicesGeo": "cus",
-          "timeDifference": "-6:00",
-          "timeZone": "Central Standard Time"
-        },
-        "eastasia": {
-          "abbreviation": "ase",
-          "recoveryServicesGeo": "ea",
-          "timeDifference": "+8:00",
-          "timeZone": "China Standard Time"
-        },
-        "eastus": {
-          "abbreviation": "use",
-          "recoveryServicesGeo": "eus",
-          "timeDifference": "-5:00",
-          "timeZone": "Eastern Standard Time"
-        },
-        "eastus2": {
-          "abbreviation": "use2",
-          "recoveryServicesGeo": "eus2",
-          "timeDifference": "-5:00",
-          "timeZone": "Eastern Standard Time"
-        },
-        "francecentral": {
-          "abbreviation": "frc",
-          "recoveryServicesGeo": "frc",
-          "timeDifference": "+1:00",
-          "timeZone": "Central Europe Standard Time"
-        },
-        "francesouth": {
-          "abbreviation": "frs",
-          "recoveryServicesGeo": "frs",
-          "timeDifference": "+1:00",
-          "timeZone": "Central Europe Standard Time"
-        },
-        "germanynorth": {
-          "abbreviation": "den",
-          "recoveryServicesGeo": "gn",
-          "timeDifference": "+1:00",
-          "timeZone": "Central Europe Standard Time"
-        },
-        "germanywestcentral": {
-          "abbreviation": "dewc",
-          "recoveryServicesGeo": "gwc",
-          "timeDifference": "+1:00",
-          "timeZone": "Central Europe Standard Time"
-        },
-        "israelcentral": {
-          "abbreviation": "ilc",
-          "recoveryServicesGeo": "ilc",
-          "timeDifference": "+2:00",
-          "timeZone": "Israel Standard Time"
-        },
-        "italynorth": {
-          "abbreviation": "itn",
-          "recoveryServicesGeo": "itn",
-          "timeDifference": "+1:00",
-          "timeZone": "Central Europe Standard Time"
-        },
-        "japaneast": {
-          "abbreviation": "jpe",
-          "recoveryServicesGeo": "jpe",
-          "timeDifference": "+9:00",
-          "timeZone": "Tokyo Standard Time"
-        },
-        "japanwest": {
-          "abbreviation": "jpw",
-          "recoveryServicesGeo": "jpw",
-          "timeDifference": "+9:00",
-          "timeZone": "Tokyo Standard Time"
-        },
-        "jioindiacentral": {
-          "abbreviation": "injc",
-          "recoveryServicesGeo": "jic",
-          "timeDifference": "+5:30",
-          "timeZone": "India Standard Time"
-        },
-        "jioindiawest": {
-          "abbreviation": "injw",
-          "recoveryServicesGeo": "jiw",
-          "timeDifference": "+5:30",
-          "timeZone": "India Standard Time"
-        },
-        "koreacentral": {
-          "abbreviation": "krc",
-          "recoveryServicesGeo": "krc",
-          "timeDifference": "+9:00",
-          "timeZone": "Korea Standard Time"
-        },
-        "koreasouth": {
-          "abbreviation": "krs",
-          "recoveryServicesGeo": "krs",
-          "timeDifference": "+9:00",
-          "timeZone": "Korea Standard Time"
-        },
-        "northcentralus": {
-          "abbreviation": "usnc",
-          "recoveryServicesGeo": "ncus",
-          "timeDifference": "-6:00",
-          "timeZone": "Central Standard Time"
-        },
-        "northeurope": {
-          "abbreviation": "eun",
-          "recoveryServicesGeo": "ne",
-          "timeDifference": "0:00",
-          "timeZone": "GMT Standard Time"
-        },
-        "norwayeast": {
-          "abbreviation": "noe",
-          "recoveryServicesGeo": "nwe",
-          "timeDifference": "+1:00",
-          "timeZone": "Central Europe Standard Time"
-        },
-        "norwaywest": {
-          "abbreviation": "now",
-          "recoveryServicesGeo": "nww",
-          "timeDifference": "+1:00",
-          "timeZone": "Central Europe Standard Time"
-        },
-        "polandcentral": {
-          "abbreviation": "plc",
-          "recoveryServicesGeo": "plc",
-          "timeDifference": "+1:00",
-          "timeZone": "Central Europe Standard Time"
-        },
-        "qatarcentral": {
-          "abbreviation": "qac",
-          "recoveryServicesGeo": "qac",
-          "timeDifference": "+3:00",
-          "timeZone": "Arabian Standard Time"
-        },
-        "southafricanorth": {
-          "abbreviation": "zan",
-          "recoveryServicesGeo": "san",
-          "timeDifference": "+2:00",
-          "timeZone": "South Africa Standard Time"
-        },
-        "southafricawest": {
-          "abbreviation": "zaw",
-          "recoveryServicesGeo": "saw",
-          "timeDifference": "+2:00",
-          "timeZone": "South Africa Standard Time"
-        },
-        "southcentralus": {
-          "abbreviation": "ussc",
-          "recoveryServicesGeo": "scus",
-          "timeDifference": "-6:00",
-          "timeZone": "Central Standard Time"
-        },
-        "southeastasia": {
-          "abbreviation": "asse",
-          "recoveryServicesGeo": "sea",
-          "timeDifference": "+8:00",
-          "timeZone": "Singapore Standard Time"
-        },
-        "southindia": {
-          "abbreviation": "ins",
-          "recoveryServicesGeo": "ins",
-          "timeDifference": "+5:30",
-          "timeZone": "India Standard Time"
-        },
-        "swedencentral": {
-          "abbreviation": "sec",
-          "recoveryServicesGeo": "sdc",
-          "timeDifference": "+1:00",
-          "timeZone": "Central Europe Standard Time"
-        },
-        "switzerlandnorth": {
-          "abbreviation": "chn",
-          "recoveryServicesGeo": "szn",
-          "timeDifference": "+1:00",
-          "timeZone": "Central Europe Standard Time"
-        },
-        "switzerlandwest": {
-          "abbreviation": "chw",
-          "recoveryServicesGeo": "szw",
-          "timeDifference": "+1:00",
-          "timeZone": "Central Europe Standard Time"
-        },
-        "uaecentral": {
-          "abbreviation": "aec",
-          "recoveryServicesGeo": "uac",
-          "timeDifference": "+3:00",
-          "timeZone": "Arabian Standard Time"
-        },
-        "uaenorth": {
-          "abbreviation": "aen",
-          "recoveryServicesGeo": "uan",
-          "timeDifference": "+3:00",
-          "timeZone": "Arabian Standard Time"
-        },
-        "uksouth": {
-          "abbreviation": "uks",
-          "recoveryServicesGeo": "uks",
-          "timeDifference": "0:00",
-          "timeZone": "GMT Standard Time"
-        },
-        "ukwest": {
-          "abbreviation": "ukw",
-          "recoveryServicesGeo": "ukw",
-          "timeDifference": "0:00",
-          "timeZone": "GMT Standard Time"
-        },
-        "westcentralus": {
-          "abbreviation": "uswc",
-          "recoveryServicesGeo": "wcus",
-          "timeDifference": "-7:00",
-          "timeZone": "Mountain Standard Time"
-        },
-        "westeurope": {
-          "abbreviation": "euw",
-          "recoveryServicesGeo": "we",
-          "timeDifference": "+1:00",
-          "timeZone": "Central Europe Standard Time"
-        },
-        "westindia": {
-          "abbreviation": "inw",
-          "recoveryServicesGeo": "inw",
-          "timeDifference": "+5:30",
-          "timeZone": "India Standard Time"
-        },
-        "westus": {
-          "abbreviation": "usw",
-          "recoveryServicesGeo": "wus",
-          "timeDifference": "-8:00",
-          "timeZone": "Pacific Standard Time"
-        },
-        "westus2": {
-          "abbreviation": "usw2",
-          "recoveryServicesGeo": "wus2",
-          "timeDifference": "-8:00",
-          "timeZone": "Pacific Standard Time"
-        },
-        "westus3": {
-          "abbreviation": "usw3",
-          "recoveryServicesGeo": "wus3",
-          "timeDifference": "-7:00",
-          "timeZone": "Mountain Standard Time"
-        }
-      },
-      "AzureUSGovernment": {
-        "usdodcentral": {
-          "abbreviation": "dodc",
-          "recoveryServicesGeo": "udc",
-          "timeDifference": "-6:00",
-          "timeZone": "Central Standard Time"
-        },
-        "usdodeast": {
-          "abbreviation": "dode",
-          "recoveryServicesGeo": "ude",
-          "timeDifference": "-5:00",
-          "timeZone": "Eastern Standard Time"
-        },
-        "usgovarizona": {
-          "abbreviation": "az",
-          "recoveryServicesGeo": "uga",
-          "timeDifference": "-7:00",
-          "timeZone": "Mountain Standard Time"
-        },
-        "usgovtexas": {
-          "abbreviation": "tx",
-          "recoveryServicesGeo": "ugt",
-          "timeDifference": "-6:00",
-          "timeZone": "Central Standard Time"
-        },
-        "usgovvirginia": {
-          "abbreviation": "va",
-          "recoveryServicesGeo": "ugv",
-          "timeDifference": "-5:00",
-          "timeZone": "Eastern Standard Time"
-        }
-      }
-    },
-    "$fxv#1": {
-      "actionGroups": "ag",
-      "applicationGroups": "vdag",
-      "applicationInsights": "appi",
-      "appServicePlans": "asp",
-      "automationAccounts": "aa",
-      "availabilitySets": "avail",
-      "azureFirewalls": "afw",
-      "bastionHosts": "bas",
-      "computeGallieries": "cg",
-      "dataCollectionEndpoints": "dce",
-      "dataCollectionRuleAssociations": "dcra",
-      "dataCollectionRules": "dcr",
-      "diagnosticSettings": "diag",
-      "diskAccesses": "da",
-      "diskEncryptionSets": "des",
-      "disks": "disk",
-      "firewallPolicies": "afwp",
-      "functionApps": "func",
-      "hostPools": "vdpool",
-      "ipConfigurations": "ipconf",
-      "keyVaults": "kv",
-      "localNetworkGateways": "lgw",
-      "logAnalyticsWorkspaces": "log",
-      "natGateways": "ng",
-      "netAppAccounts": "naa",
-      "netAppAccountsCapacityPools": "cp",
-      "networkInterfaces": "nic",
-      "networkSecurityGroups": "nsg",
-      "networkWatchers": "nw",
-      "networkWatchersFlowLogs": "fl",
-      "privateEndpoints": "pe",
-      "privateLinkScopes": "pls",
-      "publicIPAddresses": "pip",
-      "publicIPPrefixes": "ippre",
-      "recoveryServicesVaults": "rsv",
-      "remoteApplicationGroups": "vdag",
-      "resourceGroups": "rg",
-      "routeTables": "rt",
-      "scalingPlans": "vdscaling",
-      "storageAccounts": "st",
-      "subnets": "snet",
-      "userAssignedIdentities": "id",
-      "virtualMachines": "vm",
-      "virtualNetworkGateways": "vgw",
-      "virtualNetworks": "vnet",
-      "workspaces": "vdws"
-    },
+    "defaultGatewaySubnetPrefix": "10.0.129.192/26",
     "delimiter": "-",
-    "directionShortNames": {
-      "east": "e",
-      "eastcentral": "ec",
-      "north": "n",
-      "northcentral": "nc",
-      "south": "s",
-      "southcentral": "sc",
-      "west": "w",
-      "westcentral": "wc"
-    },
     "hubResourceGroupName": "[split(parameters('hubVirtualNetworkResourceId'), '/')[4]]",
     "hubVirtualNetworkName": "[split(parameters('hubVirtualNetworkResourceId'), '/')[8]]",
-    "isValidUri": "[and(contains(parameters('keyVaultCertificateUri'), 'https://'), contains(parameters('keyVaultCertificateUri'), '/secrets/'))]",
-    "vpnKeyVaultUri": "[if(not(parameters('useSharedKey')), parameters('keyVaultCertificateUri'), '')]",
-    "vpnSharedKey": "[if(parameters('useSharedKey'), parameters('sharedKey'), '')]"
+    "nameTokens": "[split(variables('hubVirtualNetworkName'), '-')]",
+    "idToken": "[variables('nameTokens')[0]]",
+    "envToken": "[variables('nameTokens')[1]]",
+    "locToken": "[variables('nameTokens')[2]]",
+    "vgwRouteTableName": "[format('{0}-{1}-{2}-vgw-rt', variables('idToken'), variables('envToken'), variables('locToken'))]",
+    "vpnGatewayName": "[format('{0}-{1}-{2}-hub-vgw', variables('idToken'), variables('envToken'), variables('locToken'))]",
+    "publicIpAddressBaseName": "[format('{0}-{1}-{2}-hub-pip', variables('idToken'), variables('envToken'), variables('locToken'))]",
+    "hubRouteTableName": "[format('{0}-{1}-{2}-hub-rt', variables('idToken'), variables('envToken'), variables('locToken'))]"
   },
   "resources": [
-    {
-      "condition": "[and(not(parameters('useSharedKey')), not(variables('isValidUri')))]",
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2021-04-01",
-      "name": "[format('InvalidKeyVaultCertificateUri-{0}', parameters('deploymentNameSuffix'))]",
-      "properties": {
-        "mode": "Incremental",
-        "parameters": {
-          "message": {
-            "value": "Invalid Key Vault Certificate URI. It must start with \"https://\" and contain \"/secrets/\"."
-          }
-        },
-        "templateLink": {
-          "uri": "https://validatemessage.com"
-        }
-      }
-    },
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
@@ -595,174 +140,139 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
-      "name": "[format('get-naming-mgmt-{0}', parameters('deploymentNameSuffix'))]",
-      "location": "[deployment().location]",
+      "name": "[format('collectSpokeAddresses-{0}', parameters('deploymentNameSuffix'))]",
+      "subscriptionId": "[split(parameters('hubVirtualNetworkResourceId'), '/')[2]]",
+      "resourceGroup": "[split(parameters('hubVirtualNetworkResourceId'), '/')[4]]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
         },
         "mode": "Incremental",
         "parameters": {
-          "delimiter": {
-            "value": "[variables('delimiter')]"
-          },
-          "environmentAbbreviation": {
-            "value": "[parameters('environmentAbbreviation')]"
-          },
-          "identifier": {
-            "value": "[parameters('identifier')]"
-          },
-          "locationAbbreviation": {
-            "value": "[coalesce(tryGet(variables('$fxv#0'), environment().name), createObject(format('{0}', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01', 'full').location), createObject('abbreviation', variables('directionShortNames')[skip(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01', 'full').location, sub(length(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01', 'full').location), 4))], 'timeDifference', if(contains(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01', 'full').location, 'east'), '-5:00', if(contains(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01', 'full').location, 'west'), '-8:00', '0:00')), 'timeZone', if(contains(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01', 'full').location, 'east'), 'Eastern Standard Time', if(contains(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01', 'full').location, 'west'), 'Pacific Standard Time', 'GMT Standard Time')))))[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01', 'full').location].abbreviation]"
-          },
-          "networkName": {
-            "value": "hub"
-          },
-          "resourceAbbreviations": {
-            "value": "[variables('$fxv#1')]"
+          "virtualNetworkResourceIdList": {
+            "value": "[parameters('virtualNetworkResourceIdList')]"
           }
         },
         "template": {
-          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
           "metadata": {
             "_generator": {
               "name": "bicep",
               "version": "0.37.4.10188",
-              "templateHash": "3588003737726937200"
+              "templateHash": "14603702245268230402"
             }
           },
           "parameters": {
-            "delimiter": {
-              "type": "string",
-              "allowedValues": [
-                "",
-                "-"
-              ]
-            },
-            "environmentAbbreviation": {
-              "type": "string"
-            },
-            "identifier": {
-              "type": "string"
-            },
-            "locationAbbreviation": {
-              "type": "string"
-            },
-            "networkName": {
-              "type": "string"
-            },
-            "resourceAbbreviations": {
-              "type": "object"
-            },
-            "stampIndex": {
-              "type": "string",
-              "defaultValue": ""
+            "virtualNetworkResourceIdList": {
+              "type": "array",
+              "metadata": {
+                "description": "List of spoke VNet resource IDs to collect address spaces from"
+              }
             }
           },
-          "variables": {
-            "tokens": {
-              "resource": "resource_token",
-              "service": "service_token"
-            },
-            "namingConvention": "[format('{0}{1}{2}{3}{4}{5}{6}{7}{8}{9}', toLower(parameters('identifier')), parameters('delimiter'), parameters('environmentAbbreviation'), parameters('delimiter'), parameters('locationAbbreviation'), parameters('delimiter'), parameters('networkName'), parameters('delimiter'), variables('tokens').resource, if(empty(parameters('stampIndex')), '', format('{0}{1}', parameters('delimiter'), parameters('stampIndex'))))]",
-            "namingConvention_Service": "[format('{0}{1}{2}{3}{4}{5}{6}{7}{8}{9}{10}{11}', toLower(parameters('identifier')), parameters('delimiter'), parameters('environmentAbbreviation'), parameters('delimiter'), parameters('locationAbbreviation'), parameters('delimiter'), parameters('networkName'), parameters('delimiter'), variables('tokens').service, parameters('delimiter'), variables('tokens').resource, if(empty(parameters('stampIndex')), '', format('{0}{1}', parameters('delimiter'), parameters('stampIndex'))))]",
-            "names": {
-              "actionGroup": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').actionGroups)]",
-              "applicationGroup": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').applicationGroups)]",
-              "applicationInsights": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').applicationInsights)]",
-              "appServicePlan": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').appServicePlans)]",
-              "automationAccount": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').automationAccounts)]",
-              "automationAccountDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, parameters('resourceAbbreviations').automationAccounts)]",
-              "automationAccountNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), variables('tokens').service, parameters('resourceAbbreviations').automationAccounts)]",
-              "automationAccountPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), variables('tokens').service, parameters('resourceAbbreviations').automationAccounts)]",
-              "availabilitySet": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').availabilitySets)]",
-              "azureFirewall": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').azureFirewalls)]",
-              "azureFirewallPublicIPAddress": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').publicIPAddresses), variables('tokens').service, parameters('resourceAbbreviations').azureFirewalls)]",
-              "azureFirewallPublicIPAddressDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, format('{0}{1}{2}', parameters('resourceAbbreviations').publicIPAddresses, parameters('delimiter'), parameters('resourceAbbreviations').azureFirewalls))]",
-              "azureFirewallDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, parameters('resourceAbbreviations').azureFirewalls)]",
-              "azureFirewallPolicy": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').firewallPolicies)]",
-              "bastionHost": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').bastionHosts)]",
-              "bastionHostDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, parameters('resourceAbbreviations').bastionHosts)]",
-              "bastionHostNetworkSecurityGroup": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').networkSecurityGroups), variables('tokens').service, parameters('resourceAbbreviations').bastionHosts)]",
-              "bastionHostNetworkSecurityGroupDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, format('{0}{1}{2}', parameters('resourceAbbreviations').networkSecurityGroups, parameters('delimiter'), parameters('resourceAbbreviations').bastionHosts))]",
-              "bastionHostPublicIPAddress": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').publicIPAddresses), variables('tokens').service, parameters('resourceAbbreviations').bastionHosts)]",
-              "bastionHostPublicIPAddressDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, format('{0}{1}{2}', parameters('resourceAbbreviations').publicIPAddresses, parameters('delimiter'), parameters('resourceAbbreviations').bastionHosts))]",
-              "computeGallery": "[replace(replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').computeGallieries), parameters('delimiter'), if(empty(parameters('delimiter')), '', '_'))]",
-              "dataCollectionEndpoint": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').dataCollectionEndpoints)]",
-              "dataCollectionRuleAssociation": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').dataCollectionRuleAssociations)]",
-              "dataCollectionRule": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').dataCollectionRules)]",
-              "diskAccess": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').diskAccesses)]",
-              "diskAccessNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), variables('tokens').service, parameters('resourceAbbreviations').diskAccesses)]",
-              "diskAccessPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), variables('tokens').service, parameters('resourceAbbreviations').diskAccesses)]",
-              "diskEncryptionSet": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').diskEncryptionSets)]",
-              "functionApp": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').functionApps)]",
-              "functionAppNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), variables('tokens').service, parameters('resourceAbbreviations').functionApps)]",
-              "functionAppPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), variables('tokens').service, parameters('resourceAbbreviations').functionApps)]",
-              "hostPool": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').hostPools)]",
-              "hostPoolDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, parameters('resourceAbbreviations').hostPools)]",
-              "hostPoolNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), variables('tokens').service, parameters('resourceAbbreviations').hostPools)]",
-              "hostPoolPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), variables('tokens').service, parameters('resourceAbbreviations').hostPools)]",
-              "keyVault": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').keyVaults)]",
-              "keyVaultDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, parameters('resourceAbbreviations').keyVaults)]",
-              "keyVaultNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), variables('tokens').service, parameters('resourceAbbreviations').keyVaults)]",
-              "keyVaultPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), variables('tokens').service, parameters('resourceAbbreviations').keyVaults)]",
-              "localNetworkGateway": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').localNetworkGateways)]",
-              "logAnalyticsWorkspace": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').logAnalyticsWorkspaces)]",
-              "logAnalyticsWorkspaceDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, parameters('resourceAbbreviations').logAnalyticsWorkspaces)]",
-              "natGateway": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').natGateways)]",
-              "natGatewayPublicIPPrefix": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').publicIPPrefixes), variables('tokens').service, parameters('resourceAbbreviations').natGateways)]",
-              "netAppAccount": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').netAppAccounts)]",
-              "netAppAccountCapacityPool": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').netAppAccountsCapacityPools), variables('tokens').service, parameters('resourceAbbreviations').netAppAccounts)]",
-              "netAppAccountSmbServer": "[replace(replace(replace(replace(variables('namingConvention'), variables('tokens').resource, ''), parameters('environmentAbbreviation'), first(parameters('environmentAbbreviation'))), parameters('networkName'), ''), parameters('delimiter'), '')]",
-              "networkSecurityGroup": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').networkSecurityGroups)]",
-              "networkSecurityGroupDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, parameters('resourceAbbreviations').networkSecurityGroups)]",
-              "networkWatcherFlowLogsNetworkSecurityGroup": "[replace(variables('namingConvention'), variables('tokens').resource, format('{0}{1}{2}{3}{4}', parameters('resourceAbbreviations').networkWatchers, parameters('delimiter'), parameters('resourceAbbreviations').networkWatchersFlowLogs, parameters('delimiter'), parameters('resourceAbbreviations').networkSecurityGroups))]",
-              "networkWatcherFlowLogsVirtualNetwork": "[replace(variables('namingConvention'), variables('tokens').resource, format('{0}{1}{2}{3}{4}', parameters('resourceAbbreviations').networkWatchers, parameters('delimiter'), parameters('resourceAbbreviations').networkWatchersFlowLogs, parameters('delimiter'), parameters('resourceAbbreviations').virtualNetworks))]",
-              "privateLinkScope": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').privateLinkScopes)]",
-              "privateLinkScopeNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), variables('tokens').service, parameters('resourceAbbreviations').privateLinkScopes)]",
-              "privateLinkScopePrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), variables('tokens').service, parameters('resourceAbbreviations').privateLinkScopes)]",
-              "recoveryServicesVault": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').recoveryServicesVaults)]",
-              "recoveryServicesVaultNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), variables('tokens').service, parameters('resourceAbbreviations').recoveryServicesVaults)]",
-              "recoveryServicesVaultPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), variables('tokens').service, parameters('resourceAbbreviations').recoveryServicesVaults)]",
-              "resourceGroup": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').resourceGroups)]",
-              "routeTable": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').routeTables)]",
-              "scalingPlan": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').scalingPlans)]",
-              "scalingPlanDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, parameters('resourceAbbreviations').scalingPlans)]",
-              "storageAccount": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').storageAccounts)]",
-              "storageAccountBlobDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, format('{0}{1}blob', parameters('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
-              "storageAccountBlobNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), variables('tokens').service, format('{0}{1}blob', parameters('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
-              "storageAccountBlobPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), variables('tokens').service, format('{0}{1}blob', parameters('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
-              "storageAccountFileDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, format('{0}{1}file', parameters('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
-              "storageAccountFileNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), variables('tokens').service, format('{0}{1}file', parameters('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
-              "storageAccountFilePrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), variables('tokens').service, format('{0}{1}file', parameters('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
-              "storageAccountQueueDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, format('{0}{1}queue', parameters('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
-              "storageAccountQueueNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), variables('tokens').service, format('{0}{1}queue', parameters('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
-              "storageAccountQueuePrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), variables('tokens').service, format('{0}{1}queue', parameters('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
-              "storageAccountTableDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, format('{0}{1}table', parameters('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
-              "storageAccountTableNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), variables('tokens').service, format('{0}{1}table', parameters('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
-              "storageAccountTablePrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), variables('tokens').service, format('{0}{1}table', parameters('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
-              "subnet": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').subnets)]",
-              "userAssignedIdentity": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').userAssignedIdentities)]",
-              "virtualMachine": "[replace(replace(replace(replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').virtualMachines), parameters('environmentAbbreviation'), first(parameters('environmentAbbreviation'))), parameters('networkName'), ''), parameters('delimiter'), '')]",
-              "virtualMachineDisk": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').disks), variables('tokens').service, format('{0}', parameters('resourceAbbreviations').virtualMachines))]",
-              "virtualMachineNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), variables('tokens').service, parameters('resourceAbbreviations').virtualMachines)]",
-              "virtualMachineNetworkInterfaceDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, format('{0}{1}{2}', parameters('resourceAbbreviations').networkInterfaces, parameters('delimiter'), parameters('resourceAbbreviations').virtualMachines))]",
-              "virtualNetwork": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').virtualNetworks)]",
-              "virtualNetworkDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, parameters('resourceAbbreviations').virtualNetworks)]",
-              "virtualNetworkGateway": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').virtualNetworkGateways)]",
-              "virtualNetworkGatewayPublicIpAddress": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').publicIPAddresses), variables('tokens').service, parameters('resourceAbbreviations').virtualNetworkGateways)]",
-              "workspace": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').workspaces)]",
-              "workspaceDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, parameters('resourceAbbreviations').workspaces)]",
-              "workspaceNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), variables('tokens').service, parameters('resourceAbbreviations').workspaces)]",
-              "workspacePrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), variables('tokens').service, parameters('resourceAbbreviations').workspaces)]"
+          "resources": [
+            {
+              "copy": {
+                "name": "retrieveVnetInfo",
+                "count": "[length(parameters('virtualNetworkResourceIdList'))]"
+              },
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2022-09-01",
+              "name": "[format('collectVnetInfo-{0}', copyIndex())]",
+              "subscriptionId": "[split(parameters('virtualNetworkResourceIdList')[copyIndex()], '/')[2]]",
+              "resourceGroup": "[split(parameters('virtualNetworkResourceIdList')[copyIndex()], '/')[4]]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "vnetResourceId": {
+                    "value": "[parameters('virtualNetworkResourceIdList')[copyIndex()]]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.37.4.10188",
+                      "templateHash": "13988758341299244454"
+                    }
+                  },
+                  "parameters": {
+                    "azureFirewallName": {
+                      "type": "string",
+                      "defaultValue": "",
+                      "metadata": {
+                        "description": "Name of the Azure Firewall (optional)"
+                      }
+                    },
+                    "subnetName": {
+                      "type": "string",
+                      "defaultValue": "",
+                      "metadata": {
+                        "description": "Name of the subnet (optional)"
+                      }
+                    },
+                    "vnetResourceId": {
+                      "type": "string",
+                      "defaultValue": "",
+                      "metadata": {
+                        "description": "The resource ID of the existing spoke virtual network (optional)"
+                      }
+                    },
+                    "routeTableName": {
+                      "type": "string",
+                      "defaultValue": "",
+                      "metadata": {
+                        "description": "The name of the route table associated with the hub virtual network (optional)"
+                      }
+                    }
+                  },
+                  "resources": [],
+                  "outputs": {
+                    "routeTableId": {
+                      "type": "string",
+                      "value": "[if(not(empty(parameters('routeTableName'))), resourceId('Microsoft.Network/routeTables', parameters('routeTableName')), 'N/A')]"
+                    },
+                    "firewallPrivateIp": {
+                      "type": "string",
+                      "value": "[if(and(not(empty(parameters('azureFirewallName'))), not(empty(parameters('vnetResourceId')))), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('vnetResourceId'), '/')[2], split(parameters('vnetResourceId'), '/')[4]), 'Microsoft.Network/azureFirewalls', parameters('azureFirewallName')), '2020-11-01').ipConfigurations[0].properties.privateIPAddress, 'N/A')]"
+                    },
+                    "firewallPolicyId": {
+                      "type": "string",
+                      "value": "[if(not(empty(parameters('azureFirewallName'))), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('vnetResourceId'), '/')[2], split(parameters('vnetResourceId'), '/')[4]), 'Microsoft.Network/azureFirewalls', parameters('azureFirewallName')), '2020-11-01').firewallPolicy.id, 'N/A')]"
+                    },
+                    "subnetAddressPrefix": {
+                      "type": "string",
+                      "value": "[if(and(not(empty(parameters('subnetName'))), not(empty(parameters('vnetResourceId')))), reference(resourceId('Microsoft.Network/virtualNetworks/subnets', last(split(parameters('vnetResourceId'), '/')), parameters('subnetName')), '2020-11-01').addressPrefix, 'N/A')]"
+                    },
+                    "vnetAddressSpace": {
+                      "type": "array",
+                      "value": "[if(not(empty(parameters('vnetResourceId'))), reference(resourceId('Microsoft.Network/virtualNetworks', last(split(parameters('vnetResourceId'), '/'))), '2020-11-01').addressSpace.addressPrefixes, createArray())]"
+                    },
+                    "peeringsData": {
+                      "type": "object",
+                      "value": "[if(not(empty(parameters('vnetResourceId'))), createObject('vnetResourceId', parameters('vnetResourceId'), 'peeringsList', reference(resourceId('Microsoft.Network/virtualNetworks', last(split(parameters('vnetResourceId'), '/'))), '2020-11-01').virtualNetworkPeerings), createObject('vnetResourceId', 'N/A', 'peeringsList', createArray()))]"
+                    }
+                  }
+                }
+              }
             }
-          },
-          "resources": [],
+          ],
           "outputs": {
-            "names": {
-              "type": "object",
-              "value": "[variables('names')]"
+            "spokeAddressPrefixSets": {
+              "type": "array",
+              "metadata": {
+                "description": "Array of addressSpaces per spoke VNet, aligned by index to virtualNetworkResourceIdList"
+              },
+              "copy": {
+                "count": "[length(parameters('virtualNetworkResourceIdList'))]",
+                "input": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('virtualNetworkResourceIdList')[copyIndex()], '/')[2], split(parameters('virtualNetworkResourceIdList')[copyIndex()], '/')[4]), 'Microsoft.Resources/deployments', format('collectVnetInfo-{0}', copyIndex())), '2022-09-01').outputs.vnetAddressSpace.value]"
+              }
             }
           }
         }
@@ -783,7 +293,21 @@
           "firewallPolicyName": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('firewallPolicy-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
           },
-          "firewallRuleCollectionGroups": "[if(empty(parameters('customFirewallRuleCollectionGroups')), createObject('value', createArray(createObject('name', 'VGW-NetworkCollectionGroup', 'properties', createObject('priority', 300, 'ruleCollections', createArray(createObject('name', 'AllowAllTraffic', 'priority', 150, 'ruleCollectionType', 'FirewallPolicyFilterRuleCollection', 'action', createObject('type', 'Allow'), 'rules', createArray(createObject('name', 'AllowAzureToOnPrem', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Any'), 'sourceAddresses', parameters('localAddressPrefixes'), 'destinationAddresses', parameters('allowedAzureAddressPrefixes'), 'destinationPorts', createArray('*'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray(), 'destinationFqdns', createArray()), createObject('name', 'AllowOnPremToAzure', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Any'), 'sourceAddresses', parameters('allowedAzureAddressPrefixes'), 'destinationAddresses', parameters('localAddressPrefixes'), 'destinationPorts', createArray('*'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray(), 'destinationFqdns', createArray())))))))), createObject('value', parameters('customFirewallRuleCollectionGroups')))]"
+          "hubAddressPrefixes": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01').addressSpace.addressPrefixes]"
+          },
+          "spokeAddressPrefixSets": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('collectSpokeAddresses-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.spokeAddressPrefixSets.value]"
+          },
+          "localAddressPrefixes": {
+            "value": "[parameters('localAddressPrefixes')]"
+          },
+          "firewallRuleCollectionGroups": {
+            "value": "[parameters('customFirewallRuleCollectionGroups')]"
+          },
+          "includeHubOnPrem": {
+            "value": "[parameters('includeHubOnPrem')]"
+          }
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -792,21 +316,140 @@
             "_generator": {
               "name": "bicep",
               "version": "0.37.4.10188",
-              "templateHash": "14214833945471634324"
+              "templateHash": "6062671523350711357"
             }
           },
           "parameters": {
             "firewallPolicyName": {
               "type": "string"
             },
+            "hubAddressPrefixes": {
+              "type": "array",
+              "metadata": {
+                "description": "Address prefixes of the Hub virtual network."
+              }
+            },
+            "spokeAddressPrefixSets": {
+              "type": "array",
+              "defaultValue": [],
+              "metadata": {
+                "description": "List of address prefix arrays for each Spoke VNet (e.g., [[\"10.2.0.0/16\"],[\"10.3.0.0/16\",\"10.3.1.0/24\"]])."
+              }
+            },
+            "localAddressPrefixes": {
+              "type": "array",
+              "defaultValue": []
+            },
             "firewallRuleCollectionGroups": {
-              "type": "array"
+              "type": "array",
+              "defaultValue": []
+            },
+            "includeHubOnPrem": {
+              "type": "bool",
+              "defaultValue": false,
+              "metadata": {
+                "description": "Include Hub <-> On-Prem allow rules in a separate group"
+              }
             }
+          },
+          "variables": {
+            "copy": [
+              {
+                "name": "rulesOnPremToSpokes",
+                "count": "[length(parameters('spokeAddressPrefixSets'))]",
+                "input": {
+                  "name": "[format('AllowOnPremToVnet-{0}', copyIndex('rulesOnPremToSpokes'))]",
+                  "ruleType": "NetworkRule",
+                  "ipProtocols": [
+                    "Any"
+                  ],
+                  "sourceAddresses": "[parameters('localAddressPrefixes')]",
+                  "destinationAddresses": "[parameters('spokeAddressPrefixSets')[copyIndex('rulesOnPremToSpokes')]]",
+                  "destinationPorts": [
+                    "*"
+                  ],
+                  "sourceIpGroups": [],
+                  "destinationIpGroups": [],
+                  "destinationFqdns": []
+                }
+              },
+              {
+                "name": "rulesSpokesToOnPrem",
+                "count": "[length(parameters('spokeAddressPrefixSets'))]",
+                "input": {
+                  "name": "[format('AllowVnetToOnPrem-{0}', copyIndex('rulesSpokesToOnPrem'))]",
+                  "ruleType": "NetworkRule",
+                  "ipProtocols": [
+                    "Any"
+                  ],
+                  "sourceAddresses": "[parameters('spokeAddressPrefixSets')[copyIndex('rulesSpokesToOnPrem')]]",
+                  "destinationAddresses": "[parameters('localAddressPrefixes')]",
+                  "destinationPorts": [
+                    "*"
+                  ],
+                  "sourceIpGroups": [],
+                  "destinationIpGroups": [],
+                  "destinationFqdns": []
+                }
+              }
+            ],
+            "hubRuleCollections": [
+              {
+                "name": "AllowOnPremToHub",
+                "priority": 132,
+                "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                "action": {
+                  "type": "Allow"
+                },
+                "rules": [
+                  {
+                    "name": "AllowOnPremToHub-All",
+                    "ruleType": "NetworkRule",
+                    "ipProtocols": [
+                      "Any"
+                    ],
+                    "sourceAddresses": "[parameters('localAddressPrefixes')]",
+                    "destinationAddresses": "[parameters('hubAddressPrefixes')]",
+                    "destinationPorts": [
+                      "*"
+                    ],
+                    "sourceIpGroups": [],
+                    "destinationIpGroups": [],
+                    "destinationFqdns": []
+                  }
+                ]
+              },
+              {
+                "name": "AllowHubToOnPrem",
+                "priority": 133,
+                "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                "action": {
+                  "type": "Allow"
+                },
+                "rules": [
+                  {
+                    "name": "AllowHubToOnPrem-All",
+                    "ruleType": "NetworkRule",
+                    "ipProtocols": [
+                      "Any"
+                    ],
+                    "sourceAddresses": "[parameters('hubAddressPrefixes')]",
+                    "destinationAddresses": "[parameters('localAddressPrefixes')]",
+                    "destinationPorts": [
+                      "*"
+                    ],
+                    "sourceIpGroups": [],
+                    "destinationIpGroups": [],
+                    "destinationFqdns": []
+                  }
+                ]
+              }
+            ]
           },
           "resources": [
             {
               "copy": {
-                "name": "ruleCreate",
+                "name": "ruleGroupsCustom",
                 "count": "[length(parameters('firewallRuleCollectionGroups'))]",
                 "mode": "serial",
                 "batchSize": 1
@@ -815,11 +458,22 @@
               "apiVersion": "2024-03-01",
               "name": "[format('{0}/{1}', parameters('firewallPolicyName'), parameters('firewallRuleCollectionGroups')[copyIndex()].name)]",
               "properties": "[parameters('firewallRuleCollectionGroups')[copyIndex()].properties]"
+            },
+            {
+              "condition": "[and(empty(parameters('firewallRuleCollectionGroups')), not(empty(parameters('localAddressPrefixes'))))]",
+              "type": "Microsoft.Network/firewallPolicies/ruleCollectionGroups",
+              "apiVersion": "2024-03-01",
+              "name": "[format('{0}/{1}', parameters('firewallPolicyName'), 'VGW-OnPrem')]",
+              "properties": {
+                "priority": 245,
+                "ruleCollections": "[concat(createArray(createObject('name', 'AllowOnPremToSpokes', 'priority', 130, 'ruleCollectionType', 'FirewallPolicyFilterRuleCollection', 'action', createObject('type', 'Allow'), 'rules', variables('rulesOnPremToSpokes')), createObject('name', 'AllowSpokesToOnPrem', 'priority', 131, 'ruleCollectionType', 'FirewallPolicyFilterRuleCollection', 'action', createObject('type', 'Allow'), 'rules', variables('rulesSpokesToOnPrem'))), if(parameters('includeHubOnPrem'), variables('hubRuleCollections'), createArray()))]"
+              }
             }
           ]
         }
       },
       "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('collectSpokeAddresses-{0}', parameters('deploymentNameSuffix')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('firewallPolicy-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
@@ -841,10 +495,10 @@
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01', 'full').location]"
           },
           "publicIpAddressName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-mgmt-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.names.value.virtualNetworkGatewayPublicIpAddress]"
+            "value": "[variables('publicIpAddressBaseName')]"
           },
           "virtualNetworkGatewayName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-mgmt-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.names.value.virtualNetworkGateway]"
+            "value": "[variables('vpnGatewayName')]"
           },
           "virtualNetworkGatewaySku": {
             "value": "[parameters('virtualNetworkGatewaySku')]"
@@ -957,7 +611,72 @@
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-mgmt-{0}', parameters('deploymentNameSuffix')))]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('ensureGatewaySubnet-{0}', parameters('deploymentNameSuffix')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[format('vpnGateway-diagnostics-{0}', parameters('deploymentNameSuffix'))]",
+      "resourceGroup": "[variables('hubResourceGroupName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "virtualNetworkGatewayName": {
+            "value": "[variables('vpnGatewayName')]"
+          },
+          "logAnalyticsWorkspaceResourceId": {
+            "value": "[parameters('operationsLogAnalyticsWorkspaceResourceId')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.37.4.10188",
+              "templateHash": "13621908283050745906"
+            }
+          },
+          "parameters": {
+            "virtualNetworkGatewayName": {
+              "type": "string"
+            },
+            "logAnalyticsWorkspaceResourceId": {
+              "type": "string"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Insights/diagnosticSettings",
+              "apiVersion": "2021-05-01-preview",
+              "scope": "[format('Microsoft.Network/virtualNetworkGateways/{0}', parameters('virtualNetworkGatewayName'))]",
+              "name": "[format('diag-{0}', parameters('virtualNetworkGatewayName'))]",
+              "properties": {
+                "logs": [
+                  {
+                    "categoryGroup": "allLogs",
+                    "enabled": true
+                  }
+                ],
+                "metrics": [
+                  {
+                    "category": "AllMetrics",
+                    "enabled": true
+                  }
+                ],
+                "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]"
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('vpnGateway-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
     {
@@ -975,7 +694,7 @@
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01', 'full').location]"
           },
           "localNetworkGatewayName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-mgmt-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.names.value.localNetworkGateway]"
+            "value": "[format('{0}-{1}-{2}-hub-lgw', variables('idToken'), variables('envToken'), variables('locToken'))]"
           },
           "gatewayIpAddress": {
             "value": "[parameters('localGatewayIpAddress')]"
@@ -1024,10 +743,7 @@
             }
           ]
         }
-      },
-      "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-mgmt-{0}', parameters('deploymentNameSuffix')))]"
-      ]
+      }
     },
     {
       "type": "Microsoft.Resources/deployments",
@@ -1041,25 +757,25 @@
         "mode": "Incremental",
         "parameters": {
           "vpnConnectionName": {
-            "value": "[format('{0}-to-{1}', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-mgmt-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.names.value.virtualNetworkGateway, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-mgmt-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.names.value.localNetworkGateway)]"
+            "value": "[format('{0}-to-{1}-{2}-{3}-hub-lgw', variables('vpnGatewayName'), variables('idToken'), variables('envToken'), variables('locToken'))]"
           },
           "vgwlocation": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01', 'full').location]"
           },
           "vpnGatewayName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-mgmt-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.names.value.virtualNetworkGateway]"
+            "value": "[variables('vpnGatewayName')]"
           },
           "vpnGatewayResourceGroupName": {
             "value": "[variables('hubResourceGroupName')]"
           },
           "sharedKey": {
-            "value": "[variables('vpnSharedKey')]"
+            "value": "[parameters('sharedKey')]"
           },
           "keyVaultCertificateUri": {
-            "value": "[variables('vpnKeyVaultUri')]"
+            "value": ""
           },
           "localNetworkGatewayName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-mgmt-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.names.value.localNetworkGateway]"
+            "value": "[format('{0}-{1}-{2}-hub-lgw', variables('idToken'), variables('envToken'), variables('locToken'))]"
           }
         },
         "template": {
@@ -1129,8 +845,6 @@
       },
       "dependsOn": [
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('localNetworkGateway-{0}', parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-mgmt-{0}', parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('InvalidKeyVaultCertificateUri-{0}', parameters('deploymentNameSuffix')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('vpnGateway-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
@@ -1222,10 +936,7 @@
             }
           }
         }
-      },
-      "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('vpnConnection-{0}', parameters('deploymentNameSuffix')))]"
-      ]
+      }
     },
     {
       "type": "Microsoft.Resources/deployments",
@@ -1311,10 +1022,7 @@
             }
           }
         }
-      },
-      "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('vpnConnection-{0}', parameters('deploymentNameSuffix')))]"
-      ]
+      }
     },
     {
       "type": "Microsoft.Resources/deployments",
@@ -1335,7 +1043,7 @@
             "value": "[split(resourceId(split(filter(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01').subnets, lambda('subnet', equals(lambdaVariables('subnet').name, 'AzureFirewallSubnet')))[0].properties.ipConfigurations[0].id, '/')[2], split(filter(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01').subnets, lambda('subnet', equals(lambdaVariables('subnet').name, 'AzureFirewallSubnet')))[0].properties.ipConfigurations[0].id, '/')[4], 'Microsoft.Network/azureFirewalls', split(filter(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01').subnets, lambda('subnet', equals(lambdaVariables('subnet').name, 'AzureFirewallSubnet')))[0].properties.ipConfigurations[0].id, '/')[8]), '/')[8]]"
           },
           "subnetName": {
-            "value": "GatewaySubnet"
+            "value": ""
           }
         },
         "template": {
@@ -1406,10 +1114,77 @@
             }
           }
         }
-      },
-      "dependsOn": [
-        "updatePeerings"
-      ]
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[format('ensureGatewaySubnet-{0}', parameters('deploymentNameSuffix'))]",
+      "subscriptionId": "[split(parameters('hubVirtualNetworkResourceId'), '/')[2]]",
+      "resourceGroup": "[split(parameters('hubVirtualNetworkResourceId'), '/')[4]]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "vnetResourceId": {
+            "value": "[parameters('hubVirtualNetworkResourceId')]"
+          },
+          "subnetName": {
+            "value": "GatewaySubnet"
+          },
+          "subnetAddressPrefix": "[if(not(empty(if(greater(length(filter(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01').subnets, lambda('s', equals(lambdaVariables('s').name, 'GatewaySubnet')))), 0), filter(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01').subnets, lambda('s', equals(lambdaVariables('s').name, 'GatewaySubnet')))[0].properties.addressPrefix, ''))), if(greater(length(filter(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01').subnets, lambda('s', equals(lambdaVariables('s').name, 'GatewaySubnet')))), 0), createObject('value', filter(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01').subnets, lambda('s', equals(lambdaVariables('s').name, 'GatewaySubnet')))[0].properties.addressPrefix), createObject('value', '')), createObject('value', variables('defaultGatewaySubnetPrefix')))]"
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.37.4.10188",
+              "templateHash": "3671577942845758564"
+            }
+          },
+          "parameters": {
+            "vnetResourceId": {
+              "type": "string",
+              "metadata": {
+                "description": "The resource ID of the virtual network where the GatewaySubnet should exist"
+              }
+            },
+            "subnetName": {
+              "type": "string",
+              "defaultValue": "GatewaySubnet",
+              "metadata": {
+                "description": "Name of the subnet to ensure exists (defaults to GatewaySubnet)"
+              }
+            },
+            "subnetAddressPrefix": {
+              "type": "string",
+              "metadata": {
+                "description": "CIDR address prefix to use when creating the subnet"
+              }
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Network/virtualNetworks/subnets",
+              "apiVersion": "2023-11-01",
+              "name": "[format('{0}/{1}', last(split(parameters('vnetResourceId'), '/')), parameters('subnetName'))]",
+              "properties": {
+                "addressPrefix": "[parameters('subnetAddressPrefix')]"
+              }
+            }
+          ],
+          "outputs": {
+            "id": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/virtualNetworks/subnets', last(split(parameters('vnetResourceId'), '/')), parameters('subnetName'))]"
+            }
+          }
+        }
+      }
     },
     {
       "type": "Microsoft.Resources/deployments",
@@ -1488,7 +1263,7 @@
       },
       "dependsOn": [
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('retrieveHubVnetPeerings-{0}', parameters('deploymentNameSuffix')))]",
-        "retrieveVnetInfo"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('vpnGateway-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
     {
@@ -1571,8 +1346,10 @@
         }
       },
       "dependsOn": [
-        "retrieveVnetInfo",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('updateHubPeerings-{0}', parameters('deploymentNameSuffix')))]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('virtualNetworkResourceIdList')[copyIndex()], '/')[2], split(parameters('virtualNetworkResourceIdList')[copyIndex()], '/')[4]), 'Microsoft.Resources/deployments', format('retrieveVnetPeerings-{0}-{1}', parameters('deploymentNameSuffix'), copyIndex()))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('virtualNetworkResourceIdList')[copyIndex()], '/')[2], split(parameters('virtualNetworkResourceIdList')[copyIndex()], '/')[4]), 'Microsoft.Resources/deployments', format('retrieveVnetPeerings-{0}-{1}', parameters('deploymentNameSuffix'), copyIndex()))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('updateHubPeerings-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('vpnGateway-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
     {
@@ -1588,7 +1365,7 @@
         "mode": "Incremental",
         "parameters": {
           "routeTableName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-mgmt-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.names.value.routeTable]"
+            "value": "[variables('vgwRouteTableName')]"
           }
         },
         "template": {
@@ -1627,14 +1404,7 @@
             }
           }
         }
-      },
-      "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-mgmt-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('retrieveRouteTableInfo-{0}', parameters('deploymentNameSuffix')))]",
-        "retrieveVnetInfo",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('updateHubPeerings-{0}', parameters('deploymentNameSuffix')))]",
-        "updatePeerings"
-      ]
+      }
     },
     {
       "copy": {
@@ -1653,7 +1423,7 @@
         "mode": "Incremental",
         "parameters": {
           "routeTableName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-mgmt-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.names.value.routeTable]"
+            "value": "[variables('vgwRouteTableName')]"
           },
           "addressSpace": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('virtualNetworkResourceIdList')[copyIndex()], '/')[2], split(parameters('virtualNetworkResourceIdList')[copyIndex()], '/')[4]), 'Microsoft.Resources/deployments', format('retrieveVnetPeerings-{0}-{1}', parameters('deploymentNameSuffix'), copyIndex())), '2022-09-01').outputs.vnetAddressSpace.value]"
@@ -1730,12 +1500,12 @@
       },
       "dependsOn": [
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('createVgwRouteTable-{0}', parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('get-naming-mgmt-{0}', parameters('deploymentNameSuffix')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('retrieveRouteTableInfo-{0}', parameters('deploymentNameSuffix')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('virtualNetworkResourceIdList')[copyIndex()], '/')[2], split(parameters('virtualNetworkResourceIdList')[copyIndex()], '/')[4]), 'Microsoft.Resources/deployments', format('retrieveVnetPeerings-{0}-{1}', parameters('deploymentNameSuffix'), copyIndex()))]"
       ]
     },
     {
+      "condition": "[parameters('includeHubOnPrem')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('createOverrideRoutes-{0}', parameters('deploymentNameSuffix'))]",
@@ -1748,7 +1518,7 @@
         "mode": "Incremental",
         "parameters": {
           "routeTableName": {
-            "value": "[split(filter(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01').subnets, lambda('subnet', not(contains(lambdaVariables('subnet').name, 'Subnet'))))[0].properties.routeTable.id, '/')[8]]"
+            "value": "[variables('vgwRouteTableName')]"
           },
           "addressSpace": {
             "value": "[parameters('localAddressPrefixes')]"
@@ -1829,6 +1599,193 @@
       ]
     },
     {
+      "condition": "[parameters('includeHubOnPrem')]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[format('createHubCidrRoutes-{0}', parameters('deploymentNameSuffix'))]",
+      "subscriptionId": "[split(parameters('hubVirtualNetworkResourceId'), '/')[2]]",
+      "resourceGroup": "[split(parameters('hubVirtualNetworkResourceId'), '/')[4]]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "routeTableName": {
+            "value": "[variables('vgwRouteTableName')]"
+          },
+          "addressSpace": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01').addressSpace.addressPrefixes]"
+          },
+          "routeName": {
+            "value": "route-hub"
+          },
+          "nextHopType": {
+            "value": "VirtualAppliance"
+          },
+          "nextHopIpAddress": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('retrieveRouteTableInfo-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.firewallPrivateIp.value]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.37.4.10188",
+              "templateHash": "15139000754386607399"
+            }
+          },
+          "parameters": {
+            "routeTableName": {
+              "type": "string",
+              "metadata": {
+                "description": "Name of the route table to create"
+              }
+            },
+            "routeName": {
+              "type": "string",
+              "metadata": {
+                "description": "Name of the route"
+              }
+            },
+            "addressSpace": {
+              "type": "array",
+              "metadata": {
+                "description": "CIDR prefixes for the route"
+              }
+            },
+            "nextHopType": {
+              "type": "string",
+              "metadata": {
+                "description": "The next hop type for the route"
+              }
+            },
+            "nextHopIpAddress": {
+              "type": "string",
+              "metadata": {
+                "description": "The next hop IP address for the route"
+              }
+            }
+          },
+          "resources": [
+            {
+              "copy": {
+                "name": "routes",
+                "count": "[length(parameters('addressSpace'))]"
+              },
+              "type": "Microsoft.Network/routeTables/routes",
+              "apiVersion": "2023-04-01",
+              "name": "[format('{0}/{1}', parameters('routeTableName'), format('{0}-{1}', parameters('routeName'), copyIndex()))]",
+              "properties": {
+                "addressPrefix": "[parameters('addressSpace')[copyIndex()]]",
+                "nextHopType": "[parameters('nextHopType')]",
+                "nextHopIpAddress": "[if(not(equals(parameters('nextHopIpAddress'), '')), parameters('nextHopIpAddress'), null())]"
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('createVgwRouteTable-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('retrieveRouteTableInfo-{0}', parameters('deploymentNameSuffix')))]"
+      ]
+    },
+    {
+      "condition": "[parameters('includeHubOnPrem')]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[format('createHubRouteOverrides-{0}', parameters('deploymentNameSuffix'))]",
+      "subscriptionId": "[split(parameters('hubVirtualNetworkResourceId'), '/')[2]]",
+      "resourceGroup": "[split(parameters('hubVirtualNetworkResourceId'), '/')[4]]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "routeTableName": {
+            "value": "[variables('hubRouteTableName')]"
+          },
+          "addressSpace": {
+            "value": "[parameters('localAddressPrefixes')]"
+          },
+          "routeName": {
+            "value": "route-onprem-override"
+          },
+          "nextHopType": {
+            "value": "VirtualAppliance"
+          },
+          "nextHopIpAddress": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('retrieveRouteTableInfo-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.firewallPrivateIp.value]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.37.4.10188",
+              "templateHash": "15139000754386607399"
+            }
+          },
+          "parameters": {
+            "routeTableName": {
+              "type": "string",
+              "metadata": {
+                "description": "Name of the route table to create"
+              }
+            },
+            "routeName": {
+              "type": "string",
+              "metadata": {
+                "description": "Name of the route"
+              }
+            },
+            "addressSpace": {
+              "type": "array",
+              "metadata": {
+                "description": "CIDR prefixes for the route"
+              }
+            },
+            "nextHopType": {
+              "type": "string",
+              "metadata": {
+                "description": "The next hop type for the route"
+              }
+            },
+            "nextHopIpAddress": {
+              "type": "string",
+              "metadata": {
+                "description": "The next hop IP address for the route"
+              }
+            }
+          },
+          "resources": [
+            {
+              "copy": {
+                "name": "routes",
+                "count": "[length(parameters('addressSpace'))]"
+              },
+              "type": "Microsoft.Network/routeTables/routes",
+              "apiVersion": "2023-04-01",
+              "name": "[format('{0}/{1}', parameters('routeTableName'), format('{0}-{1}', parameters('routeName'), copyIndex()))]",
+              "properties": {
+                "addressPrefix": "[parameters('addressSpace')[copyIndex()]]",
+                "nextHopType": "[parameters('nextHopType')]",
+                "nextHopIpAddress": "[if(not(equals(parameters('nextHopIpAddress'), '')), parameters('nextHopIpAddress'), null())]"
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('retrieveRouteTableInfo-{0}', parameters('deploymentNameSuffix')))]"
+      ]
+    },
+    {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('associateRouteTable-{0}', parameters('deploymentNameSuffix'))]",
@@ -1849,9 +1806,7 @@
           "subnetName": {
             "value": "GatewaySubnet"
           },
-          "subnetAddressPrefix": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('retrieveRouteTableInfo-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnetAddressPrefix.value]"
-          }
+          "subnetAddressPrefix": "[if(not(empty(if(greater(length(filter(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01').subnets, lambda('s', equals(lambdaVariables('s').name, 'GatewaySubnet')))), 0), filter(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01').subnets, lambda('s', equals(lambdaVariables('s').name, 'GatewaySubnet')))[0].properties.addressPrefix, ''))), if(greater(length(filter(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01').subnets, lambda('s', equals(lambdaVariables('s').name, 'GatewaySubnet')))), 0), createObject('value', filter(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01').subnets, lambda('s', equals(lambdaVariables('s').name, 'GatewaySubnet')))[0].properties.addressPrefix), createObject('value', '')), createObject('value', variables('defaultGatewaySubnetPrefix')))]"
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -1906,7 +1861,8 @@
       },
       "dependsOn": [
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('createVgwRouteTable-{0}', parameters('deploymentNameSuffix')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('retrieveRouteTableInfo-{0}', parameters('deploymentNameSuffix')))]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('ensureGatewaySubnet-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('vpnGateway-{0}', parameters('deploymentNameSuffix')))]"
       ]
     }
   ]
