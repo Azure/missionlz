@@ -27,3 +27,4 @@ The Virtual Network Gateway add-on provides a minimal, idempotent way to enable 
 - [Azure Firewall Policy](https://learn.microsoft.com/azure/firewall/policy-overview)
 - [Diagnostic settings](https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings)
 - [VNet peering](https://learn.microsoft.com/azure/virtual-network/virtual-network-peering-overview)
+

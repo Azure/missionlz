@@ -11,10 +11,10 @@ Name   | Description
 [Azure NetApp Files](./azure-netapp-files/README.md) | Allows for the deployment of Azure NetApp Files with an SMB file share.
 [Azure Virtual Desktop](./azure-virtual-desktop/README.md) | Deploys Azure Virtual Desktop stamps in either generic or ArcGIS Pro configurations with FSLogix, AutoScale, AVD Insights, and more.
 [ESRI Accelerator](../../docs/esri.md) | Deploys MLZ, the AVD add-on, and the ESRI Enterprise add-on in a single click deployment.
-[NAT Gateway](./nat-gateway) | Deploys a NAT Gateway infront of the Azure Firewall
+[NAT Gateway](./nat-gateway/README.md) | Deploys a NAT Gateway and attaches it to AzureFirewallSubnet for hub egress
 [Policy Guardrails Tool](./policy-guardrails-tool/readMe.md) | Deploys Azure Policy guardrails at the subscription scope.
 [Tier3](./tier3/README.md) | Deploys a spoke network peered to the hub in preparation for the manual deployment of a workload.
-[VPN Gateway](./virtual-network-gateway) | Deploys a VPN Gateway for a site-to-site connection.
+[VPN Gateway](./virtual-network-gateway/README.md) | Deploys a VPN Gateway for site-to-site connectivity and hub routing.
 [Zero Trust Imaging](./imaging/README.md) | Deploys images in an Azure Compute Gallery using a zero trust configuration with several configuration options.
 [Zero Trust (TIC3.0) Workbook](./zero-trust-workbook) | Deploys an Azure Sentinel Zero Trust (TIC3.0) Workbook
 
