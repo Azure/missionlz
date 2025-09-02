@@ -7,7 +7,7 @@ param virtualMachineName string
 
 // Run command to install Entra Cloud Sync on the domain controllers
 module installEntraCloudSync '../../../modules/run-command.bicep' = {
-  name: 'install-entra-cloud-sync-${deploymentNameSuffix}'
+  name: 'run-command-install-entra-cloud-sync-${deploymentNameSuffix}'
   params: {
     location: location
     mlzTags: mlzTags
