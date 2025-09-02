@@ -1,18 +1,18 @@
 param deploymentNameSuffix string
 param location string
-param mlzTags array
+param mlzTags object
 param name string
-param tags array
+param tags object
 param virtualMachineName string
 
 // Run command to install Entra Cloud Sync on the domain controllers
-module installEntraCloudSync 'run-command.bicep' = {
+module installEntraCloudSync '../../../modules/run-command.bicep' = {
   name: 'install-entra-cloud-sync-${deploymentNameSuffix}'
   params: {
     location: location
     mlzTags: mlzTags
     name: name
-    script: loadTextContent('../artifacts/')
+    script: loadTextContent('../artifacts/Install-EntraCloudSync.ps1')
     tags: tags
     virtualMachineName: virtualMachineName
   }
