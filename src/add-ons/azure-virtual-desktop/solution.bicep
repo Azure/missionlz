@@ -20,9 +20,6 @@ param availability string = 'AvailabilityZones'
 @description('The availability zones allowed for the AVD session hosts deployment location.')
 param availabilityZones array = ['1', '2', '3']
 
-@description('The URI for the ZIP file containing the AVD agents and DSC configuration. Overriding the default value is required for Azure US Government Top Secret.')
-param avdConfigurationZipFileUri string = 'https://wvdportalstorageblob.blob.${environment().suffixes.storage}/galleryartifacts/Configuration_1.0.03152.876.zip'
-
 @description('The object ID for the Azure Virtual Desktop enterprise application in Microsoft Entra ID.  The object ID can found by selecting Microsoft Applications using the Application type filter in the Enterprise Applications blade of Microsoft Entra ID.')
 param avdObjectId string
 
@@ -383,6 +380,9 @@ var agentUpdatesUniqueString = cloud == 'AzureCloud'
   : cloud == 'AzureUSGovernment'
       ? 'ugviffx'
       : '${first(cloud)}${take(skip(cloud, 2), 1)}${first(locationVirtualMachines)}${substring(cloud, 2, 1) == 'n' ? first(cloudSuffix) : substring(cloudSuffix, 3, 1)}x'
+var avdConfigurationZipFileStorageAccount = startsWith(locationVirtualMachines, 'usn')
+  ? 'wvdexportalcontainer'
+  : 'wvdportalstorageblob'
 var cloud = environment().name
 var cloudSuffix = replace(replace(environment().resourceManager, 'https://management.', ''), '/', '')
 var customImageId = empty(imageVersionResourceId) ? 'null' : '"${imageVersionResourceId}"'
@@ -869,7 +869,7 @@ module sessionHosts 'modules/session-hosts/session-hosts.bicep' = {
     availabilitySetsCount: availabilitySetsCount
     availabilitySetsIndex: beginAvSetRange
     availabilityZones: availabilityZones
-    avdConfigurationZipFileUri: avdConfigurationZipFileUri
+    avdConfigurationZipFileUri: 'https://${avdConfigurationZipFileStorageAccount}.blob.${environment().suffixes.storage}/galleryartifacts/Configuration_1.0.03152.876.zip'
     dataCollectionRuleResourceId: shared.outputs.dataCollectionRuleResourceId
     delimiter: tier3_stamp.outputs.delimiter
     deployFslogix: deployFslogix

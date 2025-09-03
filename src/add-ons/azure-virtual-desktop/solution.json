@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.37.4.10188",
-      "templateHash": "14563221424601707873"
+      "templateHash": "16961410277234965153"
     }
   },
   "parameters": {
@@ -42,13 +42,6 @@
       ],
       "metadata": {
         "description": "The availability zones allowed for the AVD session hosts deployment location."
-      }
-    },
-    "avdConfigurationZipFileUri": {
-      "type": "string",
-      "defaultValue": "[format('https://wvdportalstorageblob.blob.{0}/galleryartifacts/Configuration_1.0.03152.876.zip', environment().suffixes.storage)]",
-      "metadata": {
-        "description": "The URI for the ZIP file containing the AVD agents and DSC configuration. Overriding the default value is required for Azure US Government Top Secret."
       }
     },
     "avdObjectId": {
@@ -697,6 +690,7 @@
     "availabilitySetsCount": "[length(range(variables('beginAvSetRange'), add(sub(variables('endAvSetRange'), variables('beginAvSetRange')), 1)))]",
     "agentTrafficUniqueString": "[if(equals(substring(variables('cloud'), 2, 1), 'n'), format('wvd{0}xportalcontainer', first(variables('cloudSuffix'))), 'wvdportalstorageblob')]",
     "agentUpdatesUniqueString": "[if(equals(variables('cloud'), 'AzureCloud'), 'eus2prod', if(equals(variables('cloud'), 'AzureUSGovernment'), 'ugviffx', format('{0}{1}{2}{3}x', first(variables('cloud')), take(skip(variables('cloud'), 2), 1), first(parameters('locationVirtualMachines')), if(equals(substring(variables('cloud'), 2, 1), 'n'), first(variables('cloudSuffix')), substring(variables('cloudSuffix'), 3, 1)))))]",
+    "avdConfigurationZipFileStorageAccount": "[if(startsWith(parameters('locationVirtualMachines'), 'usn'), 'wvdexportalcontainer', 'wvdportalstorageblob')]",
     "cloud": "[environment().name]",
     "cloudSuffix": "[replace(replace(environment().resourceManager, 'https://management.', ''), '/', '')]",
     "customImageId": "[if(empty(parameters('imageVersionResourceId')), 'null', format('\"{0}\"', parameters('imageVersionResourceId')))]",
@@ -16070,7 +16064,7 @@
             "value": "[parameters('availabilityZones')]"
           },
           "avdConfigurationZipFileUri": {
-            "value": "[parameters('avdConfigurationZipFileUri')]"
+            "value": "[format('https://{0}.blob.{1}/galleryartifacts/Configuration_1.0.03152.876.zip', variables('avdConfigurationZipFileStorageAccount'), environment().suffixes.storage)]"
           },
           "dataCollectionRuleResourceId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-shared-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.dataCollectionRuleResourceId.value]"
