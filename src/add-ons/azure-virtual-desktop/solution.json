@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.37.4.10188",
-      "templateHash": "3671733759915042531"
+      "templateHash": "14563221424601707873"
     }
   },
   "parameters": {
@@ -46,9 +46,9 @@
     },
     "avdConfigurationZipFileUri": {
       "type": "string",
-      "defaultValue": "",
+      "defaultValue": "[format('https://wvdportalstorageblob.blob.{0}/galleryartifacts/Configuration_1.0.03152.876.zip', environment().suffixes.storage)]",
       "metadata": {
-        "description": "The file name for the ZIP file containing the AVD agents and DSC configuration."
+        "description": "The URI for the ZIP file containing the AVD agents and DSC configuration. Overriding the default value is required for Azure US Government Top Secret."
       }
     },
     "avdObjectId": {
@@ -16069,7 +16069,9 @@
           "availabilityZones": {
             "value": "[parameters('availabilityZones')]"
           },
-          "avdConfigurationZipFileUri": "[if(empty(parameters('avdConfigurationZipFileUri')), createObject('value', format('https://wvdportalstorageblob.blob.{0}/galleryartifacts/Configuration_1.0.03047.739.zip', environment().suffixes.storage)), createObject('value', parameters('avdConfigurationZipFileUri')))]",
+          "avdConfigurationZipFileUri": {
+            "value": "[parameters('avdConfigurationZipFileUri')]"
+          },
           "dataCollectionRuleResourceId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-shared-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.dataCollectionRuleResourceId.value]"
           },
