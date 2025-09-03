@@ -834,7 +834,6 @@ module networking 'modules/networking.bicep' = {
                               '*.msappproxy.us'
                               '*.servicebus.usgovcloudapi.net'
                               'login.microsoftonline.us'
-                              'login.windows.us'
                               'secure.aadcdn.microsoftonline-p.com'
                               '*.microsoftonline.us'
                               '*.microsoftonline-p.us'
