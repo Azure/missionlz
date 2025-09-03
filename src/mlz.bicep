@@ -818,6 +818,75 @@ module networking 'modules/networking.bicep' = {
                             destinationAddresses: []
                             sourceIpGroups: []
                           }
+                          // Explicit US Gov Cloud Sync endpoints not covered by AzureActiveDirectory tag
+                          // Ref: https://learn.microsoft.com/entra/identity/hybrid/cloud-sync/how-to-prerequisites#firewall-and-proxy-requirements
+                          {
+                            name: 'Allow-Entra-CloudSync-USGov-HTTPS'
+                            ruleType: 'ApplicationRule'
+                            protocols: [
+                              {
+                                protocolType: 'Https'
+                                port: 443
+                              }
+                            ]
+                            // Wildcards supported by Azure Firewall Application Rules
+                            targetFqdns: [
+                              '*.msappproxy.us'
+                              '*.servicebus.usgovcloudapi.net'
+                              'login.microsoftonline.us'
+                              'login.windows.us'
+                              'secure.aadcdn.microsoftonline-p.com'
+                              '*.microsoftonline.us'
+                              '*.microsoftonline-p.us'
+                              '*.msauth.net'
+                              '*.msauthimages.net'
+                              '*.msecnd.net'
+                              '*.msftauth.net'
+                              '*.msftauthimages.net'
+                              'enterpriseregistration.windows.net'
+                              'management.usgovcloudapi.net'
+                              'policykeyservice.aadcdi.azure.us'
+                              'aadcdn.msftauthimages.us'
+                              '*.microsoft.us'
+                              'msauthimages.us'
+                              'msftauthimages.us'
+                            ]
+                            webCategories: []
+                            targetUrls: []
+                            terminateTLS: false
+                            sourceAddresses: [
+                              cidrHost(identitySubnetAddressPrefix, 3)
+                              cidrHost(identitySubnetAddressPrefix, 4)
+                            ]
+                            destinationAddresses: []
+                            sourceIpGroups: []
+                          }
+                          {
+                            name: 'Allow-Entra-CloudSync-USGov-CRL-HTTP'
+                            ruleType: 'ApplicationRule'
+                            protocols: [
+                              {
+                                protocolType: 'Http'
+                                port: 80
+                              }
+                            ]
+                            targetFqdns: [
+                              'mscrl.microsoft.us'
+                              'crl.microsoft.us'
+                              'ocsp.msocsp.us'
+                              'www.microsoft.us'
+                              'ctldl.windowsupdate.us'
+                            ]
+                            webCategories: []
+                            targetUrls: []
+                            terminateTLS: false
+                            sourceAddresses: [
+                              cidrHost(identitySubnetAddressPrefix, 3)
+                              cidrHost(identitySubnetAddressPrefix, 4)
+                            ]
+                            destinationAddresses: []
+                            sourceIpGroups: []
+                          }
                         ]
                       : []
                   )
