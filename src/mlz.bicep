@@ -844,37 +844,10 @@ module networking 'modules/networking.bicep' = {
                               '*.msftauthimages.net'
                               'enterpriseregistration.windows.net'
                               'management.usgovcloudapi.net'
-                              'policykeyservice.aadcdi.azure.us'
                               'aadcdn.msftauthimages.us'
                               '*.microsoft.us'
                               'msauthimages.us'
                               'msftauthimages.us'
-                            ]
-                            webCategories: []
-                            targetUrls: []
-                            terminateTLS: false
-                            sourceAddresses: [
-                              cidrHost(identitySubnetAddressPrefix, 3)
-                              cidrHost(identitySubnetAddressPrefix, 4)
-                            ]
-                            destinationAddresses: []
-                            sourceIpGroups: []
-                          }
-                          {
-                            name: 'Allow-Entra-CloudSync-USGov-CRL-HTTP'
-                            ruleType: 'ApplicationRule'
-                            protocols: [
-                              {
-                                protocolType: 'Http'
-                                port: 80
-                              }
-                            ]
-                            targetFqdns: [
-                              'mscrl.microsoft.us'
-                              'crl.microsoft.us'
-                              'ocsp.msocsp.us'
-                              'www.microsoft.us'
-                              'ctldl.windowsupdate.us'
                             ]
                             webCategories: []
                             targetUrls: []
