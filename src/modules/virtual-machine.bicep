@@ -21,6 +21,7 @@ param diskEncryptionSetResourceId string
 param diskName string
 param domainJoin bool = false
 param domainName string = ''
+param firstDomainControllerIp string = ''
 param hybridUseBenefit bool = false
 param imageOffer string
 param imagePublisher string
@@ -234,6 +235,31 @@ resource extension_GuestAttestation 'Microsoft.Compute/virtualMachines/extension
   }
 }
 
+// Wait for AD DS readiness on the first DC before attempting domain join on additional DCs
+resource runCommand_WaitForADDS 'Microsoft.Compute/virtualMachines/runCommands@2023-09-01' = if (domainJoin && !empty(firstDomainControllerIp) && osType == 'Windows') {
+  parent: virtualMachine
+  name: 'Wait-For-ADDS'
+  location: location
+  tags: union(tags[?'Microsoft.Compute/virtualMachines'] ?? {}, mlzTags)
+  properties: {
+    asyncExecution: false
+    parameters: [
+      {
+        name: 'DomainName'
+        value: domainName
+      }
+      {
+        name: 'FirstDcIp'
+        value: firstDomainControllerIp
+      }
+    ]
+    source: {
+      script: loadTextContent('../artifacts/Wait-For-ADDS.ps1')
+    }
+    treatFailureAsDeploymentFailure: true
+  }
+}
+
 resource extension_GuestConfiguration 'Microsoft.Compute/virtualMachines/extensions@2024-11-01' = {
   parent: virtualMachine
   name: 'Configurationfor${osType}'
@@ -332,6 +358,7 @@ resource extension_JsonADDomainExtension 'Microsoft.Compute/virtualMachines/exte
     }
   }
   dependsOn: [
+  runCommand_WaitForADDS
     extension_AzureMonitorAgent
     extension_DependencyAgent
     extension_GuestAttestation

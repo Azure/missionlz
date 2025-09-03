@@ -58,6 +58,7 @@ module virtualMachine 'virtual-machine.bicep' = {
     diskName: '${tier.namingConvention.virtualMachineDisk}${delimiter}dc${delimiter}${index}${delimiter}0'
     domainJoin: index == 0 ? false : true
     domainName: domainName
+  firstDomainControllerIp: index == 0 ? '' : cidrHost(virtualNetwork.properties.subnets[0].properties.addressPrefix, privateIPAddressOffset)
     hybridUseBenefit: hybridUseBenefit
     imageOffer: imageOffer
     imagePublisher: imagePublisher
@@ -79,7 +80,8 @@ module virtualMachine 'virtual-machine.bicep' = {
 module runCommand_DomainControllerPromotion 'run-command.bicep' = {
   name: 'deploy-adds-run-command-${index}-${deploymentNameSuffix}'
   params: {
-    asyncExecution: true
+  // Run synchronously to ensure DC0 promotion completes before subsequent DCs join
+  asyncExecution: false
     location: location
     mlzTags: mlzTags
     name: 'New-ADDSForest-${index}'
