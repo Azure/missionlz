@@ -352,7 +352,7 @@
                   "type": "Microsoft.Common.TextBox",
                   "label": "AVD Configuration Zip File URI",
                   "visible": "[startsWith(steps('basics').scope.location.name, 'usn')]",
-                  "toolTip": "Input the URI for the AVD Configuration Zip File. This value only needs to be updated in some Azure sovereign clouds.",
+                  "toolTip": "Input the URI for the AVD configuration ZIP file.",
                   "defaultValue": "",
                   "constraints": {
                     "required": true,
