@@ -5,10 +5,58 @@
     "_generator": {
       "name": "bicep",
       "version": "0.37.4.10188",
-      "templateHash": "17266015224819142638"
+      "templateHash": "15765018946169483755"
     }
   },
   "parameters": {
+    "addsDomainName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The root domain name for the new forest in Active Directory Domain Services. Required when deployActiveDirectoryDomainServices is true."
+      }
+    },
+    "addsSafeModeAdminPassword": {
+      "type": "securestring",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The password for the safe mode administrator account. Required when deployActiveDirectoryDomainServices is true."
+      }
+    },
+    "addsVmAdminPassword": {
+      "type": "securestring",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The password for the local administrator accounts on the Active Directory Domain Services (ADDS) domain controllers. Required when deployActiveDirectoryDomainServices is true."
+      }
+    },
+    "addsVmAdminUsername": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The username for the local administrator accounts on the Active Directory Domain Services (ADDS) domain controllers. Required when deployActiveDirectoryDomainServices is true."
+      }
+    },
+    "addsVmImageSku": {
+      "type": "string",
+      "defaultValue": "2019-datacenter-gensecond",
+      "allowedValues": [
+        "2019-datacenter-core-g2",
+        "2019-datacenter-gensecond",
+        "2022-datacenter-core-g2",
+        "2022-datacenter-g2"
+      ],
+      "metadata": {
+        "description": "The Windows image SKU in the Azure marketplace for the Active Directory Domain Services (ADDS) domain controllers."
+      }
+    },
+    "addsVmSize": {
+      "type": "string",
+      "defaultValue": "Standard_D2s_v3",
+      "metadata": {
+        "description": "The virtual machine size for the Active Directory Domain Services (ADDS) domain controllers."
+      }
+    },
     "avdObjectId": {
       "type": "string",
       "metadata": {
@@ -59,6 +107,13 @@
         "description": "The array of Security Principals with their object IDs and display names to assign to the AVD Application Group and FSLogix Storage."
       }
     },
+    "tags": {
+      "type": "object",
+      "defaultValue": {},
+      "metadata": {
+        "description": "A string dictionary of tags to add to deployed resources. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-resource-manager/management/tag-resources?tabs=json#arm-templates."
+      }
+    },
     "virtualMachineAdminPassword": {
       "type": "securestring",
       "metadata": {
@@ -97,8 +152,35 @@
         },
         "mode": "Incremental",
         "parameters": {
+          "addsDomainName": {
+            "value": "[parameters('addsDomainName')]"
+          },
+          "addsSafeModeAdminPassword": {
+            "value": "[parameters('addsSafeModeAdminPassword')]"
+          },
+          "addsVmAdminPassword": {
+            "value": "[parameters('addsVmAdminPassword')]"
+          },
+          "addsVmAdminUsername": {
+            "value": "[parameters('addsVmAdminUsername')]"
+          },
+          "addsVmImageSku": {
+            "value": "[parameters('addsVmImageSku')]"
+          },
+          "addsVmSize": {
+            "value": "[parameters('addsVmSize')]"
+          },
+          "deployActiveDirectoryDomainServices": {
+            "value": true
+          },
+          "deployBastion": {
+            "value": true
+          },
           "deployIdentity": {
-            "value": false
+            "value": true
+          },
+          "deployNetworkWatcherTrafficAnalytics": {
+            "value": true
           },
           "environmentAbbreviation": {
             "value": "dev"
@@ -114,6 +196,9 @@
           },
           "location": {
             "value": "[parameters('location')]"
+          },
+          "tags": {
+            "value": "[parameters('tags')]"
           }
         },
         "template": {
@@ -123,7 +208,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.37.4.10188",
-              "templateHash": "3832141623364730487"
+              "templateHash": "8835815961244906451"
             }
           },
           "parameters": {
@@ -1150,7 +1235,7 @@
                   "deployAzureGatewaySubnet": {
                     "value": "[parameters('deployAzureGatewaySubnet')]"
                   },
-                  "dnsServers": "[if(and(parameters('deployIdentity'), parameters('deployActiveDirectoryDomainServices')), createObject('value', createArray(cidrHost(parameters('identitySubnetAddressPrefix'), if(equals(parameters('hubSubscriptionId'), parameters('identitySubscriptionId')), 3, 4)), cidrHost(parameters('identitySubnetAddressPrefix'), if(equals(parameters('hubSubscriptionId'), parameters('identitySubscriptionId')), 4, 5)))), createObject('value', parameters('dnsServers')))]",
+                  "dnsServers": "[if(and(parameters('deployIdentity'), parameters('deployActiveDirectoryDomainServices')), createObject('value', createArray(cidrHost(parameters('identitySubnetAddressPrefix'), 4), cidrHost(parameters('identitySubnetAddressPrefix'), 5))), createObject('value', parameters('dnsServers')))]",
                   "enableProxy": {
                     "value": "[parameters('enableProxy')]"
                   },
@@ -1171,7 +1256,7 @@
                       "threatIntelMode": "[parameters('firewallThreatIntelMode')]"
                     }
                   },
-                  "firewallRuleCollectionGroups": "[if(empty(parameters('customFirewallRuleCollectionGroups')), createObject('value', createArray(createObject('name', 'MLZ-DefaultCollectionGroup', 'properties', createObject('priority', 100, 'ruleCollections', createArray(createObject('name', 'NetworkRules', 'priority', 100, 'ruleCollectionType', 'FirewallPolicyFilterRuleCollection', 'action', createObject('type', 'Allow'), 'rules', union(createArray(createObject('name', 'Allow-LAW-TCP', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Tcp'), 'sourceAddresses', createArray(parameters('firewallSupernetIPAddress')), 'destinationAddresses', createArray(cidrHost(parameters('operationsVirtualNetworkAddressPrefix'), 3)), 'destinationPorts', createArray('443'))), if(parameters('deployActiveDirectoryDomainServices'), createArray(createObject('name', 'Allow-ADDS-TCP', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('TCP'), 'sourceAddresses', createArray(parameters('firewallSupernetIPAddress')), 'destinationAddresses', createArray(cidrHost(parameters('identityVirtualNetworkAddressPrefix'), 3), cidrHost(parameters('identityVirtualNetworkAddressPrefix'), 4)), 'destinationPorts', createArray('53', '88', '135', '389', '445', '464', '636', '3268', '3269')), createObject('name', 'Allow-ADDS-UDP', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('UDP'), 'sourceAddresses', createArray(parameters('firewallSupernetIPAddress')), 'destinationAddresses', createArray(cidrHost(parameters('identitySubnetAddressPrefix'), 3), cidrHost(parameters('identitySubnetAddressPrefix'), 4)), 'destinationPorts', createArray('53', '88', '123', '389', '464'))), createArray()), if(or(parameters('deployLinuxVirtualMachine'), parameters('deployWindowsVirtualMachine')), createArray(createObject('name', 'Allow-KMS-TCP', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Tcp'), 'sourceAddresses', union(if(and(parameters('deployLinuxVirtualMachine'), parameters('deployWindowsVirtualMachine')), createArray(cidrHost(parameters('hubSubnetAddressPrefix'), 4), cidrHost(parameters('hubSubnetAddressPrefix'), 5)), createArray(cidrHost(parameters('hubSubnetAddressPrefix'), 4))), if(parameters('deployActiveDirectoryDomainServices'), createArray(cidrHost(parameters('identitySubnetAddressPrefix'), 3), cidrHost(parameters('identitySubnetAddressPrefix'), 4)), createArray())), 'destinationAddresses', createArray(), 'destinationFqdns', createArray(format('azkms.{0}', environment().suffixes.storage), format('kms.{0}', environment().suffixes.storage)), 'destinationPorts', createArray('1688'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray())), createArray()))), createObject('name', 'ApplicationRules', 'priority', 200, 'ruleCollectionType', 'FirewallPolicyFilterRuleCollection', 'action', createObject('type', 'Allow'), 'rules', if(or(parameters('deployLinuxVirtualMachine'), parameters('deployWindowsVirtualMachine')), createArray(createObject('name', 'Allow-WindowsUpdate', 'ruleType', 'ApplicationRule', 'protocols', createArray(createObject('protocolType', 'Https', 'port', 443)), 'fqdnTags', createArray('WindowsUpdate'), 'webCategories', createArray(), 'targetFqdns', createArray(), 'targetUrls', createArray(), 'terminateTLS', false(), 'sourceAddresses', union(if(and(parameters('deployLinuxVirtualMachine'), parameters('deployWindowsVirtualMachine')), createArray(cidrHost(parameters('hubSubnetAddressPrefix'), 4), cidrHost(parameters('hubSubnetAddressPrefix'), 5)), createArray(cidrHost(parameters('hubSubnetAddressPrefix'), 4))), if(parameters('deployActiveDirectoryDomainServices'), createArray(cidrHost(parameters('identitySubnetAddressPrefix'), 3), cidrHost(parameters('identitySubnetAddressPrefix'), 4)), createArray())), 'destinationAddresses', createArray(), 'sourceIpGroups', createArray())), createArray()))))))), createObject('value', parameters('customFirewallRuleCollectionGroups')))]",
+                  "firewallRuleCollectionGroups": "[if(empty(parameters('customFirewallRuleCollectionGroups')), createObject('value', createArray(createObject('name', 'MLZ-DefaultCollectionGroup', 'properties', createObject('priority', 100, 'ruleCollections', createArray(createObject('name', 'NetworkRules', 'priority', 100, 'ruleCollectionType', 'FirewallPolicyFilterRuleCollection', 'action', createObject('type', 'Allow'), 'rules', union(createArray(createObject('name', 'Allow-LAW-TCP', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Tcp'), 'sourceAddresses', createArray(parameters('firewallSupernetIPAddress')), 'destinationAddresses', createArray(cidrHost(parameters('operationsVirtualNetworkAddressPrefix'), 3)), 'destinationPorts', createArray('443'))), if(parameters('deployActiveDirectoryDomainServices'), createArray(createObject('name', 'Allow-ADDS-TCP', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('TCP'), 'sourceAddresses', createArray(parameters('firewallSupernetIPAddress')), 'destinationAddresses', createArray(cidrHost(parameters('identityVirtualNetworkAddressPrefix'), 4), cidrHost(parameters('identityVirtualNetworkAddressPrefix'), 5)), 'destinationPorts', createArray('53', '88', '135', '389', '445', '464', '636', '3268', '3269')), createObject('name', 'Allow-ADDS-UDP', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('UDP'), 'sourceAddresses', createArray(parameters('firewallSupernetIPAddress')), 'destinationAddresses', createArray(cidrHost(parameters('identitySubnetAddressPrefix'), 4), cidrHost(parameters('identitySubnetAddressPrefix'), 5)), 'destinationPorts', createArray('53', '88', '123', '389', '464'))), createArray()), if(or(parameters('deployLinuxVirtualMachine'), parameters('deployWindowsVirtualMachine')), createArray(createObject('name', 'Allow-KMS-TCP', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Tcp'), 'sourceAddresses', union(if(and(parameters('deployLinuxVirtualMachine'), parameters('deployWindowsVirtualMachine')), createArray(cidrHost(parameters('hubSubnetAddressPrefix'), 4), cidrHost(parameters('hubSubnetAddressPrefix'), 5)), createArray(cidrHost(parameters('hubSubnetAddressPrefix'), 4))), if(parameters('deployActiveDirectoryDomainServices'), createArray(cidrHost(parameters('identitySubnetAddressPrefix'), 4), cidrHost(parameters('identitySubnetAddressPrefix'), 5)), createArray())), 'destinationAddresses', createArray(), 'destinationFqdns', createArray(format('azkms.{0}', environment().suffixes.storage), format('kms.{0}', environment().suffixes.storage)), 'destinationPorts', createArray('1688'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray())), createArray()))), createObject('name', 'ApplicationRules', 'priority', 200, 'ruleCollectionType', 'FirewallPolicyFilterRuleCollection', 'action', createObject('type', 'Allow'), 'rules', if(or(parameters('deployLinuxVirtualMachine'), parameters('deployWindowsVirtualMachine')), createArray(createObject('name', 'Allow-WindowsUpdate', 'ruleType', 'ApplicationRule', 'protocols', createArray(createObject('protocolType', 'Https', 'port', 443)), 'fqdnTags', createArray('WindowsUpdate'), 'webCategories', createArray(), 'targetFqdns', createArray(), 'targetUrls', createArray(), 'terminateTLS', false(), 'sourceAddresses', union(if(and(parameters('deployLinuxVirtualMachine'), parameters('deployWindowsVirtualMachine')), createArray(cidrHost(parameters('hubSubnetAddressPrefix'), 4), cidrHost(parameters('hubSubnetAddressPrefix'), 5)), createArray(cidrHost(parameters('hubSubnetAddressPrefix'), 4))), if(parameters('deployActiveDirectoryDomainServices'), createArray(cidrHost(parameters('identitySubnetAddressPrefix'), 4), cidrHost(parameters('identitySubnetAddressPrefix'), 5)), createArray())), 'destinationAddresses', createArray(), 'sourceIpGroups', createArray())), createArray()))))))), createObject('value', parameters('customFirewallRuleCollectionGroups')))]",
                   "identifier": {
                     "value": "[parameters('identifier')]"
                   },
@@ -5156,7 +5241,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.37.4.10188",
-                      "templateHash": "15270218943463830483"
+                      "templateHash": "4918208056354597359"
                     }
                   },
                   "parameters": {
@@ -5229,8 +5314,6 @@
                     }
                   },
                   "variables": {
-                    "hubSubscriptionId": "[subscription().subscriptionId]",
-                    "identitySubscriptionId": "[parameters('tier').subscriptionId]",
                     "resourceGroupName": "[format('{0}{1}domainControllers', parameters('tier').namingConvention.resourceGroup, parameters('delimiter'))]"
                   },
                   "resources": [
@@ -6108,7 +6191,9 @@
                           "mlzTags": {
                             "value": "[parameters('mlzTags')]"
                           },
-                          "privateIPAddressOffset": "[if(equals(variables('hubSubscriptionId'), variables('identitySubscriptionId')), createObject('value', 3), createObject('value', 4))]",
+                          "privateIPAddressOffset": {
+                            "value": 4
+                          },
                           "safeModeAdminPassword": {
                             "value": "[parameters('safeModeAdminPassword')]"
                           },
@@ -6132,7 +6217,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.37.4.10188",
-                              "templateHash": "16641229105095486153"
+                              "templateHash": "348200081381442580"
                             }
                           },
                           "parameters": {
@@ -6315,7 +6400,7 @@
                                     "_generator": {
                                       "name": "bicep",
                                       "version": "0.37.4.10188",
-                                      "templateHash": "16963364700905820760"
+                                      "templateHash": "1015436618548392339"
                                     }
                                   },
                                   "parameters": {
@@ -6723,6 +6808,10 @@
                                     "virtualMachineName": {
                                       "type": "string",
                                       "value": "[parameters('virtualMachineName')]"
+                                    },
+                                    "virtualMachineResourceId": {
+                                      "type": "string",
+                                      "value": "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
                                     }
                                   }
                                 }
@@ -6861,6 +6950,10 @@
                             "networkInterfaceResourceId": {
                               "type": "string",
                               "value": "[reference(resourceId('Microsoft.Resources/deployments', format('deploy-adds-vm-{0}-{1}', parameters('index'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkInterfaceResourceId.value]"
+                            },
+                            "virtualMachineResourceId": {
+                              "type": "string",
+                              "value": "[reference(resourceId('Microsoft.Resources/deployments', format('deploy-adds-vm-{0}-{1}', parameters('index'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.virtualMachineResourceId.value]"
                             }
                           }
                         }
@@ -7014,7 +7107,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.37.4.10188",
-                      "templateHash": "2889943638435213778"
+                      "templateHash": "17996507406919965809"
                     }
                   },
                   "parameters": {
@@ -7939,7 +8032,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.37.4.10188",
-                              "templateHash": "16963364700905820760"
+                              "templateHash": "1015436618548392339"
                             }
                           },
                           "parameters": {
@@ -8347,6 +8440,10 @@
                             "virtualMachineName": {
                               "type": "string",
                               "value": "[parameters('virtualMachineName')]"
+                            },
+                            "virtualMachineResourceId": {
+                              "type": "string",
+                              "value": "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
                             }
                           }
                         }
@@ -8434,7 +8531,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.37.4.10188",
-                              "templateHash": "16963364700905820760"
+                              "templateHash": "1015436618548392339"
                             }
                           },
                           "parameters": {
@@ -8842,6 +8939,10 @@
                             "virtualMachineName": {
                               "type": "string",
                               "value": "[parameters('virtualMachineName')]"
+                            },
+                            "virtualMachineResourceId": {
+                              "type": "string",
+                              "value": "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
                             }
                           }
                         }
@@ -11949,7 +12050,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.37.4.10188",
-              "templateHash": "3671733759915042531"
+              "templateHash": "16961410277234965153"
             }
           },
           "parameters": {
@@ -11986,13 +12087,6 @@
               ],
               "metadata": {
                 "description": "The availability zones allowed for the AVD session hosts deployment location."
-              }
-            },
-            "avdConfigurationZipFileUri": {
-              "type": "string",
-              "defaultValue": "",
-              "metadata": {
-                "description": "The file name for the ZIP file containing the AVD agents and DSC configuration."
               }
             },
             "avdObjectId": {
@@ -12641,6 +12735,7 @@
             "availabilitySetsCount": "[length(range(variables('beginAvSetRange'), add(sub(variables('endAvSetRange'), variables('beginAvSetRange')), 1)))]",
             "agentTrafficUniqueString": "[if(equals(substring(variables('cloud'), 2, 1), 'n'), format('wvd{0}xportalcontainer', first(variables('cloudSuffix'))), 'wvdportalstorageblob')]",
             "agentUpdatesUniqueString": "[if(equals(variables('cloud'), 'AzureCloud'), 'eus2prod', if(equals(variables('cloud'), 'AzureUSGovernment'), 'ugviffx', format('{0}{1}{2}{3}x', first(variables('cloud')), take(skip(variables('cloud'), 2), 1), first(parameters('locationVirtualMachines')), if(equals(substring(variables('cloud'), 2, 1), 'n'), first(variables('cloudSuffix')), substring(variables('cloudSuffix'), 3, 1)))))]",
+            "avdConfigurationZipFileStorageAccount": "[if(startsWith(parameters('locationVirtualMachines'), 'usn'), 'wvdexportalcontainer', 'wvdportalstorageblob')]",
             "cloud": "[environment().name]",
             "cloudSuffix": "[replace(replace(environment().resourceManager, 'https://management.', ''), '/', '')]",
             "customImageId": "[if(empty(parameters('imageVersionResourceId')), 'null', format('\"{0}\"', parameters('imageVersionResourceId')))]",
@@ -28013,7 +28108,9 @@
                   "availabilityZones": {
                     "value": "[parameters('availabilityZones')]"
                   },
-                  "avdConfigurationZipFileUri": "[if(empty(parameters('avdConfigurationZipFileUri')), createObject('value', format('https://wvdportalstorageblob.blob.{0}/galleryartifacts/Configuration_1.0.03047.739.zip', environment().suffixes.storage)), createObject('value', parameters('avdConfigurationZipFileUri')))]",
+                  "avdConfigurationZipFileUri": {
+                    "value": "[format('https://{0}.blob.{1}/galleryartifacts/Configuration_1.0.03152.876.zip', variables('avdConfigurationZipFileStorageAccount'), environment().suffixes.storage)]"
+                  },
                   "dataCollectionRuleResourceId": {
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-shared-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.dataCollectionRuleResourceId.value]"
                   },

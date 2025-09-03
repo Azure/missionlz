@@ -1,5 +1,31 @@
 targetScope = 'subscription'
 
+@description('The root domain name for the new forest in Active Directory Domain Services. Required when deployActiveDirectoryDomainServices is true.')
+param addsDomainName string = ''
+
+@secure()
+@description('The password for the safe mode administrator account. Required when deployActiveDirectoryDomainServices is true.')
+param addsSafeModeAdminPassword string = ''
+
+@description('The password for the local administrator accounts on the Active Directory Domain Services (ADDS) domain controllers. Required when deployActiveDirectoryDomainServices is true.')
+@secure()
+param addsVmAdminPassword string = ''
+
+@description('The username for the local administrator accounts on the Active Directory Domain Services (ADDS) domain controllers. Required when deployActiveDirectoryDomainServices is true.')
+param addsVmAdminUsername string = ''
+
+@allowed([
+  '2019-datacenter-core-g2' // Windows Server 2019 Datacenter Core Gen2
+  '2019-datacenter-gensecond' // Windows Server 2019 Datacenter Gen2
+  '2022-datacenter-core-g2' // Windows Server 2022 Datacenter Core Gen2
+  '2022-datacenter-g2' // Windows Server 2022 Datacenter Gen2
+])
+@description('The Windows image SKU in the Azure marketplace for the Active Directory Domain Services (ADDS) domain controllers.')
+param addsVmImageSku string = '2019-datacenter-gensecond'
+
+@description('The virtual machine size for the Active Directory Domain Services (ADDS) domain controllers.')
+param addsVmSize string = 'Standard_D2s_v3'
+
 // @secure()
 // @description('The password for the ArcGIS service account.')
 // param arcgisServiceAccountPassword string
@@ -61,6 +87,9 @@ param securityPrincipals array
 // @description('The resource ID of the Azure Storage Account used for storing the deployment artifacts.')
 // param storageAccountResourceId string
 
+@description('A string dictionary of tags to add to deployed resources. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-resource-manager/management/tag-resources?tabs=json#arm-templates.')
+param tags object = {}
+
 @secure()
 @description('The password for the local administrator account on the virtual machines.')
 param virtualMachineAdminPassword string
@@ -80,12 +109,22 @@ param virtualMachineSize string = 'Standard_NV4as_v4'
 module missionLandingZone '../../mlz.bicep' = {
   name: 'deploy-mission-landing-zone-${deploymentNameSuffix}'
   params: {
-    deployIdentity: false
+    addsDomainName: addsDomainName
+    addsSafeModeAdminPassword: addsSafeModeAdminPassword
+    addsVmAdminPassword: addsVmAdminPassword
+    addsVmAdminUsername: addsVmAdminUsername
+    addsVmImageSku: addsVmImageSku
+    addsVmSize: addsVmSize
+    deployActiveDirectoryDomainServices: true
+    deployBastion: true
+    deployIdentity: true
+    deployNetworkWatcherTrafficAnalytics: true
     environmentAbbreviation: 'dev'
     firewallSkuTier: 'Standard'
     hybridUseBenefit: hybridUseBenefit
     identifier: 'poc'
     location: location
+    tags: tags
   }
 }
 
