@@ -751,45 +751,76 @@ module networking 'modules/networking.bicep' = {
                   action: {
                     type: 'Allow'
                   }
-                  rules: deployLinuxVirtualMachine || deployWindowsVirtualMachine
-                    ? [
-                        {
-                          name: 'Allow-WindowsUpdate'
-                          ruleType: 'ApplicationRule'
-                          protocols: [
-                            {
-                              protocolType: 'Https'
-                              port: 443
-                            }
-                          ]
-                          fqdnTags: [
-                            'WindowsUpdate'
-                          ]
-                          webCategories: []
-                          targetFqdns: []
-                          targetUrls: []
-                          terminateTLS: false
-                          sourceAddresses: union(
-                            deployLinuxVirtualMachine && deployWindowsVirtualMachine
-                              ? [
-                                  cidrHost(hubSubnetAddressPrefix, 4)
-                                  cidrHost(hubSubnetAddressPrefix, 5)
-                                ]
-                              : [
-                                  cidrHost(hubSubnetAddressPrefix, 4)
-                                ],
-                            deployActiveDirectoryDomainServices
-                              ? [
-                                  cidrHost(identitySubnetAddressPrefix, 3)
-                                  cidrHost(identitySubnetAddressPrefix, 4)
-                                ]
-                              : []
-                          )
-                          destinationAddresses: []
-                          sourceIpGroups: []
-                        }
-                      ]
-                    : []
+                  rules: union(
+                    // Windows Update for hub jumpboxes only
+                    (deployLinuxVirtualMachine || deployWindowsVirtualMachine)
+                      ? [
+                          {
+                            name: 'Allow-WindowsUpdate'
+                            ruleType: 'ApplicationRule'
+                            protocols: [
+                              {
+                                protocolType: 'Https'
+                                port: 443
+                              }
+                            ]
+                            fqdnTags: [
+                              'WindowsUpdate'
+                            ]
+                            webCategories: []
+                            targetFqdns: []
+                            targetUrls: []
+                            terminateTLS: false
+                            sourceAddresses: union(
+                              deployLinuxVirtualMachine && deployWindowsVirtualMachine
+                                ? [
+                                    cidrHost(hubSubnetAddressPrefix, 4)
+                                    cidrHost(hubSubnetAddressPrefix, 5)
+                                  ]
+                                : [
+                                    cidrHost(hubSubnetAddressPrefix, 4)
+                                  ],
+                              deployActiveDirectoryDomainServices
+                                ? [
+                                    cidrHost(identitySubnetAddressPrefix, 3)
+                                    cidrHost(identitySubnetAddressPrefix, 4)
+                                  ]
+                                : []
+                            )
+                            destinationAddresses: []
+                            sourceIpGroups: []
+                          }
+                        ]
+                      : [],
+                    // Entra Connect & Cloud Sync for AD DS DCs only
+                    deployActiveDirectoryDomainServices
+                      ? [
+                          {
+                            name: 'Allow-Entra-Connect-CloudSync'
+                            ruleType: 'ApplicationRule'
+                            protocols: [
+                              {
+                                protocolType: 'Https'
+                                port: 443
+                              }
+                            ]
+                            fqdnTags: [
+                              'AzureActiveDirectory'
+                            ]
+                            webCategories: []
+                            targetFqdns: []
+                            targetUrls: []
+                            terminateTLS: false
+                            sourceAddresses: [
+                              cidrHost(identitySubnetAddressPrefix, 3)
+                              cidrHost(identitySubnetAddressPrefix, 4)
+                            ]
+                            destinationAddresses: []
+                            sourceIpGroups: []
+                          }
+                        ]
+                      : []
+                  )
                 }
               ]
             }
