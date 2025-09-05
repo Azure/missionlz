@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.37.4.10188",
-      "templateHash": "1022109638904895343"
+      "templateHash": "17899951754443668807"
     }
   },
   "parameters": {
@@ -164,6 +164,13 @@
       ],
       "metadata": {
         "description": "The Paid Workload Protection plans for Defender for Cloud. Default value = \"VirtualMachines\". See the following URL for valid settings: https://learn.microsoft.com/rest/api/defenderforcloud-composite/pricings/update?view=rest-defenderforcloud-composite-latest&tabs=HTTP."
+      }
+    },
+    "deployEntraCloudSync": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Choose to deploy Entra Cloud Sync when the identity spoke and ADDS are deployed."
       }
     },
     "deployIdentity": {
@@ -466,6 +473,20 @@
       ],
       "metadata": {
         "description": "An array of Network Diagnostic Metrics to enable for the Hub Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics."
+      }
+    },
+    "hybridIdentityAdministratorPassword": {
+      "type": "securestring",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The password for the hybrid identity administrator for the Azure AD tenant. This is required when deploying Entra Cloud Sync. The account must have MFA temporarily disabled. Default value = \"\"."
+      }
+    },
+    "hybridIdentityAdministratorUserPrincipalName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The user principal name (UPN) of the hybrid identity administrator for the Azure AD tenant. This is required when deploying Entra Cloud Sync. The account must have MFA temporarily disabled.Default value = \"\"."
       }
     },
     "hybridUseBenefit": {
@@ -4982,6 +5003,9 @@
           "delimiter": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.delimiter.value]"
           },
+          "deployEntraCloudSync": {
+            "value": "[parameters('deployEntraCloudSync')]"
+          },
           "deploymentNameSuffix": {
             "value": "[parameters('deploymentNameSuffix')]"
           },
@@ -4990,6 +5014,12 @@
           },
           "environmentAbbreviation": {
             "value": "[parameters('environmentAbbreviation')]"
+          },
+          "hybridIdentityAdministratorPassword": {
+            "value": "[parameters('hybridIdentityAdministratorPassword')]"
+          },
+          "hybridIdentityAdministratorUserPrincipalName": {
+            "value": "[parameters('hybridIdentityAdministratorUserPrincipalName')]"
           },
           "hybridUseBenefit": {
             "value": "[parameters('hybridUseBenefit')]"
@@ -5038,7 +5068,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.37.4.10188",
-              "templateHash": "12466874087821171013"
+              "templateHash": "5807764034775432086"
             }
           },
           "parameters": {
@@ -5051,6 +5081,9 @@
             "delimiter": {
               "type": "string"
             },
+            "deployEntraCloudSync": {
+              "type": "bool"
+            },
             "deploymentNameSuffix": {
               "type": "string"
             },
@@ -5062,6 +5095,12 @@
               "type": "string"
             },
             "environmentAbbreviation": {
+              "type": "string"
+            },
+            "hybridIdentityAdministratorPassword": {
+              "type": "securestring"
+            },
+            "hybridIdentityAdministratorUserPrincipalName": {
               "type": "string"
             },
             "hybridUseBenefit": {
@@ -6014,7 +6053,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.37.4.10188",
-                      "templateHash": "16641229105095486153"
+                      "templateHash": "9473799067089079552"
                     }
                   },
                   "parameters": {
@@ -6743,6 +6782,10 @@
                     "networkInterfaceResourceId": {
                       "type": "string",
                       "value": "[reference(resourceId('Microsoft.Resources/deployments', format('deploy-adds-vm-{0}-{1}', parameters('index'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkInterfaceResourceId.value]"
+                    },
+                    "virtualMachineName": {
+                      "type": "string",
+                      "value": "[reference(resourceId('Microsoft.Resources/deployments', format('deploy-adds-vm-{0}-{1}', parameters('index'), parameters('deploymentNameSuffix'))), '2022-09-01').outputs.virtualMachineName.value]"
                     }
                   }
                 }
@@ -6751,6 +6794,234 @@
                 "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-adds-availability-set-{0}', parameters('deploymentNameSuffix')))]",
                 "[subscriptionResourceId(parameters('tier').subscriptionId, 'Microsoft.Resources/deployments', format('deploy-adds-cmk-{0}', parameters('deploymentNameSuffix')))]",
                 "[subscriptionResourceId(parameters('tier').subscriptionId, 'Microsoft.Resources/deployments', format('deploy-adds-rg-{0}-{1}', parameters('tier').name, parameters('deploymentNameSuffix')))]"
+              ]
+            },
+            {
+              "condition": "[parameters('deployEntraCloudSync')]",
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2022-09-01",
+              "name": "[format('deploy-entra-cloud-sync-{0}', parameters('deploymentNameSuffix'))]",
+              "subscriptionId": "[parameters('tier').subscriptionId]",
+              "resourceGroup": "[variables('resourceGroupName')]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "deploymentNameSuffix": {
+                    "value": "[parameters('deploymentNameSuffix')]"
+                  },
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
+                  "mlzTags": {
+                    "value": "[parameters('mlzTags')]"
+                  },
+                  "name": {
+                    "value": "Install-EntraCloudSync"
+                  },
+                  "tags": {
+                    "value": "[parameters('tags')]"
+                  },
+                  "virtualMachineNames": {
+                    "value": [
+                      "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-adds-dc-{0}-{1}', range(0, parameters('vmCount'))[0], parameters('deploymentNameSuffix'))), '2022-09-01').outputs.virtualMachineName.value]",
+                      "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-adds-dc-{0}-{1}', range(0, parameters('vmCount'))[1], parameters('deploymentNameSuffix'))), '2022-09-01').outputs.virtualMachineName.value]"
+                    ]
+                  },
+                  "domainAdministratorPassword": {
+                    "value": "[parameters('adminPassword')]"
+                  },
+                  "domainAdministratorUsername": {
+                    "value": "[parameters('adminUsername')]"
+                  },
+                  "hybridIdentityAdministratorPassword": {
+                    "value": "[parameters('hybridIdentityAdministratorPassword')]"
+                  },
+                  "hybridIdentityAdministratorUserPrincipalName": {
+                    "value": "[parameters('hybridIdentityAdministratorUserPrincipalName')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.37.4.10188",
+                      "templateHash": "18106847473873979143"
+                    }
+                  },
+                  "parameters": {
+                    "deploymentNameSuffix": {
+                      "type": "string"
+                    },
+                    "domainAdministratorPassword": {
+                      "type": "securestring"
+                    },
+                    "domainAdministratorUsername": {
+                      "type": "string"
+                    },
+                    "hybridIdentityAdministratorPassword": {
+                      "type": "securestring"
+                    },
+                    "hybridIdentityAdministratorUserPrincipalName": {
+                      "type": "string"
+                    },
+                    "location": {
+                      "type": "string"
+                    },
+                    "mlzTags": {
+                      "type": "object"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "tags": {
+                      "type": "object"
+                    },
+                    "virtualMachineNames": {
+                      "type": "array"
+                    }
+                  },
+                  "variables": {
+                    "$fxv#0": "param (\r\n    [Parameter(Mandatory = $true)]\r\n    [string]$AzureEnvironment,\r\n\r\n    [Parameter(Mandatory = $true)]\r\n    [string]$AzureResourceManagerUri,\r\n\r\n    [Parameter(Mandatory = $true)]\r\n    [string]$DomainAdministratorPassword,\r\n\r\n    [Parameter(Mandatory = $true)]\r\n    [string]$DomainAdministratorUsername,\r\n\r\n    [Parameter(Mandatory = $true)]\r\n    [string]$DomainName,\r\n\r\n    [Parameter(Mandatory = $true)]\r\n    [string]$HybridIdentityAdministratorPassword,\r\n\r\n    [Parameter(Mandatory = $true)]\r\n    [string]$HybridIdentityAdministratorUserPrincipalName,\r\n\r\n    [Parameter(Mandatory = $true)]\r\n    [string]$SubscriptionId\r\n)\r\n\r\n# Variables\r\n$AzureResourceManagerDomain = $AzureResourceManagerUri.Split('/')[2]\r\n$AzureDomainSuffix = switch ($AzureEnvironment) {\r\n    'AzureCloud' { 'net' }\r\n    'AzureUSGovernment' { 'us' }\r\n    Default { $AzureResourceManagerDomain.Replace('management.azure.', '') }\r\n}\r\n$Netbios = $DomainName.Split('.')[0]\r\n\r\n# Download the provisioning agent installer\r\nInvoke-WebRequest `\r\n    -Uri $('https://download.msappproxy.' + $AzureDomainSuffix + '/Subscription/' + $SubscriptionId + '/Connector/previewProvisioningAgentInstaller') `\r\n    -OutFile 'C:\\Temp\\AADConnectProvisioningAgentSetup.exe'\r\n\r\n# Install the provisioning agent in quiet mode\r\nStart-Process `\r\n    -FilePath 'C:\\Temp\\AADConnectProvisioningAgentSetup.exe' `\r\n    -ArgumentList \"/quiet ENVIRONMENTNAME=$AzureEnvironment\" `\r\n    -NoNewWindow `\r\n    -PassThru `\r\n    -Wait\r\n\r\n# Import the provisioning agent PowerShell module\r\nImport-Module 'C:\\Program Files\\Microsoft Azure AD Connect Provisioning Agent\\Microsoft.CloudSync.PowerShell.dll'\r\n\r\n# Connect to Microsoft Entra ID using an account with the hybrid identity role\r\n$CloudAdminPassword = ConvertTo-SecureString -String $HybridIdentityAdministratorPassword -AsPlainText -Force\r\n$CloudAdminCreds = New-Object System.Management.Automation.PSCredential -ArgumentList ($HybridIdentityAdministratorUserPrincipalName, $CloudAdminPassword)\r\nConnect-AADCloudSyncAzureAD -Credential $CloudAdminCreds\r\n\r\n# Add the gMSA account\r\n$DomainAdminPassword = ConvertTo-SecureString -String $DomainAdministratorPassword -AsPlainText -Force\r\n$DomainAdminCreds = New-Object System.Management.Automation.PSCredential -ArgumentList (\"$Netbios\\$DomainAdministratorUsername\", $DomainAdminPassword)\r\nAdd-AADCloudSyncGMSA -Credential $DomainAdminCreds\r\n\r\n# Add the domain\r\nAdd-AADCloudSyncADDomain -DomainName $DomainName -Credential $DomainAdminCreds\r\n\r\n# Restart the service\r\nRestart-Service -Name 'AADConnectProvisioningAgent'"
+                  },
+                  "resources": [
+                    {
+                      "copy": {
+                        "name": "installEntraCloudSync",
+                        "count": "[length(parameters('virtualMachineNames'))]"
+                      },
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2022-09-01",
+                      "name": "[format('install-entra-cloud-sync-{0}-{1}', copyIndex(), parameters('deploymentNameSuffix'))]",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "parameters": {
+                          "location": {
+                            "value": "[parameters('location')]"
+                          },
+                          "mlzTags": {
+                            "value": "[parameters('mlzTags')]"
+                          },
+                          "name": {
+                            "value": "[parameters('name')]"
+                          },
+                          "parameters": {
+                            "value": [
+                              {
+                                "name": "AzureEnvironment",
+                                "value": "[environment().name]"
+                              },
+                              {
+                                "name": "AzureResourceManagerUri",
+                                "value": "[environment().resourceManager]"
+                              },
+                              {
+                                "name": "DomainAdministratorUsername",
+                                "value": "[parameters('domainAdministratorUsername')]"
+                              },
+                              {
+                                "name": "HybridIdentityAdministratorUserPrincipalName",
+                                "value": "[parameters('hybridIdentityAdministratorUserPrincipalName')]"
+                              },
+                              {
+                                "name": "SubscriptionId",
+                                "value": "[subscription().subscriptionId]"
+                              }
+                            ]
+                          },
+                          "protectedParameters": {
+                            "value": "[format('[{{''name'':''DomainAdministratorPassword'',''value'':''{0}''}},{{''name'':''HybridIdentityAdministratorPassword'',''value'':''{1}''}}]', parameters('domainAdministratorPassword'), parameters('hybridIdentityAdministratorPassword'))]"
+                          },
+                          "script": {
+                            "value": "[variables('$fxv#0')]"
+                          },
+                          "tags": {
+                            "value": "[parameters('tags')]"
+                          },
+                          "virtualMachineName": {
+                            "value": "[parameters('virtualMachineNames')[copyIndex()]]"
+                          }
+                        },
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "0.37.4.10188",
+                              "templateHash": "16562347820701968070"
+                            }
+                          },
+                          "parameters": {
+                            "asyncExecution": {
+                              "type": "bool",
+                              "defaultValue": false
+                            },
+                            "location": {
+                              "type": "string"
+                            },
+                            "mlzTags": {
+                              "type": "object"
+                            },
+                            "name": {
+                              "type": "string"
+                            },
+                            "parameters": {
+                              "type": "array",
+                              "defaultValue": []
+                            },
+                            "protectedParameters": {
+                              "type": "securestring",
+                              "defaultValue": ""
+                            },
+                            "script": {
+                              "type": "string"
+                            },
+                            "tags": {
+                              "type": "object"
+                            },
+                            "treatFailureAsDeploymentFailure": {
+                              "type": "bool",
+                              "defaultValue": true
+                            },
+                            "virtualMachineName": {
+                              "type": "string"
+                            }
+                          },
+                          "resources": [
+                            {
+                              "type": "Microsoft.Compute/virtualMachines/runCommands",
+                              "apiVersion": "2023-09-01",
+                              "name": "[format('{0}/{1}', parameters('virtualMachineName'), parameters('name'))]",
+                              "location": "[parameters('location')]",
+                              "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/virtualMachines'), createObject()), parameters('mlzTags'))]",
+                              "properties": {
+                                "asyncExecution": "[parameters('asyncExecution')]",
+                                "parameters": "[parameters('parameters')]",
+                                "protectedParameters": "[json(parameters('protectedParameters'))]",
+                                "source": {
+                                  "script": "[parameters('script')]"
+                                },
+                                "treatFailureAsDeploymentFailure": "[parameters('treatFailureAsDeploymentFailure')]"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "dependsOn": [
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-adds-dc-{0}-{1}', range(0, parameters('vmCount'))[0], parameters('deploymentNameSuffix')))]",
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-adds-dc-{0}-{1}', range(0, parameters('vmCount'))[1], parameters('deploymentNameSuffix')))]"
               ]
             }
           ],
