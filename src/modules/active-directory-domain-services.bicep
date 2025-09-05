@@ -121,7 +121,11 @@ module entraCloudSync 'entra-cloud-sync.bicep' = if (deployEntraCloudSync) {
   name: 'deploy-entra-cloud-sync-${deploymentNameSuffix}'
   scope: resourceGroup(tier.subscriptionId, resourceGroupName)
   params: {
+    adminPassword: adminPassword
+    adminUsername: adminUsername
+    delimiter: delimiter
     deploymentNameSuffix: deploymentNameSuffix
+    diskEncryptionSetResourceId: customerManagedKeys.outputs.diskEncryptionSetResourceId
     location: location
     mlzTags: mlzTags
     name: 'Install-EntraCloudSync'
@@ -130,10 +134,10 @@ module entraCloudSync 'entra-cloud-sync.bicep' = if (deployEntraCloudSync) {
       domainControllers[0].outputs.virtualMachineName
       domainControllers[1].outputs.virtualMachineName
     ]
-    domainAdministratorPassword: adminPassword
-    domainAdministratorUsername: adminUsername
     hybridIdentityAdministratorPassword: hybridIdentityAdministratorPassword
     hybridIdentityAdministratorUserPrincipalName: hybridIdentityAdministratorUserPrincipalName
+    subnetResourceId: tier.subnetResourceId
+    tier: tier
   }
 }
 
