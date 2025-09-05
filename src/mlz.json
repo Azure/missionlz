@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.37.4.10188",
-      "templateHash": "17899951754443668807"
+      "templateHash": "18431736941278156342"
     }
   },
   "parameters": {
@@ -5068,7 +5068,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.37.4.10188",
-              "templateHash": "5807764034775432086"
+              "templateHash": "16020460943140794357"
             }
           },
           "parameters": {
@@ -6809,8 +6809,20 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
+                  "adminPassword": {
+                    "value": "[parameters('adminPassword')]"
+                  },
+                  "adminUsername": {
+                    "value": "[parameters('adminUsername')]"
+                  },
+                  "delimiter": {
+                    "value": "[parameters('delimiter')]"
+                  },
                   "deploymentNameSuffix": {
                     "value": "[parameters('deploymentNameSuffix')]"
+                  },
+                  "diskEncryptionSetResourceId": {
+                    "value": "[reference(subscriptionResourceId(parameters('tier').subscriptionId, 'Microsoft.Resources/deployments', format('deploy-adds-cmk-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.diskEncryptionSetResourceId.value]"
                   },
                   "location": {
                     "value": "[parameters('location')]"
@@ -6830,17 +6842,17 @@
                       "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-adds-dc-{0}-{1}', range(0, parameters('vmCount'))[1], parameters('deploymentNameSuffix'))), '2022-09-01').outputs.virtualMachineName.value]"
                     ]
                   },
-                  "domainAdministratorPassword": {
-                    "value": "[parameters('adminPassword')]"
-                  },
-                  "domainAdministratorUsername": {
-                    "value": "[parameters('adminUsername')]"
-                  },
                   "hybridIdentityAdministratorPassword": {
                     "value": "[parameters('hybridIdentityAdministratorPassword')]"
                   },
                   "hybridIdentityAdministratorUserPrincipalName": {
                     "value": "[parameters('hybridIdentityAdministratorUserPrincipalName')]"
+                  },
+                  "subnetResourceId": {
+                    "value": "[parameters('tier').subnetResourceId]"
+                  },
+                  "tier": {
+                    "value": "[parameters('tier')]"
                   }
                 },
                 "template": {
@@ -6850,17 +6862,23 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.37.4.10188",
-                      "templateHash": "18106847473873979143"
+                      "templateHash": "6833444506324745655"
                     }
                   },
                   "parameters": {
+                    "adminPassword": {
+                      "type": "securestring"
+                    },
+                    "adminUsername": {
+                      "type": "string"
+                    },
+                    "delimiter": {
+                      "type": "string"
+                    },
                     "deploymentNameSuffix": {
                       "type": "string"
                     },
-                    "domainAdministratorPassword": {
-                      "type": "securestring"
-                    },
-                    "domainAdministratorUsername": {
+                    "diskEncryptionSetResourceId": {
                       "type": "string"
                     },
                     "hybridIdentityAdministratorPassword": {
@@ -6878,7 +6896,13 @@
                     "name": {
                       "type": "string"
                     },
+                    "subnetResourceId": {
+                      "type": "string"
+                    },
                     "tags": {
+                      "type": "object"
+                    },
+                    "tier": {
                       "type": "object"
                     },
                     "virtualMachineNames": {
@@ -6889,6 +6913,491 @@
                     "$fxv#0": "param (\r\n    [Parameter(Mandatory = $true)]\r\n    [string]$AzureEnvironment,\r\n\r\n    [Parameter(Mandatory = $true)]\r\n    [string]$AzureResourceManagerUri,\r\n\r\n    [Parameter(Mandatory = $true)]\r\n    [string]$DomainAdministratorPassword,\r\n\r\n    [Parameter(Mandatory = $true)]\r\n    [string]$DomainAdministratorUsername,\r\n\r\n    [Parameter(Mandatory = $true)]\r\n    [string]$DomainName,\r\n\r\n    [Parameter(Mandatory = $true)]\r\n    [string]$HybridIdentityAdministratorPassword,\r\n\r\n    [Parameter(Mandatory = $true)]\r\n    [string]$HybridIdentityAdministratorUserPrincipalName,\r\n\r\n    [Parameter(Mandatory = $true)]\r\n    [string]$SubscriptionId\r\n)\r\n\r\n# Variables\r\n$AzureResourceManagerDomain = $AzureResourceManagerUri.Split('/')[2]\r\n$AzureDomainSuffix = switch ($AzureEnvironment) {\r\n    'AzureCloud' { 'net' }\r\n    'AzureUSGovernment' { 'us' }\r\n    Default { $AzureResourceManagerDomain.Replace('management.azure.', '') }\r\n}\r\n$Netbios = $DomainName.Split('.')[0]\r\n\r\n# Download the provisioning agent installer\r\nInvoke-WebRequest `\r\n    -Uri $('https://download.msappproxy.' + $AzureDomainSuffix + '/Subscription/' + $SubscriptionId + '/Connector/previewProvisioningAgentInstaller') `\r\n    -OutFile 'C:\\Temp\\AADConnectProvisioningAgentSetup.exe'\r\n\r\n# Install the provisioning agent in quiet mode\r\nStart-Process `\r\n    -FilePath 'C:\\Temp\\AADConnectProvisioningAgentSetup.exe' `\r\n    -ArgumentList \"/quiet ENVIRONMENTNAME=$AzureEnvironment\" `\r\n    -NoNewWindow `\r\n    -PassThru `\r\n    -Wait\r\n\r\n# Import the provisioning agent PowerShell module\r\nImport-Module 'C:\\Program Files\\Microsoft Azure AD Connect Provisioning Agent\\Microsoft.CloudSync.PowerShell.dll'\r\n\r\n# Connect to Microsoft Entra ID using an account with the hybrid identity role\r\n$CloudAdminPassword = ConvertTo-SecureString -String $HybridIdentityAdministratorPassword -AsPlainText -Force\r\n$CloudAdminCreds = New-Object System.Management.Automation.PSCredential -ArgumentList ($HybridIdentityAdministratorUserPrincipalName, $CloudAdminPassword)\r\nConnect-AADCloudSyncAzureAD -Credential $CloudAdminCreds\r\n\r\n# Add the gMSA account\r\n$DomainAdminPassword = ConvertTo-SecureString -String $DomainAdministratorPassword -AsPlainText -Force\r\n$DomainAdminCreds = New-Object System.Management.Automation.PSCredential -ArgumentList (\"$Netbios\\$DomainAdministratorUsername\", $DomainAdminPassword)\r\nAdd-AADCloudSyncGMSA -Credential $DomainAdminCreds\r\n\r\n# Add the domain\r\nAdd-AADCloudSyncADDomain -DomainName $DomainName -Credential $DomainAdminCreds\r\n\r\n# Restart the service\r\nRestart-Service -Name 'AADConnectProvisioningAgent'"
                   },
                   "resources": [
+                    {
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2022-09-01",
+                      "name": "[format('management-virtual-machine-{0}', parameters('deploymentNameSuffix'))]",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "parameters": {
+                          "adminPasswordOrKey": {
+                            "value": "[parameters('adminPassword')]"
+                          },
+                          "adminUsername": {
+                            "value": "[parameters('adminUsername')]"
+                          },
+                          "authenticationType": {
+                            "value": "password"
+                          },
+                          "diskEncryptionSetResourceId": {
+                            "value": "[parameters('diskEncryptionSetResourceId')]"
+                          },
+                          "diskName": {
+                            "value": "[format('{0}{1}mgt{2}0', parameters('tier').namingConvention.virtualMachineDisk, parameters('delimiter'), parameters('delimiter'))]"
+                          },
+                          "imageOffer": {
+                            "value": "WindowsServer"
+                          },
+                          "imagePublisher": {
+                            "value": "MicrosoftWindowsServer"
+                          },
+                          "imageSku": {
+                            "value": "2019-datacenter-core-g2"
+                          },
+                          "imageVersion": {
+                            "value": "latest"
+                          },
+                          "location": {
+                            "value": "[parameters('location')]"
+                          },
+                          "mlzTags": {
+                            "value": "[parameters('mlzTags')]"
+                          },
+                          "networkInterfaceName": {
+                            "value": "[format('{0}{1}mgt', parameters('tier').namingConvention.virtualMachineNetworkInterface, parameters('delimiter'))]"
+                          },
+                          "networkSecurityGroupResourceId": {
+                            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('subnetResourceId'), '/')[2], split(parameters('subnetResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('subnetResourceId'), '/')[8]), '2024-07-01').subnets[0].properties.networkSecurityGroup.id]"
+                          },
+                          "storageAccountType": {
+                            "value": "Premium_LRS"
+                          },
+                          "subnetResourceId": {
+                            "value": "[parameters('subnetResourceId')]"
+                          },
+                          "tags": {
+                            "value": "[parameters('tags')]"
+                          },
+                          "virtualMachineName": {
+                            "value": "[format('{0}mgt', parameters('tier').namingConvention.virtualMachine)]"
+                          },
+                          "virtualMachineSize": {
+                            "value": "Standard_DS1_v2"
+                          }
+                        },
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "0.37.4.10188",
+                              "templateHash": "16963364700905820760"
+                            }
+                          },
+                          "parameters": {
+                            "adminPasswordOrKey": {
+                              "type": "securestring",
+                              "minLength": 12
+                            },
+                            "adminUsername": {
+                              "type": "string"
+                            },
+                            "authenticationType": {
+                              "type": "string",
+                              "allowedValues": [
+                                "sshPublicKey",
+                                "password"
+                              ]
+                            },
+                            "availabilitySetResourceId": {
+                              "type": "string",
+                              "defaultValue": ""
+                            },
+                            "dataDisks": {
+                              "type": "array",
+                              "defaultValue": []
+                            },
+                            "diskCaching": {
+                              "type": "string",
+                              "defaultValue": "ReadWrite"
+                            },
+                            "diskEncryptionSetResourceId": {
+                              "type": "string"
+                            },
+                            "diskName": {
+                              "type": "string"
+                            },
+                            "domainJoin": {
+                              "type": "bool",
+                              "defaultValue": false
+                            },
+                            "domainName": {
+                              "type": "string",
+                              "defaultValue": ""
+                            },
+                            "hybridUseBenefit": {
+                              "type": "bool",
+                              "defaultValue": false
+                            },
+                            "imageOffer": {
+                              "type": "string"
+                            },
+                            "imagePublisher": {
+                              "type": "string"
+                            },
+                            "imageSku": {
+                              "type": "string"
+                            },
+                            "imageVersion": {
+                              "type": "string"
+                            },
+                            "location": {
+                              "type": "string"
+                            },
+                            "mlzTags": {
+                              "type": "object"
+                            },
+                            "networkInterfaceName": {
+                              "type": "string"
+                            },
+                            "networkSecurityGroupResourceId": {
+                              "type": "string"
+                            },
+                            "privateIPAddress": {
+                              "type": "string",
+                              "defaultValue": ""
+                            },
+                            "storageAccountType": {
+                              "type": "string"
+                            },
+                            "subnetResourceId": {
+                              "type": "string"
+                            },
+                            "tags": {
+                              "type": "object"
+                            },
+                            "timestamp": {
+                              "type": "string",
+                              "defaultValue": "[utcNow('yyyyMMddhhmmss')]"
+                            },
+                            "virtualMachineName": {
+                              "type": "string"
+                            },
+                            "virtualMachineSize": {
+                              "type": "string"
+                            }
+                          },
+                          "variables": {
+                            "osType": "[if(contains(parameters('imagePublisher'), 'Windows'), 'Windows', 'Linux')]",
+                            "linuxConfiguration": {
+                              "disablePasswordAuthentication": true,
+                              "ssh": {
+                                "publicKeys": [
+                                  {
+                                    "path": "[format('/home/{0}/.ssh/authorized_keys', parameters('adminUsername'))]",
+                                    "keyData": "[parameters('adminPasswordOrKey')]"
+                                  }
+                                ]
+                              }
+                            },
+                            "dependencyAgentSupport": [
+                              "74-gen2",
+                              "75-gen2",
+                              "76-gen2",
+                              "77-gen2",
+                              "78-gen2",
+                              "79-gen2",
+                              "8-gen2",
+                              "8-lvm-gen2",
+                              "81-ci-gen2",
+                              "81gen2",
+                              "82-gen2",
+                              "83-gen2",
+                              "84-gen2",
+                              "85-gen2",
+                              "86-gen2",
+                              "16_04-daily-lts-gen2",
+                              "16_04-lts-gen2",
+                              "16_04_0-lts-gen2",
+                              "18_04-daily-lts-gen2",
+                              "18_04-lts-gen2",
+                              "20_04-lts-gen2",
+                              "2016-Datacenter",
+                              "2016-datacenter-gensecond",
+                              "2016-datacenter-gs",
+                              "2016-Datacenter-smalldisk",
+                              "2016-datacenter-smalldisk-g2",
+                              "2016-Datacenter-with-Containers",
+                              "2016-datacenter-with-containers-g2",
+                              "2016-Datacenter-zhcn",
+                              "2016-datacenter-zhcn-g2",
+                              "2019-Datacenter",
+                              "2019-datacenter-gensecond",
+                              "2019-datacenter-gs",
+                              "2019-datacenter-gs-g2",
+                              "2019-Datacenter-smalldisk",
+                              "2019-datacenter-smalldisk-g2",
+                              "2019-Datacenter-with-Containers",
+                              "2019-datacenter-with-containers-g2",
+                              "2019-datacenter-with-containers-gs",
+                              "2019-Datacenter-with-Containers-smalldisk",
+                              "2019-datacenter-with-containers-smalldisk-g2",
+                              "2019-Datacenter-zhcn",
+                              "2019-datacenter-zhcn-g2",
+                              "2022-datacenter",
+                              "2022-datacenter-azure-edition",
+                              "2022-datacenter-azure-edition-core",
+                              "2022-datacenter-azure-edition-core-smalldisk",
+                              "2022-datacenter-azure-edition-hotpatch",
+                              "2022-datacenter-azure-edition-hotpatch-smalldisk",
+                              "2022-datacenter-azure-edition-smalldisk",
+                              "2022-datacenter-core",
+                              "2022-datacenter-core-g2",
+                              "2022-datacenter-core-smalldisk",
+                              "2022-datacenter-core-smalldisk-g2",
+                              "2022-datacenter-g2",
+                              "2022-datacenter-smalldisk",
+                              "2022-datacenter-smalldisk-g2"
+                            ]
+                          },
+                          "resources": [
+                            {
+                              "type": "Microsoft.Network/networkInterfaces",
+                              "apiVersion": "2021-02-01",
+                              "name": "[parameters('networkInterfaceName')]",
+                              "location": "[parameters('location')]",
+                              "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/networkInterfaces'), createObject()), parameters('mlzTags'))]",
+                              "properties": {
+                                "enableAcceleratedNetworking": true,
+                                "ipConfigurations": [
+                                  {
+                                    "name": "ipconfig",
+                                    "properties": {
+                                      "privateIPAddress": "[if(empty(parameters('privateIPAddress')), null(), parameters('privateIPAddress'))]",
+                                      "privateIPAllocationMethod": "[if(empty(parameters('privateIPAddress')), 'Dynamic', 'Static')]",
+                                      "subnet": {
+                                        "id": "[parameters('subnetResourceId')]"
+                                      }
+                                    }
+                                  }
+                                ],
+                                "networkSecurityGroup": {
+                                  "id": "[parameters('networkSecurityGroupResourceId')]"
+                                }
+                              }
+                            },
+                            {
+                              "type": "Microsoft.Compute/virtualMachines",
+                              "apiVersion": "2024-11-01",
+                              "name": "[parameters('virtualMachineName')]",
+                              "location": "[parameters('location')]",
+                              "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/virtualMachines'), createObject()), parameters('mlzTags'))]",
+                              "identity": {
+                                "type": "SystemAssigned"
+                              },
+                              "properties": {
+                                "availabilitySet": "[if(empty(parameters('availabilitySetResourceId')), null(), createObject('id', parameters('availabilitySetResourceId')))]",
+                                "diagnosticsProfile": {
+                                  "bootDiagnostics": {
+                                    "enabled": false
+                                  }
+                                },
+                                "hardwareProfile": {
+                                  "vmSize": "[parameters('virtualMachineSize')]"
+                                },
+                                "networkProfile": {
+                                  "networkInterfaces": [
+                                    {
+                                      "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaceName'))]",
+                                      "properties": {
+                                        "deleteOption": "Delete"
+                                      }
+                                    }
+                                  ]
+                                },
+                                "osProfile": {
+                                  "computerName": "[take(parameters('virtualMachineName'), 15)]",
+                                  "adminUsername": "[parameters('adminUsername')]",
+                                  "adminPassword": "[parameters('adminPasswordOrKey')]",
+                                  "linuxConfiguration": "[if(equals(parameters('authenticationType'), 'password'), null(), variables('linuxConfiguration'))]"
+                                },
+                                "securityProfile": {
+                                  "uefiSettings": {
+                                    "secureBootEnabled": true,
+                                    "vTpmEnabled": true
+                                  },
+                                  "securityType": "trustedLaunch",
+                                  "encryptionAtHost": true
+                                },
+                                "storageProfile": {
+                                  "dataDisks": "[parameters('dataDisks')]",
+                                  "imageReference": {
+                                    "publisher": "[parameters('imagePublisher')]",
+                                    "offer": "[parameters('imageOffer')]",
+                                    "sku": "[parameters('imageSku')]",
+                                    "version": "[parameters('imageVersion')]"
+                                  },
+                                  "osDisk": {
+                                    "caching": "[parameters('diskCaching')]",
+                                    "createOption": "FromImage",
+                                    "deleteOption": "Delete",
+                                    "managedDisk": {
+                                      "diskEncryptionSet": {
+                                        "id": "[parameters('diskEncryptionSetResourceId')]"
+                                      },
+                                      "storageAccountType": "[parameters('storageAccountType')]"
+                                    },
+                                    "name": "[parameters('diskName')]",
+                                    "osType": "[variables('osType')]"
+                                  }
+                                },
+                                "licenseType": "[if(parameters('hybridUseBenefit'), 'Windows_Server', null())]"
+                              },
+                              "dependsOn": [
+                                "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaceName'))]"
+                              ]
+                            },
+                            {
+                              "type": "Microsoft.Compute/virtualMachines/extensions",
+                              "apiVersion": "2024-11-01",
+                              "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'GuestAttestation')]",
+                              "location": "[parameters('location')]",
+                              "properties": {
+                                "autoUpgradeMinorVersion": true,
+                                "enableAutomaticUpgrade": true,
+                                "publisher": "[format('Microsoft.Azure.Security.{0}Attestation', variables('osType'))]",
+                                "settings": {
+                                  "AttestationConfig": {
+                                    "AscSettings": {
+                                      "ascReportingEndpoint": "",
+                                      "ascReportingFrequency": ""
+                                    },
+                                    "disableAlerts": "false",
+                                    "MaaSettings": {
+                                      "maaEndpoint": "",
+                                      "maaTenantName": "GuestAttestation"
+                                    },
+                                    "useCustomToken": "false"
+                                  }
+                                },
+                                "type": "GuestAttestation",
+                                "typeHandlerVersion": "1.0"
+                              },
+                              "dependsOn": [
+                                "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
+                              ]
+                            },
+                            {
+                              "type": "Microsoft.Compute/virtualMachines/extensions",
+                              "apiVersion": "2024-11-01",
+                              "name": "[format('{0}/{1}', parameters('virtualMachineName'), format('Configurationfor{0}', variables('osType')))]",
+                              "location": "[parameters('location')]",
+                              "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/virtualMachines'), createObject()), parameters('mlzTags'))]",
+                              "properties": {
+                                "autoUpgradeMinorVersion": true,
+                                "enableAutomaticUpgrade": true,
+                                "publisher": "Microsoft.GuestConfiguration",
+                                "type": "[format('Configurationfor{0}', variables('osType'))]",
+                                "typeHandlerVersion": "1.0"
+                              },
+                              "dependsOn": [
+                                "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
+                              ]
+                            },
+                            {
+                              "type": "Microsoft.Compute/virtualMachines/extensions",
+                              "apiVersion": "2024-11-01",
+                              "name": "[format('{0}/{1}', parameters('virtualMachineName'), format('NetworkWatcherAgent{0}', variables('osType')))]",
+                              "location": "[parameters('location')]",
+                              "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/virtualMachines'), createObject()), parameters('mlzTags'))]",
+                              "properties": {
+                                "autoUpgradeMinorVersion": true,
+                                "enableAutomaticUpgrade": true,
+                                "publisher": "Microsoft.Azure.NetworkWatcher",
+                                "type": "[format('NetworkWatcherAgent{0}', variables('osType'))]",
+                                "typeHandlerVersion": "1.4"
+                              },
+                              "dependsOn": [
+                                "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('virtualMachineName'), format('Configurationfor{0}', variables('osType')))]",
+                                "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
+                              ]
+                            },
+                            {
+                              "type": "Microsoft.Compute/virtualMachines/extensions",
+                              "apiVersion": "2024-11-01",
+                              "name": "[format('{0}/{1}', parameters('virtualMachineName'), format('AzureMonitor{0}Agent', variables('osType')))]",
+                              "location": "[parameters('location')]",
+                              "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/virtualMachines'), createObject()), parameters('mlzTags'))]",
+                              "properties": {
+                                "autoUpgradeMinorVersion": true,
+                                "enableAutomaticUpgrade": true,
+                                "publisher": "Microsoft.Azure.Monitor",
+                                "settings": "[if(equals(variables('osType'), 'Windows'), createObject(), createObject('stopOnMultipleConnections', true()))]",
+                                "type": "[format('AzureMonitor{0}Agent', variables('osType'))]",
+                                "typeHandlerVersion": "1.0"
+                              },
+                              "dependsOn": [
+                                "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('virtualMachineName'), format('NetworkWatcherAgent{0}', variables('osType')))]",
+                                "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
+                              ]
+                            },
+                            {
+                              "condition": "[contains(variables('dependencyAgentSupport'), parameters('imageSku'))]",
+                              "type": "Microsoft.Compute/virtualMachines/extensions",
+                              "apiVersion": "2024-11-01",
+                              "name": "[format('{0}/{1}', parameters('virtualMachineName'), format('DependencyAgent{0}', variables('osType')))]",
+                              "location": "[parameters('location')]",
+                              "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/virtualMachines'), createObject()), parameters('mlzTags'))]",
+                              "properties": {
+                                "publisher": "Microsoft.Azure.Monitoring.DependencyAgent",
+                                "type": "[format('DependencyAgent{0}', variables('osType'))]",
+                                "typeHandlerVersion": "9.5",
+                                "autoUpgradeMinorVersion": true
+                              },
+                              "dependsOn": [
+                                "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
+                              ]
+                            },
+                            {
+                              "condition": "[parameters('domainJoin')]",
+                              "type": "Microsoft.Compute/virtualMachines/extensions",
+                              "apiVersion": "2021-03-01",
+                              "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'JsonADDomainExtension')]",
+                              "location": "[parameters('location')]",
+                              "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/virtualMachines'), createObject()), parameters('mlzTags'))]",
+                              "properties": {
+                                "forceUpdateTag": "[parameters('timestamp')]",
+                                "publisher": "Microsoft.Compute",
+                                "type": "JsonADDomainExtension",
+                                "typeHandlerVersion": "1.3",
+                                "autoUpgradeMinorVersion": true,
+                                "settings": {
+                                  "Name": "[parameters('domainName')]",
+                                  "Options": "3",
+                                  "Restart": "true",
+                                  "User": "[format('{0}@{1}', parameters('adminUsername'), parameters('domainName'))]"
+                                },
+                                "protectedSettings": {
+                                  "Password": "[parameters('adminPasswordOrKey')]"
+                                }
+                              },
+                              "dependsOn": [
+                                "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('virtualMachineName'), format('AzureMonitor{0}Agent', variables('osType')))]",
+                                "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('virtualMachineName'), format('DependencyAgent{0}', variables('osType')))]",
+                                "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('virtualMachineName'), 'GuestAttestation')]",
+                                "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('virtualMachineName'), format('Configurationfor{0}', variables('osType')))]",
+                                "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('virtualMachineName'), format('NetworkWatcherAgent{0}', variables('osType')))]",
+                                "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
+                              ]
+                            }
+                          ],
+                          "outputs": {
+                            "networkInterfaceResourceId": {
+                              "type": "string",
+                              "value": "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaceName'))]"
+                            },
+                            "virtualMachineName": {
+                              "type": "string",
+                              "value": "[parameters('virtualMachineName')]"
+                            }
+                          }
+                        }
+                      }
+                    },
                     {
                       "copy": {
                         "name": "installEntraCloudSync",
@@ -6924,7 +7433,7 @@
                               },
                               {
                                 "name": "DomainAdministratorUsername",
-                                "value": "[parameters('domainAdministratorUsername')]"
+                                "value": "[parameters('adminUsername')]"
                               },
                               {
                                 "name": "HybridIdentityAdministratorUserPrincipalName",
@@ -6937,7 +7446,7 @@
                             ]
                           },
                           "protectedParameters": {
-                            "value": "[format('[{{''name'':''DomainAdministratorPassword'',''value'':''{0}''}},{{''name'':''HybridIdentityAdministratorPassword'',''value'':''{1}''}}]', parameters('domainAdministratorPassword'), parameters('hybridIdentityAdministratorPassword'))]"
+                            "value": "[format('[{{''name'':''DomainAdministratorPassword'',''value'':''{0}''}},{{''name'':''HybridIdentityAdministratorPassword'',''value'':''{1}''}}]', parameters('adminPassword'), parameters('hybridIdentityAdministratorPassword'))]"
                           },
                           "script": {
                             "value": "[variables('$fxv#0')]"
@@ -7020,8 +7529,9 @@
                 }
               },
               "dependsOn": [
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-adds-dc-{0}-{1}', range(0, parameters('vmCount'))[0], parameters('deploymentNameSuffix')))]",
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-adds-dc-{0}-{1}', range(0, parameters('vmCount'))[1], parameters('deploymentNameSuffix')))]"
+                "[subscriptionResourceId(parameters('tier').subscriptionId, 'Microsoft.Resources/deployments', format('deploy-adds-cmk-{0}', parameters('deploymentNameSuffix')))]",
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-adds-dc-{0}-{1}', range(0, parameters('vmCount'))[1], parameters('deploymentNameSuffix')))]",
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-adds-dc-{0}-{1}', range(0, parameters('vmCount'))[0], parameters('deploymentNameSuffix')))]"
               ]
             }
           ],
