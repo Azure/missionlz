@@ -106,6 +106,9 @@ param deployDefender bool = true
 @description('The Paid Workload Protection plans for Defender for Cloud. Default value = "VirtualMachines". See the following URL for valid settings: https://learn.microsoft.com/rest/api/defenderforcloud-composite/pricings/update?view=rest-defenderforcloud-composite-latest&tabs=HTTP.')
 param deployDefenderPlans array = ['VirtualMachines']
 
+@description('Choose to deploy Entra Cloud Sync when the identity spoke and ADDS are deployed.')
+param deployEntraCloudSync bool = false
+
 @description('Choose to deploy the identity resources. The identity resoures are not required if you plan to use cloud identities.')
 param deployIdentity bool = false
 
@@ -293,6 +296,13 @@ param hubVirtualNetworkDiagnosticsMetrics array = [
     enabled: true
   }
 ]
+
+@description('The password for the hybrid identity administrator for the Azure AD tenant. This is required when deploying Entra Cloud Sync. The account must have MFA temporarily disabled. Default value = "".')
+@secure()
+param hybridIdentityAdministratorPassword string = ''
+
+@description('The user principal name (UPN) of the hybrid identity administrator for the Azure AD tenant. This is required when deploying Entra Cloud Sync. The account must have MFA temporarily disabled.Default value = "".')
+param hybridIdentityAdministratorUserPrincipalName string = ''
 
 @description('The hybrid use benefit provides a discount on virtual machines when a customer has an on-premises Windows Server license with Software Assurance. Default value = "false".')
 param hybridUseBenefit bool = false
@@ -880,9 +890,12 @@ module activeDirectoryDomainServices 'modules/active-directory-domain-services.b
     adminPassword: addsVmAdminPassword
     adminUsername: addsVmAdminUsername
     delimiter: networking.outputs.delimiter
+    deployEntraCloudSync: deployEntraCloudSync
     deploymentNameSuffix: deploymentNameSuffix
     domainName: addsDomainName
     environmentAbbreviation: environmentAbbreviation
+    hybridIdentityAdministratorPassword: hybridIdentityAdministratorPassword
+    hybridIdentityAdministratorUserPrincipalName: hybridIdentityAdministratorUserPrincipalName
     hybridUseBenefit: hybridUseBenefit
     imageOffer: 'WindowsServer'
     imagePublisher: 'MicrosoftWindowsServer'
