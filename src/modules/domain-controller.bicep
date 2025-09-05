@@ -110,4 +110,4 @@ module runCommand_DomainControllerPromotion 'run-command.bicep' = {
 }
 
 output networkInterfaceResourceId string = virtualMachine.outputs.networkInterfaceResourceId
-output virtualMachineResourceId string = virtualMachine.outputs.virtualMachineResourceId
+output virtualMachineName string = virtualMachine.outputs.virtualMachineName
