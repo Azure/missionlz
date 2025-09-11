@@ -3,18 +3,20 @@ Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
 
+extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:1.0.0'
+
 @secure()
 param adminPassword string
 param adminUsername string
 param delimiter string
 param deploymentNameSuffix string
 param diskEncryptionSetResourceId string
+param domainName string
 @secure()
 param hybridIdentityAdministratorPassword string
 param hybridIdentityAdministratorUserPrincipalName string
 param location string
 param mlzTags object
-param name string
 param subnetResourceId string
 param tags object
 param tier object
@@ -50,13 +52,25 @@ module managementVirtualMachine 'virtual-machine.bicep' = {
   }
 }
 
+// Get the Resource Id of the Graph resource in the tenant
+resource graphServicePrincipal 'Microsoft.Graph/servicePrincipals@v1.0' existing = {
+  appId: '00000003-0000-0000-c000-000000000000'
+}
+
+// Assign Microsoft Graph permissions to the management virtual machine to allow the deployment of the Entra Cloud Sync configuration
+resource assignAppRole 'Microsoft.Graph/appRoleAssignedTo@v1.0' = {
+  appRoleId: (filter(graphServicePrincipal.appRoles, role => role.value == 'DeviceManagementConfiguration.ReadWrite.All')[0]).id
+  principalId: managementVirtualMachine.outputs.virtualMachinePrincipalId
+  resourceId: graphServicePrincipal.id
+}
+
 // Run command to install Entra Cloud Sync on the domain controllers
-module installEntraCloudSync 'run-command.bicep' = [ for (virtualMachineName, i) in virtualMachineNames: {
+module installEntraCloudSyncAgents 'run-command.bicep' = [ for (virtualMachineName, i) in virtualMachineNames: {
   name: 'install-entra-cloud-sync-${i}-${deploymentNameSuffix}'
   params: {
     location: location
     mlzTags: mlzTags
-    name: name
+    name: 'Install-EntraCloudSyncAgent'
     parameters: [
       {
         name: 'AzureEnvironment'
@@ -85,3 +99,29 @@ module installEntraCloudSync 'run-command.bicep' = [ for (virtualMachineName, i)
     virtualMachineName: virtualMachineName
   }
 }]
+
+// Run command to install Entra Cloud Sync on the domain controllers
+module provisionEntraCloudSyncConfiguration 'run-command.bicep' = {
+  name: 'provision-entra-cloud-sync-config-${deploymentNameSuffix}'
+  params: {
+    location: location
+    mlzTags: mlzTags
+    name: 'New-EntraCloudSyncConfiguration'
+    parameters: [
+      {
+        name: 'CloudSuffix'
+        value: last(split(split(environment().resourceManager, '/')[2], '.'))
+      }
+      {
+        name: 'DomainName'
+        value: domainName
+      }
+    ]
+    script: loadTextContent('../artifacts/New-EntraCloudSyncConfiguration.ps1')
+    tags: tags
+    virtualMachineName: managementVirtualMachine.outputs.virtualMachineName
+  }
+  dependsOn: [
+    installEntraCloudSyncAgents
+  ]
+}
