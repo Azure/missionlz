@@ -342,3 +342,4 @@ resource extension_JsonADDomainExtension 'Microsoft.Compute/virtualMachines/exte
 
 output networkInterfaceResourceId string = networkInterface.id
 output virtualMachineName string = virtualMachine.name
+output virtualMachinePrincipalId string = virtualMachine.identity.principalId
