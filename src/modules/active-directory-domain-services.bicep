@@ -126,9 +126,9 @@ module entraCloudSync 'entra-cloud-sync.bicep' = if (deployEntraCloudSync) {
     delimiter: delimiter
     deploymentNameSuffix: deploymentNameSuffix
     diskEncryptionSetResourceId: customerManagedKeys.outputs.diskEncryptionSetResourceId
+    domainName: domainName
     location: location
     mlzTags: mlzTags
-    name: 'Install-EntraCloudSync'
     tags: tags
     virtualMachineNames: [
       domainControllers[0].outputs.virtualMachineName
