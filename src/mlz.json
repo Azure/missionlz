@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.37.4.10188",
-      "templateHash": "18431736941278156342"
+      "templateHash": "8299696322694939833"
     }
   },
   "parameters": {
@@ -5068,7 +5068,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.37.4.10188",
-              "templateHash": "16020460943140794357"
+              "templateHash": "1838374023491059586"
             }
           },
           "parameters": {
@@ -6053,7 +6053,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.37.4.10188",
-                      "templateHash": "9473799067089079552"
+                      "templateHash": "4456201019709643667"
                     }
                   },
                   "parameters": {
@@ -6236,7 +6236,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.37.4.10188",
-                              "templateHash": "16963364700905820760"
+                              "templateHash": "1642649590967684566"
                             }
                           },
                           "parameters": {
@@ -6644,6 +6644,10 @@
                             "virtualMachineName": {
                               "type": "string",
                               "value": "[parameters('virtualMachineName')]"
+                            },
+                            "virtualMachinePrincipalId": {
+                              "type": "string",
+                              "value": "[reference(resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName')), '2024-11-01', 'full').identity.principalId]"
                             }
                           }
                         }
@@ -6824,14 +6828,14 @@
                   "diskEncryptionSetResourceId": {
                     "value": "[reference(subscriptionResourceId(parameters('tier').subscriptionId, 'Microsoft.Resources/deployments', format('deploy-adds-cmk-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.diskEncryptionSetResourceId.value]"
                   },
+                  "domainName": {
+                    "value": "[parameters('domainName')]"
+                  },
                   "location": {
                     "value": "[parameters('location')]"
                   },
                   "mlzTags": {
                     "value": "[parameters('mlzTags')]"
-                  },
-                  "name": {
-                    "value": "Install-EntraCloudSync"
                   },
                   "tags": {
                     "value": "[parameters('tags')]"
@@ -6857,12 +6861,13 @@
                 },
                 "template": {
                   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "languageVersion": "2.0",
                   "contentVersion": "1.0.0.0",
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
                       "version": "0.37.4.10188",
-                      "templateHash": "6833444506324745655"
+                      "templateHash": "11585880774733566001"
                     }
                   },
                   "parameters": {
@@ -6881,6 +6886,9 @@
                     "diskEncryptionSetResourceId": {
                       "type": "string"
                     },
+                    "domainName": {
+                      "type": "string"
+                    },
                     "hybridIdentityAdministratorPassword": {
                       "type": "securestring"
                     },
@@ -6892,9 +6900,6 @@
                     },
                     "mlzTags": {
                       "type": "object"
-                    },
-                    "name": {
-                      "type": "string"
                     },
                     "subnetResourceId": {
                       "type": "string"
@@ -6910,10 +6915,46 @@
                     }
                   },
                   "variables": {
-                    "$fxv#0": "param (\r\n    [Parameter(Mandatory = $true)]\r\n    [string]$AzureEnvironment,\r\n\r\n    [Parameter(Mandatory = $true)]\r\n    [string]$AzureResourceManagerUri,\r\n\r\n    [Parameter(Mandatory = $true)]\r\n    [string]$DomainAdministratorPassword,\r\n\r\n    [Parameter(Mandatory = $true)]\r\n    [string]$DomainAdministratorUsername,\r\n\r\n    [Parameter(Mandatory = $true)]\r\n    [string]$DomainName,\r\n\r\n    [Parameter(Mandatory = $true)]\r\n    [string]$HybridIdentityAdministratorPassword,\r\n\r\n    [Parameter(Mandatory = $true)]\r\n    [string]$HybridIdentityAdministratorUserPrincipalName,\r\n\r\n    [Parameter(Mandatory = $true)]\r\n    [string]$SubscriptionId\r\n)\r\n\r\n# Variables\r\n$AzureResourceManagerDomain = $AzureResourceManagerUri.Split('/')[2]\r\n$AzureDomainSuffix = switch ($AzureEnvironment) {\r\n    'AzureCloud' { 'net' }\r\n    'AzureUSGovernment' { 'us' }\r\n    Default { $AzureResourceManagerDomain.Replace('management.azure.', '') }\r\n}\r\n$Netbios = $DomainName.Split('.')[0]\r\n\r\n# Download the provisioning agent installer\r\nInvoke-WebRequest `\r\n    -Uri $('https://download.msappproxy.' + $AzureDomainSuffix + '/Subscription/' + $SubscriptionId + '/Connector/previewProvisioningAgentInstaller') `\r\n    -OutFile 'C:\\Temp\\AADConnectProvisioningAgentSetup.exe'\r\n\r\n# Install the provisioning agent in quiet mode\r\nStart-Process `\r\n    -FilePath 'C:\\Temp\\AADConnectProvisioningAgentSetup.exe' `\r\n    -ArgumentList \"/quiet ENVIRONMENTNAME=$AzureEnvironment\" `\r\n    -NoNewWindow `\r\n    -PassThru `\r\n    -Wait\r\n\r\n# Import the provisioning agent PowerShell module\r\nImport-Module 'C:\\Program Files\\Microsoft Azure AD Connect Provisioning Agent\\Microsoft.CloudSync.PowerShell.dll'\r\n\r\n# Connect to Microsoft Entra ID using an account with the hybrid identity role\r\n$CloudAdminPassword = ConvertTo-SecureString -String $HybridIdentityAdministratorPassword -AsPlainText -Force\r\n$CloudAdminCreds = New-Object System.Management.Automation.PSCredential -ArgumentList ($HybridIdentityAdministratorUserPrincipalName, $CloudAdminPassword)\r\nConnect-AADCloudSyncAzureAD -Credential $CloudAdminCreds\r\n\r\n# Add the gMSA account\r\n$DomainAdminPassword = ConvertTo-SecureString -String $DomainAdministratorPassword -AsPlainText -Force\r\n$DomainAdminCreds = New-Object System.Management.Automation.PSCredential -ArgumentList (\"$Netbios\\$DomainAdministratorUsername\", $DomainAdminPassword)\r\nAdd-AADCloudSyncGMSA -Credential $DomainAdminCreds\r\n\r\n# Add the domain\r\nAdd-AADCloudSyncADDomain -DomainName $DomainName -Credential $DomainAdminCreds\r\n\r\n# Restart the service\r\nRestart-Service -Name 'AADConnectProvisioningAgent'"
+                    "$fxv#0": "param (\r\n    [Parameter(Mandatory = $true)]\r\n    [string]$AzureEnvironment,\r\n\r\n    [Parameter(Mandatory = $true)]\r\n    [string]$AzureResourceManagerUri,\r\n\r\n    [Parameter(Mandatory = $true)]\r\n    [string]$DomainAdministratorPassword,\r\n\r\n    [Parameter(Mandatory = $true)]\r\n    [string]$DomainAdministratorUsername,\r\n\r\n    [Parameter(Mandatory = $true)]\r\n    [string]$DomainName,\r\n\r\n    [Parameter(Mandatory = $true)]\r\n    [string]$HybridIdentityAdministratorPassword,\r\n\r\n    [Parameter(Mandatory = $true)]\r\n    [string]$HybridIdentityAdministratorUserPrincipalName,\r\n\r\n    [Parameter(Mandatory = $true)]\r\n    [string]$SubscriptionId\r\n)\r\n\r\n# Variables\r\n$AzureResourceManagerDomain = $AzureResourceManagerUri.Split('/')[2]\r\n$AzureDomainSuffix = switch ($AzureEnvironment) {\r\n    'AzureCloud' { 'net' }\r\n    'AzureUSGovernment' { 'us' }\r\n    Default { $AzureResourceManagerDomain.Replace('management.azure.', '') }\r\n}\r\n$Netbios = $DomainName.Split('.')[0]\r\n\r\n# Download the provisioning agent installer\r\nInvoke-WebRequest `\r\n    -Uri $('https://download.msappproxy.' + $AzureDomainSuffix + '/Subscription/' + $SubscriptionId + '/Connector/previewProvisioningAgentInstaller') `\r\n    -OutFile 'C:\\Temp\\AADConnectProvisioningAgentSetup.exe'\r\n\r\n# Install the provisioning agent in quiet mode\r\nStart-Process `\r\n    -FilePath 'C:\\Temp\\AADConnectProvisioningAgentSetup.exe' `\r\n    -ArgumentList \"/quiet ENVIRONMENTNAME=$AzureEnvironment\" `\r\n    -NoNewWindow `\r\n    -PassThru `\r\n    -Wait\r\n\r\n# Import the provisioning agent PowerShell module\r\nImport-Module 'C:\\Program Files\\Microsoft Azure AD Connect Provisioning Agent\\Microsoft.CloudSync.PowerShell.dll'\r\n\r\n# Connect to Microsoft Entra ID using an account with the hybrid identity role\r\n$CloudAdminPassword = ConvertTo-SecureString -String $HybridIdentityAdministratorPassword -AsPlainText -Force\r\n$CloudAdminCreds = New-Object System.Management.Automation.PSCredential -ArgumentList ($HybridIdentityAdministratorUserPrincipalName, $CloudAdminPassword)\r\nConnect-AADCloudSyncAzureAD -Credential $CloudAdminCreds\r\n\r\n# Add the gMSA account\r\n$DomainAdminPassword = ConvertTo-SecureString -String $DomainAdministratorPassword -AsPlainText -Force\r\n$DomainAdminCreds = New-Object System.Management.Automation.PSCredential -ArgumentList (\"$Netbios\\$DomainAdministratorUsername\", $DomainAdminPassword)\r\nAdd-AADCloudSyncGMSA -Credential $DomainAdminCreds\r\n\r\n# Add the domain\r\nAdd-AADCloudSyncADDomain -DomainName $DomainName -Credential $DomainAdminCreds\r\n\r\n# Restart the service\r\nRestart-Service -Name 'AADConnectProvisioningAgent'",
+                    "$fxv#1": "param(\r\n    [string]$CloudSuffix,\r\n    [string]$DomainName\r\n)\r\n\r\n# Variables\r\n$ErrorActionPreference = \"Stop\"\r\n$MicrosoftGraphEndpoint = \"https://graph.microsoft.\" + $CloudSuffix\r\n\r\n# Get an access token for Microsoft Graph using IMDS\r\n$TokenResponse = Invoke-RestMethod `\r\n    -Headers @{Metadata=\"true\"} `\r\n    -Method 'GET' `\r\n    -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $MicrosoftGraphEndpoint)\r\n     \r\n$AccessToken = $TokenResponse.access_token\r\n\r\n$Headers = @{\r\n    Authorization = \"Bearer $accessToken\"\r\n    \"Content-Type\" = \"application/json\"\r\n}\r\n\r\n# Create a cloud sync configuration\r\n$CloudProvisioningBody = @{\r\n    displayName = \"MyCloudSyncConfig\"\r\n    agentGroupName = \"MyAgentGroup\"\r\n    domainName = $DomainName\r\n    configuration = @{\r\n        # Add your configuration details here\r\n    }\r\n} | ConvertTo-Json\r\n\r\nInvoke-RestMethod `\r\n    -Body $CloudProvisioningBody `\r\n    -Headers $Headers `\r\n    -Method 'POST' `\r\n    -Uri $($MicrosoftGraphEndpoint + '/beta/onPremisesDirectorySynchronization/cloudProvisioning')\r\n\r\n\r\n# Get the organization ID\r\n$organizationId = (Get-MgOrganization).Id\r\n\r\n\r\n# Enable tenant flags\r\n$params = @{\r\n\tonPremisesSyncEnabled = $true\r\n}\r\nUpdate-MgBetaOrganization `\r\n    -OrganizationId $organizationId \r\n    -BodyParameter $params\r\n\r\n# Create the service principal\r\n# TO DO: output the object ID for service principal\r\n$ServicePrincipalObjectId = Invoke-RestMethod `\r\n    -Body $(@{displayName = \"$DomainName\"} | ConvertTo-Json) `\r\n    -Headers $Headers `\r\n    -Method 'POST' `\r\n    -Uri $($MicrosoftGraphEndpoint + '/beta/applicationTemplates/1a4721b3-e57f-4451-ae87-ef078703ec94/instantiate')\r\n\r\n# Enable user and group provisioning\r\nInvoke-RestMethod `\r\n    -Body $(@{templateId = \"AD2AADProvisioning\"} | ConvertTo-Json) `\r\n    -Headers $Headers `\r\n    -Method 'POST' `\r\n    -Uri $($MicrosoftGraphEndpoint + '/beta/servicePrincipals/' + $ServicePrincipalObjectId + '/synchronization/jobs')\r\n\r\n# Enable password hash synchronization\r\nInvoke-RestMethod `\r\n    -Body $(@{templateId = \"AD2AADPasswordHash\"} | ConvertTo-Json) `\r\n    -Headers $Headers `\r\n    -Method 'POST' `\r\n    -Uri  $($MicrosoftGraphEndpoint + '/beta/servicePrincipals/' + $ServicePrincipalObjectId + '/synchronization/jobs')\r\n\r\n\r\n# Update the targeted domain\r\n# ObjectId: bbbbbbbb-1111-2222-3333-cccccccccccc\r\n# AppId: 00001111-aaaa-2222-bbbb-3333cccc4444\r\n# DisplayName: testApp\r\n$MetadataBody = @{\r\n\r\n} | ConvertTo-Json\r\n\r\n$MetadataUri = $MicrosoftGraphEndpoint + \"/beta/servicePrincipals/[SERVICE_PRINCIPAL_ID]/synchronization/metadata\"\r\n\r\nInvoke-RestMethod `\r\n    -Body $MetadataBody `\r\n    -Headers $Headers `\r\n    -Method 'PUT' `\r\n    -Uri $MetadataUri\r\n    \r\n\r\n# PUT – https://graph.microsoft.com/beta/servicePrincipals/[SERVICE_PRINCIPAL_ID]/synchronization/secrets\r\n\r\n# Enable both PHS and sync tenant flags { key: \"AppKey\", value: \"{\"appKeyScenario\":\"AD2AADPasswordHash\"}\" }\r\n\r\n# Enable only sync tenant flag (don't turn on PHS) { key: \"AppKey\", value: \"{\"appKeyScenario\":\"AD2AADProvisioning\"}\" }\r\n\r\n$RequestBody = @{\r\n    \"value\" = @(\r\n        @{\r\n            key = \"Domain\"\r\n            value = @{ \"domain\" = \"ad2aadTest.com\" }\r\n        }\r\n    )\r\n}\r\n\r\n# Enable Sync password hashes on configuration blade\r\n\r\n# GET –https://graph.microsoft.com/beta/servicePrincipals/[SERVICE_PRINCIPAL_ID]/synchronization/jobs/ [AD2AADProvisioningJobId]/schema\r\n\r\n<# {\r\n\"defaultValue\": null,\r\n\"exportMissingReferences\": false,\r\n\"flowBehavior\": \"FlowWhenChanged\",\r\n\"flowType\": \"Always\",\r\n\"matchingPriority\": 0,\r\n\"targetAttributeName\": \"CredentialData\",\r\n\"source\": {\r\n\"expression\": \"[PasswordHash]\",\r\n\"name\": \"PasswordHash\",\r\n\"type\": \"Attribute\",\r\n\"parameters\": []\r\n} #>\r\n\r\n"
                   },
-                  "resources": [
-                    {
+                  "imports": {
+                    "MicrosoftGraph": {
+                      "provider": "MicrosoftGraph",
+                      "version": "1.0.0"
+                    }
+                  },
+                  "resources": {
+                    "virtualNetwork": {
+                      "existing": true,
+                      "type": "Microsoft.Network/virtualNetworks",
+                      "apiVersion": "2024-07-01",
+                      "subscriptionId": "[split(parameters('subnetResourceId'), '/')[2]]",
+                      "resourceGroup": "[split(parameters('subnetResourceId'), '/')[4]]",
+                      "name": "[split(parameters('subnetResourceId'), '/')[8]]"
+                    },
+                    "graphServicePrincipal": {
+                      "existing": true,
+                      "import": "MicrosoftGraph",
+                      "type": "Microsoft.Graph/servicePrincipals@v1.0",
+                      "properties": {
+                        "appId": "00000003-0000-0000-c000-000000000000"
+                      }
+                    },
+                    "assignAppRole": {
+                      "import": "MicrosoftGraph",
+                      "type": "Microsoft.Graph/appRoleAssignedTo@v1.0",
+                      "properties": {
+                        "appRoleId": "[filter(reference('graphServicePrincipal').appRoles, lambda('role', equals(lambdaVariables('role').value, 'DeviceManagementConfiguration.ReadWrite.All')))[0].id]",
+                        "principalId": "[reference('managementVirtualMachine').outputs.virtualMachinePrincipalId.value]",
+                        "resourceId": "[reference('graphServicePrincipal').id]"
+                      },
+                      "dependsOn": [
+                        "graphServicePrincipal",
+                        "managementVirtualMachine"
+                      ]
+                    },
+                    "managementVirtualMachine": {
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2022-09-01",
                       "name": "[format('management-virtual-machine-{0}', parameters('deploymentNameSuffix'))]",
@@ -6960,7 +7001,7 @@
                             "value": "[format('{0}{1}mgt', parameters('tier').namingConvention.virtualMachineNetworkInterface, parameters('delimiter'))]"
                           },
                           "networkSecurityGroupResourceId": {
-                            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('subnetResourceId'), '/')[2], split(parameters('subnetResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('subnetResourceId'), '/')[8]), '2024-07-01').subnets[0].properties.networkSecurityGroup.id]"
+                            "value": "[reference('virtualNetwork').subnets[0].properties.networkSecurityGroup.id]"
                           },
                           "storageAccountType": {
                             "value": "Premium_LRS"
@@ -6985,7 +7026,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.37.4.10188",
-                              "templateHash": "16963364700905820760"
+                              "templateHash": "1642649590967684566"
                             }
                           },
                           "parameters": {
@@ -7393,14 +7434,21 @@
                             "virtualMachineName": {
                               "type": "string",
                               "value": "[parameters('virtualMachineName')]"
+                            },
+                            "virtualMachinePrincipalId": {
+                              "type": "string",
+                              "value": "[reference(resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName')), '2024-11-01', 'full').identity.principalId]"
                             }
                           }
                         }
-                      }
+                      },
+                      "dependsOn": [
+                        "virtualNetwork"
+                      ]
                     },
-                    {
+                    "installEntraCloudSyncAgents": {
                       "copy": {
-                        "name": "installEntraCloudSync",
+                        "name": "installEntraCloudSyncAgents",
                         "count": "[length(parameters('virtualMachineNames'))]"
                       },
                       "type": "Microsoft.Resources/deployments",
@@ -7419,7 +7467,7 @@
                             "value": "[parameters('mlzTags')]"
                           },
                           "name": {
-                            "value": "[parameters('name')]"
+                            "value": "Install-EntraCloudSyncAgent"
                           },
                           "parameters": {
                             "value": [
@@ -7524,8 +7572,120 @@
                           ]
                         }
                       }
+                    },
+                    "provisionEntraCloudSyncConfiguration": {
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2022-09-01",
+                      "name": "[format('provision-entra-cloud-sync-config-{0}', parameters('deploymentNameSuffix'))]",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "parameters": {
+                          "location": {
+                            "value": "[parameters('location')]"
+                          },
+                          "mlzTags": {
+                            "value": "[parameters('mlzTags')]"
+                          },
+                          "name": {
+                            "value": "New-EntraCloudSyncConfiguration"
+                          },
+                          "parameters": {
+                            "value": [
+                              {
+                                "name": "CloudSuffix",
+                                "value": "[last(split(split(environment().resourceManager, '/')[2], '.'))]"
+                              },
+                              {
+                                "name": "DomainName",
+                                "value": "[parameters('domainName')]"
+                              }
+                            ]
+                          },
+                          "script": {
+                            "value": "[variables('$fxv#1')]"
+                          },
+                          "tags": {
+                            "value": "[parameters('tags')]"
+                          },
+                          "virtualMachineName": {
+                            "value": "[reference('managementVirtualMachine').outputs.virtualMachineName.value]"
+                          }
+                        },
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "0.37.4.10188",
+                              "templateHash": "16562347820701968070"
+                            }
+                          },
+                          "parameters": {
+                            "asyncExecution": {
+                              "type": "bool",
+                              "defaultValue": false
+                            },
+                            "location": {
+                              "type": "string"
+                            },
+                            "mlzTags": {
+                              "type": "object"
+                            },
+                            "name": {
+                              "type": "string"
+                            },
+                            "parameters": {
+                              "type": "array",
+                              "defaultValue": []
+                            },
+                            "protectedParameters": {
+                              "type": "securestring",
+                              "defaultValue": ""
+                            },
+                            "script": {
+                              "type": "string"
+                            },
+                            "tags": {
+                              "type": "object"
+                            },
+                            "treatFailureAsDeploymentFailure": {
+                              "type": "bool",
+                              "defaultValue": true
+                            },
+                            "virtualMachineName": {
+                              "type": "string"
+                            }
+                          },
+                          "resources": [
+                            {
+                              "type": "Microsoft.Compute/virtualMachines/runCommands",
+                              "apiVersion": "2023-09-01",
+                              "name": "[format('{0}/{1}', parameters('virtualMachineName'), parameters('name'))]",
+                              "location": "[parameters('location')]",
+                              "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/virtualMachines'), createObject()), parameters('mlzTags'))]",
+                              "properties": {
+                                "asyncExecution": "[parameters('asyncExecution')]",
+                                "parameters": "[parameters('parameters')]",
+                                "protectedParameters": "[json(parameters('protectedParameters'))]",
+                                "source": {
+                                  "script": "[parameters('script')]"
+                                },
+                                "treatFailureAsDeploymentFailure": "[parameters('treatFailureAsDeploymentFailure')]"
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "dependsOn": [
+                        "installEntraCloudSyncAgents",
+                        "managementVirtualMachine"
+                      ]
                     }
-                  ]
+                  }
                 }
               },
               "dependsOn": [
@@ -7677,7 +7837,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.37.4.10188",
-              "templateHash": "2889943638435213778"
+              "templateHash": "2950819359503797311"
             }
           },
           "parameters": {
@@ -8602,7 +8762,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.37.4.10188",
-                      "templateHash": "16963364700905820760"
+                      "templateHash": "1642649590967684566"
                     }
                   },
                   "parameters": {
@@ -9010,6 +9170,10 @@
                     "virtualMachineName": {
                       "type": "string",
                       "value": "[parameters('virtualMachineName')]"
+                    },
+                    "virtualMachinePrincipalId": {
+                      "type": "string",
+                      "value": "[reference(resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName')), '2024-11-01', 'full').identity.principalId]"
                     }
                   }
                 }
@@ -9097,7 +9261,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.37.4.10188",
-                      "templateHash": "16963364700905820760"
+                      "templateHash": "1642649590967684566"
                     }
                   },
                   "parameters": {
@@ -9505,6 +9669,10 @@
                     "virtualMachineName": {
                       "type": "string",
                       "value": "[parameters('virtualMachineName')]"
+                    },
+                    "virtualMachinePrincipalId": {
+                      "type": "string",
+                      "value": "[reference(resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName')), '2024-11-01', 'full').identity.principalId]"
                     }
                   }
                 }
