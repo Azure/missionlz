@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.37.4.10188",
-      "templateHash": "16961410277234965153"
+      "version": "0.38.33.27573",
+      "templateHash": "14569999083897785763"
     }
   },
   "parameters": {
@@ -16075,7 +16075,9 @@
           "availabilityZones": {
             "value": "[parameters('availabilityZones')]"
           },
-          "avdConfigurationZipFileUri": "[if(empty(parameters('avdConfigurationZipFileUri')), createObject('value', format('https://wvdportalstorageblob.blob.{0}/galleryartifacts/Configuration_1.0.03047.739.zip', environment().suffixes.storage)), createObject('value', parameters('avdConfigurationZipFileUri')))]",
+          "avdConfigurationZipFileUri": {
+            "value": "[format('https://{0}.blob.{1}/galleryartifacts/Configuration_1.0.03188.965.zip', variables('avdConfigurationZipFileStorageAccount'), environment().suffixes.storage)]"
+          },
           "dataCollectionRuleResourceId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-shared-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.dataCollectionRuleResourceId.value]"
           },
