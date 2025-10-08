@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.38.33.27573",
-      "templateHash": "13765529729600913835"
+      "templateHash": "13760558493874550114"
     }
   },
   "parameters": {
@@ -862,7 +862,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.38.33.27573",
-              "templateHash": "4488216726894838718"
+              "templateHash": "7112883853013059074"
             }
           },
           "parameters": {
@@ -1326,7 +1326,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.38.33.27573",
-                      "templateHash": "1317459478582583600"
+                      "templateHash": "17144844398764546616"
                     }
                   },
                   "parameters": {
@@ -1413,7 +1413,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.38.33.27573",
-                              "templateHash": "6174986275459175205"
+                              "templateHash": "9936027755787940840"
                             }
                           },
                           "parameters": {
@@ -2072,27 +2072,33 @@
                                     "_generator": {
                                       "name": "bicep",
                                       "version": "0.38.33.27573",
-                                      "templateHash": "2820079669464078315"
+                                      "templateHash": "2077649972658418330"
                                     }
                                   },
                                   "variables": {
                                     "cloudSuffix": "[replace(replace(environment().resourceManager, 'https://management.azure.', ''), '/', '')]",
-                                    "privateDnsZoneNames": "[union(createArray(format('privatelink.agentsvc.azure-automation.{0}', coalesce(tryGet(variables('privateDnsZoneSuffixes_AzureAutomation'), environment().name), variables('cloudSuffix'))), format('privatelink.azure-automation.{0}', coalesce(tryGet(variables('privateDnsZoneSuffixes_AzureAutomation'), environment().name), variables('cloudSuffix'))), format('privatelink.azurewebsites.{0}', coalesce(tryGet(variables('privateDnsZoneSuffixes_AzureWebSites'), environment().name), variables('cloudSuffix'))), format('scm.privatelink.azurewebsites.{0}', coalesce(tryGet(variables('privateDnsZoneSuffixes_AzureWebSites'), environment().name), variables('cloudSuffix'))), format('privatelink.wvd.{0}', coalesce(tryGet(variables('privateDnsZoneSuffixes_AzureVirtualDesktop'), environment().name), variables('cloudSuffix'))), format('privatelink-global.wvd.{0}', coalesce(tryGet(variables('privateDnsZoneSuffixes_AzureVirtualDesktop'), environment().name), variables('cloudSuffix'))), format('privatelink.file.{0}', environment().suffixes.storage), format('privatelink.queue.{0}', environment().suffixes.storage), format('privatelink.table.{0}', environment().suffixes.storage), format('privatelink.blob.{0}', environment().suffixes.storage), format('privatelink{0}', replace(environment().suffixes.keyvaultDns, 'vault', 'vaultcore')), format('privatelink.monitor.azure.{0}', coalesce(tryGet(variables('privateDnsZoneSuffixes_Monitor'), environment().name), variables('cloudSuffix'))), format('privatelink.ods.opinsights.azure.{0}', coalesce(tryGet(variables('privateDnsZoneSuffixes_Monitor'), environment().name), variables('cloudSuffix'))), format('privatelink.oms.opinsights.azure.{0}', coalesce(tryGet(variables('privateDnsZoneSuffixes_Monitor'), environment().name), variables('cloudSuffix'))), format('privatelink{0}', environment().suffixes.sqlServerHostname)), createArray())]",
-                                    "privateDnsZoneSuffixes_AzureAutomation": {
-                                      "AzureCloud": "net",
-                                      "AzureUSGovernment": "us"
-                                    },
-                                    "privateDnsZoneSuffixes_AzureVirtualDesktop": {
-                                      "AzureCloud": "microsoft.com",
-                                      "AzureUSGovernment": "azure.us"
-                                    },
-                                    "privateDnsZoneSuffixes_AzureWebSites": {
-                                      "AzureCloud": "net",
-                                      "AzureUSGovernment": "us"
-                                    },
-                                    "privateDnsZoneSuffixes_Monitor": {
-                                      "AzureCloud": "com",
-                                      "AzureUSGovernment": "us"
+                                    "privateDnsZoneNames": "[union(createArray(format('privatelink.agentsvc.azure-automation.{0}', coalesce(tryGet(variables('privateDnsZoneSuffixes').azureAutomation, environment().name), format('opinsights.azure.{0}', variables('cloudSuffix')))), format('privatelink.azure-automation.{0}', coalesce(tryGet(variables('privateDnsZoneSuffixes').azureAutomation, environment().name), variables('cloudSuffix'))), format('privatelink.{0}', coalesce(tryGet(variables('privateDnsZoneSuffixes').azureWebSites, environment().name), format('appservice.{0}', variables('cloudSuffix')))), format('scm.privatelink.{0}', coalesce(tryGet(variables('privateDnsZoneSuffixes').azureWebSites, environment().name), format('appservice.{0}', variables('cloudSuffix')))), format('privatelink.wvd.{0}', coalesce(tryGet(variables('privateDnsZoneSuffixes').azureVirtualDesktop, environment().name), variables('cloudSuffix'))), format('privatelink-global.wvd.{0}', coalesce(tryGet(variables('privateDnsZoneSuffixes').azureVirtualDesktop, environment().name), variables('cloudSuffix'))), format('privatelink.file.{0}', environment().suffixes.storage), format('privatelink.queue.{0}', environment().suffixes.storage), format('privatelink.table.{0}', environment().suffixes.storage), format('privatelink.blob.{0}', environment().suffixes.storage), format('privatelink{0}', replace(environment().suffixes.keyvaultDns, 'vault', 'vaultcore')), format('privatelink.monitor.azure.{0}', coalesce(tryGet(variables('privateDnsZoneSuffixes').azureMonitor, environment().name), variables('cloudSuffix'))), format('privatelink.ods.opinsights.azure.{0}', coalesce(tryGet(variables('privateDnsZoneSuffixes').azureMonitor, environment().name), variables('cloudSuffix'))), format('privatelink.oms.opinsights.azure.{0}', coalesce(tryGet(variables('privateDnsZoneSuffixes').azureMonitor, environment().name), variables('cloudSuffix'))), format('privatelink{0}', environment().suffixes.sqlServerHostname)), createArray())]",
+                                    "privateDnsZoneSuffixes": {
+                                      "azureAutomation": {
+                                        "AzureCloud": "net",
+                                        "AzureUSGovernment": "us"
+                                      },
+                                      "azureBackup": {
+                                        "AzureCloud": "com",
+                                        "AzureUSGovernment": "us"
+                                      },
+                                      "azureMonitor": {
+                                        "AzureCloud": "com",
+                                        "AzureUSGovernment": "us"
+                                      },
+                                      "azureVirtualDesktop": {
+                                        "AzureCloud": "microsoft.com",
+                                        "AzureUSGovernment": "azure.us"
+                                      },
+                                      "azureWebSites": {
+                                        "AzureCloud": "azurewebsites.net",
+                                        "AzureUSGovernment": "azurewebsites.us"
+                                      }
                                     }
                                   },
                                   "resources": [],
@@ -5577,7 +5583,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.38.33.27573",
-              "templateHash": "4488216726894838718"
+              "templateHash": "7112883853013059074"
             }
           },
           "parameters": {
@@ -6041,7 +6047,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.38.33.27573",
-                      "templateHash": "1317459478582583600"
+                      "templateHash": "17144844398764546616"
                     }
                   },
                   "parameters": {
@@ -6128,7 +6134,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.38.33.27573",
-                              "templateHash": "6174986275459175205"
+                              "templateHash": "9936027755787940840"
                             }
                           },
                           "parameters": {
@@ -6787,27 +6793,33 @@
                                     "_generator": {
                                       "name": "bicep",
                                       "version": "0.38.33.27573",
-                                      "templateHash": "2820079669464078315"
+                                      "templateHash": "2077649972658418330"
                                     }
                                   },
                                   "variables": {
                                     "cloudSuffix": "[replace(replace(environment().resourceManager, 'https://management.azure.', ''), '/', '')]",
-                                    "privateDnsZoneNames": "[union(createArray(format('privatelink.agentsvc.azure-automation.{0}', coalesce(tryGet(variables('privateDnsZoneSuffixes_AzureAutomation'), environment().name), variables('cloudSuffix'))), format('privatelink.azure-automation.{0}', coalesce(tryGet(variables('privateDnsZoneSuffixes_AzureAutomation'), environment().name), variables('cloudSuffix'))), format('privatelink.azurewebsites.{0}', coalesce(tryGet(variables('privateDnsZoneSuffixes_AzureWebSites'), environment().name), variables('cloudSuffix'))), format('scm.privatelink.azurewebsites.{0}', coalesce(tryGet(variables('privateDnsZoneSuffixes_AzureWebSites'), environment().name), variables('cloudSuffix'))), format('privatelink.wvd.{0}', coalesce(tryGet(variables('privateDnsZoneSuffixes_AzureVirtualDesktop'), environment().name), variables('cloudSuffix'))), format('privatelink-global.wvd.{0}', coalesce(tryGet(variables('privateDnsZoneSuffixes_AzureVirtualDesktop'), environment().name), variables('cloudSuffix'))), format('privatelink.file.{0}', environment().suffixes.storage), format('privatelink.queue.{0}', environment().suffixes.storage), format('privatelink.table.{0}', environment().suffixes.storage), format('privatelink.blob.{0}', environment().suffixes.storage), format('privatelink{0}', replace(environment().suffixes.keyvaultDns, 'vault', 'vaultcore')), format('privatelink.monitor.azure.{0}', coalesce(tryGet(variables('privateDnsZoneSuffixes_Monitor'), environment().name), variables('cloudSuffix'))), format('privatelink.ods.opinsights.azure.{0}', coalesce(tryGet(variables('privateDnsZoneSuffixes_Monitor'), environment().name), variables('cloudSuffix'))), format('privatelink.oms.opinsights.azure.{0}', coalesce(tryGet(variables('privateDnsZoneSuffixes_Monitor'), environment().name), variables('cloudSuffix'))), format('privatelink{0}', environment().suffixes.sqlServerHostname)), createArray())]",
-                                    "privateDnsZoneSuffixes_AzureAutomation": {
-                                      "AzureCloud": "net",
-                                      "AzureUSGovernment": "us"
-                                    },
-                                    "privateDnsZoneSuffixes_AzureVirtualDesktop": {
-                                      "AzureCloud": "microsoft.com",
-                                      "AzureUSGovernment": "azure.us"
-                                    },
-                                    "privateDnsZoneSuffixes_AzureWebSites": {
-                                      "AzureCloud": "net",
-                                      "AzureUSGovernment": "us"
-                                    },
-                                    "privateDnsZoneSuffixes_Monitor": {
-                                      "AzureCloud": "com",
-                                      "AzureUSGovernment": "us"
+                                    "privateDnsZoneNames": "[union(createArray(format('privatelink.agentsvc.azure-automation.{0}', coalesce(tryGet(variables('privateDnsZoneSuffixes').azureAutomation, environment().name), format('opinsights.azure.{0}', variables('cloudSuffix')))), format('privatelink.azure-automation.{0}', coalesce(tryGet(variables('privateDnsZoneSuffixes').azureAutomation, environment().name), variables('cloudSuffix'))), format('privatelink.{0}', coalesce(tryGet(variables('privateDnsZoneSuffixes').azureWebSites, environment().name), format('appservice.{0}', variables('cloudSuffix')))), format('scm.privatelink.{0}', coalesce(tryGet(variables('privateDnsZoneSuffixes').azureWebSites, environment().name), format('appservice.{0}', variables('cloudSuffix')))), format('privatelink.wvd.{0}', coalesce(tryGet(variables('privateDnsZoneSuffixes').azureVirtualDesktop, environment().name), variables('cloudSuffix'))), format('privatelink-global.wvd.{0}', coalesce(tryGet(variables('privateDnsZoneSuffixes').azureVirtualDesktop, environment().name), variables('cloudSuffix'))), format('privatelink.file.{0}', environment().suffixes.storage), format('privatelink.queue.{0}', environment().suffixes.storage), format('privatelink.table.{0}', environment().suffixes.storage), format('privatelink.blob.{0}', environment().suffixes.storage), format('privatelink{0}', replace(environment().suffixes.keyvaultDns, 'vault', 'vaultcore')), format('privatelink.monitor.azure.{0}', coalesce(tryGet(variables('privateDnsZoneSuffixes').azureMonitor, environment().name), variables('cloudSuffix'))), format('privatelink.ods.opinsights.azure.{0}', coalesce(tryGet(variables('privateDnsZoneSuffixes').azureMonitor, environment().name), variables('cloudSuffix'))), format('privatelink.oms.opinsights.azure.{0}', coalesce(tryGet(variables('privateDnsZoneSuffixes').azureMonitor, environment().name), variables('cloudSuffix'))), format('privatelink{0}', environment().suffixes.sqlServerHostname)), createArray())]",
+                                    "privateDnsZoneSuffixes": {
+                                      "azureAutomation": {
+                                        "AzureCloud": "net",
+                                        "AzureUSGovernment": "us"
+                                      },
+                                      "azureBackup": {
+                                        "AzureCloud": "com",
+                                        "AzureUSGovernment": "us"
+                                      },
+                                      "azureMonitor": {
+                                        "AzureCloud": "com",
+                                        "AzureUSGovernment": "us"
+                                      },
+                                      "azureVirtualDesktop": {
+                                        "AzureCloud": "microsoft.com",
+                                        "AzureUSGovernment": "azure.us"
+                                      },
+                                      "azureWebSites": {
+                                        "AzureCloud": "azurewebsites.net",
+                                        "AzureUSGovernment": "azurewebsites.us"
+                                      }
                                     }
                                   },
                                   "resources": [],
