@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.37.4.10188",
-      "templateHash": "2451603993806652266"
+      "version": "0.38.33.27573",
+      "templateHash": "1230345786109596097"
     }
   },
   "parameters": {
@@ -482,7 +482,7 @@
   "resources": [
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "[format('namingConvention-{0}', parameters('deploymentNameSuffix'))]",
       "location": "[deployment().location]",
       "properties": {
@@ -516,8 +516,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.37.4.10188",
-              "templateHash": "3588003737726937200"
+              "version": "0.38.33.27573",
+              "templateHash": "4814373816617804290"
             }
           },
           "parameters": {
@@ -658,7 +658,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "[format('natGateway-{0}', parameters('deploymentNameSuffix'))]",
       "subscriptionId": "[variables('subscriptionId')]",
       "resourceGroup": "[variables('resourceGroupName')]",
@@ -678,7 +678,7 @@
             "value": "[parameters('zone')]"
           },
           "natGatewayName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('namingConvention-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.names.value.natGateway]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('namingConvention-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.names.value.natGateway]"
           },
           "tcpIdleTimeout": {
             "value": "[parameters('tcpIdleTimeout')]"
@@ -687,7 +687,7 @@
             "value": "[parameters('publicIpPrefixLength')]"
           },
           "publicIpPrefixName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('namingConvention-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.names.value.natGatewayPublicIPPrefix]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('namingConvention-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.names.value.natGatewayPublicIPPrefix]"
           }
         },
         "template": {
@@ -696,8 +696,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.37.4.10188",
-              "templateHash": "11228571726070769046"
+              "version": "0.38.33.27573",
+              "templateHash": "8580944952176481269"
             }
           },
           "parameters": {
@@ -819,7 +819,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "[format('getSubnetInfo-{0}', parameters('deploymentNameSuffix'))]",
       "subscriptionId": "[variables('subscriptionId')]",
       "resourceGroup": "[variables('resourceGroupName')]",
@@ -842,8 +842,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.37.4.10188",
-              "templateHash": "9323514993409270080"
+              "version": "0.38.33.27573",
+              "templateHash": "15587791293062683328"
             }
           },
           "parameters": {
@@ -912,7 +912,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "[format('attachNatGatewayToSubnet-{0}', parameters('deploymentNameSuffix'))]",
       "subscriptionId": "[variables('subscriptionId')]",
       "resourceGroup": "[variables('resourceGroupName')]",
@@ -923,38 +923,38 @@
         "mode": "Incremental",
         "parameters": {
           "vnetName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('getSubnetInfo-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.vnetName.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('getSubnetInfo-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.vnetName.value]"
           },
           "subnetName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('getSubnetInfo-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.subnetName.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('getSubnetInfo-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.subnetName.value]"
           },
           "natGatewayId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('natGateway-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.natGatewayId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('natGateway-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.natGatewayId.value]"
           },
           "addressPrefix": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('getSubnetInfo-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.addressPrefix.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('getSubnetInfo-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.addressPrefix.value]"
           },
           "delegations": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('getSubnetInfo-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.delegations.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('getSubnetInfo-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.delegations.value]"
           },
           "serviceEndpoints": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('getSubnetInfo-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.serviceEndpoints.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('getSubnetInfo-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.serviceEndpoints.value]"
           },
           "serviceEndpointPolicies": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('getSubnetInfo-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.serviceEndpointPolicies.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('getSubnetInfo-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.serviceEndpointPolicies.value]"
           },
-          "privateEndpointNetworkPolicies": "[if(equals(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('getSubnetInfo-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.privateEndpointNetworkPolicies.value, 'Enabled'), createObject('value', 'Disabled'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('getSubnetInfo-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.privateEndpointNetworkPolicies.value))]",
+          "privateEndpointNetworkPolicies": "[if(equals(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('getSubnetInfo-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.privateEndpointNetworkPolicies.value, 'Enabled'), createObject('value', 'Disabled'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('getSubnetInfo-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.privateEndpointNetworkPolicies.value))]",
           "privateLinkServiceNetworkPolicies": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('getSubnetInfo-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.privateLinkServiceNetworkPolicies.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('getSubnetInfo-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.privateLinkServiceNetworkPolicies.value]"
           },
           "defaultOutboundAccess": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('getSubnetInfo-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.defaultOutboundAccess.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('getSubnetInfo-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.defaultOutboundAccess.value]"
           },
           "networkSecurityGroupId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('getSubnetInfo-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.networkSecurityGroupId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('getSubnetInfo-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.networkSecurityGroupId.value]"
           },
           "routeTableId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('getSubnetInfo-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.routeTableId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('subscriptionId'), variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('getSubnetInfo-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.routeTableId.value]"
           }
         },
         "template": {
@@ -963,8 +963,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.37.4.10188",
-              "templateHash": "6066377428920514013"
+              "version": "0.38.33.27573",
+              "templateHash": "5198653168928395321"
             }
           },
           "parameters": {

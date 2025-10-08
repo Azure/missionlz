@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.37.4.10188",
-      "templateHash": "14405296143726649037"
+      "version": "0.38.33.27573",
+      "templateHash": "14814681001307759071"
     }
   },
   "parameters": {
@@ -98,7 +98,7 @@
   "resources": [
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "[format('firewallPolicy-{0}', parameters('deploymentNameSuffix'))]",
       "subscriptionId": "[split(parameters('hubVirtualNetworkResourceId'), '/')[2]]",
       "resourceGroup": "[split(parameters('hubVirtualNetworkResourceId'), '/')[4]]",
@@ -118,8 +118,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.37.4.10188",
-              "templateHash": "4301840646293414342"
+              "version": "0.38.33.27573",
+              "templateHash": "15216128608124786973"
             }
           },
           "parameters": {
@@ -139,7 +139,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "[format('collectSpokeAddresses-{0}', parameters('deploymentNameSuffix'))]",
       "subscriptionId": "[split(parameters('hubVirtualNetworkResourceId'), '/')[2]]",
       "resourceGroup": "[split(parameters('hubVirtualNetworkResourceId'), '/')[4]]",
@@ -159,8 +159,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.37.4.10188",
-              "templateHash": "14603702245268230402"
+              "version": "0.38.33.27573",
+              "templateHash": "1055373794179759111"
             }
           },
           "parameters": {
@@ -178,7 +178,7 @@
                 "count": "[length(parameters('virtualNetworkResourceIdList'))]"
               },
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2022-09-01",
+              "apiVersion": "2025-04-01",
               "name": "[format('collectVnetInfo-{0}', copyIndex())]",
               "subscriptionId": "[split(parameters('virtualNetworkResourceIdList')[copyIndex()], '/')[2]]",
               "resourceGroup": "[split(parameters('virtualNetworkResourceIdList')[copyIndex()], '/')[4]]",
@@ -198,8 +198,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.37.4.10188",
-                      "templateHash": "13988758341299244454"
+                      "version": "0.38.33.27573",
+                      "templateHash": "11933914628049831928"
                     }
                   },
                   "parameters": {
@@ -271,7 +271,7 @@
               },
               "copy": {
                 "count": "[length(parameters('virtualNetworkResourceIdList'))]",
-                "input": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('virtualNetworkResourceIdList')[copyIndex()], '/')[2], split(parameters('virtualNetworkResourceIdList')[copyIndex()], '/')[4]), 'Microsoft.Resources/deployments', format('collectVnetInfo-{0}', copyIndex())), '2022-09-01').outputs.vnetAddressSpace.value]"
+                "input": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('virtualNetworkResourceIdList')[copyIndex()], '/')[2], split(parameters('virtualNetworkResourceIdList')[copyIndex()], '/')[4]), 'Microsoft.Resources/deployments', format('collectVnetInfo-{0}', copyIndex())), '2025-04-01').outputs.vnetAddressSpace.value]"
               }
             }
           }
@@ -280,7 +280,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "[format('deploy-vgw-firewall-rules-{0}', parameters('deploymentNameSuffix'))]",
       "subscriptionId": "[split(parameters('hubVirtualNetworkResourceId'), '/')[2]]",
       "resourceGroup": "[split(parameters('hubVirtualNetworkResourceId'), '/')[4]]",
@@ -291,13 +291,13 @@
         "mode": "Incremental",
         "parameters": {
           "firewallPolicyName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('firewallPolicy-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.name.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('firewallPolicy-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.name.value]"
           },
           "hubAddressPrefixes": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01').addressSpace.addressPrefixes]"
           },
           "spokeAddressPrefixSets": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('collectSpokeAddresses-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.spokeAddressPrefixSets.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('collectSpokeAddresses-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.spokeAddressPrefixSets.value]"
           },
           "localAddressPrefixes": {
             "value": "[parameters('localAddressPrefixes')]"
@@ -315,8 +315,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.37.4.10188",
-              "templateHash": "6062671523350711357"
+              "version": "0.38.33.27573",
+              "templateHash": "17454558039822629475"
             }
           },
           "parameters": {
@@ -479,7 +479,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "[format('vpnGateway-{0}', parameters('deploymentNameSuffix'))]",
       "resourceGroup": "[variables('hubResourceGroupName')]",
       "properties": {
@@ -513,8 +513,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.37.4.10188",
-              "templateHash": "8724881039266288053"
+              "version": "0.38.33.27573",
+              "templateHash": "9322938724482656394"
             }
           },
           "parameters": {
@@ -616,7 +616,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "[format('vpnGateway-diagnostics-{0}', parameters('deploymentNameSuffix'))]",
       "resourceGroup": "[variables('hubResourceGroupName')]",
       "properties": {
@@ -638,8 +638,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.37.4.10188",
-              "templateHash": "13621908283050745906"
+              "version": "0.38.33.27573",
+              "templateHash": "13672460533170241377"
             }
           },
           "parameters": {
@@ -681,7 +681,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "[format('localNetworkGateway-{0}', parameters('deploymentNameSuffix'))]",
       "resourceGroup": "[variables('hubResourceGroupName')]",
       "properties": {
@@ -709,8 +709,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.37.4.10188",
-              "templateHash": "17076211734428363587"
+              "version": "0.38.33.27573",
+              "templateHash": "3506217346396010419"
             }
           },
           "parameters": {
@@ -747,7 +747,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "[format('vpnConnection-{0}', parameters('deploymentNameSuffix'))]",
       "resourceGroup": "[variables('hubResourceGroupName')]",
       "properties": {
@@ -784,8 +784,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.37.4.10188",
-              "templateHash": "12195888120888767180"
+              "version": "0.38.33.27573",
+              "templateHash": "3868927454821736282"
             }
           },
           "parameters": {
@@ -854,7 +854,7 @@
         "count": "[length(parameters('virtualNetworkResourceIdList'))]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "[format('retrieveVnetPeerings-{0}-{1}', parameters('deploymentNameSuffix'), copyIndex())]",
       "subscriptionId": "[split(parameters('virtualNetworkResourceIdList')[copyIndex()], '/')[2]]",
       "resourceGroup": "[split(parameters('virtualNetworkResourceIdList')[copyIndex()], '/')[4]]",
@@ -874,8 +874,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.37.4.10188",
-              "templateHash": "13988758341299244454"
+              "version": "0.38.33.27573",
+              "templateHash": "11933914628049831928"
             }
           },
           "parameters": {
@@ -940,7 +940,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "[format('retrieveHubVnetPeerings-{0}', parameters('deploymentNameSuffix'))]",
       "subscriptionId": "[split(parameters('hubVirtualNetworkResourceId'), '/')[2]]",
       "resourceGroup": "[split(parameters('hubVirtualNetworkResourceId'), '/')[4]]",
@@ -960,8 +960,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.37.4.10188",
-              "templateHash": "13988758341299244454"
+              "version": "0.38.33.27573",
+              "templateHash": "11933914628049831928"
             }
           },
           "parameters": {
@@ -1026,7 +1026,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "[format('retrieveRouteTableInfo-{0}', parameters('deploymentNameSuffix'))]",
       "subscriptionId": "[split(parameters('hubVirtualNetworkResourceId'), '/')[2]]",
       "resourceGroup": "[split(parameters('hubVirtualNetworkResourceId'), '/')[4]]",
@@ -1052,8 +1052,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.37.4.10188",
-              "templateHash": "13988758341299244454"
+              "version": "0.38.33.27573",
+              "templateHash": "11933914628049831928"
             }
           },
           "parameters": {
@@ -1118,7 +1118,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "[format('ensureGatewaySubnet-{0}', parameters('deploymentNameSuffix'))]",
       "subscriptionId": "[split(parameters('hubVirtualNetworkResourceId'), '/')[2]]",
       "resourceGroup": "[split(parameters('hubVirtualNetworkResourceId'), '/')[4]]",
@@ -1142,8 +1142,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.37.4.10188",
-              "templateHash": "3671577942845758564"
+              "version": "0.38.33.27573",
+              "templateHash": "10871623646073903299"
             }
           },
           "parameters": {
@@ -1188,7 +1188,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "[format('updateHubPeerings-{0}', parameters('deploymentNameSuffix'))]",
       "subscriptionId": "[split(parameters('hubVirtualNetworkResourceId'), '/')[2]]",
       "resourceGroup": "[split(parameters('hubVirtualNetworkResourceId'), '/')[4]]",
@@ -1199,10 +1199,10 @@
         "mode": "Incremental",
         "parameters": {
           "vnetResourceId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('retrieveHubVnetPeerings-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.peeringsData.value.vnetResourceId]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('retrieveHubVnetPeerings-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.peeringsData.value.vnetResourceId]"
           },
           "peeringsList": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('retrieveHubVnetPeerings-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.peeringsData.value.peeringsList]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('retrieveHubVnetPeerings-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.peeringsData.value.peeringsList]"
           }
         },
         "template": {
@@ -1211,8 +1211,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.37.4.10188",
-              "templateHash": "15878950411407920201"
+              "version": "0.38.33.27573",
+              "templateHash": "18421381781889691200"
             }
           },
           "parameters": {
@@ -1272,7 +1272,7 @@
         "count": "[length(parameters('virtualNetworkResourceIdList'))]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "[format('updatePeerings-{0}-{1}', parameters('deploymentNameSuffix'), copyIndex())]",
       "subscriptionId": "[split(parameters('virtualNetworkResourceIdList')[copyIndex()], '/')[2]]",
       "resourceGroup": "[split(parameters('virtualNetworkResourceIdList')[copyIndex()], '/')[4]]",
@@ -1283,10 +1283,10 @@
         "mode": "Incremental",
         "parameters": {
           "vnetResourceId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('virtualNetworkResourceIdList')[copyIndex()], '/')[2], split(parameters('virtualNetworkResourceIdList')[copyIndex()], '/')[4]), 'Microsoft.Resources/deployments', format('retrieveVnetPeerings-{0}-{1}', parameters('deploymentNameSuffix'), copyIndex())), '2022-09-01').outputs.peeringsData.value.vnetResourceId]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('virtualNetworkResourceIdList')[copyIndex()], '/')[2], split(parameters('virtualNetworkResourceIdList')[copyIndex()], '/')[4]), 'Microsoft.Resources/deployments', format('retrieveVnetPeerings-{0}-{1}', parameters('deploymentNameSuffix'), copyIndex())), '2025-04-01').outputs.peeringsData.value.vnetResourceId]"
           },
           "peeringsList": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('virtualNetworkResourceIdList')[copyIndex()], '/')[2], split(parameters('virtualNetworkResourceIdList')[copyIndex()], '/')[4]), 'Microsoft.Resources/deployments', format('retrieveVnetPeerings-{0}-{1}', parameters('deploymentNameSuffix'), copyIndex())), '2022-09-01').outputs.peeringsData.value.peeringsList]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('virtualNetworkResourceIdList')[copyIndex()], '/')[2], split(parameters('virtualNetworkResourceIdList')[copyIndex()], '/')[4]), 'Microsoft.Resources/deployments', format('retrieveVnetPeerings-{0}-{1}', parameters('deploymentNameSuffix'), copyIndex())), '2025-04-01').outputs.peeringsData.value.peeringsList]"
           }
         },
         "template": {
@@ -1295,8 +1295,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.37.4.10188",
-              "templateHash": "15878950411407920201"
+              "version": "0.38.33.27573",
+              "templateHash": "18421381781889691200"
             }
           },
           "parameters": {
@@ -1354,7 +1354,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "[format('createVgwRouteTable-{0}', parameters('deploymentNameSuffix'))]",
       "subscriptionId": "[split(parameters('hubVirtualNetworkResourceId'), '/')[2]]",
       "resourceGroup": "[split(parameters('hubVirtualNetworkResourceId'), '/')[4]]",
@@ -1374,8 +1374,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.37.4.10188",
-              "templateHash": "13566657763044450846"
+              "version": "0.38.33.27573",
+              "templateHash": "1893000978663961479"
             }
           },
           "parameters": {
@@ -1412,7 +1412,7 @@
         "count": "[length(parameters('virtualNetworkResourceIdList'))]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "[format('createRoute-{0}-{1}', copyIndex(), parameters('deploymentNameSuffix'))]",
       "subscriptionId": "[split(parameters('hubVirtualNetworkResourceId'), '/')[2]]",
       "resourceGroup": "[split(parameters('hubVirtualNetworkResourceId'), '/')[4]]",
@@ -1426,7 +1426,7 @@
             "value": "[variables('vgwRouteTableName')]"
           },
           "addressSpace": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('virtualNetworkResourceIdList')[copyIndex()], '/')[2], split(parameters('virtualNetworkResourceIdList')[copyIndex()], '/')[4]), 'Microsoft.Resources/deployments', format('retrieveVnetPeerings-{0}-{1}', parameters('deploymentNameSuffix'), copyIndex())), '2022-09-01').outputs.vnetAddressSpace.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('virtualNetworkResourceIdList')[copyIndex()], '/')[2], split(parameters('virtualNetworkResourceIdList')[copyIndex()], '/')[4]), 'Microsoft.Resources/deployments', format('retrieveVnetPeerings-{0}-{1}', parameters('deploymentNameSuffix'), copyIndex())), '2025-04-01').outputs.vnetAddressSpace.value]"
           },
           "routeName": {
             "value": "[format('route-{0}', copyIndex())]"
@@ -1435,7 +1435,7 @@
             "value": "VirtualAppliance"
           },
           "nextHopIpAddress": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('retrieveRouteTableInfo-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.firewallPrivateIp.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('retrieveRouteTableInfo-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.firewallPrivateIp.value]"
           }
         },
         "template": {
@@ -1444,8 +1444,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.37.4.10188",
-              "templateHash": "15139000754386607399"
+              "version": "0.38.33.27573",
+              "templateHash": "7180483169281961650"
             }
           },
           "parameters": {
@@ -1507,7 +1507,7 @@
     {
       "condition": "[parameters('includeHubOnPrem')]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "[format('createOverrideRoutes-{0}', parameters('deploymentNameSuffix'))]",
       "subscriptionId": "[split(parameters('hubVirtualNetworkResourceId'), '/')[2]]",
       "resourceGroup": "[split(parameters('hubVirtualNetworkResourceId'), '/')[4]]",
@@ -1530,7 +1530,7 @@
             "value": "VirtualAppliance"
           },
           "nextHopIpAddress": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('retrieveRouteTableInfo-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.firewallPrivateIp.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('retrieveRouteTableInfo-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.firewallPrivateIp.value]"
           }
         },
         "template": {
@@ -1539,8 +1539,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.37.4.10188",
-              "templateHash": "15139000754386607399"
+              "version": "0.38.33.27573",
+              "templateHash": "7180483169281961650"
             }
           },
           "parameters": {
@@ -1601,7 +1601,7 @@
     {
       "condition": "[parameters('includeHubOnPrem')]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "[format('createHubCidrRoutes-{0}', parameters('deploymentNameSuffix'))]",
       "subscriptionId": "[split(parameters('hubVirtualNetworkResourceId'), '/')[2]]",
       "resourceGroup": "[split(parameters('hubVirtualNetworkResourceId'), '/')[4]]",
@@ -1624,7 +1624,7 @@
             "value": "VirtualAppliance"
           },
           "nextHopIpAddress": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('retrieveRouteTableInfo-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.firewallPrivateIp.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('retrieveRouteTableInfo-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.firewallPrivateIp.value]"
           }
         },
         "template": {
@@ -1633,8 +1633,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.37.4.10188",
-              "templateHash": "15139000754386607399"
+              "version": "0.38.33.27573",
+              "templateHash": "7180483169281961650"
             }
           },
           "parameters": {
@@ -1695,7 +1695,7 @@
     {
       "condition": "[parameters('includeHubOnPrem')]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "[format('createHubRouteOverrides-{0}', parameters('deploymentNameSuffix'))]",
       "subscriptionId": "[split(parameters('hubVirtualNetworkResourceId'), '/')[2]]",
       "resourceGroup": "[split(parameters('hubVirtualNetworkResourceId'), '/')[4]]",
@@ -1718,7 +1718,7 @@
             "value": "VirtualAppliance"
           },
           "nextHopIpAddress": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('retrieveRouteTableInfo-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.firewallPrivateIp.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('retrieveRouteTableInfo-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.firewallPrivateIp.value]"
           }
         },
         "template": {
@@ -1727,8 +1727,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.37.4.10188",
-              "templateHash": "15139000754386607399"
+              "version": "0.38.33.27573",
+              "templateHash": "7180483169281961650"
             }
           },
           "parameters": {
@@ -1787,7 +1787,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "[format('associateRouteTable-{0}', parameters('deploymentNameSuffix'))]",
       "subscriptionId": "[split(parameters('hubVirtualNetworkResourceId'), '/')[2]]",
       "resourceGroup": "[split(parameters('hubVirtualNetworkResourceId'), '/')[4]]",
@@ -1801,7 +1801,7 @@
             "value": "[parameters('hubVirtualNetworkResourceId')]"
           },
           "routeTableResourceId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('createVgwRouteTable-{0}', parameters('deploymentNameSuffix'))), '2022-09-01').outputs.routeTableId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Resources/deployments', format('createVgwRouteTable-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.routeTableId.value]"
           },
           "subnetName": {
             "value": "GatewaySubnet"
@@ -1814,8 +1814,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.37.4.10188",
-              "templateHash": "4242668368571511973"
+              "version": "0.38.33.27573",
+              "templateHash": "15721008343723418270"
             }
           },
           "parameters": {
