@@ -869,7 +869,7 @@ module sessionHosts 'modules/session-hosts/session-hosts.bicep' = {
     availabilitySetsCount: availabilitySetsCount
     availabilitySetsIndex: beginAvSetRange
     availabilityZones: availabilityZones
-    avdConfigurationZipFileUri: 'https://${avdConfigurationZipFileStorageAccount}.blob.${environment().suffixes.storage}/galleryartifacts/Configuration_1.0.03152.876.zip'
+    avdConfigurationZipFileUri: 'https://${avdConfigurationZipFileStorageAccount}.blob.${environment().suffixes.storage}/galleryartifacts/Configuration_1.0.03188.965.zip'
     dataCollectionRuleResourceId: shared.outputs.dataCollectionRuleResourceId
     delimiter: tier3_stamp.outputs.delimiter
     deployFslogix: deployFslogix
