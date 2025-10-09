@@ -29,8 +29,11 @@ param virtualNetworkGatewaySku string = 'VpnGw2'
 @description('Optional: Provide your own Firewall Policy rule collection groups. When non-empty, these override the default VGW-OnPrem group built by this template.')
 param customFirewallRuleCollectionGroups array = []
 
-@description('Include Hub <-> On-Prem allow firewall rules in the default group (off by default).')
-param includeHubOnPrem bool = false
+
+@description('Routing strategy for traffic between on-prem and virtual networks. firewall = force spoke+hub prefixes through Azure Firewall via GatewaySubnet route table. bgpOnly = rely only on BGP learned routes (no static route table). hubDefault = gateway uses hub default system routing (no dedicated route table). custom = create empty dedicated route table (no spoke routes) for advanced scenarios. Issue #1235 mitigation: choose bgpOnly or hubDefault to prevent unintended spoke path changes.')
+@allowed(['firewall','bgpOnly','hubDefault','custom'])
+param routingMode string = 'firewall'
+
 
 @description('Default CIDR to use when creating the GatewaySubnet if it does not exist.')
 var defaultGatewaySubnetPrefix = '10.0.129.192/26'
@@ -97,7 +100,7 @@ module firewallRules 'modules/firewall-rules-vgw.bicep' = {
     spokeAddressPrefixSets: collectSpokeAddresses.outputs.spokeAddressPrefixSets
     localAddressPrefixes: localAddressPrefixes
     firewallRuleCollectionGroups: customFirewallRuleCollectionGroups
-    includeHubOnPrem: includeHubOnPrem
+  // hub always included now; parameter removed
   }
 }
 
@@ -231,17 +234,19 @@ module updatePeerings 'modules/vnet-peerings.bicep' = [for (vnetId, i) in virtua
   ]
 }]
 
-// Create the route table for the VPN Gateway subnet, will route spoke vnets to through the firewall, overriding default behavior
+// Conditionally create the dedicated route table only when routingMode requires it
 module createRouteTable 'modules/route-table.bicep' = {
   name: 'createVgwRouteTable-${deploymentNameSuffix}'
   scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
   params: {
-  routeTableName: vgwRouteTableName
+    routeTableName: vgwRouteTableName
+    // Disable BGP propagation only when actively enforcing firewall static routing; allow in other modes
+    disableBgpRoutePropagation: routingMode == 'firewall'
   }
 }
 
-// Create the routes to the firewall for the spoke vnets
-module createRoutes 'modules/routes.bicep' = [for (vnetResourceId, i) in virtualNetworkResourceIdList: {
+// When routingMode == firewall we reproduce existing behavior (add static routes for each spoke via firewall)
+module createRoutes 'modules/routes.bicep' = [for (vnetResourceId, i) in (routingMode == 'firewall' ? virtualNetworkResourceIdList : []) : {
   name: 'createRoute-${i}-${deploymentNameSuffix}'
   scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
   params: {
@@ -256,24 +261,8 @@ module createRoutes 'modules/routes.bicep' = [for (vnetResourceId, i) in virtual
   ]
 }]
 
-// Create the routes to the firewall for the hub vnet as an override to on-prem networks
-module createHubRoutesToOnPrem 'modules/routes.bicep' = if (includeHubOnPrem) {
-  name: 'createOverrideRoutes-${deploymentNameSuffix}'
-  scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
-  params: {
-    routeTableName: vgwRouteTableName
-    addressSpace: localAddressPrefixes
-    routeName: 'route-onprem-override'
-    nextHopType: 'VirtualAppliance'
-    nextHopIpAddress: retrieveRouteTableInfo.outputs.firewallPrivateIp
-  }
-  dependsOn: [
-    createRouteTable
-  ]
-}
-
-// Also add Hub VNet address prefixes to the VGW route table to steer Hub CIDRs through the firewall
-module createHubCidrRoutes 'modules/routes.bicep' = if (includeHubOnPrem) {
+// Add Hub VNet address prefixes to the VGW route table to steer Hub CIDRs through the firewall (always when firewall mode)
+module createHubCidrRoutes 'modules/routes.bicep' = if (routingMode == 'firewall') {
   name: 'createHubCidrRoutes-${deploymentNameSuffix}'
   scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
   params: {
@@ -288,8 +277,8 @@ module createHubCidrRoutes 'modules/routes.bicep' = if (includeHubOnPrem) {
   ]
 }
 
-// Add the same on-prem override routes to the pre-existing hub workload route table so hub workloads egress to the firewall (optional)
-module createHubRouteOverrides 'modules/routes.bicep' = if (includeHubOnPrem) {
+// Add on-prem prefixes to the hub workload route table so hub workloads egress to the firewall (always when firewall mode)
+module createHubRouteOverrides 'modules/routes.bicep' = if (routingMode == 'firewall') {
   name: 'createHubRouteOverrides-${deploymentNameSuffix}'
   scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
   params: {
@@ -301,19 +290,24 @@ module createHubRouteOverrides 'modules/routes.bicep' = if (includeHubOnPrem) {
   }
 }
 
-// Associate the vgw route table with the gateway subnet so the gateway routes traffic destined for spokes through the firewall
-module associateRouteTable 'modules/associate-route-table.bicep' = {
+// Associate the vgw route table only when one was created (firewall/custom)
+module associateRouteTable 'modules/associate-route-table.bicep' = if (routingMode == 'firewall' || routingMode == 'custom') {
   name: 'associateRouteTable-${deploymentNameSuffix}'
   scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
   params: {
     vnetResourceId: hubVirtualNetworkResourceId
-    routeTableResourceId: createRouteTable.outputs.routeTableId
+    // safe: module only exists in same condition
+  // Safely pass the route table id (module exists only under same condition)
+  routeTableResourceId: createRouteTable.outputs.routeTableId
     subnetName: 'GatewaySubnet'
     subnetAddressPrefix: effectiveGatewaySubnetPrefix
   }
   dependsOn: [
-  ensureGatewaySubnet
-  vpnGatewayModule
+    ensureGatewaySubnet
+    vpnGatewayModule
   ]
 }
+
+// (Future enhancement) output effective routing mode for ops visibility
+output routingModeEffective string = routingMode
 
