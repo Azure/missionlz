@@ -30,9 +30,6 @@ param virtualNetworkGatewaySku string = 'VpnGw2'
 param customFirewallRuleCollectionGroups array = []
 
 
-@description('Routing strategy for traffic between on-prem and virtual networks. firewall = force spoke+hub prefixes through Azure Firewall via GatewaySubnet route table. bgpOnly = rely only on BGP learned routes (no static route table). hubDefault = gateway uses hub default system routing (no dedicated route table). custom = create empty dedicated route table (no spoke routes) for advanced scenarios. Issue #1235 mitigation: choose bgpOnly or hubDefault to prevent unintended spoke path changes.')
-@allowed(['firewall','bgpOnly','hubDefault','custom'])
-param routingMode string = 'firewall'
 
 
 @description('Default CIDR to use when creating the GatewaySubnet if it does not exist.')
@@ -234,19 +231,19 @@ module updatePeerings 'modules/vnet-peerings.bicep' = [for (vnetId, i) in virtua
   ]
 }]
 
-// Conditionally create the dedicated route table only when routingMode requires it
+// Always create the dedicated route table for forced tunneling via the firewall
 module createRouteTable 'modules/route-table.bicep' = {
   name: 'createVgwRouteTable-${deploymentNameSuffix}'
   scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
   params: {
     routeTableName: vgwRouteTableName
-    // Disable BGP propagation only when actively enforcing firewall static routing; allow in other modes
-    disableBgpRoutePropagation: routingMode == 'firewall'
+    // Disable BGP propagation (no BGP usage; static enforcement)
+    disableBgpRoutePropagation: true
   }
 }
 
-// When routingMode == firewall we reproduce existing behavior (add static routes for each spoke via firewall)
-module createRoutes 'modules/routes.bicep' = [for (vnetResourceId, i) in (routingMode == 'firewall' ? virtualNetworkResourceIdList : []) : {
+// Add static routes for each spoke via firewall (forced tunneling)
+module createRoutes 'modules/routes.bicep' = [for (vnetResourceId, i) in virtualNetworkResourceIdList: {
   name: 'createRoute-${i}-${deploymentNameSuffix}'
   scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
   params: {
@@ -261,8 +258,8 @@ module createRoutes 'modules/routes.bicep' = [for (vnetResourceId, i) in (routin
   ]
 }]
 
-// Add Hub VNet address prefixes to the VGW route table to steer Hub CIDRs through the firewall (always when firewall mode)
-module createHubCidrRoutes 'modules/routes.bicep' = if (routingMode == 'firewall') {
+// Add Hub VNet address prefixes to the VGW route table to steer Hub CIDRs through the firewall
+module createHubCidrRoutes 'modules/routes.bicep' = {
   name: 'createHubCidrRoutes-${deploymentNameSuffix}'
   scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
   params: {
@@ -277,8 +274,8 @@ module createHubCidrRoutes 'modules/routes.bicep' = if (routingMode == 'firewall
   ]
 }
 
-// Add on-prem prefixes to the hub workload route table so hub workloads egress to the firewall (always when firewall mode)
-module createHubRouteOverrides 'modules/routes.bicep' = if (routingMode == 'firewall') {
+// Add on-prem prefixes to the hub workload route table so hub workloads egress to the firewall
+module createHubRouteOverrides 'modules/routes.bicep' = {
   name: 'createHubRouteOverrides-${deploymentNameSuffix}'
   scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
   params: {
@@ -290,8 +287,8 @@ module createHubRouteOverrides 'modules/routes.bicep' = if (routingMode == 'fire
   }
 }
 
-// Associate the vgw route table only when one was created (firewall/custom)
-module associateRouteTable 'modules/associate-route-table.bicep' = if (routingMode == 'firewall' || routingMode == 'custom') {
+// Associate the vgw route table to GatewaySubnet
+module associateRouteTable 'modules/associate-route-table.bicep' = {
   name: 'associateRouteTable-${deploymentNameSuffix}'
   scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
   params: {
@@ -308,6 +305,5 @@ module associateRouteTable 'modules/associate-route-table.bicep' = if (routingMo
   ]
 }
 
-// (Future enhancement) output effective routing mode for ops visibility
-output routingModeEffective string = routingMode
+// (Removed routingMode output; forced tunneling is mandatory now)
 
