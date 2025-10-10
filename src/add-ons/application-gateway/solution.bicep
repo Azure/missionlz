@@ -9,16 +9,12 @@ param deploymentName string
 param hubVnetResourceId string
 @description('Azure Firewall resource ID used as next hop for UDR')
 param firewallResourceId string
-@description('Log Analytics Workspace Resource ID for diagnostics')
-param logAnalyticsWorkspaceId string
 @description('Common default settings object applied to each app unless overridden')
 param commonDefaults object
 @description('Array of application definitions (listeners, backend targets, optional overrides)')
 param apps array
 @description('Tags to apply to all created resources')
 param tags object = {}
-@description('Enable diagnostic settings on Application Gateway')
-param enableDiagnosticLogs bool = true
 @description('Existing WAF policy resource ID (if provided, skip creating new policy)')
 param existingWafPolicyId string = ''
 
@@ -34,18 +30,16 @@ param existingWafPolicyId string = ''
 module appgwSubnet 'appgateway-subnet.bicep' = {
   name: 'appgwSubnet'
   params: {
-    location: location
     hubVnetResourceId: hubVnetResourceId
-    // subnetName/addressPrefix can be overridden via module params later
   }
 }
 
-// Route table forcing next hop to firewall (placeholder remains, not yet implemented)
+// Route table (minimal)
 module appgwRouteTable 'appgateway-route-table.bicep' = {
   name: 'appgwRouteTable'
   params: {
     location: location
-    firewallResourceId: firewallResourceId
+    deploymentName: deploymentName
     tags: tags
   }
 }
@@ -71,8 +65,6 @@ module appgwCore 'appgateway-core.bicep' = {
     wafPolicyId: existingWafPolicyId != '' ? existingWafPolicyId : wafPolicy.outputs.wafPolicyId
     commonDefaults: commonDefaults
     apps: apps
-    enableDiagnosticLogs: enableDiagnosticLogs
-    logAnalyticsWorkspaceId: logAnalyticsWorkspaceId
     tags: tags
   }
 }

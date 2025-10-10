@@ -11,10 +11,6 @@ param wafPolicyId string
 param commonDefaults object
 @description('Apps array defining listeners/backends; minimal scaffold only uses first element')
 param apps array
-@description('Enable diagnostic settings (currently placeholder)')
-param enableDiagnosticLogs bool
-@description('Log Analytics Workspace ID (for future diagnostics module integration)')
-param logAnalyticsWorkspaceId string
 @description('Tags object')
 param tags object = {}
 
