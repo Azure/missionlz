@@ -30,18 +30,18 @@ param existingWafPolicyId string = ''
 //   }
 // }
 
-// Ensure subnet + NSG (stub)
-module appgwSubnet 'appgateway-subnet.bicep' = if (true) {
+// Ensure subnet
+module appgwSubnet 'appgateway-subnet.bicep' = {
   name: 'appgwSubnet'
   params: {
     location: location
     hubVnetResourceId: hubVnetResourceId
-    tags: tags
+    // subnetName/addressPrefix can be overridden via module params later
   }
 }
 
-// Route table forcing next hop to firewall (stub)
-module appgwRouteTable 'appgateway-route-table.bicep' = if (true) {
+// Route table forcing next hop to firewall (placeholder remains, not yet implemented)
+module appgwRouteTable 'appgateway-route-table.bicep' = {
   name: 'appgwRouteTable'
   params: {
     location: location
@@ -68,7 +68,6 @@ module appgwCore 'appgateway-core.bicep' = {
     location: location
     deploymentName: deploymentName
     subnetId: appgwSubnet.outputs.subnetId
-    routeTableId: appgwRouteTable.outputs.routeTableId
     wafPolicyId: existingWafPolicyId != '' ? existingWafPolicyId : wafPolicy.outputs.wafPolicyId
     commonDefaults: commonDefaults
     apps: apps
@@ -81,5 +80,5 @@ module appgwCore 'appgateway-core.bicep' = {
 output appGatewayResourceId string = appgwCore.outputs.appGatewayResourceId
 output appGatewayPublicIp string = appgwCore.outputs.publicIpAddress
 output wafPolicyResourceId string = existingWafPolicyId != '' ? existingWafPolicyId : wafPolicy.outputs.wafPolicyId
-output perAppListenerMap object = appgwCore.outputs.perAppListenerMap
-output perAppBackendPoolMap object = appgwCore.outputs.perAppBackendPoolMap
+output listenerNames array = appgwCore.outputs.listenerNames
+output backendPoolNames array = appgwCore.outputs.backendPoolNames
