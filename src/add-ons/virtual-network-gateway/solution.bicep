@@ -165,7 +165,7 @@ module vpnConnectionModule 'modules/vpn-connection.bicep' = {
 }
 
 // Loop through the vnetResourceIdList and to retrieve the peerings for each VNet
-module retrieveVnetInfo 'modules/retrieve-existing.bicep' = [for (vnetId, i) in virtualNetworkResourceIdList: {
+module retrieveVnetInfo 'modules/vnet-info.bicep' = [for (vnetId, i) in virtualNetworkResourceIdList: {
   name: 'retrieveVnetPeerings-${deploymentNameSuffix}-${i}'
   scope: resourceGroup(split(vnetId, '/')[2], split(vnetId, '/')[4])
   params: {
@@ -174,7 +174,7 @@ module retrieveVnetInfo 'modules/retrieve-existing.bicep' = [for (vnetId, i) in 
 }]
 
 // Get the hub virtual network peerings
-module retrieveHubVnetInfo 'modules/retrieve-existing.bicep' = {
+module retrieveHubVnetInfo 'modules/vnet-info.bicep' = {
   name: 'retrieveHubVnetPeerings-${deploymentNameSuffix}'
   scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
   params: {
@@ -183,13 +183,11 @@ module retrieveHubVnetInfo 'modules/retrieve-existing.bicep' = {
 }
 
 // Retrieve firewall private IP and (optionally) GatewaySubnet prefix without peering deps
-module retrieveRouteTableInfo 'modules/retrieve-existing.bicep' = {
-  name: 'retrieveRouteTableInfo-${deploymentNameSuffix}'
+module firewallInfo 'modules/firewall-info.bicep' = {
+  name: 'firewallInfo-${deploymentNameSuffix}'
   scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
   params: {
-    vnetResourceId: hubVirtualNetworkResourceId
-    azureFirewallName: split(azureFirewallResourceId, '/')[8]
-    subnetName: ''
+    azureFirewallResourceId: azureFirewallResourceId
   }
 }
 // Ensure the GatewaySubnet exists (or is configured) before associating the dedicated vgw route table
@@ -251,7 +249,7 @@ module createRoutes 'modules/routes.bicep' = [for (vnetResourceId, i) in virtual
     addressSpace: retrieveVnetInfo[i].outputs.vnetAddressSpace
     routeName: 'route-${i}'
     nextHopType: 'VirtualAppliance'
-    nextHopIpAddress: retrieveRouteTableInfo.outputs.firewallPrivateIp
+  nextHopIpAddress: firewallInfo.outputs.firewallPrivateIp
   }
   dependsOn: [
     createRouteTable
@@ -267,7 +265,7 @@ module createHubCidrRoutes 'modules/routes.bicep' = {
     addressSpace: virtualNetwork_hub.properties.addressSpace.addressPrefixes
     routeName: 'route-hub'
     nextHopType: 'VirtualAppliance'
-    nextHopIpAddress: retrieveRouteTableInfo.outputs.firewallPrivateIp
+  nextHopIpAddress: firewallInfo.outputs.firewallPrivateIp
   }
   dependsOn: [
     createRouteTable
@@ -284,7 +282,7 @@ module createHubRouteOverrides 'modules/routes.bicep' = {
     addressSpace: localAddressPrefixes
     routeName: 'route-onprem-override'
     nextHopType: 'VirtualAppliance'
-    nextHopIpAddress: retrieveRouteTableInfo.outputs.firewallPrivateIp
+  nextHopIpAddress: firewallInfo.outputs.firewallPrivateIp
   }
 }
 
