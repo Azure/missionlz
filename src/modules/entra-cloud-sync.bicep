@@ -100,7 +100,7 @@ module installEntraCloudSyncAgents 'run-command.bicep' = [ for (virtualMachineNa
   }
 }]
 
-// Run command to install Entra Cloud Sync on the domain controllers
+// Run command to provision the Entra Cloud Sync configuration in Entra ID
 module provisionEntraCloudSyncConfiguration 'run-command.bicep' = {
   name: 'provision-entra-cloud-sync-config-${deploymentNameSuffix}'
   params: {
