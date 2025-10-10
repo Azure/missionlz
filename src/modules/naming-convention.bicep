@@ -69,6 +69,12 @@ var names = {
   azureFirewallPublicIPAddressDiagnosticSetting: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.diagnosticSettings), tokens.service, '${resourceAbbreviations.publicIPAddresses}${delimiter}${resourceAbbreviations.azureFirewalls}')
   azureFirewallDiagnosticSetting: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.diagnosticSettings), tokens.service, resourceAbbreviations.azureFirewalls)
   azureFirewallPolicy: replace(namingConvention, tokens.resource, resourceAbbreviations.firewallPolicies)
+  // Application Gateway (Scenario A) additions
+  applicationGateway: replace(namingConvention, tokens.resource, resourceAbbreviations.applicationGateways)
+  applicationGatewayPublicIPAddress: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.publicIPAddresses), tokens.service, resourceAbbreviations.applicationGateways)
+  applicationGatewayDiagnosticSetting: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.diagnosticSettings), tokens.service, resourceAbbreviations.applicationGateways)
+  applicationGatewayWafPolicy: replace(namingConvention, tokens.resource, resourceAbbreviations.applicationGatewayWafPolicies)
+  applicationGatewayWafPolicyDiagnosticSetting: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.diagnosticSettings), tokens.service, resourceAbbreviations.applicationGatewayWafPolicies)
   bastionHost: replace(namingConvention, tokens.resource, resourceAbbreviations.bastionHosts)
   bastionHostDiagnosticSetting: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.diagnosticSettings), tokens.service, resourceAbbreviations.bastionHosts)
   bastionHostNetworkSecurityGroup: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.networkSecurityGroups), tokens.service, resourceAbbreviations.bastionHosts)
