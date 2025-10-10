@@ -37,18 +37,24 @@ resource subnet 'Microsoft.Network/virtualNetworks/subnets@2020-11-01' existing 
 output routeTableId string = !empty(routeTableName) ? vnetRouteTable.id : 'N/A'
 
 // Output the internal IP address of the firewall, if firewall parameters are provided
+// Safe access pattern: if resource not present yet, return 'N/A'
+// disable-next-line BCP318
 output firewallPrivateIp string = (!empty(azureFirewallName) && !empty(vnetResourceId)) ? azureFirewall.properties.ipConfigurations[0].properties.privateIPAddress : 'N/A'
 
 // Output the firewall policy id attached to the firewall
+// disable-next-line BCP318
 output firewallPolicyId string = !empty(azureFirewallName) ? azureFirewall.properties.firewallPolicy.id : 'N/A'
 
 // Output the address prefix of the GatewaySubnet, if the parameters are provided
+// disable-next-line BCP318
 output subnetAddressPrefix string = (!empty(subnetName) && !empty(vnetResourceId)) ? subnet.properties.addressPrefix : 'N/A'
 
 // Output the address space of the VNet, if the VNet resource ID is provided
+// disable-next-line BCP318
 output vnetAddressSpace array = !empty(vnetResourceId) ? vnetInfo.properties.addressSpace.addressPrefixes : []
 
 // Output the list of peerings from the VNet, if the VNet resource ID is provided
+// disable-next-line BCP318
 output peeringsData object = !empty(vnetResourceId) ? {
   vnetResourceId: vnetResourceId
   peeringsList: vnetInfo.properties.virtualNetworkPeerings
