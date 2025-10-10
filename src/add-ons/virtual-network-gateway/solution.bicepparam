@@ -1,16 +1,31 @@
 using './solution.bicep'
 
-param hubVirtualNetworkResourceId = '/subscriptions/6acb75ac-813c-4d62-950e-ad9d5813323a/resourceGroups/cae-dev-az-hub-rg-network/providers/Microsoft.Network/virtualNetworks/cae-dev-az-hub-vnet'
-param operationsLogAnalyticsWorkspaceResourceId = '/subscriptions/5c42ee82-0380-49ce-a0d6-b19392c6d34f/resourceGroups/cae-dev-az-operations-rg-network/providers/Microsoft.OperationalInsights/workspaces/cae-dev-az-operations-log'
+// Updated for new-dev environment (October 2025) – MLZ forced tunneling variant
+// hub vnet id from last successful MLZ deployment outputs
+param hubVirtualNetworkResourceId = '/subscriptions/afb59830-1fc9-44c9-bba3-04f657483578/resourceGroups/new-dev-va-hub-rg-network/providers/Microsoft.Network/virtualNetworks/new-dev-va-hub-vnet'
+
+// Operations Log Analytics workspace (destination for diagnostics)
+param operationsLogAnalyticsWorkspaceResourceId = '/subscriptions/6d2cdf2f-3fbe-4679-95ba-4e8b7d9aed24/resourceGroups/new-dev-va-operations-rg-network/providers/Microsoft.OperationalInsights/workspaces/new-dev-va-operations-log'
+
+// List of spoke VNets (identity, operations, sharedServices) that will use the VPN Gateway
+// NOTE: Do not include the hub VNet itself here.
 param virtualNetworkResourceIdList = [
-  '/subscriptions/75d88fa1-14cd-4793-86d7-b1b80782cfbc/resourceGroups/cae-dev-az-identity-rg-network/providers/Microsoft.Network/virtualNetworks/cae-dev-az-identity-vnet'
-  '/subscriptions/5c42ee82-0380-49ce-a0d6-b19392c6d34f/resourceGroups/cae-dev-az-operations-rg-network/providers/Microsoft.Network/virtualNetworks/cae-dev-az-operations-vnet'
-  '/subscriptions/380bdcb6-d99e-41f3-9803-12765826688a/resourceGroups/cae-dev-az-sharedServices-rg-network/providers/Microsoft.Network/virtualNetworks/cae-dev-az-sharedServices-vnet'
-  '/subscriptions/58cc8f35-81c0-4aa1-9306-fa9ae7698767/resourceGroups/cae-dev-az-avd-rg-network/providers/Microsoft.Network/virtualNetworks/cae-dev-az-avd-vnet'
+  '/subscriptions/d9cb6670-f9bf-416f-aa7b-2d6936edcaeb/resourceGroups/new-dev-va-identity-rg-network/providers/Microsoft.Network/virtualNetworks/new-dev-va-identity-vnet'
+  '/subscriptions/6d2cdf2f-3fbe-4679-95ba-4e8b7d9aed24/resourceGroups/new-dev-va-operations-rg-network/providers/Microsoft.Network/virtualNetworks/new-dev-va-operations-vnet'
+  '/subscriptions/3a8f043c-c15c-4a67-9410-a585a85f2109/resourceGroups/new-dev-va-sharedServices-rg-network/providers/Microsoft.Network/virtualNetworks/new-dev-va-sharedServices-vnet'
 ]
+
+// On-prem (simulated) address prefixes reachable via the Local Network Gateway.
+// TODO: Replace the placeholder if the test on-prem gateway uses a different address space.
+// Simulated on-prem address prefixes (discovered from test-onprem-vnet addressSpace)
 param localAddressPrefixes = [
   '10.1.0.0/16'
+  '10.2.0.0/16'
 ]
+
+// Public IP of the existing test VPN gateway acting as "on-prem" (primary PIP chosen from list: 20.158.211.83, 20.158.211.81)
+// If active-active is intended, only one PIP is needed for Local Network Gateway; choose the currently active/primary.
 param localGatewayIpAddress = '20.158.211.83'
-param includeHubOnPrem = true
+
+// (includeHubOnPrem parameter removed from solution.bicep – do not re-add)
 
