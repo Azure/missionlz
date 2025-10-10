@@ -275,6 +275,7 @@ module createHubCidrRoutes 'modules/routes.bicep' = {
 }
 
 // Add on-prem prefixes to the hub workload route table so hub workloads egress to the firewall
+// Add on-prem prefixes to the hub workload route table so hub workloads egress to the firewall
 module createHubRouteOverrides 'modules/routes.bicep' = {
   name: 'createHubRouteOverrides-${deploymentNameSuffix}'
   scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
