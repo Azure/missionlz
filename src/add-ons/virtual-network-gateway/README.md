@@ -153,13 +153,12 @@ Example parameter value (conceptual) for `customFirewallRuleCollectionGroups` in
 ```
 
 Notes:
- 
+
 * Replace `198.51.100.10` / `198.51.100.11` with your real on-prem source IPs or CIDR ranges.
 * Replace `10.2.0.0/16` with the target spoke VNet prefix you want to allow.
 * Omitting reverse (spoke→on-prem) rules means return traffic may be denied; typically add a complementary rule collection for egress if bidirectional flow is required.
 * By supplying this custom group, the template will NOT deploy the default `VGW-OnPrem` broad allow group.
 * You can add a second rule collection with `action: { "type": "Deny" }` and higher priority number (lower numeric value) to block other ports explicitly before an allow collection if needed.
- 
 
 Minimal bi-directional HTTPS example (two collections) conceptually:
 
@@ -207,11 +206,10 @@ Minimal bi-directional HTTPS example (two collections) conceptually:
 ```
 
 Priority Guidance:
- 
+
 * Lower numeric `priority` inside a rule collection group executes first (Azure Firewall evaluates collection priority before rule order inside that collection).
 * Keep bi-directional pairs adjacent and separated from broader rules.
 * If adding Deny rules, assign them a lower numeric priority than related Allow rules.
- 
 
 This sample shows explicit IP/CIDR values instead of template parameters – appropriate when a customer has fixed, known ranges and prefers not to expose them via parameters.
 
@@ -310,6 +308,7 @@ To explicitly block all on-prem to spoke traffic except HTTPS, add a Deny rule c
 ```
 
 Implementation notes:
+
 * Priority 129 (Deny) executes before 130 (Allow) ensuring only HTTPS is permitted.
 * Avoid overlapping broad Allow collections after a targeted Deny unless intentionally layered.
 * Use jsonc (comment-able JSON) form during design; remove comments for production parameter files.
