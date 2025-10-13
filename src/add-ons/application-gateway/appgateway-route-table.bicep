@@ -7,6 +7,8 @@ param routeTableName string
 param firewallPrivateIp string
 @description('Tags object')
 param tags object = {}
+@description('Optional list of internal CIDR prefixes (spoke/application VNets) to force through the firewall for east-west traffic from the App Gateway.')
+param internalForcedPrefixes array = []
 @description('Include the default 0.0.0.0/0 route to firewall')
 param includeDefaultRoute bool = true
 
@@ -33,5 +35,16 @@ resource defaultRoute 'Microsoft.Network/routeTables/routes@2024-05-01' = if (in
 }
 
 // NOTE: Explicit per-spoke routes removed. Peered VNet address spaces will take the system peering route (more specific) and bypass firewall for east-west unless separate UDRs are authored elsewhere.
+// Reintroduced (alternative) explicit prefix forcing: any provided internalForcedPrefixes will create UDRs to override system peering routes.
+
+resource internalForcedRoutes 'Microsoft.Network/routeTables/routes@2024-05-01' = [for (p, i) in internalForcedPrefixes: if(!empty(p)) {
+  name: format('int-{0}', i)
+  parent: appgwRouteTable
+  properties: {
+    addressPrefix: p
+    nextHopType: 'VirtualAppliance'
+    nextHopIpAddress: firewallPrivateIp
+  }
+}]
 
 output routeTableId string = appgwRouteTable.id

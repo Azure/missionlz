@@ -16,7 +16,7 @@ param appGatewaySubnetAddressPrefix string = '10.0.129.0/26'
 param appGatewaySubnetName string = 'AppGateway'
 @description('Common default settings object applied to each app unless overridden')
 param commonDefaults object
-@description('Array of application definitions (listeners, backend targets, optional overrides). Each app may include peeredVnetResourceId to force that VNet prefix through the firewall.')
+@description('Array of application definitions (listeners, backend targets, optional overrides). Each app may optionally include addressPrefix (CIDR of its backend network) used to force east-west traffic through the firewall.')
 param apps array
 
 @description('Tags to apply to all created resources')
@@ -141,6 +141,12 @@ var firewallPrivateIp = resolveFirewallIp.outputs.privateIpAddress
 var firewallPolicyResourceId = resourceId(subscription().subscriptionId, hubRgName, 'Microsoft.Network/firewallPolicies', naming.outputs.names.azureFirewallPolicy)
 
 // Route table (dedicated for App Gateway subnet) using naming convention
+// Derive internal forced prefixes from apps (addressPrefix property) - dedupe & remove empties
+var rawAppPrefixes = [for a in apps: a.?addressPrefix]
+var dedupedAppPrefixes = [for (p,i) in rawAppPrefixes: (!empty(p) && indexOf(rawAppPrefixes, p) == i) ? p : '']
+var effectiveInternalForcedPrefixesTemp = [for p in dedupedAppPrefixes: !empty(p) ? p : '']
+var effectiveInternalForcedPrefixes = [for p in effectiveInternalForcedPrefixesTemp: p != '' ? p : '']
+
 module appgwRouteTable 'appgateway-route-table.bicep' = {
   name: 'appgwRouteTable'
   scope: resourceGroup(hubRgName)
@@ -149,6 +155,7 @@ module appgwRouteTable 'appgateway-route-table.bicep' = {
     routeTableName: naming.outputs.names.applicationGatewayRouteTable
     firewallPrivateIp: firewallPrivateIp
     tags: tags
+    internalForcedPrefixes: effectiveInternalForcedPrefixes
   }
 }
 
@@ -169,7 +176,7 @@ module wafPolicyResolver 'modules/wafpolicy-resolver.bicep' = {
 }
 var effectiveWafPolicyId = wafPolicyResolver.outputs.wafPolicyId
 
-// Transform apps -> listeners (now expecting apps to already provide backendAddresses in correct shape)
+// Transform apps -> listeners (apps provide backendAddresses in correct shape)
 // Listener shape: { name, hostNames?, backendAddresses: [{ipAddress|fqdn}], backendPort?, backendProtocol?, healthProbePath?, probeInterval?, probeTimeout?, unhealthyThreshold?, certificateSecretId }
 var listeners = [for a in apps: {
   name: a.name
