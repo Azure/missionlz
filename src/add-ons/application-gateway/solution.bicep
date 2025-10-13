@@ -106,6 +106,8 @@ module appgwSubnet 'appgateway-subnet.bicep' = {
     hubVnetResourceId: hubVnetResourceId
     subnetName: appGatewaySubnetName
     addressPrefix: appGatewaySubnetAddressPrefix
+    // Harden by default: disable implicit Internet egress; all outbound must follow explicit routes (Firewall)
+    defaultOutboundAccess: false
   }
 }
 
