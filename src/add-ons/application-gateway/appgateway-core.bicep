@@ -140,11 +140,14 @@ var requestRoutingRules = hasApp ? [
 ] : []
 
 // Use an API version with recognized sku property
-resource appGateway 'Microsoft.Network/applicationGateways@2022-05-01' = {
+resource appGateway 'Microsoft.Network/applicationGateways@2023-09-01' = {
 	name: '${deploymentName}-appgw'
 	location: location
 	tags: tags
-	// SKU omitted in minimal scaffold to bypass type validation issues; will reintroduce once apiVersion confirmed
+	sku: {
+		name: 'WAF_v2'
+		tier: 'WAF_v2'
+	}
 	properties: {
 		firewallPolicy: {
 			id: wafPolicyId
@@ -181,8 +184,8 @@ resource appGateway 'Microsoft.Network/applicationGateways@2022-05-01' = {
 		backendHttpSettingsCollection: backendHttpSettings
 		httpListeners: listeners
 		requestRoutingRules: requestRoutingRules
-		enableHttp2: enableHttp2
-	}
+    enableHttp2: enableHttp2
+  }
 }
 
 // Output maps for external consumers

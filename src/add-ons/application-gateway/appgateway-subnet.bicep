@@ -20,6 +20,7 @@ resource appGatewaySubnet 'Microsoft.Network/virtualNetworks/subnets@2024-05-01'
 	parent: hubVnet
 	properties: {
 		addressPrefix: addressPrefix
+		// Route table & NSG are associated in parent solution; left detached here intentionally.
 	}
 }
 

@@ -19,6 +19,10 @@ param apps array
 param tags object = {}
 @description('Existing WAF policy resource ID (if provided, skip creating new policy)')
 param existingWafPolicyId string = ''
+@description('Firewall private IP for default route next hop (required for route table).')
+param firewallPrivateIp string = ''
+@description('Whether to create and associate an NSG to the App Gateway subnet.')
+param createSubnetNsg bool = true
 
 // TODO (future): Add route table routes pointing 0.0.0.0/0 to Firewall private IP once module available.
 
@@ -38,6 +42,7 @@ module appgwRouteTable 'appgateway-route-table.bicep' = {
   params: {
     location: location
     deploymentName: deploymentName
+    firewallPrivateIp: firewallPrivateIp
     tags: tags
   }
 }
@@ -71,6 +76,81 @@ module appgwCore 'appgateway-core.bicep' = {
     apps: apps
     tags: tags
   }
+}
+
+// Network Security Group (optional) for App Gateway subnet - allow outbound to backend, inbound from Internet only via Gateway, deny unexpected
+resource appgwSubnetNsg 'Microsoft.Network/networkSecurityGroups@2023-11-01' = if (createSubnetNsg) {
+  name: '${deploymentName}-appgw-nsg'
+  location: location
+  tags: tags
+  properties: {
+    securityRules: [
+      // Placeholder baseline rules; to refine in later hardening pass
+      {
+        name: 'AllowAzureLoadBalancer'
+        properties: {
+          priority: 100
+          direction: 'Inbound'
+          access: 'Allow'
+          protocol: '*'
+          sourceAddressPrefix: 'AzureLoadBalancer'
+          sourcePortRange: '*'
+          destinationAddressPrefix: '*'
+          destinationPortRange: '*'
+        }
+      }
+      {
+        name: 'AllowInternetOutbound'
+        properties: {
+          priority: 200
+          direction: 'Outbound'
+          access: 'Allow'
+          protocol: '*'
+          sourceAddressPrefix: '*'
+          sourcePortRange: '*'
+          destinationAddressPrefix: 'Internet'
+          destinationPortRange: '*'
+        }
+      }
+      {
+        name: 'AllowVNetOutbound'
+        properties: {
+          priority: 210
+          direction: 'Outbound'
+          access: 'Allow'
+          protocol: '*'
+          sourceAddressPrefix: '*'
+          sourcePortRange: '*'
+          destinationAddressPrefix: 'VirtualNetwork'
+          destinationPortRange: '*'
+        }
+      }
+    ]
+  }
+}
+
+// Associate NSG & Route Table to subnet (must re-declare existing subnet resource with updated properties)
+resource appGatewaySubnetAssoc 'Microsoft.Network/virtualNetworks/subnets@2024-05-01' = if (createSubnetNsg || true) {
+  name: appGatewaySubnetName
+  parent: hubVnetExisting
+  properties: {
+    addressPrefix: appGatewaySubnetAddressPrefix
+    networkSecurityGroup: createSubnetNsg ? {
+      id: appgwSubnetNsg.id
+    } : null
+    routeTable: {
+      id: appgwRouteTable.outputs.routeTableId
+    }
+  }
+  dependsOn: [
+    appgwSubnet
+  ]
+}
+
+// Existing hub VNet reference for association
+var hubVnetName = last(split(hubVnetResourceId, '/'))
+resource hubVnetExisting 'Microsoft.Network/virtualNetworks@2024-05-01' existing = {
+  name: hubVnetName
 }
 
 output appGatewayResourceId string = appgwCore.outputs.appGatewayResourceId
