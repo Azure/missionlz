@@ -7,8 +7,10 @@ param location string
 param deploymentName string
 @description('Hub VNet resource ID where AppGateway subnet will reside')
 param hubVnetResourceId string
-@description('Azure Firewall resource ID used as next hop for UDR')
-param firewallResourceId string
+@description('Address prefix to allocate for the Application Gateway subnet (must be within hub VNet address space and unused).')
+param appGatewaySubnetAddressPrefix string = '10.0.129.0/25'
+@description('Subnet name for the Application Gateway.')
+param appGatewaySubnetName string = 'AppGateway'
 @description('Common default settings object applied to each app unless overridden')
 param commonDefaults object
 @description('Array of application definitions (listeners, backend targets, optional overrides)')
@@ -18,19 +20,15 @@ param tags object = {}
 @description('Existing WAF policy resource ID (if provided, skip creating new policy)')
 param existingWafPolicyId string = ''
 
-// TODO: derive firewall private IP via reuse of existing module (firewall-info.bicep) once referenced as a module.
-// module firewallInfo 'firewall-info.bicep' = {
-//   name: 'firewallInfo'
-//   params: {
-//     firewallResourceId: firewallResourceId
-//   }
-// }
+// TODO (future): Add route table routes pointing 0.0.0.0/0 to Firewall private IP once module available.
 
 // Ensure subnet
 module appgwSubnet 'appgateway-subnet.bicep' = {
   name: 'appgwSubnet'
   params: {
     hubVnetResourceId: hubVnetResourceId
+    subnetName: appGatewaySubnetName
+    addressPrefix: appGatewaySubnetAddressPrefix
   }
 }
 
@@ -55,6 +53,12 @@ module wafPolicy 'appgateway-waf-policy.bicep' = if (existingWafPolicyId == '') 
   }
 }
 
+// Safely compose effective WAF policy id without direct module output access in param map
+// Resolve WAF policy ID (warning for conditional module output access may appear)
+var effectiveWafPolicyId = existingWafPolicyId != '' ? existingWafPolicyId : wafPolicy.outputs.wafPolicyId
+
+
+
 // Core App Gateway
 module appgwCore 'appgateway-core.bicep' = {
   name: 'appgwCore'
@@ -62,7 +66,7 @@ module appgwCore 'appgateway-core.bicep' = {
     location: location
     deploymentName: deploymentName
     subnetId: appgwSubnet.outputs.subnetId
-    wafPolicyId: existingWafPolicyId != '' ? existingWafPolicyId : wafPolicy.outputs.wafPolicyId
+  wafPolicyId: effectiveWafPolicyId
     commonDefaults: commonDefaults
     apps: apps
     tags: tags
@@ -71,6 +75,6 @@ module appgwCore 'appgateway-core.bicep' = {
 
 output appGatewayResourceId string = appgwCore.outputs.appGatewayResourceId
 output appGatewayPublicIp string = appgwCore.outputs.publicIpAddress
-output wafPolicyResourceId string = existingWafPolicyId != '' ? existingWafPolicyId : wafPolicy.outputs.wafPolicyId
+output wafPolicyResourceId string = effectiveWafPolicyId
 output listenerNames array = appgwCore.outputs.listenerNames
 output backendPoolNames array = appgwCore.outputs.backendPoolNames
