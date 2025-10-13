@@ -3,3 +3,16 @@
 
 # Mac files
 .DS_Store
+
+# -----------------------------------------------------------------------------
+# Bicep compiled artifacts (Application Gateway add-on)
+# We only want to keep the published template 'solution.json' that is produced
+# from 'solution.bicep'. All other transient compiled JSON outputs should be
+# ignored to avoid churn in commits.
+# -----------------------------------------------------------------------------
+# Specific compiled module JSON (do not commit)
+src/add-ons/application-gateway/appgateway-core.json
+src/add-ons/application-gateway/solution.compiled.json
+
+# (If future compiled variants appear, add them explicitly rather than using a
+# broad *.json ignore, to avoid accidentally ignoring parameter or config files.)
