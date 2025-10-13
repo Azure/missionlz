@@ -75,6 +75,9 @@ var names = {
   applicationGatewayDiagnosticSetting: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.diagnosticSettings), tokens.service, resourceAbbreviations.applicationGateways)
   applicationGatewayWafPolicy: replace(namingConvention, tokens.resource, resourceAbbreviations.applicationGatewayWafPolicies)
   applicationGatewayWafPolicyDiagnosticSetting: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.diagnosticSettings), tokens.service, resourceAbbreviations.applicationGatewayWafPolicies)
+  // Scenario A add-on specific supporting infra names
+  applicationGatewayRouteTable: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.routeTables), tokens.service, resourceAbbreviations.applicationGateways)
+  applicationGatewayNetworkSecurityGroup: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.networkSecurityGroups), tokens.service, resourceAbbreviations.applicationGateways)
   bastionHost: replace(namingConvention, tokens.resource, resourceAbbreviations.bastionHosts)
   bastionHostDiagnosticSetting: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.diagnosticSettings), tokens.service, resourceAbbreviations.bastionHosts)
   bastionHostNetworkSecurityGroup: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.networkSecurityGroups), tokens.service, resourceAbbreviations.bastionHosts)

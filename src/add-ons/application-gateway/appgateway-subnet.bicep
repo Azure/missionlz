@@ -21,6 +21,16 @@ resource appGatewaySubnet 'Microsoft.Network/virtualNetworks/subnets@2024-05-01'
 	properties: {
 		addressPrefix: addressPrefix
 		// Route table & NSG are associated in parent solution; left detached here intentionally.
+		// Delegation required for Application Gateway Network Isolation feature (enables UDR to VirtualAppliance for 0.0.0.0/0)
+		// Ref: https://learn.microsoft.com/azure/application-gateway/application-gateway-private-deployment#register-the-feature
+		delegations: [
+			{
+				name: 'appgwDelegation'
+				properties: {
+					serviceName: 'Microsoft.Network/applicationGateways'
+				}
+			}
+		]
 	}
 }
 

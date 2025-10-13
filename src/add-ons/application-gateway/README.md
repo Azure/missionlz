@@ -33,13 +33,14 @@ Example `apps` element:
   ],
   "certificateSecretId": "<keyvault-secret-id>",
   "healthProbePath": "/health",
-  "customWafRules": [ /* optional */ ]
+  "customWafRules": [ /* optional (future) */ ],
+  "wafPolicyId": "/subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies/app1-specific-policy" // optional override; inherit baseline if omitted
 }
 ```
 
 ## Modules
 
-* `solution.bicep`: Orchestrates subnet, NSG, route table, WAF policy, AppGW, diagnostics
+* `solution.bicep`: Orchestrates subnet (with delegation), NSG, route table, WAF policy resolver, AppGW, diagnostics, Key Vault RBAC
 * `appgateway-core.bicep`: App Gateway resource (listeners, pools, probes, rules)
 * `appgateway-waf-policy.bicep`: Base WAF policy + aggregated custom rules
 * `appgateway-subnet.bicep`: Ensure AppGateway subnet & NSG
@@ -57,11 +58,13 @@ Add new app by appending to `apps` array in external `.bicepparam` file and rede
 * TLS 1.2+ enforced; HTTPS only
 * WAF in Prevention (override to Detection for tuning)
 * Certificates from Key Vault (managed identity access recommended)
-* NSG restricts inbound to 80/443 + necessary service tags
+* NSG restricts inbound to 443 + required ephemeral infrastructure ports (65200-65535) and AzureLoadBalancer service tag; denies all other inbound
+* Network isolation feature `EnableApplicationGatewayNetworkIsolation` must be registered (once per subscription) to allow a 0.0.0.0/0 UDR in the delegated subnet
+* Subnet is automatically delegated to `Microsoft.Network/applicationGateways` as part of deployment (required for isolation scenario)
 
 ## Logging & Monitoring
 
-Logs: Access, Performance, Firewall -> Log Analytics. Provide Kusto samples in future iteration.
+Logs: Access, Performance, Firewall -> Log Analytics (diagnostic setting named `diag-<appgw>`). AllMetrics enabled. Provide Kusto samples in future iteration.
 
 ## Out of Scope
 
@@ -71,10 +74,12 @@ Logs: Access, Performance, Firewall -> Log Analytics. Provide Kusto samples in f
 
 ## Next Steps
 
-1. Populate parameter file with `commonDefaults` and initial `apps`
-2. Run `az deployment sub what-if` using the `.bicepparam` file
-3. Deploy after review
-4. Extend `apps` as needs grow
+1. Register network isolation feature (one-time): `az feature register --namespace Microsoft.Network --name EnableApplicationGatewayNetworkIsolation` then (after state=Registered) `az provider register -n Microsoft.Network`
+2. Populate parameter file with `commonDefaults` and initial `apps`
+3. (Optional) Provide `logAnalyticsWorkspaceResourceId` and set `enableDiagnostics=true`
+4. Run what-if: `az deployment sub what-if ...`
+5. Deploy after review
+6. Extend `apps` as needs grow; priorities auto-assign (100 + 10*n)
 
 ## SCCA Mapping (Initial)
 

@@ -1,198 +1,247 @@
-// appgateway-core.bicep - Application Gateway (Scenario A: WAF before Firewall)
+// appgateway-core.bicep - Multi-listener Application Gateway (Scenario A)
+
 @description('Deployment location')
 param location string
-@description('Deployment name for resource naming context (used as prefix)')
-param deploymentName string
-@description('Subnet ID for the AppGateway')
+@description('Application Gateway resource name (from naming module)')
+param appGatewayName string
+@description('Public IP name (from naming module)')
+param publicIpName string
+@description('Subnet ID for the Application Gateway')
 param subnetId string
-@description('WAF policy resource ID')
+@description('Global baseline WAF policy resource ID applied at gateway (listeners inherit if no override)')
 param wafPolicyId string
-@description('Common defaults object (expects autoscaleMinCapacity?, autoscaleMaxCapacity?, backendPort?, backendProtocol?, healthProbePath?, enableHttp2?, defaultCertificateSecretId?, probeInterval?, probeTimeout?, unhealthyThreshold?)')
-param commonDefaults object
-@description('Apps array defining listeners/backends; minimal scaffold only uses first element')
-param apps array
 @description('Tags object')
 param tags object = {}
+@description('User Assigned Identity resource ID for Key Vault access')
+param userAssignedIdentityResourceId string
 
-var autoscaleMinCapacity = commonDefaults.autoscaleMinCapacity ?? 2
-var autoscaleMaxCapacity = commonDefaults.autoscaleMaxCapacity ?? 4
-var defaultBackendPort = commonDefaults.backendPort ?? 443
-var defaultBackendProtocol = commonDefaults.backendProtocol ?? 'Https'
-var defaultHealthProbePath = commonDefaults.healthProbePath ?? '/health'
-var enableHttp2 = commonDefaults.enableHttp2 ?? false
-var defaultCertificateSecretId = commonDefaults.defaultCertificateSecretId ?? ''
-var listenerFrontendPort = commonDefaults.listenerFrontendPort ?? 443
-var probeInterval = commonDefaults.probeInterval ?? 30
-var probeTimeout = commonDefaults.probeTimeout ?? 30
-var unhealthyThreshold = commonDefaults.unhealthyThreshold ?? 3
+// Baseline backend & probe defaults
+@description('Default backend port when a listener object omits backendPort')
+param defaultBackendPort int = 443
+@description('Default backend protocol (Https or Http) when listener omits backendProtocol')
+param defaultBackendProtocol string = 'Https'
+@description('Default health probe path when listener omits healthProbePath')
+param defaultHealthProbePath string = '/'
+@description('Default probe interval seconds when listener omits probeInterval')
+param defaultProbeInterval int = 30
+@description('Default probe timeout seconds when listener omits probeTimeout')
+param defaultProbeTimeout int = 30
+@description('Default unhealthy threshold when listener omits unhealthyThreshold')
+param defaultUnhealthyThreshold int = 3
+
+// Baseline WAF policy settings used ONLY when generating per-listener policies from exclusions
+@description('Generated per-listener WAF policy mode (Detection or Prevention)')
+param generatedPolicyMode string = 'Prevention'
+@description('Generated per-listener WAF policy requestBodyCheck')
+param generatedPolicyRequestBodyCheck bool = true
+@description('Generated per-listener WAF policy max request body size KB')
+param generatedPolicyMaxRequestBodySizeInKb int = 128
+@description('Generated per-listener WAF policy file upload limit MB')
+param generatedPolicyFileUploadLimitInMb int = 100
+@description('Generated per-listener WAF managed rule set version (e.g. 3.2)')
+param generatedPolicyManagedRuleSetVersion string = '3.2'
+
+// Listener definitions
+@description('Listeners (application configurations) array: objects { name, hostNames?, backendAddresses: [{ipAddress:"x.x.x.x"}|{fqdn:"host"}], backendPort?, backendProtocol?, healthProbePath?, probeInterval?, probeTimeout?, unhealthyThreshold?, certificateSecretId (Key Vault secret Id), wafPolicyId?, wafExclusions?[] } (All listeners share the single frontend public IP).')
+param listeners array
+
+// Each listener must now specify its own certificate secret Id (certificateSecretId) so no global certificate parameter is required.
+
+// Platform settings
+@description('Frontend port for HTTPS listeners')
+param httpsListenerPort int = 443
+@description('Enable HTTP2 on gateway')
+param enableHttp2 bool = true
+@description('Autoscale minimum capacity')
+param autoscaleMinCapacity int = 1
+@description('Autoscale maximum capacity')
+param autoscaleMaxCapacity int = 2
+
+// Derived collections (avoid nested for in object properties)
+var backendAddressPools = [for l in listeners: {
+  name: 'pool-${l.name}'
+  properties: {
+    backendAddresses: l.backendAddresses ?? []
+  }
+}]
+
+var probes = [for l in listeners: {
+  name: 'probe-${l.name}'
+  properties: {
+    protocol: l.backendProtocol ?? defaultBackendProtocol
+    path: l.healthProbePath ?? defaultHealthProbePath
+    interval: l.probeInterval ?? defaultProbeInterval
+    timeout: l.probeTimeout ?? defaultProbeTimeout
+    unhealthyThreshold: l.unhealthyThreshold ?? defaultUnhealthyThreshold
+    pickHostNameFromBackendHttpSettings: true
+    minServers: 0
+    match: {
+      statusCodes: [ '200-399' ]
+    }
+  }
+}]
+
+var backendHttpSettingsCollection = [for l in listeners: {
+  name: 'setting-${l.name}'
+  properties: {
+    port: l.backendPort ?? defaultBackendPort
+    protocol: l.backendProtocol ?? defaultBackendProtocol
+    pickHostNameFromBackendAddress: true
+    cookieBasedAffinity: 'Disabled'
+    requestTimeout: 30
+    probe: {
+      id: resourceId('Microsoft.Network/applicationGateways/probes', appGatewayName, 'probe-${l.name}')
+    }
+  }
+}]
+
+// (Removed global shared certificate; per-listener certs defined later)
+
+// Per-listener generated WAF policies (only when wafExclusions provided & no explicit wafPolicyId)
+resource perListenerWafPolicies 'Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies@2023-09-01' = [for l in listeners: if (length(l.wafExclusions ?? []) > 0 && empty(l.wafPolicyId ?? '')) {
+  name: 'agw-wafp-${l.name}'
+  location: location
+  properties: {
+    policySettings: {
+      state: 'Enabled'
+      mode: generatedPolicyMode
+      requestBodyCheck: generatedPolicyRequestBodyCheck
+      maxRequestBodySizeInKb: generatedPolicyMaxRequestBodySizeInKb
+      fileUploadLimitInMb: generatedPolicyFileUploadLimitInMb
+    }
+    customRules: []
+    managedRules: {
+      managedRuleSets: [
+        {
+          ruleSetType: 'OWASP'
+          ruleSetVersion: replace(generatedPolicyManagedRuleSetVersion, 'OWASP_', '')
+        }
+      ]
+      exclusions: l.wafExclusions
+    }
+  }
+}]
+
+var effectiveListenerWafPolicyIds = [for l in listeners: !empty(l.wafPolicyId ?? '') ? l.wafPolicyId : (length(l.wafExclusions ?? []) > 0 ? resourceId('Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies', 'agw-wafp-${l.name}') : '')]
+
+// Certificates per listener (required)
+var sslCertificates = [for l in listeners: {
+  name: 'cert-${l.name}'
+  properties: {
+    keyVaultSecretId: l.certificateSecretId
+  }
+}]
+
+// HTTPS listeners
+var httpsListeners = [for (l,i) in listeners: {
+  name: 'listener-${l.name}'
+  properties: {
+    frontendIPConfiguration: {
+      id: resourceId('Microsoft.Network/applicationGateways/frontendIPConfigurations', appGatewayName, 'appgw-frontendip')
+    }
+    frontendPort: {
+      id: resourceId('Microsoft.Network/applicationGateways/frontendPorts', appGatewayName, 'port-https')
+    }
+    hostNames: l.hostNames ?? []
+    protocol: 'Https'
+    sslCertificate: {
+      id: resourceId('Microsoft.Network/applicationGateways/sslCertificates', appGatewayName, 'cert-${l.name}')
+    }
+    firewallPolicy: !empty(effectiveListenerWafPolicyIds[i]) ? {
+      id: effectiveListenerWafPolicyIds[i]
+    } : null
+  }
+}]
+
+
+// HTTPS routing rules
+var httpsRequestRoutingRules = [for (l,i) in listeners: {
+  name: 'rule-${l.name}'
+  properties: {
+    httpListener: {
+      id: resourceId('Microsoft.Network/applicationGateways/httpListeners', appGatewayName, 'listener-${l.name}')
+    }
+    backendAddressPool: {
+      id: resourceId('Microsoft.Network/applicationGateways/backendAddressPools', appGatewayName, 'pool-${l.name}')
+    }
+    backendHttpSettings: {
+      id: resourceId('Microsoft.Network/applicationGateways/backendHttpSettingsCollection', appGatewayName, 'setting-${l.name}')
+    }
+    ruleType: 'Basic'
+    priority: 100 + (i * 10)
+  }
+}]
+
+// Combined (HTTPS only; HTTP->HTTPS redirect deferred)
+var httpListeners = httpsListeners
+var requestRoutingRules = httpsRequestRoutingRules
 
 // Public IP
-resource appgwPublicIp 'Microsoft.Network/publicIPAddresses@2023-09-01' = {
-	name: '${deploymentName}-appgw-pip'
-	location: location
-	sku: {
-		name: 'Standard'
-		tier: 'Regional'
-	}
-	properties: {
-		publicIPAllocationMethod: 'Static'
-	}
-	tags: tags
+resource appgwPublicIp 'Microsoft.Network/publicIPAddresses@2022-07-01' = {
+  name: publicIpName
+  location: location
+  sku: { name: 'Standard' }
+  properties: { publicIPAllocationMethod: 'Static' }
 }
 
-// Use first app only in minimal scaffold
-var firstApp = length(apps) > 0 ? apps[0] : {}
-var hasApp = length(apps) > 0
-var sslCerts = hasApp ? [
-	{
-		name: 'cert-${firstApp.name}'
-		properties: {
-			keyVaultSecretId: firstApp.certificateSecretId ?? defaultCertificateSecretId
-		}
-	}
-] : []
-
-// Backend pools
-var targets = hasApp ? (firstApp.backendTargets ?? []) : []
-var backendAddresses = [for target in targets: target.type == 'ip' ? { ipAddress: target.value } : { fqdn: target.value }]
-var backendAddressPools = hasApp ? [
-	{
-		name: 'pool-${firstApp.name}'
-		properties: {
-			backendAddresses: backendAddresses
-		}
-	}
-] : []
-
-// Probes
-var probes = hasApp ? [
-	{
-		name: 'probe-${firstApp.name}'
-		properties: {
-			protocol: firstApp.backendProtocol ?? defaultBackendProtocol
-			path: firstApp.healthProbePath ?? defaultHealthProbePath
-			interval: probeInterval
-			timeout: probeTimeout
-			unhealthyThreshold: unhealthyThreshold
-			pickHostNameFromBackendHttpSettings: true
-			minServers: 0
-			match: {
-				statusCodes: [ '200-399' ]
-			}
-		}
-	}
-] : []
-
-// Backend HTTP settings
-var backendHttpSettings = hasApp ? [
-	{
-		name: 'setting-${firstApp.name}'
-		properties: {
-			port: firstApp.backendPort ?? defaultBackendPort
-			protocol: firstApp.backendProtocol ?? defaultBackendProtocol
-			pickHostNameFromBackendAddress: true
-			cookieBasedAffinity: 'Disabled'
-			requestTimeout: 30
-			probe: length(probes) > 0 ? {
-				id: resourceId('Microsoft.Network/applicationGateways/probes', '${deploymentName}-appgw', 'probe-${firstApp.name}')
-			} : null
-		}
-	}
-] : []
-
-// Listeners
-var listeners = hasApp ? [
-	{
-		name: 'listener-${firstApp.name}'
-		properties: {
-			frontendIPConfiguration: {
-				id: resourceId('Microsoft.Network/applicationGateways/frontendIPConfigurations', '${deploymentName}-appgw', 'appgw-frontendip')
-			}
-			frontendPort: {
-				id: resourceId('Microsoft.Network/applicationGateways/frontendPorts', '${deploymentName}-appgw', 'port-https')
-			}
-			hostNames: firstApp.hostNames ?? []
-			protocol: 'Https'
-			sslCertificate: length(sslCerts) > 0 ? {
-				id: resourceId('Microsoft.Network/applicationGateways/sslCertificates', '${deploymentName}-appgw', 'cert-${firstApp.name}')
-			} : null
-		}
-	}
-] : []
-
-// Request routing rules
-var requestRoutingRules = hasApp ? [
-	{
-		name: 'rule-${firstApp.name}'
-		properties: {
-			httpListener: length(listeners) > 0 ? {
-				id: resourceId('Microsoft.Network/applicationGateways/httpListeners', '${deploymentName}-appgw', 'listener-${firstApp.name}')
-			} : null
-			backendAddressPool: length(backendAddressPools) > 0 ? {
-				id: resourceId('Microsoft.Network/applicationGateways/backendAddressPools', '${deploymentName}-appgw', 'pool-${firstApp.name}')
-			} : null
-			backendHttpSettings: length(backendHttpSettings) > 0 ? {
-				id: resourceId('Microsoft.Network/applicationGateways/backendHttpSettingsCollection', '${deploymentName}-appgw', 'setting-${firstApp.name}')
-			} : null
-			ruleType: 'Basic'
-		}
-	}
-] : []
-
-// Use an API version with recognized sku property
-resource appGateway 'Microsoft.Network/applicationGateways@2023-09-01' = {
-	name: '${deploymentName}-appgw'
-	location: location
-	tags: tags
-	sku: {
-		name: 'WAF_v2'
-		tier: 'WAF_v2'
-	}
-	properties: {
-		firewallPolicy: {
-			id: wafPolicyId
-		}
-		autoscaleConfiguration: {
-			minCapacity: autoscaleMinCapacity
-			maxCapacity: autoscaleMaxCapacity
-		}
-		gatewayIPConfigurations: [
-			{
-				name: 'appgw-gatewayipconfig'
-				properties: {
-					subnet: { id: subnetId }
-				}
-			}
-		]
-		frontendIPConfigurations: [
-			{
-				name: 'appgw-frontendip'
-				properties: {
-					publicIPAddress: { id: appgwPublicIp.id }
-				}
-			}
-		]
-		frontendPorts: [
-			{
-				name: 'port-https'
-				properties: { port: listenerFrontendPort }
-			}
-		]
-		sslCertificates: sslCerts
-		probes: probes
-		backendAddressPools: backendAddressPools
-		backendHttpSettingsCollection: backendHttpSettings
-		httpListeners: listeners
-		requestRoutingRules: requestRoutingRules
+// Application Gateway
+resource appGateway 'Microsoft.Network/applicationGateways@2021-08-01' = {
+  name: appGatewayName
+  location: location
+  tags: tags
+  identity: {
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      '${userAssignedIdentityResourceId}': {}
+    }
+  }
+  properties: {
+    sku: {
+      name: 'WAF_v2'
+      tier: 'WAF_v2'
+    }
+    firewallPolicy: {
+      id: wafPolicyId
+    }
+    autoscaleConfiguration: {
+      minCapacity: autoscaleMinCapacity
+      maxCapacity: autoscaleMaxCapacity
+    }
+    gatewayIPConfigurations: [
+      {
+        name: 'appgw-gatewayipconfig'
+        properties: {
+          subnet: { id: subnetId }
+        }
+      }
+    ]
+    frontendIPConfigurations: [
+      {
+        name: 'appgw-frontendip'
+        properties: {
+          publicIPAddress: { id: appgwPublicIp.id }
+        }
+      }
+    ]
+    frontendPorts: [
+      {
+        name: 'port-https'
+        properties: { port: httpsListenerPort }
+      }
+    ]
+    sslCertificates: sslCertificates
+    backendAddressPools: backendAddressPools
+    probes: probes
+    backendHttpSettingsCollection: backendHttpSettingsCollection
+    httpListeners: httpListeners
+    requestRoutingRules: requestRoutingRules
     enableHttp2: enableHttp2
   }
 }
 
-// Output maps for external consumers
+// Outputs
 output appGatewayResourceId string = appGateway.id
 output publicIpAddress string = appgwPublicIp.properties.ipAddress
-var listenerNames = [for l in listeners: l.name]
-var backendPoolNames = [for p in backendAddressPools: p.name]
-
-output listenerNames array = listenerNames
-output backendPoolNames array = backendPoolNames
+output listenerNames array = [for l in httpListeners: l.name]
+output backendPoolNames array = [for p in backendAddressPools: p.name]
+output requestRoutingRuleNames array = [for r in requestRoutingRules: r.name]

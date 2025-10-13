@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.38.33.27573",
-      "templateHash": "8989970638363873018"
+      "templateHash": "10800714441210384865"
     }
   },
   "parameters": {
@@ -659,7 +659,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.38.33.27573",
-              "templateHash": "5543748534993784490"
+              "templateHash": "6083917258367889794"
             }
           },
           "parameters": {
@@ -755,7 +755,7 @@
           "resources": [
             {
               "type": "Microsoft.Network/publicIPAddresses",
-              "apiVersion": "2023-09-01",
+              "apiVersion": "2022-09-01",
               "name": "[parameters('publicIpName')]",
               "location": "[parameters('location')]",
               "sku": {
@@ -769,13 +769,14 @@
             },
             {
               "type": "Microsoft.Network/applicationGateways",
-              "apiVersion": "2023-09-01",
+              "apiVersion": "2022-09-01",
               "name": "[parameters('appGatewayName')]",
               "location": "[parameters('location')]",
               "tags": "[parameters('tags')]",
               "sku": {
                 "name": "WAF_v2",
-                "tier": "WAF_v2"
+                "tier": "WAF_v2",
+                "capacity": "[variables('autoscaleMinCapacity')]"
               },
               "properties": {
                 "firewallPolicy": {
@@ -833,7 +834,7 @@
             },
             "publicIpAddress": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpName')), '2023-09-01').ipAddress]"
+              "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpName')), '2022-09-01').ipAddress]"
             },
             "listenerNames": {
               "type": "array",
