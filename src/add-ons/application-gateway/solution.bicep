@@ -7,8 +7,8 @@ param location string
 param deploymentName string
 @description('Hub VNet resource ID where AppGateway subnet will reside')
 param hubVnetResourceId string
-@description('Address prefix to allocate for the Application Gateway subnet (must be within hub VNet address space and unused).')
-param appGatewaySubnetAddressPrefix string = '10.0.129.0/25'
+@description('Address prefix to allocate for the Application Gateway subnet (must be within hub VNet address space and unused). Must be /24-/16 for v2 SKU.')
+param appGatewaySubnetAddressPrefix string = '10.0.129.0/24'
 @description('Subnet name for the Application Gateway.')
 param appGatewaySubnetName string = 'AppGateway'
 @description('Common default settings object applied to each app unless overridden')
