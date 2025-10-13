@@ -7,8 +7,6 @@ param routeTableName string
 param firewallPrivateIp string
 @description('Tags object')
 param tags object = {}
-@description('Optional list of peered VNet resource IDs whose address space prefixes will be forced through the firewall (duplicates ignored).')
-param peeredVnetResourceIds array = []
 @description('Include the default 0.0.0.0/0 route to firewall')
 param includeDefaultRoute bool = true
 
@@ -34,17 +32,6 @@ resource defaultRoute 'Microsoft.Network/routeTables/routes@2024-05-01' = if (in
   }
 }
 
-// Dedupe and create one route per unique VNet (first prefix only due to ARM/Bicep limitations on iterating dynamic addressSpace at compile time)
-var uniqueVnetIds = [for (vnetId, i) in peeredVnetResourceIds: (!empty(vnetId) && indexOf(peeredVnetResourceIds, vnetId) == i) ? vnetId : '']
-
-resource peeredRoutes 'Microsoft.Network/routeTables/routes@2024-05-01' = [for (vnetId, i) in uniqueVnetIds: if(!empty(vnetId)) {
-  name: toLower(replace(replace(format('{0}-spoke-{1}', last(split(vnetId,'/')), string(i)), '.', '-'), '--', '-'))
-  parent: appgwRouteTable
-  properties: {
-    addressPrefix: reference(vnetId, '2024-05-01').properties.addressSpace.addressPrefixes[0]
-    nextHopType: 'VirtualAppliance'
-    nextHopIpAddress: firewallPrivateIp
-  }
-}]
+// NOTE: Explicit per-spoke routes removed. Peered VNet address spaces will take the system peering route (more specific) and bypass firewall for east-west unless separate UDRs are authored elsewhere.
 
 output routeTableId string = appgwRouteTable.id

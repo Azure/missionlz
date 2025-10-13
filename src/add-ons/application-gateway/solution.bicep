@@ -19,8 +19,6 @@ param commonDefaults object
 @description('Array of application definitions (listeners, backend targets, optional overrides). Each app may include peeredVnetResourceId to force that VNet prefix through the firewall.')
 param apps array
 
-// Collect peered VNet IDs per listener (allow duplicates; naming uses index to guarantee uniqueness)
-var peeredVnetResourceIds = [for a in apps: a.?peeredVnetResourceId]
 @description('Tags to apply to all created resources')
 param tags object = {}
 @description('Existing WAF policy resource ID (if provided, skip creating new policy)')
@@ -151,7 +149,6 @@ module appgwRouteTable 'appgateway-route-table.bicep' = {
     routeTableName: naming.outputs.names.applicationGatewayRouteTable
     firewallPrivateIp: firewallPrivateIp
     tags: tags
-    peeredVnetResourceIds: peeredVnetResourceIds
   }
 }
 
