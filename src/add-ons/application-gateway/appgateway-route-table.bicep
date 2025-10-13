@@ -7,30 +7,12 @@ param routeTableName string
 param firewallPrivateIp string
 @description('Tags object')
 param tags object = {}
-@description('Optional additional address prefixes (spoke VNets) to force through the firewall (one route per prefix).')
-param peeredAddressPrefixes array = []
+@description('Optional list of peered VNet resource IDs whose primary address prefix (index 0) will be forced through the firewall.')
+param peeredVnetResourceIds array = []
+@description('Include the default 0.0.0.0/0 route to firewall')
+param includeDefaultRoute bool = true
 
-// Base default route
-var baseRoutes = [
-  {
-    name: 'default-to-firewall'
-    properties: {
-      addressPrefix: '0.0.0.0/0'
-      nextHopType: 'VirtualAppliance'
-      nextHopIpAddress: firewallPrivateIp
-    }
-  }
-]
-
-// Additional routes generated per provided prefix
-var additionalRoutes = [for (prefix, i) in peeredAddressPrefixes: {
-  name: length(format('spoke-{0}', replace(prefix, '/', '-'))) <= 80 ? format('spoke-{0}', replace(prefix, '/', '-')) : format('spk-{0}', i)
-  properties: {
-    addressPrefix: prefix
-    nextHopType: 'VirtualAppliance'
-    nextHopIpAddress: firewallPrivateIp
-  }
-}]
+// NOTE: Child route resources are used instead of inline routes array with reference() to avoid compile-time evaluation restrictions.
 
 resource appgwRouteTable 'Microsoft.Network/routeTables@2024-05-01' = {
   name: routeTableName
@@ -38,8 +20,29 @@ resource appgwRouteTable 'Microsoft.Network/routeTables@2024-05-01' = {
   tags: tags
   properties: {
     disableBgpRoutePropagation: false
-    routes: concat(baseRoutes, additionalRoutes)
   }
 }
+
+// Default route
+resource defaultRoute 'Microsoft.Network/routeTables/routes@2024-05-01' = if (includeDefaultRoute) {
+  name: 'default-to-firewall'
+  parent: appgwRouteTable
+  properties: {
+    addressPrefix: '0.0.0.0/0'
+    nextHopType: 'VirtualAppliance'
+    nextHopIpAddress: firewallPrivateIp
+  }
+}
+
+// One route per provided peered VNet (first address prefix only)
+resource peeredRoutes 'Microsoft.Network/routeTables/routes@2024-05-01' = [for (vnetId, i) in peeredVnetResourceIds: if (!empty(vnetId)) {
+  name: format('spoke-{0}', i)
+  parent: appgwRouteTable
+  properties: {
+    addressPrefix: reference(vnetId, '2024-05-01').properties.addressSpace.addressPrefixes[0]
+    nextHopType: 'VirtualAppliance'
+    nextHopIpAddress: firewallPrivateIp
+  }
+}]
 
 output routeTableId string = appgwRouteTable.id
