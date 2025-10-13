@@ -18,6 +18,8 @@ param appGatewaySubnetName string = 'AppGateway'
 param commonDefaults object
 @description('Array of application definitions (listeners, backend targets, optional overrides)')
 param apps array
+@description('Optional list of peered VNet resource IDs whose address prefixes should be forced through the firewall (first prefix of each VNet used unless multiple passed explicitly).')
+param peeredVnetResourceIds array = []
 @description('Tags to apply to all created resources')
 param tags object = {}
 @description('Existing WAF policy resource ID (if provided, skip creating new policy)')
@@ -146,6 +148,8 @@ module appgwRouteTable 'appgateway-route-table.bicep' = {
     routeTableName: naming.outputs.names.applicationGatewayRouteTable
     firewallPrivateIp: firewallPrivateIp
     tags: tags
+    // Derive prefixes from provided peered VNets; take first address space entry for each
+    peeredAddressPrefixes: [for id in peeredVnetResourceIds: reference(id, '2024-05-01').properties.addressSpace.addressPrefixes[0]]
   }
 }
 
