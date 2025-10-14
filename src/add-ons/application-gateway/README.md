@@ -66,6 +66,62 @@ Add new app by appending to `apps` array in external `.bicepparam` file and rede
 
 Logs: Access, Performance, Firewall -> Log Analytics (diagnostic setting named `diag-<appgw>`). AllMetrics enabled. Provide Kusto samples in future iteration.
 
+## WAF Overrides Per Listener
+
+Each app/listener may supply a `wafOverrides` object to selectively diverge from the baseline gateway WAF policy. Any property omitted inherits the baseline value.
+
+Supported keys:
+
+```jsonc
+"wafOverrides": {
+  "mode": "Detection",                 // or Prevention
+  "requestBodyCheck": true,
+  "maxRequestBodySizeInKb": 256,
+  "fileUploadLimitInMb": 150,
+  "managedRuleSetVersion": "3.2",
+  "exclusions": [                       // merged with app-level wafExclusions if present
+    { "matchVariable": "RequestHeaderNames", "selectorMatchOperator": "Equals", "selector": "x-ignore" }
+  ],
+  "ruleGroupOverrides": [               // Advanced pass-through; full schema required
+    {
+      "ruleGroupName": "REQUEST-930-APPLICATION-ATTACK-LFI",
+      "rules": [ { "ruleId": "930100", "state": "Disabled" } ]
+    }
+  ]
+}
+```
+
+If you already have a full external WAF policy for a listener, set `wafPolicyId` on the app and omit overrides.
+
+
+> NOTE: Azure Government WAF_v2 currently supports a single IPv4 public frontend for this scenario. Multi-frontend (multiple IPv4 public IPs) capability was removed from the template; use host-based (multi-site) listeners instead for segmentation.
+
+## Forced Route Entries Output
+
+`forcedRouteEntries` output surfaces each unique internal CIDR (prefix) forced through the Firewall. One route per unique CIDR is created in the dedicated route table.
+
+## Subnet Private Endpoint Policy Toggle
+
+Parameter: `disablePrivateEndpointNetworkPolicies` (default `true`). When true, private endpoint network policies are Disabled on the AppGateway subnet preventing accidental Private Endpoint placement there.
+
+## Example App Definition With Overrides
+
+```jsonc
+{
+  "name": "app1",
+  "hostNames": ["app1.contoso.mil"],
+  "backendAddresses": [ { "ipAddress": "10.20.10.4" }, { "ipAddress": "10.20.10.5" } ],
+  "certificateSecretId": "https://mykv.vault.usgovcloudapi.net/secrets/app1cert/<version>",
+  "addressPrefixes": ["10.20.0.0/16"],
+  "wafOverrides": {
+    "mode": "Detection",
+    "maxRequestBodySizeInKb": 256,
+    "exclusions": [ { "matchVariable": "RequestHeaderNames", "selectorMatchOperator": "Equals", "selector": "x-bypass" } ],
+    "ruleGroupOverrides": [ { "ruleGroupName": "REQUEST-930-APPLICATION-ATTACK-LFI", "rules": [ { "ruleId": "930100", "state": "Disabled" } ] } ]
+  }
+}
+```
+
 ## Out of Scope
 
 * Scenario B (after firewall)

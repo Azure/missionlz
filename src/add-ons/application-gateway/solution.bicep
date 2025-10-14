@@ -14,9 +14,11 @@ var hubRgName = split(hubVnetResourceId, '/')[4]
 param appGatewaySubnetAddressPrefix string = '10.0.129.0/26'
 @description('Subnet name for the Application Gateway.')
 param appGatewaySubnetName string = 'AppGateway'
+@description('Disable private endpoint network policies on the AppGateway subnet (prevents Private Endpoint creation there).')
+param disablePrivateEndpointNetworkPolicies bool = true
 @description('Common default settings object applied to each app unless overridden')
 param commonDefaults object
-@description('Array of application definitions (listeners, backend targets, optional overrides). Each app may optionally include addressPrefix (CIDR of its backend network) used to force east-west traffic through the firewall.')
+@description('Array of application definitions. Each app: { name, backendAddresses:[{ipAddress|fqdn}], certificateSecretId, (optional) addressPrefix, (optional) addressPrefixes:[CIDR...], (optional) wafOverrides:{ mode, requestBodyCheck, maxRequestBodySizeInKb, fileUploadLimitInMb, managedRuleSetVersion } }. addressPrefixes overrides addressPrefix when provided.')
 param apps array
 
 @description('Tags to apply to all created resources')
@@ -97,17 +99,7 @@ module kvSecretsReader 'modules/kv-role-assignment.bicep' = if (createKeyVaultSe
 // TODO (future): Add route table routes pointing 0.0.0.0/0 to Firewall private IP once module available.
 
 // Ensure subnet
-module appgwSubnet 'appgateway-subnet.bicep' = {
-  name: 'appgwSubnet'
-  scope: resourceGroup(hubRgName)
-  params: {
-    hubVnetResourceId: hubVnetResourceId
-    subnetName: appGatewaySubnetName
-    addressPrefix: appGatewaySubnetAddressPrefix
-    // Harden by default: disable implicit Internet egress; all outbound must follow explicit routes (Firewall)
-    defaultOutboundAccess: false
-  }
-}
+// (Reordered modules per Option A: create NSG (optional) & route table BEFORE subnet so we can associate in single definition)
 
 // Derive naming tokens from hub VNet name if not explicitly provided
 var hubVnetName = last(split(hubVnetResourceId, '/'))
@@ -140,13 +132,29 @@ module resolveFirewallIp 'modules/resolve-firewall-ip.bicep' = {
 var firewallPrivateIp = resolveFirewallIp.outputs.privateIpAddress
 var firewallPolicyResourceId = resourceId(subscription().subscriptionId, hubRgName, 'Microsoft.Network/firewallPolicies', naming.outputs.names.azureFirewallPolicy)
 
-// Route table (dedicated for App Gateway subnet) using naming convention
-// Derive internal forced prefixes from apps (addressPrefix property) - dedupe & remove empties
-var rawAppPrefixes = [for a in apps: a.?addressPrefix]
-var dedupedAppPrefixes = [for (p,i) in rawAppPrefixes: (!empty(p) && indexOf(rawAppPrefixes, p) == i) ? p : '']
-var effectiveInternalForcedPrefixesTemp = [for p in dedupedAppPrefixes: !empty(p) ? p : '']
-var effectiveInternalForcedPrefixes = [for p in effectiveInternalForcedPrefixesTemp: p != '' ? p : '']
+// Route table prefix derivation (multi-prefix, no validation). Fallback to prefix-derived label due to Bicep nested for limitations.
+var expandedAppPrefixes = [for a in apps: (!empty(a.?addressPrefixes)) ? a.addressPrefixes : (!empty(a.?addressPrefix) ? [a.addressPrefix] : [])]
+var allAppPrefixes = flatten(expandedAppPrefixes)
+var dedupPrefixes = [for (p,i) in allAppPrefixes: (!empty(p) && indexOf(allAppPrefixes,p) == i) ? p : '']
+var effectiveInternalForcedRouteEntries = [for p in dedupPrefixes: !empty(p) ? {
+  prefix: p
+  // Derive label from prefix first octets
+  source: replace(replace(substring(p,0, min(15,length(p))),'/','-'),'.','-')
+} : null]
 
+// Network Security Group (module) and ID (moved earlier)
+module appgwNsg 'modules/appgateway-nsg.bicep' = if (createSubnetNsg) {
+  name: 'appgwNsg'
+  scope: resourceGroup(hubRgName)
+  params: {
+    location: location
+    nsgName: naming.outputs.names.applicationGatewayNetworkSecurityGroup
+    tags: tags
+  }
+}
+var appgwNsgId = createSubnetNsg ? resourceId(subscription().subscriptionId, hubRgName, 'Microsoft.Network/networkSecurityGroups', naming.outputs.names.applicationGatewayNetworkSecurityGroup) : ''
+
+// Route table (must exist before subnet for association)
 module appgwRouteTable 'appgateway-route-table.bicep' = {
   name: 'appgwRouteTable'
   scope: resourceGroup(hubRgName)
@@ -155,8 +163,27 @@ module appgwRouteTable 'appgateway-route-table.bicep' = {
     routeTableName: naming.outputs.names.applicationGatewayRouteTable
     firewallPrivateIp: firewallPrivateIp
     tags: tags
-    internalForcedPrefixes: effectiveInternalForcedPrefixes
+    internalForcedRouteEntries: effectiveInternalForcedRouteEntries
   }
+}
+
+// Single authoritative subnet definition including NSG + route table association
+module appgwSubnet 'appgateway-subnet.bicep' = {
+  name: 'appgwSubnet'
+  scope: resourceGroup(hubRgName)
+  params: {
+    hubVnetResourceId: hubVnetResourceId
+    subnetName: appGatewaySubnetName
+    addressPrefix: appGatewaySubnetAddressPrefix
+    // Harden by default: disable implicit Internet egress; all outbound must follow explicit routes (Firewall)
+    defaultOutboundAccess: false
+    disablePrivateEndpointNetworkPolicies: disablePrivateEndpointNetworkPolicies
+    routeTableId: appgwRouteTable.outputs.routeTableId
+    nsgId: appgwNsgId
+  }
+  dependsOn: [
+    appgwNsg
+  ]
 }
 
 // Resolve or create WAF policy via dedicated module (eliminates conditional output warning)
@@ -172,6 +199,7 @@ module wafPolicyResolver 'modules/wafpolicy-resolver.bicep' = {
     requestBodyCheck: wafRequestBodyCheck
     maxRequestBodySizeInKb: wafMaxRequestBodySizeInKb
     fileUploadLimitInMb: wafFileUploadLimitInMb
+    policyName: naming.outputs.names.applicationGatewayWafPolicy
   }
 }
 var effectiveWafPolicyId = wafPolicyResolver.outputs.wafPolicyId
@@ -192,6 +220,7 @@ var listeners = [for a in apps: {
   certificateSecretId: a.certificateSecretId
   wafPolicyId: null
   wafExclusions: null
+  wafOverrides: a.?wafOverrides
 }]
 
 // Map commonDefaults object keys to individual core parameters (with safe fallbacks)
@@ -207,11 +236,14 @@ var enableHttp2               = cd.?enableHttp2 ?? true
 var autoscaleMinCapacity      = cd.?autoscaleMinCapacity ?? 1
 var autoscaleMaxCapacity      = cd.?autoscaleMaxCapacity ?? 2
 // Generated per-listener WAF policy defaults (if ever used) map from cd as well (optional)
-var generatedPolicyMode                    = cd.?generatedPolicyMode ?? 'Prevention'
-var generatedPolicyRequestBodyCheck        = cd.?generatedPolicyRequestBodyCheck ?? true
-var generatedPolicyMaxRequestBodySizeInKb  = cd.?generatedPolicyMaxRequestBodySizeInKb ?? 128
-var generatedPolicyFileUploadLimitInMb     = cd.?generatedPolicyFileUploadLimitInMb ?? 100
-var generatedPolicyManagedRuleSetVersion   = cd.?generatedPolicyManagedRuleSetVersion ?? '3.2'
+// Baseline per-listener inheritance values mirror the global WAF policy (unless explicitly overridden via commonDefaults)
+var generatedPolicyMode                    = cd.?generatedPolicyMode ?? wafPolicyMode
+var generatedPolicyRequestBodyCheck        = cd.?generatedPolicyRequestBodyCheck ?? wafRequestBodyCheck
+var generatedPolicyMaxRequestBodySizeInKb  = cd.?generatedPolicyMaxRequestBodySizeInKb ?? wafMaxRequestBodySizeInKb
+var generatedPolicyFileUploadLimitInMb     = cd.?generatedPolicyFileUploadLimitInMb ?? wafFileUploadLimitInMb
+var generatedPolicyManagedRuleSetVersion   = cd.?generatedPolicyManagedRuleSetVersion ?? wafManagedRuleSetVersion
+
+// Multi-frontend removed (Gov limitation). Single public IP only.
 
 // Core App Gateway (single module)
 module appgwCore 'appgateway-core.bicep' = {
@@ -242,11 +274,26 @@ module appgwCore 'appgateway-core.bicep' = {
     autoscaleMaxCapacity: autoscaleMaxCapacity
     tags: tags
     userAssignedIdentityResourceId: userAssignedIdentityResourceId
+    baseWafPolicyName: naming.outputs.names.applicationGatewayWafPolicy
   }
 }
 
 // Diagnostics (conditional)
 var effectiveEnableDiagnostics = enableDiagnostics && !empty(logAnalyticsWorkspaceResourceId)
+// Derive workspace name from resource ID (last segment) for conditional creation if it doesn't exist yet
+var workspaceIdSegments = !empty(logAnalyticsWorkspaceResourceId) ? split(logAnalyticsWorkspaceResourceId, '/') : []
+var workspaceName = !empty(logAnalyticsWorkspaceResourceId) ? workspaceIdSegments[length(workspaceIdSegments)-1] : ''
+// Create Log Analytics workspace via module if diagnostics enabled.
+module laWorkspace 'loganalytics-workspace.bicep' = if (effectiveEnableDiagnostics) {
+  name: 'appgwLogAnalytics'
+  scope: resourceGroup(hubRgName)
+  params: {
+    name: workspaceName
+    location: location
+    tags: tags
+    retentionDays: 30
+  }
+}
 module appgwDiagnostics 'appgateway-diagnostics.bicep' = {
   name: 'appgwDiagnostics'
   scope: resourceGroup(hubRgName)
@@ -257,34 +304,7 @@ module appgwDiagnostics 'appgateway-diagnostics.bicep' = {
   }
 }
 
-// Network Security Group (module) and subnet association
-module appgwNsg 'modules/appgateway-nsg.bicep' = if (createSubnetNsg) {
-  name: 'appgwNsg'
-  scope: resourceGroup(hubRgName)
-  params: {
-    location: location
-    nsgName: naming.outputs.names.applicationGatewayNetworkSecurityGroup
-    tags: tags
-  }
-}
-// Derive NSG ID directly (avoids referencing conditional module output)
-var appgwNsgId = createSubnetNsg ? resourceId(subscription().subscriptionId, hubRgName, 'Microsoft.Network/networkSecurityGroups', naming.outputs.names.applicationGatewayNetworkSecurityGroup) : ''
-module subnetAssoc 'modules/appgateway-subnet-assoc.bicep' = {
-  name: 'appgwSubnetAssoc'
-  scope: resourceGroup(hubRgName)
-  params: {
-    hubVnetResourceId: hubVnetResourceId
-    subnetName: appGatewaySubnetName
-    addressPrefix: appGatewaySubnetAddressPrefix
-    routeTableId: appgwRouteTable.outputs.routeTableId
-    nsgId: appgwNsgId
-  }
-  dependsOn: [
-    appgwSubnet
-  ]
-}
-
-// (Removed unused existing hub VNet reference; subnet association handled in module)
+// (Removed second subnet association module; single subnet definition pattern)
 
 // Firewall rules module (always deploy baseline + any custom groups)
 module appGwFirewallRules 'modules/appgateway-firewall-rules.bicep' = {
@@ -301,5 +321,6 @@ output appGatewayPublicIp string = appgwCore.outputs.publicIpAddress
 output wafPolicyResourceId string = effectiveWafPolicyId
 output listenerNames array = appgwCore.outputs.listenerNames
 output backendPoolNames array = appgwCore.outputs.backendPoolNames
+output forcedRouteEntries array = effectiveInternalForcedRouteEntries
 // Diagnostics output intentionally omitted to avoid conditional module reference at compile time
 output diagnosticsSettingId string = effectiveEnableDiagnostics ? appgwDiagnostics.outputs.diagnosticsSettingId : ''

@@ -7,6 +7,8 @@ targetScope = 'resourceGroup'
 
 @description('Existing WAF policy resource ID. If provided, no new policy is created.')
 param existingWafPolicyId string
+@description('Name to use when creating a new WAF policy (from naming module).')
+param policyName string = 'appgw-waf-policy'
 @description('Azure region (required only when creating a new policy).')
 param location string
 @description('Tags to apply when creating a new policy.')
@@ -24,7 +26,7 @@ param fileUploadLimitInMb int = 100
 
 // Create only when not provided
 resource wafPolicy 'Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies@2023-09-01' = if (empty(existingWafPolicyId)) {
-  name: 'appgw-waf-policy'
+  name: policyName
   location: location
   tags: tags
   properties: {

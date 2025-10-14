@@ -1,5 +1,5 @@
 // appgateway-subnet.bicep - ensure AppGateway subnet in existing hub VNet (Scenario A)
-// Creates (or ensures) the subnet. Does not attach NSG yet (future extension) and does not set route table (will be separate association step).
+// Single authoritative subnet definition INCLUDING optional NSG + required route table association (Option A consolidation).
 
 @description('Hub VNet resource ID where subnet will be created')
 param hubVnetResourceId string
@@ -9,6 +9,12 @@ param subnetName string = 'AppGateway'
 param addressPrefix string = '10.100.0.0/24'
 @description('Disable implicit Internet egress for the subnet (set false to harden by default).')
 param defaultOutboundAccess bool = false
+@description('Disable private endpoint network policies on this subnet (prevents creation of Private Endpoints here).')
+param disablePrivateEndpointNetworkPolicies bool = true
+@description('Route table resource ID to associate to the subnet.')
+param routeTableId string
+@description('Optional Network Security Group resource ID (empty string for none).')
+param nsgId string = ''
 
 // Derive vNet name from resource ID
 var vnetName = last(split(hubVnetResourceId, '/'))
@@ -24,7 +30,14 @@ resource appGatewaySubnet 'Microsoft.Network/virtualNetworks/subnets@2024-05-01'
 		addressPrefix: addressPrefix
 		// Harden egress: deny implicit Internet access; explicit UDR + Firewall path required for outbound
 		defaultOutboundAccess: defaultOutboundAccess
-		// Route table & NSG are associated in parent solution; left detached here intentionally.
+		privateEndpointNetworkPolicies: disablePrivateEndpointNetworkPolicies ? 'Disabled' : 'Enabled'
+		// Direct associations (single definition pattern)
+		networkSecurityGroup: empty(nsgId) ? null : {
+			id: nsgId
+		}
+		routeTable: {
+			id: routeTableId
+		}
 		// Delegation required for Application Gateway Network Isolation feature (enables UDR to VirtualAppliance for 0.0.0.0/0)
 		// Ref: https://learn.microsoft.com/azure/application-gateway/application-gateway-private-deployment#register-the-feature
 		delegations: [

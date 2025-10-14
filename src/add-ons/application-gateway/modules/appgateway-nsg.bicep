@@ -10,12 +10,34 @@ param nsgName string
 @description('Tags to apply')
 param tags object = {}
 
+@description('Additional outbound Azure service tags to allow (e.g. AzureKeyVault, AzureMonitor). Minimal required infrastructure service tags already included.')
+param additionalAllowedOutboundServiceTags array = []
+
+// Build outbound service tag allow rules list (dedupe)
+var baseOutboundServiceTags = ['AzureKeyVault','AzureActiveDirectory','AzureMonitor']
+var mergedOutboundServiceTags = [for (t,i) in concat(baseOutboundServiceTags, additionalAllowedOutboundServiceTags): indexOf(concat(baseOutboundServiceTags, additionalAllowedOutboundServiceTags), t) == i ? t : '']
+var effectiveOutboundServiceTags = [for t in mergedOutboundServiceTags: !empty(t) ? t : '']
+
+var outboundServiceTagRules = [for (t,i) in effectiveOutboundServiceTags: {
+  name: 'AllowOutbound-${toLower(replace(t,'Azure',''))}'
+  properties: {
+    priority: 210 + i
+    direction: 'Outbound'
+    access: 'Allow'
+    protocol: '*'
+    sourceAddressPrefix: '*'
+    sourcePortRange: '*'
+    destinationAddressPrefix: t
+    destinationPortRange: '*'
+  }
+}]
+
 resource nsg 'Microsoft.Network/networkSecurityGroups@2023-11-01' = {
   name: nsgName
   location: location
   tags: tags
   properties: {
-    securityRules: [
+    securityRules: concat([
       {
         name: 'AllowAzureLoadBalancer'
         properties: {
@@ -30,21 +52,19 @@ resource nsg 'Microsoft.Network/networkSecurityGroups@2023-11-01' = {
         }
       }
       {
-        // Required for Application Gateway v2 infrastructure communication
-        name: 'AllowAppGwInfrastructureEphemeral'
+        name: 'AllowGatewayManagerInfra'
         properties: {
           priority: 110
           direction: 'Inbound'
           access: 'Allow'
           protocol: 'Tcp'
-          sourceAddressPrefix: 'Internet'
+          sourceAddressPrefix: 'GatewayManager'
           sourcePortRange: '*'
           destinationAddressPrefix: '*'
           destinationPortRanges: [ '65200-65535' ]
         }
       }
       {
-        // Listener HTTPS traffic (adjust if additional listener ports added)
         name: 'AllowHttpsInbound'
         properties: {
           priority: 120
@@ -55,32 +75,6 @@ resource nsg 'Microsoft.Network/networkSecurityGroups@2023-11-01' = {
           sourcePortRange: '*'
           destinationAddressPrefix: '*'
           destinationPortRange: '443'
-        }
-      }
-      {
-        name: 'AllowInternetOutbound'
-        properties: {
-          priority: 200
-          direction: 'Outbound'
-          access: 'Allow'
-          protocol: '*'
-          sourceAddressPrefix: '*'
-          sourcePortRange: '*'
-          destinationAddressPrefix: 'Internet'
-          destinationPortRange: '*'
-        }
-      }
-      {
-        name: 'AllowVNetOutbound'
-        properties: {
-          priority: 210
-          direction: 'Outbound'
-          access: 'Allow'
-          protocol: '*'
-          sourceAddressPrefix: '*'
-          sourcePortRange: '*'
-          destinationAddressPrefix: 'VirtualNetwork'
-          destinationPortRange: '*'
         }
       }
       {
@@ -96,7 +90,34 @@ resource nsg 'Microsoft.Network/networkSecurityGroups@2023-11-01' = {
           destinationPortRange: '*'
         }
       }
-    ]
+      {
+        name: 'AllowVNetOutbound'
+        properties: {
+          priority: 200
+          direction: 'Outbound'
+          access: 'Allow'
+          protocol: '*'
+          sourceAddressPrefix: '*'
+          sourcePortRange: '*'
+          destinationAddressPrefix: 'VirtualNetwork'
+          destinationPortRange: '*'
+        }
+      }
+    ], outboundServiceTagRules, [
+      {
+        name: 'DenyAllOutbound'
+        properties: {
+          priority: 4096
+          direction: 'Outbound'
+          access: 'Deny'
+          protocol: '*'
+          sourceAddressPrefix: '*'
+          sourcePortRange: '*'
+          destinationAddressPrefix: '*'
+          destinationPortRange: '*'
+        }
+      }
+    ])
   }
 }
 

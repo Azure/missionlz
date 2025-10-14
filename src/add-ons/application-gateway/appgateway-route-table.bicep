@@ -7,8 +7,8 @@ param routeTableName string
 param firewallPrivateIp string
 @description('Tags object')
 param tags object = {}
-@description('Optional list of internal CIDR prefixes (spoke/application VNets) to force through the firewall for east-west traffic from the App Gateway.')
-param internalForcedPrefixes array = []
+@description('Optional list of internal prefix route entries: objects { prefix: CIDR, source: app/listener name }. Used to force east-west traffic through Firewall.')
+param internalForcedRouteEntries array = []
 @description('Include the default 0.0.0.0/0 route to firewall')
 param includeDefaultRoute bool = true
 
@@ -37,11 +37,13 @@ resource defaultRoute 'Microsoft.Network/routeTables/routes@2024-05-01' = if (in
 // NOTE: Explicit per-spoke routes removed. Peered VNet address spaces will take the system peering route (more specific) and bypass firewall for east-west unless separate UDRs are authored elsewhere.
 // Reintroduced (alternative) explicit prefix forcing: any provided internalForcedPrefixes will create UDRs to override system peering routes.
 
-resource internalForcedRoutes 'Microsoft.Network/routeTables/routes@2024-05-01' = [for (p, i) in internalForcedPrefixes: if(!empty(p)) {
-  name: format('int-{0}', i)
+resource internalForcedRoutes 'Microsoft.Network/routeTables/routes@2024-05-01' = [for (e, i) in internalForcedRouteEntries: if(!empty(e.prefix)) {
+  // Unique deterministic route name: <5charHash>-<sanitizedSource(<=27)>-<idx>
+  // Each component length bounded so overall length always <= 5 + 1 + 27 + 1 + len(idx) (< 40) no extra substring needed.
+  name: toLower('${substring(replace(replace(replace(base64(e.prefix), '=', ''), '/', ''), '+', ''), 0, min(5, length(replace(replace(replace(base64(e.prefix), '=', ''), '/', ''), '+', ''))))}-${substring(replace(replace(e.source, '/', '-'), '.', '-'), 0, min(27, length(replace(replace(e.source, '/', '-'), '.', '-'))))}-${i}')
   parent: appgwRouteTable
   properties: {
-    addressPrefix: p
+    addressPrefix: e.prefix
     nextHopType: 'VirtualAppliance'
     nextHopIpAddress: firewallPrivateIp
   }
