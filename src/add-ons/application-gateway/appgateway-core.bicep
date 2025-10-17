@@ -149,6 +149,7 @@ resource perListenerWafPolicies 'Microsoft.Network/ApplicationGatewayWebApplicat
 // Detection (non-blocking): listeners that specify BOTH explicit wafPolicyId AND overrides/exclusions (ambiguous). Currently not enforced due to assertions feature flag requirement.
 var _mixedPolicyViolations = [for l in listeners: ((!empty(l.wafPolicyId ?? '')) && ( (!empty(l.wafOverrides)) || length(l.wafExclusions ?? []) > 0)) ? l.name : '']
 var mixedPolicyViolationNames = [for n in _mixedPolicyViolations: !empty(n) ? n : null]
+var mixedPolicyViolationNamesFiltered = [for n in mixedPolicyViolationNames: !empty(n) ? n : null]
 
 // Map per-listener generated policy IDs; empty when not generated
 // Flatten to array aligned with listeners (empty string where no generated policy)
@@ -284,3 +285,4 @@ output generatedPerListenerWafPolicyIds array = generatedPerListenerPolicyIds
 output effectivePerListenerWafPolicyIds array = effectiveListenerWafPolicyIds
 // Diagnostic (non-enforced) list of listeners with ambiguous WAF configuration (both wafPolicyId and overrides/exclusions supplied)
 output mixedPerListenerPolicyViolations array = mixedPolicyViolationNames
+output hasMixedPerListenerPolicies bool = length(mixedPolicyViolationNamesFiltered) > 0

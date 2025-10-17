@@ -140,13 +140,13 @@ var firewallPolicyResourceId = resourceId(subscription().subscriptionId, hubRgNa
 
 // Route table prefix derivation (multi-prefix, no validation). Fallback to prefix-derived label due to Bicep nested for limitations.
 // Gather & deduplicate backend CIDR prefixes (apps[].addressPrefixes supersedes legacy addressPrefix)
-var _appsPrefixMatrix = [for a in apps: (!empty(a.?addressPrefixes)) ? a.addressPrefixes : (!empty(a.?addressPrefix) ? [a.addressPrefix] : [])]
-var allAppPrefixes = flatten(_appsPrefixMatrix)
+var appsPrefixMatrix = [for a in apps: (!empty(a.?addressPrefixes)) ? a.addressPrefixes : (!empty(a.?addressPrefix) ? [a.addressPrefix] : [])]
+var allAppPrefixes = flatten(appsPrefixMatrix)
 var dedupPrefixes = [for (p,i) in allAppPrefixes: (!empty(p) && indexOf(allAppPrefixes,p) == i) ? p : '']
 // Simplified: rely on explicit backendPrefixPortMaps parameter for per-app custom port mappings.
 // If empty, module will fall back to broad rule using backendPrefixes + backendAllowPorts.
 // Build forced route entries; original comprehension produced null placeholders. We use a ternary and then discard nulls via a second flattening step.
-// Null placeholders intentionally included for indices where prefix empty; downstream route table module filters them with an if() guard.
+// Build forced route entries only for non-empty deduplicated prefixes (no null placeholders required now)
 var effectiveInternalForcedRouteEntries = [for p in dedupPrefixes: !empty(p) ? {
   prefix: p
   source: replace(replace(substring(p,0, min(15,length(p))),'/','-'),'.','-')
