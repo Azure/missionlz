@@ -114,7 +114,8 @@ var detailedBackendRules = [for (m,i) in backendPrefixPortMaps: {
 
 // Fallback single broad rule if no detailed map
 var fallbackBackendRule = (!empty(appGatewaySubnetPrefix) && length(backendPrefixes) > 0 && length(backendAllowPorts) > 0) ? [{
-  name: 'AllowAppGwBackend443'
+  // Broad allow rule (all declared backend prefixes + provided port list). Name intentionally generic (no hard-coded port) for idempotence.
+  name: 'AllowAppGwBackend'
   ruleType: 'NetworkRule'
   ipProtocols: ['TCP']
   sourceAddresses: [appGatewaySubnetPrefix]

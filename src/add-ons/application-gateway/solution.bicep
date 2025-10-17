@@ -146,6 +146,7 @@ var dedupPrefixes = [for (p,i) in allAppPrefixes: (!empty(p) && indexOf(allAppPr
 // Simplified: rely on explicit backendPrefixPortMaps parameter for per-app custom port mappings.
 // If empty, module will fall back to broad rule using backendPrefixes + backendAllowPorts.
 // Build forced route entries; original comprehension produced null placeholders. We use a ternary and then discard nulls via a second flattening step.
+// Null placeholders intentionally included for indices where prefix empty; downstream route table module filters them with an if() guard.
 var effectiveInternalForcedRouteEntries = [for p in dedupPrefixes: !empty(p) ? {
   prefix: p
   source: replace(replace(substring(p,0, min(15,length(p))),'/','-'),'.','-')

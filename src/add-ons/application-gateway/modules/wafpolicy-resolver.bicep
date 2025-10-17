@@ -14,6 +14,10 @@ param location string
 @description('Tags to apply when creating a new policy.')
 param tags object = {}
 @description('WAF mode when creating new policy.')
+@allowed([
+  'Prevention'
+  'Detection'
+])
 param mode string = 'Prevention'
 @description('Managed rule set version (e.g. 3.2)')
 param managedRuleSetVersion string = '3.2'
