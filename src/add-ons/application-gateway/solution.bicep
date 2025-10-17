@@ -231,8 +231,9 @@ var listeners = [for a in apps: {
   // Optional per-listener probe acceptable status codes override (array of ranges or codes)
   probeMatchStatusCodes: a.?probeMatchStatusCodes
   certificateSecretId: a.certificateSecretId
-  wafPolicyId: null
-  wafExclusions: null
+  // Pass-through WAF per-listener fields
+  wafPolicyId: a.?wafPolicyId
+  wafExclusions: a.?wafExclusions
   wafOverrides: a.?wafOverrides
   // Optional explicit host header override for backend/probe if app only responds to custom internal FQDN
   backendHostHeader: a.?backendHostHeader
