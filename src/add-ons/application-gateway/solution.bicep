@@ -102,7 +102,7 @@ module kvSecretsReader 'modules/kv-role-assignment.bicep' = if (createKeyVaultSe
   }
 }
 
-// TODO (future): Add route table routes pointing 0.0.0.0/0 to Firewall private IP once module available.
+// Intentional exclusion: no default 0.0.0.0/0 forced route (selective routing only).
 
 // Ensure subnet
 // (Reordered modules per Option A: create NSG (optional) & route table BEFORE subnet so we can associate in single definition)
@@ -139,19 +139,17 @@ var firewallPrivateIp = resolveFirewallIp.outputs.privateIpAddress
 var firewallPolicyResourceId = resourceId(subscription().subscriptionId, hubRgName, 'Microsoft.Network/firewallPolicies', naming.outputs.names.azureFirewallPolicy)
 
 // Route table prefix derivation (multi-prefix, no validation). Fallback to prefix-derived label due to Bicep nested for limitations.
-var expandedAppPrefixes = [for a in apps: (!empty(a.?addressPrefixes)) ? a.addressPrefixes : (!empty(a.?addressPrefix) ? [a.addressPrefix] : [])]
-var allAppPrefixes = flatten(expandedAppPrefixes)
+// Gather & deduplicate backend CIDR prefixes (apps[].addressPrefixes supersedes legacy addressPrefix)
+var _appsPrefixMatrix = [for a in apps: (!empty(a.?addressPrefixes)) ? a.addressPrefixes : (!empty(a.?addressPrefix) ? [a.addressPrefix] : [])]
+var allAppPrefixes = flatten(_appsPrefixMatrix)
 var dedupPrefixes = [for (p,i) in allAppPrefixes: (!empty(p) && indexOf(allAppPrefixes,p) == i) ? p : '']
 // Simplified: rely on explicit backendPrefixPortMaps parameter for per-app custom port mappings.
 // If empty, module will fall back to broad rule using backendPrefixes + backendAllowPorts.
 // Build forced route entries; original comprehension produced null placeholders. We use a ternary and then discard nulls via a second flattening step.
-var _rawForcedRouteEntries = [for p in dedupPrefixes: !empty(p) ? {
+var effectiveInternalForcedRouteEntries = [for p in dedupPrefixes: !empty(p) ? {
   prefix: p
-  // Derive label from prefix first octets
   source: replace(replace(substring(p,0, min(15,length(p))),'/','-'),'.','-')
 } : null]
-// Remove null placeholders (Bicep lacks direct filter; use ternary and skip when null will be empty object then filtered by child module)
-var effectiveInternalForcedRouteEntries = [for e in _rawForcedRouteEntries: !empty(e) ? e : null]
 
 // Network Security Group (module) and ID (moved earlier)
 module appgwNsg 'modules/appgateway-nsg.bicep' = if (createSubnetNsg) {

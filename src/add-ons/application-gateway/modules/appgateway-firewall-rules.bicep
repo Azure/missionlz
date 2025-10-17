@@ -16,7 +16,7 @@ param appGatewaySubnetPrefix string = ''
 param baselinePriority int = 200
 @description('Priority used for the platform service tags rule collection within the baseline group.')
 param baselinePlatformCollectionPriority int = 100
-@description('Priority used for the CRL/OCSP application rule collection within the baseline group.')
+@description('Priority used for the CRL/OCSP application rule collection within the baseline group. (Keep < backend allow collection if you want revocation checks first).')
 param baselineCrlOcspCollectionPriority int = 110
 @description('Destination ports to allow from Application Gateway to backend prefixes (can include single ports or ranges like 443-445). Only used if backendPrefixes and appGatewaySubnetPrefix are provided.')
 param backendAllowPorts array = [ '443' ]

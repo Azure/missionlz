@@ -7,7 +7,7 @@ param hubVnetResourceId string
 param subnetName string = 'AppGateway'
 @description('Address prefix for the subnet')
 param addressPrefix string = '10.100.0.0/24'
-@description('Disable implicit Internet egress for the subnet (set false to harden by default).')
+@description('Set to false (default) to disable implicit Internet egress for the subnet (requires explicit UDR via Firewall).')
 param defaultOutboundAccess bool = false
 @description('Disable private endpoint network policies on this subnet (prevents creation of Private Endpoints here).')
 param disablePrivateEndpointNetworkPolicies bool = true
