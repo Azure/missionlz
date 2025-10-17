@@ -29,6 +29,12 @@ param existingWafPolicyId string = ''
 param createSubnetNsg bool = true
 @description('Optional custom firewall rule collection groups for App Gateway egress. If empty, an opinionated default group will be created.')
 param customAppGatewayFirewallRuleCollectionGroups array = []
+@description('Destination ports to allow from Application Gateway subnet to backend prefixes (array of strings, supports ranges e.g. 443-445).')
+param backendAllowPorts array = [ '443' ]
+@description('Internal: future manual override for per-prefix port maps (leave empty).')
+param backendPrefixPortMaps array = []
+@description('Derived per-listener backend port maps (do not set manually).')
+param backendAppPortMaps array = []
 @description('Delimiter used in MLZ naming convention (pass through from core).')
 param delimiter string = '-'
 @description('Identifier / environment / location tokens used for naming; if not provided they will be inferred from hub VNet name when possible.')
@@ -39,7 +45,7 @@ param locationAbbreviation string = ''
 param networkName string = 'hub'
 @description('Resource abbreviations object from core deployment (passed through from MLZ core).')
 param resourceAbbreviations object
-@description('Existing User Assigned Identity resource ID granting Key Vault secret get access for TLS certs')
+@description('Existing User Assigned Identity resource ID granting Key Vault secret get access for TLS certs (required).')
 param userAssignedIdentityResourceId string
 @description('Whether to create a Key Vault secrets read role assignment for the user-assigned identity (RBAC-enabled vault).')
 param createKeyVaultSecretAccessRole bool = true
@@ -90,8 +96,8 @@ module kvSecretsReader 'modules/kv-role-assignment.bicep' = if (createKeyVaultSe
   params: {
     keyVaultName: keyVaultName
     roleDefinitionId: keyVaultRoleDefinitionId
-    principalId: uai.properties.principalId
-    userAssignedIdentityResourceId: userAssignedIdentityResourceId
+  principalId: uai.properties.principalId
+  userAssignedIdentityResourceId: userAssignedIdentityResourceId
     enable: true
   }
 }
@@ -136,11 +142,16 @@ var firewallPolicyResourceId = resourceId(subscription().subscriptionId, hubRgNa
 var expandedAppPrefixes = [for a in apps: (!empty(a.?addressPrefixes)) ? a.addressPrefixes : (!empty(a.?addressPrefix) ? [a.addressPrefix] : [])]
 var allAppPrefixes = flatten(expandedAppPrefixes)
 var dedupPrefixes = [for (p,i) in allAppPrefixes: (!empty(p) && indexOf(allAppPrefixes,p) == i) ? p : '']
-var effectiveInternalForcedRouteEntries = [for p in dedupPrefixes: !empty(p) ? {
+// Simplified: rely on explicit backendPrefixPortMaps parameter for per-app custom port mappings.
+// If empty, module will fall back to broad rule using backendPrefixes + backendAllowPorts.
+// Build forced route entries; original comprehension produced null placeholders. We use a ternary and then discard nulls via a second flattening step.
+var _rawForcedRouteEntries = [for p in dedupPrefixes: !empty(p) ? {
   prefix: p
   // Derive label from prefix first octets
   source: replace(replace(substring(p,0, min(15,length(p))),'/','-'),'.','-')
 } : null]
+// Remove null placeholders (Bicep lacks direct filter; use ternary and skip when null will be empty object then filtered by child module)
+var effectiveInternalForcedRouteEntries = [for e in _rawForcedRouteEntries: !empty(e) ? e : null]
 
 // Network Security Group (module) and ID (moved earlier)
 module appgwNsg 'modules/appgateway-nsg.bicep' = if (createSubnetNsg) {
@@ -164,6 +175,8 @@ module appgwRouteTable 'appgateway-route-table.bicep' = {
     firewallPrivateIp: firewallPrivateIp
     tags: tags
     internalForcedRouteEntries: effectiveInternalForcedRouteEntries
+    // Disable default 0.0.0.0/0 route; only selective prefixes (from apps[].addressPrefix(es)) will be forced through Firewall
+    includeDefaultRoute: false
   }
 }
 
@@ -217,10 +230,14 @@ var listeners = [for a in apps: {
   probeInterval: a.?probeInterval
   probeTimeout: a.?probeTimeout
   unhealthyThreshold: a.?unhealthyThreshold
+  // Optional per-listener probe acceptable status codes override (array of ranges or codes)
+  probeMatchStatusCodes: a.?probeMatchStatusCodes
   certificateSecretId: a.certificateSecretId
   wafPolicyId: null
   wafExclusions: null
   wafOverrides: a.?wafOverrides
+  // Optional explicit host header override for backend/probe if app only responds to custom internal FQDN
+  backendHostHeader: a.?backendHostHeader
 }]
 
 // Map commonDefaults object keys to individual core parameters (with safe fallbacks)
@@ -231,6 +248,7 @@ var defaultHealthProbePath    = cd.?healthProbePath ?? '/'
 var defaultProbeInterval      = cd.?probeInterval ?? 30
 var defaultProbeTimeout       = cd.?probeTimeout ?? 30
 var defaultUnhealthyThreshold = cd.?unhealthyThreshold ?? 3
+var defaultProbeMatchStatusCodes = cd.?probeMatchStatusCodes ?? [ '200-399' ]
 var httpsListenerPort         = cd.?listenerFrontendPort ?? 443
 var enableHttp2               = cd.?enableHttp2 ?? true
 var autoscaleMinCapacity      = cd.?autoscaleMinCapacity ?? 1
@@ -262,6 +280,7 @@ module appgwCore 'appgateway-core.bicep' = {
     defaultProbeInterval: defaultProbeInterval
     defaultProbeTimeout: defaultProbeTimeout
     defaultUnhealthyThreshold: defaultUnhealthyThreshold
+  defaultProbeMatchStatusCodes: defaultProbeMatchStatusCodes
     generatedPolicyMode: generatedPolicyMode
     generatedPolicyRequestBodyCheck: generatedPolicyRequestBodyCheck
     generatedPolicyMaxRequestBodySizeInKb: generatedPolicyMaxRequestBodySizeInKb
@@ -313,6 +332,12 @@ module appGwFirewallRules 'modules/appgateway-firewall-rules.bicep' = {
   params: {
     firewallPolicyResourceId: firewallPolicyResourceId
     customRuleCollectionGroups: customAppGatewayFirewallRuleCollectionGroups
+    // Supply backend prefixes derived from apps for explicit allow rule
+    backendPrefixes: dedupPrefixes
+    appGatewaySubnetPrefix: appGatewaySubnetAddressPrefix
+    backendAllowPorts: backendAllowPorts
+    backendPrefixPortMaps: backendPrefixPortMaps
+    backendAppPortMaps: backendAppPortMaps
   }
 }
 

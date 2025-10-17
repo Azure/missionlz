@@ -30,6 +30,8 @@ param defaultProbeInterval int = 30
 param defaultProbeTimeout int = 30
 @description('Default unhealthy threshold when listener omits unhealthyThreshold')
 param defaultUnhealthyThreshold int = 3
+@description('Default acceptable backend probe HTTP status code ranges or discrete codes (array). Example: [ "200-399", "403" ]')
+param defaultProbeMatchStatusCodes array = [ '200-399' ]
 
 // Baseline WAF policy settings used ONLY when generating per-listener policies from exclusions
 @description('Generated per-listener WAF policy mode (Detection or Prevention)')
@@ -78,7 +80,8 @@ var probes = [for l in listeners: {
     pickHostNameFromBackendHttpSettings: true
     minServers: 0
     match: {
-      statusCodes: [ '200-399' ]
+      // Use per-listener override if provided, else fall back to defaultProbeMatchStatusCodes
+      statusCodes: length(l.probeMatchStatusCodes ?? []) > 0 ? l.probeMatchStatusCodes : defaultProbeMatchStatusCodes
     }
   }
 }]
@@ -88,7 +91,9 @@ var backendHttpSettingsCollection = [for l in listeners: {
   properties: {
     port: l.backendPort ?? defaultBackendPort
     protocol: l.backendProtocol ?? defaultBackendProtocol
-    pickHostNameFromBackendAddress: true
+    // If caller supplies backendHostHeader use hostName override; else derive from backend address
+    pickHostNameFromBackendAddress: empty(l.backendHostHeader ?? '')
+    hostName: !empty(l.backendHostHeader ?? '') ? l.backendHostHeader : null
     cookieBasedAffinity: 'Disabled'
     requestTimeout: 30
     probe: {

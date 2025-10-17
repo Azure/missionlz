@@ -37,7 +37,7 @@ resource defaultRoute 'Microsoft.Network/routeTables/routes@2024-05-01' = if (in
 // NOTE: Explicit per-spoke routes removed. Peered VNet address spaces will take the system peering route (more specific) and bypass firewall for east-west unless separate UDRs are authored elsewhere.
 // Reintroduced (alternative) explicit prefix forcing: any provided internalForcedPrefixes will create UDRs to override system peering routes.
 
-resource internalForcedRoutes 'Microsoft.Network/routeTables/routes@2024-05-01' = [for (e, i) in internalForcedRouteEntries: if(!empty(e.prefix)) {
+resource internalForcedRoutes 'Microsoft.Network/routeTables/routes@2024-05-01' = [for (e, i) in internalForcedRouteEntries: if(!empty(e) && !empty(e.prefix)) {
   // Unique deterministic route name: <5charHash>-<sanitizedSource(<=27)>-<idx>
   // Each component length bounded so overall length always <= 5 + 1 + 27 + 1 + len(idx) (< 40) no extra substring needed.
   name: toLower('${substring(replace(replace(replace(base64(e.prefix), '=', ''), '/', ''), '+', ''), 0, min(5, length(replace(replace(replace(base64(e.prefix), '=', ''), '/', ''), '+', ''))))}-${substring(replace(replace(e.source, '/', '-'), '.', '-'), 0, min(27, length(replace(replace(e.source, '/', '-'), '.', '-'))))}-${i}')
