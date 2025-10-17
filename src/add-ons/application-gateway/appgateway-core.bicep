@@ -21,6 +21,10 @@ param baseWafPolicyName string
 @description('Default backend port when a listener object omits backendPort')
 param defaultBackendPort int = 443
 @description('Default backend protocol (Https or Http) when listener omits backendProtocol')
+@allowed([
+  'Https'
+  'Http'
+])
 param defaultBackendProtocol string = 'Https'
 @description('Default health probe path when listener omits healthProbePath')
 param defaultHealthProbePath string = '/'
@@ -35,6 +39,10 @@ param defaultProbeMatchStatusCodes array = [ '200-399' ]
 
 // Baseline WAF policy settings used ONLY when generating per-listener policies from exclusions
 @description('Generated per-listener WAF policy mode (Detection or Prevention)')
+@allowed([
+  'Prevention'
+  'Detection'
+])
 param generatedPolicyMode string = 'Prevention'
 @description('Generated per-listener WAF policy requestBodyCheck')
 param generatedPolicyRequestBodyCheck bool = true
@@ -109,18 +117,20 @@ var backendHttpSettingsCollection = [for l in listeners: {
 // For any required WAF policy setting not specified inside wafOverrides, the value falls back to the baseline ("generated"*) parameters
 // passed into this module (which should mirror the global / baseline WAF policy). This satisfies the requirement that undefined
 // properties inherit baseline values instead of arbitrary constants.
-resource perListenerWafPolicies 'Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies@2023-09-01' = [for l in listeners: if ((length(l.wafExclusions ?? []) > 0 || !empty(l.wafOverrides)) && empty(l.wafPolicyId ?? '')) {
-  // Derive per-listener WAF policy name: <base>-<listener>-<hash>-waf (trim to 80 chars)
-  // Hash is first 5 chars of uniqueString(resourceGroup().id, baseWafPolicyName, listenerName) for deterministic uniqueness.
-  name: substring('${baseWafPolicyName}-${l.name}-${substring(uniqueString(resourceGroup().id, baseWafPolicyName, l.name),0,5)}-waf', 0, min(80, length('${baseWafPolicyName}-${l.name}-${substring(uniqueString(resourceGroup().id, baseWafPolicyName, l.name),0,5)}-waf')))
+// NOTE: If a listener supplies both wafOverrides/wafExclusions AND an explicit wafPolicyId, the explicit policy wins and no per-listener policy is generated.
+// Name derivation is factored for readability.
+var _generatedPerListenerPolicyNames = [for l in listeners: substring('${baseWafPolicyName}-${l.name}-${substring(uniqueString(resourceGroup().id, baseWafPolicyName, l.name),0,5)}-waf', 0, min(80, length('${baseWafPolicyName}-${l.name}-${substring(uniqueString(resourceGroup().id, baseWafPolicyName, l.name),0,5)}-waf')))]
+
+resource perListenerWafPolicies 'Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies@2023-09-01' = [for (l,idx) in listeners: if ((length(l.wafExclusions ?? []) > 0 || !empty(l.wafOverrides)) && empty(l.wafPolicyId ?? '')) {
+  name: _generatedPerListenerPolicyNames[idx]
   location: location
   properties: {
     policySettings: {
       state: 'Enabled'
-  mode: (!empty(l.wafOverrides) && contains(l.wafOverrides, 'mode')) ? l.wafOverrides.mode : generatedPolicyMode
-  requestBodyCheck: (!empty(l.wafOverrides) && contains(l.wafOverrides, 'requestBodyCheck')) ? l.wafOverrides.requestBodyCheck : generatedPolicyRequestBodyCheck
-  maxRequestBodySizeInKb: (!empty(l.wafOverrides) && contains(l.wafOverrides, 'maxRequestBodySizeInKb')) ? l.wafOverrides.maxRequestBodySizeInKb : generatedPolicyMaxRequestBodySizeInKb
-  fileUploadLimitInMb: (!empty(l.wafOverrides) && contains(l.wafOverrides, 'fileUploadLimitInMb')) ? l.wafOverrides.fileUploadLimitInMb : generatedPolicyFileUploadLimitInMb
+      mode: (!empty(l.wafOverrides) && contains(l.wafOverrides, 'mode')) ? l.wafOverrides.mode : generatedPolicyMode
+      requestBodyCheck: (!empty(l.wafOverrides) && contains(l.wafOverrides, 'requestBodyCheck')) ? l.wafOverrides.requestBodyCheck : generatedPolicyRequestBodyCheck
+      maxRequestBodySizeInKb: (!empty(l.wafOverrides) && contains(l.wafOverrides, 'maxRequestBodySizeInKb')) ? l.wafOverrides.maxRequestBodySizeInKb : generatedPolicyMaxRequestBodySizeInKb
+      fileUploadLimitInMb: (!empty(l.wafOverrides) && contains(l.wafOverrides, 'fileUploadLimitInMb')) ? l.wafOverrides.fileUploadLimitInMb : generatedPolicyFileUploadLimitInMb
     }
     customRules: []
     managedRules: {
@@ -128,38 +138,29 @@ resource perListenerWafPolicies 'Microsoft.Network/ApplicationGatewayWebApplicat
         {
           ruleSetType: 'OWASP'
           ruleSetVersion: replace((!empty(l.wafOverrides) && contains(l.wafOverrides,'managedRuleSetVersion')) ? l.wafOverrides.managedRuleSetVersion : generatedPolicyManagedRuleSetVersion, 'OWASP_', '')
-          // Pass-through advanced overrides if provided (shape must match ARM schema):
-          // l.wafOverrides.ruleGroupOverrides: [ { ruleGroupName: 'REQUEST-930-APPLICATION-ATTACK-LFI', rules: [ { ruleId: '930100', state: 'Disabled' } ] } ]
           ruleGroupOverrides: (!empty(l.wafOverrides) && contains(l.wafOverrides,'ruleGroupOverrides')) ? l.wafOverrides.ruleGroupOverrides : []
         }
       ]
-  // Merge exclusions if wafOverrides.exclusions present
-  exclusions: (!empty(l.wafOverrides) && contains(l.wafOverrides,'exclusions') && length(l.wafOverrides.exclusions) > 0) ? union(l.wafExclusions ?? [], l.wafOverrides.exclusions) : l.wafExclusions
+      exclusions: (!empty(l.wafOverrides) && contains(l.wafOverrides,'exclusions') && length(l.wafOverrides.exclusions) > 0) ? union(l.wafExclusions ?? [], l.wafOverrides.exclusions) : l.wafExclusions
     }
   }
 }]
 
-var effectiveListenerWafPolicyIds = [for l in listeners: !empty(l.wafPolicyId ?? '') ? l.wafPolicyId : (length(l.wafExclusions ?? []) > 0 ? resourceId('Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies', 'agw-wafp-${l.name}') : '')]
+// Map per-listener generated policy IDs; empty when not generated
+// Flatten to array aligned with listeners (empty string where no generated policy)
+var generatedPerListenerPolicyIds = [for (l,i) in listeners: (!empty(l.wafPolicyId ?? '')) ? '' : ( (length(l.wafExclusions ?? []) > 0 || !empty(l.wafOverrides)) ? perListenerWafPolicies[i].id : '' )]
+// Effective mapping: explicit > generated > none
+var effectiveListenerWafPolicyIds = [for (l,i) in listeners: !empty(l.wafPolicyId ?? '') ? l.wafPolicyId : generatedPerListenerPolicyIds[i]]
 
-// Certificate deduplication: one sslCertificate resource per unique non-empty Key Vault secret ID.
+// Dynamic certificate deduplication: one sslCertificate per unique non-empty secret ID
 var allSecretIds = [for l in listeners: l.certificateSecretId]
-// Keep only first occurrence of each non-empty secret ID, mark others empty then strip.
-// Unique secrets at their first occurrence positions (duplicates/null replaced with null)
-// Dedup (explicit for first three distinct secrets to avoid unsupported filter syntax in current Bicep version)
-var secret0 = length(allSecretIds) > 0 ? allSecretIds[0] : ''
-var secret1Raw = length(allSecretIds) > 1 ? allSecretIds[1] : ''
-var secret1 = (!empty(secret1Raw) && secret1Raw != secret0) ? secret1Raw : ''
-var secret2Raw = length(allSecretIds) > 2 ? allSecretIds[2] : ''
-var secret2 = (!empty(secret2Raw) && secret2Raw != secret0 && secret2Raw != secret1Raw) ? secret2Raw : ''
-
-var sslCertA = !empty(secret0) ? [ { name: 'cert-sh0', properties: { keyVaultSecretId: secret0 } } ] : []
-var sslCertB = !empty(secret1) ? [ { name: 'cert-sh1', properties: { keyVaultSecretId: secret1 } } ] : []
-var sslCertC = !empty(secret2) ? [ { name: 'cert-sh2', properties: { keyVaultSecretId: secret2 } } ] : []
-
-var sslCertificates = union(sslCertA, union(sslCertB, sslCertC))
-
-// Map listeners to certificate names
-var listenerCertNames = [for l in listeners: !empty(l.certificateSecretId) && l.certificateSecretId == secret0 ? 'cert-sh0' : (!empty(l.certificateSecretId) && l.certificateSecretId == secret1 ? 'cert-sh1' : (!empty(l.certificateSecretId) && l.certificateSecretId == secret2 ? 'cert-sh2' : ''))]
+var distinctSecretIds = [for (s,i) in allSecretIds: (!empty(s) && indexOf(allSecretIds, s) == i) ? s : '']
+var filteredSecretIds = [for s in distinctSecretIds: !empty(s) ? s : null]
+var sslCertificates = [for (s,i) in filteredSecretIds: {
+  name: 'cert-sh${i}'
+  properties: { keyVaultSecretId: s }
+}]
+var listenerCertNames = [for l in listeners: 'cert-sh${indexOf(filteredSecretIds, l.certificateSecretId)}']
 
 // HTTPS listeners
 var httpsListeners = [for (l,i) in listeners: {
@@ -202,7 +203,7 @@ var httpsRequestRoutingRules = [for (l,i) in listeners: {
 }]
 
 // Combined (HTTPS only; HTTP->HTTPS redirect deferred)
-var httpListeners = httpsListeners
+var httpListeners = httpsListeners // placeholder alias for future HTTP->HTTPS redirect feature
 var requestRoutingRules = httpsRequestRoutingRules
 
 // Public IP (single)
@@ -275,3 +276,5 @@ output publicIpAddress string = appgwPublicIp.properties.ipAddress
 output listenerNames array = [for l in httpListeners: l.name]
 output backendPoolNames array = [for p in backendAddressPools: p.name]
 output requestRoutingRuleNames array = [for r in requestRoutingRules: r.name]
+output generatedPerListenerWafPolicyIds array = generatedPerListenerPolicyIds
+output effectivePerListenerWafPolicyIds array = effectiveListenerWafPolicyIds
