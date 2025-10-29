@@ -1,6 +1,8 @@
 # Application Gateway (Scenario A: WAF Before Firewall)
 
-This add-on deploys a multi-site Azure Application Gateway (WAF_v2) into the Mission Landing Zone (MLZ) hub Virtual Network with **selective forced routing** through Azure Firewall. *Scenario A* places TLS termination and WAF inspection at the gateway prior to any firewall-controlled egress toward private backend workloads (hub-spoke integration pattern).
+This add-on deploys a multi-site Azure Application Gateway (WAF_v2) into the Mission Landing Zone (MLZ) hub Virtual Network with **selective forced routing** through Azure Firewall.
+*Scenario A* places TLS termination and WAF inspection at the gateway prior to any firewall-controlled egress toward private backend workloads (hub-spoke integration pattern).
+This README reflects the current `solution.bicep` implementation (modules relocated under `modules/`).
 
 ## Objectives
 
@@ -12,7 +14,7 @@ This add-on deploys a multi-site Azure Application Gateway (WAF_v2) into the Mis
 * Optional per‑listener WAF policies generated automatically when `wafOverrides` or `wafExclusions` are supplied and no explicit `wafPolicyId` is provided.
 * Host header override support (`backendHostHeader`) to preserve SNI / certificate matching when resolving private endpoints for public FQDNs.
 * Key Vault sourced certificates (user‑assigned identity RBAC assignment can be auto‑created; no secrets stored in repo).
-* Optional diagnostics integration (Log Analytics) — not required for functional deployment (operational usage intentionally out of scope here).
+* Optional diagnostics integration (Log Analytics) — activated only when both `enableDiagnostics = true` **and** `operationsLogAnalyticsWorkspaceResourceId` is non‑empty.
 * Separation of concerns: subnet, NSG, route table, WAF policy resolution, per‑listener policy generation, and firewall egress rules are modularized for hub-spoke alignment.
 
 ## Traffic Flow
@@ -28,65 +30,73 @@ At the top level `solution.bicep` exposes (primary subset):
 | `apps` | Array of listener/back‑end definitions (see structure below). |
 | `commonDefaults` | Global baseline applied to each app unless overridden (ports, probe timing, acceptable status codes, autoscale, WAF generation defaults, etc.). |
 | `existingWafPolicyId` | Attach an existing global WAF policy instead of generating a new one. |
-| (auto) userAssignedIdentity | Always created idempotently using MLZ naming conventions (abbreviation `id`) and granted Key Vault secrets read role if enabled. |
+| (auto) userAssignedIdentity | Always created idempotently using MLZ naming conventions (abbreviation derives from naming module) and optionally granted Key Vault secrets read role. |
 | `backendAllowPorts` | Baseline allowed egress ports from AppGW subnet to backends (used in firewall rule set). |
 | `customAppGatewayFirewallRuleCollectionGroups` | Additional Firewall rule collection groups (merged with baseline). |
 | `disablePrivateEndpointNetworkPolicies` | (Default true) Prevents Private Endpoints inside the AppGW subnet. |
-| `enableDiagnostics` / `logAnalyticsWorkspaceResourceId` | Control diagnostics creation/association. |
+| `enableDiagnostics` / `operationsLogAnalyticsWorkspaceResourceId` | Control diagnostics creation/association (both required). |
 | `createSubnetNsg` | Toggle creation of NSG specifically for AppGW subnet. |
+| `createKeyVaultSecretAccessRole` | Create Key Vault Secrets User RBAC assignment for the user-assigned identity (derived from first cert secret). |
+| `deploymentNameSuffix` | Unique suffix for deployment-scoped module names (defaults to `utcNow()`; pin for deterministic what-if). |
+| `identifier`, `environmentAbbreviation`, `locationAbbreviation`, `networkName` | Optional naming inference overrides (inferred from hub VNet name when omitted). |
+| `backendPrefixPortMaps`, `backendAppPortMaps` | Advanced shaping (leave empty unless extending firewall logic). |
+| `resourceAbbreviations` | Abbreviation object (loaded automatically from repo JSON unless overridden). |
 
 ### `apps` Element Structure
 
 ```jsonc
 {
-  "name": "app1",                                  // Listener + derived pool/probe name seed
-  "hostNames": ["app1.contoso.gov"],               // One or more host headers -> multi-site listener
-  "backendAddresses": [                             // Backend pool entries
-    { "fqdn": "app1-ilb.internal.contoso.gov" },
-    { "ipAddress": "10.20.10.5" }
-  ],
-  "certificateSecretId": "https://kv.vault.usgovcloudapi.net/secrets/app1cert/<version>",
-  "healthProbePath": "/healthz",                   // Optional (defaults from commonDefaults)
-  "backendPort": 443,                               // Optional
-  "backendProtocol": "Https",                      // Optional
-  "probeInterval": 30,
-  "probeTimeout": 30,
-  "unhealthyThreshold": 3,
-  "probeMatchStatusCodes": ["200"],                // Optional per-listener override (default often ["200-399"])
-  "backendHostHeader": "mlz-ops-webapp1.azurewebsites.us", // Optional Host/SNI override
-  "addressPrefixes": ["10.20.0.0/16"],             // Used for forced routes & firewall rules
-  "wafPolicyId": "",                              // Optional explicit listener WAF policy
-  "wafExclusions": [
-    { "matchVariable": "RequestHeaderNames", "selectorMatchOperator": "Equals", "selector": "x-custom-ignore" }
-  ],
-  "wafOverrides": {                                 // Triggers generated per-listener WAF policy
-    "mode": "Detection",
-    "requestBodyCheck": true,
-    "maxRequestBodySizeInKb": 256,
-    "fileUploadLimitInMb": 150,
-    "managedRuleSetVersion": "3.2",
-    "exclusions": [
-      { "matchVariable": "RequestHeaderNames", "selectorMatchOperator": "Equals", "selector": "x-ignore" }
-    ],
-    "ruleGroupOverrides": [
-      { "ruleGroupName": "REQUEST-930-APPLICATION-ATTACK-LFI", "rules": [ { "ruleId": "930100", "state": "Disabled" } ] }
-    ]
-  }
+	"name": "app1",                                  // Listener + derived pool/probe name seed
+	"hostNames": [ "app1.contoso.gov" ],             // One or more host headers -> multi-site listener
+	"backendAddresses": [                             // Backend pool entries
+		{ "fqdn": "app1-ilb.internal.contoso.gov" },
+		{ "ipAddress": "10.20.10.5" }
+	],
+	"certificateSecretId": "https://kv.vault.usgovcloudapi.net/secrets/app1cert/<version>",
+	"healthProbePath": "/healthz",                   // Optional (defaults from commonDefaults)
+	"backendPort": 443,                               // Optional
+	"backendProtocol": "Https",                      // Optional
+	"probeInterval": 30,
+	"probeTimeout": 30,
+	"unhealthyThreshold": 3,
+	"probeMatchStatusCodes": [ "200" ],              // Optional per-listener override (default often ["200-399"])
+	"backendHostHeader": "mlz-ops-webapp1.azurewebsites.us", // Optional Host/SNI override
+	"addressPrefixes": [ "10.20.0.0/16" ],           // Used for forced routes & firewall rules
+	"wafPolicyId": "",                              // Optional explicit listener WAF policy
+	"wafExclusions": [
+		{ "matchVariable": "RequestHeaderNames", "selectorMatchOperator": "Equals", "selector": "x-custom-ignore" }
+	],
+	"wafOverrides": {                                 // Triggers generated per-listener WAF policy
+		"mode": "Detection",
+		"requestBodyCheck": true,
+		"maxRequestBodySizeInKb": 256,
+		"fileUploadLimitInMb": 150,
+		"managedRuleSetVersion": "3.2",
+		"exclusions": [
+			{ "matchVariable": "RequestHeaderNames", "selectorMatchOperator": "Equals", "selector": "x-ignore" }
+		],
+		"ruleGroupOverrides": [
+			{ "ruleGroupName": "REQUEST-930-APPLICATION-ATTACK-LFI", "rules": [ { "ruleId": "930100", "state": "Disabled" } ] }
+		]
+	}
 }
 ```
 
 > `addressPrefixes` (array) supersedes the older singular `addressPrefix`. Provide **only** the CIDRs requiring egress via Firewall; template deduplicates them and produces `forcedRouteEntries` output.
+>
+> Legacy support: `addressPrefix` (string) is still accepted for backward compatibility. Prefer `addressPrefixes`.
 
 ## Modules
 
 * `solution.bicep` – orchestration (naming inference, subnet creation, NSG/route table, WAF policy resolution, diagnostics, firewall rules, per‑listener object shaping, identity RBAC to Key Vault).
-* `appgateway-core.bicep` – gateway resource, dynamic listeners, pools, probes, autoscale, generated per‑listener WAF policies.
-* `appgateway-subnet.bicep` – authoritative subnet definition with optional NSG & route table association.
-* `appgateway-route-table.bicep` – constructs forced routes referencing only declared backend CIDRs (no 0.0.0.0/0).
-* `appgateway-diagnostics.bicep` – diagnostic settings binding to LA workspace.
+* `modules/appgateway-core.bicep` – gateway resource, dynamic listeners, pools, probes, autoscale, generated per‑listener WAF policies.
+* `modules/appgateway-subnet.bicep` – authoritative subnet definition with optional NSG & route table association.
+* `modules/appgateway-route-table.bicep` – constructs forced routes referencing only declared backend CIDRs (no 0.0.0.0/0).
+* `modules/appgateway-diagnostics.bicep` – diagnostic settings binding to LA workspace.
 * `modules/appgateway-firewall-rules.bicep` – firewall policy rule collection groups (baseline + custom additions).
 * `modules/wafpolicy-resolver.bicep` – resolves existing or creates baseline WAF policy.
 * `modules/kv-role-assignment.bicep` – optional Key Vault secrets RBAC assignment for user‑assigned identity.
+* `modules/resolve-firewall-ip.bicep` – resolves Firewall private IP used in routes & firewall rule logic.
 
 ## Scaling
 
@@ -100,7 +110,7 @@ Add or update apps by editing the `apps` array in a parameter file, then redeplo
 * NSG inbound restricted to 443 + AzureLoadBalancer + ephemeral probe ports; all other inbound denied.
 * **No** default 0.0.0.0/0 forced route—only declared backend prefixes are routed via Firewall (prevents asymmetric probing failures).
 * Host header override allows internal private resolution while preserving public FQDN SNI for backend cert validation.
-* Outbound default Internet access disabled on subnet (controlled egress via Firewall).
+* Outbound default Internet access disabled on subnet (controlled egress via Firewall). No implicit 0.0.0.0/0 UDR is created to avoid asymmetric probe paths.
 
 ## Hub-Spoke Integration & Routing
 
@@ -137,7 +147,7 @@ Key per-app options:
 * `backendHostHeader`: Override Host header sent to backend (useful when private endpoint resolves internal FQDN different from public host).
 * `backendPort` / `backendProtocol`: Defaults inherited from `commonDefaults` (TLS inspection requires `Https`).
 * `certificateSecretId`: Key Vault secret reference for listener TLS certificate.
-* `healthProbePath`, `probeInterval`, `probeTimeout`, `unhealthyThreshold`, `probeMatchStatusCodes`: Optional fine-grained probe tuning (operational semantics of probe responses are out of scope; only structural description provided).
+* `healthProbePath`, `probeInterval`, `probeTimeout`, `unhealthyThreshold`, `probeMatchStatusCodes`: Optional fine-grained probe tuning.
 * `wafOverrides` / `wafExclusions`: Trigger per-listener WAF policy generation (if `wafPolicyId` not supplied).
 * `wafPolicyId`: Attach an existing Application Gateway WAF policy to just this listener (skip generation).
 * `addressPrefixes`: Backend CIDR set used to build selective UDR forced routes and firewall egress rules.
@@ -158,58 +168,53 @@ using 'solution.bicep'
 param location = 'usgovvirginia'
 param hubVnetResourceId = '/subscriptions/<subId>/resourceGroups/<hubRg>/providers/Microsoft.Network/virtualNetworks/<hubVnetName>'
 // (Identity created automatically; no identity parameters required)
-param resourceAbbreviations = {  // Passed from MLZ core deployment conventions
-  applicationGateway: 'agw'
-  networkSecurityGroup: 'nsg'
-  publicIpAddress: 'pip'
-  firewallPolicy: 'fwp'
-}
+// Optional: override abbreviations only if deviating from repository defaults (loaded internally).
+// param resourceAbbreviations = loadJsonContent('../../data/resource-abbreviations.json')
 param commonDefaults = {
-  backendPort: 443
-  backendProtocol: 'Https'
-  healthProbePath: '/'
-  probeInterval: 30
-  probeTimeout: 30
-  unhealthyThreshold: 3
-  probeMatchStatusCodes: [ '200-399' ]
-  autoscaleMinCapacity: 1
-  autoscaleMaxCapacity: 2
-  // Per-listener generated WAF defaults inherit global unless overridden here:
-  generatedPolicyMode: 'Prevention'
-  generatedPolicyManagedRuleSetVersion: '3.2'
+	backendPort: 443
+	backendProtocol: 'Https'
+	healthProbePath: '/'
+	probeInterval: 30
+	probeTimeout: 30
+	unhealthyThreshold: 3
+	probeMatchStatusCodes: [ '200-399' ]
+	autoscaleMinCapacity: 1
+	autoscaleMaxCapacity: 2
+	generatedPolicyMode: 'Prevention'
+	generatedPolicyManagedRuleSetVersion: '3.2'
 }
 param apps = [
-  {
-    name: 'app1'
-    hostNames: [ 'app1.example.gov' ]
-    certificateSecretId: 'https://kv-example.vault.usgovcloudapi.net/secrets/app1cert/<version>'
-    backendAddresses: [ { fqdn: 'app1-pe-appservice.azurewebsites.us' } ]
-    backendHostHeader: 'app1.example.gov'      // Preserve public host for backend TLS validation
-    healthProbePath: '/'
-    addressPrefixes: [ '10.50.1.0/24' ]        // Spoke or private endpoint CIDR
-    wafOverrides: {
-      mode: 'Prevention'
-      requestBodyCheck: true
-      maxRequestBodySizeInKb: 128
-      managedRuleSetVersion: '3.2'
-    }
-  }
-  {
-    name: 'app2'
-    hostNames: [ 'app2.example.gov' ]
-    certificateSecretId: 'https://kv-example.vault.usgovcloudapi.net/secrets/app2cert/<version>'
-    backendAddresses: [ { ipAddress: '10.60.2.10' }, { ipAddress: '10.60.2.11' } ]
-    backendPort: 443
-    backendProtocol: 'Https'
-    healthProbePath: '/'
-    addressPrefixes: [ '10.60.2.0/24' ]
-    wafPolicyId: '/subscriptions/<subId>/resourceGroups/<hubRg>/providers/Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies/app2-listener-policy'
-  }
+	{
+		name: 'app1'
+		hostNames: [ 'app1.example.gov' ]
+		certificateSecretId: 'https://kv-example.vault.usgovcloudapi.net/secrets/app1cert/<version>'
+		backendAddresses: [ { fqdn: 'app1-pe-appservice.azurewebsites.us' } ]
+		backendHostHeader: 'app1.example.gov'
+		healthProbePath: '/'
+		addressPrefixes: [ '10.50.1.0/24' ]
+		wafOverrides: {
+			mode: 'Prevention'
+			requestBodyCheck: true
+			maxRequestBodySizeInKb: 128
+			managedRuleSetVersion: '3.2'
+		}
+	}
+	{
+		name: 'app2'
+		hostNames: [ 'app2.example.gov' ]
+		certificateSecretId: 'https://kv-example.vault.usgovcloudapi.net/secrets/app2cert/<version>'
+		backendAddresses: [ { ipAddress: '10.60.2.10' }, { ipAddress: '10.60.2.11' } ]
+		backendPort: 443
+		backendProtocol: 'Https'
+		healthProbePath: '/'
+		addressPrefixes: [ '10.60.2.0/24' ]
+		wafPolicyId: '/subscriptions/<subId>/resourceGroups/<hubRg>/providers/Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies/app2-listener-policy'
+	}
 ]
 
-// Optional: enable diagnostics (structure only; operational consumption not documented here)
+// Optional diagnostics
 param enableDiagnostics = true
-param logAnalyticsWorkspaceResourceId = '/subscriptions/<subId>/resourceGroups/<opsRg>/providers/Microsoft.OperationalInsights/workspaces/<laWorkspace>'
+param operationsLogAnalyticsWorkspaceResourceId = '/subscriptions/<subId>/resourceGroups/<opsRg>/providers/Microsoft.OperationalInsights/workspaces/<laWorkspace>'
 ```
 
 Guidance:
@@ -221,48 +226,40 @@ Guidance:
 
 ### Step-by-Step Parameter File Construction
 
-1. Core subscription-scope parameters: define `location`, `hubVnetResourceId`, `userAssignedIdentityResourceId`, and `resourceAbbreviations` to align naming with MLZ conventions.
+1. Core subscription-scope parameters: define `location`, `hubVnetResourceId`, and (optionally) `resourceAbbreviations` (identity is automatic).
 2. Establish `commonDefaults`: decide your baseline backend protocol (`Https` for TLS inspection), port, probe timings, autoscale caps, and (optionally) generated per-listener WAF defaults.
-3. Define each app in `apps`: supply a unique `name` (alphanumeric + simple delimiters), its `hostNames`, certificate secret, and backend addresses. Add only necessary overrides—omit fields to inherit `commonDefaults`.
-4. Add `addressPrefixes` per app: include ONLY the CIDRs that represent backend network segments requiring Firewall egress (spoke subnet ranges, private endpoint subnet ranges). Avoid overlapping broad CIDRs that subsume smaller ones unless you intend to route all of them.
-5. Decide WAF strategy per listener: use `wafOverrides` (inline tuning) OR `wafPolicyId` (external managed policy). Do not combine—external policy takes precedence; omit overrides when specifying `wafPolicyId`.
-6. (Optional) Include diagnostics parameters if you need LA workspace integration structurally (this README intentionally excludes consumption guidance).
+3. Define each app in `apps`: supply a unique `name`, its `hostNames`, certificate secret, and backend addresses. Add only necessary overrides—omit fields to inherit `commonDefaults`.
+4. Add `addressPrefixes` per app: include ONLY the CIDRs that represent backend network segments requiring Firewall egress. Avoid overly broad CIDRs.
+5. Decide WAF strategy per listener: use `wafOverrides` (inline) OR `wafPolicyId` (external policy). Do not combine.
+6. (Optional) Include diagnostics parameters if you need LA workspace integration.
 
 ### Complexity Clarifications
 
 | Aspect | Why It Exists | Key Rule | Pitfalls |
 |--------|---------------|----------|----------|
-| `hostNames` vs `backendAddresses` | Separate concern: request matching vs target endpoints | Hostnames drive listener creation; backendAddresses populate pool | Duplicating hostnames across two apps causes deployment validation conflicts |
-| FQDN vs IP backend entries | Support dynamic (DNS-resolved) vs static targets | Choose one object type per entry | Adding both forms for same server doubles probes & can confuse health states |
-| `backendHostHeader` | Preserve expected Host/SNI for backend cert or virtual host routing | Set to public hostname if backend expects public cert; set to internal FQDN if backend cert only internal | Omitting when backend cert CN differs from public host causes TLS/SNI failures |
-| `addressPrefixes` | Build selective UDR + firewall egress rules (least privilege) | Only list prefixes that must route via Firewall | Overly broad (e.g. entire hub address space) defeats selective routing and increases risk |
-| Per-listener WAF generation | Allow granular tuning without managing many external policies | Provide `wafOverrides` or `wafExclusions` and leave `wafPolicyId` empty | Supplying empty `wafOverrides` object still triggers policy generation—omit entirely if not needed |
-| Global vs listener WAF precedence | Avoid ambiguity between baseline and overrides | Listener-level policy (generated or external) applies only to that listener; global policy covers the rest | Mixing partial overrides via both can create inconsistent rule coverage assumptions |
-| Certificate coverage | One cert per listener covering all hostNames | Ensure SAN/wildcard covers each entry | Mismatch results in TLS errors for unmatched hostnames |
-| Probe status codes array | Structural allowance for non-200 codes without editing module | Use narrow codes (e.g. ["200"]) once backend stable | Broad ranges can mask failing deployments (e.g. 302 redirect loops) |
-| Autoscale vs subnet size | Preserve capacity headroom | Size subnet (/26 or larger) for scale target; defaults tuned conservatively | Using a /28 may block future scale increases |
-| Key Vault secret ID parsing | Derive vault name for RBAC assignment automatically | Provide full secret URI including version | Using secret without version may complicate rotation alignment |
+| `hostNames` vs `backendAddresses` | Separate concern: request matching vs target endpoints | Hostnames drive listener creation; backendAddresses populate pool | Duplicating hostnames across two apps causes deployment errors |
+| FQDN vs IP backend entries | Support dynamic (DNS-resolved) vs static targets | Choose one object type per entry | Adding both forms for same server duplicates probes |
+| `backendHostHeader` | Preserve expected Host/SNI for backend cert | Set to public host when backend cert expects it | Mismatch causes TLS/SNI failures |
+| `addressPrefixes` | Build selective UDR + firewall rules | Only list prefixes that must route via Firewall | Overly broad (e.g. /8) defeats least privilege |
+| Per-listener WAF generation | Granular tuning without many external policies | Provide overrides/exclusions & omit `wafPolicyId` | Empty overrides still trigger policy generation |
+| Global vs listener WAF precedence | Clarify control hierarchy | Listener-level policy overrides global for that listener | Mixing expectations causes confusion |
+| Certificate coverage | All listener hostnames must be covered | Ensure SAN/wildcard covers each | Missing SAN → TLS errors |
+| Probe status codes array | Allow structural customization | Narrow after stabilization | Broad ranges can hide issues |
+| Autoscale vs subnet size | Preserve growth headroom | Use /26 or larger for scale | Too small blocks scaling |
+| Key Vault secret ID parsing | Derive vault name automatically | Use full versioned secret URI | Unversioned secrets complicate rotation |
 
 ### Designing the `apps` Array
 
-Keep each `apps` element focused on a single logical application boundary that shares identical request processing and backend behavior. Use separate entries when:
-
-* Backends have different health probe paths or protocols.
-* TLS certificates differ (distinct host coverage).
-* WAF posture diverges significantly (different exclusions or rule overrides).
-
-Do NOT split the same logical app merely to add more backend addresses—add them to the `backendAddresses` array of the existing app.
+Create one element per logical application boundary (distinct probe path, cert, WAF posture, or backend behavior). Do NOT create separate app entries just to add more backend addresses—append addresses inside the existing app entry instead.
 
 ### Decision Matrix: FQDN vs IP
 
 Choose FQDN when backend is:
-Choose FQDN when backend is:
 
 * App Service (private endpoint) or other PaaS with mutable IP.
 * Internal Load Balancer where pool membership may change.
-* Service relying on internal DNS-based failover.
+* Service relying on DNS-based failover.
 
-Choose IP when backend is:
 Choose IP when backend is:
 
 * Static VM NIC with reserved private IP.
@@ -275,55 +272,54 @@ Valid mixed backend set (two distinct systems):
 
 ```jsonc
 "backendAddresses": [
-  { "fqdn": "app1-pe.azurewebsites.us" },
-  { "ipAddress": "10.20.10.5" }
+	{ "fqdn": "app1-pe.azurewebsites.us" },
+	{ "ipAddress": "10.20.10.5" }
 ]
-Invalid (both forms for same host intentionally duplicated):
+```
+
+Invalid (duplicate FQDN):
 
 ```jsonc
 "backendAddresses": [
-  { "fqdn": "app1-pe.azurewebsites.us" },
-  { "fqdn": "app1-pe.azurewebsites.us" }
+	{ "fqdn": "app1-pe.azurewebsites.us" },
+	{ "fqdn": "app1-pe.azurewebsites.us" }
 ]
 ```
 
 ### Listener Naming and Uniqueness
 
-`name` seeds listener, probe, and backend pool names. Keep under typical Azure name length limits (< 80 chars) and avoid uppercase for consistency. Two apps cannot share the same `name` even if hostnames differ.
+`name` seeds listener, probe, and backend pool names. Keep under Azure name length limits (< 80 chars). Names must be unique across apps.
 
 ### WAF Override Minimal Example
 
-If you only need to disable a single rule:
-
 ```jsonc
 "wafOverrides": {
-  "mode": "Prevention",
-  "managedRuleSetVersion": "3.2",
-  "ruleGroupOverrides": [ { "ruleGroupName": "REQUEST-942-APPLICATION-ATTACK-SQLI", "rules": [ { "ruleId": "942100", "state": "Disabled" } ] } ]
+	"mode": "Prevention",
+	"managedRuleSetVersion": "3.2",
+	"ruleGroupOverrides": [ { "ruleGroupName": "REQUEST-942-APPLICATION-ATTACK-SQLI", "rules": [ { "ruleId": "942100", "state": "Disabled" } ] } ]
 }
 ```
 
-Exclude unused keys; they inherit from generated defaults or global policy baseline.
+Exclude unused keys—they inherit from generated defaults or global policy baseline.
 
 ### Common Pitfalls & Remedies
 
 | Pitfall | Symptom | Structural Fix |
 |---------|---------|----------------|
-| Duplicate hostNames across two apps | Deployment validation error | Consolidate into one app or adjust hostnames |
-| Missing certificate coverage for all hostNames | TLS handshake failures on unmatched SAN | Reissue cert including all hostNames or split apps |
-| Overly broad addressPrefixes (e.g. 10.0.0.0/8) | Unintended routing of unrelated spokes | Replace with granular spoke / subnet CIDRs |
-| Mixed WAF overrides + external wafPolicyId | Override silently ignored | Remove overrides when using `wafPolicyId` |
-| Expecting to provide identity parameters | Unnecessary in new model | Remove identity params from .bicepparam |
-| Identity rename attempt via parameters | Not supported; derived from naming convention | Adjust MLZ core naming tokens (identifier/env/location/network) to influence resulting name |
-| Using IP for dynamic PaaS | Intermittent backend probe failures after platform scaling | Switch to FQDN target |
-| Supplying backendHostHeader that doesn't match backend cert | 502/SSL errors (structural mismatch) | Set host header to certificate CN/SAN value |
+| Duplicate hostNames across apps | Deployment validation error | Consolidate or adjust hostnames |
+| Missing certificate SAN for a host | TLS handshake failure | Reissue cert incl. host or split app |
+| Overly broad addressPrefixes | Unintended routing | Replace with granular CIDRs |
+| Overrides + wafPolicyId both supplied | Overrides ignored | Remove overrides when using `wafPolicyId` |
+| Supplying identity parameters | No effect | Remove identity params (auto-created) |
+| enableDiagnostics without workspace ID | No diagnostics deployed | Provide workspace ID or disable diagnostics |
+| backendHostHeader mismatch | 502/SSL errors | Match header to cert CN/SAN |
 
 ---
-These clarifications are structural; operational runtime behaviors (monitoring, probing diagnostics, performance analysis) remain intentionally out of scope.
+These clarifications are structural; operational runtime behaviors (monitoring, performance analysis) remain intentionally out of scope.
 
 ## Scope Clarification
 
-Operational guidance (KQL queries, troubleshooting, health probe response strategies, runtime dashboards) is intentionally excluded. This document focuses solely on structural deployment integration within MLZ hub-spoke, routing mechanics, listener configuration surface, and composing parameter input for TLS/WAF enablement.
+Operational guidance (KQL queries, troubleshooting, health probe response strategies, runtime dashboards) is intentionally excluded. This document focuses on structural deployment integration within MLZ hub-spoke, routing mechanics, listener configuration surface, and composing parameter input for TLS/WAF enablement.
 
 ---
-Active implementation; README constrained to integration & configuration scope.
+Active implementation; README constrained to integration & configuration scope. Report mismatches via issue with commit hash.
