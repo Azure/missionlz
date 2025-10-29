@@ -16,3 +16,28 @@ src/add-ons/application-gateway/solution.compiled.json
 
 # (If future compiled variants appear, add them explicitly rather than using a
 # broad *.json ignore, to avoid accidentally ignoring parameter or config files.)
+
+# -----------------------------------------------------------------------------
+# Local development / test artifacts to ignore
+# -----------------------------------------------------------------------------
+
+# Node modules for sample health check app
+healthz-app/node_modules/
+
+# Local packaged test zips (deployment payloads not versioned)
+*.zip
+
+# Baseline / diff / exported policy JSON snapshots (not source-of-truth)
+appgw-baseline-*.json
+*policy.json
+*-policy.json
+policy-*.json
+backend-apt-egress.json
+
+# Backup / scratch Bicep files
+*.bak
+src/add-ons/application-gateway/appgateway-core.bicep
+src/add-ons/application-gateway/modules/kv-role-assignment-script.bicep
+
+# Misc local scripts / temp app stubs that should not ship
+app.py
