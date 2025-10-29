@@ -28,7 +28,7 @@ At the top level `solution.bicep` exposes (primary subset):
 | `apps` | Array of listener/back‑end definitions (see structure below). |
 | `commonDefaults` | Global baseline applied to each app unless overridden (ports, probe timing, acceptable status codes, autoscale, WAF generation defaults, etc.). |
 | `existingWafPolicyId` | Attach an existing global WAF policy instead of generating a new one. |
-| `userAssignedIdentityResourceId` | Identity granted Key Vault secret get (certificates). |
+| (auto) userAssignedIdentity | Always created idempotently using MLZ naming conventions (abbreviation `id`) and granted Key Vault secrets read role if enabled. |
 | `backendAllowPorts` | Baseline allowed egress ports from AppGW subnet to backends (used in firewall rule set). |
 | `customAppGatewayFirewallRuleCollectionGroups` | Additional Firewall rule collection groups (merged with baseline). |
 | `disablePrivateEndpointNetworkPolicies` | (Default true) Prevents Private Endpoints inside the AppGW subnet. |
@@ -157,7 +157,7 @@ using 'solution.bicep'
 
 param location = 'usgovvirginia'
 param hubVnetResourceId = '/subscriptions/<subId>/resourceGroups/<hubRg>/providers/Microsoft.Network/virtualNetworks/<hubVnetName>'
-param userAssignedIdentityResourceId = '/subscriptions/<subId>/resourceGroups/<hubRg>/providers/Microsoft.ManagedIdentity/userAssignedIdentities/<uaiName>'
+// (Identity created automatically; no identity parameters required)
 param resourceAbbreviations = {  // Passed from MLZ core deployment conventions
   applicationGateway: 'agw'
   networkSecurityGroup: 'nsg'
@@ -215,6 +215,7 @@ param logAnalyticsWorkspaceResourceId = '/subscriptions/<subId>/resourceGroups/<
 Guidance:
 
 * Include only CIDRs in `addressPrefixes` that must traverse Firewall from the gateway.
+* Identity is always created (idempotent). No identity parameters required.
 * Use `wafOverrides` for inline listener-specific tuning; prefer `wafPolicyId` when an external, centrally managed policy already exists.
 * Provide consistent Key Vault secret versioned IDs for certificates; the module derives vault name for optional RBAC assignment.
 
@@ -312,6 +313,8 @@ Exclude unused keys; they inherit from generated defaults or global policy basel
 | Missing certificate coverage for all hostNames | TLS handshake failures on unmatched SAN | Reissue cert including all hostNames or split apps |
 | Overly broad addressPrefixes (e.g. 10.0.0.0/8) | Unintended routing of unrelated spokes | Replace with granular spoke / subnet CIDRs |
 | Mixed WAF overrides + external wafPolicyId | Override silently ignored | Remove overrides when using `wafPolicyId` |
+| Expecting to provide identity parameters | Unnecessary in new model | Remove identity params from .bicepparam |
+| Identity rename attempt via parameters | Not supported; derived from naming convention | Adjust MLZ core naming tokens (identifier/env/location/network) to influence resulting name |
 | Using IP for dynamic PaaS | Intermittent backend probe failures after platform scaling | Switch to FQDN target |
 | Supplying backendHostHeader that doesn't match backend cert | 502/SSL errors (structural mismatch) | Set host header to certificate CN/SAN value |
 

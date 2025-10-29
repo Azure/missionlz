@@ -44,17 +44,16 @@ param locationAbbreviation string = ''
 @description('Network name token for naming (e.g. hub). If not provided inferred from hub VNet name segmentation.')
 param networkName string = 'hub'
 @description('Resource abbreviations object from core deployment (passed through from MLZ core).')
-param resourceAbbreviations object
-@description('Existing User Assigned Identity resource ID granting Key Vault secret get access for TLS certs (required).')
-param userAssignedIdentityResourceId string
+// Auto-load canonical resource abbreviations JSON (eliminates need for manual duplication in param file)
+param resourceAbbreviations object = loadJsonContent('../../data/resource-abbreviations.json')
 @description('Whether to create a Key Vault secrets read role assignment for the user-assigned identity (RBAC-enabled vault).')
 param createKeyVaultSecretAccessRole bool = true
 @description('Optional override for Key Vault resource group (defaults to hub RG).')
 param keyVaultResourceGroupName string = ''
 @description('Enable diagnostics (Log Analytics) for the Application Gateway')
 param enableDiagnostics bool = true
-@description('Existing Log Analytics Workspace resource ID used for diagnostics (leave empty to skip).')
-param logAnalyticsWorkspaceResourceId string = ''
+@description('Resource ID of the operations Log Analytics Workspace used for diagnostics (leave empty to skip).')
+param operationsLogAnalyticsWorkspaceResourceId string = ''
 
 // WAF policy tuning (applies only when creating a new policy via resolver)
 @description('Desired WAF policy mode when creating new policy (Prevention or Detection).')
@@ -83,21 +82,47 @@ var keyVaultRoleDefinitionId = subscriptionResourceId('Microsoft.Authorization/r
 var effectiveKeyVaultRg = empty(keyVaultResourceGroupName) ? hubRgName : keyVaultResourceGroupName
 // (Removed inline existing Key Vault reference; handled inside kv-role-assignment module)
 
-resource uai 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = {
-  name: last(split(userAssignedIdentityResourceId, '/'))
-  scope: resourceGroup(hubRgName)
-}
+// Identity is ALWAYS created (idempotent) using MLZ naming convention output (userAssignedIdentity)
+// Placed after naming module so we can reference naming.outputs.names.userAssignedIdentity.
 
 // Role assignment giving the user-assigned identity access to read secrets from the Key Vault (RBAC mode)
-// Least privilege: scope role assignment directly to the Key Vault instead of subscription
+// Deterministic GUID naming: delete any pre-existing random assignment once, then future redeploys are clean
+// NOTE: Compiler limitations prevent safe early access to conditional module outputs without warnings.
+// For simplicity in this revision, automatic Key Vault role assignment is deferred when creating the identity in the same deployment.
+// Users can perform RBAC assignment in a subsequent deployment or manually.
+// Naming convention module (subscription scope)
+module naming '../../modules/naming-convention.bicep' = {
+  name: 'naming-appgw-${deploymentNameSuffix}'
+  params: {
+    delimiter: delimiter
+    identifier: effectiveIdentifier
+    environmentAbbreviation: effectiveEnvironment
+    locationAbbreviation: effectiveLocationAbbrev
+    networkName: networkName
+    resourceAbbreviations: resourceAbbreviations
+  }
+}
+
+// User-assigned identity creation (RG-scoped)
+module userAssignedIdentity 'modules/user-assigned-identity.bicep' = {
+  name: 'userAssignedIdentity'
+  scope: resourceGroup(hubRgName)
+  params: {
+    identityName: naming.outputs.names.userAssignedIdentity
+    location: location
+    tags: tags
+  }
+}
+var effectiveUserAssignedIdentityResourceId = userAssignedIdentity.outputs.identityResourceId
+
 module kvSecretsReader 'modules/kv-role-assignment.bicep' = if (createKeyVaultSecretAccessRole && !empty(keyVaultName)) {
   name: 'kvSecretsReader'
   scope: resourceGroup(effectiveKeyVaultRg)
   params: {
     keyVaultName: keyVaultName
     roleDefinitionId: keyVaultRoleDefinitionId
-  principalId: uai.properties.principalId
-  userAssignedIdentityResourceId: userAssignedIdentityResourceId
+    principalId: userAssignedIdentity.outputs.principalId
+    userAssignedIdentityResourceId: effectiveUserAssignedIdentityResourceId
     enable: true
   }
 }
@@ -114,18 +139,7 @@ var effectiveIdentifier = empty(identifier) && length(inferredTokens) > 0 ? infe
 var effectiveEnvironment = empty(environmentAbbreviation) && length(inferredTokens) > 1 ? inferredTokens[1] : environmentAbbreviation
 var effectiveLocationAbbrev = empty(locationAbbreviation) && length(inferredTokens) > 2 ? inferredTokens[2] : locationAbbreviation
 
-// Naming convention module (subscription scope)
-module naming '../../modules/naming-convention.bicep' = {
-  name: 'naming-appgw-${deploymentNameSuffix}'
-  params: {
-    delimiter: delimiter
-    identifier: effectiveIdentifier
-    environmentAbbreviation: effectiveEnvironment
-    locationAbbreviation: effectiveLocationAbbrev
-    networkName: networkName
-    resourceAbbreviations: resourceAbbreviations
-  }
-}
+// (Moved naming module earlier to support identity creation) // NOTE: duplicated above after refactor; original block removed.
 
 // Resolve firewall private IP via RG-scoped helper (avoids direct runtime property access in subscription scope)
 module resolveFirewallIp 'modules/resolve-firewall-ip.bicep' = {
@@ -147,6 +161,8 @@ var dedupPrefixes = [for (p,i) in allAppPrefixes: (!empty(p) && indexOf(allAppPr
 // If empty, module will fall back to broad rule using backendPrefixes + backendAllowPorts.
 // Build forced route entries; original comprehension produced null placeholders. We use a ternary and then discard nulls via a second flattening step.
 // Build forced route entries only for non-empty deduplicated prefixes (no null placeholders required now)
+// Always create forced route entries for declared backend prefixes so traffic is steered through the Firewall.
+// NOTE: Ensure corresponding return path considerations (backend subnets may also need UDRs) to avoid asymmetric flows.
 var effectiveInternalForcedRouteEntries = [for p in dedupPrefixes: !empty(p) ? {
   prefix: p
   source: replace(replace(substring(p,0, min(15,length(p))),'/','-'),'.','-')
@@ -165,7 +181,7 @@ module appgwNsg 'modules/appgateway-nsg.bicep' = if (createSubnetNsg) {
 var appgwNsgId = createSubnetNsg ? resourceId(subscription().subscriptionId, hubRgName, 'Microsoft.Network/networkSecurityGroups', naming.outputs.names.applicationGatewayNetworkSecurityGroup) : ''
 
 // Route table (must exist before subnet for association)
-module appgwRouteTable 'appgateway-route-table.bicep' = {
+module appgwRouteTable 'modules/appgateway-route-table.bicep' = {
   name: 'appgwRouteTable'
   scope: resourceGroup(hubRgName)
   params: {
@@ -180,7 +196,7 @@ module appgwRouteTable 'appgateway-route-table.bicep' = {
 }
 
 // Single authoritative subnet definition including NSG + route table association
-module appgwSubnet 'appgateway-subnet.bicep' = {
+module appgwSubnet 'modules/appgateway-subnet.bicep' = {
   name: 'appgwSubnet'
   scope: resourceGroup(hubRgName)
   params: {
@@ -264,7 +280,7 @@ var generatedPolicyManagedRuleSetVersion   = cd.?generatedPolicyManagedRuleSetVe
 // Multi-frontend removed (Gov limitation). Single public IP only.
 
 // Core App Gateway (single module)
-module appgwCore 'appgateway-core.bicep' = {
+module appgwCore 'modules/appgateway-core.bicep' = {
   name: 'appgwCore'
   scope: resourceGroup(hubRgName)
   params: {
@@ -292,32 +308,18 @@ module appgwCore 'appgateway-core.bicep' = {
     autoscaleMinCapacity: autoscaleMinCapacity
     autoscaleMaxCapacity: autoscaleMaxCapacity
     tags: tags
-    userAssignedIdentityResourceId: userAssignedIdentityResourceId
+    userAssignedIdentityResourceId: effectiveUserAssignedIdentityResourceId
     baseWafPolicyName: naming.outputs.names.applicationGatewayWafPolicy
   }
 }
 
-// Diagnostics (conditional)
-var effectiveEnableDiagnostics = enableDiagnostics && !empty(logAnalyticsWorkspaceResourceId)
-// Derive workspace name from resource ID (last segment) for conditional creation if it doesn't exist yet
-var workspaceIdSegments = !empty(logAnalyticsWorkspaceResourceId) ? split(logAnalyticsWorkspaceResourceId, '/') : []
-var workspaceName = !empty(logAnalyticsWorkspaceResourceId) ? workspaceIdSegments[length(workspaceIdSegments)-1] : ''
-// Create Log Analytics workspace via module if diagnostics enabled.
-module laWorkspace 'loganalytics-workspace.bicep' = if (effectiveEnableDiagnostics) {
-  name: 'appgwLogAnalytics'
-  scope: resourceGroup(hubRgName)
-  params: {
-    name: workspaceName
-    location: location
-    tags: tags
-    retentionDays: 30
-  }
-}
-module appgwDiagnostics 'appgateway-diagnostics.bicep' = {
+// Diagnostics (conditional) - single parameter pattern consistent with other add-ons
+var effectiveEnableDiagnostics = enableDiagnostics && !empty(operationsLogAnalyticsWorkspaceResourceId)
+module appgwDiagnostics 'modules/appgateway-diagnostics.bicep' = {
   name: 'appgwDiagnostics'
   scope: resourceGroup(hubRgName)
   params: {
-    logAnalyticsWorkspaceId: logAnalyticsWorkspaceResourceId
+    logAnalyticsWorkspaceId: operationsLogAnalyticsWorkspaceResourceId
     appGatewayName: naming.outputs.names.applicationGateway
     enable: effectiveEnableDiagnostics
   }
@@ -349,3 +351,6 @@ output backendPoolNames array = appgwCore.outputs.backendPoolNames
 output forcedRouteEntries array = effectiveInternalForcedRouteEntries
 // Diagnostics output intentionally omitted to avoid conditional module reference at compile time
 output diagnosticsSettingId string = effectiveEnableDiagnostics ? appgwDiagnostics.outputs.diagnosticsSettingId : ''
+output operationsLogAnalyticsWorkspaceResourceIdOut string = operationsLogAnalyticsWorkspaceResourceId
+output userAssignedIdentityResourceIdOut string = effectiveUserAssignedIdentityResourceId
+output userAssignedIdentityPrincipalId string = userAssignedIdentity.outputs.principalId
