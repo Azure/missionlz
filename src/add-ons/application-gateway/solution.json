@@ -1,0 +1,2145 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.38.33.27573",
+      "templateHash": "3326599632418087205"
+    }
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "metadata": {
+        "description": "Azure region for deployment"
+      }
+    },
+    "deploymentNameSuffix": {
+      "type": "string",
+      "defaultValue": "[utcNow()]",
+      "metadata": {
+        "description": "A suffix to use for uniquely naming deployment-scoped modules (not part of resource names)."
+      }
+    },
+    "hubVnetResourceId": {
+      "type": "string",
+      "metadata": {
+        "description": "Hub VNet resource ID where AppGateway subnet will reside"
+      }
+    },
+    "appGatewaySubnetAddressPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.129.0/26",
+      "metadata": {
+        "description": "Address prefix for the dedicated Application Gateway subnet (must be within hub VNet and unused). Platform recommendation for WAF_v2 is /24 for maximum future autoscale headroom; minimum supported is /26. Using /26 here by design to conserve address space."
+      }
+    },
+    "appGatewaySubnetName": {
+      "type": "string",
+      "defaultValue": "AppGateway",
+      "metadata": {
+        "description": "Subnet name for the Application Gateway."
+      }
+    },
+    "disablePrivateEndpointNetworkPolicies": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Disable private endpoint network policies on the AppGateway subnet (prevents Private Endpoint creation there)."
+      }
+    },
+    "commonDefaults": {
+      "type": "object",
+      "metadata": {
+        "description": "Common default settings object applied to each app unless overridden"
+      }
+    },
+    "apps": {
+      "type": "array",
+      "metadata": {
+        "description": "Array of application definitions. Each app: { name, backendAddresses:[{ipAddress|fqdn}], certificateSecretId, (optional) addressPrefix, (optional) addressPrefixes:[CIDR...], (optional) wafOverrides:{ mode, requestBodyCheck, maxRequestBodySizeInKb, fileUploadLimitInMb, managedRuleSetVersion } }. addressPrefixes overrides addressPrefix when provided."
+      }
+    },
+    "tags": {
+      "type": "object",
+      "defaultValue": {},
+      "metadata": {
+        "description": "Tags to apply to all created resources"
+      }
+    },
+    "existingWafPolicyId": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Existing WAF policy resource ID (if provided, skip creating new policy)"
+      }
+    },
+    "createSubnetNsg": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Whether to create and associate an NSG to the App Gateway subnet."
+      }
+    },
+    "customAppGatewayFirewallRuleCollectionGroups": {
+      "type": "array",
+      "defaultValue": [],
+      "metadata": {
+        "description": "Optional custom firewall rule collection groups for App Gateway egress. If empty, an opinionated default group will be created."
+      }
+    },
+    "backendAllowPorts": {
+      "type": "array",
+      "defaultValue": [
+        "443"
+      ],
+      "metadata": {
+        "description": "Destination ports to allow from Application Gateway subnet to backend prefixes (array of strings, supports ranges e.g. 443-445)."
+      }
+    },
+    "backendPrefixPortMaps": {
+      "type": "array",
+      "defaultValue": [],
+      "metadata": {
+        "description": "Internal: future manual override for per-prefix port maps (leave empty)."
+      }
+    },
+    "backendAppPortMaps": {
+      "type": "array",
+      "defaultValue": [],
+      "metadata": {
+        "description": "Derived per-listener backend port maps (do not set manually)."
+      }
+    },
+    "delimiter": {
+      "type": "string",
+      "defaultValue": "-",
+      "metadata": {
+        "description": "Delimiter used in MLZ naming convention (pass through from core)."
+      }
+    },
+    "identifier": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Identifier / environment / location tokens used for naming; if not provided they will be inferred from hub VNet name when possible."
+      }
+    },
+    "environmentAbbreviation": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "locationAbbreviation": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "networkName": {
+      "type": "string",
+      "defaultValue": "hub",
+      "metadata": {
+        "description": "Network name token for naming (e.g. hub). If not provided inferred from hub VNet name segmentation."
+      }
+    },
+    "resourceAbbreviations": {
+      "type": "object",
+      "defaultValue": "[variables('$fxv#0')]",
+      "metadata": {
+        "description": "Resource abbreviations object from core deployment (passed through from MLZ core)."
+      }
+    },
+    "createKeyVaultSecretAccessRole": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Whether to create a Key Vault secrets read role assignment for the user-assigned identity (RBAC-enabled vault)."
+      }
+    },
+    "keyVaultResourceGroupName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Optional override for Key Vault resource group (defaults to hub RG)."
+      }
+    },
+    "enableDiagnostics": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Enable diagnostics (Log Analytics) for the Application Gateway"
+      }
+    },
+    "operationsLogAnalyticsWorkspaceResourceId": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Resource ID of the operations Log Analytics Workspace used for diagnostics (leave empty to skip)."
+      }
+    },
+    "wafPolicyMode": {
+      "type": "string",
+      "defaultValue": "Prevention",
+      "allowedValues": [
+        "Prevention",
+        "Detection"
+      ],
+      "metadata": {
+        "description": "Desired WAF policy mode when creating new policy (Prevention or Detection)."
+      }
+    },
+    "wafManagedRuleSetVersion": {
+      "type": "string",
+      "defaultValue": "3.2",
+      "metadata": {
+        "description": "OWASP Core Rule Set version (e.g. 3.2, 3.1)."
+      }
+    },
+    "wafRequestBodyCheck": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Enable or disable WAF requestBodyCheck when creating policy."
+      }
+    },
+    "wafMaxRequestBodySizeInKb": {
+      "type": "int",
+      "defaultValue": 128,
+      "metadata": {
+        "description": "Optional max request body size (KB) when creating new WAF policy."
+      }
+    },
+    "wafFileUploadLimitInMb": {
+      "type": "int",
+      "defaultValue": 100,
+      "metadata": {
+        "description": "Optional file upload limit (MB) when creating new WAF policy."
+      }
+    }
+  },
+  "variables": {
+    "copy": [
+      {
+        "name": "appsPrefixMatrix",
+        "count": "[length(parameters('apps'))]",
+        "input": "[if(not(empty(tryGet(parameters('apps')[copyIndex('appsPrefixMatrix')], 'addressPrefixes'))), parameters('apps')[copyIndex('appsPrefixMatrix')].addressPrefixes, if(not(empty(tryGet(parameters('apps')[copyIndex('appsPrefixMatrix')], 'addressPrefix'))), createArray(parameters('apps')[copyIndex('appsPrefixMatrix')].addressPrefix), createArray()))]"
+      },
+      {
+        "name": "dedupPrefixes",
+        "count": "[length(variables('allAppPrefixes'))]",
+        "input": "[if(and(not(empty(variables('allAppPrefixes')[copyIndex('dedupPrefixes')])), equals(indexOf(variables('allAppPrefixes'), variables('allAppPrefixes')[copyIndex('dedupPrefixes')]), copyIndex('dedupPrefixes'))), variables('allAppPrefixes')[copyIndex('dedupPrefixes')], '')]"
+      },
+      {
+        "name": "effectiveInternalForcedRouteEntries",
+        "count": "[length(variables('dedupPrefixes'))]",
+        "input": "[if(not(empty(variables('dedupPrefixes')[copyIndex('effectiveInternalForcedRouteEntries')])), createObject('prefix', variables('dedupPrefixes')[copyIndex('effectiveInternalForcedRouteEntries')], 'source', replace(replace(substring(variables('dedupPrefixes')[copyIndex('effectiveInternalForcedRouteEntries')], 0, min(15, length(variables('dedupPrefixes')[copyIndex('effectiveInternalForcedRouteEntries')]))), '/', '-'), '.', '-')), null())]"
+      },
+      {
+        "name": "listeners",
+        "count": "[length(parameters('apps'))]",
+        "input": {
+          "name": "[parameters('apps')[copyIndex('listeners')].name]",
+          "hostNames": "[parameters('apps')[copyIndex('listeners')].hostNames]",
+          "backendAddresses": "[parameters('apps')[copyIndex('listeners')].backendAddresses]",
+          "backendPort": "[tryGet(parameters('apps')[copyIndex('listeners')], 'backendPort')]",
+          "backendProtocol": "[tryGet(parameters('apps')[copyIndex('listeners')], 'backendProtocol')]",
+          "healthProbePath": "[tryGet(parameters('apps')[copyIndex('listeners')], 'healthProbePath')]",
+          "probeInterval": "[tryGet(parameters('apps')[copyIndex('listeners')], 'probeInterval')]",
+          "probeTimeout": "[tryGet(parameters('apps')[copyIndex('listeners')], 'probeTimeout')]",
+          "unhealthyThreshold": "[tryGet(parameters('apps')[copyIndex('listeners')], 'unhealthyThreshold')]",
+          "probeMatchStatusCodes": "[tryGet(parameters('apps')[copyIndex('listeners')], 'probeMatchStatusCodes')]",
+          "certificateSecretId": "[parameters('apps')[copyIndex('listeners')].certificateSecretId]",
+          "wafPolicyId": "[tryGet(parameters('apps')[copyIndex('listeners')], 'wafPolicyId')]",
+          "wafExclusions": "[tryGet(parameters('apps')[copyIndex('listeners')], 'wafExclusions')]",
+          "wafOverrides": "[tryGet(parameters('apps')[copyIndex('listeners')], 'wafOverrides')]",
+          "backendHostHeader": "[tryGet(parameters('apps')[copyIndex('listeners')], 'backendHostHeader')]"
+        }
+      }
+    ],
+    "$fxv#0": {
+      "actionGroups": "ag",
+      "applicationGroups": "vdag",
+      "applicationInsights": "appi",
+      "appServicePlans": "asp",
+      "automationAccounts": "aa",
+      "availabilitySets": "avail",
+      "azureFirewalls": "afw",
+      "bastionHosts": "bas",
+      "computeGallieries": "cg",
+      "dataCollectionEndpoints": "dce",
+      "dataCollectionRuleAssociations": "dcra",
+      "dataCollectionRules": "dcr",
+      "diagnosticSettings": "diag",
+      "diskAccesses": "da",
+      "diskEncryptionSets": "des",
+      "disks": "disk",
+      "firewallPolicies": "afwp",
+      "applicationGateways": "agw",
+      "applicationGatewayWafPolicies": "agwwafp",
+      "functionApps": "func",
+      "hostPools": "vdpool",
+      "ipConfigurations": "ipconf",
+      "keyVaults": "kv",
+      "localNetworkGateways": "lgw",
+      "logAnalyticsWorkspaces": "log",
+      "natGateways": "ng",
+      "netAppAccounts": "naa",
+      "netAppAccountsCapacityPools": "cp",
+      "networkInterfaces": "nic",
+      "networkSecurityGroups": "nsg",
+      "networkWatchers": "nw",
+      "networkWatchersFlowLogs": "fl",
+      "privateEndpoints": "pe",
+      "privateLinkScopes": "pls",
+      "publicIPAddresses": "pip",
+      "publicIPPrefixes": "ippre",
+      "recoveryServicesVaults": "rsv",
+      "remoteApplicationGroups": "vdag",
+      "resourceGroups": "rg",
+      "routeTables": "rt",
+      "scalingPlans": "vdscaling",
+      "storageAccounts": "st",
+      "subnets": "snet",
+      "userAssignedIdentities": "id",
+      "virtualMachines": "vm",
+      "virtualNetworkGateways": "vgw",
+      "virtualNetworks": "vnet",
+      "workspaces": "vdws"
+    },
+    "hubRgName": "[split(parameters('hubVnetResourceId'), '/')[4]]",
+    "baseSecretId": "[if(and(contains(parameters('commonDefaults'), 'defaultCertificateSecretId'), not(empty(parameters('commonDefaults').defaultCertificateSecretId))), parameters('commonDefaults').defaultCertificateSecretId, if(not(empty(parameters('apps'))), parameters('apps')[0].certificateSecretId, ''))]",
+    "keyVaultHost": "[if(not(empty(variables('baseSecretId'))), split(split(variables('baseSecretId'), '//')[1], '/')[0], '')]",
+    "keyVaultName": "[if(not(empty(variables('keyVaultHost'))), substring(variables('keyVaultHost'), 0, indexOf(variables('keyVaultHost'), '.vault')), '')]",
+    "keyVaultRoleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '4633458b-17de-408a-b874-0445c86b69e6')]",
+    "effectiveKeyVaultRg": "[if(empty(parameters('keyVaultResourceGroupName')), variables('hubRgName'), parameters('keyVaultResourceGroupName'))]",
+    "hubVnetName": "[last(split(parameters('hubVnetResourceId'), '/'))]",
+    "inferredTokens": "[split(variables('hubVnetName'), parameters('delimiter'))]",
+    "effectiveIdentifier": "[if(and(empty(parameters('identifier')), greater(length(variables('inferredTokens')), 0)), variables('inferredTokens')[0], parameters('identifier'))]",
+    "effectiveEnvironment": "[if(and(empty(parameters('environmentAbbreviation')), greater(length(variables('inferredTokens')), 1)), variables('inferredTokens')[1], parameters('environmentAbbreviation'))]",
+    "effectiveLocationAbbrev": "[if(and(empty(parameters('locationAbbreviation')), greater(length(variables('inferredTokens')), 2)), variables('inferredTokens')[2], parameters('locationAbbreviation'))]",
+    "allAppPrefixes": "[flatten(variables('appsPrefixMatrix'))]",
+    "cd": "[parameters('commonDefaults')]",
+    "defaultBackendPort": "[coalesce(tryGet(variables('cd'), 'backendPort'), 443)]",
+    "defaultBackendProtocol": "[coalesce(tryGet(variables('cd'), 'backendProtocol'), 'Https')]",
+    "defaultHealthProbePath": "[coalesce(tryGet(variables('cd'), 'healthProbePath'), '/')]",
+    "defaultProbeInterval": "[coalesce(tryGet(variables('cd'), 'probeInterval'), 30)]",
+    "defaultProbeTimeout": "[coalesce(tryGet(variables('cd'), 'probeTimeout'), 30)]",
+    "defaultUnhealthyThreshold": "[coalesce(tryGet(variables('cd'), 'unhealthyThreshold'), 3)]",
+    "defaultProbeMatchStatusCodes": "[coalesce(tryGet(variables('cd'), 'probeMatchStatusCodes'), createArray('200-399'))]",
+    "httpsListenerPort": "[coalesce(tryGet(variables('cd'), 'listenerFrontendPort'), 443)]",
+    "enableHttp2": "[coalesce(tryGet(variables('cd'), 'enableHttp2'), true())]",
+    "autoscaleMinCapacity": "[coalesce(tryGet(variables('cd'), 'autoscaleMinCapacity'), 1)]",
+    "autoscaleMaxCapacity": "[coalesce(tryGet(variables('cd'), 'autoscaleMaxCapacity'), 2)]",
+    "generatedPolicyMode": "[coalesce(tryGet(variables('cd'), 'generatedPolicyMode'), parameters('wafPolicyMode'))]",
+    "generatedPolicyRequestBodyCheck": "[coalesce(tryGet(variables('cd'), 'generatedPolicyRequestBodyCheck'), parameters('wafRequestBodyCheck'))]",
+    "generatedPolicyMaxRequestBodySizeInKb": "[coalesce(tryGet(variables('cd'), 'generatedPolicyMaxRequestBodySizeInKb'), parameters('wafMaxRequestBodySizeInKb'))]",
+    "generatedPolicyFileUploadLimitInMb": "[coalesce(tryGet(variables('cd'), 'generatedPolicyFileUploadLimitInMb'), parameters('wafFileUploadLimitInMb'))]",
+    "generatedPolicyManagedRuleSetVersion": "[coalesce(tryGet(variables('cd'), 'generatedPolicyManagedRuleSetVersion'), parameters('wafManagedRuleSetVersion'))]",
+    "effectiveEnableDiagnostics": "[and(parameters('enableDiagnostics'), not(empty(parameters('operationsLogAnalyticsWorkspaceResourceId'))))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "[format('naming-appgw-{0}', parameters('deploymentNameSuffix'))]",
+      "location": "[deployment().location]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "delimiter": {
+            "value": "[parameters('delimiter')]"
+          },
+          "identifier": {
+            "value": "[variables('effectiveIdentifier')]"
+          },
+          "environmentAbbreviation": {
+            "value": "[variables('effectiveEnvironment')]"
+          },
+          "locationAbbreviation": {
+            "value": "[variables('effectiveLocationAbbrev')]"
+          },
+          "networkName": {
+            "value": "[parameters('networkName')]"
+          },
+          "resourceAbbreviations": {
+            "value": "[parameters('resourceAbbreviations')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.38.33.27573",
+              "templateHash": "6859637770885056581"
+            }
+          },
+          "parameters": {
+            "delimiter": {
+              "type": "string",
+              "allowedValues": [
+                "",
+                "-"
+              ]
+            },
+            "environmentAbbreviation": {
+              "type": "string"
+            },
+            "identifier": {
+              "type": "string"
+            },
+            "locationAbbreviation": {
+              "type": "string"
+            },
+            "networkName": {
+              "type": "string"
+            },
+            "resourceAbbreviations": {
+              "type": "object"
+            },
+            "stampIndex": {
+              "type": "string",
+              "defaultValue": ""
+            }
+          },
+          "variables": {
+            "tokens": {
+              "resource": "resource_token",
+              "service": "service_token"
+            },
+            "namingConvention": "[format('{0}{1}{2}{3}{4}{5}{6}{7}{8}{9}', toLower(parameters('identifier')), parameters('delimiter'), parameters('environmentAbbreviation'), parameters('delimiter'), parameters('locationAbbreviation'), parameters('delimiter'), parameters('networkName'), parameters('delimiter'), variables('tokens').resource, if(empty(parameters('stampIndex')), '', format('{0}{1}', parameters('delimiter'), parameters('stampIndex'))))]",
+            "namingConvention_Service": "[format('{0}{1}{2}{3}{4}{5}{6}{7}{8}{9}{10}{11}', toLower(parameters('identifier')), parameters('delimiter'), parameters('environmentAbbreviation'), parameters('delimiter'), parameters('locationAbbreviation'), parameters('delimiter'), parameters('networkName'), parameters('delimiter'), variables('tokens').service, parameters('delimiter'), variables('tokens').resource, if(empty(parameters('stampIndex')), '', format('{0}{1}', parameters('delimiter'), parameters('stampIndex'))))]",
+            "names": {
+              "actionGroup": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').actionGroups)]",
+              "applicationGroup": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').applicationGroups)]",
+              "applicationInsights": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').applicationInsights)]",
+              "appServicePlan": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').appServicePlans)]",
+              "automationAccount": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').automationAccounts)]",
+              "automationAccountDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, parameters('resourceAbbreviations').automationAccounts)]",
+              "automationAccountNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), variables('tokens').service, parameters('resourceAbbreviations').automationAccounts)]",
+              "automationAccountPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), variables('tokens').service, parameters('resourceAbbreviations').automationAccounts)]",
+              "availabilitySet": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').availabilitySets)]",
+              "azureFirewall": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').azureFirewalls)]",
+              "azureFirewallPublicIPAddress": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').publicIPAddresses), variables('tokens').service, parameters('resourceAbbreviations').azureFirewalls)]",
+              "azureFirewallPublicIPAddressDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, format('{0}{1}{2}', parameters('resourceAbbreviations').publicIPAddresses, parameters('delimiter'), parameters('resourceAbbreviations').azureFirewalls))]",
+              "azureFirewallDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, parameters('resourceAbbreviations').azureFirewalls)]",
+              "azureFirewallPolicy": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').firewallPolicies)]",
+              "applicationGateway": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').applicationGateways)]",
+              "applicationGatewayPublicIPAddress": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').publicIPAddresses), variables('tokens').service, parameters('resourceAbbreviations').applicationGateways)]",
+              "applicationGatewayDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, parameters('resourceAbbreviations').applicationGateways)]",
+              "applicationGatewayWafPolicy": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').applicationGatewayWafPolicies)]",
+              "applicationGatewayWafPolicyDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, parameters('resourceAbbreviations').applicationGatewayWafPolicies)]",
+              "applicationGatewayRouteTable": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').routeTables), variables('tokens').service, parameters('resourceAbbreviations').applicationGateways)]",
+              "applicationGatewayNetworkSecurityGroup": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').networkSecurityGroups), variables('tokens').service, parameters('resourceAbbreviations').applicationGateways)]",
+              "bastionHost": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').bastionHosts)]",
+              "bastionHostDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, parameters('resourceAbbreviations').bastionHosts)]",
+              "bastionHostNetworkSecurityGroup": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').networkSecurityGroups), variables('tokens').service, parameters('resourceAbbreviations').bastionHosts)]",
+              "bastionHostNetworkSecurityGroupDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, format('{0}{1}{2}', parameters('resourceAbbreviations').networkSecurityGroups, parameters('delimiter'), parameters('resourceAbbreviations').bastionHosts))]",
+              "bastionHostPublicIPAddress": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').publicIPAddresses), variables('tokens').service, parameters('resourceAbbreviations').bastionHosts)]",
+              "bastionHostPublicIPAddressDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, format('{0}{1}{2}', parameters('resourceAbbreviations').publicIPAddresses, parameters('delimiter'), parameters('resourceAbbreviations').bastionHosts))]",
+              "computeGallery": "[replace(replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').computeGallieries), parameters('delimiter'), if(empty(parameters('delimiter')), '', '_'))]",
+              "dataCollectionEndpoint": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').dataCollectionEndpoints)]",
+              "dataCollectionRuleAssociation": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').dataCollectionRuleAssociations)]",
+              "dataCollectionRule": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').dataCollectionRules)]",
+              "diskAccess": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').diskAccesses)]",
+              "diskAccessNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), variables('tokens').service, parameters('resourceAbbreviations').diskAccesses)]",
+              "diskAccessPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), variables('tokens').service, parameters('resourceAbbreviations').diskAccesses)]",
+              "diskEncryptionSet": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').diskEncryptionSets)]",
+              "functionApp": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').functionApps)]",
+              "functionAppNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), variables('tokens').service, parameters('resourceAbbreviations').functionApps)]",
+              "functionAppPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), variables('tokens').service, parameters('resourceAbbreviations').functionApps)]",
+              "hostPool": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').hostPools)]",
+              "hostPoolDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, parameters('resourceAbbreviations').hostPools)]",
+              "hostPoolNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), variables('tokens').service, parameters('resourceAbbreviations').hostPools)]",
+              "hostPoolPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), variables('tokens').service, parameters('resourceAbbreviations').hostPools)]",
+              "keyVault": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').keyVaults)]",
+              "keyVaultDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, parameters('resourceAbbreviations').keyVaults)]",
+              "keyVaultNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), variables('tokens').service, parameters('resourceAbbreviations').keyVaults)]",
+              "keyVaultPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), variables('tokens').service, parameters('resourceAbbreviations').keyVaults)]",
+              "localNetworkGateway": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').localNetworkGateways)]",
+              "logAnalyticsWorkspace": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').logAnalyticsWorkspaces)]",
+              "logAnalyticsWorkspaceDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, parameters('resourceAbbreviations').logAnalyticsWorkspaces)]",
+              "natGateway": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').natGateways)]",
+              "natGatewayPublicIPPrefix": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').publicIPPrefixes), variables('tokens').service, parameters('resourceAbbreviations').natGateways)]",
+              "netAppAccount": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').netAppAccounts)]",
+              "netAppAccountCapacityPool": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').netAppAccountsCapacityPools), variables('tokens').service, parameters('resourceAbbreviations').netAppAccounts)]",
+              "netAppAccountSmbServer": "[replace(replace(replace(replace(variables('namingConvention'), variables('tokens').resource, ''), parameters('environmentAbbreviation'), first(parameters('environmentAbbreviation'))), parameters('networkName'), ''), parameters('delimiter'), '')]",
+              "networkSecurityGroup": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').networkSecurityGroups)]",
+              "networkSecurityGroupDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, parameters('resourceAbbreviations').networkSecurityGroups)]",
+              "networkWatcherFlowLogsNetworkSecurityGroup": "[replace(variables('namingConvention'), variables('tokens').resource, format('{0}{1}{2}{3}{4}', parameters('resourceAbbreviations').networkWatchers, parameters('delimiter'), parameters('resourceAbbreviations').networkWatchersFlowLogs, parameters('delimiter'), parameters('resourceAbbreviations').networkSecurityGroups))]",
+              "networkWatcherFlowLogsVirtualNetwork": "[replace(variables('namingConvention'), variables('tokens').resource, format('{0}{1}{2}{3}{4}', parameters('resourceAbbreviations').networkWatchers, parameters('delimiter'), parameters('resourceAbbreviations').networkWatchersFlowLogs, parameters('delimiter'), parameters('resourceAbbreviations').virtualNetworks))]",
+              "privateLinkScope": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').privateLinkScopes)]",
+              "privateLinkScopeNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), variables('tokens').service, parameters('resourceAbbreviations').privateLinkScopes)]",
+              "privateLinkScopePrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), variables('tokens').service, parameters('resourceAbbreviations').privateLinkScopes)]",
+              "recoveryServicesVault": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').recoveryServicesVaults)]",
+              "recoveryServicesVaultNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), variables('tokens').service, parameters('resourceAbbreviations').recoveryServicesVaults)]",
+              "recoveryServicesVaultPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), variables('tokens').service, parameters('resourceAbbreviations').recoveryServicesVaults)]",
+              "resourceGroup": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').resourceGroups)]",
+              "routeTable": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').routeTables)]",
+              "scalingPlan": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').scalingPlans)]",
+              "scalingPlanDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, parameters('resourceAbbreviations').scalingPlans)]",
+              "storageAccount": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').storageAccounts)]",
+              "storageAccountBlobDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, format('{0}{1}blob', parameters('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
+              "storageAccountBlobNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), variables('tokens').service, format('{0}{1}blob', parameters('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
+              "storageAccountBlobPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), variables('tokens').service, format('{0}{1}blob', parameters('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
+              "storageAccountFileDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, format('{0}{1}file', parameters('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
+              "storageAccountFileNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), variables('tokens').service, format('{0}{1}file', parameters('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
+              "storageAccountFilePrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), variables('tokens').service, format('{0}{1}file', parameters('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
+              "storageAccountQueueDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, format('{0}{1}queue', parameters('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
+              "storageAccountQueueNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), variables('tokens').service, format('{0}{1}queue', parameters('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
+              "storageAccountQueuePrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), variables('tokens').service, format('{0}{1}queue', parameters('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
+              "storageAccountTableDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, format('{0}{1}table', parameters('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
+              "storageAccountTableNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), variables('tokens').service, format('{0}{1}table', parameters('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
+              "storageAccountTablePrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), variables('tokens').service, format('{0}{1}table', parameters('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
+              "subnet": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').subnets)]",
+              "userAssignedIdentity": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').userAssignedIdentities)]",
+              "virtualMachine": "[replace(replace(replace(replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').virtualMachines), parameters('environmentAbbreviation'), first(parameters('environmentAbbreviation'))), parameters('networkName'), ''), parameters('delimiter'), '')]",
+              "virtualMachineDisk": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').disks), variables('tokens').service, format('{0}', parameters('resourceAbbreviations').virtualMachines))]",
+              "virtualMachineNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), variables('tokens').service, parameters('resourceAbbreviations').virtualMachines)]",
+              "virtualMachineNetworkInterfaceDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, format('{0}{1}{2}', parameters('resourceAbbreviations').networkInterfaces, parameters('delimiter'), parameters('resourceAbbreviations').virtualMachines))]",
+              "virtualNetwork": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').virtualNetworks)]",
+              "virtualNetworkDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, parameters('resourceAbbreviations').virtualNetworks)]",
+              "virtualNetworkGateway": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').virtualNetworkGateways)]",
+              "virtualNetworkGatewayPublicIpAddress": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').publicIPAddresses), variables('tokens').service, parameters('resourceAbbreviations').virtualNetworkGateways)]",
+              "workspace": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').workspaces)]",
+              "workspaceDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, parameters('resourceAbbreviations').workspaces)]",
+              "workspaceNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), variables('tokens').service, parameters('resourceAbbreviations').workspaces)]",
+              "workspacePrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), variables('tokens').service, parameters('resourceAbbreviations').workspaces)]"
+            }
+          },
+          "resources": [],
+          "outputs": {
+            "names": {
+              "type": "object",
+              "value": "[variables('names')]"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "userAssignedIdentity",
+      "resourceGroup": "[variables('hubRgName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "identityName": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.names.value.userAssignedIdentity]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "tags": {
+            "value": "[parameters('tags')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.38.33.27573",
+              "templateHash": "12285096379499238301"
+            }
+          },
+          "parameters": {
+            "identityName": {
+              "type": "string",
+              "metadata": {
+                "description": "Name of the user-assigned identity to create"
+              }
+            },
+            "location": {
+              "type": "string",
+              "metadata": {
+                "description": "Azure region for deployment"
+              }
+            },
+            "tags": {
+              "type": "object",
+              "defaultValue": {},
+              "metadata": {
+                "description": "Tags to apply to the identity"
+              }
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+              "apiVersion": "2023-01-31",
+              "name": "[parameters('identityName')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('tags')]"
+            }
+          ],
+          "outputs": {
+            "principalId": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('identityName')), '2023-01-31').principalId]"
+            },
+            "identityResourceId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('identityName'))]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix')))]"
+      ]
+    },
+    {
+      "condition": "[and(parameters('createKeyVaultSecretAccessRole'), not(empty(variables('keyVaultName'))))]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "kvSecretsReader",
+      "resourceGroup": "[variables('effectiveKeyVaultRg')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "keyVaultName": {
+            "value": "[variables('keyVaultName')]"
+          },
+          "roleDefinitionId": {
+            "value": "[variables('keyVaultRoleDefinitionId')]"
+          },
+          "principalId": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubRgName')), 'Microsoft.Resources/deployments', 'userAssignedIdentity'), '2025-04-01').outputs.principalId.value]"
+          },
+          "userAssignedIdentityResourceId": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubRgName')), 'Microsoft.Resources/deployments', 'userAssignedIdentity'), '2025-04-01').outputs.identityResourceId.value]"
+          },
+          "enable": {
+            "value": true
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.38.33.27573",
+              "templateHash": "9373064827377362599"
+            }
+          },
+          "parameters": {
+            "keyVaultName": {
+              "type": "string",
+              "metadata": {
+                "description": "Key Vault name"
+              }
+            },
+            "roleDefinitionId": {
+              "type": "string",
+              "metadata": {
+                "description": "Role Definition ID (GUID)"
+              }
+            },
+            "principalId": {
+              "type": "string",
+              "metadata": {
+                "description": "Principal ID for assignment"
+              }
+            },
+            "userAssignedIdentityResourceId": {
+              "type": "string",
+              "metadata": {
+                "description": "User Assigned Identity Resource ID (for deterministic GUID)"
+              }
+            },
+            "enable": {
+              "type": "bool",
+              "defaultValue": true,
+              "metadata": {
+                "description": "Optional enable flag"
+              }
+            },
+            "existingRoleAssignmentId": {
+              "type": "string",
+              "defaultValue": "",
+              "metadata": {
+                "description": "Optional fully-qualified existing role assignment resource ID to adopt instead of creating a new one"
+              }
+            }
+          },
+          "variables": {
+            "deterministicName": "[guid(resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName')), parameters('userAssignedIdentityResourceId'), 'kv-secrets-user')]",
+            "createNew": "[and(parameters('enable'), empty(parameters('existingRoleAssignmentId')))]"
+          },
+          "resources": [
+            {
+              "condition": "[variables('createNew')]",
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2022-04-01",
+              "scope": "[format('Microsoft.KeyVault/vaults/{0}', parameters('keyVaultName'))]",
+              "name": "[variables('deterministicName')]",
+              "properties": {
+                "principalId": "[parameters('principalId')]",
+                "roleDefinitionId": "[parameters('roleDefinitionId')]",
+                "principalType": "ServicePrincipal"
+              }
+            }
+          ],
+          "outputs": {
+            "roleAssignmentId": {
+              "type": "string",
+              "value": "[if(not(parameters('enable')), '', if(not(empty(parameters('existingRoleAssignmentId'))), parameters('existingRoleAssignmentId'), resourceId('Microsoft.Authorization/roleAssignments', variables('deterministicName'))))]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubRgName')), 'Microsoft.Resources/deployments', 'userAssignedIdentity')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "resolveFirewallIp",
+      "resourceGroup": "[variables('hubRgName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "firewallName": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.names.value.azureFirewall]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.38.33.27573",
+              "templateHash": "17772060478696339190"
+            }
+          },
+          "parameters": {
+            "firewallName": {
+              "type": "string",
+              "metadata": {
+                "description": "Name of the Azure Firewall."
+              }
+            }
+          },
+          "resources": [],
+          "outputs": {
+            "privateIpAddress": {
+              "type": "string",
+              "value": "[string(if(and(greater(length(reference(resourceId('Microsoft.Network/azureFirewalls', parameters('firewallName')), '2023-11-01').ipConfigurations), 0), not(empty(reference(resourceId('Microsoft.Network/azureFirewalls', parameters('firewallName')), '2023-11-01').ipConfigurations[0].properties.privateIPAddress))), reference(resourceId('Microsoft.Network/azureFirewalls', parameters('firewallName')), '2023-11-01').ipConfigurations[0].properties.privateIPAddress, ''))]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix')))]"
+      ]
+    },
+    {
+      "condition": "[parameters('createSubnetNsg')]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "appgwNsg",
+      "resourceGroup": "[variables('hubRgName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "nsgName": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.names.value.applicationGatewayNetworkSecurityGroup]"
+          },
+          "tags": {
+            "value": "[parameters('tags')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.38.33.27573",
+              "templateHash": "4252691944658950174"
+            }
+          },
+          "parameters": {
+            "location": {
+              "type": "string",
+              "metadata": {
+                "description": "Azure region"
+              }
+            },
+            "nsgName": {
+              "type": "string",
+              "metadata": {
+                "description": "NSG name"
+              }
+            },
+            "tags": {
+              "type": "object",
+              "defaultValue": {},
+              "metadata": {
+                "description": "Tags to apply"
+              }
+            },
+            "additionalAllowedOutboundServiceTags": {
+              "type": "array",
+              "defaultValue": [],
+              "metadata": {
+                "description": "Additional outbound Azure service tags to allow (e.g. AzureKeyVault, AzureMonitor). Minimal required infrastructure service tags already included."
+              }
+            }
+          },
+          "variables": {
+            "copy": [
+              {
+                "name": "mergedOutboundServiceTags",
+                "count": "[length(concat(variables('baseOutboundServiceTags'), parameters('additionalAllowedOutboundServiceTags')))]",
+                "input": "[if(equals(indexOf(concat(variables('baseOutboundServiceTags'), parameters('additionalAllowedOutboundServiceTags')), concat(variables('baseOutboundServiceTags'), parameters('additionalAllowedOutboundServiceTags'))[copyIndex('mergedOutboundServiceTags')]), copyIndex('mergedOutboundServiceTags')), concat(variables('baseOutboundServiceTags'), parameters('additionalAllowedOutboundServiceTags'))[copyIndex('mergedOutboundServiceTags')], '')]"
+              },
+              {
+                "name": "effectiveOutboundServiceTags",
+                "count": "[length(variables('mergedOutboundServiceTags'))]",
+                "input": "[if(not(empty(variables('mergedOutboundServiceTags')[copyIndex('effectiveOutboundServiceTags')])), variables('mergedOutboundServiceTags')[copyIndex('effectiveOutboundServiceTags')], '')]"
+              },
+              {
+                "name": "outboundServiceTagRules",
+                "count": "[length(variables('effectiveOutboundServiceTags'))]",
+                "input": {
+                  "name": "[format('AllowOutbound-{0}', toLower(replace(variables('effectiveOutboundServiceTags')[copyIndex('outboundServiceTagRules')], 'Azure', '')))]",
+                  "properties": {
+                    "priority": "[add(210, copyIndex('outboundServiceTagRules'))]",
+                    "direction": "Outbound",
+                    "access": "Allow",
+                    "protocol": "*",
+                    "sourceAddressPrefix": "*",
+                    "sourcePortRange": "*",
+                    "destinationAddressPrefix": "[variables('effectiveOutboundServiceTags')[copyIndex('outboundServiceTagRules')]]",
+                    "destinationPortRange": "*"
+                  }
+                }
+              }
+            ],
+            "baseOutboundServiceTags": [
+              "AzureKeyVault",
+              "AzureActiveDirectory",
+              "AzureMonitor"
+            ]
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Network/networkSecurityGroups",
+              "apiVersion": "2023-11-01",
+              "name": "[parameters('nsgName')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('tags')]",
+              "properties": {
+                "securityRules": "[concat(createArray(createObject('name', 'AllowAzureLoadBalancer', 'properties', createObject('priority', 100, 'direction', 'Inbound', 'access', 'Allow', 'protocol', '*', 'sourceAddressPrefix', 'AzureLoadBalancer', 'sourcePortRange', '*', 'destinationAddressPrefix', '*', 'destinationPortRange', '*')), createObject('name', 'AllowGatewayManagerInfra', 'properties', createObject('priority', 110, 'direction', 'Inbound', 'access', 'Allow', 'protocol', 'Tcp', 'sourceAddressPrefix', 'GatewayManager', 'sourcePortRange', '*', 'destinationAddressPrefix', '*', 'destinationPortRanges', createArray('65200-65535'))), createObject('name', 'AllowHttpsInbound', 'properties', createObject('priority', 120, 'direction', 'Inbound', 'access', 'Allow', 'protocol', 'Tcp', 'sourceAddressPrefix', 'Internet', 'sourcePortRange', '*', 'destinationAddressPrefix', '*', 'destinationPortRange', '443')), createObject('name', 'DenyAllInbound', 'properties', createObject('priority', 4096, 'direction', 'Inbound', 'access', 'Deny', 'protocol', '*', 'sourceAddressPrefix', '*', 'sourcePortRange', '*', 'destinationAddressPrefix', '*', 'destinationPortRange', '*')), createObject('name', 'AllowVNetOutbound', 'properties', createObject('priority', 200, 'direction', 'Outbound', 'access', 'Allow', 'protocol', '*', 'sourceAddressPrefix', '*', 'sourcePortRange', '*', 'destinationAddressPrefix', 'VirtualNetwork', 'destinationPortRange', '*'))), variables('outboundServiceTagRules'), createArray(createObject('name', 'DenyAllOutbound', 'properties', createObject('priority', 4096, 'direction', 'Outbound', 'access', 'Deny', 'protocol', '*', 'sourceAddressPrefix', '*', 'sourcePortRange', '*', 'destinationAddressPrefix', '*', 'destinationPortRange', '*'))))]"
+              }
+            }
+          ],
+          "outputs": {
+            "nsgId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('nsgName'))]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "appgwRouteTable",
+      "resourceGroup": "[variables('hubRgName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "routeTableName": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.names.value.applicationGatewayRouteTable]"
+          },
+          "firewallPrivateIp": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubRgName')), 'Microsoft.Resources/deployments', 'resolveFirewallIp'), '2025-04-01').outputs.privateIpAddress.value]"
+          },
+          "tags": {
+            "value": "[parameters('tags')]"
+          },
+          "internalForcedRouteEntries": {
+            "value": "[variables('effectiveInternalForcedRouteEntries')]"
+          },
+          "includeDefaultRoute": {
+            "value": false
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.38.33.27573",
+              "templateHash": "792584134925113245"
+            }
+          },
+          "parameters": {
+            "location": {
+              "type": "string"
+            },
+            "routeTableName": {
+              "type": "string"
+            },
+            "firewallPrivateIp": {
+              "type": "string"
+            },
+            "tags": {
+              "type": "object",
+              "defaultValue": {}
+            },
+            "internalForcedRouteEntries": {
+              "type": "array",
+              "defaultValue": []
+            },
+            "includeDefaultRoute": {
+              "type": "bool",
+              "defaultValue": true
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Network/routeTables",
+              "apiVersion": "2024-05-01",
+              "name": "[parameters('routeTableName')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('tags')]",
+              "properties": {
+                "disableBgpRoutePropagation": false
+              }
+            },
+            {
+              "condition": "[parameters('includeDefaultRoute')]",
+              "type": "Microsoft.Network/routeTables/routes",
+              "apiVersion": "2024-05-01",
+              "name": "[format('{0}/{1}', parameters('routeTableName'), 'default-to-firewall')]",
+              "properties": {
+                "addressPrefix": "0.0.0.0/0",
+                "nextHopType": "VirtualAppliance",
+                "nextHopIpAddress": "[parameters('firewallPrivateIp')]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/routeTables', parameters('routeTableName'))]"
+              ]
+            },
+            {
+              "copy": {
+                "name": "internalForcedRoutes",
+                "count": "[length(parameters('internalForcedRouteEntries'))]"
+              },
+              "condition": "[and(not(empty(parameters('internalForcedRouteEntries')[copyIndex()])), not(empty(parameters('internalForcedRouteEntries')[copyIndex()].prefix)))]",
+              "type": "Microsoft.Network/routeTables/routes",
+              "apiVersion": "2024-05-01",
+              "name": "[format('{0}/{1}', parameters('routeTableName'), toLower(format('{0}-{1}-{2}', substring(uniqueString(parameters('internalForcedRouteEntries')[copyIndex()].prefix), 0, 5), substring(replace(replace(parameters('internalForcedRouteEntries')[copyIndex()].source, '/', '-'), '.', '-'), 0, min(27, length(replace(replace(parameters('internalForcedRouteEntries')[copyIndex()].source, '/', '-'), '.', '-')))), copyIndex())))]",
+              "properties": {
+                "addressPrefix": "[parameters('internalForcedRouteEntries')[copyIndex()].prefix]",
+                "nextHopType": "VirtualAppliance",
+                "nextHopIpAddress": "[parameters('firewallPrivateIp')]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/routeTables', parameters('routeTableName'))]"
+              ]
+            }
+          ],
+          "outputs": {
+            "routeTableId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/routeTables', parameters('routeTableName'))]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubRgName')), 'Microsoft.Resources/deployments', 'resolveFirewallIp')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "appgwSubnet",
+      "resourceGroup": "[variables('hubRgName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "hubVnetResourceId": {
+            "value": "[parameters('hubVnetResourceId')]"
+          },
+          "subnetName": {
+            "value": "[parameters('appGatewaySubnetName')]"
+          },
+          "addressPrefix": {
+            "value": "[parameters('appGatewaySubnetAddressPrefix')]"
+          },
+          "defaultOutboundAccess": {
+            "value": false
+          },
+          "disablePrivateEndpointNetworkPolicies": {
+            "value": "[parameters('disablePrivateEndpointNetworkPolicies')]"
+          },
+          "routeTableId": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubRgName')), 'Microsoft.Resources/deployments', 'appgwRouteTable'), '2025-04-01').outputs.routeTableId.value]"
+          },
+          "nsgId": "[if(parameters('createSubnetNsg'), createObject('value', resourceId(subscription().subscriptionId, variables('hubRgName'), 'Microsoft.Network/networkSecurityGroups', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.names.value.applicationGatewayNetworkSecurityGroup)), createObject('value', ''))]"
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.38.33.27573",
+              "templateHash": "4040836809667592844"
+            }
+          },
+          "parameters": {
+            "hubVnetResourceId": {
+              "type": "string"
+            },
+            "subnetName": {
+              "type": "string",
+              "defaultValue": "AppGateway"
+            },
+            "addressPrefix": {
+              "type": "string",
+              "defaultValue": "10.100.0.0/24"
+            },
+            "defaultOutboundAccess": {
+              "type": "bool",
+              "defaultValue": false
+            },
+            "disablePrivateEndpointNetworkPolicies": {
+              "type": "bool",
+              "defaultValue": true
+            },
+            "routeTableId": {
+              "type": "string"
+            },
+            "nsgId": {
+              "type": "string",
+              "defaultValue": ""
+            }
+          },
+          "variables": {
+            "vnetName": "[last(split(parameters('hubVnetResourceId'), '/'))]"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Network/virtualNetworks/subnets",
+              "apiVersion": "2024-05-01",
+              "name": "[format('{0}/{1}', variables('vnetName'), parameters('subnetName'))]",
+              "properties": {
+                "addressPrefix": "[parameters('addressPrefix')]",
+                "defaultOutboundAccess": "[parameters('defaultOutboundAccess')]",
+                "privateEndpointNetworkPolicies": "[if(parameters('disablePrivateEndpointNetworkPolicies'), 'Disabled', 'Enabled')]",
+                "networkSecurityGroup": "[if(empty(parameters('nsgId')), null(), createObject('id', parameters('nsgId')))]",
+                "routeTable": {
+                  "id": "[parameters('routeTableId')]"
+                },
+                "delegations": [
+                  {
+                    "name": "appgwDelegation",
+                    "properties": {
+                      "serviceName": "Microsoft.Network/applicationGateways"
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "outputs": {
+            "subnetId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), parameters('subnetName'))]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubRgName')), 'Microsoft.Resources/deployments', 'appgwNsg')]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubRgName')), 'Microsoft.Resources/deployments', 'appgwRouteTable')]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "wafPolicyResolver",
+      "resourceGroup": "[variables('hubRgName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "existingWafPolicyId": {
+            "value": "[parameters('existingWafPolicyId')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "tags": {
+            "value": "[parameters('tags')]"
+          },
+          "mode": {
+            "value": "[parameters('wafPolicyMode')]"
+          },
+          "managedRuleSetVersion": {
+            "value": "[parameters('wafManagedRuleSetVersion')]"
+          },
+          "requestBodyCheck": {
+            "value": "[parameters('wafRequestBodyCheck')]"
+          },
+          "maxRequestBodySizeInKb": {
+            "value": "[parameters('wafMaxRequestBodySizeInKb')]"
+          },
+          "fileUploadLimitInMb": {
+            "value": "[parameters('wafFileUploadLimitInMb')]"
+          },
+          "policyName": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.names.value.applicationGatewayWafPolicy]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.38.33.27573",
+              "templateHash": "17900483227423493069"
+            }
+          },
+          "parameters": {
+            "existingWafPolicyId": {
+              "type": "string",
+              "metadata": {
+                "description": "Existing WAF policy resource ID. If provided, no new policy is created."
+              }
+            },
+            "policyName": {
+              "type": "string",
+              "defaultValue": "appgw-waf-policy",
+              "metadata": {
+                "description": "Name to use when creating a new WAF policy (from naming module)."
+              }
+            },
+            "location": {
+              "type": "string",
+              "metadata": {
+                "description": "Azure region (required only when creating a new policy)."
+              }
+            },
+            "tags": {
+              "type": "object",
+              "defaultValue": {},
+              "metadata": {
+                "description": "Tags to apply when creating a new policy."
+              }
+            },
+            "mode": {
+              "type": "string",
+              "defaultValue": "Prevention",
+              "allowedValues": [
+                "Prevention",
+                "Detection"
+              ],
+              "metadata": {
+                "description": "WAF mode when creating new policy."
+              }
+            },
+            "managedRuleSetVersion": {
+              "type": "string",
+              "defaultValue": "3.2",
+              "metadata": {
+                "description": "Managed rule set version (e.g. 3.2)"
+              }
+            },
+            "requestBodyCheck": {
+              "type": "bool",
+              "defaultValue": true,
+              "metadata": {
+                "description": "Enable request body inspection."
+              }
+            },
+            "maxRequestBodySizeInKb": {
+              "type": "int",
+              "defaultValue": 128,
+              "metadata": {
+                "description": "Max request body size KB."
+              }
+            },
+            "fileUploadLimitInMb": {
+              "type": "int",
+              "defaultValue": 100,
+              "metadata": {
+                "description": "File upload limit MB."
+              }
+            }
+          },
+          "variables": {
+            "resolvedWafPolicyId": "[if(empty(parameters('existingWafPolicyId')), resourceId('Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies', parameters('policyName')), parameters('existingWafPolicyId'))]"
+          },
+          "resources": [
+            {
+              "condition": "[empty(parameters('existingWafPolicyId'))]",
+              "type": "Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies",
+              "apiVersion": "2023-09-01",
+              "name": "[parameters('policyName')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('tags')]",
+              "properties": {
+                "policySettings": {
+                  "state": "Enabled",
+                  "mode": "[parameters('mode')]",
+                  "requestBodyCheck": "[parameters('requestBodyCheck')]",
+                  "maxRequestBodySizeInKb": "[parameters('maxRequestBodySizeInKb')]",
+                  "fileUploadLimitInMb": "[parameters('fileUploadLimitInMb')]"
+                },
+                "customRules": [],
+                "managedRules": {
+                  "managedRuleSets": [
+                    {
+                      "ruleSetType": "OWASP",
+                      "ruleSetVersion": "[parameters('managedRuleSetVersion')]"
+                    }
+                  ],
+                  "exclusions": []
+                }
+              }
+            }
+          ],
+          "outputs": {
+            "wafPolicyId": {
+              "type": "string",
+              "value": "[variables('resolvedWafPolicyId')]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "appgwCore",
+      "resourceGroup": "[variables('hubRgName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "appGatewayName": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.names.value.applicationGateway]"
+          },
+          "publicIpName": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.names.value.applicationGatewayPublicIPAddress]"
+          },
+          "subnetId": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubRgName')), 'Microsoft.Resources/deployments', 'appgwSubnet'), '2025-04-01').outputs.subnetId.value]"
+          },
+          "wafPolicyId": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubRgName')), 'Microsoft.Resources/deployments', 'wafPolicyResolver'), '2025-04-01').outputs.wafPolicyId.value]"
+          },
+          "defaultBackendPort": {
+            "value": "[variables('defaultBackendPort')]"
+          },
+          "defaultBackendProtocol": {
+            "value": "[variables('defaultBackendProtocol')]"
+          },
+          "defaultHealthProbePath": {
+            "value": "[variables('defaultHealthProbePath')]"
+          },
+          "defaultProbeInterval": {
+            "value": "[variables('defaultProbeInterval')]"
+          },
+          "defaultProbeTimeout": {
+            "value": "[variables('defaultProbeTimeout')]"
+          },
+          "defaultUnhealthyThreshold": {
+            "value": "[variables('defaultUnhealthyThreshold')]"
+          },
+          "defaultProbeMatchStatusCodes": {
+            "value": "[variables('defaultProbeMatchStatusCodes')]"
+          },
+          "generatedPolicyMode": {
+            "value": "[variables('generatedPolicyMode')]"
+          },
+          "generatedPolicyRequestBodyCheck": {
+            "value": "[variables('generatedPolicyRequestBodyCheck')]"
+          },
+          "generatedPolicyMaxRequestBodySizeInKb": {
+            "value": "[variables('generatedPolicyMaxRequestBodySizeInKb')]"
+          },
+          "generatedPolicyFileUploadLimitInMb": {
+            "value": "[variables('generatedPolicyFileUploadLimitInMb')]"
+          },
+          "generatedPolicyManagedRuleSetVersion": {
+            "value": "[variables('generatedPolicyManagedRuleSetVersion')]"
+          },
+          "listeners": {
+            "value": "[variables('listeners')]"
+          },
+          "httpsListenerPort": {
+            "value": "[variables('httpsListenerPort')]"
+          },
+          "enableHttp2": {
+            "value": "[variables('enableHttp2')]"
+          },
+          "autoscaleMinCapacity": {
+            "value": "[variables('autoscaleMinCapacity')]"
+          },
+          "autoscaleMaxCapacity": {
+            "value": "[variables('autoscaleMaxCapacity')]"
+          },
+          "tags": {
+            "value": "[parameters('tags')]"
+          },
+          "userAssignedIdentityResourceId": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubRgName')), 'Microsoft.Resources/deployments', 'userAssignedIdentity'), '2025-04-01').outputs.identityResourceId.value]"
+          },
+          "baseWafPolicyName": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.names.value.applicationGatewayWafPolicy]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.38.33.27573",
+              "templateHash": "14846126158060231672"
+            }
+          },
+          "parameters": {
+            "location": {
+              "type": "string"
+            },
+            "appGatewayName": {
+              "type": "string"
+            },
+            "publicIpName": {
+              "type": "string"
+            },
+            "subnetId": {
+              "type": "string"
+            },
+            "wafPolicyId": {
+              "type": "string"
+            },
+            "tags": {
+              "type": "object",
+              "defaultValue": {}
+            },
+            "userAssignedIdentityResourceId": {
+              "type": "string"
+            },
+            "baseWafPolicyName": {
+              "type": "string"
+            },
+            "defaultBackendPort": {
+              "type": "int",
+              "defaultValue": 443
+            },
+            "defaultBackendProtocol": {
+              "type": "string",
+              "defaultValue": "Https",
+              "allowedValues": [
+                "Https",
+                "Http"
+              ]
+            },
+            "defaultHealthProbePath": {
+              "type": "string",
+              "defaultValue": "/"
+            },
+            "defaultProbeInterval": {
+              "type": "int",
+              "defaultValue": 30
+            },
+            "defaultProbeTimeout": {
+              "type": "int",
+              "defaultValue": 30
+            },
+            "defaultUnhealthyThreshold": {
+              "type": "int",
+              "defaultValue": 3
+            },
+            "defaultProbeMatchStatusCodes": {
+              "type": "array",
+              "defaultValue": [
+                "200-399"
+              ]
+            },
+            "generatedPolicyMode": {
+              "type": "string",
+              "defaultValue": "Prevention",
+              "allowedValues": [
+                "Prevention",
+                "Detection"
+              ]
+            },
+            "generatedPolicyRequestBodyCheck": {
+              "type": "bool",
+              "defaultValue": true
+            },
+            "generatedPolicyMaxRequestBodySizeInKb": {
+              "type": "int",
+              "defaultValue": 128
+            },
+            "generatedPolicyFileUploadLimitInMb": {
+              "type": "int",
+              "defaultValue": 100
+            },
+            "generatedPolicyManagedRuleSetVersion": {
+              "type": "string",
+              "defaultValue": "3.2"
+            },
+            "listeners": {
+              "type": "array"
+            },
+            "httpsListenerPort": {
+              "type": "int",
+              "defaultValue": 443
+            },
+            "enableHttp2": {
+              "type": "bool",
+              "defaultValue": true
+            },
+            "autoscaleMinCapacity": {
+              "type": "int",
+              "defaultValue": 1
+            },
+            "autoscaleMaxCapacity": {
+              "type": "int",
+              "defaultValue": 2
+            }
+          },
+          "variables": {
+            "copy": [
+              {
+                "name": "backendAddressPools",
+                "count": "[length(parameters('listeners'))]",
+                "input": {
+                  "name": "[format('pool-{0}', parameters('listeners')[copyIndex('backendAddressPools')].name)]",
+                  "properties": {
+                    "backendAddresses": "[coalesce(parameters('listeners')[copyIndex('backendAddressPools')].backendAddresses, createArray())]"
+                  }
+                }
+              },
+              {
+                "name": "probes",
+                "count": "[length(parameters('listeners'))]",
+                "input": {
+                  "name": "[format('probe-{0}', parameters('listeners')[copyIndex('probes')].name)]",
+                  "properties": {
+                    "protocol": "[coalesce(parameters('listeners')[copyIndex('probes')].backendProtocol, parameters('defaultBackendProtocol'))]",
+                    "path": "[coalesce(parameters('listeners')[copyIndex('probes')].healthProbePath, parameters('defaultHealthProbePath'))]",
+                    "interval": "[coalesce(parameters('listeners')[copyIndex('probes')].probeInterval, parameters('defaultProbeInterval'))]",
+                    "timeout": "[coalesce(parameters('listeners')[copyIndex('probes')].probeTimeout, parameters('defaultProbeTimeout'))]",
+                    "unhealthyThreshold": "[coalesce(parameters('listeners')[copyIndex('probes')].unhealthyThreshold, parameters('defaultUnhealthyThreshold'))]",
+                    "pickHostNameFromBackendHttpSettings": true,
+                    "minServers": 0,
+                    "match": {
+                      "statusCodes": "[if(greater(length(coalesce(parameters('listeners')[copyIndex('probes')].probeMatchStatusCodes, createArray())), 0), parameters('listeners')[copyIndex('probes')].probeMatchStatusCodes, parameters('defaultProbeMatchStatusCodes'))]"
+                    }
+                  }
+                }
+              },
+              {
+                "name": "backendHttpSettingsCollection",
+                "count": "[length(parameters('listeners'))]",
+                "input": {
+                  "name": "[format('setting-{0}', parameters('listeners')[copyIndex('backendHttpSettingsCollection')].name)]",
+                  "properties": {
+                    "port": "[coalesce(parameters('listeners')[copyIndex('backendHttpSettingsCollection')].backendPort, parameters('defaultBackendPort'))]",
+                    "protocol": "[coalesce(parameters('listeners')[copyIndex('backendHttpSettingsCollection')].backendProtocol, parameters('defaultBackendProtocol'))]",
+                    "pickHostNameFromBackendAddress": "[empty(coalesce(parameters('listeners')[copyIndex('backendHttpSettingsCollection')].backendHostHeader, ''))]",
+                    "hostName": "[if(not(empty(coalesce(parameters('listeners')[copyIndex('backendHttpSettingsCollection')].backendHostHeader, ''))), parameters('listeners')[copyIndex('backendHttpSettingsCollection')].backendHostHeader, null())]",
+                    "cookieBasedAffinity": "Disabled",
+                    "requestTimeout": 30,
+                    "probe": {
+                      "id": "[resourceId('Microsoft.Network/applicationGateways/probes', parameters('appGatewayName'), format('probe-{0}', parameters('listeners')[copyIndex('backendHttpSettingsCollection')].name))]"
+                    }
+                  }
+                }
+              },
+              {
+                "name": "_generatedPerListenerPolicyNames",
+                "count": "[length(parameters('listeners'))]",
+                "input": "[substring(format('{0}-{1}-{2}-waf', parameters('baseWafPolicyName'), parameters('listeners')[copyIndex('_generatedPerListenerPolicyNames')].name, substring(uniqueString(resourceGroup().id, parameters('baseWafPolicyName'), parameters('listeners')[copyIndex('_generatedPerListenerPolicyNames')].name), 0, 5)), 0, min(80, length(format('{0}-{1}-{2}-waf', parameters('baseWafPolicyName'), parameters('listeners')[copyIndex('_generatedPerListenerPolicyNames')].name, substring(uniqueString(resourceGroup().id, parameters('baseWafPolicyName'), parameters('listeners')[copyIndex('_generatedPerListenerPolicyNames')].name), 0, 5)))))]"
+              },
+              {
+                "name": "allSecretIds",
+                "count": "[length(parameters('listeners'))]",
+                "input": "[parameters('listeners')[copyIndex('allSecretIds')].certificateSecretId]"
+              },
+              {
+                "name": "distinctSecretIds",
+                "count": "[length(variables('allSecretIds'))]",
+                "input": "[if(and(not(empty(variables('allSecretIds')[copyIndex('distinctSecretIds')])), equals(indexOf(variables('allSecretIds'), variables('allSecretIds')[copyIndex('distinctSecretIds')]), copyIndex('distinctSecretIds'))), variables('allSecretIds')[copyIndex('distinctSecretIds')], '')]"
+              },
+              {
+                "name": "filteredSecretIds",
+                "count": "[length(variables('distinctSecretIds'))]",
+                "input": "[if(not(empty(variables('distinctSecretIds')[copyIndex('filteredSecretIds')])), variables('distinctSecretIds')[copyIndex('filteredSecretIds')], null())]"
+              },
+              {
+                "name": "sslCertificates",
+                "count": "[length(variables('filteredSecretIds'))]",
+                "input": {
+                  "name": "[format('cert-sh{0}', copyIndex('sslCertificates'))]",
+                  "properties": {
+                    "keyVaultSecretId": "[variables('filteredSecretIds')[copyIndex('sslCertificates')]]"
+                  }
+                }
+              },
+              {
+                "name": "listenerCertNames",
+                "count": "[length(parameters('listeners'))]",
+                "input": "[format('cert-sh{0}', indexOf(variables('filteredSecretIds'), parameters('listeners')[copyIndex('listenerCertNames')].certificateSecretId))]"
+              },
+              {
+                "name": "httpsListeners",
+                "count": "[length(parameters('listeners'))]",
+                "input": {
+                  "name": "[format('listener-{0}', parameters('listeners')[copyIndex('httpsListeners')].name)]",
+                  "properties": {
+                    "frontendIPConfiguration": {
+                      "id": "[resourceId('Microsoft.Network/applicationGateways/frontendIPConfigurations', parameters('appGatewayName'), 'appgw-frontendip')]"
+                    },
+                    "frontendPort": {
+                      "id": "[resourceId('Microsoft.Network/applicationGateways/frontendPorts', parameters('appGatewayName'), 'port-https')]"
+                    },
+                    "hostNames": "[coalesce(parameters('listeners')[copyIndex('httpsListeners')].hostNames, createArray())]",
+                    "protocol": "Https",
+                    "sslCertificate": {
+                      "id": "[resourceId('Microsoft.Network/applicationGateways/sslCertificates', parameters('appGatewayName'), variables('listenerCertNames')[copyIndex('httpsListeners')])]"
+                    },
+                    "firewallPolicy": "[if(not(empty(if(not(empty(coalesce(parameters('listeners')[copyIndex('httpsListeners')].wafPolicyId, ''))), parameters('listeners')[copyIndex('httpsListeners')].wafPolicyId, ''))), createObject('id', if(not(empty(coalesce(parameters('listeners')[copyIndex('httpsListeners')].wafPolicyId, ''))), parameters('listeners')[copyIndex('httpsListeners')].wafPolicyId, '')), null())]"
+                  }
+                }
+              },
+              {
+                "name": "httpsRequestRoutingRules",
+                "count": "[length(parameters('listeners'))]",
+                "input": {
+                  "name": "[format('rule-{0}', parameters('listeners')[copyIndex('httpsRequestRoutingRules')].name)]",
+                  "properties": {
+                    "httpListener": {
+                      "id": "[resourceId('Microsoft.Network/applicationGateways/httpListeners', parameters('appGatewayName'), format('listener-{0}', parameters('listeners')[copyIndex('httpsRequestRoutingRules')].name))]"
+                    },
+                    "backendAddressPool": {
+                      "id": "[resourceId('Microsoft.Network/applicationGateways/backendAddressPools', parameters('appGatewayName'), format('pool-{0}', parameters('listeners')[copyIndex('httpsRequestRoutingRules')].name))]"
+                    },
+                    "backendHttpSettings": {
+                      "id": "[resourceId('Microsoft.Network/applicationGateways/backendHttpSettingsCollection', parameters('appGatewayName'), format('setting-{0}', parameters('listeners')[copyIndex('httpsRequestRoutingRules')].name))]"
+                    },
+                    "ruleType": "Basic",
+                    "priority": "[add(100, mul(copyIndex('httpsRequestRoutingRules'), 10))]"
+                  }
+                }
+              }
+            ]
+          },
+          "resources": [
+            {
+              "copy": {
+                "name": "perListenerWafPolicies",
+                "count": "[length(parameters('listeners'))]"
+              },
+              "condition": "[and(or(greater(length(coalesce(parameters('listeners')[copyIndex()].wafExclusions, createArray())), 0), not(empty(parameters('listeners')[copyIndex()].wafOverrides))), empty(coalesce(parameters('listeners')[copyIndex()].wafPolicyId, '')))]",
+              "type": "Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies",
+              "apiVersion": "2023-09-01",
+              "name": "[variables('_generatedPerListenerPolicyNames')[copyIndex()]]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "policySettings": {
+                  "state": "Enabled",
+                  "mode": "[if(and(not(empty(parameters('listeners')[copyIndex()].wafOverrides)), contains(parameters('listeners')[copyIndex()].wafOverrides, 'mode')), parameters('listeners')[copyIndex()].wafOverrides.mode, parameters('generatedPolicyMode'))]",
+                  "requestBodyCheck": "[if(and(not(empty(parameters('listeners')[copyIndex()].wafOverrides)), contains(parameters('listeners')[copyIndex()].wafOverrides, 'requestBodyCheck')), parameters('listeners')[copyIndex()].wafOverrides.requestBodyCheck, parameters('generatedPolicyRequestBodyCheck'))]",
+                  "maxRequestBodySizeInKb": "[if(and(not(empty(parameters('listeners')[copyIndex()].wafOverrides)), contains(parameters('listeners')[copyIndex()].wafOverrides, 'maxRequestBodySizeInKb')), parameters('listeners')[copyIndex()].wafOverrides.maxRequestBodySizeInKb, parameters('generatedPolicyMaxRequestBodySizeInKb'))]",
+                  "fileUploadLimitInMb": "[if(and(not(empty(parameters('listeners')[copyIndex()].wafOverrides)), contains(parameters('listeners')[copyIndex()].wafOverrides, 'fileUploadLimitInMb')), parameters('listeners')[copyIndex()].wafOverrides.fileUploadLimitInMb, parameters('generatedPolicyFileUploadLimitInMb'))]"
+                },
+                "customRules": [],
+                "managedRules": {
+                  "managedRuleSets": [
+                    {
+                      "ruleSetType": "OWASP",
+                      "ruleSetVersion": "[replace(if(and(not(empty(parameters('listeners')[copyIndex()].wafOverrides)), contains(parameters('listeners')[copyIndex()].wafOverrides, 'managedRuleSetVersion')), parameters('listeners')[copyIndex()].wafOverrides.managedRuleSetVersion, parameters('generatedPolicyManagedRuleSetVersion')), 'OWASP_', '')]",
+                      "ruleGroupOverrides": "[if(and(not(empty(parameters('listeners')[copyIndex()].wafOverrides)), contains(parameters('listeners')[copyIndex()].wafOverrides, 'ruleGroupOverrides')), parameters('listeners')[copyIndex()].wafOverrides.ruleGroupOverrides, createArray())]"
+                    }
+                  ],
+                  "exclusions": "[if(and(and(not(empty(parameters('listeners')[copyIndex()].wafOverrides)), contains(parameters('listeners')[copyIndex()].wafOverrides, 'exclusions')), greater(length(parameters('listeners')[copyIndex()].wafOverrides.exclusions), 0)), union(coalesce(parameters('listeners')[copyIndex()].wafExclusions, createArray()), parameters('listeners')[copyIndex()].wafOverrides.exclusions), parameters('listeners')[copyIndex()].wafExclusions)]"
+                }
+              }
+            },
+            {
+              "type": "Microsoft.Network/publicIPAddresses",
+              "apiVersion": "2022-07-01",
+              "name": "[parameters('publicIpName')]",
+              "location": "[parameters('location')]",
+              "sku": {
+                "name": "Standard"
+              },
+              "properties": {
+                "publicIPAllocationMethod": "Static"
+              }
+            },
+            {
+              "type": "Microsoft.Network/applicationGateways",
+              "apiVersion": "2021-08-01",
+              "name": "[parameters('appGatewayName')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('tags')]",
+              "identity": {
+                "type": "UserAssigned",
+                "userAssignedIdentities": {
+                  "[format('{0}', parameters('userAssignedIdentityResourceId'))]": {}
+                }
+              },
+              "properties": {
+                "sku": {
+                  "name": "WAF_v2",
+                  "tier": "WAF_v2"
+                },
+                "firewallPolicy": {
+                  "id": "[parameters('wafPolicyId')]"
+                },
+                "autoscaleConfiguration": {
+                  "minCapacity": "[parameters('autoscaleMinCapacity')]",
+                  "maxCapacity": "[parameters('autoscaleMaxCapacity')]"
+                },
+                "gatewayIPConfigurations": [
+                  {
+                    "name": "appgw-gatewayipconfig",
+                    "properties": {
+                      "subnet": {
+                        "id": "[parameters('subnetId')]"
+                      }
+                    }
+                  }
+                ],
+                "frontendIPConfigurations": [
+                  {
+                    "name": "appgw-frontendip",
+                    "properties": {
+                      "publicIPAddress": {
+                        "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpName'))]"
+                      }
+                    }
+                  }
+                ],
+                "frontendPorts": [
+                  {
+                    "name": "port-https",
+                    "properties": {
+                      "port": "[parameters('httpsListenerPort')]"
+                    }
+                  }
+                ],
+                "sslCertificates": "[variables('sslCertificates')]",
+                "backendAddressPools": "[variables('backendAddressPools')]",
+                "probes": "[variables('probes')]",
+                "backendHttpSettingsCollection": "[variables('backendHttpSettingsCollection')]",
+                "httpListeners": "[variables('httpsListeners')]",
+                "requestRoutingRules": "[variables('httpsRequestRoutingRules')]",
+                "enableHttp2": "[parameters('enableHttp2')]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpName'))]"
+              ]
+            }
+          ],
+          "outputs": {
+            "appGatewayResourceId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/applicationGateways', parameters('appGatewayName'))]"
+            },
+            "publicIpAddress": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpName')), '2022-07-01').ipAddress]"
+            },
+            "listenerNames": {
+              "type": "array",
+              "copy": {
+                "count": "[length(variables('httpsListeners'))]",
+                "input": "[variables('httpsListeners')[copyIndex()].name]"
+              }
+            },
+            "backendPoolNames": {
+              "type": "array",
+              "copy": {
+                "count": "[length(variables('backendAddressPools'))]",
+                "input": "[variables('backendAddressPools')[copyIndex()].name]"
+              }
+            },
+            "requestRoutingRuleNames": {
+              "type": "array",
+              "copy": {
+                "count": "[length(variables('httpsRequestRoutingRules'))]",
+                "input": "[variables('httpsRequestRoutingRules')[copyIndex()].name]"
+              }
+            },
+            "generatedPerListenerWafPolicyIds": {
+              "type": "array",
+              "copy": {
+                "count": "[length(parameters('listeners'))]",
+                "input": "[if(not(empty(coalesce(parameters('listeners')[copyIndex()].wafPolicyId, ''))), '', if(or(greater(length(coalesce(parameters('listeners')[copyIndex()].wafExclusions, createArray())), 0), not(empty(parameters('listeners')[copyIndex()].wafOverrides))), resourceId('Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies', variables('_generatedPerListenerPolicyNames')[copyIndex()]), ''))]"
+              }
+            },
+            "effectivePerListenerWafPolicyIds": {
+              "type": "array",
+              "copy": {
+                "count": "[length(parameters('listeners'))]",
+                "input": "[if(not(empty(coalesce(parameters('listeners')[copyIndex()].wafPolicyId, ''))), parameters('listeners')[copyIndex()].wafPolicyId, if(or(greater(length(coalesce(parameters('listeners')[copyIndex()].wafExclusions, createArray())), 0), not(empty(parameters('listeners')[copyIndex()].wafOverrides))), resourceId('Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies', variables('_generatedPerListenerPolicyNames')[copyIndex()]), ''))]"
+              }
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubRgName')), 'Microsoft.Resources/deployments', 'appgwSubnet')]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubRgName')), 'Microsoft.Resources/deployments', 'userAssignedIdentity')]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubRgName')), 'Microsoft.Resources/deployments', 'wafPolicyResolver')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "appgwDiagnostics",
+      "resourceGroup": "[variables('hubRgName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "logAnalyticsWorkspaceId": {
+            "value": "[parameters('operationsLogAnalyticsWorkspaceResourceId')]"
+          },
+          "appGatewayName": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.names.value.applicationGateway]"
+          },
+          "enable": {
+            "value": "[variables('effectiveEnableDiagnostics')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.38.33.27573",
+              "templateHash": "4699852040818062367"
+            }
+          },
+          "parameters": {
+            "logAnalyticsWorkspaceId": {
+              "type": "string"
+            },
+            "appGatewayName": {
+              "type": "string"
+            },
+            "enable": {
+              "type": "bool",
+              "defaultValue": true
+            }
+          },
+          "resources": [
+            {
+              "condition": "[parameters('enable')]",
+              "type": "Microsoft.Insights/diagnosticSettings",
+              "apiVersion": "2021-05-01-preview",
+              "scope": "[format('Microsoft.Network/applicationGateways/{0}', parameters('appGatewayName'))]",
+              "name": "[format('diag-{0}', parameters('appGatewayName'))]",
+              "properties": {
+                "workspaceId": "[parameters('logAnalyticsWorkspaceId')]",
+                "logs": [
+                  {
+                    "categoryGroup": "allLogs",
+                    "enabled": true
+                  }
+                ],
+                "metrics": [
+                  {
+                    "category": "AllMetrics",
+                    "enabled": true
+                  }
+                ]
+              }
+            }
+          ],
+          "outputs": {
+            "diagnosticsSettingId": {
+              "type": "string",
+              "value": "[if(parameters('enable'), extensionResourceId(resourceId('Microsoft.Network/applicationGateways', parameters('appGatewayName')), 'Microsoft.Insights/diagnosticSettings', format('diag-{0}', parameters('appGatewayName'))), '')]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "appGwFirewallRules",
+      "resourceGroup": "[variables('hubRgName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "firewallPolicyResourceId": {
+            "value": "[resourceId(subscription().subscriptionId, variables('hubRgName'), 'Microsoft.Network/firewallPolicies', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.names.value.azureFirewallPolicy)]"
+          },
+          "customRuleCollectionGroups": {
+            "value": "[parameters('customAppGatewayFirewallRuleCollectionGroups')]"
+          },
+          "backendPrefixes": {
+            "value": "[variables('dedupPrefixes')]"
+          },
+          "appGatewaySubnetPrefix": {
+            "value": "[parameters('appGatewaySubnetAddressPrefix')]"
+          },
+          "backendAllowPorts": {
+            "value": "[parameters('backendAllowPorts')]"
+          },
+          "backendPrefixPortMaps": {
+            "value": "[parameters('backendPrefixPortMaps')]"
+          },
+          "backendAppPortMaps": {
+            "value": "[parameters('backendAppPortMaps')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.38.33.27573",
+              "templateHash": "7336137186706412041"
+            }
+          },
+          "parameters": {
+            "firewallPolicyResourceId": {
+              "type": "string",
+              "metadata": {
+                "description": "Firewall Policy resource ID to attach rule collection groups to."
+              }
+            },
+            "customRuleCollectionGroups": {
+              "type": "array",
+              "defaultValue": [],
+              "metadata": {
+                "description": "Optional custom rule collection groups (array of objects with name/properties)."
+              }
+            },
+            "backendPrefixes": {
+              "type": "array",
+              "defaultValue": [],
+              "metadata": {
+                "description": "Optional list of backend CIDR prefixes (private endpoint or backend subnets) that Application Gateway must reach via firewall."
+              }
+            },
+            "appGatewaySubnetPrefix": {
+              "type": "string",
+              "defaultValue": "",
+              "metadata": {
+                "description": "Application Gateway subnet CIDR (source) for backend allow rule."
+              }
+            },
+            "baselinePriority": {
+              "type": "int",
+              "defaultValue": 200,
+              "metadata": {
+                "description": "Priority for the baseline rule collection group (lower number = higher precedence)."
+              }
+            },
+            "baselinePlatformCollectionPriority": {
+              "type": "int",
+              "defaultValue": 100,
+              "metadata": {
+                "description": "Priority used for the platform service tags rule collection within the baseline group."
+              }
+            },
+            "baselineCrlOcspCollectionPriority": {
+              "type": "int",
+              "defaultValue": 110,
+              "metadata": {
+                "description": "Priority used for the CRL/OCSP application rule collection within the baseline group. (Keep < backend allow collection if you want revocation checks first)."
+              }
+            },
+            "backendAllowPorts": {
+              "type": "array",
+              "defaultValue": [
+                "443"
+              ],
+              "metadata": {
+                "description": "Destination ports to allow from Application Gateway to backend prefixes (can include single ports or ranges like 443-445). Only used if backendPrefixes and appGatewaySubnetPrefix are provided."
+              }
+            },
+            "backendPrefixPortMaps": {
+              "type": "array",
+              "defaultValue": [],
+              "metadata": {
+                "description": "Optional detailed mapping objects for per-prefix ports. Each element: { prefix: <cidr>, ports: [\"443\",\"8443-8444\"] }. When supplied (non-empty) it supersedes the broad backendPrefixes/backendAllowPorts rule."
+              }
+            },
+            "backendAppPortMaps": {
+              "type": "array",
+              "defaultValue": [],
+              "metadata": {
+                "description": "Optional per-app mapping objects where each element: { destinationPrefixes: [cidr...], ports: [port|range,...] }. Takes highest precedence when non-empty (one rule per app)."
+              }
+            }
+          },
+          "variables": {
+            "copy": [
+              {
+                "name": "appBackendRules",
+                "count": "[length(parameters('backendAppPortMaps'))]",
+                "input": {
+                  "name": "[format('AllowAppGwBackendApp{0}', copyIndex('appBackendRules'))]",
+                  "ruleType": "NetworkRule",
+                  "ipProtocols": [
+                    "TCP"
+                  ],
+                  "sourceAddresses": [
+                    "[parameters('appGatewaySubnetPrefix')]"
+                  ],
+                  "destinationAddresses": "[parameters('backendAppPortMaps')[copyIndex('appBackendRules')].destinationPrefixes]",
+                  "destinationPorts": "[parameters('backendAppPortMaps')[copyIndex('appBackendRules')].ports]",
+                  "sourceIpGroups": [],
+                  "destinationIpGroups": [],
+                  "destinationFqdns": []
+                }
+              },
+              {
+                "name": "detailedBackendRules",
+                "count": "[length(parameters('backendPrefixPortMaps'))]",
+                "input": {
+                  "name": "[format('AllowAppGwBackend{0}', copyIndex('detailedBackendRules'))]",
+                  "ruleType": "NetworkRule",
+                  "ipProtocols": [
+                    "TCP"
+                  ],
+                  "sourceAddresses": [
+                    "[parameters('appGatewaySubnetPrefix')]"
+                  ],
+                  "destinationAddresses": [
+                    "[parameters('backendPrefixPortMaps')[copyIndex('detailedBackendRules')].prefix]"
+                  ],
+                  "destinationPorts": "[parameters('backendPrefixPortMaps')[copyIndex('detailedBackendRules')].ports]",
+                  "sourceIpGroups": [],
+                  "destinationIpGroups": [],
+                  "destinationFqdns": []
+                }
+              }
+            ],
+            "fpName": "[last(split(parameters('firewallPolicyResourceId'), '/'))]",
+            "baselineRuleCollections": [
+              {
+                "name": "AllowPlatformServiceTags",
+                "priority": "[parameters('baselinePlatformCollectionPriority')]",
+                "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                "action": {
+                  "type": "Allow"
+                },
+                "rules": [
+                  {
+                    "name": "AllowAzureControlPlane443",
+                    "ruleType": "NetworkRule",
+                    "ipProtocols": [
+                      "TCP"
+                    ],
+                    "sourceAddresses": [
+                      "*"
+                    ],
+                    "destinationAddresses": [
+                      "AzureActiveDirectory",
+                      "AzureResourceManager",
+                      "AzureTrafficManager",
+                      "AzureMonitor",
+                      "Storage"
+                    ],
+                    "destinationPorts": [
+                      "443"
+                    ],
+                    "sourceIpGroups": [],
+                    "destinationIpGroups": [],
+                    "destinationFqdns": []
+                  }
+                ]
+              },
+              {
+                "name": "AllowCrlOcsp",
+                "priority": "[parameters('baselineCrlOcspCollectionPriority')]",
+                "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                "action": {
+                  "type": "Allow"
+                },
+                "rules": [
+                  {
+                    "name": "AllowCrlOcsp",
+                    "ruleType": "ApplicationRule",
+                    "sourceAddresses": [
+                      "*"
+                    ],
+                    "protocols": [
+                      {
+                        "protocolType": "Https",
+                        "port": 443
+                      }
+                    ],
+                    "targetFqdns": [
+                      "ocsp.digicert.com",
+                      "crl3.digicert.com",
+                      "crl.microsoft.com"
+                    ]
+                  }
+                ]
+              }
+            ],
+            "fallbackBackendRule": "[if(and(and(not(empty(parameters('appGatewaySubnetPrefix'))), greater(length(parameters('backendPrefixes')), 0)), greater(length(parameters('backendAllowPorts')), 0)), createArray(createObject('name', 'AllowAppGwBackend', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('TCP'), 'sourceAddresses', createArray(parameters('appGatewaySubnetPrefix')), 'destinationAddresses', parameters('backendPrefixes'), 'destinationPorts', parameters('backendAllowPorts'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray(), 'destinationFqdns', createArray())), createArray())]",
+            "backendAllowCollection": "[if(and(not(empty(parameters('appGatewaySubnetPrefix'))), or(or(greater(length(variables('appBackendRules')), 0), greater(length(variables('detailedBackendRules')), 0)), greater(length(variables('fallbackBackendRule')), 0))), createArray(createObject('name', 'AllowAppGwToBackends', 'priority', add(parameters('baselinePlatformCollectionPriority'), 1), 'ruleCollectionType', 'FirewallPolicyFilterRuleCollection', 'action', createObject('type', 'Allow'), 'rules', if(greater(length(variables('appBackendRules')), 0), variables('appBackendRules'), if(greater(length(variables('detailedBackendRules')), 0), variables('detailedBackendRules'), variables('fallbackBackendRule'))))), createArray())]"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Network/firewallPolicies/ruleCollectionGroups",
+              "apiVersion": "2024-03-01",
+              "name": "[format('{0}/{1}', variables('fpName'), 'AppGw-Baseline')]",
+              "properties": {
+                "priority": "[parameters('baselinePriority')]",
+                "ruleCollections": "[concat(variables('baselineRuleCollections'), variables('backendAllowCollection'))]"
+              }
+            },
+            {
+              "copy": {
+                "name": "appGwCustomRuleGroups",
+                "count": "[length(parameters('customRuleCollectionGroups'))]",
+                "mode": "serial",
+                "batchSize": 1
+              },
+              "type": "Microsoft.Network/firewallPolicies/ruleCollectionGroups",
+              "apiVersion": "2024-03-01",
+              "name": "[format('{0}/{1}', variables('fpName'), parameters('customRuleCollectionGroups')[copyIndex()].name)]",
+              "properties": "[parameters('customRuleCollectionGroups')[copyIndex()].properties]"
+            }
+          ],
+          "outputs": {
+            "baselineRuleCollectionGroupName": {
+              "type": "string",
+              "value": "AppGw-Baseline"
+            },
+            "customRuleCollectionGroupNames": {
+              "type": "array",
+              "copy": {
+                "count": "[length(parameters('customRuleCollectionGroups'))]",
+                "input": "[parameters('customRuleCollectionGroups')[copyIndex()].name]"
+              }
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix')))]"
+      ]
+    }
+  ],
+  "outputs": {
+    "appGatewayResourceId": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubRgName')), 'Microsoft.Resources/deployments', 'appgwCore'), '2025-04-01').outputs.appGatewayResourceId.value]"
+    },
+    "appGatewayPublicIp": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubRgName')), 'Microsoft.Resources/deployments', 'appgwCore'), '2025-04-01').outputs.publicIpAddress.value]"
+    },
+    "wafPolicyResourceId": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubRgName')), 'Microsoft.Resources/deployments', 'wafPolicyResolver'), '2025-04-01').outputs.wafPolicyId.value]"
+    },
+    "listenerNames": {
+      "type": "array",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubRgName')), 'Microsoft.Resources/deployments', 'appgwCore'), '2025-04-01').outputs.listenerNames.value]"
+    },
+    "backendPoolNames": {
+      "type": "array",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubRgName')), 'Microsoft.Resources/deployments', 'appgwCore'), '2025-04-01').outputs.backendPoolNames.value]"
+    },
+    "forcedRouteEntries": {
+      "type": "array",
+      "value": "[variables('effectiveInternalForcedRouteEntries')]"
+    },
+    "diagnosticsSettingId": {
+      "type": "string",
+      "value": "[if(variables('effectiveEnableDiagnostics'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubRgName')), 'Microsoft.Resources/deployments', 'appgwDiagnostics'), '2025-04-01').outputs.diagnosticsSettingId.value, '')]"
+    },
+    "operationsLogAnalyticsWorkspaceResourceIdOut": {
+      "type": "string",
+      "value": "[parameters('operationsLogAnalyticsWorkspaceResourceId')]"
+    },
+    "userAssignedIdentityResourceIdOut": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubRgName')), 'Microsoft.Resources/deployments', 'userAssignedIdentity'), '2025-04-01').outputs.identityResourceId.value]"
+    },
+    "userAssignedIdentityPrincipalId": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubRgName')), 'Microsoft.Resources/deployments', 'userAssignedIdentity'), '2025-04-01').outputs.principalId.value]"
+    }
+  }
+}
