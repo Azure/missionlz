@@ -47,8 +47,11 @@ resource wafPolicy 'Microsoft.Network/ApplicationGatewayWebApplicationFirewallPo
         {
           ruleSetType: 'OWASP'
           ruleSetVersion: managedRuleSetVersion
+          // Explicit empty ruleGroupOverrides for consistent schema
+          ruleGroupOverrides: []
         }
       ]
+      // Explicit empty exclusions array (can be augmented via future params)
       exclusions: []
       // disabledRuleGroups not supported in this API schema; future enhancement placeholder
     }
@@ -57,4 +60,7 @@ resource wafPolicy 'Microsoft.Network/ApplicationGatewayWebApplicationFirewallPo
 
 var resolvedWafPolicyId = empty(existingWafPolicyId) ? wafPolicy.id : existingWafPolicyId
 
+// Helpful outputs for validation
 output wafPolicyId string = resolvedWafPolicyId
+output wafPolicyMode string = mode
+output wafPolicyManagedRuleSetVersion string = managedRuleSetVersion

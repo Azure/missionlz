@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.38.33.27573",
-      "templateHash": "3326599632418087205"
+      "templateHash": "17842325597737277685"
     }
   },
   "parameters": {
@@ -1147,7 +1147,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.38.33.27573",
-              "templateHash": "17900483227423493069"
+              "templateHash": "10555445536349364134"
             }
           },
           "parameters": {
@@ -1241,7 +1241,8 @@
                   "managedRuleSets": [
                     {
                       "ruleSetType": "OWASP",
-                      "ruleSetVersion": "[parameters('managedRuleSetVersion')]"
+                      "ruleSetVersion": "[parameters('managedRuleSetVersion')]",
+                      "ruleGroupOverrides": []
                     }
                   ],
                   "exclusions": []
@@ -1253,6 +1254,14 @@
             "wafPolicyId": {
               "type": "string",
               "value": "[variables('resolvedWafPolicyId')]"
+            },
+            "wafPolicyMode": {
+              "type": "string",
+              "value": "[parameters('mode')]"
+            },
+            "wafPolicyManagedRuleSetVersion": {
+              "type": "string",
+              "value": "[parameters('managedRuleSetVersion')]"
             }
           }
         }
@@ -1355,7 +1364,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.38.33.27573",
-              "templateHash": "14846126158060231672"
+              "templateHash": "8058697452146453423"
             }
           },
           "parameters": {
@@ -1563,7 +1572,7 @@
                     "sslCertificate": {
                       "id": "[resourceId('Microsoft.Network/applicationGateways/sslCertificates', parameters('appGatewayName'), variables('listenerCertNames')[copyIndex('httpsListeners')])]"
                     },
-                    "firewallPolicy": "[if(not(empty(if(not(empty(coalesce(parameters('listeners')[copyIndex('httpsListeners')].wafPolicyId, ''))), parameters('listeners')[copyIndex('httpsListeners')].wafPolicyId, ''))), createObject('id', if(not(empty(coalesce(parameters('listeners')[copyIndex('httpsListeners')].wafPolicyId, ''))), parameters('listeners')[copyIndex('httpsListeners')].wafPolicyId, '')), null())]"
+                    "firewallPolicy": "[if(not(empty(coalesce(parameters('listeners')[copyIndex('httpsListeners')].wafPolicyId, ''))), createObject('id', parameters('listeners')[copyIndex('httpsListeners')].wafPolicyId), if(or(greater(length(coalesce(parameters('listeners')[copyIndex('httpsListeners')].wafExclusions, createArray())), 0), not(empty(parameters('listeners')[copyIndex('httpsListeners')].wafOverrides))), createObject('id', resourceId('Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies', variables('_generatedPerListenerPolicyNames')[copyIndex('httpsListeners')])), null()))]"
                   }
                 }
               },
@@ -1650,9 +1659,7 @@
                   "name": "WAF_v2",
                   "tier": "WAF_v2"
                 },
-                "firewallPolicy": {
-                  "id": "[parameters('wafPolicyId')]"
-                },
+                "firewallPolicy": "[if(not(empty(parameters('wafPolicyId'))), createObject('id', parameters('wafPolicyId')), null())]",
                 "autoscaleConfiguration": {
                   "minCapacity": "[parameters('autoscaleMinCapacity')]",
                   "maxCapacity": "[parameters('autoscaleMaxCapacity')]"
@@ -1694,7 +1701,8 @@
                 "enableHttp2": "[parameters('enableHttp2')]"
               },
               "dependsOn": [
-                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpName'))]"
+                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpName'))]",
+                "perListenerWafPolicies"
               ]
             }
           ],
@@ -2120,6 +2128,10 @@
     "backendPoolNames": {
       "type": "array",
       "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubRgName')), 'Microsoft.Resources/deployments', 'appgwCore'), '2025-04-01').outputs.backendPoolNames.value]"
+    },
+    "perListenerWafPolicyIds": {
+      "type": "array",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubRgName')), 'Microsoft.Resources/deployments', 'appgwCore'), '2025-04-01').outputs.effectivePerListenerWafPolicyIds.value]"
     },
     "forcedRouteEntries": {
       "type": "array",

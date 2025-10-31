@@ -255,6 +255,10 @@ var listeners = [for a in apps: {
   // Optional explicit host header override for backend/probe if app only responds to custom internal FQDN
   backendHostHeader: a.?backendHostHeader
 }]
+// WAF precedence per listener (evaluated inside core module):
+// 1) Explicit wafPolicyId on the app entry
+// 2) Generated per-listener policy if wafExclusions or wafOverrides provided
+// 3) None -> listener inherits global gateway firewallPolicy
 
 // Map commonDefaults object keys to individual core parameters (with safe fallbacks)
 var cd = commonDefaults
@@ -348,6 +352,8 @@ output appGatewayPublicIp string = appgwCore.outputs.publicIpAddress
 output wafPolicyResourceId string = effectiveWafPolicyId
 output listenerNames array = appgwCore.outputs.listenerNames
 output backendPoolNames array = appgwCore.outputs.backendPoolNames
+// Per-listener effective WAF policy IDs (blank string means inherited global policy)
+output perListenerWafPolicyIds array = appgwCore.outputs.effectivePerListenerWafPolicyIds
 output forcedRouteEntries array = effectiveInternalForcedRouteEntries
 // Diagnostics output intentionally omitted to avoid conditional module reference at compile time
 output diagnosticsSettingId string = effectiveEnableDiagnostics ? appgwDiagnostics.outputs.diagnosticsSettingId : ''

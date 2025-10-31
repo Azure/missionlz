@@ -1,8 +1,146 @@
 # Application Gateway (Scenario A: WAF Before Firewall)
 
-This add-on deploys a multi-site Azure Application Gateway (WAF_v2) into the Mission Landing Zone (MLZ) hub Virtual Network with **selective forced routing** through Azure Firewall.
-*Scenario A* places TLS termination and WAF inspection at the gateway prior to any firewall-controlled egress toward private backend workloads (hub-spoke integration pattern).
 This README reflects the current `solution.bicep` implementation (modules relocated under `modules/`).
+> IMPORTANT (Azure Government): Some WAF exclusion `matchVariable` enum values documented for public cloud (e.g. `RequestHeaderNames`, `RequestBodyPostArgs`) may not yet be accepted in this environment. Attempting invalid values causes deployment failures at the per-listener policy creation step. Validate exclusions by creating a temporary test policy with the Azure CLI before embedding them in `apps`.
+
+## WAF Precedence Logic (Listener vs Global)
+
+Order of evaluation for each listener:
+
+1. Explicit `wafPolicyId` on the app element (highest precedence; no generated policy).
+2. Generated per-listener policy when `wafOverrides` OR `wafExclusions` provided (and no `wafPolicyId`).
+3. Global gateway policy (resolver output) when neither overrides/exclusions nor explicit ID supplied.
+
+The deployment surfaces an output array `perListenerWafPolicyIds` showing the effective policy per listener (blank means inherited global).
+
+## Safely Introducing Exclusions (Azure Gov)
+
+1. Create a test policy: `az network application-gateway waf-policy create -g <rg> -n testEnumProbe --type OWASP --version 3.2`
+2. Add a candidate exclusion: `az network application-gateway waf-policy managed-rules exclusion add -g <rg> --policy-name testEnumProbe --match-variable <Candidate> --selector-match-operator Equals --selector x-probe`
+3. If accepted, reuse `<Candidate>` inside `wafExclusions` / `wafOverrides.exclusions`. Remove the test policy afterward.
+
+Record discovered valid enum names for your environment in a team doc to avoid future trial/error.
+
+## Advanced `.bicepparam` Patterns
+
+### Multiple Certificates & Mixed WAF Strategies
+
+Example combining inherited global policy, generated listener policy, and explicit external policy:
+
+```bicep-params
+using 'solution.bicep'
+
+param location = 'usgovvirginia'
+param hubVnetResourceId = '/subscriptions/<subId>/resourceGroups/<hubRg>/providers/Microsoft.Network/virtualNetworks/<hubVnetName>'
+param commonDefaults = {
+  backendPort: 443
+  backendProtocol: 'Https'
+  healthProbePath: '/healthz'
+  autoscaleMinCapacity: 2
+  autoscaleMaxCapacity: 6
+  probeInterval: 30
+  probeTimeout: 30
+  unhealthyThreshold: 3
+  probeMatchStatusCodes: [ '200-399' ]
+  generatedPolicyMode: 'Prevention'
+  generatedPolicyManagedRuleSetVersion: '3.2'
+}
+
+param apps = [
+  {
+    name: 'ops'
+    hostNames: [ 'ops.example.gov' ]
+    backendAddresses: [ { fqdn: 'ops-appsvc.azurewebsites.us' } ]
+    certificateSecretId: 'https://kv.vault.usgovcloudapi.net/secrets/ops-cert/<ver>'
+    healthProbePath: '/healthz'
+    addressPrefixes: [ '10.11.10.0/24' ]
+  }
+  {
+    name: 'identity'
+    hostNames: [ 'identity.example.gov' ]
+    backendAddresses: [ { fqdn: 'identity-appsvc.azurewebsites.us' } ]
+    certificateSecretId: 'https://kv.vault.usgovcloudapi.net/secrets/identity-cert/<ver>'
+    addressPrefixes: [ '10.11.20.0/24' ]
+    wafOverrides: { mode: 'Detection' }
+  }
+  {
+    name: 'shared'
+    hostNames: [ 'shared.example.gov' ]
+    backendAddresses: [ { fqdn: 'shared-appsvc.azurewebsites.us' } ]
+    certificateSecretId: 'https://kv.vault.usgovcloudapi.net/secrets/shared-cert/<ver>'
+    addressPrefixes: [ '10.11.30.0/24' ]
+    wafPolicyId: '/subscriptions/<subId>/resourceGroups/<rg>/providers/Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies/shared-explicit-waf'
+  }
+]
+
+param enableDiagnostics = true
+param operationsLogAnalyticsWorkspaceResourceId = '/subscriptions/<subId>/resourceGroups/<opsRg>/providers/Microsoft.OperationalInsights/workspaces/<workspace>'
+param backendAllowPorts = [ '443' ]
+```
+
+### Incrementally Adding a New Listener
+
+1. Append new element to `apps` with `name`, `hostNames`, `certificateSecretId`, backend addresses.
+2. Supply `addressPrefixes` so selective routing picks up the CIDR.
+3. Omit `wafOverrides` initially; verify health.
+4. Redeploy; confirm new listener appears in outputs (`listenerNames`, `perListenerWafPolicyIds`).
+
+### Per-Listener Policy Tuning Lifecycle
+
+1. Start with global policy only.
+2. Identify a listener needing different posture (temporary Detection mode, size limits, rule group suppressions).
+3. Add `wafOverrides` block.
+4. Redeploy; confirm generated per-listener policy ID in outputs.
+5. To standardize later, remove overrides and redeploy (listener inherits global again).
+
+## Autoscale & Subnet Sizing Guidance
+
+Default subnet size is `/26` for WAF_v2 autoscale headroom. If planning exceptionally high instance counts (>40) consider `/25` or `/24` early. Changing later is disruptive.
+
+## Diagnostics Conditional Activation
+
+Diagnostics are deployed only when BOTH:
+
+* `enableDiagnostics = true`
+* `operationsLogAnalyticsWorkspaceResourceId` is non-empty
+
+## Outputs Reference
+
+| Output | Description |
+|--------|-------------|
+| `appGatewayPublicIp` | Gateway public IPv4 address. |
+| `wafPolicyResourceId` | Global WAF policy ID (resolver output). |
+| `perListenerWafPolicyIds` | Effective WAF policy per listener (blank -> global). |
+| `forcedRouteEntries` | Array of `{ prefix, source }` for selective UDR creation. |
+| `backendPoolNames` | Deployed backend pool names. |
+| `listenerNames` | Deployed listener names. |
+| `userAssignedIdentityResourceIdOut` | User-assigned identity resource ID. |
+| `userAssignedIdentityPrincipalId` | Principal ID for RBAC (Key Vault access). |
+| `diagnosticsSettingId` | Diagnostic setting resource ID (blank when disabled). |
+
+## Validation Checklist After Redeploy
+
+1. Listener names appear as expected.
+2. `perListenerWafPolicyIds` blanks indicate inheritance; IDs indicate explicit/generated policies.
+3. `forcedRouteEntries` matches union of all `addressPrefixes`.
+4. Subnet NSG + disabled default outbound access present.
+5. Certificates resolve (Portal -> SSL certificates list Key Vault).
+6. Health probes green; if Detection mode used temporarily, schedule revert.
+
+## Common Customization Scenarios
+
+| Scenario | Change | Affected Parameters |
+|----------|--------|---------------------|
+| Add new backend subnet | Append CIDR to app's `addressPrefixes` | `apps[].addressPrefixes` |
+| Switch listener to Detection for troubleshooting | Add `wafOverrides.mode = 'Detection'` | `apps[].wafOverrides` |
+| Introduce explicit central policy | Set `wafPolicyId` and remove overrides | `apps[].wafPolicyId` |
+| Raise max body size for a specific listener | Set `wafOverrides.maxRequestBodySizeInKb` | `apps[].wafOverrides` |
+| Global mode change | Update global policy parameters | `wafPolicyMode` (if exposed) / reconfigure existing policy |
+| Add custom Firewall egress group | Append to `customAppGatewayFirewallRuleCollectionGroups` | `customAppGatewayFirewallRuleCollectionGroups` |
+| Disable diagnostics temporarily | Set `enableDiagnostics = false` or clear workspace ID | `enableDiagnostics`, `operationsLogAnalyticsWorkspaceResourceId` |
+| Scale out capacity | Increase `autoscaleMaxCapacity` | `commonDefaults.autoscaleMaxCapacity` |
+| Tune probe sensitivity | Adjust timing thresholds | `commonDefaults` or per-app overrides |
+<!-- Duplicate introductory H1 removed above to satisfy markdown lint rules -->
 
 ## Objectives
 
@@ -46,39 +184,39 @@ At the top level `solution.bicep` exposes (primary subset):
 
 ```jsonc
 {
-	"name": "app1",                                  // Listener + derived pool/probe name seed
-	"hostNames": [ "app1.contoso.gov" ],             // One or more host headers -> multi-site listener
-	"backendAddresses": [                             // Backend pool entries
-		{ "fqdn": "app1-ilb.internal.contoso.gov" },
-		{ "ipAddress": "10.20.10.5" }
-	],
-	"certificateSecretId": "https://kv.vault.usgovcloudapi.net/secrets/app1cert/<version>",
-	"healthProbePath": "/healthz",                   // Optional (defaults from commonDefaults)
-	"backendPort": 443,                               // Optional
-	"backendProtocol": "Https",                      // Optional
-	"probeInterval": 30,
-	"probeTimeout": 30,
-	"unhealthyThreshold": 3,
-	"probeMatchStatusCodes": [ "200" ],              // Optional per-listener override (default often ["200-399"])
-	"backendHostHeader": "mlz-ops-webapp1.azurewebsites.us", // Optional Host/SNI override
-	"addressPrefixes": [ "10.20.0.0/16" ],           // Used for forced routes & firewall rules
-	"wafPolicyId": "",                              // Optional explicit listener WAF policy
-	"wafExclusions": [
-		{ "matchVariable": "RequestHeaderNames", "selectorMatchOperator": "Equals", "selector": "x-custom-ignore" }
-	],
-	"wafOverrides": {                                 // Triggers generated per-listener WAF policy
-		"mode": "Detection",
-		"requestBodyCheck": true,
-		"maxRequestBodySizeInKb": 256,
-		"fileUploadLimitInMb": 150,
-		"managedRuleSetVersion": "3.2",
-		"exclusions": [
-			{ "matchVariable": "RequestHeaderNames", "selectorMatchOperator": "Equals", "selector": "x-ignore" }
-		],
-		"ruleGroupOverrides": [
-			{ "ruleGroupName": "REQUEST-930-APPLICATION-ATTACK-LFI", "rules": [ { "ruleId": "930100", "state": "Disabled" } ] }
-		]
-	}
+  "name": "app1",                                  // Listener + derived pool/probe name seed
+  "hostNames": [ "app1.contoso.gov" ],             // One or more host headers -> multi-site listener
+  "backendAddresses": [                             // Backend pool entries
+    { "fqdn": "app1-ilb.internal.contoso.gov" },
+    { "ipAddress": "10.20.10.5" }
+  ],
+  "certificateSecretId": "https://kv.vault.usgovcloudapi.net/secrets/app1cert/<version>",
+  "healthProbePath": "/healthz",                   // Optional (defaults from commonDefaults)
+  "backendPort": 443,                               // Optional
+  "backendProtocol": "Https",                      // Optional
+  "probeInterval": 30,
+  "probeTimeout": 30,
+  "unhealthyThreshold": 3,
+  "probeMatchStatusCodes": [ "200" ],              // Optional per-listener override (default often ["200-399"])
+  "backendHostHeader": "mlz-ops-webapp1.azurewebsites.us", // Optional Host/SNI override
+  "addressPrefixes": [ "10.20.0.0/16" ],           // Used for forced routes & firewall rules
+  "wafPolicyId": "",                              // Optional explicit listener WAF policy
+  "wafExclusions": [
+    { "matchVariable": "RequestHeaderNames", "selectorMatchOperator": "Equals", "selector": "x-custom-ignore" }
+  ],
+  "wafOverrides": {                                 // Triggers generated per-listener WAF policy
+    "mode": "Detection",
+    "requestBodyCheck": true,
+    "maxRequestBodySizeInKb": 256,
+    "fileUploadLimitInMb": 150,
+    "managedRuleSetVersion": "3.2",
+    "exclusions": [
+      { "matchVariable": "RequestHeaderNames", "selectorMatchOperator": "Equals", "selector": "x-ignore" }
+    ],
+    "ruleGroupOverrides": [
+      { "ruleGroupName": "REQUEST-930-APPLICATION-ATTACK-LFI", "rules": [ { "ruleId": "930100", "state": "Disabled" } ] }
+    ]
+  }
 }
 ```
 
@@ -171,45 +309,45 @@ param hubVnetResourceId = '/subscriptions/<subId>/resourceGroups/<hubRg>/provide
 // Optional: override abbreviations only if deviating from repository defaults (loaded internally).
 // param resourceAbbreviations = loadJsonContent('../../data/resource-abbreviations.json')
 param commonDefaults = {
-	backendPort: 443
-	backendProtocol: 'Https'
-	healthProbePath: '/'
-	probeInterval: 30
-	probeTimeout: 30
-	unhealthyThreshold: 3
-	probeMatchStatusCodes: [ '200-399' ]
-	autoscaleMinCapacity: 1
-	autoscaleMaxCapacity: 2
-	generatedPolicyMode: 'Prevention'
-	generatedPolicyManagedRuleSetVersion: '3.2'
+  backendPort: 443
+  backendProtocol: 'Https'
+  healthProbePath: '/'
+  probeInterval: 30
+  probeTimeout: 30
+  unhealthyThreshold: 3
+  probeMatchStatusCodes: [ '200-399' ]
+  autoscaleMinCapacity: 1
+  autoscaleMaxCapacity: 2
+  generatedPolicyMode: 'Prevention'
+  generatedPolicyManagedRuleSetVersion: '3.2'
 }
 param apps = [
-	{
-		name: 'app1'
-		hostNames: [ 'app1.example.gov' ]
-		certificateSecretId: 'https://kv-example.vault.usgovcloudapi.net/secrets/app1cert/<version>'
-		backendAddresses: [ { fqdn: 'app1-pe-appservice.azurewebsites.us' } ]
-		backendHostHeader: 'app1.example.gov'
-		healthProbePath: '/'
-		addressPrefixes: [ '10.50.1.0/24' ]
-		wafOverrides: {
-			mode: 'Prevention'
-			requestBodyCheck: true
-			maxRequestBodySizeInKb: 128
-			managedRuleSetVersion: '3.2'
-		}
-	}
-	{
-		name: 'app2'
-		hostNames: [ 'app2.example.gov' ]
-		certificateSecretId: 'https://kv-example.vault.usgovcloudapi.net/secrets/app2cert/<version>'
-		backendAddresses: [ { ipAddress: '10.60.2.10' }, { ipAddress: '10.60.2.11' } ]
-		backendPort: 443
-		backendProtocol: 'Https'
-		healthProbePath: '/'
-		addressPrefixes: [ '10.60.2.0/24' ]
-		wafPolicyId: '/subscriptions/<subId>/resourceGroups/<hubRg>/providers/Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies/app2-listener-policy'
-	}
+  {
+    name: 'app1'
+    hostNames: [ 'app1.example.gov' ]
+    certificateSecretId: 'https://kv-example.vault.usgovcloudapi.net/secrets/app1cert/<version>'
+    backendAddresses: [ { fqdn: 'app1-pe-appservice.azurewebsites.us' } ]
+    backendHostHeader: 'app1.example.gov'
+    healthProbePath: '/'
+    addressPrefixes: [ '10.50.1.0/24' ]
+    wafOverrides: {
+      mode: 'Prevention'
+      requestBodyCheck: true
+      maxRequestBodySizeInKb: 128
+      managedRuleSetVersion: '3.2'
+    }
+  }
+  {
+    name: 'app2'
+    hostNames: [ 'app2.example.gov' ]
+    certificateSecretId: 'https://kv-example.vault.usgovcloudapi.net/secrets/app2cert/<version>'
+    backendAddresses: [ { ipAddress: '10.60.2.10' }, { ipAddress: '10.60.2.11' } ]
+    backendPort: 443
+    backendProtocol: 'Https'
+    healthProbePath: '/'
+    addressPrefixes: [ '10.60.2.0/24' ]
+    wafPolicyId: '/subscriptions/<subId>/resourceGroups/<hubRg>/providers/Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies/app2-listener-policy'
+  }
 ]
 
 // Optional diagnostics
@@ -272,8 +410,8 @@ Valid mixed backend set (two distinct systems):
 
 ```jsonc
 "backendAddresses": [
-	{ "fqdn": "app1-pe.azurewebsites.us" },
-	{ "ipAddress": "10.20.10.5" }
+  { "fqdn": "app1-pe.azurewebsites.us" },
+  { "ipAddress": "10.20.10.5" }
 ]
 ```
 
@@ -281,8 +419,8 @@ Invalid (duplicate FQDN):
 
 ```jsonc
 "backendAddresses": [
-	{ "fqdn": "app1-pe.azurewebsites.us" },
-	{ "fqdn": "app1-pe.azurewebsites.us" }
+  { "fqdn": "app1-pe.azurewebsites.us" },
+  { "fqdn": "app1-pe.azurewebsites.us" }
 ]
 ```
 
@@ -294,9 +432,9 @@ Invalid (duplicate FQDN):
 
 ```jsonc
 "wafOverrides": {
-	"mode": "Prevention",
-	"managedRuleSetVersion": "3.2",
-	"ruleGroupOverrides": [ { "ruleGroupName": "REQUEST-942-APPLICATION-ATTACK-SQLI", "rules": [ { "ruleId": "942100", "state": "Disabled" } ] } ]
+  "mode": "Prevention",
+  "managedRuleSetVersion": "3.2",
+  "ruleGroupOverrides": [ { "ruleGroupName": "REQUEST-942-APPLICATION-ATTACK-SQLI", "rules": [ { "ruleId": "942100", "state": "Disabled" } ] } ]
 }
 ```
 

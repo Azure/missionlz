@@ -36,14 +36,88 @@ var distinctSecretIds = [for (s,i) in allSecretIds: (!empty(s) && indexOf(allSec
 var filteredSecretIds = [for s in distinctSecretIds: !empty(s) ? s : null]
 var sslCertificates = [for (s,i) in filteredSecretIds: { name: 'cert-sh${i}', properties: { keyVaultSecretId: s } }]
 var listenerCertNames = [for l in listeners: 'cert-sh${indexOf(filteredSecretIds, l.certificateSecretId)}']
-var httpsListeners = [for (l,i) in listeners: { name: 'listener-${l.name}', properties: { frontendIPConfiguration: { id: resourceId('Microsoft.Network/applicationGateways/frontendIPConfigurations', appGatewayName, 'appgw-frontendip') }, frontendPort: { id: resourceId('Microsoft.Network/applicationGateways/frontendPorts', appGatewayName, 'port-https') }, hostNames: l.hostNames ?? [], protocol: 'Https', sslCertificate: { id: resourceId('Microsoft.Network/applicationGateways/sslCertificates', appGatewayName, listenerCertNames[i]) }, firewallPolicy: !empty((!empty(l.wafPolicyId ?? '') ? l.wafPolicyId : '')) ? { id: (!empty(l.wafPolicyId ?? '') ? l.wafPolicyId : '') } : null } }]
+// Listener construction: attach certificate, hostnames, and decide WAF policy reference order of precedence:
+// 1. Explicit listener-level wafPolicyId provided in apps[] entry
+// 2. Generated per-listener policy when overrides or exclusions exist
+// 3. (None) -> falls back to global gateway-level firewallPolicy
+var httpsListeners = [for (l,i) in listeners: {
+	name: 'listener-${l.name}'
+	properties: {
+		frontendIPConfiguration: { id: resourceId('Microsoft.Network/applicationGateways/frontendIPConfigurations', appGatewayName, 'appgw-frontendip') }
+		frontendPort: { id: resourceId('Microsoft.Network/applicationGateways/frontendPorts', appGatewayName, 'port-https') }
+		hostNames: l.hostNames ?? []
+		protocol: 'Https'
+		sslCertificate: { id: resourceId('Microsoft.Network/applicationGateways/sslCertificates', appGatewayName, listenerCertNames[i]) }
+		firewallPolicy: !empty(l.wafPolicyId ?? '') ? { id: l.wafPolicyId } : ((length(l.wafExclusions ?? []) > 0 || !empty(l.wafOverrides)) ? { id: perListenerWafPolicies[i].id } : null)
+	}
+}]
 var httpsRequestRoutingRules = [for (l,i) in listeners: { name: 'rule-${l.name}', properties: { httpListener: { id: resourceId('Microsoft.Network/applicationGateways/httpListeners', appGatewayName, 'listener-${l.name}') }, backendAddressPool: { id: resourceId('Microsoft.Network/applicationGateways/backendAddressPools', appGatewayName, 'pool-${l.name}') }, backendHttpSettings: { id: resourceId('Microsoft.Network/applicationGateways/backendHttpSettingsCollection', appGatewayName, 'setting-${l.name}') }, ruleType: 'Basic', priority: 100 + (i * 10) } }]
 resource appgwPublicIp 'Microsoft.Network/publicIPAddresses@2022-07-01' = { name: publicIpName, location: location, sku: { name: 'Standard' }, properties: { publicIPAllocationMethod: 'Static' } }
-resource appGateway 'Microsoft.Network/applicationGateways@2021-08-01' = { name: appGatewayName, location: location, tags: tags, identity: { type: 'UserAssigned', userAssignedIdentities: { '${userAssignedIdentityResourceId}': {} } }, properties: { sku: { name: 'WAF_v2', tier: 'WAF_v2' }, firewallPolicy: { id: wafPolicyId }, autoscaleConfiguration: { minCapacity: autoscaleMinCapacity, maxCapacity: autoscaleMaxCapacity }, gatewayIPConfigurations: [ { name: 'appgw-gatewayipconfig', properties: { subnet: { id: subnetId } } } ], frontendIPConfigurations: [ { name: 'appgw-frontendip', properties: { publicIPAddress: { id: appgwPublicIp.id } } } ], frontendPorts: [ { name: 'port-https', properties: { port: httpsListenerPort } } ], sslCertificates: sslCertificates, backendAddressPools: backendAddressPools, probes: probes, backendHttpSettingsCollection: backendHttpSettingsCollection, httpListeners: httpsListeners, requestRoutingRules: httpsRequestRoutingRules, enableHttp2: enableHttp2 } }
+// Omit firewallPolicy property if wafPolicyId empty (defensive; resolver guarantees non-empty unless user supplied empty existing ID)
+resource appGateway 'Microsoft.Network/applicationGateways@2021-08-01' = {
+	name: appGatewayName
+	location: location
+	tags: tags
+	identity: {
+		type: 'UserAssigned'
+		userAssignedIdentities: {
+			'${userAssignedIdentityResourceId}': {}
+		}
+	}
+	properties: {
+		sku: {
+			name: 'WAF_v2'
+			tier: 'WAF_v2'
+		}
+		// Only include firewallPolicy when we have an ID
+		firewallPolicy: !empty(wafPolicyId) ? {
+			id: wafPolicyId
+		} : null
+		autoscaleConfiguration: {
+			minCapacity: autoscaleMinCapacity
+			maxCapacity: autoscaleMaxCapacity
+		}
+		gatewayIPConfigurations: [
+			{
+				name: 'appgw-gatewayipconfig'
+				properties: {
+					subnet: {
+						id: subnetId
+					}
+				}
+			}
+		]
+		frontendIPConfigurations: [
+			{
+				name: 'appgw-frontendip'
+				properties: {
+					publicIPAddress: {
+						id: appgwPublicIp.id
+					}
+				}
+			}
+		]
+		frontendPorts: [
+			{
+				name: 'port-https'
+				properties: {
+					port: httpsListenerPort
+				}
+			}
+		]
+		sslCertificates: sslCertificates
+		backendAddressPools: backendAddressPools
+		probes: probes
+		backendHttpSettingsCollection: backendHttpSettingsCollection
+		httpListeners: httpsListeners
+		requestRoutingRules: httpsRequestRoutingRules
+		enableHttp2: enableHttp2
+	}
+}
 output appGatewayResourceId string = appGateway.id
 output publicIpAddress string = appgwPublicIp.properties.ipAddress
 output listenerNames array = [for l in httpsListeners: l.name]
 output backendPoolNames array = [for p in backendAddressPools: p.name]
 output requestRoutingRuleNames array = [for r in httpsRequestRoutingRules: r.name]
-output generatedPerListenerWafPolicyIds array = [for (l,i) in listeners: (!empty(l.wafPolicyId ?? '')) ? '' : ( (length(l.wafExclusions ?? []) > 0 || !empty(l.wafOverrides)) ? perListenerWafPolicies[i].id : '' )]
+output generatedPerListenerWafPolicyIds array = [for (l,i) in listeners: (!empty(l.wafPolicyId ?? '')) ? '' : ((length(l.wafExclusions ?? []) > 0 || !empty(l.wafOverrides)) ? perListenerWafPolicies[i].id : '')]
 output effectivePerListenerWafPolicyIds array = [for (l,i) in listeners: !empty(l.wafPolicyId ?? '') ? l.wafPolicyId : ((length(l.wafExclusions ?? []) > 0 || !empty(l.wafOverrides)) ? perListenerWafPolicies[i].id : '')]
