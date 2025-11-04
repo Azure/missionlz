@@ -21,13 +21,6 @@ Deploys an Azure Application Gateway (WAF_v2) in the MLZ hub for: HTTPS terminat
 * Idempotent re-deploy (unchanged parameters = no drift).
 * Diagnostics automatically provisioned when a Log Analytics workspace resource ID is provided.
 
-## Deployment Options
-
-| Azure Commercial | Azure Government |
-| ---------------- | ---------------- |
-| [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fadd-ons%2Fapplication-gateway%2Fsolution.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fadd-ons%2Fapplication-gateway%2FuiDefinition.json) | [![Deploy to Azure Gov](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fadd-ons%2Fapplication-gateway%2Fsolution.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fadd-ons%2Fapplication-gateway%2FuiDefinition.json) |
-
-CLI subscription‑scope deployment example appears later in this document. Template specs may be created for disconnected/air‑gapped environments following patterns used by other add‑ons.
 
 ## Architecture Flow
 Client → Application Gateway (public IP) → WAF (global or per‑listener) → Forced route (backend CIDR) → Azure Firewall → Backend service.
