@@ -25,7 +25,6 @@ Ingress path: Client → Public IP (Gateway) → WAF evaluation (global or liste
 
 ## 4. Functional Highlights
 
-* Dedicated subnet with optional NSG and controlled outbound (no implicit Internet path).
 * Dedicated subnet with enforced restrictive NSG and controlled outbound (no implicit Internet path).
 * Deduplicated backend CIDRs drive both route entries and firewall allow rules.
 * Policy resolver either adopts an existing WAF policy or creates a fresh one with supplied tuning parameters.
@@ -39,7 +38,7 @@ Ingress path: Client → Public IP (Gateway) → WAF evaluation (global or liste
 | `solution.bicep` | Orchestration (naming, identity, subnet, UDRs, NSG, firewall rules, diagnostics). |
 | `modules/appgateway-core.bicep` | Core Application Gateway + listeners + probes + per listener policies. |
 | `modules/wafpolicy-resolver.bicep` | Create or reuse a global WAF policy. |
-| `modules/appgateway-subnet.bicep` | Subnet definition, delegation, associations. |
+| `modules/appgateway-subnet.bicep` | Subnet definition, delegation, enforced NSG association. |
 | `modules/appgateway-route-table.bicep` | Targeted route entries for backend prefixes. |
 | `modules/appgateway-nsg.bicep` | Hardened network security group rules. |
 | `modules/appgateway-firewall-rules.bicep` | Firewall egress rule collection groups (baseline + custom). |
@@ -117,7 +116,6 @@ Each element maps to one HTTPS listener (multi‑site host names) plus a backend
 | `backendAllowPorts` | Port list used when no detailed maps provided. |
 | `backendPrefixPortMaps` / `backendAppPortMaps` | Fine‑grained firewall rule shaping. |
 | `customAppGatewayFirewallRuleCollectionGroups` | Additional firewall policy rule groups. |
-| `createSubnetNsg` | Toggle NSG creation. |
 | (NSG always enforced) | Not applicable—cannot disable via parameter. |
 | `enableDiagnostics` & `operationsLogAnalyticsWorkspaceResourceId` | Both required to emit diagnostics. |
 | `createKeyVaultSecretAccessRole` | Grant Key Vault Secrets User to identity. |
@@ -252,7 +250,7 @@ Portal deployment is also supported via `solution.json` + `uiDefinition.json` ar
 | `solution.json` / `uiDefinition.json` | Portal deployment assets. |
 | `modules/appgateway-core.bicep` | Gateway definition & listener logic. |
 | `modules/wafpolicy-resolver.bicep` | Global WAF policy creation / reuse. |
-| `modules/appgateway-subnet.bicep` | Subnet + delegation. |
+| `modules/appgateway-subnet.bicep` | Subnet + delegation + enforced NSG association. |
 | `modules/appgateway-route-table.bicep` | Route table & targeted routes. |
 | `modules/appgateway-nsg.bicep` | Network security group. |
 | `modules/appgateway-firewall-rules.bicep` | Firewall policy rule groups. |
@@ -266,7 +264,7 @@ Portal deployment is also supported via `solution.json` + `uiDefinition.json` ar
 |--------|-----------|
 | Per listener policy generation | Enable granular WAF posture without manual policy sprawl. |
 | Deduplicated backend prefix logic | Prevent redundant routes & firewall entries. |
-| Deduplicated backend prefix logic | Prevent redundant routes & firewall entries. |
+| Mandatory NSG enforcement | Removed historical toggle; ensures consistent hardening. |
 | Diagnostics gating refinement | Avoid unintended log noise when not configured. |
 | Complete documentation rewrite | Improve clarity & remove scenario naming. |
 
@@ -281,7 +279,7 @@ Please file issues or enhancement requests with the commit hash for traceability
 
 * `solution.bicep` – orchestration (naming inference, subnet creation, NSG/route table, WAF policy resolution, diagnostics, firewall rules, per‑listener object shaping, identity RBAC to Key Vault).
 * `modules/appgateway-core.bicep` – gateway resource, dynamic listeners, pools, probes, autoscale, generated per‑listener WAF policies.
-* `modules/appgateway-subnet.bicep` – authoritative subnet definition with optional NSG & route table association.
+* `modules/appgateway-subnet.bicep` – authoritative subnet definition with enforced NSG & route table association.
 * `modules/appgateway-route-table.bicep` – constructs forced routes referencing only declared backend CIDRs (no 0.0.0.0/0).
 * `modules/appgateway-diagnostics.bicep` – diagnostic settings binding to LA workspace.
 * `modules/appgateway-firewall-rules.bicep` – firewall policy rule collection groups (baseline + custom additions).
@@ -309,7 +307,7 @@ Add or update apps by editing the `apps` array in a parameter file, then redeplo
 * Backends reside in spoke VNets or private endpoints; only declared backend CIDR prefixes (via each app's `addressPrefixes`) are forced through the hub Firewall using UDR entries created by the add-on.
 * No default 0.0.0.0/0 route: prevents asymmetric paths for health probes and ensures only intentional egress inspection.
 * Firewall rule module receives the deduplicated backend CIDRs plus allowed ports to construct least‑privilege egress.
-* NSG optionally applied to gateway subnet for inbound restriction (443 + platform requirements); outbound Internet access disabled at subnet level to align with centralized egress model.
+* NSG enforced on gateway subnet for inbound restriction (443 + platform requirements); outbound Internet access disabled at subnet level to align with centralized egress model.
 
 ## WAF Overrides Per Listener
 
