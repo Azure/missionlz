@@ -73,8 +73,7 @@ param apps = [
 | Adopt external listener policy | Set `wafPolicyId`; remove overrides/exclusions. |
 | Switch global to external | Set `existingWafPolicyId`. |
 | Expand allowed egress ports | Update maps or `backendAllowPorts`. |
-| Add diagnostics | Provide `operationsLogAnalyticsWorkspaceResourceId`. |
-| Remove diagnostics | Clear `operationsLogAnalyticsWorkspaceResourceId`. |
+| Add diagnostics | Provide `operationsLogAnalyticsWorkspaceResourceId` (existing setting persists if you later clear it; manual delete required). |
 
 NOTE: If a removed app previously had a generated per-listener WAF policy (due to overrides/exclusions), that standalone WAF policy resource is not auto-deleted in incremental mode and becomes an orphan. Delete manually if no longer needed.
 
@@ -143,8 +142,7 @@ param apps = [
 | Adopt external listener policy | Set `wafPolicyId`; remove overrides/exclusions. |
 | Switch global to external | Set `existingWafPolicyId`. |
 | Expand allowed egress ports | Update maps or `backendAllowPorts`. |
-| Add diagnostics | Provide `operationsLogAnalyticsWorkspaceResourceId`. |
-| Remove diagnostics | Clear `operationsLogAnalyticsWorkspaceResourceId`. |
+| Add diagnostics | Provide `operationsLogAnalyticsWorkspaceResourceId` (existing setting persists if you later clear it; manual delete required). |
 
 NOTE: If a removed app previously had a generated per-listener WAF policy (due to overrides/exclusions), that standalone WAF policy resource is not auto-deleted in incremental mode and becomes an orphan. Delete manually if no longer needed.
 
