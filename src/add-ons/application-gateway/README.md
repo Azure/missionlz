@@ -132,11 +132,8 @@ Operational runbooks, performance tuning strategies, false positive triage, heal
 ## 13. Need More Detail?
 See `ADVANCED.md` for deeper WAF tuning, exclusions guidance, troubleshooting, and verification checklists.
 
----
 Provide only CIDRs requiring firewall egress in `addressPrefixes`. Deduplication occurs automatically.
 
----
-Active implementation; please raise issues referencing commit hash.
 
 ## 14. Application Definition (`apps` Array)
 
