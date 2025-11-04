@@ -12,7 +12,7 @@ Deploys an Azure Application Gateway (WAF_v2) in the Mission Landing Zone (MLZ) 
 * If you set `wafPolicyId` on an app that exact policy is used and any overrides/exclusions for that app are ignored.
 * The gateway's managed identity automatically gets Key Vault Secrets read access (when the certificate secret's vault can be inferred).
 * Safe re-run: deploying again with the same parameters doesn't change anything.
-* Diagnostics appear only if you enable them AND supply a workspace ID.
+* Diagnostics enabled automatically when you supply a Log Analytics workspace ID (omit to skip).
 * Diagnostics enabled automatically when you supply a Log Analytics workspace resource ID (omit to skip).
 
 ## Architecture Flow
@@ -82,7 +82,7 @@ Client → AppGW Public IP → WAF (global or per‑listener) → Forced route (
 | `backendPoolNames` | Backend pool names. |
 | `userAssignedIdentityResourceIdOut` | Identity resource ID. |
 | `userAssignedIdentityPrincipalId` | Identity principal ID. |
-| `diagnosticsSettingId` | Diagnostic setting or blank when disabled. |
+| `diagnosticsSettingId` | Diagnostic setting ID (blank when workspace ID omitted). |
 
 ## Routing & Firewall Rule Precedence
 1. Collect all `addressPrefixes` across apps (mandatory per app).
@@ -255,9 +255,7 @@ One user‑assigned identity is created every deployment; its resource & princip
 
 ## Diagnostics
 
-Diagnostics are created automatically when you provide a valid Log Analytics workspace resource ID via `operationsLogAnalyticsWorkspaceResourceId`. Leave it empty to skip deployment of the diagnostic setting (output blank). No separate enable flag exists.
-
-Diagnostics module is parameter‑gated; if either the boolean flag is false or the workspace ID is empty no diagnostic setting resource is created (output left blank). This avoids accidental noise or cross‑subscription log writes.
+Diagnostics are created automatically when you provide a valid Log Analytics workspace resource ID via `operationsLogAnalyticsWorkspaceResourceId`. Leave it empty to skip deployment of the diagnostic setting (output blank). There is no separate enable flag.
 
 ## Deployment Examples
 
@@ -356,7 +354,7 @@ Portal deployment is also supported via `solution.json` + `uiDefinition.json` ar
 | `backendPoolNames` | Backend pool names. |
 | `userAssignedIdentityResourceIdOut` | Deployed identity resource ID. |
 | `userAssignedIdentityPrincipalId` | Principal ID for RBAC correlation. |
-| `diagnosticsSettingId` | Diagnostic setting (blank when disabled). |
+| `diagnosticsSettingId` | Diagnostic setting ID (blank when workspace ID omitted). |
 
 ## File Map
 
