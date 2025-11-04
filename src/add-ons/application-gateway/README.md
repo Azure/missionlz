@@ -143,12 +143,6 @@ param apps = [
 
 NOTE: If a removed app previously had a generated per-listener WAF policy (due to overrides/exclusions), that standalone WAF policy resource is not auto-deleted in incremental mode and becomes an orphan. Delete manually if no longer needed.
 
-## Non-Goals
-Operational runbooks, performance tuning strategies, false positive triage, health probe debugging, and general Azure Application Gateway operational guidance are intentionally excluded. For those advanced topics (WAF tuning, exclusions, certificate rotation, orphan policy cleanup, deep troubleshooting) see [ADVANCED.md](./ADVANCED.md).
-
-<!-- Removed duplicate reminder about addressPrefixes (covered in Routing & Firewall). -->
-
-
 ## Detailed Listener Definition Reference
 
 Each element maps to one HTTPS listener (multi‑site host names) plus a backend pool and optional dedicated WAF policy.
