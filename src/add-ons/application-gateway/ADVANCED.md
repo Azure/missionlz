@@ -73,63 +73,6 @@ Explicit external policy (overrides ignored):
 "wafPolicyId": "/subscriptions/.../ApplicationGatewayWebApplicationFirewallPolicies/external-pci-policy"
 ```
 
-## 3. Post-Deployment Verification Checklist
-
-| Check | Expectation |
-|-------|-------------|
-| Public IP | Static & reachable (optional DNS resolves). |
-| `listenerNames` | Matches count of `apps` defined. |
-| `perListenerWafPolicyIds` | Blank only where no overrides/exclusions/explicit ID. |
-| `forcedRouteEntries` | Contains only declared backend CIDRs; no default route. |
-| Subnet | NSG + route table associated; outbound Internet disabled flag set. |
-| Health probes | All show healthy after certificate/SNI alignment. |
-| Firewall policy | Baseline collection + custom groups (if provided). |
-
-## 4. Routine Structural Changes
-
-| Action | Effect |
-|--------|-------|
-| Add app object | New listener/pool/probe; optionally new per-listener policy. |
-| Remove app object | Associated listener/pool/probe and synthesized policy deleted. |
-| Add CIDR to `addressPrefixes` | New forced route + potential firewall rule expansion. |
-| Remove CIDR | Removes route and adjusts firewall rules (dedup still applied). |
-| Change `wafOverrides` | Recreates per-listener policy with new settings. |
-| Switch to explicit policy | Per-listener synthesized policy no longer generated. |
-| Enable diagnostics | Diagnostic setting created; output populated. |
-| Disable diagnostics | Not supported (omit workspace ID to skip). |
-
-## 5. Detailed Listener Configuration Notes
-
-* `hostNames`: Multi-site host matching; each app maps to one multi-site HTTPS listener.
-* `backendAddresses`: Use FQDN for dynamic PaaS endpoints; IP for static infrastructure.
-* `backendHostHeader`: Set when backend TLS cert expects a different host than public DNS.
-* Health probes: Path + timing; narrow status codes after baseline stability.
-* Autoscale: Subnet default /26 sized for growth; do not shrink below vendor guidance.
-
-### Valid vs Invalid Backend Sets
-
-Valid mixed:
-
-```jsonc
-"backendAddresses": [ { "fqdn": "app1-pe.azurewebsites.us" }, { "ipAddress": "10.20.10.5" } ]
-```
-
-Invalid duplicate:
-
-```jsonc
-"backendAddresses": [ { "fqdn": "app1-pe.azurewebsites.us" }, { "fqdn": "app1-pe.azurewebsites.us" } ]
-```
-
-## 6. Complexity Clarifications (Extended)
-| Aspect | Why It Exists | Key Rule | Pitfall |
-|--------|---------------|----------|---------|
-| host vs backend separation | Listener matching vs pool membership | Hostnames drive routing; addresses build pool | Duplicate hostnames across apps conflict |
-| FQDN vs IP entries | Support dynamic PaaS vs static infra | Choose per endpoint stability | Mixing both for same endpoint redundant |
-| Selective routing | Prevent broad unintended egress | Only declare necessary CIDRs | Overly broad /8 weakens least privilege |
-| Per-listener WAF generation | Localized tuning | Provide overrides/exclusions OR explicit policy ID | Empty overrides still create a policy |
-| Global vs listener precedence | Clear hierarchy | Explicit > synthesized > global | Assuming global changes affect explicit listener |
-| Body size limits | Inspect payload safely | Increase only as needed | Oversizing invites performance impact |
-| Managed rule versioning | Keep up with CRS updates | Pin version consciously | Blind upgrades may re-enable disabled rules |
 
 ## 7. Decision Matrix: FQDN vs IP
 | Backend Type | Recommended Form |
@@ -178,25 +121,7 @@ Add a custom block rule:
 | Missing certificate SAN | TLS probe failures | Reissue cert or split listener |
 | Outdated exclusion enum (Gov) | Deployment error | Validate with test policy first |
 
-## 10. Forced Route Entries Output
-`forcedRouteEntries` lists each unique backend CIDR producing a UDR entry (next hop = Firewall private IP). No sentinel default route is ever created.
-
-
-## 12. Listener Configuration Surface (Full)
-Each app defines: multi-site HTTPS listener, backend pool, health probe, optional synthesized WAF policy.
-
-## 13. Removal Behavior
-* Removing an app: associated listener/pool/probe and synthesized per-listener WAF policy (if any) are removed.
-* Autoscale subnet sizing guidance retained in README comment; no scaling operations guidance duplicated here.
-
-## 14. Security Rationale (Extended)
-* No default 0.0.0.0/0 UDR → prevents unintended asymmetric probe paths.
-* Hardened NSG baseline restricts inbound surface (443 + platform required ranges).
-* Outbound Internet disabled at subnet; egress forced only through declared CIDRs via Firewall.
-* Key Vault versioned secrets prevent silent cert mutation.
-* Per-listener policy synthesis isolates tuning changes—global baseline remains stable.
-
-## 15. Troubleshooting Quick Table
+## 10. Troubleshooting Quick Table
 | Symptom | Cause | Action |
 |---------|-------|--------|
 | Persistent 502 | Host header mismatch | Set `backendHostHeader` to expected value |
@@ -205,15 +130,15 @@ Each app defines: multi-site HTTPS listener, backend pool, health probe, optiona
 | Unwanted broad egress | CIDR too wide | Narrow `addressPrefixes` |
 | Missing diagnostics | Flag/workspace mismatch | Provide both or disable flag |
 
-## 16. Governance Considerations
+## 11. Governance Considerations
 * Store parameter files in source control; review diffs for policy changes (rule disables, exclusions additions).
 * External security teams can manage a central global policy consumed via `existingWafPolicyId` while still allowing per-listener synthesis for app teams.
 
-## 17. Versioning & Upgrades
+## 12. Versioning & Upgrades
 * Track managed rule set version changes in parameter diff reviews.
 * Revalidate exclusions after version bump—false positive landscape may change.
 
-## 18. Appendix: Sample Full App Object
+## 13. Appendix: Sample Full App Object
 ```jsonc
 {
   "name": "api",
@@ -234,7 +159,7 @@ Each app defines: multi-site HTTPS listener, backend pool, health probe, optiona
 ---
 Use ADVANCED.md only for operational or tuning tasks; keep README authoritative for contract.
 
-  ## 19. Certificate Rotation
+  ## 14. Certificate Rotation
 
   Rotate TLS certificates by publishing a **new version** of the existing Key Vault secret and then updating the parameter file to reference that version. Do not replace certificate material inline or upload manually to the gateway—keep rotation declarative.
 
