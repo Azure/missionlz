@@ -117,12 +117,14 @@ param apps = [
 | Action | Required Input Change |
 |--------|-----------------------|
 | Add listener/app | Append new object to `apps`. |
-| Remove listener/app | Delete object from `apps` (removes listener + pool + generated per-listener policy). |
+| Remove listener/app | Delete object from `apps` (removes listener + pool + probe + routing rule + certificate reference). |
 | Introduce inline WAF tuning | Add `wafOverrides` or `wafExclusions` (creates policy). |
 | Adopt external listener policy | Set `wafPolicyId`; remove overrides/exclusions. |
 | Switch global to external | Set `existingWafPolicyId`. |
 | Expand allowed egress ports | Update maps or `backendAllowPorts`. |
 | Toggle diagnostics | Set flag + workspace (enable) or clear either (disable). |
+
+NOTE: If a removed app previously had a generated per-listener WAF policy (due to overrides/exclusions), that standalone WAF policy resource is not auto-deleted in incremental mode and becomes an orphan. Delete manually if no longer needed.
 
 ## 12. Non-Goals
 Operational runbooks, performance tuning strategies, false positive triage, health probe debugging, and general Azure Application Gateway operational guidance are intentionally excluded. See `ADVANCED.md` for extended material.
