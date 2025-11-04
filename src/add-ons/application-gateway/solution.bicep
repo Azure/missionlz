@@ -14,8 +14,6 @@ var hubRgName = split(hubVnetResourceId, '/')[4]
 param appGatewaySubnetAddressPrefix string = '10.0.129.0/26'
 @description('Subnet name for the Application Gateway.')
 param appGatewaySubnetName string = 'AppGateway'
-@description('Disable private endpoint network policies on the AppGateway subnet (prevents Private Endpoint creation there).')
-param disablePrivateEndpointNetworkPolicies bool = true
 @description('Common default settings object applied to each app unless overridden')
 param commonDefaults object
 @description('Array of application definitions. Each app: { name, hostNames:[string...], backendAddresses:[{ipAddress|fqdn}], certificateSecretId, addressPrefixes:[CIDR... REQUIRED], (optional) backendPort, (optional) backendProtocol, (optional) healthProbePath, (optional) wafOverrides:{ mode, requestBodyCheck, maxRequestBodySizeInKb, fileUploadLimitInMb, managedRuleSetVersion }, (optional) wafExclusions, (optional) wafPolicyId }. NOTE: addressPrefixes is REQUIRED for routing and firewall rule generation.')
@@ -200,7 +198,7 @@ module appgwSubnet 'modules/appgateway-subnet.bicep' = {
     addressPrefix: appGatewaySubnetAddressPrefix
     // Harden by default: disable implicit Internet egress; all outbound must follow explicit routes (Firewall)
     defaultOutboundAccess: false
-    disablePrivateEndpointNetworkPolicies: disablePrivateEndpointNetworkPolicies
+  // Private Endpoint network policies intentionally left enabled (default) because subnet must remain dedicated to Application Gateway; no Private Endpoints should be placed here.
     routeTableId: appgwRouteTable.outputs.routeTableId
   nsgId: appgwNsgId
   }

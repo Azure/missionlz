@@ -181,16 +181,14 @@ Add a custom block rule:
 ## 10. Forced Route Entries Output
 `forcedRouteEntries` lists each unique backend CIDR producing a UDR entry (next hop = Firewall private IP). No sentinel default route is ever created.
 
-## 11. Subnet Private Endpoint Network Policy Toggle
-Parameter: `disablePrivateEndpointNetworkPolicies` (default `true`). Disables PE network policies for the gateway subnet to avoid accidental endpoint placement conflict.
+<!-- Subnet Private Endpoint Network Policy toggle removed: subnet is dedicated to Application Gateway; no Private Endpoints should be deployed there. Policies remain enabled implicitly. -->
 
 ## 12. Listener Configuration Surface (Full)
 Each app defines: multi-site HTTPS listener, backend pool, health probe, optional synthesized WAF policy.
 
-## 13. Scaling & Removal Behavior
-* Adding an app: new listener/pool/probe + optional policy.
-* Removing an app: associated resources removed cleanly; unrelated listeners untouched.
-* Increasing autoscale max: ensure subnet has remaining IP space; /26 default sized for small scale.
+## 13. Removal Behavior
+* Removing an app: associated listener/pool/probe and synthesized per-listener WAF policy (if any) are removed.
+* Autoscale subnet sizing guidance retained in README comment; no scaling operations guidance duplicated here.
 
 ## 14. Security Rationale (Extended)
 * No default 0.0.0.0/0 UDR → prevents unintended asymmetric probe paths.

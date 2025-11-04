@@ -342,11 +342,7 @@ Supply `wafOverrides` and/or `wafExclusions` (without an explicit `wafPolicyId`)
 
 > NOTE: Azure Government WAF_v2 (current platform state) supports a single IPv4 public frontend; multi‑public‑IP mode removed. Use host‑based (multi‑site) listeners for segmentation.
 
-## Subnet Private Endpoint Policy Toggle
-
-Parameter: `disablePrivateEndpointNetworkPolicies` (default `true`). When true, Private Endpoint network policies are disabled (safe default preventing accidental PE placement).
-
-<!-- Removed redundant Listener Configuration Surface section (information already present in Parameter Reference and Detailed Listener Definition Reference). -->
+<!-- Removed subnet private endpoint policy toggle parameter; gateway subnet is dedicated and should not host Private Endpoints. Network policies remain enabled by default (no parameter exposed). -->
 
 ## Out of Scope
 
