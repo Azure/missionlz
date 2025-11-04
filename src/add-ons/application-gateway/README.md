@@ -1,4 +1,4 @@
- # Application Gateway Add-On (MLZ Hub)
+# Application Gateway Add-On (MLZ Hub)
 
 ## Overview
 Deploys an Azure Application Gateway (WAF_v2) in the MLZ hub for: HTTPS termination, Web Application Firewall enforcement, and selective forced routing of ONLY declared backend CIDRs through Azure Firewall. This document intentionally focuses on the infrastructure contract (parameters, listener schema, routing model, WAF policy resolution, certificates, and outputs). It is NOT an operational runbook: performance tuning, false‑positive triage, probe debugging, and broader Application Gateway operations are out of scope—see `ADVANCED.md` for deep WAF tuning, exclusions, certificate rotation, orphan policy cleanup, and advanced troubleshooting. This add-on is intentionally MLZ-specific and assumes the presence of the MLZ hub Azure Firewall and its Firewall Policy named via the MLZ naming convention; it is not a general-purpose standalone template.
