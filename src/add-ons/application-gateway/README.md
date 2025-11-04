@@ -1,10 +1,10 @@
 
-# Application Gateway Add-On for MLZ Hub
+# Application Gateway Add-On (MLZ Hub)
 
-## 1. Overview
-Provisions an Azure Application Gateway (WAF_v2) in the Mission Landing Zone hub. Focus: idempotent deployment of listeners + WAF posture + selective routing + firewall integration. Not an operations or tuning guide.
+## Overview
+Deploys an Azure Application Gateway (WAF_v2) in the Mission Landing Zone (MLZ) hub for HTTPS termination, WAF enforcement, and selective, least‑privilege routing of backend traffic through Azure Firewall. This document covers the IaC contract: parameters, listener model, routing, and outputs. Operational tuning and advanced WAF topics are in [ADVANCED.md](./ADVANCED.md).
 
-## 2. What You Get Automatically
+## Features
 * A dedicated subnet for the gateway with a locked-down NSG (you don't pick rules; it's enforced).
 * Only the backend networks you list get user-defined routes to the Firewall (no surprise 0.0.0.0/0 route).
 * Duplicate backend CIDRs are cleaned up before routes and firewall rules are created.
@@ -14,10 +14,10 @@ Provisions an Azure Application Gateway (WAF_v2) in the Mission Landing Zone hub
 * Safe re-run: deploying again with the same parameters doesn't change anything.
 * Diagnostics appear only if you enable them AND supply a workspace ID.
 
-## 3. Minimal Listener Flow
-Client → AppGW public IP → WAF (global or synthesized per-listener) → Forced route (only declared CIDR) → Azure Firewall → Backend.
+## Architecture Flow
+Client → AppGW Public IP → WAF (global or per‑listener) → Forced route (declared backend CIDR) → Azure Firewall → Backend.
 
-## 4. Module Map
+## Module Map
 | Module | Purpose |
 |--------|---------|
 | `solution.bicep` | Orchestrates sub‑resources, identity, routing, NSG, WAF resolution, diagnostics. |
@@ -30,7 +30,7 @@ Client → AppGW public IP → WAF (global or synthesized per-listener) → Forc
 | `modules/resolve-firewall-ip.bicep` | Looks up firewall private IP. |
 | `modules/kv-role-assignment.bicep` | Optional Key Vault Secrets User RBAC. |
 
-## 5. How WAF Policy Is Picked
+## WAF Policy Resolution
 | Condition | Result |
 |-----------|--------|
 | `wafPolicyId` set on app | That listener uses the explicit policy (ignore overrides/exclusions). |
@@ -40,7 +40,7 @@ Client → AppGW public IP → WAF (global or synthesized per-listener) → Forc
 
 `perListenerWafPolicyIds` output: blank where inheritance occurs.
 
-## 6. `apps` Array Schema (Per Listener)
+## Listener Definition (`apps` Array Schema)
 | Property | Req | Notes |
 |----------|-----|-------|
 | `name` | yes | Seeds listener/pool/probe naming. |
@@ -55,7 +55,7 @@ Client → AppGW public IP → WAF (global or synthesized per-listener) → Forc
 | `wafOverrides` | no | Triggers synthesized listener policy (if no explicit ID). |
 | `wafExclusions` | no | Triggers synthesized listener policy (if no explicit ID). |
 
-## 7. Selected Parameters
+## Key Parameters
 | Name | Summary |
 |------|---------|
 | `location` | Region. |
@@ -69,7 +69,7 @@ Client → AppGW public IP → WAF (global or synthesized per-listener) → Forc
 | `enableDiagnostics` & `operationsLogAnalyticsWorkspaceResourceId` | Both required for diagnostics. |
 | WAF tuning params (global) | Applied only when creating new global policy. |
 
-## 8. Outputs
+## Core Outputs
 | Output | Meaning |
 |--------|---------|
 | `appGatewayPublicIp` | Static IPv4. |
@@ -82,12 +82,12 @@ Client → AppGW public IP → WAF (global or synthesized per-listener) → Forc
 | `userAssignedIdentityPrincipalId` | Identity principal ID. |
 | `diagnosticsSettingId` | Diagnostic setting or blank when disabled. |
 
-## 9. Routing & Firewall Precedence
+## Routing & Firewall Rule Precedence
 1. Collect and deduplicate all `addressPrefixes` across apps (mandatory per app).
 2. Generate one UDR route per CIDR (next hop = Firewall private IP).
 3. Firewall rules precedence: `backendAppPortMaps` > `backendPrefixPortMaps` > broad deduplicated CIDRs + `backendAllowPorts` fallback.
 
-## 10. Minimal Parameter Example
+## Minimal Parameter File Example
 ```bicep-params
 using './solution.bicep'
 param location = 'usgovvirginia'
@@ -112,7 +112,7 @@ param apps = [
 ]
 ```
 
-## 11. Change Operations (Idempotent)
+## Routine Operations (Idempotent)
 | Action | Required Input Change |
 |--------|-----------------------|
 | Add listener/app | Append new object to `apps`. |
@@ -125,16 +125,16 @@ param apps = [
 
 NOTE: If a removed app previously had a generated per-listener WAF policy (due to overrides/exclusions), that standalone WAF policy resource is not auto-deleted in incremental mode and becomes an orphan. Delete manually if no longer needed.
 
-## 12. Non-Goals
+## Non-Goals
 Operational runbooks, performance tuning strategies, false positive triage, health probe debugging, and general Azure Application Gateway operational guidance are intentionally excluded. See `ADVANCED.md` for extended material.
 
-## 13. Need More Detail?
-See `ADVANCED.md` for deeper WAF tuning, exclusions guidance, troubleshooting, and verification checklists.
+## Advanced Guidance
+See [ADVANCED.md](./ADVANCED.md) for WAF tuning, exclusions, certificate rotation, orphan policy cleanup, and deep troubleshooting.
 
-Provide only CIDRs requiring firewall egress in `addressPrefixes`. Deduplication occurs automatically.
+Provide only CIDRs requiring firewall egress in `addressPrefixes` (deduplicated automatically).
 
 
-## 14. Application Definition (`apps` Array)
+## Detailed Listener Definition Reference
 
 Each element maps to one HTTPS listener (multi‑site host names) plus a backend pool and optional dedicated WAF policy.
 
@@ -152,7 +152,7 @@ Each element maps to one HTTPS listener (multi‑site host names) plus a backend
 | `wafExclusions` | no | Exclusions list; triggers synthesized per-listener policy (when no `wafPolicyId`). |
 | `wafOverrides` | no | Inline WAF tuning; triggers synthesized per-listener policy (when no `wafPolicyId`). |
 
-### 14.1 Example Minimal App Entry
+### Example: Minimal App
 
 ```jsonc
 {
@@ -164,7 +164,7 @@ Each element maps to one HTTPS listener (multi‑site host names) plus a backend
 }
 ```
 
-### 14.2 Example With Per‑Listener Overrides
+### Example: Per‑Listener WAF Overrides
 
 ```jsonc
 {
@@ -181,7 +181,7 @@ Each element maps to one HTTPS listener (multi‑site host names) plus a backend
 }
 ```
 
-## 15. Parameters (Selected)
+## Expanded Parameter Reference
 
 | Name | Summary |
 |------|---------|
@@ -197,7 +197,7 @@ Each element maps to one HTTPS listener (multi‑site host names) plus a backend
 | `enableDiagnostics` & `operationsLogAnalyticsWorkspaceResourceId` | Both required to emit diagnostics. |
 | WAF tuning params (`wafPolicyMode`, `wafManagedRuleSetVersion`, etc.) | Influence new global policy creation. |
 
-## 16. Routing & Firewall Integration
+## Routing & Firewall Integration
 
 1. Gather all `addressPrefixes`.
 2. Deduplicate -> produce `forcedRouteEntries` objects.
@@ -207,19 +207,19 @@ Each element maps to one HTTPS listener (multi‑site host names) plus a backend
    * `backendPrefixPortMaps`
    * Broad rule using deduplicated prefixes + `backendAllowPorts` (fallback)
 
-## 17. Certificates & Key Vault
+## Certificates & Key Vault
 
 The first available app (or `commonDefaults.defaultCertificateSecretId` if present) is parsed to infer the vault name for an optional secrets access RBAC assignment to the user‑assigned identity. Always supply **versioned** secret URIs to allow safe rotation.
 
-## 18. Managed Identity
+## Managed Identity
 
 One user‑assigned identity is created every deployment; its resource & principal IDs are returned as outputs for downstream RBAC (Key Vault, logging, etc.).
 
-## 19. Diagnostics
+## Diagnostics
 
 Diagnostics module is parameter‑gated; if either the boolean flag is false or the workspace ID is empty no diagnostic setting resource is created (output left blank). This avoids accidental noise or cross‑subscription log writes.
 
-## 20. Deployment Examples
+## Deployment Examples
 
 ### 13.1 Minimal Parameter File
 
@@ -270,7 +270,7 @@ az deployment sub create `
 
 Portal deployment is also supported via `solution.json` + `uiDefinition.json` artifacts (commercial & government clouds).
 
-## 21. Post-Deployment Verification
+## Post-Deployment Verification
 
 | Check | Expectation |
 |-------|-------------|
@@ -282,7 +282,7 @@ Portal deployment is also supported via `solution.json` + `uiDefinition.json` ar
 | Health probes | All listeners show healthy backends after certificate & host header alignment. |
 | Firewall policy | Baseline + (optional) custom rule collections present. |
 
-## 22. Routine Changes
+## Routine Change Quick Reference
 
 | Action | Steps |
 |--------|-------|
@@ -294,7 +294,7 @@ Portal deployment is also supported via `solution.json` + `uiDefinition.json` ar
 | Disable diagnostics | Set `enableDiagnostics = false` OR empty workspace id. |
 | Mandatory NSG enforcement | Removed prior optional toggle; hardens baseline by default. |
 
-## 23. Troubleshooting
+## Troubleshooting
 
 | Symptom | Probable Cause | Recommended Action |
 |---------|---------------|--------------------|
@@ -304,7 +304,7 @@ Portal deployment is also supported via `solution.json` + `uiDefinition.json` ar
 | Overrides not applied | `wafPolicyId` simultaneously specified | Remove explicit ID to allow generation. |
 | No diagnostics output | Flag/workspace mismatch | Ensure both enabled + valid workspace ID. |
 
-## 24. Outputs
+## Output Details
 
 | Output | Meaning |
 |--------|---------|
@@ -318,7 +318,7 @@ Portal deployment is also supported via `solution.json` + `uiDefinition.json` ar
 | `userAssignedIdentityPrincipalId` | Principal ID for RBAC correlation. |
 | `diagnosticsSettingId` | Diagnostic setting (blank when disabled). |
 
-## 25. File Map
+## File Map
 
 | File | Description |
 |------|-------------|
