@@ -114,8 +114,6 @@ Add a custom block rule:
 | Missing certificate SAN | TLS probe failures | Reissue cert or split listener |
 | Outdated exclusion enum (Gov) | Deployment error | Validate with test policy first |
 
-## 6. (Section Removed)
-Troubleshooting quick table was removed to keep README/ADVANCED focused on contract + deep WAF tuning only.
 
 ## 7. Governance Considerations
 * Store parameter files in source control; review diffs for policy changes (rule disables, exclusions additions).
