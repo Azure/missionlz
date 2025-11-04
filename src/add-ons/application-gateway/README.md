@@ -1,33 +1,5 @@
-# Application Gateway (Scenario A: WAF Before Firewall)
+<!-- NOTE: Clean-room rewrite; legacy Scenario A content removed. -->
 
-This README reflects the current `solution.bicep` implementation (modules relocated under `modules/`).
-> IMPORTANT (Azure Government): Some WAF exclusion `matchVariable` enum values documented for public cloud (e.g. `RequestHeaderNames`, `RequestBodyPostArgs`) may not yet be accepted in this environment. Attempting invalid values causes deployment failures at the per-listener policy creation step. Validate exclusions by creating a temporary test policy with the Azure CLI before embedding them in `apps`.
-
-## WAF Precedence Logic (Listener vs Global)
-
-Order of evaluation for each listener:
-
-1. Explicit `wafPolicyId` on the app element (highest precedence; no generated policy).
-2. Generated per-listener policy when `wafOverrides` OR `wafExclusions` provided (and no `wafPolicyId`).
-3. Global gateway policy (resolver output) when neither overrides/exclusions nor explicit ID supplied.
-
-The deployment surfaces an output array `perListenerWafPolicyIds` showing the effective policy per listener (blank means inherited global).
-
-## Safely Introducing Exclusions (Azure Gov)
-
-1. Create a test policy: `az network application-gateway waf-policy create -g <rg> -n testEnumProbe --type OWASP --version 3.2`
-2. Add a candidate exclusion: `az network application-gateway waf-policy managed-rules exclusion add -g <rg> --policy-name testEnumProbe --match-variable <Candidate> --selector-match-operator Equals --selector x-probe`
-3. If accepted, reuse `<Candidate>` inside `wafExclusions` / `wafOverrides.exclusions`. Remove the test policy afterward.
-
-Record discovered valid enum names for your environment in a team doc to avoid future trial/error.
-
-## Advanced `.bicepparam` Patterns
-
-### Multiple Certificates & Mixed WAF Strategies
-
-Example combining inherited global policy, generated listener policy, and explicit external policy:
-
-```bicep-params
 # Application Gateway Add-On for Mission Landing Zone
 
 ## 1. Overview
@@ -296,53 +268,6 @@ Portal deployment is also supported via `solution.json` + `uiDefinition.json` ar
 
 ---
 Please file issues or enhancement requests with the commit hash for traceability.
-| `enableDiagnostics` / `operationsLogAnalyticsWorkspaceResourceId` | Control diagnostics creation/association (both required). |
-| `createSubnetNsg` | Toggle creation of NSG specifically for AppGW subnet. |
-| `createKeyVaultSecretAccessRole` | Create Key Vault Secrets User RBAC assignment for the user-assigned identity (derived from first cert secret). |
-| `deploymentNameSuffix` | Unique suffix for deployment-scoped module names (defaults to `utcNow()`; pin for deterministic what-if). |
-| `identifier`, `environmentAbbreviation`, `locationAbbreviation`, `networkName` | Optional naming inference overrides (inferred from hub VNet name when omitted). |
-| `backendPrefixPortMaps`, `backendAppPortMaps` | Advanced shaping (leave empty unless extending firewall logic). |
-| `resourceAbbreviations` | Abbreviation object (loaded automatically from repo JSON unless overridden). |
-
-### `apps` Element Structure
-
-```jsonc
-{
-  "name": "app1",                                  // Listener + derived pool/probe name seed
-  "hostNames": [ "app1.contoso.gov" ],             // One or more host headers -> multi-site listener
-  "backendAddresses": [                             // Backend pool entries
-    { "fqdn": "app1-ilb.internal.contoso.gov" },
-    { "ipAddress": "10.20.10.5" }
-  ],
-  "certificateSecretId": "https://kv.vault.usgovcloudapi.net/secrets/app1cert/<version>",
-  "healthProbePath": "/healthz",                   // Optional (defaults from commonDefaults)
-  "backendPort": 443,                               // Optional
-  "backendProtocol": "Https",                      // Optional
-  "probeInterval": 30,
-  "probeTimeout": 30,
-  "unhealthyThreshold": 3,
-  "probeMatchStatusCodes": [ "200" ],              // Optional per-listener override (default often ["200-399"])
-  "backendHostHeader": "mlz-ops-webapp1.azurewebsites.us", // Optional Host/SNI override
-  "addressPrefixes": [ "10.20.0.0/16" ],           // Used for forced routes & firewall rules
-  "wafPolicyId": "",                              // Optional explicit listener WAF policy
-  "wafExclusions": [
-    { "matchVariable": "RequestHeaderNames", "selectorMatchOperator": "Equals", "selector": "x-custom-ignore" }
-  ],
-  "wafOverrides": {                                 // Triggers generated per-listener WAF policy
-    "mode": "Detection",
-    "requestBodyCheck": true,
-    "maxRequestBodySizeInKb": 256,
-    "fileUploadLimitInMb": 150,
-    "managedRuleSetVersion": "3.2",
-    "exclusions": [
-      { "matchVariable": "RequestHeaderNames", "selectorMatchOperator": "Equals", "selector": "x-ignore" }
-    ],
-    "ruleGroupOverrides": [
-      { "ruleGroupName": "REQUEST-930-APPLICATION-ATTACK-LFI", "rules": [ { "ruleId": "930100", "state": "Disabled" } ] }
-    ]
-  }
-}
-```
 
 > `addressPrefixes` (array) supersedes the older singular `addressPrefix`. Provide **only** the CIDRs requiring egress via Firewall; template deduplicates them and produces `forcedRouteEntries` output.
 >
