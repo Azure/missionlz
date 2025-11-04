@@ -13,7 +13,7 @@ Deploys an Azure Application Gateway (WAF_v2) in the MLZ hub for: HTTPS terminat
 
 ## Features
 * Locked-down dedicated subnet + enforced NSG (inbound 443 + platform requirements only).
-* Selective UDR: one route per backend CIDR you declare; never inserts 0.0.0.0/0.
+* Selective UDR (Application Gateway subnet only): one route per backend CIDR you declare; the route table for the **Application Gateway subnet** never inserts a 0.0.0.0/0 default route.
 * Least‑privilege egress firewall rules derived from per-app `addressPrefixes` + port maps.
 * Global WAF policy auto-created unless you adopt an existing one; per-listener policies only when overrides/exclusions supplied.
 * Explicit `wafPolicyId` on an app always wins (overrides/exclusions ignored for that app).
@@ -96,7 +96,7 @@ Use `additionalAllowedOutboundServiceTags` sparingly—each addition broadens eg
 ## Routing & Firewall
 Workflow:
 1. Collect all `addressPrefixes` across apps (each app must supply at least one backend CIDR that actually needs egress via the Firewall—don't include superfluous ranges).
-2. Generate one UDR route per unique CIDR (`forcedRouteEntries`; next hop = Firewall private IP). No 0.0.0.0/0 default route is inserted.
+2. Generate one UDR route per unique CIDR (`forcedRouteEntries`; next hop = Firewall private IP). No 0.0.0.0/0 default route is inserted in the **Application Gateway subnet** route table.
 3. Associate the route table + enforced NSG with the Application Gateway subnet (NSG creation is mandatory).
 4. Build firewall allow rules in strict precedence order:
   * `backendAppPortMaps` (per app + per port specificity; highest)
@@ -307,7 +307,7 @@ az deployment sub create `
 | Public IP | Static address present & reachable (optional DNS mapped). |
 | `listenerNames` | Contains an entry for each app. |
 | `perListenerWafPolicyIds` | Blank entries only where no overrides/exclusions/explicit id were provided. |
-| `forcedRouteEntries` | Only declared backend CIDRs; no 0.0.0.0/0. |
+| `forcedRouteEntries` | Only declared backend CIDRs; Application Gateway subnet route table has no 0.0.0.0/0 default. |
 | Subnet | NSG & route table associated; outbound access disabled flag set. |
 | Health probes | All listeners show healthy backends after certificate & host header alignment. |
 | Firewall policy | Baseline + (optional) custom rule collections present. |
@@ -320,15 +320,15 @@ az deployment sub create `
 * WAF baseline in Prevention (override globally or per listener).
 * Certificates pulled from Key Vault via user‑assigned identity (RBAC role optional toggle).
 * NSG inbound restricted to 443 + AzureLoadBalancer + ephemeral probe ports; all other inbound denied.
-* **No** default 0.0.0.0/0 forced route—only declared backend prefixes are routed via Firewall (prevents asymmetric probing failures).
+* **No** default 0.0.0.0/0 forced route on the Application Gateway subnet—only declared backend prefixes are routed via Firewall (prevents asymmetric probing failures).
 * Host header override allows internal private resolution while preserving public FQDN SNI for backend cert validation.
-* Outbound default Internet access disabled on subnet (controlled egress via Firewall). No implicit 0.0.0.0/0 UDR is created to avoid asymmetric probe paths.
+* Outbound default Internet access disabled on the Application Gateway subnet (controlled egress via Firewall). No implicit 0.0.0.0/0 UDR on this subnet to avoid asymmetric probe paths.
 
 ## Hub-Spoke Integration & Routing
 
 * Deployed into the MLZ hub VNet in a dedicated subnet (`AppGateway` by default) sized per autoscale recommendation (/26 default here).
 * Backends reside in spoke VNets or private endpoints; only declared backend CIDR prefixes (via each app's `addressPrefixes`) are forced through the hub Firewall using UDR entries created by the add-on.
-* No default 0.0.0.0/0 route: prevents asymmetric paths for health probes and ensures only intentional egress inspection.
+* No default 0.0.0.0/0 route on the Application Gateway subnet: prevents asymmetric paths for health probes and ensures only intentional egress inspection (other hub or spoke subnets may legitimately have a default route per design).
 * Firewall rule module receives the backend CIDRs plus allowed ports to construct least‑privilege egress.
 * NSG enforced on gateway subnet for inbound restriction (443 + platform requirements); outbound Internet access disabled at subnet level to align with centralized egress model.
 
