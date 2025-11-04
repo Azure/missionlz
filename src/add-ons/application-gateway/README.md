@@ -7,7 +7,7 @@ Deploys an Azure Application Gateway (WAF_v2) in the Mission Landing Zone (MLZ) 
 ## Features
 * A dedicated subnet for the gateway with a locked-down NSG (you don't pick rules; it's enforced).
 * Only the backend networks you list get user-defined routes to the Firewall (no surprise 0.0.0.0/0 route).
-* Duplicate backend CIDRs are cleaned up before routes and firewall rules are created.
+* Backend CIDRs you list drive route and firewall rule creation (no implicit broad routes).
 * One global WAF policy is created unless you point to an existing one; a listener gets its own policy only if you add `wafOverrides` or `wafExclusions`.
 * If you set `wafPolicyId` on an app that exact policy is used and any overrides/exclusions for that app are ignored.
 * The gateway's managed identity automatically gets Key Vault Secrets read access (when the certificate secret's vault can be inferred).
@@ -85,9 +85,9 @@ Client → AppGW Public IP → WAF (global or per‑listener) → Forced route (
 | `diagnosticsSettingId` | Diagnostic setting or blank when disabled. |
 
 ## Routing & Firewall Rule Precedence
-1. Collect and deduplicate all `addressPrefixes` across apps (mandatory per app).
+1. Collect all `addressPrefixes` across apps (mandatory per app).
 2. Generate one UDR route per CIDR (next hop = Firewall private IP).
-3. Firewall rules precedence: `backendAppPortMaps` > `backendPrefixPortMaps` > broad deduplicated CIDRs + `backendAllowPorts` fallback.
+3. Firewall rules precedence: `backendAppPortMaps` > `backendPrefixPortMaps` > broad CIDR rule + `backendAllowPorts` fallback.
 
 ## Minimal Parameter File Example
 ```bicep-params
@@ -133,7 +133,7 @@ Operational runbooks, performance tuning strategies, false positive triage, heal
 ## Advanced Guidance
 See [ADVANCED.md](./ADVANCED.md) for WAF tuning, exclusions, certificate rotation, orphan policy cleanup, and deep troubleshooting.
 
-Provide only CIDRs requiring firewall egress in `addressPrefixes` (deduplicated automatically).
+Provide only CIDRs requiring firewall egress in `addressPrefixes`.
 
 
 ## Detailed Listener Definition Reference
@@ -205,16 +205,49 @@ Each element maps to one HTTPS listener (multi‑site host names) plus a backend
 ## Routing & Firewall Integration
 
 1. Gather all `addressPrefixes`.
-2. Deduplicate -> produce `forcedRouteEntries` objects.
+2. Produce `forcedRouteEntries` objects for each backend CIDR.
 3. Route table gets one entry per prefix (next hop = Firewall) without inserting a default route.
 4. Firewall module builds allow rules based on precedence:
    * `backendAppPortMaps` (highest)
    * `backendPrefixPortMaps`
-   * Broad rule using deduplicated prefixes + `backendAllowPorts` (fallback)
+  * Broad rule using listed prefixes + `backendAllowPorts` (fallback)
 
 ## Certificates & Key Vault
 
-The first available app (or `commonDefaults.defaultCertificateSecretId` if present) is parsed to infer the vault name for an optional secrets access RBAC assignment to the user‑assigned identity. Always supply **versioned** secret URIs to allow safe rotation.
+How the template discovers the Key Vault:
+
+1. It looks for `commonDefaults.defaultCertificateSecretId` first. If set, that value wins.
+2. If not set, it takes the `certificateSecretId` from the first element in `apps`.
+3. From that secret URI it extracts the vault name (the part before `.vault.`).
+4. If it can extract a vault name, it automatically assigns the **Key Vault Secrets User** RBAC role to the gateway's user‑assigned identity (in the hub resource group by default, or the group you specify with `keyVaultResourceGroupName`).
+
+Secret URI format (versioned):
+
+```
+https://<vaultName>.vault.azure.net/secrets/<secretName>/<secretVersionGuid>
+```
+
+Why the version matters:
+
+* Using a versioned URI (includes the final GUID segment) makes redeploys deterministic; Azure never silently shifts to a newer cert.
+* Rotation workflow: add a new secret version, validate it, then update the parameter file to reference the new version GUID and redeploy.
+* If you omit the version (ending at `/secrets/<secretName>`), the latest version can change underneath you—breaking idempotence and making rollback harder.
+
+Edge cases:
+
+* If there are no apps yet and no `commonDefaults.defaultCertificateSecretId`, the vault name cannot be inferred—role assignment is skipped. Add at least one app with a valid versioned secret before relying on Key Vault RBAC.
+* If the Key Vault lives in a different resource group, set `keyVaultResourceGroupName` so the role assignment targets the right scope.
+* Multiple apps can reference different vaults; only the first (or the default) drives the automatic role assignment. Ensure the identity has access to any additional vaults manually.
+
+Quick example:
+
+```
+certificateSecretId: "https://mlz-hub-kv.vault.usgovcloudapi.net/secrets/web1cert/0d9c2d4e3a2f4d8e8bb1f6c9d5a1b234"
+```
+
+This results in a role assignment granting the gateway identity read access to `mlz-hub-kv` secrets so it can fetch the certificate during deployment/run.
+
+Always use **versioned** URIs and plan rotations by creating the new version first, then updating your parameter file.
 
 ## Managed Identity
 
@@ -343,7 +376,7 @@ Portal deployment is also supported via `solution.json` + `uiDefinition.json` ar
 
 
 
-> Provide **only** the CIDRs requiring egress via Firewall in `addressPrefixes`; template deduplicates them and produces `forcedRouteEntries` output.
+> Provide **only** the CIDRs requiring egress via Firewall in `addressPrefixes`; the template emits one `forcedRouteEntries` item per CIDR you specify.
 
 ## Modules
 
@@ -376,7 +409,7 @@ Add or update apps by editing the `apps` array in a parameter file, then redeplo
 * Deployed into the MLZ hub VNet in a dedicated subnet (`AppGateway` by default) sized per autoscale recommendation (/26 default here).
 * Backends reside in spoke VNets or private endpoints; only declared backend CIDR prefixes (via each app's `addressPrefixes`) are forced through the hub Firewall using UDR entries created by the add-on.
 * No default 0.0.0.0/0 route: prevents asymmetric paths for health probes and ensures only intentional egress inspection.
-* Firewall rule module receives the deduplicated backend CIDRs plus allowed ports to construct least‑privilege egress.
+* Firewall rule module receives the backend CIDRs plus allowed ports to construct least‑privilege egress.
 * NSG enforced on gateway subnet for inbound restriction (443 + platform requirements); outbound Internet access disabled at subnet level to align with centralized egress model.
 
 ## WAF Overrides Per Listener
@@ -389,7 +422,7 @@ Advanced: If you already have an externally managed WAF policy for a listener, s
 
 ## Forced Route Entries Output
 
-`forcedRouteEntries` output surfaces each unique backend CIDR prefix (deduplicated) generating a route table entry (next hop = Firewall private IP).
+`forcedRouteEntries` output lists each backend CIDR prefix generating a route table entry (next hop = Firewall private IP).
 
 ## Subnet Private Endpoint Policy Toggle
 
