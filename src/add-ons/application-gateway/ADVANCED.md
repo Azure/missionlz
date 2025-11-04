@@ -236,3 +236,89 @@ Each app defines: multi-site HTTPS listener, backend pool, health probe, optiona
 
 ---
 Use ADVANCED.md only for operational or tuning tasks; keep README authoritative for contract.
+
+  ## 19. Certificate Rotation
+
+  Rotate TLS certificates by publishing a **new version** of the existing Key Vault secret and then updating the parameter file to reference that version. Do not replace certificate material inline or upload manually to the gateway—keep rotation declarative.
+
+  ### 19.1 Workflow (Versioned Secret Pattern)
+
+  1. Prepare new PFX (include full chain if required by clients).
+  2. Import PFX into the same Key Vault secret name (e.g., `web1cert`) creating a new version.
+  3. Update your parameter file `certificateSecretId` from:
+
+  ```text
+  https://kv-example.vault.usgovcloudapi.net/secrets/web1cert/<oldVersionGuid>
+  ```
+
+    to:
+
+  ```text
+  https://kv-example.vault.usgovcloudapi.net/secrets/web1cert/<newVersionGuid>
+  ```
+
+  4. Redeploy the add-on template.
+  5. Validate: perform an HTTPS request and inspect presented certificate (CN/SAN + NotBefore/NotAfter).
+  6. Keep prior version until validation complete; delete only after successful rollout.
+
+  ### 19.2 Rollback
+
+  If validation fails (wrong SAN, chain issue):
+
+  1. Revert parameter file back to old version GUID.
+  2. Redeploy.
+  3. Confirm old cert is again presented.
+
+  ### 19.3 Why Use Versioned URIs
+
+  | Benefit | Explanation |
+  |---------|-------------|
+  | Deterministic deployment | The exact cert is locked by version GUID. |
+  | Auditable changes | Git diff shows when a certificate changed. |
+  | Safe rollback | Previous version still addressable. |
+  | Avoid silent drift | Unversioned URIs could swap cert without a template change. |
+
+  ### 19.4 Common Pitfalls
+
+  | Pitfall | Symptom | Fix |
+  |---------|---------|-----|
+  | Import CER without private key | Deployment fails / listener error | Use PFX containing private key |
+  | Delete old version too early | No rollback path | Retain old version until tests pass |
+  | Forget to update parameter file | Old cert persists | Bump `certificateSecretId` version explicitly |
+  | Use unversioned secret URI | Invisible rotation | Always include version GUID |
+  | Chain incomplete | Clients show trust errors | Include full intermediate chain in PFX |
+
+  ### 19.5 Automation Hooks
+
+  If automating issuance (e.g., internal CA or ACME):
+
+  * Have issuance pipeline publish new secret version.
+  * Trigger a parameter file update (commit with version GUID) + deployment workflow.
+  * Add a post-deploy validation job (HTTPS fetch + parse cert details) before marking rotation successful.
+
+  ### 19.6 Validation Tips
+
+  Minimal PowerShell (optional, not part of template logic):
+
+  ```powershell
+  # Fetch certificate served
+  $cert = (Invoke-WebRequest https://web1.example.gov -UseBasicParsing).RawContentLength; # placeholder to show request; parse with OpenSSL or browser
+  ```
+
+  Prefer dedicated tooling (browser, `openssl s_client`, or platform-specific scripts) for real validation.
+
+  ### 19.7 Key Vault Access Considerations
+
+  The user-assigned identity needs the Secrets read permission (or "Secrets User" RBAC role). Certificate object permissions alone are insufficient—ensure secret fetching is allowed.
+
+  ### 19.8 Rotation Frequency Guidance
+
+  | Rotation Interval | Rationale |
+  |-------------------|-----------|
+  | 90 days | Common hygiene (aligns with many org policies) |
+  | 180 days | Acceptable for internal-only endpoints with strong monitoring |
+  | < 30 days | Usually unnecessary overhead unless mandated |
+
+  Document chosen interval in your ops runbook; template itself remains static between rotations except for the version GUID change.
+
+  ---
