@@ -247,10 +247,6 @@ This results in a role assignment granting the gateway identity read access to `
 
 Always use **versioned** URIs and plan rotations by creating the new version first, then updating your parameter file.
 
-## Managed Identity
-
-One user‑assigned identity is created every deployment; its resource & principal IDs are returned as outputs for downstream RBAC (Key Vault, logging, etc.).
-
 ## Diagnostics
 
 Diagnostics are created automatically when you provide a valid Log Analytics workspace resource ID via `operationsLogAnalyticsWorkspaceResourceId`. Leave it empty to skip deployment of the diagnostic setting (output blank). There is no separate enable flag.
