@@ -74,7 +74,7 @@ Explicit external policy (overrides ignored):
 ```
 
 
-## 7. Decision Matrix: FQDN vs IP
+## 3. Decision Matrix: FQDN vs IP
 | Backend Type | Recommended Form |
 |--------------|------------------|
 | App Service (PE) | FQDN |
@@ -83,7 +83,7 @@ Explicit external policy (overrides ignored):
 | Fixed VM NIC | IP |
 | DNS-based failover solution | FQDN |
 
-## 8. WAF Override Minimal Patterns
+## 4. WAF Override Minimal Patterns
 Disable a single rule:
 ```jsonc
 "wafOverrides": {
@@ -111,7 +111,7 @@ Add a custom block rule:
 }
 ```
 
-## 9. Common Pitfalls & Remedies
+## 5. Common Pitfalls & Remedies
 | Pitfall | Symptom | Fix |
 |---------|---------|-----|
 | Overrides + explicit policy provided | Overrides ignored | Remove `wafPolicyId` or drop overrides |
@@ -121,7 +121,7 @@ Add a custom block rule:
 | Missing certificate SAN | TLS probe failures | Reissue cert or split listener |
 | Outdated exclusion enum (Gov) | Deployment error | Validate with test policy first |
 
-## 10. Troubleshooting Quick Table
+## 6. Troubleshooting Quick Table
 | Symptom | Cause | Action |
 |---------|-------|--------|
 | Persistent 502 | Host header mismatch | Set `backendHostHeader` to expected value |
@@ -130,15 +130,15 @@ Add a custom block rule:
 | Unwanted broad egress | CIDR too wide | Narrow `addressPrefixes` |
 | Missing diagnostics | Flag/workspace mismatch | Provide both or disable flag |
 
-## 11. Governance Considerations
+## 7. Governance Considerations
 * Store parameter files in source control; review diffs for policy changes (rule disables, exclusions additions).
 * External security teams can manage a central global policy consumed via `existingWafPolicyId` while still allowing per-listener synthesis for app teams.
 
-## 12. Versioning & Upgrades
+## 8. Versioning & Upgrades
 * Track managed rule set version changes in parameter diff reviews.
 * Revalidate exclusions after version bump—false positive landscape may change.
 
-## 13. Appendix: Sample Full App Object
+## 9. Appendix: Sample Full App Object
 ```jsonc
 {
   "name": "api",
@@ -159,11 +159,11 @@ Add a custom block rule:
 ---
 Use ADVANCED.md only for operational or tuning tasks; keep README authoritative for contract.
 
-  ## 14. Certificate Rotation
+  ## 10. Certificate Rotation
 
   Rotate TLS certificates by publishing a **new version** of the existing Key Vault secret and then updating the parameter file to reference that version. Do not replace certificate material inline or upload manually to the gateway—keep rotation declarative.
 
-  ### 19.1 Workflow (Versioned Secret Pattern)
+  ### 10.1 Workflow (Versioned Secret Pattern)
 
   1. Prepare new PFX (include full chain if required by clients).
   2. Import PFX into the same Key Vault secret name (e.g., `web1cert`) creating a new version.
@@ -183,7 +183,7 @@ Use ADVANCED.md only for operational or tuning tasks; keep README authoritative 
   5. Validate: perform an HTTPS request and inspect presented certificate (CN/SAN + NotBefore/NotAfter).
   6. Keep prior version until validation complete; delete only after successful rollout.
 
-  ### 19.2 Rollback
+  ### 10.2 Rollback
 
   If validation fails (wrong SAN, chain issue):
 
@@ -191,7 +191,7 @@ Use ADVANCED.md only for operational or tuning tasks; keep README authoritative 
   2. Redeploy.
   3. Confirm old cert is again presented.
 
-  ### 19.3 Why Use Versioned URIs
+  ### 10.3 Why Use Versioned URIs
 
   | Benefit | Explanation |
   |---------|-------------|
@@ -200,7 +200,7 @@ Use ADVANCED.md only for operational or tuning tasks; keep README authoritative 
   | Safe rollback | Previous version still addressable. |
   | Avoid silent drift | Unversioned URIs could swap cert without a template change. |
 
-  ### 19.4 Common Pitfalls
+  ### 10.4 Common Pitfalls
 
   | Pitfall | Symptom | Fix |
   |---------|---------|-----|
@@ -210,7 +210,7 @@ Use ADVANCED.md only for operational or tuning tasks; keep README authoritative 
   | Use unversioned secret URI | Invisible rotation | Always include version GUID |
   | Chain incomplete | Clients show trust errors | Include full intermediate chain in PFX |
 
-  ### 19.5 Automation Hooks
+  ### 10.5 Automation Hooks
 
   If automating issuance (e.g., internal CA or ACME):
 
@@ -218,7 +218,7 @@ Use ADVANCED.md only for operational or tuning tasks; keep README authoritative 
   * Trigger a parameter file update (commit with version GUID) + deployment workflow.
   * Add a post-deploy validation job (HTTPS fetch + parse cert details) before marking rotation successful.
 
-  ### 19.6 Validation Tips
+  ### 10.6 Validation Tips
 
   Minimal PowerShell (optional, not part of template logic):
 
@@ -229,11 +229,11 @@ Use ADVANCED.md only for operational or tuning tasks; keep README authoritative 
 
   Prefer dedicated tooling (browser, `openssl s_client`, or platform-specific scripts) for real validation.
 
-  ### 19.7 Key Vault Access Considerations
+  ### 10.7 Key Vault Access Considerations
 
   The template now assigns the Secrets read permission ("Secrets User" RBAC role) automatically when it can infer the Key Vault from a certificate secret URI. Certificate object permissions alone are insufficient—secret access is required. If the vault cannot be inferred (no apps defined yet), assign manually after initial deploy and redeploy once certificates are in place.
 
-  ### 19.8 Rotation Frequency Guidance
+  ### 10.8 Rotation Frequency Guidance
 
   | Rotation Interval | Rationale |
   |-------------------|-----------|
