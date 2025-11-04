@@ -46,16 +46,41 @@ Ingress path: Client → Public IP (Gateway) → WAF evaluation (global or liste
 | `modules/resolve-firewall-ip.bicep` | Discovers firewall private IP for routing & rules. |
 | `modules/kv-role-assignment.bicep` | Optional Key Vault secrets access role assignment. |
 
-## 6. WAF Policy Resolution Logic
+## 6. How WAF Policies Are Chosen
 
-Evaluation order per listener:
-1. If `wafPolicyId` is provided on the app object, that policy is used.
-2. Else if `wafOverrides` or `wafExclusions` exist, a dedicated listener policy resource is created (merged exclusions where both types supplied).
-3. Otherwise the listener inherits the global policy resolved by the add‑on.
+Most deployments only need to supply application entries. The module will automatically:
+* Create (or adopt) one global WAF policy for the gateway.
+* Generate a per‑listener WAF policy only when that listener defines `wafOverrides` or `wafExclusions`.
+* Reuse the global policy everywhere else.
 
-Output `perListenerWafPolicyIds` lists the effective policy per listener (empty string indicates global inheritance).
+You do NOT have to provide any WAF policy resource IDs for the common case.
 
-Azure Government consideration: some exclusion `matchVariable` enum values may lag public regions; validate newly introduced values by creating a temporary test policy with the CLI before embedding them in parameters.
+### 6.1 Automatic Path (Typical)
+| You configure | Module action | Result |
+|---------------|---------------|--------|
+| No WAF fields at listener | Use global gateway policy | Listener inherits global policy |
+| Provide `wafOverrides` / `wafExclusions` | Synthesize a dedicated listener WAF policy with merged exclusions & overrides | Granular tuning for just that app |
+
+`perListenerWafPolicyIds` output: shows the concrete policy resource ID per listener (blank = inherited global). This is mainly for auditing / troubleshooting, not a required input.
+
+### 6.2 Advanced / Optional Inputs
+You only need explicit IDs in more specialized scenarios:
+
+| Advanced Need | Input | Why |
+|---------------|-------|-----|
+| Enterprise security team manages a centrally reviewed policy to be reused | `existingWafPolicyId` (global) | Separation of duties; reuse approved baseline |
+| A single application must use a pre-existing, separately managed policy (e.g., stricter PCI rules) | `wafPolicyId` on that app | Keeps that listener aligned to externally governed policy |
+| Migration from legacy deployment with already tuned policies | Either of the above | Avoids re‑authoring large rule overrides inline |
+
+If both inline overrides (`wafOverrides`/`wafExclusions`) and `wafPolicyId` are supplied for a listener, the explicit `wafPolicyId` wins and inline overrides are ignored (keep one or the other to avoid confusion).
+
+### 6.3 Government Cloud Note
+Some exclusion `matchVariable` enum values occasionally lag public regions. To validate a new value:
+1. Create a temporary test policy via CLI.
+2. Add the candidate exclusion.
+3. If it succeeds, incorporate it into your parameters; otherwise omit or adjust.
+
+This pre‑validation prevents deployment failures during per‑listener policy synthesis.
 
 ## 7. Application Definition (`apps` Array)
 
@@ -71,9 +96,9 @@ Each element maps to one HTTPS listener (multi‑site host names) plus a backend
 | `backendPort` / `backendProtocol` | no | Override defaults (defaults 443 / Https). |
 | `healthProbePath`, `probeInterval`, `probeTimeout`, `unhealthyThreshold`, `probeMatchStatusCodes` | no | Per listener probe tuning. |
 | `backendHostHeader` | no | Override host header for backend/SNI preservation. |
-| `wafPolicyId` | no | Attach existing policy instead of generating one. |
-| `wafExclusions` | no | Baseline exclusions list. |
-| `wafOverrides` | no | Inline WAF tuning (mode, size limits, rule groups, exclusions). |
+| `wafPolicyId` | no | Advanced: attach existing externally managed policy (overrides/ exclusions ignored if both supplied). |
+| `wafExclusions` | no | Exclusions list; triggers synthesized per-listener policy (when no `wafPolicyId`). |
+| `wafOverrides` | no | Inline WAF tuning; triggers synthesized per-listener policy (when no `wafPolicyId`). |
 
 ### 7.1 Example Minimal App Entry
 
@@ -112,7 +137,7 @@ Each element maps to one HTTPS listener (multi‑site host names) plus a backend
 | `hubVnetResourceId` | Existing hub virtual network resource ID. |
 | `appGatewaySubnetAddressPrefix` | CIDR for the gateway subnet (default /26). |
 | `apps` / `commonDefaults` | Application listener definitions & shared defaults. |
-| `existingWafPolicyId` | Reuse global policy instead of creating a new one. |
+| `existingWafPolicyId` | Advanced: adopt external global WAF policy (typical deployments leave unset). |
 | `backendAllowPorts` | Port list used when no detailed maps provided. |
 | `backendPrefixPortMaps` / `backendAppPortMaps` | Fine‑grained firewall rule shaping. |
 | `customAppGatewayFirewallRuleCollectionGroups` | Additional firewall policy rule groups. |
@@ -267,6 +292,7 @@ Portal deployment is also supported via `solution.json` + `uiDefinition.json` ar
 | Mandatory NSG enforcement | Removed historical toggle; ensures consistent hardening. |
 | Diagnostics gating refinement | Avoid unintended log noise when not configured. |
 | Complete documentation rewrite | Improve clarity & remove scenario naming. |
+| Simplified WAF policy documentation | Emphasize automatic behavior; mark explicit IDs as advanced. |
 
 ---
 Please file issues or enhancement requests with the commit hash for traceability.
@@ -311,9 +337,9 @@ Add or update apps by editing the `apps` array in a parameter file, then redeplo
 
 ## WAF Overrides Per Listener
 
-Each app/listener may supply a `wafOverrides` object to selectively diverge from the **generated baseline**. Missing keys inherit generated defaults. Presence of `wafOverrides` or `wafExclusions` (and absence of explicit `wafPolicyId`) triggers creation of a per‑listener WAF policy.
+Each app/listener may supply a `wafOverrides` object (and/or `wafExclusions`) to selectively diverge from the **generated baseline**. Missing keys inherit generated defaults. Presence of `wafOverrides` or `wafExclusions` (and absence of explicit `wafPolicyId`) triggers creation of a per‑listener WAF policy.
 
-If you already have an external WAF policy for a listener, set `wafPolicyId` and omit overrides / exclusions (no per‑listener policy generated).
+Advanced: If you already have an externally managed WAF policy for a listener, set `wafPolicyId` and omit overrides / exclusions (no per‑listener policy generated); inline settings are ignored when an explicit ID is present.
 
 > NOTE: Azure Government WAF_v2 (current platform state) supports a single IPv4 public frontend; multi‑public‑IP mode removed. Use host‑based (multi‑site) listeners for segmentation.
 
@@ -410,7 +436,7 @@ Guidance:
 
 * Include only CIDRs in `addressPrefixes` that must traverse Firewall from the gateway.
 * Identity is always created (idempotent). No identity parameters required.
-* Use `wafOverrides` for inline listener-specific tuning; prefer `wafPolicyId` when an external, centrally managed policy already exists.
+* Use `wafOverrides` / `wafExclusions` for inline listener-specific tuning; only use `wafPolicyId` when an external, centrally managed policy already exists (advanced scenario).
 * Provide consistent Key Vault secret versioned IDs for certificates; the module derives vault name for optional RBAC assignment.
 
 ### Step-by-Step Parameter File Construction
@@ -498,7 +524,7 @@ Exclude unused keys—they inherit from generated defaults or global policy base
 | Duplicate hostNames across apps | Deployment validation error | Consolidate or adjust hostnames |
 | Missing certificate SAN for a host | TLS handshake failure | Reissue cert incl. host or split app |
 | Overly broad addressPrefixes | Unintended routing | Replace with granular CIDRs |
-| Overrides + wafPolicyId both supplied | Overrides ignored | Remove overrides when using `wafPolicyId` |
+| Overrides + wafPolicyId both supplied | Overrides ignored | Advanced use: remove overrides when using `wafPolicyId` |
 | Supplying identity parameters | No effect | Remove identity params (auto-created) |
 | enableDiagnostics without workspace ID | No diagnostics deployed | Provide workspace ID or disable diagnostics |
 | backendHostHeader mismatch | 502/SSL errors | Match header to cert CN/SAN |
