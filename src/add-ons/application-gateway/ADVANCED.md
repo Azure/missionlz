@@ -151,7 +151,7 @@ Add a custom block rule:
 
   1. Prepare new PFX (include full chain if required by clients).
   2. Import PFX into the same Key Vault secret name (e.g., `web1cert`) creating a new version.
-3. Update your parameter file `certificateSecretId` from:
+  3. Update your parameter file `certificateSecretId` from:
 
   ```text
   https://kv-example.vault.usgovcloudapi.net/secrets/web1cert/<oldVersionGuid>

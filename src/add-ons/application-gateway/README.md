@@ -91,9 +91,9 @@ The firewall rule module constructs collections in deterministic order inside a 
 1. Platform service tags (control plane & monitoring) – always allowed (Network + Application rules).
 2. CRL / OCSP FQDNs for certificate validation.
 3. Backend allow collection (if backends declared) selecting the HIGHEST specificity among:
-  * Per‑app maps (`backendAppPortMaps`): destinationPrefixes[] + ports[] (highest precedence)
-  * Per‑prefix maps (`backendPrefixPortMaps`): single prefix + ports[]
-  * Fallback broad rule: all backend prefixes + `backendAllowPorts` (only if above maps absent)
+* Per‑app maps (`backendAppPortMaps`): destinationPrefixes[] + ports[] (highest precedence)
+* Per‑prefix maps (`backendPrefixPortMaps`): single prefix + ports[]
+* Fallback broad rule: all backend prefixes + `backendAllowPorts` (only if above maps absent)
 4. (Optional) Custom rule collection groups you supply (lower or higher priority numbers as you choose outside the baseline group).
 
 All unspecified egress is implicitly denied by the Firewall default deny.
@@ -111,9 +111,9 @@ Workflow:
 2. Generate one UDR route per unique CIDR (`forcedRouteEntries`; next hop = Firewall private IP). No 0.0.0.0/0 default route is inserted in the **Application Gateway subnet** route table.
 3. Associate the route table + enforced NSG with the Application Gateway subnet (NSG creation is mandatory).
 4. Build firewall allow rules in strict precedence order:
-  * `backendAppPortMaps` (per app + per port specificity; highest)
-  * `backendPrefixPortMaps` (CIDR → port list)
-  * Broad fallback rule: all collected CIDRs + `backendAllowPorts` (only if needed)
+* `backendAppPortMaps` (per app + per port specificity; highest)
+* `backendPrefixPortMaps` (CIDR → port list)
+* Broad fallback rule: all collected CIDRs + `backendAllowPorts` (only if needed)
 5. Anything not explicitly allowed is denied by the Firewall's default deny.
 
 Result: Minimal egress surface—fine‑grained maps first, broad fallback last. The template resolves the Azure Firewall private IP automatically (no hardcoded next hop).
@@ -211,7 +211,9 @@ Autoscale defaults: `autoscaleMinCapacity: 1`, `autoscaleMaxCapacity: 2` (set in
 
 ## Certificates & Key Vault
 
-Assumption: All TLS certificates used by the Application Gateway listeners are stored in the hub Key Vault (the vault inferred from `commonDefaults.defaultCertificateSecretId` or, if absent, the first app's `certificateSecretId`). The module only performs automatic RBAC (Key Vault Secrets User) assignment for that single inferred vault. If you intentionally distribute certificates across multiple vaults, you must manually grant the gateway's user‑assigned identity access to each additional vault.
+Assumption: All TLS certificates used by the Application Gateway listeners are stored in the hub Key Vault (the vault inferred from `commonDefaults.defaultCertificateSecretId` or, if absent, the first app's `certificateSecretId`).
+The module only performs automatic RBAC (Key Vault Secrets User) assignment for that single inferred vault.
+If you intentionally distribute certificates across multiple vaults, you must manually grant the gateway's user‑assigned identity access to each additional vault.
 
 How the template discovers the Key Vault:
 
