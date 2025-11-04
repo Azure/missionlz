@@ -49,7 +49,7 @@ Out of scope: front door / global anycast, private frontend only mode, gateway�
 
 ## 3. High-Level Flow
 
-Ingress path: Client → Public IP (Gateway) → WAF evaluation (global or listener specific) → (Optional) Firewall hop for declared backend CIDRs via user‑defined routes → Target service (ILB / private endpoint / VM / PaaS).
+Ingress path: Client → Public IP (Gateway) → WAF evaluation (global or listener specific) → Firewall hop for only the backend CIDRs you declare (selective user‑defined routes; no default 0.0.0.0/0) → Target service (ILB / private endpoint / VM / PaaS).
 
 ## 4. Functional Highlights
 
