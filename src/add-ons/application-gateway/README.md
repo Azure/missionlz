@@ -129,16 +129,7 @@ NOTE: If a removed app previously had a generated per-listener WAF policy (due t
 ## 12. Non-Goals
 Operational runbooks, performance tuning strategies, false positive triage, health probe debugging, and general Azure Application Gateway operational guidance are intentionally excluded. See `ADVANCED.md` for extended material.
 
-## 13. Change History (Excerpt)
-| Change | Rationale |
-|--------|-----------|
-| Mandatory NSG enforcement | Ensures consistent hardening; removed legacy toggle. |
-| Per-listener on-demand WAF creation | Avoids policy sprawl; only when needed. |
-| Documentation split | Keep README contractual; move operations to ADVANCED.md. |
-| Simplified WAF docs | Emphasize automatic behavior & precedence. |
-
-
-## 14. Need More Detail?
+## 13. Need More Detail?
 See `ADVANCED.md` for deeper WAF tuning, exclusions guidance, troubleshooting, and verification checklists.
 
 ---
@@ -147,7 +138,7 @@ Provide only CIDRs requiring firewall egress in `addressPrefixes`. Deduplication
 ---
 Active implementation; please raise issues referencing commit hash.
 
-## 7. Application Definition (`apps` Array)
+## 14. Application Definition (`apps` Array)
 
 Each element maps to one HTTPS listener (multi‑site host names) plus a backend pool and optional dedicated WAF policy.
 
@@ -165,7 +156,7 @@ Each element maps to one HTTPS listener (multi‑site host names) plus a backend
 | `wafExclusions` | no | Exclusions list; triggers synthesized per-listener policy (when no `wafPolicyId`). |
 | `wafOverrides` | no | Inline WAF tuning; triggers synthesized per-listener policy (when no `wafPolicyId`). |
 
-### 7.1 Example Minimal App Entry
+### 14.1 Example Minimal App Entry
 
 ```jsonc
 {
@@ -177,7 +168,7 @@ Each element maps to one HTTPS listener (multi‑site host names) plus a backend
 }
 ```
 
-### 7.2 Example With Per‑Listener Overrides
+### 14.2 Example With Per‑Listener Overrides
 
 ```jsonc
 {
@@ -194,7 +185,7 @@ Each element maps to one HTTPS listener (multi‑site host names) plus a backend
 }
 ```
 
-## 8. Parameters (Selected)
+## 15. Parameters (Selected)
 
 | Name | Summary |
 |------|---------|
@@ -210,7 +201,7 @@ Each element maps to one HTTPS listener (multi‑site host names) plus a backend
 | `enableDiagnostics` & `operationsLogAnalyticsWorkspaceResourceId` | Both required to emit diagnostics. |
 | WAF tuning params (`wafPolicyMode`, `wafManagedRuleSetVersion`, etc.) | Influence new global policy creation. |
 
-## 9. Routing & Firewall Integration
+## 16. Routing & Firewall Integration
 
 1. Gather all `addressPrefixes`.
 2. Deduplicate -> produce `forcedRouteEntries` objects.
@@ -220,19 +211,19 @@ Each element maps to one HTTPS listener (multi‑site host names) plus a backend
    * `backendPrefixPortMaps`
    * Broad rule using deduplicated prefixes + `backendAllowPorts` (fallback)
 
-## 10. Certificates & Key Vault
+## 17. Certificates & Key Vault
 
 The first available app (or `commonDefaults.defaultCertificateSecretId` if present) is parsed to infer the vault name for an optional secrets access RBAC assignment to the user‑assigned identity. Always supply **versioned** secret URIs to allow safe rotation.
 
-## 11. Managed Identity
+## 18. Managed Identity
 
 One user‑assigned identity is created every deployment; its resource & principal IDs are returned as outputs for downstream RBAC (Key Vault, logging, etc.).
 
-## 12. Diagnostics
+## 19. Diagnostics
 
 Diagnostics module is parameter‑gated; if either the boolean flag is false or the workspace ID is empty no diagnostic setting resource is created (output left blank). This avoids accidental noise or cross‑subscription log writes.
 
-## 13. Deployment Examples
+## 20. Deployment Examples
 
 ### 13.1 Minimal Parameter File
 
@@ -283,7 +274,7 @@ az deployment sub create `
 
 Portal deployment is also supported via `solution.json` + `uiDefinition.json` artifacts (commercial & government clouds).
 
-## 14. Post-Deployment Verification
+## 21. Post-Deployment Verification
 
 | Check | Expectation |
 |-------|-------------|
@@ -295,7 +286,7 @@ Portal deployment is also supported via `solution.json` + `uiDefinition.json` ar
 | Health probes | All listeners show healthy backends after certificate & host header alignment. |
 | Firewall policy | Baseline + (optional) custom rule collections present. |
 
-## 15. Routine Changes
+## 22. Routine Changes
 
 | Action | Steps |
 |--------|-------|
@@ -307,7 +298,7 @@ Portal deployment is also supported via `solution.json` + `uiDefinition.json` ar
 | Disable diagnostics | Set `enableDiagnostics = false` OR empty workspace id. |
 | Mandatory NSG enforcement | Removed prior optional toggle; hardens baseline by default. |
 
-## 16. Troubleshooting
+## 23. Troubleshooting
 
 | Symptom | Probable Cause | Recommended Action |
 |---------|---------------|--------------------|
@@ -317,7 +308,7 @@ Portal deployment is also supported via `solution.json` + `uiDefinition.json` ar
 | Overrides not applied | `wafPolicyId` simultaneously specified | Remove explicit ID to allow generation. |
 | No diagnostics output | Flag/workspace mismatch | Ensure both enabled + valid workspace ID. |
 
-## 17. Outputs
+## 24. Outputs
 
 | Output | Meaning |
 |--------|---------|
@@ -331,7 +322,7 @@ Portal deployment is also supported via `solution.json` + `uiDefinition.json` ar
 | `userAssignedIdentityPrincipalId` | Principal ID for RBAC correlation. |
 | `diagnosticsSettingId` | Diagnostic setting (blank when disabled). |
 
-## 18. File Map
+## 25. File Map
 
 | File | Description |
 |------|-------------|
@@ -347,16 +338,7 @@ Portal deployment is also supported via `solution.json` + `uiDefinition.json` ar
 | `modules/resolve-firewall-ip.bicep` | Firewall IP resolution. |
 | `modules/kv-role-assignment.bicep` | Optional Key Vault RBAC assignment. |
 
-## 19. Change History (Excerpt)
-
-| Change | Rationale |
-|--------|-----------|
-| Per listener policy generation | Enable granular WAF posture without manual policy sprawl. |
-| Deduplicated backend prefix logic | Prevent redundant routes & firewall entries. |
-| Mandatory NSG enforcement | Removed historical toggle; ensures consistent hardening. |
-| Diagnostics gating refinement | Avoid unintended log noise when not configured. |
-| Complete documentation rewrite | Improve clarity & remove scenario naming. |
-| Simplified WAF policy documentation | Emphasize automatic behavior; mark explicit IDs as advanced. |
+<!-- Removed duplicate Change History section -->
 
 ---
 Please file issues or enhancement requests with the commit hash for traceability.
