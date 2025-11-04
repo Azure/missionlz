@@ -1,19 +1,18 @@
 <!-- README intentionally scoped to IaC contract & invariants. Advanced operational guidance lives in ADVANCED.md. -->
 
-# Application Gateway Add-On (MLZ Hub) – IaC Contract
+# Application Gateway Add-On for MLZ Hub
 
 ## 1. Overview
 Provisions an Azure Application Gateway (WAF_v2) in the Mission Landing Zone hub. Focus: idempotent deployment of listeners + WAF posture + selective routing + firewall integration. Not an operations or tuning guide.
 
-## 2. Design Invariants
-* Always creates a gateway subnet with enforced restrictive NSG (cannot be disabled).
-* Never creates a 0.0.0.0/0 UDR; only declared backend CIDRs become forced routes.
-* Deduplicates backend CIDRs before generating route entries and firewall allows.
-* Per-listener WAF policy only synthesized when `wafOverrides` or `wafExclusions` exist and no explicit `wafPolicyId` is provided.
-* Explicit listener `wafPolicyId` supersedes inline overrides/exclusions for that listener.
-* Global WAF policy is created unless `existingWafPolicyId` supplied.
-* Re-deploy with unchanged parameters → no resource drift.
-* Diagnostics only emitted when both `enableDiagnostics` and workspace ID are set.
+## 2. What You Get Automatically
+* A dedicated subnet for the gateway with a locked-down NSG (you don't pick rules; it's enforced).
+* Only the backend networks you list get user-defined routes to the Firewall (no surprise 0.0.0.0/0 route).
+* Duplicate backend CIDRs are cleaned up before routes and firewall rules are created.
+* One global WAF policy is created unless you point to an existing one; a listener gets its own policy only if you add `wafOverrides` or `wafExclusions`.
+* If you set `wafPolicyId` on an app that exact policy is used and any overrides/exclusions for that app are ignored.
+* Safe re-run: deploying again with the same parameters doesn't change anything.
+* Diagnostics appear only if you enable them AND supply a workspace ID.
 
 ## 3. Minimal Listener Flow
 Client → AppGW public IP → WAF (global or synthesized per-listener) → Forced route (only declared CIDR) → Azure Firewall → Backend.
@@ -31,7 +30,7 @@ Client → AppGW public IP → WAF (global or synthesized per-listener) → Forc
 | `modules/resolve-firewall-ip.bicep` | Looks up firewall private IP. |
 | `modules/kv-role-assignment.bicep` | Optional Key Vault Secrets User RBAC. |
 
-## 5. WAF Policy Resolution (Contract Summary)
+## 5. How WAF Policy Is Picked
 | Condition | Result |
 |-----------|--------|
 | `wafPolicyId` set on app | That listener uses the explicit policy (ignore overrides/exclusions). |
@@ -136,8 +135,8 @@ Operational runbooks, performance tuning strategies, false positive triage, heal
 | Documentation split | Keep README contractual; move operations to ADVANCED.md. |
 | Simplified WAF docs | Emphasize automatic behavior & precedence. |
 
-## 14. Pointer to Advanced Content
-For troubleshooting, detailed WAF exclusion guidance, security rationale, and post-deployment verification steps, consult `ADVANCED.md`.
+## 14. Need More Detail?
+See `ADVANCED.md` for deeper WAF tuning, exclusions guidance, troubleshooting, and verification checklists.
 
 ---
 `addressPrefixes` supersedes legacy singular `addressPrefix` (still accepted). Provide only CIDRs requiring firewall egress. Deduplication occurs automatically.
