@@ -228,7 +228,7 @@ https://<vaultName>.vault.azure.net/secrets/<secretName>/<secretVersionGuid>
 Why the version matters:
 
 * Using a versioned URI (includes the final GUID segment) makes redeploys deterministic; Azure never silently shifts to a newer cert.
-* Rotation workflow: add a new secret version, validate it, then update the parameter file to reference the new version GUID and redeploy.
+* Rotation involves publishing a new version of the existing Key Vault secret and updating the parameter file to reference that version GUID before redeployment (see Azure docs below).
 * If you omit the version (ending at `/secrets/<secretName>`), the latest version can change underneath you—breaking idempotence and making rollback harder.
 
 Edge cases:
@@ -238,6 +238,14 @@ Edge cases:
 * If you break the single‑hub‑vault assumption and place certificates in multiple vaults, only the first (or the default) vault receives automatic RBAC. Manually assign **Key Vault Secrets User** (or equivalent access) for the gateway identity on every other vault you reference.
 
 Quick example:
+
+References (public documentation):
+
+* Azure Application Gateway overview: https://learn.microsoft.com/azure/application-gateway/overview
+* Web Application Firewall (WAF) on Application Gateway: https://learn.microsoft.com/azure/web-application-firewall/ag/ag-overview
+* Application Gateway certificates: https://learn.microsoft.com/azure/application-gateway/certificates
+* Key Vault certificates & secret versions: https://learn.microsoft.com/azure/key-vault/certificates/about-certificates
+* Managed rule sets (OWASP CRS): https://learn.microsoft.com/azure/web-application-firewall/ag/application-gateway-crs-rule-group-overview
 
 ```
 certificateSecretId: "https://mlz-hub-kv.vault.usgovcloudapi.net/secrets/web1cert/0d9c2d4e3a2f4d8e8bb1f6c9d5a1b234"

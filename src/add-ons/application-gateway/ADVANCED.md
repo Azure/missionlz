@@ -157,7 +157,6 @@ Add a custom block rule:
 ```
 
 ---
-Use ADVANCED.md only for operational or tuning tasks; keep README authoritative for contract.
 
   ## 10. Certificate Rotation
 
@@ -233,14 +232,6 @@ Use ADVANCED.md only for operational or tuning tasks; keep README authoritative 
 
   The template now assigns the Secrets read permission ("Secrets User" RBAC role) automatically when it can infer the Key Vault from a certificate secret URI. Certificate object permissions alone are insufficient—secret access is required. If the vault cannot be inferred (no apps defined yet), assign manually after initial deploy and redeploy once certificates are in place.
 
-  ### 10.8 Rotation Frequency Guidance
-
-  | Rotation Interval | Rationale |
-  |-------------------|-----------|
-  | 90 days | Common hygiene (aligns with many org policies) |
-  | 180 days | Acceptable for internal-only endpoints with strong monitoring |
-  | < 30 days | Usually unnecessary overhead unless mandated |
-
-  Document chosen interval in your ops runbook; template itself remains static between rotations except for the version GUID change.
+  <!-- Rotation frequency guidance removed (project does not prescribe operational intervals). -->
 
   ---
