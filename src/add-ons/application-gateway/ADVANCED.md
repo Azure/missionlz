@@ -309,7 +309,7 @@ Use ADVANCED.md only for operational or tuning tasks; keep README authoritative 
 
   ### 19.7 Key Vault Access Considerations
 
-  The user-assigned identity needs the Secrets read permission (or "Secrets User" RBAC role). Certificate object permissions alone are insufficient—ensure secret fetching is allowed.
+  The template now assigns the Secrets read permission ("Secrets User" RBAC role) automatically when it can infer the Key Vault from a certificate secret URI. Certificate object permissions alone are insufficient—secret access is required. If the vault cannot be inferred (no apps defined yet), assign manually after initial deploy and redeploy once certificates are in place.
 
   ### 19.8 Rotation Frequency Guidance
 

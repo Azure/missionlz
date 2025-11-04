@@ -11,6 +11,7 @@ Provisions an Azure Application Gateway (WAF_v2) in the Mission Landing Zone hub
 * Duplicate backend CIDRs are cleaned up before routes and firewall rules are created.
 * One global WAF policy is created unless you point to an existing one; a listener gets its own policy only if you add `wafOverrides` or `wafExclusions`.
 * If you set `wafPolicyId` on an app that exact policy is used and any overrides/exclusions for that app are ignored.
+* The gateway's managed identity automatically gets Key Vault Secrets read access (when the certificate secret's vault can be inferred).
 * Safe re-run: deploying again with the same parameters doesn't change anything.
 * Diagnostics appear only if you enable them AND supply a workspace ID.
 
@@ -67,7 +68,6 @@ Client → AppGW public IP → WAF (global or synthesized per-listener) → Forc
 | `backendAllowPorts` | Fallback ports when maps absent. |
 | `customAppGatewayFirewallRuleCollectionGroups` | Extra firewall allow groups. |
 | `enableDiagnostics` & `operationsLogAnalyticsWorkspaceResourceId` | Both required for diagnostics. |
-| `createKeyVaultSecretAccessRole` | Optional Secrets User role assignment. |
 | WAF tuning params (global) | Applied only when creating new global policy. |
 
 ## 8. Outputs
@@ -205,7 +205,6 @@ Each element maps to one HTTPS listener (multi‑site host names) plus a backend
 | `customAppGatewayFirewallRuleCollectionGroups` | Additional firewall policy rule groups. |
 | (NSG always enforced) | Not applicable—cannot disable via parameter. |
 | `enableDiagnostics` & `operationsLogAnalyticsWorkspaceResourceId` | Both required to emit diagnostics. |
-| `createKeyVaultSecretAccessRole` | Grant Key Vault Secrets User to identity. |
 | WAF tuning params (`wafPolicyMode`, `wafManagedRuleSetVersion`, etc.) | Influence new global policy creation. |
 
 ## 9. Routing & Firewall Integration

@@ -44,8 +44,6 @@ param networkName string = 'hub'
 @description('Resource abbreviations object from core deployment (passed through from MLZ core).')
 // Auto-load canonical resource abbreviations JSON (eliminates need for manual duplication in param file)
 param resourceAbbreviations object = loadJsonContent('../../data/resource-abbreviations.json')
-@description('Whether to create a Key Vault secrets read role assignment for the user-assigned identity (RBAC-enabled vault).')
-param createKeyVaultSecretAccessRole bool = true
 @description('Optional override for Key Vault resource group (defaults to hub RG).')
 param keyVaultResourceGroupName string = ''
 @description('Enable diagnostics (Log Analytics) for the Application Gateway')
@@ -113,7 +111,8 @@ module userAssignedIdentity 'modules/user-assigned-identity.bicep' = {
 }
 var effectiveUserAssignedIdentityResourceId = userAssignedIdentity.outputs.identityResourceId
 
-module kvSecretsReader 'modules/kv-role-assignment.bicep' = if (createKeyVaultSecretAccessRole && !empty(keyVaultName)) {
+// Key Vault Secrets read role assignment now ALWAYS applied when a certificate secret vault can be inferred
+module kvSecretsReader 'modules/kv-role-assignment.bicep' = if (!empty(keyVaultName)) {
   name: 'kvSecretsReader'
   scope: resourceGroup(effectiveKeyVaultRg)
   params: {
