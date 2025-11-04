@@ -6,7 +6,7 @@ Deploys an Azure Application Gateway (WAF_v2) in the MLZ hub for: HTTPS terminat
 ## Prerequisites
 * Existing MLZ hub virtual network and resource group (Application Gateway deploys into a dedicated subnet you supply / that the template creates when absent).
 * Dedicated empty subnet (no other resources) sized for autoscale (default /26). Not shared with other services.
-* (Optional) Azure Firewall & Firewall Policy if you want selective forced routing / egress inspection (the template expects an existing policy ID parameter; without it, only gateway resources deploy).
+* MLZ hub Azure Firewall **and** its Firewall Policy (required). The add-on always resolves the hub Firewall private IP and attaches rule collection groups to the MLZ-named Firewall Policy; it will not operate in an environment without them.
 * (Optional) Log Analytics workspace resource ID if you want diagnostics (leave empty to skip).
 * Hub Key Vault containing versioned certificate secrets for each listener (at least one secret version required to infer vault and assign RBAC).
 * Appropriate RBAC: permission to deploy networking + role assignments (Network Contributor + User Access Administrator or equivalent) at target scopes.
