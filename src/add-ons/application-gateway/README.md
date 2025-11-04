@@ -1,33 +1,100 @@
-<!-- Removed Module Map, preliminary Listener Definition, and Key Parameters sections to consolidate onto single canonical references below. -->
+ # Application Gateway Add-On (MLZ Hub)
 
-## Listener Definition (`apps` Array Schema)
-| Property | Req | Notes |
-|----------|-----|-------|
-| `name` | yes | Seeds listener/pool/probe naming. |
-| `hostNames` | yes | Multi-site host headers (SNI). |
-| `backendAddresses` | yes | Array of `{ fqdn }` or `{ ipAddress }`. |
-| `certificateSecretId` | yes | Versioned Key Vault secret URI (TLS). |
-| `addressPrefixes` | yes | Backend CIDRs for forced routes + firewall rules (REQUIRED; at least one CIDR per app). |
-| `backendPort` / `backendProtocol` | no | Overrides defaults (usually 443/Https). |
-| `healthProbePath` (+ probe settings) | no | Optional overrides. |
-| `backendHostHeader` | no | Override Host header for backend. |
-| `wafPolicyId` | no | Advanced explicit listener policy. |
-| `wafOverrides` | no | Triggers synthesized listener policy (if no explicit ID). |
-| `wafExclusions` | no | Triggers synthesized listener policy (if no explicit ID). |
+## Overview
+Deploys an Azure Application Gateway (WAF_v2) in the MLZ hub for: HTTPS termination, Web Application Firewall enforcement, and selective forced routing of ONLY declared backend CIDRs through Azure Firewall. Advanced tuning (deep WAF rules, exclusions, cert rotation) lives in `ADVANCED.md`.
 
-## Key Parameters
-| Name | Summary |
-|------|---------|
-| `location` | Region. |
-| `hubVnetResourceId` | Existing hub VNet ID. |
-| `appGatewaySubnetAddressPrefix` | Subnet CIDR (default /26). |
-| `apps` / `commonDefaults` | Listener definitions + shared defaults. |
-| `existingWafPolicyId` | Advanced: adopt external global policy. |
-| `backendPrefixPortMaps` / `backendAppPortMaps` | Granular firewall shaping precedence. |
-| `backendAllowPorts` | Fallback ports when maps absent. |
-| `customAppGatewayFirewallRuleCollectionGroups` | Extra firewall allow groups. |
-| `operationsLogAnalyticsWorkspaceResourceId` | Log Analytics workspace ID (diagnostics enabled automatically when set). |
-| WAF tuning params (global) | Applied only when creating new global policy. |
+## Features
+* Locked-down dedicated subnet + enforced NSG (inbound 443 + platform requirements only).
+* Selective UDR: one route per backend CIDR you declare; never inserts 0.0.0.0/0.
+* Least‑privilege egress firewall rules derived from per-app `addressPrefixes` + port maps.
+* Global WAF policy auto-created unless you adopt an existing one; per-listener policies only when overrides/exclusions supplied.
+* Explicit `wafPolicyId` on an app always wins (overrides/exclusions ignored for that app).
+* Deterministic certificate retrieval via versioned Key Vault secret URIs; automatic Key Vault Secrets User RBAC assignment for the inferred hub vault.
+* Idempotent re-deploy (unchanged parameters = no drift).
+* Diagnostics automatically provisioned when a Log Analytics workspace resource ID is provided.
+
+## Architecture Flow
+Client → Application Gateway (public IP) → WAF (global or per‑listener) → Forced route (backend CIDR) → Azure Firewall → Backend service.
+
+## WAF Policy Resolution
+| Condition | Result |
+|-----------|--------|
+| `wafPolicyId` set on app | Listener uses that explicit policy (ignores overrides/exclusions). |
+| `wafOverrides` / `wafExclusions` present (no explicit ID) | Synthesizes a per-listener WAF policy. |
+| Neither present | Listener inherits global policy (created or adopted). |
+| `existingWafPolicyId` set globally | Use it; still may synthesize per-listener ones where inline fields exist. |
+
+`perListenerWafPolicyIds` output is blank where inheritance occurs.
+
+## Outputs
+| Output | Meaning |
+|--------|---------|
+| `appGatewayPublicIp` | Static IPv4. |
+| `wafPolicyResourceId` | Global policy ID. |
+| `perListenerWafPolicyIds` | Listener→policy mapping (blank = inherit). |
+| `forcedRouteEntries` | Objects for each unique backend CIDR. |
+| `listenerNames` | Listener resource names. |
+| `backendPoolNames` | Backend pool names. |
+| `userAssignedIdentityResourceIdOut` | Identity resource ID. |
+| `userAssignedIdentityPrincipalId` | Identity principal ID. |
+| `diagnosticsSettingId` | Diagnostic setting ID (blank when workspace ID omitted). |
+
+## Routing & Firewall
+Workflow:
+1. Collect all `addressPrefixes` across apps (each app must supply at least one backend CIDR that actually needs egress via the Firewall—avoid superfluous ranges).
+2. Generate one UDR route per unique CIDR (`forcedRouteEntries`; next hop = Firewall private IP). No 0.0.0.0/0 default route is inserted.
+3. Associate the route table + enforced NSG with the Application Gateway subnet (NSG creation is mandatory).
+4. Build firewall allow rules in strict precedence order:
+  * `backendAppPortMaps` (per app + per port specificity; highest)
+  * `backendPrefixPortMaps` (CIDR → port list)
+  * Broad fallback rule: all collected CIDRs + `backendAllowPorts` (only if needed)
+5. Anything not explicitly allowed is denied by the Firewall's default deny.
+
+Result: Minimal egress surface—fine‑grained maps first, broad fallback last.
+
+## Minimal Parameter File Example
+```bicep-params
+using './solution.bicep'
+param location = 'usgovvirginia'
+param hubVnetResourceId = '/subscriptions/<subId>/resourceGroups/<hubRg>/providers/Microsoft.Network/virtualNetworks/<hub-vnet>'
+param commonDefaults = {
+  backendPort: 443
+  backendProtocol: 'Https'
+  healthProbePath: '/'
+  autoscaleMinCapacity: 1
+  autoscaleMaxCapacity: 2
+  generatedPolicyMode: 'Prevention'
+  generatedPolicyManagedRuleSetVersion: '3.2'
+}
+param apps = [
+  {
+    name: 'web1'
+    hostNames: [ 'web1.example.gov' ]
+    certificateSecretId: 'https://kv-example.vault.usgovcloudapi.net/secrets/web1cert/<version>'
+    backendAddresses: [ { fqdn: 'web1-pe.azurewebsites.us' } ]
+    addressPrefixes: [ '10.60.10.0/24' ]
+  }
+]
+```
+
+## Routine Operations (Idempotent)
+| Action | Required Input Change |
+|--------|-----------------------|
+| Add listener/app | Append new object to `apps`. |
+| Remove listener/app | Delete object from `apps` (removes listener + pool + probe + routing rule + certificate reference). |
+| Introduce inline WAF tuning | Add `wafOverrides` or `wafExclusions` (creates policy). |
+| Adopt external listener policy | Set `wafPolicyId`; remove overrides/exclusions. |
+| Switch global to external | Set `existingWafPolicyId`. |
+| Expand allowed egress ports | Update maps or `backendAllowPorts`. |
+| Add diagnostics | Provide `operationsLogAnalyticsWorkspaceResourceId`. |
+| Remove diagnostics | Clear `operationsLogAnalyticsWorkspaceResourceId`. |
+
+NOTE: If a removed app previously had a generated per-listener WAF policy (due to overrides/exclusions), that standalone WAF policy resource is not auto-deleted in incremental mode and becomes an orphan. Delete manually if no longer needed.
+
+## Non-Goals
+Operational runbooks, performance tuning strategies, false positive triage, health probe debugging, and general Azure Application Gateway operational guidance are intentionally excluded. For those advanced topics (WAF tuning, exclusions, certificate rotation, orphan policy cleanup, deep troubleshooting) see [ADVANCED.md](./ADVANCED.md).
+
+<!-- Removed duplicate reminder about addressPrefixes (covered in Routing & Firewall). -->
 
 ## Outputs
 | Output | Meaning |
