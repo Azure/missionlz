@@ -313,18 +313,6 @@ Portal deployment is also supported via `solution.json` + `uiDefinition.json` ar
 | Health probes | All listeners show healthy backends after certificate & host header alignment. |
 | Firewall policy | Baseline + (optional) custom rule collections present. |
 
-## Routine Change Quick Reference
-
-| Action | Steps |
-|--------|-------|
-| Add application | Append new element to `apps`, redeploy (idempotent). |
-| Temporarily relax WAF | Add `wafOverrides.mode = 'Detection'`, redeploy, later remove. |
-| Switch to explicit policy | Set `wafPolicyId`, remove overrides & exclusions. |
-| Increase autoscale ceiling | Update `commonDefaults.autoscaleMaxCapacity`. |
-| Expand backend ports | Add to `backendPrefixPortMaps` or `backendAppPortMaps`. |
-| Remove diagnostics | Clear `operationsLogAnalyticsWorkspaceResourceId`. |
-| Mandatory NSG enforcement | Removed prior optional toggle; hardens baseline by default. |
-
 ## Troubleshooting
 
 | Symptom | Probable Cause | Recommended Action |
