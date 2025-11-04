@@ -1,7 +1,19 @@
 # Application Gateway Add-On (MLZ Hub)
 
 ## Overview
-Deploys an Azure Application Gateway (WAF_v2) in the MLZ hub for: HTTPS termination, Web Application Firewall enforcement, and selective forced routing of ONLY declared backend CIDRs through Azure Firewall. This document intentionally focuses on the infrastructure contract (parameters, listener schema, routing model, WAF policy resolution, certificates, and outputs). It is NOT an operational runbook: performance tuning, false‑positive triage, probe debugging, and broader Application Gateway operations are out of scope—see `ADVANCED.md` for deep WAF tuning, exclusions, certificate rotation, orphan policy cleanup, and advanced troubleshooting. This add-on is intentionally MLZ-specific and assumes the presence of the MLZ hub Azure Firewall and its Firewall Policy named via the MLZ naming convention; it is not a general-purpose standalone template.
+Deploys an Azure Application Gateway (WAF_v2) in the MLZ hub for:
+* HTTPS termination
+* Web Application Firewall enforcement
+* Selective forced routing of ONLY declared backend CIDRs through Azure Firewall
+
+This document intentionally focuses on the infrastructure contract (parameters, listener schema, routing model,
+WAF policy resolution, certificates, and outputs). It is NOT an operational runbook: performance tuning,
+false‑positive triage, probe debugging, and broader Application Gateway operations are out of scope—see
+`ADVANCED.md` for deep WAF tuning, exclusions, certificate rotation, orphan policy cleanup, and advanced
+troubleshooting.
+
+This add-on is intentionally MLZ-specific and assumes the presence of the MLZ hub Azure Firewall and its
+Firewall Policy named via the MLZ naming convention; it is not a general-purpose standalone template.
 
 ## Prerequisites
 * Existing MLZ hub virtual network and resource group (Application Gateway deploys into a dedicated subnet you supply / that the template creates when absent).
@@ -210,7 +222,7 @@ How the template discovers the Key Vault:
 
 Secret URI format (versioned):
 
-```
+```text
 https://<vaultName>.vault.azure.net/secrets/<secretName>/<secretVersionGuid>
 ```
 
@@ -230,13 +242,13 @@ Quick example:
 
 References (public documentation):
 
-* Azure Application Gateway overview: https://learn.microsoft.com/azure/application-gateway/overview
-* Web Application Firewall (WAF) on Application Gateway: https://learn.microsoft.com/azure/web-application-firewall/ag/ag-overview
-* Application Gateway certificates: https://learn.microsoft.com/azure/application-gateway/certificates
-* Key Vault certificates & secret versions: https://learn.microsoft.com/azure/key-vault/certificates/about-certificates
-* Managed rule sets (OWASP CRS): https://learn.microsoft.com/azure/web-application-firewall/ag/application-gateway-crs-rule-group-overview
+* [Azure Application Gateway overview](https://learn.microsoft.com/azure/application-gateway/overview)
+* [Web Application Firewall (WAF) on Application Gateway](https://learn.microsoft.com/azure/web-application-firewall/ag/ag-overview)
+* [Application Gateway certificates](https://learn.microsoft.com/azure/application-gateway/certificates)
+* [Key Vault certificates & secret versions](https://learn.microsoft.com/azure/key-vault/certificates/about-certificates)
+* [Managed rule sets (OWASP CRS)](https://learn.microsoft.com/azure/web-application-firewall/ag/application-gateway-crs-rule-group-overview)
 
-```
+```text
 certificateSecretId: "https://mlz-hub-kv.vault.usgovcloudapi.net/secrets/web1cert/0d9c2d4e3a2f4d8e8bb1f6c9d5a1b234"
 ```
 

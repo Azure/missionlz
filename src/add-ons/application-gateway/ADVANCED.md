@@ -143,31 +143,31 @@ Add a custom block rule:
 
 ---
 
-  ## 10. Certificate Rotation
+## 10. Certificate Rotation
 
   Rotate TLS certificates by publishing a **new version** of the existing Key Vault secret and then updating the parameter file to reference that version. Do not replace certificate material inline or upload manually to the gateway—keep rotation declarative.
 
-  ### 10.1 Workflow (Versioned Secret Pattern)
+### 10.1 Workflow (Versioned Secret Pattern)
 
   1. Prepare new PFX (include full chain if required by clients).
   2. Import PFX into the same Key Vault secret name (e.g., `web1cert`) creating a new version.
-  3. Update your parameter file `certificateSecretId` from:
+3. Update your parameter file `certificateSecretId` from:
 
   ```text
   https://kv-example.vault.usgovcloudapi.net/secrets/web1cert/<oldVersionGuid>
   ```
 
-    to:
+to:
 
   ```text
   https://kv-example.vault.usgovcloudapi.net/secrets/web1cert/<newVersionGuid>
   ```
 
-  4. Redeploy the add-on template.
-  5. Validate: perform an HTTPS request and inspect presented certificate (CN/SAN + NotBefore/NotAfter).
-  6. Keep prior version until validation complete; delete only after successful rollout.
+4. Redeploy the add-on template.
+5. Validate: perform an HTTPS request and inspect presented certificate (CN/SAN + NotBefore/NotAfter).
+6. Keep prior version until validation complete; delete only after successful rollout.
 
-  ### 10.2 Rollback
+### 10.2 Rollback
 
   If validation fails (wrong SAN, chain issue):
 
@@ -175,7 +175,7 @@ Add a custom block rule:
   2. Redeploy.
   3. Confirm old cert is again presented.
 
-  ### 10.3 Why Use Versioned URIs
+### 10.3 Why Use Versioned URIs
 
   | Benefit | Explanation |
   |---------|-------------|
@@ -184,7 +184,7 @@ Add a custom block rule:
   | Safe rollback | Previous version still addressable. |
   | Avoid silent drift | Unversioned URIs could swap cert without a template change. |
 
-  ### 10.4 Common Pitfalls
+### 10.4 Common Pitfalls
 
   | Pitfall | Symptom | Fix |
   |---------|---------|-----|
@@ -194,15 +194,15 @@ Add a custom block rule:
   | Use unversioned secret URI | Invisible rotation | Always include version GUID |
   | Chain incomplete | Clients show trust errors | Include full intermediate chain in PFX |
 
-  ### 10.5 Automation Hooks
+### 10.5 Automation Hooks
 
   If automating issuance (e.g., internal CA or ACME):
 
-  * Have issuance pipeline publish new secret version.
-  * Trigger a parameter file update (commit with version GUID) + deployment workflow.
-  * Add a post-deploy validation job (HTTPS fetch + parse cert details) before marking rotation successful.
+* Have issuance pipeline publish new secret version.
+* Trigger a parameter file update (commit with version GUID) + deployment workflow.
+* Add a post-deploy validation job (HTTPS fetch + parse cert details) before marking rotation successful.
 
-  ### 10.6 Validation Tips
+### 10.6 Validation Tips
 
   Minimal PowerShell (optional, not part of template logic):
 
@@ -213,7 +213,7 @@ Add a custom block rule:
 
   Prefer dedicated tooling (browser, `openssl s_client`, or platform-specific scripts) for real validation.
 
-  ### 10.7 Key Vault Access Considerations
+### 10.7 Key Vault Access Considerations
 
   The template now assigns the Secrets read permission ("Secrets User" RBAC role) automatically when it can infer the Key Vault from a certificate secret URI. Certificate object permissions alone are insufficient—secret access is required. If the vault cannot be inferred (no apps defined yet), assign manually after initial deploy and redeploy once certificates are in place.
 
