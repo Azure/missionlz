@@ -48,7 +48,7 @@ Client → AppGW public IP → WAF (global or synthesized per-listener) → Forc
 | `hostNames` | yes | Multi-site host headers (SNI). |
 | `backendAddresses` | yes | Array of `{ fqdn }` or `{ ipAddress }`. |
 | `certificateSecretId` | yes | Versioned Key Vault secret URI (TLS). |
-| `addressPrefixes` | recommended | Backend CIDRs for forced routes + firewall rules (deduplicated). |
+| `addressPrefixes` | yes | Backend CIDRs for forced routes + firewall rules (REQUIRED; at least one CIDR per app). |
 | `backendPort` / `backendProtocol` | no | Overrides defaults (usually 443/Https). |
 | `healthProbePath` (+ probe settings) | no | Optional overrides. |
 | `backendHostHeader` | no | Override Host header for backend. |
@@ -84,7 +84,7 @@ Client → AppGW public IP → WAF (global or synthesized per-listener) → Forc
 | `diagnosticsSettingId` | Diagnostic setting or blank when disabled. |
 
 ## 9. Routing & Firewall Precedence
-1. Collect and deduplicate all `addressPrefixes` across apps.
+1. Collect and deduplicate all `addressPrefixes` across apps (mandatory per app).
 2. Generate one UDR route per CIDR (next hop = Firewall private IP).
 3. Firewall rules precedence: `backendAppPortMaps` > `backendPrefixPortMaps` > broad deduplicated CIDRs + `backendAllowPorts` fallback.
 
@@ -142,7 +142,7 @@ Operational runbooks, performance tuning strategies, false positive triage, heal
 See `ADVANCED.md` for deeper WAF tuning, exclusions guidance, troubleshooting, and verification checklists.
 
 ---
-`addressPrefixes` supersedes legacy singular `addressPrefix` (still accepted). Provide only CIDRs requiring firewall egress. Deduplication occurs automatically.
+Provide only CIDRs requiring firewall egress in `addressPrefixes`. Deduplication occurs automatically.
 
 ---
 Active implementation; please raise issues referencing commit hash.
@@ -157,7 +157,7 @@ Each element maps to one HTTPS listener (multi‑site host names) plus a backend
 | `hostNames` | yes | Host headers for SNI & routing. |
 | `backendAddresses` | yes | Array of `{ fqdn }` or `{ ipAddress }` entries. |
 | `certificateSecretId` | yes | Versioned Key Vault secret URI for TLS cert. |
-| `addressPrefixes` | recommended | Backend CIDRs requiring forced routing & firewall allow (single legacy `addressPrefix` still accepted). |
+| `addressPrefixes` | yes | Backend CIDRs requiring forced routing & firewall allow (must not be empty; each app needs at least one CIDR). |
 | `backendPort` / `backendProtocol` | no | Override defaults (defaults 443 / Https). |
 | `healthProbePath`, `probeInterval`, `probeTimeout`, `unhealthyThreshold`, `probeMatchStatusCodes` | no | Per listener probe tuning. |
 | `backendHostHeader` | no | Override host header for backend/SNI preservation. |
@@ -212,7 +212,7 @@ Each element maps to one HTTPS listener (multi‑site host names) plus a backend
 
 ## 9. Routing & Firewall Integration
 
-1. Gather all `addressPrefixes` (legacy single field normalized).
+1. Gather all `addressPrefixes`.
 2. Deduplicate -> produce `forcedRouteEntries` objects.
 3. Route table gets one entry per prefix (next hop = Firewall) without inserting a default route.
 4. Firewall module builds allow rules based on precedence:
@@ -361,9 +361,7 @@ Portal deployment is also supported via `solution.json` + `uiDefinition.json` ar
 ---
 Please file issues or enhancement requests with the commit hash for traceability.
 
-> `addressPrefixes` (array) supersedes the older singular `addressPrefix`. Provide **only** the CIDRs requiring egress via Firewall; template deduplicates them and produces `forcedRouteEntries` output.
->
-> Legacy support: `addressPrefix` (string) is still accepted for backward compatibility. Prefer `addressPrefixes`.
+> Provide **only** the CIDRs requiring egress via Firewall in `addressPrefixes`; template deduplicates them and produces `forcedRouteEntries` output.
 
 ## Modules
 

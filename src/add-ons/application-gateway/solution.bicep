@@ -18,7 +18,7 @@ param appGatewaySubnetName string = 'AppGateway'
 param disablePrivateEndpointNetworkPolicies bool = true
 @description('Common default settings object applied to each app unless overridden')
 param commonDefaults object
-@description('Array of application definitions. Each app: { name, backendAddresses:[{ipAddress|fqdn}], certificateSecretId, (optional) addressPrefix, (optional) addressPrefixes:[CIDR...], (optional) wafOverrides:{ mode, requestBodyCheck, maxRequestBodySizeInKb, fileUploadLimitInMb, managedRuleSetVersion } }. addressPrefixes overrides addressPrefix when provided.')
+@description('Array of application definitions. Each app: { name, hostNames:[string...], backendAddresses:[{ipAddress|fqdn}], certificateSecretId, addressPrefixes:[CIDR... REQUIRED], (optional) backendPort, (optional) backendProtocol, (optional) healthProbePath, (optional) wafOverrides:{ mode, requestBodyCheck, maxRequestBodySizeInKb, fileUploadLimitInMb, managedRuleSetVersion }, (optional) wafExclusions, (optional) wafPolicyId }. NOTE: addressPrefixes is REQUIRED for routing and firewall rule generation.')
 param apps array
 
 @description('Tags to apply to all created resources')
@@ -150,8 +150,8 @@ var firewallPrivateIp = resolveFirewallIp.outputs.privateIpAddress
 var firewallPolicyResourceId = resourceId(subscription().subscriptionId, hubRgName, 'Microsoft.Network/firewallPolicies', naming.outputs.names.azureFirewallPolicy)
 
 // Route table prefix derivation (multi-prefix, no validation). Fallback to prefix-derived label due to Bicep nested for limitations.
-// Gather & deduplicate backend CIDR prefixes (apps[].addressPrefixes supersedes legacy addressPrefix)
-var appsPrefixMatrix = [for a in apps: (!empty(a.?addressPrefixes)) ? a.addressPrefixes : (!empty(a.?addressPrefix) ? [a.addressPrefix] : [])]
+// Gather & deduplicate backend CIDR prefixes (apps[].addressPrefixes REQUIRED)
+var appsPrefixMatrix = [for a in apps: a.addressPrefixes]
 var allAppPrefixes = flatten(appsPrefixMatrix)
 var dedupPrefixes = [for (p,i) in allAppPrefixes: (!empty(p) && indexOf(allAppPrefixes,p) == i) ? p : '']
 // Simplified: rely on explicit backendPrefixPortMaps parameter for per-app custom port mappings.
