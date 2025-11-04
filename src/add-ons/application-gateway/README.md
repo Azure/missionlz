@@ -299,7 +299,6 @@ az deployment sub create `
   --parameters @path\to\params.bicepparam
 ```
 
-Portal deployment is also supported via `solution.json` + `uiDefinition.json` artifacts (commercial & government clouds).
 
 ## Post-Deployment Verification
 
