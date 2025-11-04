@@ -248,6 +248,8 @@ Always use **versioned** URIs and plan rotations by creating the new version fir
 
 Diagnostics are created automatically when you provide a valid Log Analytics workspace resource ID via `operationsLogAnalyticsWorkspaceResourceId`. Leave it empty to skip deployment of the diagnostic setting (output blank). There is no separate enable flag.
 
+Recommendation: Do not skip diagnostics unless you enforce equivalent logging via another mechanism (e.g., Azure Policy assigning diagnostic settings, centralized automation, or post‑deployment scripting). Omitting diagnostics reduces visibility for WAF alert triage, performance analysis, and security investigations.
+
 ## Deployment Examples
 
 ### Minimal Parameter File
