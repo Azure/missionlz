@@ -39,19 +39,6 @@ Client → Application Gateway (public IP) → WAF (global or per‑listener) �
 | `userAssignedIdentityPrincipalId` | Identity principal ID. |
 | `diagnosticsSettingId` | Diagnostic setting ID (blank when workspace ID omitted). |
 
-## Routing & Firewall
-Workflow:
-1. Collect all `addressPrefixes` across apps (each app must supply at least one backend CIDR that actually needs egress via the Firewall—avoid superfluous ranges).
-2. Generate one UDR route per unique CIDR (`forcedRouteEntries`; next hop = Firewall private IP). No 0.0.0.0/0 default route is inserted.
-3. Associate the route table + enforced NSG with the Application Gateway subnet (NSG creation is mandatory).
-4. Build firewall allow rules in strict precedence order:
-  * `backendAppPortMaps` (per app + per port specificity; highest)
-  * `backendPrefixPortMaps` (CIDR → port list)
-  * Broad fallback rule: all collected CIDRs + `backendAllowPorts` (only if needed)
-5. Anything not explicitly allowed is denied by the Firewall's default deny.
-
-Result: Minimal egress surface—fine‑grained maps first, broad fallback last.
-
 ## Minimal Parameter File Example
 ```bicep-params
 using './solution.bicep'
