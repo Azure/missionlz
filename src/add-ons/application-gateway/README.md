@@ -28,150 +28,254 @@ Record discovered valid enum names for your environment in a team doc to avoid f
 Example combining inherited global policy, generated listener policy, and explicit external policy:
 
 ```bicep-params
-using 'solution.bicep'
+<!-- markdownlint-disable MD013 -->
+# Application Gateway Add-On (Scenario A: WAF Before Firewall)
+<!-- markdownlint-enable MD013 -->
 
-param location = 'usgovvirginia'
-param hubVnetResourceId = '/subscriptions/<subId>/resourceGroups/<hubRg>/providers/Microsoft.Network/virtualNetworks/<hubVnetName>'
-param commonDefaults = {
-  backendPort: 443
-  backendProtocol: 'Https'
-  healthProbePath: '/healthz'
-  autoscaleMinCapacity: 2
-  autoscaleMaxCapacity: 6
-  probeInterval: 30
-  probeTimeout: 30
-  unhealthyThreshold: 3
-  probeMatchStatusCodes: [ '200-399' ]
-  generatedPolicyMode: 'Prevention'
-  generatedPolicyManagedRuleSetVersion: '3.2'
-}
+## Purpose
 
-param apps = [
-  {
-    name: 'ops'
-    hostNames: [ 'ops.example.gov' ]
-    backendAddresses: [ { fqdn: 'ops-appsvc.azurewebsites.us' } ]
-    certificateSecretId: 'https://kv.vault.usgovcloudapi.net/secrets/ops-cert/<ver>'
-    healthProbePath: '/healthz'
-    addressPrefixes: [ '10.11.10.0/24' ]
-  }
-  {
-    name: 'identity'
-    hostNames: [ 'identity.example.gov' ]
-    backendAddresses: [ { fqdn: 'identity-appsvc.azurewebsites.us' } ]
-    certificateSecretId: 'https://kv.vault.usgovcloudapi.net/secrets/identity-cert/<ver>'
-    addressPrefixes: [ '10.11.20.0/24' ]
-    wafOverrides: { mode: 'Detection' }
-  }
-  {
-    name: 'shared'
-    hostNames: [ 'shared.example.gov' ]
-    backendAddresses: [ { fqdn: 'shared-appsvc.azurewebsites.us' } ]
-    certificateSecretId: 'https://kv.vault.usgovcloudapi.net/secrets/shared-cert/<ver>'
-    addressPrefixes: [ '10.11.30.0/24' ]
-    wafPolicyId: '/subscriptions/<subId>/resourceGroups/<rg>/providers/Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies/shared-explicit-waf'
-  }
-]
+Deploy a single Azure Application Gateway (WAF_v2) in the Mission Landing Zone (MLZ) hub virtual network. Scenario A places TLS termination and WAF inspection **before** traffic reaches Azure Firewall while still enforcing selective, least‑privilege egress from the gateway through the firewall.
 
-param enableDiagnostics = true
-param operationsLogAnalyticsWorkspaceResourceId = '/subscriptions/<subId>/resourceGroups/<opsRg>/providers/Microsoft.OperationalInsights/workspaces/<workspace>'
-param backendAllowPorts = [ '443' ]
-```
+## When to Use
 
-### Incrementally Adding a New Listener
+Use this add-on when you need:
 
-1. Append new element to `apps` with `name`, `hostNames`, `certificateSecretId`, backend addresses.
-2. Supply `addressPrefixes` so selective routing picks up the CIDR.
-3. Omit `wafOverrides` initially; verify health.
-4. Redeploy; confirm new listener appears in outputs (`listenerNames`, `perListenerWafPolicyIds`).
+* Central TLS termination & WAF for multiple internal applications (multi‑site listeners)
+* Per‑application (listener) WAF tuning or explicit listener WAF policies
+* Strong control of egress (only declared backend prefixes are routed through Firewall; no blanket 0.0.0.0/0)
+* Key Vault sourced certificates without storing secrets in the repo
+* Hub‑spoke alignment where application backends live in spokes or expose private endpoints
 
-### Per-Listener Policy Tuning Lifecycle
+Not in scope: Scenario B (gateway behind firewall), Azure Front Door, private‑only frontends.
 
-1. Start with global policy only.
-2. Identify a listener needing different posture (temporary Detection mode, size limits, rule group suppressions).
-3. Add `wafOverrides` block.
-4. Redeploy; confirm generated per-listener policy ID in outputs.
-5. To standardize later, remove overrides and redeploy (listener inherits global again).
+## Architecture Overview
 
-## Autoscale & Subnet Sizing Guidance
+Flow: Internet → Public IP (App Gateway) → WAF (global or per‑listener policy) → Selective UDR (only declared backend CIDRs) → Azure Firewall → Backend (ILB / Private Endpoint / VM / PaaS).
 
-Default subnet size is `/26` for WAF_v2 autoscale headroom. If planning exceptionally high instance counts (>40) consider `/25` or `/24` early. Changing later is disruptive.
+Key design points:
+* Subnet hardened (no default outbound, optional NSG) sized /26 (autoscale headroom)
+* Selective routing: only `apps[].addressPrefixes` appear in route table & firewall rules
+* WAF policy resolver module creates or adopts global policy; per‑listener policies generated only when needed
+* User‑assigned identity always created; optional Key Vault secrets RBAC assignment
+* Diagnostics setting created only when both flag and workspace ID set
 
-## Diagnostics Conditional Activation
+## Components
 
-Diagnostics are deployed only when BOTH:
+| Module | Responsibility |
+|--------|----------------|
+| `solution.bicep` | Orchestration, naming, identity, subnet, route table, NSG, WAF resolver, listener shaping, diagnostics, firewall rules. |
+| `modules/appgateway-core.bicep` | Application Gateway resource, listeners, probes, pools, per‑listener WAF policies. |
+| `modules/wafpolicy-resolver.bicep` | Create or reuse global WAF policy. |
+| `modules/appgateway-subnet.bicep` | Authoritative subnet + delegation + associations. |
+| `modules/appgateway-route-table.bicep` | Builds selective UDRs for backend prefixes. |
+| `modules/appgateway-nsg.bicep` | Baseline NSG (443 + platform) + deny all. |
+| `modules/appgateway-firewall-rules.bicep` | Baseline firewall egress collections + optional custom groups. |
+| `modules/appgateway-diagnostics.bicep` | Diagnostic settings binding. |
+| `modules/resolve-firewall-ip.bicep` | Retrieves firewall private IP. |
+| `modules/kv-role-assignment.bicep` | Optional Key Vault secrets role assignment. |
 
-* `enableDiagnostics = true`
-* `operationsLogAnalyticsWorkspaceResourceId` is non-empty
+## WAF Strategy & Precedence
 
-## Outputs Reference
+Per listener evaluation order:
+1. Explicit `wafPolicyId` on listener (apps entry)
+2. Generated per‑listener policy (if `wafOverrides` or `wafExclusions` present)
+3. Inherit global policy (resolver output)
 
-| Output | Description |
-|--------|-------------|
-| `appGatewayPublicIp` | Gateway public IPv4 address. |
-| `wafPolicyResourceId` | Global WAF policy ID (resolver output). |
-| `perListenerWafPolicyIds` | Effective WAF policy per listener (blank -> global). |
-| `forcedRouteEntries` | Array of `{ prefix, source }` for selective UDR creation. |
-| `backendPoolNames` | Deployed backend pool names. |
-| `listenerNames` | Deployed listener names. |
-| `userAssignedIdentityResourceIdOut` | User-assigned identity resource ID. |
-| `userAssignedIdentityPrincipalId` | Principal ID for RBAC (Key Vault access). |
-| `diagnosticsSettingId` | Diagnostic setting resource ID (blank when disabled). |
+Output `perListenerWafPolicyIds` shows effective policy (blank = inherited global).
 
-## Validation Checklist After Redeploy
+Azure Government Note: Some exclusion `matchVariable` values documented publicly may not yet be accepted. Validate unfamiliar enum values with a temporary test policy before committing them.
 
-1. Listener names appear as expected.
-2. `perListenerWafPolicyIds` blanks indicate inheritance; IDs indicate explicit/generated policies.
-3. `forcedRouteEntries` matches union of all `addressPrefixes`.
-4. Subnet NSG + disabled default outbound access present.
-5. Certificates resolve (Portal -> SSL certificates list Key Vault).
-6. Health probes green; if Detection mode used temporarily, schedule revert.
+## App (Listener) Object Schema
 
-## Common Customization Scenarios
+Each element in `apps` drives one HTTPS multi‑site listener plus its backend pool and optional per‑listener WAF policy.
 
-| Scenario | Change | Affected Parameters |
-|----------|--------|---------------------|
-| Add new backend subnet | Append CIDR to app's `addressPrefixes` | `apps[].addressPrefixes` |
-| Switch listener to Detection for troubleshooting | Add `wafOverrides.mode = 'Detection'` | `apps[].wafOverrides` |
-| Introduce explicit central policy | Set `wafPolicyId` and remove overrides | `apps[].wafPolicyId` |
-| Raise max body size for a specific listener | Set `wafOverrides.maxRequestBodySizeInKb` | `apps[].wafOverrides` |
-| Global mode change | Update global policy parameters | `wafPolicyMode` (if exposed) / reconfigure existing policy |
-| Add custom Firewall egress group | Append to `customAppGatewayFirewallRuleCollectionGroups` | `customAppGatewayFirewallRuleCollectionGroups` |
-| Disable diagnostics temporarily | Set `enableDiagnostics = false` or clear workspace ID | `enableDiagnostics`, `operationsLogAnalyticsWorkspaceResourceId` |
-| Scale out capacity | Increase `autoscaleMaxCapacity` | `commonDefaults.autoscaleMaxCapacity` |
-| Tune probe sensitivity | Adjust timing thresholds | `commonDefaults` or per-app overrides |
-<!-- Duplicate introductory H1 removed above to satisfy markdown lint rules -->
+| Field | Type | Required | Purpose |
+|-------|------|----------|---------|
+| `name` | string | yes | Seed for listener/pool/probe names. |
+| `hostNames` | string[] | yes | Host headers for multi‑site routing. |
+| `backendAddresses` | object[] | yes | `{ fqdn }` or `{ ipAddress }` entries. |
+| `certificateSecretId` | string | yes | Versioned Key Vault secret for certificate. |
+| `addressPrefixes` | string[] | recommended | Backend CIDRs for selective routing & firewall allow rules. |
+| `backendPort` / `backendProtocol` | int / string | no | Override defaults (default 443 / Https). |
+| `healthProbePath` / `probeInterval` / `probeTimeout` / `unhealthyThreshold` / `probeMatchStatusCodes` | mixed | no | Per listener probe tuning. |
+| `backendHostHeader` | string | no | Override Host header for backend & probe (SNI alignment). |
+| `wafPolicyId` | string | no | Explicit existing listener WAF policy (skip generation). |
+| `wafExclusions` | array | no | List of baseline exclusions (triggers generated policy). |
+| `wafOverrides` | object | no | Inline tuning (mode, sizes, ruleGroupOverrides, exclusions). |
 
-## Objectives
+Legacy `addressPrefix` (single) still accepted; prefer `addressPrefixes`.
 
-* Single WAF_v2 Application Gateway in hub VNet (subnet name default: `AppGateway`).
-* TLS termination + centralized WAF policy (OWASP CRS) in Prevention (default) or Detection mode.
-* **Selective forced routing**: only declared backend CIDR prefixes are routed via the Firewall (no blanket 0.0.0.0/0 to avoid asymmetric health probe paths).
-* Scalable multi‑application (multi‑listener) model: add or remove apps by updating the `apps` array (idempotent redeploy).
-* Inherited defaults via a `commonDefaults` object; every app can override any setting (probes, port, protocol, WAF tuning, status codes, host header, etc.).
-* Optional per‑listener WAF policies generated automatically when `wafOverrides` or `wafExclusions` are supplied and no explicit `wafPolicyId` is provided.
-* Host header override support (`backendHostHeader`) to preserve SNI / certificate matching when resolving private endpoints for public FQDNs.
-* Key Vault sourced certificates (user‑assigned identity RBAC assignment can be auto‑created; no secrets stored in repo).
-* Optional diagnostics integration (Log Analytics) — activated only when both `enableDiagnostics = true` **and** `operationsLogAnalyticsWorkspaceResourceId` is non‑empty.
-* Separation of concerns: subnet, NSG, route table, WAF policy resolution, per‑listener policy generation, and firewall egress rules are modularized for hub-spoke alignment.
+### `wafOverrides` Object (selected keys)
 
-## Traffic Flow
+| Key | Meaning | Default Source |
+|-----|---------|----------------|
+| `mode` | Detection or Prevention | `commonDefaults.generatedPolicyMode` or global policy mode |
+| `requestBodyCheck` | Enable inspection | global / generated defaults |
+| `maxRequestBodySizeInKb` | Body size limit | global default (128) |
+| `fileUploadLimitInMb` | Upload size limit | global default (100) |
+| `managedRuleSetVersion` | OWASP CRS version | generated/global default (3.2) |
+| `exclusions` | Additional exclusions | empty [] |
+| `ruleGroupOverrides` | Fine rule actions | empty [] |
 
-Internet -> Public IP (AppGW) -> TLS Termination + WAF -> (Selective UDR Next Hop: Firewall for declared backend prefixes) -> Backend (ILB / Private Endpoint / Internal FQDN)
-
-## Parameter Model
-
-At the top level `solution.bicep` exposes (primary subset):
+## Parameter Highlights (`solution.bicep`)
 
 | Parameter | Purpose |
 |-----------|---------|
-| `apps` | Array of listener/back‑end definitions (see structure below). |
-| `commonDefaults` | Global baseline applied to each app unless overridden (ports, probe timing, acceptable status codes, autoscale, WAF generation defaults, etc.). |
-| `existingWafPolicyId` | Attach an existing global WAF policy instead of generating a new one. |
-| (auto) userAssignedIdentity | Always created idempotently using MLZ naming conventions (abbreviation derives from naming module) and optionally granted Key Vault secrets read role. |
-| `backendAllowPorts` | Baseline allowed egress ports from AppGW subnet to backends (used in firewall rule set). |
-| `customAppGatewayFirewallRuleCollectionGroups` | Additional Firewall rule collection groups (merged with baseline). |
-| `disablePrivateEndpointNetworkPolicies` | (Default true) Prevents Private Endpoints inside the AppGW subnet. |
+| `hubVnetResourceId` | Hub VNet hosting gateway subnet. |
+| `appGatewaySubnetAddressPrefix` | Subnet CIDR (default /26). |
+| `apps` / `commonDefaults` | Listener definitions + shared defaults. |
+| `existingWafPolicyId` | Reuse existing global WAF policy. |
+| `backendAllowPorts` | Broad allowed ports when not using detailed maps. |
+| `backendPrefixPortMaps` / `backendAppPortMaps` | Detailed per‑prefix or per‑app port rules (firewall). |
+| `customAppGatewayFirewallRuleCollectionGroups` | Append custom firewall policy groups. |
+| `enableDiagnostics` + `operationsLogAnalyticsWorkspaceResourceId` | Diagnostics gating (both required). |
+| `createSubnetNsg` | Toggle NSG creation. |
+| `createKeyVaultSecretAccessRole` | Assign Secrets User to user‑assigned identity. |
+| WAF tuning params | Global policy creation (mode, version, sizes). |
+
+## Selective Routing & Firewall Rules
+
+* Route table only includes declared backend CIDRs (no 0.0.0.0/0) — avoids asymmetric probe paths.
+* Firewall baseline rule group adds:
+  * Platform service tags (AAD, ARM, Traffic Manager, Monitor, Storage) 443
+  * CRL/OCSP FQDNs for certificate revocation
+  * Backend allow collection built from (precedence): `backendAppPortMaps` → `backendPrefixPortMaps` → (`backendPrefixes` + `backendAllowPorts`)
+
+## Diagnostics
+
+Created only when:
+1. `enableDiagnostics = true`
+2. `operationsLogAnalyticsWorkspaceResourceId` not empty
+
+## Deployment
+
+### Minimal Parameter File
+
+```bicep-params
+using './solution.bicep'
+
+param location = 'usgovvirginia'
+param hubVnetResourceId = '/subscriptions/<subId>/resourceGroups/<hubRg>/providers/Microsoft.Network/virtualNetworks/<hub-vnet>'
+param commonDefaults = {
+  backendPort: 443
+  backendProtocol: 'Https'
+  healthProbePath: '/'
+  autoscaleMinCapacity: 1
+  autoscaleMaxCapacity: 2
+  generatedPolicyMode: 'Prevention'
+  generatedPolicyManagedRuleSetVersion: '3.2'
+}
+param apps = [
+  {
+    name: 'app1'
+    hostNames: [ 'app1.example.gov' ]
+    certificateSecretId: 'https://kv-example.vault.usgovcloudapi.net/secrets/app1cert/<version>'
+    backendAddresses: [ { fqdn: 'app1-pe-appservice.azurewebsites.us' } ]
+    addressPrefixes: [ '10.50.1.0/24' ]
+  }
+]
+```
+
+### Mixed WAF Strategies Example
+
+```bicep-params
+// Inherit global, generate, explicit
+param apps = [
+  { name: 'ops'; hostNames: ['ops.example.gov']; certificateSecretId: 'https://kv/.../ops/<ver>'; backendAddresses: [{ fqdn: 'ops-pe.azurewebsites.us' }]; addressPrefixes: ['10.11.10.0/24'] }
+  { name: 'identity'; hostNames: ['identity.example.gov']; certificateSecretId: 'https://kv/.../identity/<ver>'; backendAddresses: [{ fqdn: 'identity-pe.azurewebsites.us' }]; addressPrefixes: ['10.11.20.0/24']; wafOverrides: { mode: 'Detection' } }
+  { name: 'shared'; hostNames: ['shared.example.gov']; certificateSecretId: 'https://kv/.../shared/<ver>'; backendAddresses: [{ fqdn: 'shared-pe.azurewebsites.us' }]; addressPrefixes: ['10.11.30.0/24']; wafPolicyId: '/subscriptions/.../providers/Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies/shared-explicit' }
+]
+```
+
+### CLI Deploy (Subscription Scope)
+
+```powershell
+az deployment sub create `
+  --name appgw-scenarioA `
+  --location usgovvirginia `
+  --template-file src/add-ons/application-gateway/solution.bicep `
+  --parameters @path\to\file.bicepparam
+```
+
+### Portal Deploy
+
+This add-on includes a `solution.json` and `uiDefinition.json` enabling portal deployment (Commercial & Gov). Use the standard Deploy to Azure buttons (see repository root README) or custom deployment blade with raw GitHub URLs.
+
+## Validation Checklist
+
+After deploy verify:
+
+1. `appGatewayPublicIp` output resolves to static IP; DNS (if any) updated.
+2. `listenerNames` list matches all apps.
+3. `perListenerWafPolicyIds` contains IDs only for listeners with overrides/exclusions/explicit policies; blanks otherwise.
+4. `forcedRouteEntries` contains only declared backend CIDRs.
+5. Subnet shows NSG and route table associations; no default 0.0.0.0/0 route.
+6. Backend health probes green.
+7. Firewall policy rule collection group shows platform + backend rules.
+
+## Common Customizations
+
+| Goal | Change |
+|------|--------|
+| Add new app | Append to `apps` with hostNames, cert, backendAddresses, addressPrefixes. |
+| Temporarily relax WAF | Add `wafOverrides: { mode: 'Detection' }` for that app. |
+| Explicit listener policy | Set `wafPolicyId` (remove overrides). |
+| Increase body size | Set `wafOverrides.maxRequestBodySizeInKb`. |
+| Add backend port range | Use `backendPrefixPortMaps` or `backendAppPortMaps`. |
+| More capacity | Raise `commonDefaults.autoscaleMaxCapacity`. |
+| Disable diagnostics | Set `enableDiagnostics=false` or clear workspace ID. |
+
+## Troubleshooting Tips
+
+| Symptom | Likely Cause | Action |
+|---------|-------------|--------|
+| Deployment fails on exclusion enum | Unsupported `matchVariable` in Gov | Probe with temporary test policy. |
+| Listener health 502 | Host header mismatch | Set `backendHostHeader`. |
+| Unexpected broad routing | Overly broad `addressPrefixes` (e.g. /16) | Narrow to specific backend subnets. |
+| Overrides ignored | `wafPolicyId` also set | Remove overrides or drop explicit policy. |
+| No diagnostics | Missing workspace ID or flag false | Provide both or disable flag. |
+
+## Outputs
+
+| Output | Description |
+|--------|-------------|
+| `appGatewayPublicIp` | Public IPv4 address. |
+| `wafPolicyResourceId` | Global WAF policy ID. |
+| `perListenerWafPolicyIds` | Effective listener policy IDs (blank = global). |
+| `forcedRouteEntries` | Objects: `{ prefix, source }` for UDR creation. |
+| `listenerNames` | Listener resource names. |
+| `backendPoolNames` | Backend pool names. |
+| `userAssignedIdentityResourceIdOut` | Identity resource ID. |
+| `userAssignedIdentityPrincipalId` | Identity principal ID (RBAC). |
+| `diagnosticsSettingId` | Diagnostic setting (blank if disabled). |
+
+## Files
+
+| File | Purpose |
+|------|---------|
+| `solution.bicep` | Entry point (subscription scope). |
+| `solution.json` / `uiDefinition.json` | Portal deployment artifacts. |
+| `modules/appgateway-core.bicep` | Gateway + listeners + per-listener WAF. |
+| `modules/wafpolicy-resolver.bicep` | Global WAF creation/adoption. |
+| `modules/appgateway-subnet.bicep` | Subnet & delegation. |
+| `modules/appgateway-route-table.bicep` | Selective UDRs. |
+| `modules/appgateway-nsg.bicep` | Baseline NSG. |
+| `modules/appgateway-firewall-rules.bicep` | Firewall policy rule groups. |
+| `modules/appgateway-diagnostics.bicep` | Diagnostics setting. |
+| `modules/resolve-firewall-ip.bicep` | Firewall private IP lookup. |
+| `modules/kv-role-assignment.bicep` | Key Vault Secrets RBAC. |
+
+## Change Log
+
+Major recent enhancements:
+
+* Per-listener WAF policy generation & precedence logic
+* Selective routing refactor (deduplicated prefixes)
+* Diagnostics gating (both flag + workspace ID)
+* Expanded README with structured patterns (this rewrite)
+
+---
+Feedback & issues: open a GitHub issue with the commit hash and a clear reproduction or enhancement rationale.
 | `enableDiagnostics` / `operationsLogAnalyticsWorkspaceResourceId` | Control diagnostics creation/association (both required). |
 | `createSubnetNsg` | Toggle creation of NSG specifically for AppGW subnet. |
 | `createKeyVaultSecretAccessRole` | Create Key Vault Secrets User RBAC assignment for the user-assigned identity (derived from first cert secret). |
