@@ -325,37 +325,7 @@ Portal deployment is also supported via `solution.json` + `uiDefinition.json` ar
 
 <!-- Output Details section removed; consolidated into single Outputs table above -->
 
-## File Map
-
-| File | Description |
-|------|-------------|
-| `solution.bicep` | Subscription‑scope orchestrator. |
-| `solution.json` / `uiDefinition.json` | Portal deployment assets. |
-| `modules/appgateway-core.bicep` | Gateway definition & listener logic. |
-| `modules/wafpolicy-resolver.bicep` | Global WAF policy creation / reuse. |
-| `modules/appgateway-subnet.bicep` | Subnet + delegation + enforced NSG association. |
-| `modules/appgateway-route-table.bicep` | Route table & targeted routes. |
-| `modules/appgateway-nsg.bicep` | Network security group. |
-| `modules/appgateway-firewall-rules.bicep` | Firewall policy rule groups. |
-| `modules/appgateway-diagnostics.bicep` | Diagnostic settings. |
-| `modules/resolve-firewall-ip.bicep` | Firewall IP resolution. |
-| `modules/kv-role-assignment.bicep` | Optional Key Vault RBAC assignment. |
-
-
-
-> Provide **only** the CIDRs requiring egress via Firewall in `addressPrefixes`; the template emits one `forcedRouteEntries` item per CIDR you specify.
-
-## Modules
-
-* `solution.bicep` – orchestration (naming inference, subnet creation, NSG/route table, WAF policy resolution, diagnostics, firewall rules, per‑listener object shaping, identity RBAC to Key Vault).
-* `modules/appgateway-core.bicep` – gateway resource, dynamic listeners, pools, probes, autoscale, generated per‑listener WAF policies.
-* `modules/appgateway-subnet.bicep` – authoritative subnet definition with enforced NSG & route table association.
-* `modules/appgateway-route-table.bicep` – constructs forced routes referencing only declared backend CIDRs (no 0.0.0.0/0).
-* `modules/appgateway-diagnostics.bicep` – diagnostic settings binding to LA workspace.
-* `modules/appgateway-firewall-rules.bicep` – firewall policy rule collection groups (baseline + custom additions).
-* `modules/wafpolicy-resolver.bicep` – resolves existing or creates baseline WAF policy.
-* `modules/kv-role-assignment.bicep` – optional Key Vault secrets RBAC assignment for user‑assigned identity.
-* `modules/resolve-firewall-ip.bicep` – resolves Firewall private IP used in routes & firewall rule logic.
+<!-- Removed File Map and Modules sections as redundant with earlier explanations. Key guidance about specifying only needed CIDRs is already covered in Routing & Firewall. -->
 
 ## Scaling
 
