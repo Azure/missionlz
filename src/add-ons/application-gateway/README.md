@@ -1,4 +1,3 @@
-<!-- README intentionally scoped to IaC contract & invariants. Advanced operational guidance lives in ADVANCED.md. -->
 
 # Application Gateway Add-On for MLZ Hub
 
@@ -335,10 +334,7 @@ Portal deployment is also supported via `solution.json` + `uiDefinition.json` ar
 | `modules/resolve-firewall-ip.bicep` | Firewall IP resolution. |
 | `modules/kv-role-assignment.bicep` | Optional Key Vault RBAC assignment. |
 
-<!-- Removed duplicate Change History section -->
 
----
-Please file issues or enhancement requests with the commit hash for traceability.
 
 > Provide **only** the CIDRs requiring egress via Firewall in `addressPrefixes`; template deduplicates them and produces `forcedRouteEntries` output.
 
@@ -570,12 +566,4 @@ Exclude unused keys—they inherit from generated defaults or global policy base
 | enableDiagnostics without workspace ID | No diagnostics deployed | Provide workspace ID or disable diagnostics |
 | backendHostHeader mismatch | 502/SSL errors | Match header to cert CN/SAN |
 
----
-These clarifications are structural; operational runtime behaviors (monitoring, performance analysis) remain intentionally out of scope.
 
-## Scope Clarification
-
-Operational guidance (KQL queries, troubleshooting, health probe response strategies, runtime dashboards) is intentionally excluded. This document focuses on structural deployment integration within MLZ hub-spoke, routing mechanics, listener configuration surface, and composing parameter input for TLS/WAF enablement.
-
----
-Active implementation; README constrained to integration & configuration scope. Report mismatches via issue with commit hash.
