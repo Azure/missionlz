@@ -127,10 +127,7 @@ param apps = [
 NOTE: If a removed app previously had a generated per-listener WAF policy (due to overrides/exclusions), that standalone WAF policy resource is not auto-deleted in incremental mode and becomes an orphan. Delete manually if no longer needed.
 
 ## Non-Goals
-Operational runbooks, performance tuning strategies, false positive triage, health probe debugging, and general Azure Application Gateway operational guidance are intentionally excluded. See `ADVANCED.md` for extended material.
-
-## Advanced Guidance
-See [ADVANCED.md](./ADVANCED.md) for WAF tuning, exclusions, certificate rotation, orphan policy cleanup, and deep troubleshooting.
+Operational runbooks, performance tuning strategies, false positive triage, health probe debugging, and general Azure Application Gateway operational guidance are intentionally excluded. For those advanced topics (WAF tuning, exclusions, certificate rotation, orphan policy cleanup, deep troubleshooting) see [ADVANCED.md](./ADVANCED.md).
 
 Provide only CIDRs requiring firewall egress in `addressPrefixes`.
 
