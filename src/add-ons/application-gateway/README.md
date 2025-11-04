@@ -37,8 +37,6 @@ Minimal deployment requires only a handful of top‑level parameters. Everything
 | `commonDefaults` | Shared listener defaults (ports, protocol, probe timings, autoscale bounds, generated WAF defaults). |
 | `operationsLogAnalyticsWorkspaceResourceId` | Optional diagnostics sink (blank to omit). |
 
-Firewall Policy: No parameter is accepted for a firewall policy resource ID. The module derives the expected Firewall Policy name via the MLZ naming convention (`azureFirewallPolicy`) and attaches rule collection groups to that existing policy. Ensure the hub Firewall Policy exists; if it does not, egress rule collection groups are not deployed (gateway still deploys).
-
 ## WAF Policy Resolution
 | Condition | Result |
 |-----------|--------|
