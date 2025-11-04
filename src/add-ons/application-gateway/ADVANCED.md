@@ -74,8 +74,7 @@ Explicit external policy (overrides ignored):
 ```
 
 
-## 3. Decision Matrix: FQDN vs IP (Moved)
-Moved to the main README for deployer visibility. Retained here only as a pointer to avoid duplication.
+
 
 ## 4. WAF Override Minimal Patterns
 Disable a single rule:
