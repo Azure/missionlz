@@ -13,6 +13,7 @@ Deploys an Azure Application Gateway (WAF_v2) in the Mission Landing Zone (MLZ) 
 * The gateway's managed identity automatically gets Key Vault Secrets read access (when the certificate secret's vault can be inferred).
 * Safe re-run: deploying again with the same parameters doesn't change anything.
 * Diagnostics appear only if you enable them AND supply a workspace ID.
+* Diagnostics enabled automatically when you supply a Log Analytics workspace resource ID (omit to skip).
 
 ## Architecture Flow
 Client → AppGW Public IP → WAF (global or per‑listener) → Forced route (declared backend CIDR) → Azure Firewall → Backend.
@@ -66,7 +67,8 @@ Client → AppGW Public IP → WAF (global or per‑listener) → Forced route (
 | `backendPrefixPortMaps` / `backendAppPortMaps` | Granular firewall shaping precedence. |
 | `backendAllowPorts` | Fallback ports when maps absent. |
 | `customAppGatewayFirewallRuleCollectionGroups` | Extra firewall allow groups. |
-| `enableDiagnostics` & `operationsLogAnalyticsWorkspaceResourceId` | Both required for diagnostics. |
+| `operationsLogAnalyticsWorkspaceResourceId` | Log Analytics workspace ID (diagnostics enabled automatically when set). |
+| `operationsLogAnalyticsWorkspaceResourceId` | Log Analytics workspace ID (diagnostics enabled automatically when set). |
 | WAF tuning params (global) | Applied only when creating new global policy. |
 
 ## Core Outputs
@@ -194,7 +196,10 @@ Each element maps to one HTTPS listener (multi‑site host names) plus a backend
 | `backendPrefixPortMaps` / `backendAppPortMaps` | Fine‑grained firewall rule shaping. |
 | `customAppGatewayFirewallRuleCollectionGroups` | Additional firewall policy rule groups. |
 | (NSG always enforced) | Not applicable—cannot disable via parameter. |
-| `enableDiagnostics` & `operationsLogAnalyticsWorkspaceResourceId` | Both required to emit diagnostics. |
+| `operationsLogAnalyticsWorkspaceResourceId` | Diagnostics emitted when provided; leave empty to omit. |
+| `operationsLogAnalyticsWorkspaceResourceId` | Diagnostics emitted when provided; leave empty to omit. |
+| Add diagnostics | Provide `operationsLogAnalyticsWorkspaceResourceId`. |
+| Remove diagnostics | Clear `operationsLogAnalyticsWorkspaceResourceId`. |
 | WAF tuning params (`wafPolicyMode`, `wafManagedRuleSetVersion`, etc.) | Influence new global policy creation. |
 
 ## Routing & Firewall Integration
@@ -216,6 +221,8 @@ The first available app (or `commonDefaults.defaultCertificateSecretId` if prese
 One user‑assigned identity is created every deployment; its resource & principal IDs are returned as outputs for downstream RBAC (Key Vault, logging, etc.).
 
 ## Diagnostics
+
+Diagnostics are created automatically when you provide a valid Log Analytics workspace resource ID via `operationsLogAnalyticsWorkspaceResourceId`. Leave it empty to skip deployment of the diagnostic setting (output blank). No separate enable flag exists.
 
 Diagnostics module is parameter‑gated; if either the boolean flag is false or the workspace ID is empty no diagnostic setting resource is created (output left blank). This avoids accidental noise or cross‑subscription log writes.
 
@@ -291,7 +298,7 @@ Portal deployment is also supported via `solution.json` + `uiDefinition.json` ar
 | Switch to explicit policy | Set `wafPolicyId`, remove overrides & exclusions. |
 | Increase autoscale ceiling | Update `commonDefaults.autoscaleMaxCapacity`. |
 | Expand backend ports | Add to `backendPrefixPortMaps` or `backendAppPortMaps`. |
-| Disable diagnostics | Set `enableDiagnostics = false` OR empty workspace id. |
+| Remove diagnostics | Clear `operationsLogAnalyticsWorkspaceResourceId`. |
 | Mandatory NSG enforcement | Removed prior optional toggle; hardens baseline by default. |
 
 ## Troubleshooting
@@ -465,8 +472,9 @@ param apps = [
 ]
 
 // Optional diagnostics
-param enableDiagnostics = true
+// Optional diagnostics (add workspace ID to enable)
 param operationsLogAnalyticsWorkspaceResourceId = '/subscriptions/<subId>/resourceGroups/<opsRg>/providers/Microsoft.OperationalInsights/workspaces/<laWorkspace>'
+| No diagnostics output | Workspace ID omitted | Provide `operationsLogAnalyticsWorkspaceResourceId`. |
 ```
 
 Guidance:
@@ -563,7 +571,8 @@ Exclude unused keys—they inherit from generated defaults or global policy base
 | Overly broad addressPrefixes | Unintended routing | Replace with granular CIDRs |
 | Overrides + wafPolicyId both supplied | Overrides ignored | Advanced use: remove overrides when using `wafPolicyId` |
 | Supplying identity parameters | No effect | Remove identity params (auto-created) |
-| enableDiagnostics without workspace ID | No diagnostics deployed | Provide workspace ID or disable diagnostics |
+| Workspace ID omitted | No diagnostics deployed | Provide workspace ID to enable diagnostics |
+| Workspace ID omitted | No diagnostics deployed | Provide workspace ID to enable diagnostics |
 | backendHostHeader mismatch | 502/SSL errors | Match header to cert CN/SAN |
 
 

@@ -46,8 +46,6 @@ param networkName string = 'hub'
 param resourceAbbreviations object = loadJsonContent('../../data/resource-abbreviations.json')
 @description('Optional override for Key Vault resource group (defaults to hub RG).')
 param keyVaultResourceGroupName string = ''
-@description('Enable diagnostics (Log Analytics) for the Application Gateway')
-param enableDiagnostics bool = true
 @description('Resource ID of the operations Log Analytics Workspace used for diagnostics (leave empty to skip).')
 param operationsLogAnalyticsWorkspaceResourceId string = ''
 
@@ -314,15 +312,15 @@ module appgwCore 'modules/appgateway-core.bicep' = {
   }
 }
 
-// Diagnostics (conditional) - single parameter pattern consistent with other add-ons
-var effectiveEnableDiagnostics = enableDiagnostics && !empty(operationsLogAnalyticsWorkspaceResourceId)
+// Diagnostics: always declare module; internal enable flag driven by presence of workspace ID
+var diagnosticsEnabled = !empty(operationsLogAnalyticsWorkspaceResourceId)
 module appgwDiagnostics 'modules/appgateway-diagnostics.bicep' = {
   name: 'appgwDiagnostics'
   scope: resourceGroup(hubRgName)
   params: {
     logAnalyticsWorkspaceId: operationsLogAnalyticsWorkspaceResourceId
     appGatewayName: naming.outputs.names.applicationGateway
-    enable: effectiveEnableDiagnostics
+    enable: diagnosticsEnabled
   }
 }
 
@@ -353,7 +351,7 @@ output backendPoolNames array = appgwCore.outputs.backendPoolNames
 output perListenerWafPolicyIds array = appgwCore.outputs.effectivePerListenerWafPolicyIds
 output forcedRouteEntries array = effectiveInternalForcedRouteEntries
 // Diagnostics output intentionally omitted to avoid conditional module reference at compile time
-output diagnosticsSettingId string = effectiveEnableDiagnostics ? appgwDiagnostics.outputs.diagnosticsSettingId : ''
+output diagnosticsSettingId string = diagnosticsEnabled ? appgwDiagnostics.outputs.diagnosticsSettingId : ''
 output operationsLogAnalyticsWorkspaceResourceIdOut string = operationsLogAnalyticsWorkspaceResourceId
 output userAssignedIdentityResourceIdOut string = effectiveUserAssignedIdentityResourceId
 output userAssignedIdentityPrincipalId string = userAssignedIdentity.outputs.principalId
