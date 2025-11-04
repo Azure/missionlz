@@ -1,7 +1,7 @@
  # Application Gateway Add-On (MLZ Hub)
 
 ## Overview
-Deploys an Azure Application Gateway (WAF_v2) in the MLZ hub for: HTTPS termination, Web Application Firewall enforcement, and selective forced routing of ONLY declared backend CIDRs through Azure Firewall. This document intentionally focuses on the infrastructure contract (parameters, listener schema, routing model, WAF policy resolution, certificates, and outputs). It is NOT an operational runbook: performance tuning, false‑positive triage, probe debugging, and broader Application Gateway operations are out of scope—see `ADVANCED.md` for deep WAF tuning, exclusions, certificate rotation, orphan policy cleanup, and advanced troubleshooting.
+Deploys an Azure Application Gateway (WAF_v2) in the MLZ hub for: HTTPS termination, Web Application Firewall enforcement, and selective forced routing of ONLY declared backend CIDRs through Azure Firewall. This document intentionally focuses on the infrastructure contract (parameters, listener schema, routing model, WAF policy resolution, certificates, and outputs). It is NOT an operational runbook: performance tuning, false‑positive triage, probe debugging, and broader Application Gateway operations are out of scope—see `ADVANCED.md` for deep WAF tuning, exclusions, certificate rotation, orphan policy cleanup, and advanced troubleshooting. This add-on is intentionally MLZ-specific and assumes the presence of the MLZ hub Azure Firewall and its Firewall Policy named via the MLZ naming convention; it is not a general-purpose standalone template.
 
 ## Prerequisites
 * Existing MLZ hub virtual network and resource group (Application Gateway deploys into a dedicated subnet you supply / that the template creates when absent).
@@ -42,8 +42,9 @@ Minimal deployment requires only a handful of top‑level parameters. Everything
 | `appGatewaySubnetAddressPrefix` | CIDR for (or of) the dedicated subnet. |
 | `apps` | Array of listener/backends (each must include cert + backend addresses + at least one `addressPrefixes` CIDR). |
 | `commonDefaults` | Shared listener defaults (ports, protocol, probe timings, autoscale bounds, generated WAF defaults). |
-| `firewallPolicyResourceId` (or equivalent param) | Existing Firewall Policy to attach rule collection groups (needed for selective egress). |
 | `operationsLogAnalyticsWorkspaceResourceId` | Optional diagnostics sink (blank to omit). |
+
+Firewall Policy: No parameter is accepted for a firewall policy resource ID. The module derives the expected Firewall Policy name via the MLZ naming convention (`azureFirewallPolicy`) and attaches rule collection groups to that existing policy. Ensure the hub Firewall Policy exists; if it does not, egress rule collection groups are not deployed (gateway still deploys).
 
 ## WAF Policy Resolution
 | Condition | Result |
@@ -68,58 +69,18 @@ Minimal deployment requires only a handful of top‑level parameters. Everything
 | `userAssignedIdentityPrincipalId` | Identity principal ID. |
 | `diagnosticsSettingId` | Diagnostic setting ID (blank when workspace ID omitted). |
 
-## Minimal Parameter File Example
-```bicep-params
-using './solution.bicep'
-param location = 'usgovvirginia'
-param hubVnetResourceId = '/subscriptions/<subId>/resourceGroups/<hubRg>/providers/Microsoft.Network/virtualNetworks/<hub-vnet>'
-param commonDefaults = {
-  backendPort: 443
-  backendProtocol: 'Https'
-  healthProbePath: '/'
-  autoscaleMinCapacity: 1
-  autoscaleMaxCapacity: 2
-  generatedPolicyMode: 'Prevention'
-  generatedPolicyManagedRuleSetVersion: '3.2'
-}
-param apps = [
-  {
-    name: 'web1'
-    hostNames: [ 'web1.example.gov' ]
-    certificateSecretId: 'https://kv-example.vault.usgovcloudapi.net/secrets/web1cert/<version>'
-    backendAddresses: [ { fqdn: 'web1-pe.azurewebsites.us' } ]
-    addressPrefixes: [ '10.60.10.0/24' ]
-  }
-]
-```
-
 ## Routine Operations (Idempotent)
 | Action | Required Input Change |
 |--------|-----------------------|
 | Add listener/app | Append new object to `apps`. |
 | Remove listener/app | Delete object from `apps` (removes listener + pool + probe + routing rule + certificate reference). |
-| Introduce inline WAF tuning | Add `wafOverrides` or `wafExclusions` (creates policy). |
+| Introduce inline WAF tuning | Add `wafOverrides` or `wafExclusions` (creates per-listener policy). |
 | Adopt external listener policy | Set `wafPolicyId`; remove overrides/exclusions. |
 | Switch global to external | Set `existingWafPolicyId`. |
 | Expand allowed egress ports | Update maps or `backendAllowPorts`. |
-| Add diagnostics | Provide `operationsLogAnalyticsWorkspaceResourceId` (existing setting persists if you later clear it; manual delete required). |
+| Add diagnostics | Provide `operationsLogAnalyticsWorkspaceResourceId` (setting persists if later cleared; delete manually to remove). |
 
-NOTE: If a removed app previously had a generated per-listener WAF policy (due to overrides/exclusions), that standalone WAF policy resource is not auto-deleted in incremental mode and becomes an orphan. Delete manually if no longer needed.
-
-<!-- Non-Goals section merged into Overview to reduce section noise. -->
-
-## Outputs
-| Output | Meaning |
-|--------|---------|
-| `appGatewayPublicIp` | Static IPv4. |
-| `wafPolicyResourceId` | Global policy ID. |
-| `perListenerWafPolicyIds` | Listener→policy mapping (blank = inherit). |
-| `forcedRouteEntries` | Objects for each unique backend CIDR. |
-| `listenerNames` | Listener resource names. |
-| `backendPoolNames` | Backend pool names. |
-| `userAssignedIdentityResourceIdOut` | Identity resource ID. |
-| `userAssignedIdentityPrincipalId` | Identity principal ID. |
-| `diagnosticsSettingId` | Diagnostic setting ID (blank when workspace ID omitted). |
+NOTE: If a removed app previously had a synthesized per-listener WAF policy (due to overrides/exclusions), that standalone WAF policy resource is not auto-deleted in incremental mode and becomes an orphan. Delete manually if no longer needed.
 
 ## Firewall Rule Precedence & NSG Egress Controls
 The firewall rule module constructs collections in deterministic order inside a baseline rule collection group:
@@ -152,45 +113,7 @@ Workflow:
   * Broad fallback rule: all collected CIDRs + `backendAllowPorts` (only if needed)
 5. Anything not explicitly allowed is denied by the Firewall's default deny.
 
-Result: Minimal egress surface—fine‑grained maps first, broad fallback last.
-
-## Minimal Parameter File Example
-```bicep-params
-using './solution.bicep'
-param location = 'usgovvirginia'
-param hubVnetResourceId = '/subscriptions/<subId>/resourceGroups/<hubRg>/providers/Microsoft.Network/virtualNetworks/<hub-vnet>'
-param commonDefaults = {
-  backendPort: 443
-  backendProtocol: 'Https'
-  healthProbePath: '/'
-  autoscaleMinCapacity: 1
-  autoscaleMaxCapacity: 2
-  generatedPolicyMode: 'Prevention'
-  generatedPolicyManagedRuleSetVersion: '3.2'
-}
-param apps = [
-  {
-    name: 'web1'
-    hostNames: [ 'web1.example.gov' ]
-    certificateSecretId: 'https://kv-example.vault.usgovcloudapi.net/secrets/web1cert/<version>'
-    backendAddresses: [ { fqdn: 'web1-pe.azurewebsites.us' } ]
-    addressPrefixes: [ '10.60.10.0/24' ]
-  }
-]
-```
-
-## Routine Operations (Idempotent)
-| Action | Required Input Change |
-|--------|-----------------------|
-| Add listener/app | Append new object to `apps`. |
-| Remove listener/app | Delete object from `apps` (removes listener + pool + probe + routing rule + certificate reference). |
-| Introduce inline WAF tuning | Add `wafOverrides` or `wafExclusions` (creates policy). |
-| Adopt external listener policy | Set `wafPolicyId`; remove overrides/exclusions. |
-| Switch global to external | Set `existingWafPolicyId`. |
-| Expand allowed egress ports | Update maps or `backendAllowPorts`. |
-| Add diagnostics | Provide `operationsLogAnalyticsWorkspaceResourceId` (existing setting persists if you later clear it; manual delete required). |
-
-NOTE: If a removed app previously had a generated per-listener WAF policy (due to overrides/exclusions), that standalone WAF policy resource is not auto-deleted in incremental mode and becomes an orphan. Delete manually if no longer needed.
+Result: Minimal egress surface—fine‑grained maps first, broad fallback last. The template resolves the Azure Firewall private IP automatically (no hardcoded next hop).
 
 ## Detailed Listener Definition Reference
 
@@ -209,6 +132,18 @@ Each element maps to one HTTPS listener (multi‑site host names) plus a backend
 | `wafPolicyId` | no | Advanced: attach existing externally managed policy (overrides/ exclusions ignored if both supplied). |
 | `wafExclusions` | no | Exclusions list; triggers synthesized per-listener policy (when no `wafPolicyId`). |
 | `wafOverrides` | no | Inline WAF tuning; triggers synthesized per-listener policy (when no `wafPolicyId`). |
+
+### Backend Address Choice: FQDN vs IP
+
+| Address Type | Use When | Pros | Considerations | Example |
+|--------------|----------|------|----------------|---------|
+| FQDN (public PaaS) | Backend is an App Service / multi-instance PaaS with stable DNS name | Simplifies scaling; no IP tracking | DNS must resolve privately or over Internet as allowed by egress rules | `{ "fqdn": "app1-pe.azurewebsites.us" }` |
+| FQDN (private DNS) | Private Endpoint or internal service with private zone record | Follows IP changes automatically | Requires private DNS zone link correctness | `{ "fqdn": "api.internal.corp.local" }` |
+| Static IP | Backend on fixed VM / NIC | Deterministic; no DNS dependency | Manual update if backend IP changes | `{ "ipAddress": "10.60.2.10" }` |
+| Multiple IPs | Simple active/active VM set | Basic distribution without VMSS | Health probe per pool member only; no autoscale | `[ { "ipAddress": "10.60.2.10" }, { "ipAddress": "10.60.2.11" } ]` |
+| Mixed (FQDN + IP) | Transitioning services (lift & shift to PaaS) | Supports phased migration | Keep probe path/protocol identical across members | `[ { "ipAddress": "10.60.2.10" }, { "fqdn": "app1-pe.azurewebsites.us" } ]` |
+
+For extended guidance (naming limits, certificate alignment, pitfalls) see [ADVANCED.md](./ADVANCED.md).
 
 ### Example: Minimal App
 
