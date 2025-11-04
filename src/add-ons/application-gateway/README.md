@@ -314,9 +314,7 @@ Portal deployment is also supported via `solution.json` + `uiDefinition.json` ar
 | Health probes | All listeners show healthy backends after certificate & host header alignment. |
 | Firewall policy | Baseline + (optional) custom rule collections present. |
 
-<!-- Troubleshooting section intentionally removed to keep README focused on contract and configuration. -->
 
-<!-- Scaling section removed to avoid operational runbook content; focus remains on declarative contract. -->
 
 ## Security
 
@@ -340,9 +338,8 @@ Portal deployment is also supported via `solution.json` + `uiDefinition.json` ar
 
 Supply `wafOverrides` and/or `wafExclusions` (without an explicit `wafPolicyId`) to generate a per‑listener WAF policy; otherwise listeners inherit the global policy described earlier. If you set `wafPolicyId`, any inline overrides/exclusions are ignored.
 
-> NOTE: Azure Government WAF_v2 (current platform state) supports a single IPv4 public frontend; multi‑public‑IP mode removed. Use host‑based (multi‑site) listeners for segmentation.
+> NOTE: Azure Government WAF_v2 (current platform state) supports a single IPv4 public frontend; use host‑based (multi‑site) listeners for segmentation.
 
-<!-- Removed subnet private endpoint policy toggle parameter; gateway subnet is dedicated and should not host Private Endpoints. Network policies remain enabled by default (no parameter exposed). -->
 
 ## Out of Scope
 

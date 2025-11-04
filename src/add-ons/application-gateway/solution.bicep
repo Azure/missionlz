@@ -72,7 +72,6 @@ var keyVaultName = !empty(keyVaultHost) ? substring(keyVaultHost, 0, indexOf(key
 var keyVaultRoleDefinitionId = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '4633458b-17de-408a-b874-0445c86b69e6') // Key Vault Secrets User
 
 var effectiveKeyVaultRg = empty(keyVaultResourceGroupName) ? hubRgName : keyVaultResourceGroupName
-// (Removed inline existing Key Vault reference; handled inside kv-role-assignment module)
 
 // Identity is ALWAYS created (idempotent) using MLZ naming convention output (userAssignedIdentity)
 // Placed after naming module so we can reference naming.outputs.names.userAssignedIdentity.
@@ -132,7 +131,6 @@ var effectiveIdentifier = empty(identifier) && length(inferredTokens) > 0 ? infe
 var effectiveEnvironment = empty(environmentAbbreviation) && length(inferredTokens) > 1 ? inferredTokens[1] : environmentAbbreviation
 var effectiveLocationAbbrev = empty(locationAbbreviation) && length(inferredTokens) > 2 ? inferredTokens[2] : locationAbbreviation
 
-// (Moved naming module earlier to support identity creation) // NOTE: duplicated above after refactor; original block removed.
 
 // Resolve firewall private IP via RG-scoped helper (avoids direct runtime property access in subscription scope)
 module resolveFirewallIp 'modules/resolve-firewall-ip.bicep' = {
@@ -161,7 +159,7 @@ var effectiveInternalForcedRouteEntries = [for p in dedupPrefixes: !empty(p) ? {
   source: replace(replace(substring(p,0, min(15,length(p))),'/','-'),'.','-')
 } : null]
 
-// Network Security Group (always created; optional toggle removed for enforced baseline hardening)
+// Network Security Group (always created for enforced baseline hardening)
 module appgwNsg 'modules/appgateway-nsg.bicep' = {
   name: 'appgwNsg'
   scope: resourceGroup(hubRgName)
@@ -274,7 +272,7 @@ var generatedPolicyMaxRequestBodySizeInKb  = cd.?generatedPolicyMaxRequestBodySi
 var generatedPolicyFileUploadLimitInMb     = cd.?generatedPolicyFileUploadLimitInMb ?? wafFileUploadLimitInMb
 var generatedPolicyManagedRuleSetVersion   = cd.?generatedPolicyManagedRuleSetVersion ?? wafManagedRuleSetVersion
 
-// Multi-frontend removed (Gov limitation). Single public IP only.
+// Single public IP (Azure Gov limitation).
 
 // Core App Gateway (single module)
 module appgwCore 'modules/appgateway-core.bicep' = {
@@ -322,7 +320,6 @@ module appgwDiagnostics 'modules/appgateway-diagnostics.bicep' = {
   }
 }
 
-// (Removed second subnet association module; single subnet definition pattern)
 
 // Firewall rules module (always deploy baseline + any custom groups)
 module appGwFirewallRules 'modules/appgateway-firewall-rules.bicep' = {

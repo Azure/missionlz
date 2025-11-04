@@ -96,7 +96,7 @@ Explicit external policy (overrides ignored):
 | Change `wafOverrides` | Recreates per-listener policy with new settings. |
 | Switch to explicit policy | Per-listener synthesized policy no longer generated. |
 | Enable diagnostics | Diagnostic setting created; output populated. |
-| Disable diagnostics | Setting removed; output blank. |
+| Disable diagnostics | Not supported (omit workspace ID to skip). |
 
 ## 5. Detailed Listener Configuration Notes
 
@@ -181,7 +181,6 @@ Add a custom block rule:
 ## 10. Forced Route Entries Output
 `forcedRouteEntries` lists each unique backend CIDR producing a UDR entry (next hop = Firewall private IP). No sentinel default route is ever created.
 
-<!-- Subnet Private Endpoint Network Policy toggle removed: subnet is dedicated to Application Gateway; no Private Endpoints should be deployed there. Policies remain enabled implicitly. -->
 
 ## 12. Listener Configuration Surface (Full)
 Each app defines: multi-site HTTPS listener, backend pool, health probe, optional synthesized WAF policy.
