@@ -3,6 +3,14 @@
 ## Overview
 Deploys an Azure Application Gateway (WAF_v2) in the MLZ hub for: HTTPS termination, Web Application Firewall enforcement, and selective forced routing of ONLY declared backend CIDRs through Azure Firewall. This document intentionally focuses on the infrastructure contract (parameters, listener schema, routing model, WAF policy resolution, certificates, and outputs). It is NOT an operational runbook: performance tuning, false‑positive triage, probe debugging, and broader Application Gateway operations are out of scope—see `ADVANCED.md` for deep WAF tuning, exclusions, certificate rotation, orphan policy cleanup, and advanced troubleshooting.
 
+## Prerequisites
+* Existing MLZ hub virtual network and resource group (Application Gateway deploys into a dedicated subnet you supply / that the template creates when absent).
+* Dedicated empty subnet (no other resources) sized for autoscale (default /26). Not shared with other services.
+* (Optional) Azure Firewall & Firewall Policy if you want selective forced routing / egress inspection (the template expects an existing policy ID parameter; without it, only gateway resources deploy).
+* (Optional) Log Analytics workspace resource ID if you want diagnostics (leave empty to skip).
+* Hub Key Vault containing versioned certificate secrets for each listener (at least one secret version required to infer vault and assign RBAC).
+* Appropriate RBAC: permission to deploy networking + role assignments (Network Contributor + User Access Administrator or equivalent) at target scopes.
+
 ## Features
 * Locked-down dedicated subnet + enforced NSG (inbound 443 + platform requirements only).
 * Selective UDR: one route per backend CIDR you declare; never inserts 0.0.0.0/0.
@@ -13,8 +21,29 @@ Deploys an Azure Application Gateway (WAF_v2) in the MLZ hub for: HTTPS terminat
 * Idempotent re-deploy (unchanged parameters = no drift).
 * Diagnostics automatically provisioned when a Log Analytics workspace resource ID is provided.
 
+## Deployment Options
+
+| Azure Commercial | Azure Government |
+| ---------------- | ---------------- |
+| [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fadd-ons%2Fapplication-gateway%2Fsolution.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fadd-ons%2Fapplication-gateway%2FuiDefinition.json) | [![Deploy to Azure Gov](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fadd-ons%2Fapplication-gateway%2Fsolution.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fadd-ons%2Fapplication-gateway%2FuiDefinition.json) |
+
+CLI subscription‑scope deployment example appears later in this document. Template specs may be created for disconnected/air‑gapped environments following patterns used by other add‑ons.
+
 ## Architecture Flow
 Client → Application Gateway (public IP) → WAF (global or per‑listener) → Forced route (backend CIDR) → Azure Firewall → Backend service.
+
+## Required Parameters (Quick Reference)
+Minimal deployment requires only a handful of top‑level parameters. Everything else derives from `apps` objects or sensible defaults in `commonDefaults`.
+
+| Parameter | Purpose |
+|-----------|---------|
+| `location` | Region for all resources. |
+| `hubVnetResourceId` | Existing hub VNet hosting the dedicated subnet. |
+| `appGatewaySubnetAddressPrefix` | CIDR for (or of) the dedicated subnet. |
+| `apps` | Array of listener/backends (each must include cert + backend addresses + at least one `addressPrefixes` CIDR). |
+| `commonDefaults` | Shared listener defaults (ports, protocol, probe timings, autoscale bounds, generated WAF defaults). |
+| `firewallPolicyResourceId` (or equivalent param) | Existing Firewall Policy to attach rule collection groups (needed for selective egress). |
+| `operationsLogAnalyticsWorkspaceResourceId` | Optional diagnostics sink (blank to omit). |
 
 ## WAF Policy Resolution
 | Condition | Result |
@@ -91,6 +120,26 @@ NOTE: If a removed app previously had a generated per-listener WAF policy (due t
 | `userAssignedIdentityResourceIdOut` | Identity resource ID. |
 | `userAssignedIdentityPrincipalId` | Identity principal ID. |
 | `diagnosticsSettingId` | Diagnostic setting ID (blank when workspace ID omitted). |
+
+## Firewall Rule Precedence & NSG Egress Controls
+The firewall rule module constructs collections in deterministic order inside a baseline rule collection group:
+
+1. Platform service tags (control plane & monitoring) – always allowed (Network + Application rules).
+2. CRL / OCSP FQDNs for certificate validation.
+3. Backend allow collection (if backends declared) selecting the HIGHEST specificity among:
+  * Per‑app maps (`backendAppPortMaps`): destinationPrefixes[] + ports[] (highest precedence)
+  * Per‑prefix maps (`backendPrefixPortMaps`): single prefix + ports[]
+  * Fallback broad rule: all backend prefixes + `backendAllowPorts` (only if above maps absent)
+4. (Optional) Custom rule collection groups you supply (lower or higher priority numbers as you choose outside the baseline group).
+
+All unspecified egress is implicitly denied by the Firewall default deny.
+
+NSG outbound rules separately allow only:
+* VirtualNetwork (east‑west)
+* Service tags union: AzureKeyVault, AzureActiveDirectory, AzureMonitor plus any you add via `additionalAllowedOutboundServiceTags` (deduped)
+* Everything else outbound is denied (final DenyAllOutbound).
+
+Use `additionalAllowedOutboundServiceTags` sparingly—each addition broadens egress. Prefer explicit backend CIDR routing through Firewall over expanding service tag list for arbitrary Internet endpoints.
 
 ## Routing & Firewall
 Workflow:
@@ -207,6 +256,20 @@ Each element maps to one HTTPS listener (multi‑site host names) plus a backend
 | WAF tuning params (`wafPolicyMode`, `wafManagedRuleSetVersion`, etc.) | Influence new global policy creation. |
 
 <!-- (Merged former 'Routing & Firewall Rule Precedence' and 'Routing & Firewall Integration' sections to remove redundancy.) -->
+
+## Probes & Autoscale Defaults
+Each listener receives a dedicated health probe. Defaults (overridable per listener via fields on the app object):
+
+| Setting | Default |
+|---------|---------|
+| Interval | 30s |
+| Timeout | 30s |
+| Unhealthy threshold | 3 |
+| Match status codes | 200-399 |
+
+Customize via `probeInterval`, `probeTimeout`, `unhealthyThreshold`, and `probeMatchStatusCodes` on individual app entries when required (e.g., non‑200 success codes). Keep intervals aligned to backend response characteristics; avoid aggressively low timeouts that can mask transient network jitter.
+
+Autoscale defaults: `autoscaleMinCapacity: 1`, `autoscaleMaxCapacity: 2` (set in `commonDefaults`). Increase the upper bound only when sustained capacity or WAF latency metrics justify it; keep min at 1 unless cold start latency is unacceptable for first requests.
 
 ## Certificates & Key Vault
 

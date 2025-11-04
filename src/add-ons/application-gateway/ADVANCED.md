@@ -74,14 +74,8 @@ Explicit external policy (overrides ignored):
 ```
 
 
-## 3. Decision Matrix: FQDN vs IP
-| Backend Type | Recommended Form |
-|--------------|------------------|
-| App Service (PE) | FQDN |
-| Dynamic ILB fronting variable VMs | FQDN |
-| Static appliance | IP |
-| Fixed VM NIC | IP |
-| DNS-based failover solution | FQDN |
+## 3. Decision Matrix: FQDN vs IP (Moved)
+Moved to the main README for deployer visibility. Retained here only as a pointer to avoid duplication.
 
 ## 4. WAF Override Minimal Patterns
 Disable a single rule:
@@ -121,14 +115,8 @@ Add a custom block rule:
 | Missing certificate SAN | TLS probe failures | Reissue cert or split listener |
 | Outdated exclusion enum (Gov) | Deployment error | Validate with test policy first |
 
-## 6. Troubleshooting Quick Table
-| Symptom | Cause | Action |
-|---------|-------|--------|
-| Persistent 502 | Host header mismatch | Set `backendHostHeader` to expected value |
-| False positives on token | High entropy field | Add targeted exclusion |
-| Overrides not applied | `wafPolicyId` also set | Remove explicit ID |
-| Unwanted broad egress | CIDR too wide | Narrow `addressPrefixes` |
-| Missing diagnostics | Flag/workspace mismatch | Provide both or disable flag |
+## 6. (Section Removed)
+Troubleshooting quick table was removed to keep README/ADVANCED focused on contract + deep WAF tuning only.
 
 ## 7. Governance Considerations
 * Store parameter files in source control; review diffs for policy changes (rule disables, exclusions additions).
