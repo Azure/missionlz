@@ -12,7 +12,6 @@ Deploys an Azure Application Gateway (WAF_v2) in the Mission Landing Zone (MLZ) 
 * If you set `wafPolicyId` on an app that exact policy is used and any overrides/exclusions for that app are ignored.
 * The gateway's managed identity automatically gets Key Vault Secrets read access (when the certificate secret's vault can be inferred).
 * Safe re-run: deploying again with the same parameters doesn't change anything.
-* Diagnostics enabled automatically when you supply a Log Analytics workspace ID (omit to skip).
 * Diagnostics enabled automatically when you supply a Log Analytics workspace resource ID (omit to skip).
 
 ## Architecture Flow
@@ -68,10 +67,9 @@ Client → AppGW Public IP → WAF (global or per‑listener) → Forced route (
 | `backendAllowPorts` | Fallback ports when maps absent. |
 | `customAppGatewayFirewallRuleCollectionGroups` | Extra firewall allow groups. |
 | `operationsLogAnalyticsWorkspaceResourceId` | Log Analytics workspace ID (diagnostics enabled automatically when set). |
-| `operationsLogAnalyticsWorkspaceResourceId` | Log Analytics workspace ID (diagnostics enabled automatically when set). |
 | WAF tuning params (global) | Applied only when creating new global policy. |
 
-## Core Outputs
+## Outputs
 | Output | Meaning |
 |--------|---------|
 | `appGatewayPublicIp` | Static IPv4. |
@@ -123,7 +121,8 @@ param apps = [
 | Adopt external listener policy | Set `wafPolicyId`; remove overrides/exclusions. |
 | Switch global to external | Set `existingWafPolicyId`. |
 | Expand allowed egress ports | Update maps or `backendAllowPorts`. |
-| Toggle diagnostics | Set flag + workspace (enable) or clear either (disable). |
+| Add diagnostics | Provide `operationsLogAnalyticsWorkspaceResourceId`. |
+| Remove diagnostics | Clear `operationsLogAnalyticsWorkspaceResourceId`. |
 
 NOTE: If a removed app previously had a generated per-listener WAF policy (due to overrides/exclusions), that standalone WAF policy resource is not auto-deleted in incremental mode and becomes an orphan. Delete manually if no longer needed.
 
@@ -196,7 +195,6 @@ Each element maps to one HTTPS listener (multi‑site host names) plus a backend
 | `backendPrefixPortMaps` / `backendAppPortMaps` | Fine‑grained firewall rule shaping. |
 | `customAppGatewayFirewallRuleCollectionGroups` | Additional firewall policy rule groups. |
 | (NSG always enforced) | Not applicable—cannot disable via parameter. |
-| `operationsLogAnalyticsWorkspaceResourceId` | Diagnostics emitted when provided; leave empty to omit. |
 | `operationsLogAnalyticsWorkspaceResourceId` | Diagnostics emitted when provided; leave empty to omit. |
 | Add diagnostics | Provide `operationsLogAnalyticsWorkspaceResourceId`. |
 | Remove diagnostics | Clear `operationsLogAnalyticsWorkspaceResourceId`. |
@@ -340,21 +338,9 @@ Portal deployment is also supported via `solution.json` + `uiDefinition.json` ar
 | 502 or unhealthy probe | Host header or path mismatch | Set `backendHostHeader` or correct `healthProbePath`. |
 | Unexpected egress to broad networks | Overly broad CIDR in `addressPrefixes` | Narrow to specific subnet ranges. |
 | Overrides not applied | `wafPolicyId` simultaneously specified | Remove explicit ID to allow generation. |
-| No diagnostics output | Flag/workspace mismatch | Ensure both enabled + valid workspace ID. |
+| No diagnostics output | Workspace ID omitted | Provide `operationsLogAnalyticsWorkspaceResourceId`. |
 
-## Output Details
-
-| Output | Meaning |
-|--------|---------|
-| `appGatewayPublicIp` | Public IPv4 address. |
-| `wafPolicyResourceId` | Global WAF policy resource ID. |
-| `perListenerWafPolicyIds` | Effective listener policy (blank = global). |
-| `forcedRouteEntries` | Objects describing each routed backend prefix. |
-| `listenerNames` | Listener resource names. |
-| `backendPoolNames` | Backend pool names. |
-| `userAssignedIdentityResourceIdOut` | Deployed identity resource ID. |
-| `userAssignedIdentityPrincipalId` | Principal ID for RBAC correlation. |
-| `diagnosticsSettingId` | Diagnostic setting ID (blank when workspace ID omitted). |
+<!-- Output Details section removed; consolidated into single Outputs table above -->
 
 ## File Map
 
@@ -502,10 +488,8 @@ param apps = [
   }
 ]
 
-// Optional diagnostics
 // Optional diagnostics (add workspace ID to enable)
 param operationsLogAnalyticsWorkspaceResourceId = '/subscriptions/<subId>/resourceGroups/<opsRg>/providers/Microsoft.OperationalInsights/workspaces/<laWorkspace>'
-| No diagnostics output | Workspace ID omitted | Provide `operationsLogAnalyticsWorkspaceResourceId`. |
 ```
 
 Guidance:
@@ -524,86 +508,19 @@ Guidance:
 5. Decide WAF strategy per listener: use `wafOverrides` (inline) OR `wafPolicyId` (external policy). Do not combine.
 6. (Optional) Include diagnostics parameters if you need LA workspace integration.
 
-### Complexity Clarifications
+## Advanced Topics
+For deep dives (WAF overrides details, backend address design, naming limits, decision matrices, pitfalls, extended examples) see [ADVANCED.md](./ADVANCED.md). README stays focused on core deployment and usage.
 
-| Aspect | Why It Exists | Key Rule | Pitfalls |
-|--------|---------------|----------|----------|
-| `hostNames` vs `backendAddresses` | Separate concern: request matching vs target endpoints | Hostnames drive listener creation; backendAddresses populate pool | Duplicating hostnames across two apps causes deployment errors |
-| FQDN vs IP backend entries | Support dynamic (DNS-resolved) vs static targets | Choose one object type per entry | Adding both forms for same server duplicates probes |
-| `backendHostHeader` | Preserve expected Host/SNI for backend cert | Set to public host when backend cert expects it | Mismatch causes TLS/SNI failures |
-| `addressPrefixes` | Build selective UDR + firewall rules | Only list prefixes that must route via Firewall | Overly broad (e.g. /8) defeats least privilege |
-| Per-listener WAF generation | Granular tuning without many external policies | Provide overrides/exclusions & omit `wafPolicyId` | Empty overrides still trigger policy generation |
-| Global vs listener WAF precedence | Clarify control hierarchy | Listener-level policy overrides global for that listener | Mixing expectations causes confusion |
-| Certificate coverage | All listener hostnames must be covered | Ensure SAN/wildcard covers each | Missing SAN → TLS errors |
-| Probe status codes array | Allow structural customization | Narrow after stabilization | Broad ranges can hide issues |
-| Autoscale vs subnet size | Preserve growth headroom | Use /26 or larger for scale | Too small blocks scaling |
-| Key Vault secret ID parsing | Derive vault name automatically | Use full versioned secret URI | Unversioned secrets complicate rotation |
+<!-- Designing the apps array guidance moved to ADVANCED.md -->
 
-### Designing the `apps` Array
+<!-- FQDN vs IP decision matrix moved to ADVANCED.md -->
 
-Create one element per logical application boundary (distinct probe path, cert, WAF posture, or backend behavior). Do NOT create separate app entries just to add more backend addresses—append addresses inside the existing app entry instead.
+<!-- Backend definition examples moved to ADVANCED.md -->
 
-### Decision Matrix: FQDN vs IP
+<!-- Listener naming guidance moved to ADVANCED.md -->
 
-Choose FQDN when backend is:
+<!-- WAF override minimal example moved to ADVANCED.md -->
 
-* App Service (private endpoint) or other PaaS with mutable IP.
-* Internal Load Balancer where pool membership may change.
-* Service relying on DNS-based failover.
-
-Choose IP when backend is:
-
-* Static VM NIC with reserved private IP.
-* Appliance or endpoint without internal DNS registration.
-* Fixed ILB VIP where DNS indirection not required.
-
-### Valid & Invalid Backend Definitions
-
-Valid mixed backend set (two distinct systems):
-
-```jsonc
-"backendAddresses": [
-  { "fqdn": "app1-pe.azurewebsites.us" },
-  { "ipAddress": "10.20.10.5" }
-]
-```
-
-Invalid (duplicate FQDN):
-
-```jsonc
-"backendAddresses": [
-  { "fqdn": "app1-pe.azurewebsites.us" },
-  { "fqdn": "app1-pe.azurewebsites.us" }
-]
-```
-
-### Listener Naming and Uniqueness
-
-`name` seeds listener, probe, and backend pool names. Keep under Azure name length limits (< 80 chars). Names must be unique across apps.
-
-### WAF Override Minimal Example
-
-```jsonc
-"wafOverrides": {
-  "mode": "Prevention",
-  "managedRuleSetVersion": "3.2",
-  "ruleGroupOverrides": [ { "ruleGroupName": "REQUEST-942-APPLICATION-ATTACK-SQLI", "rules": [ { "ruleId": "942100", "state": "Disabled" } ] } ]
-}
-```
-
-Exclude unused keys—they inherit from generated defaults or global policy baseline.
-
-### Common Pitfalls & Remedies
-
-| Pitfall | Symptom | Structural Fix |
-|---------|---------|----------------|
-| Duplicate hostNames across apps | Deployment validation error | Consolidate or adjust hostnames |
-| Missing certificate SAN for a host | TLS handshake failure | Reissue cert incl. host or split app |
-| Overly broad addressPrefixes | Unintended routing | Replace with granular CIDRs |
-| Overrides + wafPolicyId both supplied | Overrides ignored | Advanced use: remove overrides when using `wafPolicyId` |
-| Supplying identity parameters | No effect | Remove identity params (auto-created) |
-| Workspace ID omitted | No diagnostics deployed | Provide workspace ID to enable diagnostics |
-| Workspace ID omitted | No diagnostics deployed | Provide workspace ID to enable diagnostics |
-| backendHostHeader mismatch | 502/SSL errors | Match header to cert CN/SAN |
+<!-- Common pitfalls moved to ADVANCED.md -->
 
 
