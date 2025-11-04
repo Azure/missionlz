@@ -212,6 +212,8 @@ Each element maps to one HTTPS listener (multi‑site host names) plus a backend
 
 ## Certificates & Key Vault
 
+Assumption: All TLS certificates used by the Application Gateway listeners are stored in the hub Key Vault (the vault inferred from `commonDefaults.defaultCertificateSecretId` or, if absent, the first app's `certificateSecretId`). The module only performs automatic RBAC (Key Vault Secrets User) assignment for that single inferred vault. If you intentionally distribute certificates across multiple vaults, you must manually grant the gateway's user‑assigned identity access to each additional vault.
+
 How the template discovers the Key Vault:
 
 1. It looks for `commonDefaults.defaultCertificateSecretId` first. If set, that value wins.
@@ -235,7 +237,7 @@ Edge cases:
 
 * If there are no apps yet and no `commonDefaults.defaultCertificateSecretId`, the vault name cannot be inferred—role assignment is skipped. Add at least one app with a valid versioned secret before relying on Key Vault RBAC.
 * If the Key Vault lives in a different resource group, set `keyVaultResourceGroupName` so the role assignment targets the right scope.
-* Multiple apps can reference different vaults; only the first (or the default) drives the automatic role assignment. Ensure the identity has access to any additional vaults manually.
+* If you break the single‑hub‑vault assumption and place certificates in multiple vaults, only the first (or the default) vault receives automatic RBAC. Manually assign **Key Vault Secrets User** (or equivalent access) for the gateway identity on every other vault you reference.
 
 Quick example:
 
