@@ -314,19 +314,7 @@ Portal deployment is also supported via `solution.json` + `uiDefinition.json` ar
 | Health probes | All listeners show healthy backends after certificate & host header alignment. |
 | Firewall policy | Baseline + (optional) custom rule collections present. |
 
-## Troubleshooting
-
-| Symptom | Probable Cause | Recommended Action |
-|---------|---------------|--------------------|
-| Policy creation failure (listener) | Unsupported exclusion enum (Gov latency) | Probe with standalone test policy CLI call; adjust variable. |
-| 502 or unhealthy probe | Host header or path mismatch | Set `backendHostHeader` or correct `healthProbePath`. |
-| Unexpected egress to broad networks | Overly broad CIDR in `addressPrefixes` | Narrow to specific subnet ranges. |
-| Overrides not applied | `wafPolicyId` simultaneously specified | Remove explicit ID to allow generation. |
-| No diagnostics output | Workspace ID omitted | Provide `operationsLogAnalyticsWorkspaceResourceId`. |
-
-<!-- Output Details section removed; consolidated into single Outputs table above -->
-
-<!-- Removed File Map and Modules sections as redundant with earlier explanations. Key guidance about specifying only needed CIDRs is already covered in Routing & Firewall. -->
+<!-- Troubleshooting section intentionally removed to keep README focused on contract and configuration. -->
 
 ## Scaling
 
