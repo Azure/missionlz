@@ -1,44 +1,4 @@
-
-# Application Gateway Add-On (MLZ Hub)
-
-## Overview
-Deploys an Azure Application Gateway (WAF_v2) in the Mission Landing Zone (MLZ) hub for HTTPS termination, WAF enforcement, and selective, least‑privilege routing of backend traffic through Azure Firewall. This document covers the IaC contract: parameters, listener model, routing, and outputs. Operational tuning and advanced WAF topics are in [ADVANCED.md](./ADVANCED.md).
-
-## Features
-* A dedicated subnet for the gateway with a locked-down NSG (you don't pick rules; it's enforced).
-* Only the backend networks you list get user-defined routes to the Firewall (no surprise 0.0.0.0/0 route).
-* Backend CIDRs you list drive route and firewall rule creation (no implicit broad routes).
-* One global WAF policy is created unless you point to an existing one; a listener gets its own policy only if you add `wafOverrides` or `wafExclusions`.
-* If you set `wafPolicyId` on an app that exact policy is used and any overrides/exclusions for that app are ignored.
-* The gateway's managed identity automatically gets Key Vault Secrets read access (when the certificate secret's vault can be inferred).
-* Safe re-run: deploying again with the same parameters doesn't change anything.
-* Diagnostics enabled automatically when you supply a Log Analytics workspace resource ID (omit to skip).
-
-## Architecture Flow
-Client → AppGW Public IP → WAF (global or per‑listener) → Forced route (declared backend CIDR) → Azure Firewall → Backend.
-
-## Module Map
-| Module | Purpose |
-|--------|---------|
-| `solution.bicep` | Orchestrates sub‑resources, identity, routing, NSG, WAF resolution, diagnostics. |
-| `modules/appgateway-core.bicep` | Gateway + listeners + probes + per‑listener policy generation. |
-| `modules/wafpolicy-resolver.bicep` | Global WAF policy create/adopt. |
-| `modules/appgateway-route-table.bicep` | UDR with selective routes only. |
-| `modules/appgateway-nsg.bicep` | Hardened inbound/outbound rules. |
-| `modules/appgateway-firewall-rules.bicep` | Firewall policy rule collections (baseline + custom). |
-| `modules/appgateway-diagnostics.bicep` | Conditional diagnostic setting. |
-| `modules/resolve-firewall-ip.bicep` | Looks up firewall private IP. |
-| `modules/kv-role-assignment.bicep` | Optional Key Vault Secrets User RBAC. |
-
-## WAF Policy Resolution
-| Condition | Result |
-|-----------|--------|
-| `wafPolicyId` set on app | That listener uses the explicit policy (ignore overrides/exclusions). |
-| Inline `wafOverrides` or `wafExclusions` (no explicit ID) | Synthesized per-listener policy. |
-| Neither present | Listener inherits global policy (created or adopted). |
-| `existingWafPolicyId` set | Use supplied global policy; still may synthesize per-listener ones if inline fields exist. |
-
-`perListenerWafPolicyIds` output: blank where inheritance occurs.
+<!-- Removed Module Map, preliminary Listener Definition, and Key Parameters sections to consolidate onto single canonical references below. -->
 
 ## Listener Definition (`apps` Array Schema)
 | Property | Req | Notes |
@@ -137,7 +97,7 @@ NOTE: If a removed app previously had a generated per-listener WAF policy (due t
 ## Non-Goals
 Operational runbooks, performance tuning strategies, false positive triage, health probe debugging, and general Azure Application Gateway operational guidance are intentionally excluded. For those advanced topics (WAF tuning, exclusions, certificate rotation, orphan policy cleanup, deep troubleshooting) see [ADVANCED.md](./ADVANCED.md).
 
-Provide only CIDRs requiring firewall egress in `addressPrefixes`.
+<!-- Removed duplicate reminder about addressPrefixes (covered in Routing & Firewall). -->
 
 
 ## Detailed Listener Definition Reference
@@ -187,7 +147,7 @@ Each element maps to one HTTPS listener (multi‑site host names) plus a backend
 }
 ```
 
-## Expanded Parameter Reference
+## Parameter Reference (Canonical)
 
 | Name | Summary |
 |------|---------|
@@ -200,9 +160,7 @@ Each element maps to one HTTPS listener (multi‑site host names) plus a backend
 | `backendPrefixPortMaps` / `backendAppPortMaps` | Fine‑grained firewall rule shaping. |
 | `customAppGatewayFirewallRuleCollectionGroups` | Additional firewall policy rule groups. |
 | (NSG always enforced) | Not applicable—cannot disable via parameter. |
-| `operationsLogAnalyticsWorkspaceResourceId` | Diagnostics emitted when provided; leave empty to omit. |
-| Add diagnostics | Provide `operationsLogAnalyticsWorkspaceResourceId`. |
-| Remove diagnostics | Clear `operationsLogAnalyticsWorkspaceResourceId`. |
+| `operationsLogAnalyticsWorkspaceResourceId` | Diagnostics emitted when provided; leave empty to omit (no separate enable flag). |
 | WAF tuning params (`wafPolicyMode`, `wafManagedRuleSetVersion`, etc.) | Influence new global policy creation. |
 
 <!-- (Merged former 'Routing & Firewall Rule Precedence' and 'Routing & Firewall Integration' sections to remove redundancy.) -->
@@ -351,35 +309,15 @@ Add or update apps by editing the `apps` array in a parameter file, then redeplo
 
 ## WAF Overrides Per Listener
 
-Each app/listener may supply a `wafOverrides` object (and/or `wafExclusions`) to selectively diverge from the **generated baseline**. Missing keys inherit generated defaults. Presence of `wafOverrides` or `wafExclusions` (and absence of explicit `wafPolicyId`) triggers creation of a per‑listener WAF policy.
-
-Advanced: If you already have an externally managed WAF policy for a listener, set `wafPolicyId` and omit overrides / exclusions (no per‑listener policy generated); inline settings are ignored when an explicit ID is present.
+Supply `wafOverrides` and/or `wafExclusions` (without an explicit `wafPolicyId`) to generate a per‑listener WAF policy; otherwise listeners inherit the global policy described earlier. If you set `wafPolicyId`, any inline overrides/exclusions are ignored.
 
 > NOTE: Azure Government WAF_v2 (current platform state) supports a single IPv4 public frontend; multi‑public‑IP mode removed. Use host‑based (multi‑site) listeners for segmentation.
-
-## Forced Route Entries Output
-
-`forcedRouteEntries` output lists each backend CIDR prefix generating a route table entry (next hop = Firewall private IP).
 
 ## Subnet Private Endpoint Policy Toggle
 
 Parameter: `disablePrivateEndpointNetworkPolicies` (default `true`). When true, Private Endpoint network policies are disabled (safe default preventing accidental PE placement).
 
-## Listener Configuration Surface
-
-Each element in `apps` drives one or more multi-site HTTPS listeners and its backend pool. Granular overrides allow per-listener WAF tuning and probe adjustments without changing the core module.
-
-Key per-app options:
-
-* `hostNames`: Array of FQDNs mapped to a single listener (multi-site SNI based).
-* `backendAddresses`: Array of objects (either `{ "fqdn": "..." }` or `{ "ipAddress": "..." }`).
-* `backendHostHeader`: Override Host header sent to backend (useful when private endpoint resolves internal FQDN different from public host).
-* `backendPort` / `backendProtocol`: Defaults inherited from `commonDefaults` (TLS inspection requires `Https`).
-* `certificateSecretId`: Key Vault secret reference for listener TLS certificate.
-* `healthProbePath`, `probeInterval`, `probeTimeout`, `unhealthyThreshold`, `probeMatchStatusCodes`: Optional fine-grained probe tuning.
-* `wafOverrides` / `wafExclusions`: Trigger per-listener WAF policy generation (if `wafPolicyId` not supplied).
-* `wafPolicyId`: Attach an existing Application Gateway WAF policy to just this listener (skip generation).
-* `addressPrefixes`: Backend CIDR set used to build selective UDR forced routes and firewall egress rules.
+<!-- Removed redundant Listener Configuration Surface section (information already present in Parameter Reference and Detailed Listener Definition Reference). -->
 
 ## Out of Scope
 
