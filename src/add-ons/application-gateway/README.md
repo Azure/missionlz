@@ -252,7 +252,7 @@ Diagnostics are created automatically when you provide a valid Log Analytics wor
 
 ## Deployment Examples
 
-### 13.1 Minimal Parameter File
+### Minimal Parameter File
 
 ```bicep-params
 using './solution.bicep'
@@ -279,7 +279,7 @@ param apps = [
 ]
 ```
 
-### 13.2 Mixed Strategies (inherit + generated + explicit)
+### Mixed Strategies (inherit + generated + explicit)
 
 ```bicep-params
 param apps = [
@@ -289,7 +289,7 @@ param apps = [
 ]
 ```
 
-### 13.3 CLI Deployment (Subscription Scope)
+### CLI Deployment (Subscription Scope)
 
 ```powershell
 az deployment sub create `
