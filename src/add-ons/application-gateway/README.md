@@ -82,10 +82,18 @@ Client → AppGW Public IP → WAF (global or per‑listener) → Forced route (
 | `userAssignedIdentityPrincipalId` | Identity principal ID. |
 | `diagnosticsSettingId` | Diagnostic setting ID (blank when workspace ID omitted). |
 
-## Routing & Firewall Rule Precedence
-1. Collect all `addressPrefixes` across apps (mandatory per app).
-2. Generate one UDR route per CIDR (next hop = Firewall private IP).
-3. Firewall rules precedence: `backendAppPortMaps` > `backendPrefixPortMaps` > broad CIDR rule + `backendAllowPorts` fallback.
+## Routing & Firewall
+Workflow:
+1. Collect all `addressPrefixes` across apps (each app must supply at least one backend CIDR that actually needs egress via the Firewall—don't include superfluous ranges).
+2. Generate one UDR route per unique CIDR (`forcedRouteEntries`; next hop = Firewall private IP). No 0.0.0.0/0 default route is inserted.
+3. Associate the route table + enforced NSG with the Application Gateway subnet (NSG creation is mandatory).
+4. Build firewall allow rules in strict precedence order:
+  * `backendAppPortMaps` (per app + per port specificity; highest)
+  * `backendPrefixPortMaps` (CIDR → port list)
+  * Broad fallback rule: all collected CIDRs + `backendAllowPorts` (only if needed)
+5. Anything not explicitly allowed is denied by the Firewall's default deny.
+
+Result: Minimal egress surface—fine‑grained maps first, broad fallback last.
 
 ## Minimal Parameter File Example
 ```bicep-params
@@ -197,15 +205,7 @@ Each element maps to one HTTPS listener (multi‑site host names) plus a backend
 | Remove diagnostics | Clear `operationsLogAnalyticsWorkspaceResourceId`. |
 | WAF tuning params (`wafPolicyMode`, `wafManagedRuleSetVersion`, etc.) | Influence new global policy creation. |
 
-## Routing & Firewall Integration
-
-1. Gather all `addressPrefixes`.
-2. Produce `forcedRouteEntries` objects for each backend CIDR.
-3. Route table gets one entry per prefix (next hop = Firewall) without inserting a default route.
-4. Firewall module builds allow rules based on precedence:
-   * `backendAppPortMaps` (highest)
-   * `backendPrefixPortMaps`
-  * Broad rule using listed prefixes + `backendAllowPorts` (fallback)
+<!-- (Merged former 'Routing & Firewall Rule Precedence' and 'Routing & Firewall Integration' sections to remove redundancy.) -->
 
 ## Certificates & Key Vault
 
