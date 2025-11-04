@@ -26,6 +26,7 @@ Ingress path: Client → Public IP (Gateway) → WAF evaluation (global or liste
 ## 4. Functional Highlights
 
 * Dedicated subnet with optional NSG and controlled outbound (no implicit Internet path).
+* Dedicated subnet with enforced restrictive NSG and controlled outbound (no implicit Internet path).
 * Deduplicated backend CIDRs drive both route entries and firewall allow rules.
 * Policy resolver either adopts an existing WAF policy or creates a fresh one with supplied tuning parameters.
 * Listener WAF policy generated only when needed—avoids policy sprawl.
@@ -117,6 +118,7 @@ Each element maps to one HTTPS listener (multi‑site host names) plus a backend
 | `backendPrefixPortMaps` / `backendAppPortMaps` | Fine‑grained firewall rule shaping. |
 | `customAppGatewayFirewallRuleCollectionGroups` | Additional firewall policy rule groups. |
 | `createSubnetNsg` | Toggle NSG creation. |
+| (NSG always enforced) | Not applicable—cannot disable via parameter. |
 | `enableDiagnostics` & `operationsLogAnalyticsWorkspaceResourceId` | Both required to emit diagnostics. |
 | `createKeyVaultSecretAccessRole` | Grant Key Vault Secrets User to identity. |
 | WAF tuning params (`wafPolicyMode`, `wafManagedRuleSetVersion`, etc.) | Influence new global policy creation. |
@@ -216,6 +218,7 @@ Portal deployment is also supported via `solution.json` + `uiDefinition.json` ar
 | Increase autoscale ceiling | Update `commonDefaults.autoscaleMaxCapacity`. |
 | Expand backend ports | Add to `backendPrefixPortMaps` or `backendAppPortMaps`. |
 | Disable diagnostics | Set `enableDiagnostics = false` OR empty workspace id. |
+| Mandatory NSG enforcement | Removed prior optional toggle; hardens baseline by default. |
 
 ## 16. Troubleshooting
 
@@ -262,6 +265,7 @@ Portal deployment is also supported via `solution.json` + `uiDefinition.json` ar
 | Change | Rationale |
 |--------|-----------|
 | Per listener policy generation | Enable granular WAF posture without manual policy sprawl. |
+| Deduplicated backend prefix logic | Prevent redundant routes & firewall entries. |
 | Deduplicated backend prefix logic | Prevent redundant routes & firewall entries. |
 | Diagnostics gating refinement | Avoid unintended log noise when not configured. |
 | Complete documentation rewrite | Improve clarity & remove scenario naming. |

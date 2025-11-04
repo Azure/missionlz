@@ -25,8 +25,6 @@ param apps array
 param tags object = {}
 @description('Existing WAF policy resource ID (if provided, skip creating new policy)')
 param existingWafPolicyId string = ''
-@description('Whether to create and associate an NSG to the App Gateway subnet.')
-param createSubnetNsg bool = true
 @description('Optional custom firewall rule collection groups for App Gateway egress. If empty, an opinionated default group will be created.')
 param customAppGatewayFirewallRuleCollectionGroups array = []
 @description('Destination ports to allow from Application Gateway subnet to backend prefixes (array of strings, supports ranges e.g. 443-445).')
@@ -168,8 +166,8 @@ var effectiveInternalForcedRouteEntries = [for p in dedupPrefixes: !empty(p) ? {
   source: replace(replace(substring(p,0, min(15,length(p))),'/','-'),'.','-')
 } : null]
 
-// Network Security Group (module) and ID (moved earlier)
-module appgwNsg 'modules/appgateway-nsg.bicep' = if (createSubnetNsg) {
+// Network Security Group (always created; optional toggle removed for enforced baseline hardening)
+module appgwNsg 'modules/appgateway-nsg.bicep' = {
   name: 'appgwNsg'
   scope: resourceGroup(hubRgName)
   params: {
@@ -178,7 +176,7 @@ module appgwNsg 'modules/appgateway-nsg.bicep' = if (createSubnetNsg) {
     tags: tags
   }
 }
-var appgwNsgId = createSubnetNsg ? resourceId(subscription().subscriptionId, hubRgName, 'Microsoft.Network/networkSecurityGroups', naming.outputs.names.applicationGatewayNetworkSecurityGroup) : ''
+var appgwNsgId = resourceId(subscription().subscriptionId, hubRgName, 'Microsoft.Network/networkSecurityGroups', naming.outputs.names.applicationGatewayNetworkSecurityGroup)
 
 // Route table (must exist before subnet for association)
 module appgwRouteTable 'modules/appgateway-route-table.bicep' = {
@@ -207,7 +205,7 @@ module appgwSubnet 'modules/appgateway-subnet.bicep' = {
     defaultOutboundAccess: false
     disablePrivateEndpointNetworkPolicies: disablePrivateEndpointNetworkPolicies
     routeTableId: appgwRouteTable.outputs.routeTableId
-    nsgId: appgwNsgId
+  nsgId: appgwNsgId
   }
   dependsOn: [
     appgwNsg
