@@ -1,7 +1,7 @@
  # Application Gateway Add-On (MLZ Hub)
 
 ## Overview
-Deploys an Azure Application Gateway (WAF_v2) in the MLZ hub for: HTTPS termination, Web Application Firewall enforcement, and selective forced routing of ONLY declared backend CIDRs through Azure Firewall. Advanced tuning (deep WAF rules, exclusions, cert rotation) lives in `ADVANCED.md`.
+Deploys an Azure Application Gateway (WAF_v2) in the MLZ hub for: HTTPS termination, Web Application Firewall enforcement, and selective forced routing of ONLY declared backend CIDRs through Azure Firewall. This document intentionally focuses on the infrastructure contract (parameters, listener schema, routing model, WAF policy resolution, certificates, and outputs). It is NOT an operational runbook: performance tuning, false‑positive triage, probe debugging, and broader Application Gateway operations are out of scope—see `ADVANCED.md` for deep WAF tuning, exclusions, certificate rotation, orphan policy cleanup, and advanced troubleshooting.
 
 ## Features
 * Locked-down dedicated subnet + enforced NSG (inbound 443 + platform requirements only).
@@ -77,10 +77,7 @@ param apps = [
 
 NOTE: If a removed app previously had a generated per-listener WAF policy (due to overrides/exclusions), that standalone WAF policy resource is not auto-deleted in incremental mode and becomes an orphan. Delete manually if no longer needed.
 
-## Non-Goals
-Operational runbooks, performance tuning strategies, false positive triage, health probe debugging, and general Azure Application Gateway operational guidance are intentionally excluded. For those advanced topics (WAF tuning, exclusions, certificate rotation, orphan policy cleanup, deep troubleshooting) see [ADVANCED.md](./ADVANCED.md).
-
-<!-- Removed duplicate reminder about addressPrefixes (covered in Routing & Firewall). -->
+<!-- Non-Goals section merged into Overview to reduce section noise. -->
 
 ## Outputs
 | Output | Meaning |
