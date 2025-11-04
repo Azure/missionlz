@@ -316,9 +316,7 @@ Portal deployment is also supported via `solution.json` + `uiDefinition.json` ar
 
 <!-- Troubleshooting section intentionally removed to keep README focused on contract and configuration. -->
 
-## Scaling
-
-Add or update apps by editing the `apps` array in a parameter file, then redeploy. Removal is destructive (listener/pool/probe + generated per‑listener WAF policy deleted).
+<!-- Scaling section removed to avoid operational runbook content; focus remains on declarative contract. -->
 
 ## Security
 
