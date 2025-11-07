@@ -372,17 +372,14 @@ var endAvSetRange = (sessionHostCount + sessionHostIndex) / maxAvSetMembers // T
 var availabilitySetsCount = length(range(beginAvSetRange, (endAvSetRange - beginAvSetRange) + 1))
 
 // OTHER LOGIC & COMPUTED VALUES
-var agentTrafficUniqueString = substring(cloud, 2, 1) == 'n'
-  ? 'wvd${first(cloudSuffix)}xportalcontainer'
-  : 'wvdportalstorageblob'
 var agentUpdatesUniqueString = cloud == 'AzureCloud'
   ? 'eus2prod'
   : cloud == 'AzureUSGovernment'
       ? 'ugviffx'
       : '${first(cloud)}${take(skip(cloud, 2), 1)}${first(locationVirtualMachines)}${substring(cloud, 2, 1) == 'n' ? first(cloudSuffix) : substring(cloudSuffix, 3, 1)}x'
-var avdConfigurationZipFileStorageAccount = startsWith(locationVirtualMachines, 'usn')
-  ? 'wvdexportalcontainer'
-  : 'wvdportalstorageblob'
+var avdStorageAccountUri = startsWith(locationVirtualMachines, 'usn')
+  ? 'wvdexportalcontainer.blob.${environment().suffixes.storage}'
+  : 'wvdportalstorageblob.blob.${environment().suffixes.storage}'
 var cloud = environment().name
 var cloudSuffix = replace(replace(environment().resourceManager, 'https://management.', ''), '/', '')
 var customImageId = empty(imageVersionResourceId) ? 'null' : '"${imageVersionResourceId}"'
@@ -595,7 +592,7 @@ module tier3_stamp '../tier3/solution.bicep' = {
                         targetFqdns: [
                           split(environment().resourceManager, '/')[2]
                           'mrsglobalst${agentUpdatesUniqueString}.blob.${environment().suffixes.storage}'
-                          '${agentTrafficUniqueString}.blob.${environment().suffixes.storage}'
+                          avdStorageAccountUri
                           'gcs${cloud == 'AzureCloud' ? '.prod' : ''}.monitoring.${environment().suffixes.storage}'
                           '*.prod.warm.ingest.monitor.${environment().suffixes.storage}'
                           '*.guestconfiguration.${privateDnsZoneSuffixes_AzureVirtualDesktop[?environment().name] ?? cloudSuffix}'
@@ -663,7 +660,33 @@ module tier3_stamp '../tier3/solution.bicep' = {
                             sourceIpGroups: []
                           }
                         ]
-                      : []
+                      : [],
+                    contains(hostPoolPublicNetworkAccess, 'Enabled')
+                      ? []
+                      : [
+                          {
+                            name: 'AzureVirtualDesktop'
+                            ruleType: 'ApplicationRule'
+                            protocols: [
+                              {
+                                protocolType: 'Https'
+                                port: 443
+                              }
+                            ]
+                            fqdnTags: [
+                              'WindowsVirtualDesktop'
+                            ]
+                            webCategories: []
+                            targetFqdns: []
+                            targetUrls: []
+                            terminateTLS: false
+                            sourceAddresses: [
+                              stampVirtualNetworkAddressPrefix
+                            ]
+                            destinationAddresses: []
+                            sourceIpGroups: []
+                          }
+                        ]
                   )
                 }
               ]
@@ -869,7 +892,7 @@ module sessionHosts 'modules/session-hosts/session-hosts.bicep' = {
     availabilitySetsCount: availabilitySetsCount
     availabilitySetsIndex: beginAvSetRange
     availabilityZones: availabilityZones
-    avdConfigurationZipFileUri: 'https://${avdConfigurationZipFileStorageAccount}.blob.${environment().suffixes.storage}/galleryartifacts/Configuration_1.0.03188.965.zip'
+    avdConfigurationZipFileUri: 'https://${avdStorageAccountUri}/galleryartifacts/Configuration_1.0.03188.965.zip'
     dataCollectionRuleResourceId: shared.outputs.dataCollectionRuleResourceId
     delimiter: tier3_stamp.outputs.delimiter
     deployFslogix: deployFslogix
