@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.38.33.27573",
-      "templateHash": "12881987902044968870"
+      "templateHash": "16087120124785261201"
     }
   },
   "parameters": {
@@ -4501,7 +4501,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.38.33.27573",
-              "templateHash": "8995641970764669615"
+              "templateHash": "745856344796851367"
             }
           },
           "parameters": {
@@ -4581,7 +4581,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.38.33.27573",
-                      "templateHash": "11386347053796741308"
+                      "templateHash": "17900745890296947602"
                     }
                   },
                   "parameters": {
@@ -4707,6 +4707,18 @@
                         "promotionCode": "[variables('solutions')[copyIndex()].promotionCode]"
                       },
                       "dependsOn": [
+                        "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('name'))]"
+                      ]
+                    },
+                    {
+                      "condition": "[parameters('deploySentinel')]",
+                      "type": "Microsoft.SecurityInsights/onboardingStates",
+                      "apiVersion": "2024-03-01",
+                      "scope": "[format('Microsoft.OperationalInsights/workspaces/{0}', parameters('name'))]",
+                      "name": "default",
+                      "properties": {},
+                      "dependsOn": [
+                        "logAnalyticsSolutions",
                         "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('name'))]"
                       ]
                     }
