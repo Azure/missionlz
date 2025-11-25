@@ -97,4 +97,13 @@ resource logAnalyticsSolutions 'Microsoft.OperationsManagement/solutions@2015-11
   }
 }]
 
+resource sentinelOnboarding 'Microsoft.SecurityInsights/onboardingStates@2024-03-01' = if (deploySentinel) {
+  name: 'default'
+  scope: logAnalyticsWorkspace
+  properties: {}
+  dependsOn: [
+    logAnalyticsSolutions
+  ]
+}
+
 output resourceId string = logAnalyticsWorkspace.id
