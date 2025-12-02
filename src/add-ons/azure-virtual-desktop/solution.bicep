@@ -377,9 +377,8 @@ var agentUpdatesUniqueString = cloud == 'AzureCloud'
   : cloud == 'AzureUSGovernment'
       ? 'ugviffx'
       : '${first(cloud)}${take(skip(cloud, 2), 1)}${first(locationVirtualMachines)}${substring(cloud, 2, 1) == 'n' ? first(cloudSuffix) : substring(cloudSuffix, 3, 1)}x'
-var avdStorageAccountUri = startsWith(locationVirtualMachines, 'usn')
-  ? 'wvdexportalcontainer.blob.${environment().suffixes.storage}'
-  : 'wvdportalstorageblob.blob.${environment().suffixes.storage}'
+var avdStorageAccountEndpoint = '${avdStorageAccountName}.blob.${environment().suffixes.storage}'
+var avdStorageAccountName = startsWith(locationVirtualMachines, 'usn') ? 'wvdexportalcontainer' : 'wvdportalstorageblob'
 var cloud = environment().name
 var cloudSuffix = replace(replace(environment().resourceManager, 'https://management.', ''), '/', '')
 var customImageId = empty(imageVersionResourceId) ? 'null' : '"${imageVersionResourceId}"'
@@ -592,7 +591,7 @@ module tier3_stamp '../tier3/solution.bicep' = {
                         targetFqdns: [
                           split(environment().resourceManager, '/')[2]
                           'mrsglobalst${agentUpdatesUniqueString}.blob.${environment().suffixes.storage}'
-                          avdStorageAccountUri
+                          avdStorageAccountEndpoint
                           'gcs${cloud == 'AzureCloud' ? '.prod' : ''}.monitoring.${environment().suffixes.storage}'
                           '*.prod.warm.ingest.monitor.${environment().suffixes.storage}'
                           '*.guestconfiguration.${privateDnsZoneSuffixes_AzureVirtualDesktop[?environment().name] ?? cloudSuffix}'
@@ -892,7 +891,7 @@ module sessionHosts 'modules/session-hosts/session-hosts.bicep' = {
     availabilitySetsCount: availabilitySetsCount
     availabilitySetsIndex: beginAvSetRange
     availabilityZones: availabilityZones
-    avdConfigurationZipFileUri: 'https://${avdStorageAccountUri}/galleryartifacts/Configuration_1.0.03188.965.zip'
+    avdConfigurationZipFileUri: 'https://${avdStorageAccountEndpoint}/galleryartifacts/Configuration_1.0.03211.1002.zip'
     dataCollectionRuleResourceId: shared.outputs.dataCollectionRuleResourceId
     delimiter: tier3_stamp.outputs.delimiter
     deployFslogix: deployFslogix
