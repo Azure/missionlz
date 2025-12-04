@@ -102,7 +102,7 @@ module domainControllers 'domain-controller.bicep' = [
       index: i
       location: location
       mlzTags: mlzTags
-      privateIPAddressOffset: hubSubscriptionId == identitySubscriptionId ? 3 : 4
+      privateIPAddressOffset: 4
       safeModeAdminPassword: safeModeAdminPassword
       subnetResourceId: tier.subnetResourceId
       tags: tags
