@@ -29,8 +29,6 @@ param tier object
 param vmCount int = 2
 param vmSize string
 
-var hubSubscriptionId = subscription().subscriptionId
-var identitySubscriptionId = tier.subscriptionId
 var resourceGroupName = '${tier.namingConvention.resourceGroup}${delimiter}domainControllers'
 
 module rg 'resource-group.bicep' = {
