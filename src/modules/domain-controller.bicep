@@ -56,7 +56,7 @@ module virtualMachine 'virtual-machine.bicep' = {
     diskCaching: 'None'
     diskEncryptionSetResourceId: diskEncryptionSetResourceId
     diskName: '${tier.namingConvention.virtualMachineDisk}${delimiter}dc${delimiter}${index}${delimiter}0'
-    domainJoin: index == 0 ? false : true
+    domainJoin: false
     domainName: domainName
     hybridUseBenefit: hybridUseBenefit
     imageOffer: imageOffer
