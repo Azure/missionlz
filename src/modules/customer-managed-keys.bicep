@@ -12,6 +12,7 @@ param keyName string
 param keyVaultPrivateDnsZoneResourceId string
 param location string
 param mlzTags object
+param privateIPAddress string = ''
 param resourceAbbreviations object
 param resourceGroupName string
 param tags object
@@ -47,6 +48,7 @@ module keyVault 'key-vault.bicep' = {
     keyVaultPrivateEndpointName: '${tier.namingConvention.keyVaultPrivateEndpoint}${delimiter}${workload}'
     location: location
     mlzTags: mlzTags
+    privateIPAddress: privateIPAddress
     subnetResourceId: tier.subnetResourceId
     tags: tags
   }

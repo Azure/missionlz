@@ -889,6 +889,7 @@ module activeDirectoryDomainServices 'modules/active-directory-domain-services.b
     imageSku: addsVmImageSku
     imageVersion: windowsVmImageVersion
     keyVaultPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.keyVault
+    keyVaultPrivateIPAddress: cidrHost(identitySubnetAddressPrefix,6)
     location: location
     mlzTags: networking.outputs.mlzTags
     resourceAbbreviations: networking.outputs.resourceAbbreviations
