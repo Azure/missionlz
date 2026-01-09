@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.39.26.7824",
-      "templateHash": "3281079367687438046"
+      "templateHash": "8562304817159230452"
     }
   },
   "parameters": {
@@ -1032,7 +1032,7 @@
           "deployAzureGatewaySubnet": {
             "value": "[parameters('deployAzureGatewaySubnet')]"
           },
-          "dnsServers": "[if(and(parameters('deployIdentity'), parameters('deployActiveDirectoryDomainServices')), createObject('value', createArray(cidrHost(parameters('identitySubnetAddressPrefix'), 4), cidrHost(parameters('identitySubnetAddressPrefix'), 5))), createObject('value', parameters('dnsServers')))]",
+          "dnsServers": "[if(and(parameters('deployIdentity'), parameters('deployActiveDirectoryDomainServices')), createObject('value', createArray(cidrHost(parameters('identitySubnetAddressPrefix'), 5), cidrHost(parameters('identitySubnetAddressPrefix'), 6))), createObject('value', parameters('dnsServers')))]",
           "enableProxy": {
             "value": "[parameters('enableProxy')]"
           },
@@ -1053,7 +1053,7 @@
               "threatIntelMode": "[parameters('firewallThreatIntelMode')]"
             }
           },
-          "firewallRuleCollectionGroups": "[if(empty(parameters('customFirewallRuleCollectionGroups')), createObject('value', createArray(createObject('name', 'MLZ-DefaultCollectionGroup', 'properties', createObject('priority', 100, 'ruleCollections', createArray(createObject('name', 'NetworkRules', 'priority', 100, 'ruleCollectionType', 'FirewallPolicyFilterRuleCollection', 'action', createObject('type', 'Allow'), 'rules', union(createArray(createObject('name', 'Allow-LAW-TCP', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Tcp'), 'sourceAddresses', createArray(parameters('firewallSupernetIPAddress')), 'destinationAddresses', createArray(cidrHost(parameters('operationsVirtualNetworkAddressPrefix'), 3)), 'destinationPorts', createArray('443'))), if(parameters('deployActiveDirectoryDomainServices'), createArray(createObject('name', 'Allow-ADDS-TCP', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('TCP'), 'sourceAddresses', createArray(parameters('firewallSupernetIPAddress')), 'destinationAddresses', createArray(cidrHost(parameters('identityVirtualNetworkAddressPrefix'), 3), cidrHost(parameters('identityVirtualNetworkAddressPrefix'), 4)), 'destinationPorts', createArray('53', '88', '135', '389', '445', '464', '636', '3268', '3269')), createObject('name', 'Allow-ADDS-UDP', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('UDP'), 'sourceAddresses', createArray(parameters('firewallSupernetIPAddress')), 'destinationAddresses', createArray(cidrHost(parameters('identitySubnetAddressPrefix'), 3), cidrHost(parameters('identitySubnetAddressPrefix'), 4)), 'destinationPorts', createArray('53', '88', '123', '389', '464'))), createArray()), if(or(parameters('deployLinuxVirtualMachine'), parameters('deployWindowsVirtualMachine')), createArray(createObject('name', 'Allow-KMS-TCP', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Tcp'), 'sourceAddresses', union(if(and(parameters('deployLinuxVirtualMachine'), parameters('deployWindowsVirtualMachine')), createArray(cidrHost(parameters('hubSubnetAddressPrefix'), 4), cidrHost(parameters('hubSubnetAddressPrefix'), 5)), createArray(cidrHost(parameters('hubSubnetAddressPrefix'), 4))), if(parameters('deployActiveDirectoryDomainServices'), createArray(cidrHost(parameters('identitySubnetAddressPrefix'), 3), cidrHost(parameters('identitySubnetAddressPrefix'), 4)), createArray())), 'destinationAddresses', createArray(), 'destinationFqdns', createArray(format('azkms.{0}', environment().suffixes.storage), format('kms.{0}', environment().suffixes.storage)), 'destinationPorts', createArray('1688'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray())), createArray()))), createObject('name', 'ApplicationRules', 'priority', 200, 'ruleCollectionType', 'FirewallPolicyFilterRuleCollection', 'action', createObject('type', 'Allow'), 'rules', if(or(parameters('deployLinuxVirtualMachine'), parameters('deployWindowsVirtualMachine')), createArray(createObject('name', 'Allow-WindowsUpdate', 'ruleType', 'ApplicationRule', 'protocols', createArray(createObject('protocolType', 'Https', 'port', 443)), 'fqdnTags', createArray('WindowsUpdate'), 'webCategories', createArray(), 'targetFqdns', createArray(), 'targetUrls', createArray(), 'terminateTLS', false(), 'sourceAddresses', union(if(and(parameters('deployLinuxVirtualMachine'), parameters('deployWindowsVirtualMachine')), createArray(cidrHost(parameters('hubSubnetAddressPrefix'), 4), cidrHost(parameters('hubSubnetAddressPrefix'), 5)), createArray(cidrHost(parameters('hubSubnetAddressPrefix'), 4))), if(parameters('deployActiveDirectoryDomainServices'), createArray(cidrHost(parameters('identitySubnetAddressPrefix'), 3), cidrHost(parameters('identitySubnetAddressPrefix'), 4)), createArray())), 'destinationAddresses', createArray(), 'sourceIpGroups', createArray())), createArray()))))))), createObject('value', parameters('customFirewallRuleCollectionGroups')))]",
+          "firewallRuleCollectionGroups": "[if(empty(parameters('customFirewallRuleCollectionGroups')), createObject('value', createArray(createObject('name', 'MLZ-DefaultCollectionGroup', 'properties', createObject('priority', 100, 'ruleCollections', createArray(createObject('name', 'NetworkRules', 'priority', 100, 'ruleCollectionType', 'FirewallPolicyFilterRuleCollection', 'action', createObject('type', 'Allow'), 'rules', union(createArray(createObject('name', 'Allow-LAW-TCP', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Tcp'), 'sourceAddresses', createArray(parameters('firewallSupernetIPAddress')), 'destinationAddresses', createArray(cidrHost(parameters('operationsVirtualNetworkAddressPrefix'), 3)), 'destinationPorts', createArray('443'))), if(parameters('deployActiveDirectoryDomainServices'), createArray(createObject('name', 'Allow-ADDS-TCP', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('TCP'), 'sourceAddresses', createArray(parameters('firewallSupernetIPAddress')), 'destinationAddresses', createArray(cidrHost(parameters('identityVirtualNetworkAddressPrefix'), 5), cidrHost(parameters('identityVirtualNetworkAddressPrefix'), 6)), 'destinationPorts', createArray('53', '88', '135', '389', '445', '464', '636', '3268', '3269')), createObject('name', 'Allow-ADDS-UDP', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('UDP'), 'sourceAddresses', createArray(parameters('firewallSupernetIPAddress')), 'destinationAddresses', createArray(cidrHost(parameters('identitySubnetAddressPrefix'), 5), cidrHost(parameters('identitySubnetAddressPrefix'), 6)), 'destinationPorts', createArray('53', '88', '123', '389', '464'))), createArray()), if(or(parameters('deployLinuxVirtualMachine'), parameters('deployWindowsVirtualMachine')), createArray(createObject('name', 'Allow-KMS-TCP', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Tcp'), 'sourceAddresses', union(if(and(parameters('deployLinuxVirtualMachine'), parameters('deployWindowsVirtualMachine')), createArray(cidrHost(parameters('hubSubnetAddressPrefix'), 4), cidrHost(parameters('hubSubnetAddressPrefix'), 5)), createArray(cidrHost(parameters('hubSubnetAddressPrefix'), 4))), if(parameters('deployActiveDirectoryDomainServices'), createArray(cidrHost(parameters('identitySubnetAddressPrefix'), 5), cidrHost(parameters('identitySubnetAddressPrefix'), 6)), createArray())), 'destinationAddresses', createArray(), 'destinationFqdns', createArray(format('azkms.{0}', environment().suffixes.storage), format('kms.{0}', environment().suffixes.storage)), 'destinationPorts', createArray('1688'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray())), createArray()))), createObject('name', 'ApplicationRules', 'priority', 200, 'ruleCollectionType', 'FirewallPolicyFilterRuleCollection', 'action', createObject('type', 'Allow'), 'rules', if(or(parameters('deployLinuxVirtualMachine'), parameters('deployWindowsVirtualMachine')), createArray(createObject('name', 'Allow-WindowsUpdate', 'ruleType', 'ApplicationRule', 'protocols', createArray(createObject('protocolType', 'Https', 'port', 443)), 'fqdnTags', createArray('WindowsUpdate'), 'webCategories', createArray(), 'targetFqdns', createArray(), 'targetUrls', createArray(), 'terminateTLS', false(), 'sourceAddresses', union(if(and(parameters('deployLinuxVirtualMachine'), parameters('deployWindowsVirtualMachine')), createArray(cidrHost(parameters('hubSubnetAddressPrefix'), 4), cidrHost(parameters('hubSubnetAddressPrefix'), 5)), createArray(cidrHost(parameters('hubSubnetAddressPrefix'), 4))), if(parameters('deployActiveDirectoryDomainServices'), createArray(cidrHost(parameters('identitySubnetAddressPrefix'), 5), cidrHost(parameters('identitySubnetAddressPrefix'), 6)), createArray())), 'destinationAddresses', createArray(), 'sourceIpGroups', createArray())), createArray()))))))), createObject('value', parameters('customFirewallRuleCollectionGroups')))]",
           "identifier": {
             "value": "[parameters('identifier')]"
           },
@@ -5036,9 +5036,6 @@
           "keyVaultPrivateDnsZoneResourceId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.privateDnsZoneResourceIds.value.keyVault]"
           },
-          "keyVaultPrivateIPAddress": {
-            "value": "[cidrHost(parameters('identitySubnetAddressPrefix'), 6)]"
-          },
           "location": {
             "value": "[parameters('location')]"
           },
@@ -5068,7 +5065,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.39.26.7824",
-              "templateHash": "14057609124007558082"
+              "templateHash": "13247278531115486842"
             }
           },
           "parameters": {
@@ -5110,9 +5107,6 @@
               "type": "string"
             },
             "keyVaultPrivateDnsZoneResourceId": {
-              "type": "string"
-            },
-            "keyVaultPrivateIPAddress": {
               "type": "string"
             },
             "location": {
@@ -5260,9 +5254,6 @@
                   "mlzTags": {
                     "value": "[parameters('mlzTags')]"
                   },
-                  "privateIPAddress": {
-                    "value": "[parameters('keyVaultPrivateIPAddress')]"
-                  },
                   "resourceAbbreviations": {
                     "value": "[parameters('resourceAbbreviations')]"
                   },
@@ -5286,7 +5277,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.39.26.7824",
-                      "templateHash": "14364823010203531731"
+                      "templateHash": "15020316016009677208"
                     }
                   },
                   "parameters": {
@@ -5310,10 +5301,6 @@
                     },
                     "mlzTags": {
                       "type": "object"
-                    },
-                    "privateIPAddress": {
-                      "type": "string",
-                      "defaultValue": ""
                     },
                     "resourceAbbreviations": {
                       "type": "object"
@@ -5455,9 +5442,6 @@
                           "mlzTags": {
                             "value": "[parameters('mlzTags')]"
                           },
-                          "privateIPAddress": {
-                            "value": "[parameters('privateIPAddress')]"
-                          },
                           "subnetResourceId": {
                             "value": "[parameters('tier').subnetResourceId]"
                           },
@@ -5472,7 +5456,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.39.26.7824",
-                              "templateHash": "9508825415217201651"
+                              "templateHash": "10403495100213539569"
                             }
                           },
                           "parameters": {
@@ -5503,10 +5487,6 @@
                             },
                             "mlzTags": {
                               "type": "object"
-                            },
-                            "privateIPAddress": {
-                              "type": "string",
-                              "defaultValue": ""
                             },
                             "subnetResourceId": {
                               "type": "string"
@@ -5590,7 +5570,6 @@
                               "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/privateEndpoints'), createObject()), parameters('mlzTags'))]",
                               "properties": {
                                 "customNetworkInterfaceName": "[parameters('keyVaultNetworkInterfaceName')]",
-                                "ipConfigurations": "[if(empty(parameters('privateIPAddress')), createArray(), createArray(createObject('name', 'ipconfig', 'properties', createObject('privateIPAddress', parameters('privateIPAddress')))))]",
                                 "privateLinkServiceConnections": [
                                   {
                                     "name": "[parameters('keyVaultPrivateEndpointName')]",
@@ -6037,7 +6016,7 @@
                     "value": "[parameters('mlzTags')]"
                   },
                   "privateIPAddressOffset": {
-                    "value": 4
+                    "value": 5
                   },
                   "safeModeAdminPassword": {
                     "value": "[parameters('safeModeAdminPassword')]"
@@ -6944,7 +6923,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.39.26.7824",
-              "templateHash": "5163227814028077285"
+              "templateHash": "11661208773492248656"
             }
           },
           "parameters": {
@@ -7199,7 +7178,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.39.26.7824",
-                      "templateHash": "14364823010203531731"
+                      "templateHash": "15020316016009677208"
                     }
                   },
                   "parameters": {
@@ -7223,10 +7202,6 @@
                     },
                     "mlzTags": {
                       "type": "object"
-                    },
-                    "privateIPAddress": {
-                      "type": "string",
-                      "defaultValue": ""
                     },
                     "resourceAbbreviations": {
                       "type": "object"
@@ -7368,9 +7343,6 @@
                           "mlzTags": {
                             "value": "[parameters('mlzTags')]"
                           },
-                          "privateIPAddress": {
-                            "value": "[parameters('privateIPAddress')]"
-                          },
                           "subnetResourceId": {
                             "value": "[parameters('tier').subnetResourceId]"
                           },
@@ -7385,7 +7357,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.39.26.7824",
-                              "templateHash": "9508825415217201651"
+                              "templateHash": "10403495100213539569"
                             }
                           },
                           "parameters": {
@@ -7416,10 +7388,6 @@
                             },
                             "mlzTags": {
                               "type": "object"
-                            },
-                            "privateIPAddress": {
-                              "type": "string",
-                              "defaultValue": ""
                             },
                             "subnetResourceId": {
                               "type": "string"
@@ -7503,7 +7471,6 @@
                               "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/privateEndpoints'), createObject()), parameters('mlzTags'))]",
                               "properties": {
                                 "customNetworkInterfaceName": "[parameters('keyVaultNetworkInterfaceName')]",
-                                "ipConfigurations": "[if(empty(parameters('privateIPAddress')), createArray(), createArray(createObject('name', 'ipconfig', 'properties', createObject('privateIPAddress', parameters('privateIPAddress')))))]",
                                 "privateLinkServiceConnections": [
                                   {
                                     "name": "[parameters('keyVaultPrivateEndpointName')]",
@@ -8983,7 +8950,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.39.26.7824",
-              "templateHash": "3391472683151122861"
+              "templateHash": "5711182430155451214"
             }
           },
           "parameters": {
@@ -9074,7 +9041,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.39.26.7824",
-                      "templateHash": "14364823010203531731"
+                      "templateHash": "15020316016009677208"
                     }
                   },
                   "parameters": {
@@ -9098,10 +9065,6 @@
                     },
                     "mlzTags": {
                       "type": "object"
-                    },
-                    "privateIPAddress": {
-                      "type": "string",
-                      "defaultValue": ""
                     },
                     "resourceAbbreviations": {
                       "type": "object"
@@ -9243,9 +9206,6 @@
                           "mlzTags": {
                             "value": "[parameters('mlzTags')]"
                           },
-                          "privateIPAddress": {
-                            "value": "[parameters('privateIPAddress')]"
-                          },
                           "subnetResourceId": {
                             "value": "[parameters('tier').subnetResourceId]"
                           },
@@ -9260,7 +9220,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.39.26.7824",
-                              "templateHash": "9508825415217201651"
+                              "templateHash": "10403495100213539569"
                             }
                           },
                           "parameters": {
@@ -9291,10 +9251,6 @@
                             },
                             "mlzTags": {
                               "type": "object"
-                            },
-                            "privateIPAddress": {
-                              "type": "string",
-                              "defaultValue": ""
                             },
                             "subnetResourceId": {
                               "type": "string"
@@ -9378,7 +9334,6 @@
                               "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Network/privateEndpoints'), createObject()), parameters('mlzTags'))]",
                               "properties": {
                                 "customNetworkInterfaceName": "[parameters('keyVaultNetworkInterfaceName')]",
-                                "ipConfigurations": "[if(empty(parameters('privateIPAddress')), createArray(), createArray(createObject('name', 'ipconfig', 'properties', createObject('privateIPAddress', parameters('privateIPAddress')))))]",
                                 "privateLinkServiceConnections": [
                                   {
                                     "name": "[parameters('keyVaultPrivateEndpointName')]",

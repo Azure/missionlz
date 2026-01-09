@@ -19,7 +19,6 @@ param imagePublisher string
 param imageSku string
 param imageVersion string
 param keyVaultPrivateDnsZoneResourceId string
-param keyVaultPrivateIPAddress string
 param location string = deployment().location
 param mlzTags object
 param resourceAbbreviations object
@@ -54,7 +53,6 @@ module customerManagedKeys 'customer-managed-keys.bicep' = {
     keyVaultPrivateDnsZoneResourceId: keyVaultPrivateDnsZoneResourceId
     location: location
     mlzTags: mlzTags
-    privateIPAddress: keyVaultPrivateIPAddress
     resourceAbbreviations: resourceAbbreviations
     resourceGroupName: resourceGroupName
     tags: tags
@@ -102,7 +100,7 @@ module domainControllers 'domain-controller.bicep' = [
       index: i
       location: location
       mlzTags: mlzTags
-      privateIPAddressOffset: 4
+      privateIPAddressOffset: 5
       safeModeAdminPassword: safeModeAdminPassword
       subnetResourceId: tier.subnetResourceId
       tags: tags

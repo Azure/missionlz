@@ -616,8 +616,8 @@ module networking 'modules/networking.bicep' = {
     deployAzureGatewaySubnet: deployAzureGatewaySubnet
     dnsServers: deployIdentity && deployActiveDirectoryDomainServices
       ? [
-          cidrHost(identitySubnetAddressPrefix,4)
           cidrHost(identitySubnetAddressPrefix,5)
+          cidrHost(identitySubnetAddressPrefix,6)
         ]
       : dnsServers
     enableProxy: enableProxy
@@ -671,8 +671,8 @@ module networking 'modules/networking.bicep' = {
                               firewallSupernetIPAddress
                             ]
                             destinationAddresses: [
-                              cidrHost(identityVirtualNetworkAddressPrefix, 3)
-                              cidrHost(identityVirtualNetworkAddressPrefix, 4)
+                              cidrHost(identityVirtualNetworkAddressPrefix, 5)
+                              cidrHost(identityVirtualNetworkAddressPrefix, 6)
                             ]
                             destinationPorts: [
                               '53' // DNS
@@ -694,8 +694,8 @@ module networking 'modules/networking.bicep' = {
                               firewallSupernetIPAddress
                             ]
                             destinationAddresses: [
-                              cidrHost(identitySubnetAddressPrefix, 3)
-                              cidrHost(identitySubnetAddressPrefix, 4)
+                              cidrHost(identitySubnetAddressPrefix, 5)
+                              cidrHost(identitySubnetAddressPrefix, 6)
                             ]
                             destinationPorts: [
                               '53' // DNS over UDP
@@ -724,8 +724,8 @@ module networking 'modules/networking.bicep' = {
                                   ],
                               deployActiveDirectoryDomainServices
                                 ? [
-                                    cidrHost(identitySubnetAddressPrefix, 3)
-                                    cidrHost(identitySubnetAddressPrefix, 4)
+                                    cidrHost(identitySubnetAddressPrefix, 5)
+                                    cidrHost(identitySubnetAddressPrefix, 6)
                                   ]
                                 : []
                             )
@@ -780,8 +780,8 @@ module networking 'modules/networking.bicep' = {
                                 ],
                             deployActiveDirectoryDomainServices
                               ? [
-                                  cidrHost(identitySubnetAddressPrefix, 3)
-                                  cidrHost(identitySubnetAddressPrefix, 4)
+                                  cidrHost(identitySubnetAddressPrefix, 5)
+                                  cidrHost(identitySubnetAddressPrefix, 6)
                                 ]
                               : []
                           )
@@ -889,7 +889,6 @@ module activeDirectoryDomainServices 'modules/active-directory-domain-services.b
     imageSku: addsVmImageSku
     imageVersion: windowsVmImageVersion
     keyVaultPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.keyVault
-    keyVaultPrivateIPAddress: cidrHost(identitySubnetAddressPrefix,6)
     location: location
     mlzTags: networking.outputs.mlzTags
     resourceAbbreviations: networking.outputs.resourceAbbreviations

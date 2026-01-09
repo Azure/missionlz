@@ -12,7 +12,6 @@ param keyVaultPrivateDnsZoneResourceId string
 param keyVaultPrivateEndpointName string
 param location string
 param mlzTags object
-param privateIPAddress string = ''
 param subnetResourceId string
 param tags object
 
@@ -84,14 +83,6 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = {
   tags: union(tags[?'Microsoft.Network/privateEndpoints'] ?? {}, mlzTags)
   properties: {
     customNetworkInterfaceName: keyVaultNetworkInterfaceName
-    ipConfigurations: empty(privateIPAddress) ? [] : [
-      {
-        name: 'ipconfig'
-        properties: {
-          privateIPAddress: privateIPAddress
-        }
-      }
-    ]
     privateLinkServiceConnections: [
       {
         name: keyVaultPrivateEndpointName
