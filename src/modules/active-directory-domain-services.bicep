@@ -29,8 +29,6 @@ param tier object
 param vmCount int = 2
 param vmSize string
 
-var hubSubscriptionId = subscription().subscriptionId
-var identitySubscriptionId = tier.subscriptionId
 var resourceGroupName = '${tier.namingConvention.resourceGroup}${delimiter}domainControllers'
 
 module rg 'resource-group.bicep' = {
@@ -102,7 +100,7 @@ module domainControllers 'domain-controller.bicep' = [
       index: i
       location: location
       mlzTags: mlzTags
-      privateIPAddressOffset: hubSubscriptionId == identitySubscriptionId ? 3 : 4
+      privateIPAddressOffset: 5
       safeModeAdminPassword: safeModeAdminPassword
       subnetResourceId: tier.subnetResourceId
       tags: tags

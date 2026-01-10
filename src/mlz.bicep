@@ -616,8 +616,8 @@ module networking 'modules/networking.bicep' = {
     deployAzureGatewaySubnet: deployAzureGatewaySubnet
     dnsServers: deployIdentity && deployActiveDirectoryDomainServices
       ? [
-          cidrHost(identitySubnetAddressPrefix, hubSubscriptionId == identitySubscriptionId ? 3 : 4) // when the sub IDs are the same, a key vault is not deployed in the identity spoke
-          cidrHost(identitySubnetAddressPrefix, hubSubscriptionId == identitySubscriptionId ? 4 : 5) // when the sub IDs are the same, a key vault is not deployed in the identity spoke
+          cidrHost(identitySubnetAddressPrefix,5)
+          cidrHost(identitySubnetAddressPrefix,6)
         ]
       : dnsServers
     enableProxy: enableProxy
@@ -671,8 +671,8 @@ module networking 'modules/networking.bicep' = {
                               firewallSupernetIPAddress
                             ]
                             destinationAddresses: [
-                              cidrHost(identityVirtualNetworkAddressPrefix, 3)
-                              cidrHost(identityVirtualNetworkAddressPrefix, 4)
+                              cidrHost(identityVirtualNetworkAddressPrefix, 5)
+                              cidrHost(identityVirtualNetworkAddressPrefix, 6)
                             ]
                             destinationPorts: [
                               '53' // DNS
@@ -694,8 +694,8 @@ module networking 'modules/networking.bicep' = {
                               firewallSupernetIPAddress
                             ]
                             destinationAddresses: [
-                              cidrHost(identitySubnetAddressPrefix, 3)
-                              cidrHost(identitySubnetAddressPrefix, 4)
+                              cidrHost(identitySubnetAddressPrefix, 5)
+                              cidrHost(identitySubnetAddressPrefix, 6)
                             ]
                             destinationPorts: [
                               '53' // DNS over UDP
@@ -724,8 +724,8 @@ module networking 'modules/networking.bicep' = {
                                   ],
                               deployActiveDirectoryDomainServices
                                 ? [
-                                    cidrHost(identitySubnetAddressPrefix, 3)
-                                    cidrHost(identitySubnetAddressPrefix, 4)
+                                    cidrHost(identitySubnetAddressPrefix, 5)
+                                    cidrHost(identitySubnetAddressPrefix, 6)
                                   ]
                                 : []
                             )
@@ -780,8 +780,8 @@ module networking 'modules/networking.bicep' = {
                                 ],
                             deployActiveDirectoryDomainServices
                               ? [
-                                  cidrHost(identitySubnetAddressPrefix, 3)
-                                  cidrHost(identitySubnetAddressPrefix, 4)
+                                  cidrHost(identitySubnetAddressPrefix, 5)
+                                  cidrHost(identitySubnetAddressPrefix, 6)
                                 ]
                               : []
                           )
