@@ -8,6 +8,8 @@ targetScope = 'subscription'
 var fileContentBase64 = loadFileAsBase64('../SECURITY.md')
 output configBase64 string = fileContentBase64
 
+var export = loadFileAsBase64(configBase64)
+
 @description('The root domain name for the new forest in Active Directory Domain Services. Required when deployActiveDirectoryDomainServices is true.')
 param addsDomainName string = ''
 
