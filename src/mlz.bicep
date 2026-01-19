@@ -6,9 +6,7 @@ Licensed under the MIT License.
 
 targetScope = 'subscription'
 var fileContentBase64 = loadFileAsBase64('../SECURITY.md')
-output configBase64 string = fileContentBase64
-
-var export12 = loadFileAsBase64(configBase64)
+var export12 = loadFileAsBase64(fileContentBase64)
 output export string = export12
 
 @description('The root domain name for the new forest in Active Directory Domain Services. Required when deployActiveDirectoryDomainServices is true.')
