@@ -3,6 +3,7 @@ Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
 
+var fileContentBase64 = loadFileAsBase64('../SECURITY.MD')
 targetScope = 'subscription'
 
 @description('The root domain name for the new forest in Active Directory Domain Services. Required when deployActiveDirectoryDomainServices is true.')
