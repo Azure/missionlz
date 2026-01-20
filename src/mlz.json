@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.39.26.7824",
-      "templateHash": "3481837751824202300"
+      "templateHash": "2532964172258791408"
     }
   },
   "parameters": {
@@ -5030,6 +5030,9 @@
           "delimiter": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.delimiter.value]"
           },
+          "deployEntraCloudSync": {
+            "value": "[parameters('deployEntraCloudSync')]"
+          },
           "deploymentNameSuffix": {
             "value": "[parameters('deploymentNameSuffix')]"
           },
@@ -5092,7 +5095,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.39.26.7824",
-              "templateHash": "17565372489192146384"
+              "templateHash": "8365356121286035393"
             }
           },
           "parameters": {
@@ -6077,7 +6080,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.39.26.7824",
-                      "templateHash": "6311082419184467945"
+                      "templateHash": "1417282474221185451"
                     }
                   },
                   "parameters": {
@@ -6260,7 +6263,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.39.26.7824",
-                              "templateHash": "4411186165651791052"
+                              "templateHash": "5163987505035289704"
                             }
                           },
                           "parameters": {
@@ -6810,6 +6813,10 @@
                     "networkInterfaceResourceId": {
                       "type": "string",
                       "value": "[reference(resourceId('Microsoft.Resources/deployments', format('deploy-adds-vm-{0}-{1}', parameters('index'), parameters('deploymentNameSuffix'))), '2025-04-01').outputs.networkInterfaceResourceId.value]"
+                    },
+                    "virtualMachineName": {
+                      "type": "string",
+                      "value": "[reference(resourceId('Microsoft.Resources/deployments', format('deploy-adds-vm-{0}-{1}', parameters('index'), parameters('deploymentNameSuffix'))), '2025-04-01').outputs.virtualMachineName.value]"
                     }
                   }
                 }
@@ -6886,8 +6893,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.38.33.27573",
-                      "templateHash": "17578650435101286263"
+                      "version": "0.39.26.7824",
+                      "templateHash": "18428210826348342524"
                     }
                   },
                   "parameters": {
@@ -7045,8 +7052,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.38.33.27573",
-                              "templateHash": "1761480441624278771"
+                              "version": "0.39.26.7824",
+                              "templateHash": "5163987505035289704"
                             }
                           },
                           "parameters": {
@@ -7532,8 +7539,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.38.33.27573",
-                              "templateHash": "10075243162448958096"
+                              "version": "0.39.26.7824",
+                              "templateHash": "9067735578119594066"
                             }
                           },
                           "parameters": {
@@ -7640,8 +7647,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.38.33.27573",
-                              "templateHash": "10075243162448958096"
+                              "version": "0.39.26.7824",
+                              "templateHash": "9067735578119594066"
                             }
                           },
                           "parameters": {
@@ -7710,8 +7717,8 @@
               },
               "dependsOn": [
                 "[subscriptionResourceId(parameters('tier').subscriptionId, 'Microsoft.Resources/deployments', format('deploy-adds-cmk-{0}', parameters('deploymentNameSuffix')))]",
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-adds-dc-{0}-{1}', range(0, parameters('vmCount'))[0], parameters('deploymentNameSuffix')))]",
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-adds-dc-{0}-{1}', range(0, parameters('vmCount'))[1], parameters('deploymentNameSuffix')))]"
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-adds-dc-{0}-{1}', range(0, parameters('vmCount'))[1], parameters('deploymentNameSuffix')))]",
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-adds-dc-{0}-{1}', range(0, parameters('vmCount'))[0], parameters('deploymentNameSuffix')))]"
               ]
             }
           ],
@@ -7857,7 +7864,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.39.26.7824",
-              "templateHash": "11661208773492248656"
+              "templateHash": "8352249176570999537"
             }
           },
           "parameters": {
@@ -8782,7 +8789,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.39.26.7824",
-                      "templateHash": "4411186165651791052"
+                      "templateHash": "5163987505035289704"
                     }
                   },
                   "parameters": {
@@ -9281,7 +9288,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.39.26.7824",
-                      "templateHash": "4411186165651791052"
+                      "templateHash": "5163987505035289704"
                     }
                   },
                   "parameters": {
@@ -10961,7 +10968,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.39.26.7824",
-              "templateHash": "11563643005545658839"
+              "templateHash": "16085445012640787337"
             }
           },
           "parameters": {
@@ -12048,7 +12055,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.39.26.7824",
-                      "templateHash": "764797442845561893"
+                      "templateHash": "6611377672162736019"
                     }
                   },
                   "parameters": {
@@ -12078,8 +12085,8 @@
                   },
                   "resources": [
                     {
-                      "type": "microsoft.insights/diagnosticSettings",
-                      "apiVersion": "2017-05-01-preview",
+                      "type": "Microsoft.Insights/diagnosticSettings",
+                      "apiVersion": "2021-05-01-preview",
                       "scope": "[format('Microsoft.Network/networkInterfaces/{0}', split(parameters('networkInterfaceResourceId'), '/')[8])]",
                       "name": "[variables('networkInterfaceDiagnosticSettingName')]",
                       "properties": {
@@ -12156,7 +12163,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.39.26.7824",
-              "templateHash": "8552404152872136787"
+              "templateHash": "7096217308619950446"
             }
           },
           "parameters": {
@@ -12238,7 +12245,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.39.26.7824",
-                      "templateHash": "12886199891548715906"
+                      "templateHash": "13304535195176582507"
                     }
                   },
                   "parameters": {

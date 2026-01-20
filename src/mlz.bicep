@@ -995,10 +995,10 @@ module diagnosticSettings 'modules/diagnostic-settings.bicep' = {
         storage.outputs.keyVaultProperties
       ],
       deployActiveDirectoryDomainServices ? [
-        activeDirectoryDomainServices.outputs.keyVaultProperties
+        activeDirectoryDomainServices!.outputs.keyVaultProperties
       ] : [],
       deployLinuxVirtualMachine || deployWindowsVirtualMachine ? [
-        remoteAccess.outputs.keyVaultProperties
+        remoteAccess!.outputs.keyVaultProperties
       ] : []
     )
     keyVaultDiagnosticLogs: keyVaultDiagnosticsLogs
@@ -1007,9 +1007,9 @@ module diagnosticSettings 'modules/diagnostic-settings.bicep' = {
     logAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
     networkInterfaceDiagnosticsMetrics: networkInterfaceDiagnosticsMetrics
     networkInterfaceResourceIds: union(
-      deployActiveDirectoryDomainServices && deployIdentity ? activeDirectoryDomainServices.outputs.networkInterfaceResourceIds : [],
+      deployActiveDirectoryDomainServices && deployIdentity ? activeDirectoryDomainServices!.outputs.networkInterfaceResourceIds : [],
       monitoring.outputs.networkInterfaceResourceIds,
-      deployLinuxVirtualMachine || deployWindowsVirtualMachine ? remoteAccess.outputs.networkInterfaceResourceIds : [],
+      deployLinuxVirtualMachine || deployWindowsVirtualMachine ? remoteAccess!.outputs.networkInterfaceResourceIds : [],
       flatten(storage.outputs.networkInterfaceResourceIds)
     )
     networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
