@@ -4,7 +4,7 @@
 
 name: validate-build-bicep
 on:
-  pull_request:
+  pull_request_target:
     branches: [main]
     paths:
     - 'src/**'
@@ -28,7 +28,7 @@ jobs:
       security-events: write
       statuses: read
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.head.sha }}
       - run: |

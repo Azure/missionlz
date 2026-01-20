@@ -104,7 +104,7 @@ module domainControllers 'domain-controller.bicep' = [
       index: i
       location: location
       mlzTags: mlzTags
-      privateIPAddressOffset: 4 // This is the offset / index for the first available IP address in the subnet. The key vault is using the first available (offset 3) IP address.
+      privateIPAddressOffset: 5
       safeModeAdminPassword: safeModeAdminPassword
       subnetResourceId: tier.subnetResourceId
       tags: tags

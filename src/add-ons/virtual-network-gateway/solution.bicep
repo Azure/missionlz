@@ -29,8 +29,8 @@ param virtualNetworkGatewaySku string = 'VpnGw2'
 @description('Optional: Provide your own Firewall Policy rule collection groups. When non-empty, these override the default VGW-OnPrem group built by this template.')
 param customFirewallRuleCollectionGroups array = []
 
-@description('Include Hub <-> On-Prem allow firewall rules in the default group (off by default).')
-param includeHubOnPrem bool = false
+
+
 
 @description('Default CIDR to use when creating the GatewaySubnet if it does not exist.')
 var defaultGatewaySubnetPrefix = '10.0.129.192/26'
@@ -97,7 +97,7 @@ module firewallRules 'modules/firewall-rules-vgw.bicep' = {
     spokeAddressPrefixSets: collectSpokeAddresses.outputs.spokeAddressPrefixSets
     localAddressPrefixes: localAddressPrefixes
     firewallRuleCollectionGroups: customFirewallRuleCollectionGroups
-    includeHubOnPrem: includeHubOnPrem
+  // hub always included now; parameter removed
   }
 }
 
@@ -165,7 +165,7 @@ module vpnConnectionModule 'modules/vpn-connection.bicep' = {
 }
 
 // Loop through the vnetResourceIdList and to retrieve the peerings for each VNet
-module retrieveVnetInfo 'modules/retrieve-existing.bicep' = [for (vnetId, i) in virtualNetworkResourceIdList: {
+module retrieveVnetInfo 'modules/vnet-info.bicep' = [for (vnetId, i) in virtualNetworkResourceIdList: {
   name: 'retrieveVnetPeerings-${deploymentNameSuffix}-${i}'
   scope: resourceGroup(split(vnetId, '/')[2], split(vnetId, '/')[4])
   params: {
@@ -174,7 +174,7 @@ module retrieveVnetInfo 'modules/retrieve-existing.bicep' = [for (vnetId, i) in 
 }]
 
 // Get the hub virtual network peerings
-module retrieveHubVnetInfo 'modules/retrieve-existing.bicep' = {
+module retrieveHubVnetInfo 'modules/vnet-info.bicep' = {
   name: 'retrieveHubVnetPeerings-${deploymentNameSuffix}'
   scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
   params: {
@@ -183,13 +183,11 @@ module retrieveHubVnetInfo 'modules/retrieve-existing.bicep' = {
 }
 
 // Retrieve firewall private IP and (optionally) GatewaySubnet prefix without peering deps
-module retrieveRouteTableInfo 'modules/retrieve-existing.bicep' = {
-  name: 'retrieveRouteTableInfo-${deploymentNameSuffix}'
+module firewallInfo 'modules/firewall-info.bicep' = {
+  name: 'firewallInfo-${deploymentNameSuffix}'
   scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
   params: {
-    vnetResourceId: hubVirtualNetworkResourceId
-    azureFirewallName: split(azureFirewallResourceId, '/')[8]
-    subnetName: ''
+    azureFirewallResourceId: azureFirewallResourceId
   }
 }
 // Ensure the GatewaySubnet exists (or is configured) before associating the dedicated vgw route table
@@ -231,16 +229,18 @@ module updatePeerings 'modules/vnet-peerings.bicep' = [for (vnetId, i) in virtua
   ]
 }]
 
-// Create the route table for the VPN Gateway subnet, will route spoke vnets to through the firewall, overriding default behavior
+// Always create the dedicated route table for forced tunneling via the firewall
 module createRouteTable 'modules/route-table.bicep' = {
   name: 'createVgwRouteTable-${deploymentNameSuffix}'
   scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
   params: {
-  routeTableName: vgwRouteTableName
+    routeTableName: vgwRouteTableName
+    // Disable BGP propagation (no BGP usage; static enforcement)
+    disableBgpRoutePropagation: true
   }
 }
 
-// Create the routes to the firewall for the spoke vnets
+// Add static routes for each spoke via firewall (forced tunneling)
 module createRoutes 'modules/routes.bicep' = [for (vnetResourceId, i) in virtualNetworkResourceIdList: {
   name: 'createRoute-${i}-${deploymentNameSuffix}'
   scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
@@ -249,31 +249,15 @@ module createRoutes 'modules/routes.bicep' = [for (vnetResourceId, i) in virtual
     addressSpace: retrieveVnetInfo[i].outputs.vnetAddressSpace
     routeName: 'route-${i}'
     nextHopType: 'VirtualAppliance'
-    nextHopIpAddress: retrieveRouteTableInfo.outputs.firewallPrivateIp
+  nextHopIpAddress: firewallInfo.outputs.firewallPrivateIp
   }
   dependsOn: [
     createRouteTable
   ]
 }]
 
-// Create the routes to the firewall for the hub vnet as an override to on-prem networks
-module createHubRoutesToOnPrem 'modules/routes.bicep' = if (includeHubOnPrem) {
-  name: 'createOverrideRoutes-${deploymentNameSuffix}'
-  scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
-  params: {
-    routeTableName: vgwRouteTableName
-    addressSpace: localAddressPrefixes
-    routeName: 'route-onprem-override'
-    nextHopType: 'VirtualAppliance'
-    nextHopIpAddress: retrieveRouteTableInfo.outputs.firewallPrivateIp
-  }
-  dependsOn: [
-    createRouteTable
-  ]
-}
-
-// Also add Hub VNet address prefixes to the VGW route table to steer Hub CIDRs through the firewall
-module createHubCidrRoutes 'modules/routes.bicep' = if (includeHubOnPrem) {
+// Add Hub VNet address prefixes to the VGW route table to steer Hub CIDRs through the firewall
+module createHubCidrRoutes 'modules/routes.bicep' = {
   name: 'createHubCidrRoutes-${deploymentNameSuffix}'
   scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
   params: {
@@ -281,15 +265,16 @@ module createHubCidrRoutes 'modules/routes.bicep' = if (includeHubOnPrem) {
     addressSpace: virtualNetwork_hub.properties.addressSpace.addressPrefixes
     routeName: 'route-hub'
     nextHopType: 'VirtualAppliance'
-    nextHopIpAddress: retrieveRouteTableInfo.outputs.firewallPrivateIp
+  nextHopIpAddress: firewallInfo.outputs.firewallPrivateIp
   }
   dependsOn: [
     createRouteTable
   ]
 }
 
-// Add the same on-prem override routes to the pre-existing hub workload route table so hub workloads egress to the firewall (optional)
-module createHubRouteOverrides 'modules/routes.bicep' = if (includeHubOnPrem) {
+// Add on-prem prefixes to the hub workload route table so hub workloads egress to the firewall
+// Add on-prem prefixes to the hub workload route table so hub workloads egress to the firewall
+module createHubRouteOverrides 'modules/routes.bicep' = {
   name: 'createHubRouteOverrides-${deploymentNameSuffix}'
   scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
   params: {
@@ -297,23 +282,27 @@ module createHubRouteOverrides 'modules/routes.bicep' = if (includeHubOnPrem) {
     addressSpace: localAddressPrefixes
     routeName: 'route-onprem-override'
     nextHopType: 'VirtualAppliance'
-    nextHopIpAddress: retrieveRouteTableInfo.outputs.firewallPrivateIp
+  nextHopIpAddress: firewallInfo.outputs.firewallPrivateIp
   }
 }
 
-// Associate the vgw route table with the gateway subnet so the gateway routes traffic destined for spokes through the firewall
+// Associate the vgw route table to GatewaySubnet
 module associateRouteTable 'modules/associate-route-table.bicep' = {
   name: 'associateRouteTable-${deploymentNameSuffix}'
   scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
   params: {
     vnetResourceId: hubVirtualNetworkResourceId
-    routeTableResourceId: createRouteTable.outputs.routeTableId
+    // safe: module only exists in same condition
+  // Safely pass the route table id (module exists only under same condition)
+  routeTableResourceId: createRouteTable.outputs.routeTableId
     subnetName: 'GatewaySubnet'
     subnetAddressPrefix: effectiveGatewaySubnetPrefix
   }
   dependsOn: [
-  ensureGatewaySubnet
-  vpnGatewayModule
+    ensureGatewaySubnet
+    vpnGatewayModule
   ]
 }
+
+// (Removed routingMode output; forced tunneling is mandatory now)
 
