@@ -209,6 +209,9 @@ param logStorageSkuName string = 'Standard_GRS'
 @description('The address prefix(es) for the new subnet(s) that will be created in the spoke virtual network(s). Specify only one address prefix in the array if the session hosts location and the control plan location are the same. If different locations are specified, add a second address prefix for the hosts virtual network.')
 param managementSubnetAddressPrefix string = '10.0.1${41 + (2 * stampIndex)}.0/26'
 
+@description('The virtual machine size for the management virtual machine.')
+param managementVirtualMachineSize string = 'Standard_DS1_v2'
+
 @description('An array of metrics to enable on the diagnostic setting for network interfaces.')
 param networkInterfaceDiagnosticsMetrics array = [
   {
@@ -752,6 +755,7 @@ module management 'modules/management/management.bicep' = {
     tier: tier3_stamp.outputs.tier
     virtualMachineAdminPassword: virtualMachineAdminPassword
     virtualMachineAdminUsername: virtualMachineAdminUsername
+    virtualMachineSize: managementVirtualMachineSize
   }
 }
 

@@ -21,6 +21,7 @@ param tier object
 @secure()
 param virtualMachineAdminPassword string
 param virtualMachineAdminUsername string
+param virtualMachineSize string
 
 var hostPoolResourceId = resourceId(subscription().subscriptionId, resourceGroupManagement, 'Microsoft.DesktopVirtualization/hostpools', tier.namingConvention.hostPool)
 var resourceGroupManagement = '${tier.namingConvention.resourceGroup}${delimiter}management'
@@ -140,9 +141,10 @@ module virtualMachine 'virtual-machine.bicep' = {
     organizationalUnitPath: organizationalUnitPath
     subnetResourceId: tier.subnets[0].id
     tags: tags
-    virtualMachineName: '${tier.namingConvention.virtualMachine}mgt'
     virtualMachineAdminPassword: virtualMachineAdminPassword
     virtualMachineAdminUsername: virtualMachineAdminUsername
+    virtualMachineName: '${tier.namingConvention.virtualMachine}mgt'
+    virtualMachineSize: virtualMachineSize
   }
 }
 

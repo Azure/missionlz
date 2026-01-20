@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.39.26.7824",
-      "templateHash": "11391154526322987574"
+      "templateHash": "13420377860013531421"
     }
   },
   "parameters": {
@@ -395,6 +395,13 @@
       "defaultValue": "[format('10.0.1{0}.0/26', add(41, mul(2, parameters('stampIndex'))))]",
       "metadata": {
         "description": "The address prefix(es) for the new subnet(s) that will be created in the spoke virtual network(s). Specify only one address prefix in the array if the session hosts location and the control plan location are the same. If different locations are specified, add a second address prefix for the hosts virtual network."
+      }
+    },
+    "managementVirtualMachineSize": {
+      "type": "string",
+      "defaultValue": "Standard_DS1_v2",
+      "metadata": {
+        "description": "The virtual machine size for the management virtual machine."
       }
     },
     "networkInterfaceDiagnosticsMetrics": {
@@ -856,7 +863,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.39.26.7824",
-              "templateHash": "18149809771090814563"
+              "templateHash": "7250768086607871742"
             }
           },
           "parameters": {
@@ -1320,7 +1327,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.39.26.7824",
-                      "templateHash": "18051700150838755443"
+                      "templateHash": "815240102121585890"
                     }
                   },
                   "parameters": {
@@ -1407,7 +1414,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.39.26.7824",
-                              "templateHash": "7214680503252139533"
+                              "templateHash": "33840072713842827"
                             }
                           },
                           "parameters": {
@@ -1810,6 +1817,8 @@
                               "diskEncryptionSets": "des",
                               "disks": "disk",
                               "firewallPolicies": "afwp",
+                              "applicationGateways": "agw",
+                              "applicationGatewayWafPolicies": "agwwafp",
                               "functionApps": "func",
                               "hostPools": "vdpool",
                               "ipConfigurations": "ipconf",
@@ -1909,7 +1918,7 @@
                                     "_generator": {
                                       "name": "bicep",
                                       "version": "0.39.26.7824",
-                                      "templateHash": "17669103449622114020"
+                                      "templateHash": "11684708945930884183"
                                     }
                                   },
                                   "parameters": {
@@ -1962,6 +1971,13 @@
                                       "azureFirewallPublicIPAddressDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, format('{0}{1}{2}', parameters('resourceAbbreviations').publicIPAddresses, parameters('delimiter'), parameters('resourceAbbreviations').azureFirewalls))]",
                                       "azureFirewallDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, parameters('resourceAbbreviations').azureFirewalls)]",
                                       "azureFirewallPolicy": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').firewallPolicies)]",
+                                      "applicationGateway": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').applicationGateways)]",
+                                      "applicationGatewayPublicIPAddress": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').publicIPAddresses), variables('tokens').service, parameters('resourceAbbreviations').applicationGateways)]",
+                                      "applicationGatewayDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, parameters('resourceAbbreviations').applicationGateways)]",
+                                      "applicationGatewayWafPolicy": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').applicationGatewayWafPolicies)]",
+                                      "applicationGatewayWafPolicyDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, parameters('resourceAbbreviations').applicationGatewayWafPolicies)]",
+                                      "applicationGatewayRouteTable": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').routeTables), variables('tokens').service, parameters('resourceAbbreviations').applicationGateways)]",
+                                      "applicationGatewayNetworkSecurityGroup": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').networkSecurityGroups), variables('tokens').service, parameters('resourceAbbreviations').applicationGateways)]",
                                       "bastionHost": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').bastionHosts)]",
                                       "bastionHostDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, parameters('resourceAbbreviations').bastionHosts)]",
                                       "bastionHostNetworkSecurityGroup": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').networkSecurityGroups), variables('tokens').service, parameters('resourceAbbreviations').bastionHosts)]",
@@ -5577,7 +5593,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.39.26.7824",
-              "templateHash": "18149809771090814563"
+              "templateHash": "7250768086607871742"
             }
           },
           "parameters": {
@@ -6041,7 +6057,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.39.26.7824",
-                      "templateHash": "18051700150838755443"
+                      "templateHash": "815240102121585890"
                     }
                   },
                   "parameters": {
@@ -6128,7 +6144,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.39.26.7824",
-                              "templateHash": "7214680503252139533"
+                              "templateHash": "33840072713842827"
                             }
                           },
                           "parameters": {
@@ -6531,6 +6547,8 @@
                               "diskEncryptionSets": "des",
                               "disks": "disk",
                               "firewallPolicies": "afwp",
+                              "applicationGateways": "agw",
+                              "applicationGatewayWafPolicies": "agwwafp",
                               "functionApps": "func",
                               "hostPools": "vdpool",
                               "ipConfigurations": "ipconf",
@@ -6630,7 +6648,7 @@
                                     "_generator": {
                                       "name": "bicep",
                                       "version": "0.39.26.7824",
-                                      "templateHash": "17669103449622114020"
+                                      "templateHash": "11684708945930884183"
                                     }
                                   },
                                   "parameters": {
@@ -6683,6 +6701,13 @@
                                       "azureFirewallPublicIPAddressDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, format('{0}{1}{2}', parameters('resourceAbbreviations').publicIPAddresses, parameters('delimiter'), parameters('resourceAbbreviations').azureFirewalls))]",
                                       "azureFirewallDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, parameters('resourceAbbreviations').azureFirewalls)]",
                                       "azureFirewallPolicy": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').firewallPolicies)]",
+                                      "applicationGateway": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').applicationGateways)]",
+                                      "applicationGatewayPublicIPAddress": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').publicIPAddresses), variables('tokens').service, parameters('resourceAbbreviations').applicationGateways)]",
+                                      "applicationGatewayDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, parameters('resourceAbbreviations').applicationGateways)]",
+                                      "applicationGatewayWafPolicy": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').applicationGatewayWafPolicies)]",
+                                      "applicationGatewayWafPolicyDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, parameters('resourceAbbreviations').applicationGatewayWafPolicies)]",
+                                      "applicationGatewayRouteTable": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').routeTables), variables('tokens').service, parameters('resourceAbbreviations').applicationGateways)]",
+                                      "applicationGatewayNetworkSecurityGroup": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').networkSecurityGroups), variables('tokens').service, parameters('resourceAbbreviations').applicationGateways)]",
                                       "bastionHost": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').bastionHosts)]",
                                       "bastionHostDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, parameters('resourceAbbreviations').bastionHosts)]",
                                       "bastionHostNetworkSecurityGroup": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').networkSecurityGroups), variables('tokens').service, parameters('resourceAbbreviations').bastionHosts)]",
@@ -10255,6 +10280,9 @@
           },
           "virtualMachineAdminUsername": {
             "value": "[parameters('virtualMachineAdminUsername')]"
+          },
+          "virtualMachineSize": {
+            "value": "[parameters('managementVirtualMachineSize')]"
           }
         },
         "template": {
@@ -10264,7 +10292,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.39.26.7824",
-              "templateHash": "8287389620338932640"
+              "templateHash": "8562079691353634450"
             }
           },
           "parameters": {
@@ -10323,6 +10351,9 @@
               "type": "securestring"
             },
             "virtualMachineAdminUsername": {
+              "type": "string"
+            },
+            "virtualMachineSize": {
               "type": "string"
             }
           },
@@ -11477,14 +11508,17 @@
                   "tags": {
                     "value": "[parameters('tags')]"
                   },
-                  "virtualMachineName": {
-                    "value": "[format('{0}mgt', parameters('tier').namingConvention.virtualMachine)]"
-                  },
                   "virtualMachineAdminPassword": {
                     "value": "[parameters('virtualMachineAdminPassword')]"
                   },
                   "virtualMachineAdminUsername": {
                     "value": "[parameters('virtualMachineAdminUsername')]"
+                  },
+                  "virtualMachineName": {
+                    "value": "[format('{0}mgt', parameters('tier').namingConvention.virtualMachine)]"
+                  },
+                  "virtualMachineSize": {
+                    "value": "[parameters('virtualMachineSize')]"
                   }
                 },
                 "template": {
@@ -11494,7 +11528,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.39.26.7824",
-                      "templateHash": "10244779923850031234"
+                      "templateHash": "14975247255142949336"
                     }
                   },
                   "parameters": {
@@ -11555,6 +11589,9 @@
                     },
                     "virtualMachineAdminUsername": {
                       "type": "string"
+                    },
+                    "virtualMachineSize": {
+                      "type": "string"
                     }
                   },
                   "variables": {
@@ -11593,7 +11630,7 @@
                       "tags": "[variables('tagsVirtualMachines')]",
                       "properties": {
                         "hardwareProfile": {
-                          "vmSize": "Standard_B2s"
+                          "vmSize": "[parameters('virtualMachineSize')]"
                         },
                         "storageProfile": {
                           "imageReference": {
