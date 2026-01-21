@@ -7,10 +7,14 @@ targetScope = 'subscription'
 
 param bastionDiagnosticsLogs array
 param bastionDiagnosticsMetrics array
+param blobDiagnosticsLogs array
+param blobDiagnosticsMetrics array
 param delimiter string
 param deployBastion bool
 param deploymentNameSuffix string
 param deployNetworkWatcherTrafficAnalytics bool
+param fileDiagnosticsLogs array
+param fileDiagnosticsMetrics array
 param firewallDiagnosticsLogs array
 param firewallDiagnosticsMetrics array
 param keyVaultDiagnosticLogs array
@@ -24,8 +28,14 @@ param networkWatcherFlowLogsRetentionDays int
 param networkWatcherFlowLogsType string
 param publicIPAddressDiagnosticsLogs array
 param publicIPAddressDiagnosticsMetrics array
+param queueDiagnosticsLogs array
+param queueDiagnosticsMetrics array
+param storageAccountDiagLogs array
+param storageAccountDiagMetrics array
 param storageAccountResourceIds array
 param supportedClouds array
+param tableDiagnosticsLogs array
+param tableDiagnosticsMetrics array
 param tiers array
 
 var dedupedSubscriptionIds = union(subscriptionIds, [])
@@ -71,8 +81,8 @@ var publicIPAddresses = union([
 ] : [])
 var subscriptionIds = [for tier in tiers: tier.subscriptionId]
 
-module activityLogDiagnosticSettings 'activity-log-diagnostic-settings.bicep' = [for (subscriptionId, i) in dedupedSubscriptionIds: {
-  name: 'deploy-activity-diags-${i}-${deploymentNameSuffix}'
+module activityLogDiagnosticSettings 'activity-log-diagnostic-setting.bicep' = [for (subscriptionId, i) in dedupedSubscriptionIds: {
+  name: 'deploy-activity-diag-${i}-${deploymentNameSuffix}'
   scope: subscription(subscriptionId)
   params: {
     logAnalyticsWorkspaceId: logAnalyticsWorkspaceResourceId
@@ -91,8 +101,30 @@ module logAnalyticsWorkspaceDiagnosticSetting 'log-analytics-diagnostic-setting.
 }
 
 @batchSize(1)
-module networkSecurityGroupDiagnostics '../modules/network-security-group-diagnostics.bicep' = [for (nsg, i) in networkSecurityGroups: {
-  name: 'deploy-nsg-diags-${nsg.tierName}-${deploymentNameSuffix}'
+module storageAccountDiagnosticSettings 'storage-account-diagnostic-settings.bicep' = [for (tier, i) in tiers: {
+  name: 'deploy-sa-diag-${tier.name}-${deploymentNameSuffix}'
+  scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
+  params: {
+    blobDiagnosticsLogs: blobDiagnosticsLogs
+    blobDiagnosticsMetrics: blobDiagnosticsMetrics
+    fileDiagnosticsLogs: fileDiagnosticsLogs
+    fileDiagnosticsMetrics: fileDiagnosticsMetrics
+    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
+    logStorageAccountResourceId: tier.name == 'hub' ? storageAccountResourceIds[1] : storageAccountResourceIds[0]
+    queueDiagnosticsLogs: queueDiagnosticsLogs
+    queueDiagnosticsMetrics: queueDiagnosticsMetrics
+    storageAccountDiagnosticSettingName: tier.namingConvention.storageAccountDiagnosticSetting
+    storageAccountDiagnosticsLogs: storageAccountDiagLogs
+    storageAccountDiagnosticsMetrics: storageAccountDiagMetrics
+    storageAccountName: split(storageAccountResourceIds[i], '/')[8]
+    tableDiagnosticsLogs: tableDiagnosticsLogs
+    tableDiagnosticsMetrics: tableDiagnosticsMetrics
+  }
+}]
+
+@batchSize(1)
+module networkSecurityGroupDiagnostics '../modules/network-security-group-diagnostic-setting.bicep' = [for (nsg, i) in networkSecurityGroups: {
+  name: 'deploy-nsg-diag-${nsg.tierName}-${deploymentNameSuffix}'
   scope: resourceGroup(nsg.subscriptionId, nsg.resourceGroupName)
   params: {
     deploymentNameSuffix: deploymentNameSuffix
@@ -111,8 +143,8 @@ module networkSecurityGroupDiagnostics '../modules/network-security-group-diagno
 }]
 
 @batchSize(1)
-module virtualNetworkDiagnostics '../modules/virtual-network-diagnostics.bicep' = [for (tier, i) in tiers: {
-  name: 'deploy-vnet-diags-${tier.name}-${deploymentNameSuffix}'
+module virtualNetworkDiagnostics '../modules/virtual-network-diagnostic-setting.bicep' = [for (tier, i) in tiers: {
+  name: 'deploy-vnet-diag-${tier.name}-${deploymentNameSuffix}'
   scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
   params: {
     deploymentNameSuffix: deploymentNameSuffix
@@ -131,8 +163,8 @@ module virtualNetworkDiagnostics '../modules/virtual-network-diagnostics.bicep' 
   }
 }]
 
-module publicIpAddressDiagnosticSettings '../modules/public-ip-address-diagnostics.bicep' = [for (publicIPAddress, i) in publicIPAddresses: {
-  name: 'deploy-pip-diags-${i}-${deploymentNameSuffix}'
+module publicIpAddressDiagnosticSettings '../modules/public-ip-address-diagnostic-setting.bicep' = [for (publicIPAddress, i) in publicIPAddresses: {
+  name: 'deploy-pip-diag-${i}-${deploymentNameSuffix}'
   scope: resourceGroup(hub.subscriptionId, hub.resourceGroupName)
   params: {
     hubStorageAccountResourceId: storageAccountResourceIds[0]
@@ -144,8 +176,8 @@ module publicIpAddressDiagnosticSettings '../modules/public-ip-address-diagnosti
   }
 }]
 
-module firewallDiagnosticSetting '../modules/firewall-diagnostics.bicep' = {
-  name: 'deploy-afw-diags-${deploymentNameSuffix}'
+module firewallDiagnosticSetting '../modules/firewall-diagnostic-setting.bicep' = {
+  name: 'deploy-afw-diag-${deploymentNameSuffix}'
   scope: resourceGroup(hub.subscriptionId, hub.resourceGroupName)
   params: {
     firewallDiagnosticSettingsName: hub.namingConvention.azureFirewallDiagnosticSetting
@@ -157,8 +189,8 @@ module firewallDiagnosticSetting '../modules/firewall-diagnostics.bicep' = {
   }
 }
 
-module keyVaultDiagnosticSettings '../modules/key-vault-diagnostics.bicep' = [for (keyVault, i) in keyVaults: {
-  name: 'deploy-kv-diags-${i}-${deploymentNameSuffix}'
+module keyVaultDiagnosticSettings '../modules/key-vault-diagnostic-setting.bicep' = [for (keyVault, i) in keyVaults: {
+  name: 'deploy-kv-diag-${i}-${deploymentNameSuffix}'
   scope: resourceGroup(keyVault.subscriptionId, keyVault.resourceGroupName)
   params: {
     keyVaultDiagnosticSettingName: keyVault.diagnosticSettingName
@@ -170,8 +202,8 @@ module keyVaultDiagnosticSettings '../modules/key-vault-diagnostics.bicep' = [fo
   }
 }]
 
-module bastionDiagnostics '../modules/bastion-diagnostics.bicep' = if (deployBastion) {
-  name: 'deploy-bastion-diags-${deploymentNameSuffix}'
+module bastionDiagnostics '../modules/bastion-diagnostic-setting.bicep' = if (deployBastion) {
+  name: 'deploy-bastion-diag-${deploymentNameSuffix}'
   scope: resourceGroup(hub.subscriptionId, hub.resourceGroupName)
   params: {
     diagnosticSettingName: hub.namingConvention.bastionHostDiagnosticSetting
@@ -183,8 +215,8 @@ module bastionDiagnostics '../modules/bastion-diagnostics.bicep' = if (deployBas
   }
 }
 
-module networkInterfaceDiagnostics '../modules/network-interface-diagnostics.bicep' = [for (networkInterfaceResourceId, i) in networkInterfaceResourceIds: {
-  name: 'deploy-nic-diags-${i}-${deploymentNameSuffix}'
+module networkInterfaceDiagnostics '../modules/network-interface-diagnostic-setting.bicep' = [for (networkInterfaceResourceId, i) in networkInterfaceResourceIds: {
+  name: 'deploy-nic-diag-${i}-${deploymentNameSuffix}'
   scope: resourceGroup(split(networkInterfaceResourceId, '/')[2], split(networkInterfaceResourceId, '/')[4])
   params: {
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId

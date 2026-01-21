@@ -56,6 +56,22 @@ param bastionHostPublicIPAddressAvailabilityZones array = []
 @description('The CIDR Subnet Address Prefix for the Azure Bastion Subnet. It must be in the Hub Virtual Network space "hubVirtualNetworkAddressPrefix" parameter value. It must be /27 or larger.')
 param bastionHostSubnetAddressPrefix string = '10.0.128.192/26'
 
+@description('An array of Blob Diagnostic Logs categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/storage/blobs/monitor-blob-storage?tabs=azure-portal#enable-diagnostic-logging.')
+param blobDiagnosticsLogs array = [
+  {
+    categoryGroup: 'allLogs'
+    enabled: true
+  }
+]
+
+@description('An array of Blob Diagnostic Metrics categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/storage/blobs/monitor-blob-storage?tabs=azure-portal#enable-metrics.')
+param blobDiagnosticsMetrics array = [
+  {
+    category: 'Transaction'
+    enabled: true
+  }
+]
+
 @description('The firewall rules that will be applied to the Azure Firewall.')
 param customFirewallRuleCollectionGroups array = []
 
@@ -146,6 +162,22 @@ param enableProxy bool = true
 ])
 @description('[dev/prod/test] The abbreviation for the target environment.')
 param environmentAbbreviation string = 'dev'
+
+@description('An array of File Diagnostic Logs categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/storage/files/monitor-file-storage?tabs=azure-portal#enable-diagnostic-logging.')
+param fileDiagnosticsLogs array = [
+  {
+    categoryGroup: 'allLogs'
+    enabled: true
+  }
+]
+
+@description('An array of File Diagnostic Metrics categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/storage/files/monitor-file-storage?tabs=azure-portal#enable-metrics.')
+param fileDiagnosticsMetrics array = [
+  {
+    category: 'Transaction'
+    enabled: true
+  }
+]
 
 @description('An array of Azure Firewall Public IP Address Availability Zones. Default value = "[]" because Availability Zones are not available in every cloud. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-network/ip-services/public-ip-addresses#sku.')
 param firewallClientPublicIPAddressAvailabilityZones array = []
@@ -531,6 +563,22 @@ param publicIPAddressDiagnosticsMetrics array = [
   }
 ]
 
+@description('An array of Queue Diagnostic Logs categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/storage/queues/monitor-queue-storage?tabs=azure-portal#enable-diagnostic-logging.')
+param queueDiagnosticsLogs array = [
+  {
+    categoryGroup: 'allLogs'
+    enabled: true
+  }
+]
+
+@description('An array of Queue Diagnostic Metrics categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/storage/queues/monitor-queue-storage?tabs=azure-portal#enable-metrics.')
+param queueDiagnosticsMetrics array = [
+  {
+    category: 'Transaction'
+    enabled: true
+  }
+]
+
 @description('An array of Network Security Group diagnostic logs to apply to the SharedServices Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-network/virtual-network-nsg-manage-log#log-categories.')
 param sharedServicesNetworkSecurityGroupDiagnosticsLogs array = [
   {
@@ -571,10 +619,37 @@ param sharedServicesVirtualNetworkDiagnosticsMetrics array = [
   }
 ]
 
+@description('An array of Storage Account Diagnostic Logs categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/storage/common/monitor-storage?tabs=azure-portal#enable-diagnostic-logging.')
+param storageAccountDiagnosticsLogs array = []
+
+@description('An array of Storage Account Diagnostic Metrics categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/storage/common/monitor-storage?tabs=azure-portal#enable-metrics.')
+param storageAccountDiagnosticsMetrics array = [
+  {
+    category: 'Transaction'
+    enabled: true
+  }
+]
+
 @description('The Azure clouds that support specific service features. Default value = "[\'AzureCloud\',\'AzureUSGovernment\']".')
 param supportedClouds array = [
   'AzureCloud'
   'AzureUSGovernment'
+]
+
+@description('An array of Table Diagnostic Logs categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/storage/tables/monitor-table-storage?tabs=azure-portal#enable-diagnostic-logging.')
+param tableDiagnosticsLogs array = [
+  {
+    categoryGroup: 'allLogs'
+    enabled: true
+  }
+]
+
+@description('An array of Table Diagnostic Metrics categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/storage/tables/monitor-table-storage?tabs=azure-portal#enable-metrics.')
+param tableDiagnosticsMetrics array = [
+  {
+    category: 'Transaction'
+    enabled: true
+  }
 ]
 
 @description('A string dictionary of tags to add to deployed resources. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-resource-manager/management/tag-resources?tabs=json#arm-templates.')
@@ -626,8 +701,8 @@ module networking 'modules/networking.bicep' = {
     deployAzureGatewaySubnet: deployAzureGatewaySubnet
     dnsServers: deployIdentity && deployActiveDirectoryDomainServices
       ? [
-          cidrHost(identitySubnetAddressPrefix,5)
-          cidrHost(identitySubnetAddressPrefix,6)
+          cidrHost(identitySubnetAddressPrefix, 5)
+          cidrHost(identitySubnetAddressPrefix, 6)
         ]
       : dnsServers
     enableProxy: enableProxy
@@ -984,22 +1059,30 @@ module diagnosticSettings 'modules/diagnostic-settings.bicep' = {
   params: {
     bastionDiagnosticsLogs: bastionDiagnosticsLogs
     bastionDiagnosticsMetrics: bastionDiagnosticsMetrics
+    blobDiagnosticsLogs: blobDiagnosticsLogs
+    blobDiagnosticsMetrics: blobDiagnosticsMetrics
     delimiter: networking.outputs.delimiter
     deployBastion: deployBastion
     deployNetworkWatcherTrafficAnalytics: deployNetworkWatcherTrafficAnalytics
     deploymentNameSuffix: deploymentNameSuffix
+    fileDiagnosticsLogs: fileDiagnosticsLogs
+    fileDiagnosticsMetrics: fileDiagnosticsMetrics
     firewallDiagnosticsLogs: firewallDiagnosticsLogs
     firewallDiagnosticsMetrics: firewallDiagnosticsMetrics
     keyVaults: union(
       [
         storage.outputs.keyVaultProperties
       ],
-      deployActiveDirectoryDomainServices ? [
-        activeDirectoryDomainServices!.outputs.keyVaultProperties
-      ] : [],
-      deployLinuxVirtualMachine || deployWindowsVirtualMachine ? [
-        remoteAccess!.outputs.keyVaultProperties
-      ] : []
+      deployActiveDirectoryDomainServices
+        ? [
+            activeDirectoryDomainServices!.outputs.keyVaultProperties
+          ]
+        : [],
+      deployLinuxVirtualMachine || deployWindowsVirtualMachine
+        ? [
+            remoteAccess!.outputs.keyVaultProperties
+          ]
+        : []
     )
     keyVaultDiagnosticLogs: keyVaultDiagnosticsLogs
     keyVaultDiagnosticMetrics: keyVaultDiagnosticsMetrics
@@ -1007,7 +1090,9 @@ module diagnosticSettings 'modules/diagnostic-settings.bicep' = {
     logAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
     networkInterfaceDiagnosticsMetrics: networkInterfaceDiagnosticsMetrics
     networkInterfaceResourceIds: union(
-      deployActiveDirectoryDomainServices && deployIdentity ? activeDirectoryDomainServices!.outputs.networkInterfaceResourceIds : [],
+      deployActiveDirectoryDomainServices && deployIdentity
+        ? activeDirectoryDomainServices!.outputs.networkInterfaceResourceIds
+        : [],
       monitoring.outputs.networkInterfaceResourceIds,
       deployLinuxVirtualMachine || deployWindowsVirtualMachine ? remoteAccess!.outputs.networkInterfaceResourceIds : [],
       flatten(storage.outputs.networkInterfaceResourceIds)
@@ -1016,8 +1101,14 @@ module diagnosticSettings 'modules/diagnostic-settings.bicep' = {
     networkWatcherFlowLogsType: networkWatcherFlowLogsType
     publicIPAddressDiagnosticsLogs: publicIPAddressDiagnosticsLogs
     publicIPAddressDiagnosticsMetrics: publicIPAddressDiagnosticsMetrics
+    queueDiagnosticsLogs: queueDiagnosticsLogs
+    queueDiagnosticsMetrics: queueDiagnosticsMetrics
+    storageAccountDiagLogs: storageAccountDiagnosticsLogs
+    storageAccountDiagMetrics: storageAccountDiagnosticsMetrics
     storageAccountResourceIds: storage.outputs.storageAccountResourceIds
     supportedClouds: supportedClouds
+    tableDiagnosticsLogs: tableDiagnosticsLogs
+    tableDiagnosticsMetrics: tableDiagnosticsMetrics
     tiers: networking.outputs.tiers
   }
 }

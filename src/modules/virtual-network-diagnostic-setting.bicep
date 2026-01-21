@@ -24,14 +24,14 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2021-02-01' existing 
   name: virtualNetworkName
 }
 
-resource diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' = {
+resource diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
   scope: virtualNetwork
   name: virtualNetworkDiagnosticSettingName
   properties: {
-    storageAccountId: logStorageAccountResourceId
-    workspaceId: logAnalyticsWorkspaceResourceId
     logs: contains(supportedClouds, environment().name) ?  logs : []
     metrics: metrics
+    storageAccountId: logStorageAccountResourceId
+    workspaceId: logAnalyticsWorkspaceResourceId
   }
 }
 

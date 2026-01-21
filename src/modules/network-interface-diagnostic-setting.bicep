@@ -18,7 +18,7 @@ resource networkInterface 'Microsoft.Network/networkInterfaces@2021-02-01' exist
  name: split(networkInterfaceResourceId, '/')[8]
 }
 
-resource diagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+resource diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
   scope: networkInterface
   name: networkInterfaceDiagnosticSettingName
   properties: {

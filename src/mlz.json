@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.39.26.7824",
-      "templateHash": "2532964172258791408"
+      "templateHash": "1994060036073026442"
     }
   },
   "parameters": {
@@ -100,6 +100,30 @@
       "defaultValue": "10.0.128.192/26",
       "metadata": {
         "description": "The CIDR Subnet Address Prefix for the Azure Bastion Subnet. It must be in the Hub Virtual Network space \"hubVirtualNetworkAddressPrefix\" parameter value. It must be /27 or larger."
+      }
+    },
+    "blobDiagnosticsLogs": {
+      "type": "array",
+      "defaultValue": [
+        {
+          "categoryGroup": "allLogs",
+          "enabled": true
+        }
+      ],
+      "metadata": {
+        "description": "An array of Blob Diagnostic Logs categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/storage/blobs/monitor-blob-storage?tabs=azure-portal#enable-diagnostic-logging."
+      }
+    },
+    "blobDiagnosticsMetrics": {
+      "type": "array",
+      "defaultValue": [
+        {
+          "category": "Transaction",
+          "enabled": true
+        }
+      ],
+      "metadata": {
+        "description": "An array of Blob Diagnostic Metrics categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/storage/blobs/monitor-blob-storage?tabs=azure-portal#enable-metrics."
       }
     },
     "customFirewallRuleCollectionGroups": {
@@ -255,6 +279,30 @@
       ],
       "metadata": {
         "description": "[dev/prod/test] The abbreviation for the target environment."
+      }
+    },
+    "fileDiagnosticsLogs": {
+      "type": "array",
+      "defaultValue": [
+        {
+          "categoryGroup": "allLogs",
+          "enabled": true
+        }
+      ],
+      "metadata": {
+        "description": "An array of File Diagnostic Logs categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/storage/files/monitor-file-storage?tabs=azure-portal#enable-diagnostic-logging."
+      }
+    },
+    "fileDiagnosticsMetrics": {
+      "type": "array",
+      "defaultValue": [
+        {
+          "category": "Transaction",
+          "enabled": true
+        }
+      ],
+      "metadata": {
+        "description": "An array of File Diagnostic Metrics categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/storage/files/monitor-file-storage?tabs=azure-portal#enable-metrics."
       }
     },
     "firewallClientPublicIPAddressAvailabilityZones": {
@@ -866,6 +914,30 @@
         "description": "An array of Public IP Address Diagnostic Metrics for the Azure Firewall. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/tutorial-resource-logs?tabs=DDoSProtectionNotifications."
       }
     },
+    "queueDiagnosticsLogs": {
+      "type": "array",
+      "defaultValue": [
+        {
+          "categoryGroup": "allLogs",
+          "enabled": true
+        }
+      ],
+      "metadata": {
+        "description": "An array of Queue Diagnostic Logs categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/storage/queues/monitor-queue-storage?tabs=azure-portal#enable-diagnostic-logging."
+      }
+    },
+    "queueDiagnosticsMetrics": {
+      "type": "array",
+      "defaultValue": [
+        {
+          "category": "Transaction",
+          "enabled": true
+        }
+      ],
+      "metadata": {
+        "description": "An array of Queue Diagnostic Metrics categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/storage/queues/monitor-queue-storage?tabs=azure-portal#enable-metrics."
+      }
+    },
     "sharedServicesNetworkSecurityGroupDiagnosticsLogs": {
       "type": "array",
       "defaultValue": [
@@ -934,6 +1006,25 @@
         "description": "An array of Network Diagnostic Metrics to enable for the SharedServices Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-monitor/essentials/diagnostic-settings?tabs=CMD#metrics."
       }
     },
+    "storageAccountDiagnosticsLogs": {
+      "type": "array",
+      "defaultValue": [],
+      "metadata": {
+        "description": "An array of Storage Account Diagnostic Logs categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/storage/common/monitor-storage?tabs=azure-portal#enable-diagnostic-logging."
+      }
+    },
+    "storageAccountDiagnosticsMetrics": {
+      "type": "array",
+      "defaultValue": [
+        {
+          "category": "Transaction",
+          "enabled": true
+        }
+      ],
+      "metadata": {
+        "description": "An array of Storage Account Diagnostic Metrics categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/storage/common/monitor-storage?tabs=azure-portal#enable-metrics."
+      }
+    },
     "supportedClouds": {
       "type": "array",
       "defaultValue": [
@@ -942,6 +1033,30 @@
       ],
       "metadata": {
         "description": "The Azure clouds that support specific service features. Default value = \"['AzureCloud','AzureUSGovernment']\"."
+      }
+    },
+    "tableDiagnosticsLogs": {
+      "type": "array",
+      "defaultValue": [
+        {
+          "categoryGroup": "allLogs",
+          "enabled": true
+        }
+      ],
+      "metadata": {
+        "description": "An array of Table Diagnostic Logs categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/storage/tables/monitor-table-storage?tabs=azure-portal#enable-diagnostic-logging."
+      }
+    },
+    "tableDiagnosticsMetrics": {
+      "type": "array",
+      "defaultValue": [
+        {
+          "category": "Transaction",
+          "enabled": true
+        }
+      ],
+      "metadata": {
+        "description": "An array of Table Diagnostic Metrics categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/storage/tables/monitor-table-storage?tabs=azure-portal#enable-metrics."
       }
     },
     "tags": {
@@ -5095,7 +5210,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.39.26.7824",
-              "templateHash": "8365356121286035393"
+              "templateHash": "14234228378020963652"
             }
           },
           "parameters": {
@@ -7717,8 +7832,8 @@
               },
               "dependsOn": [
                 "[subscriptionResourceId(parameters('tier').subscriptionId, 'Microsoft.Resources/deployments', format('deploy-adds-cmk-{0}', parameters('deploymentNameSuffix')))]",
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-adds-dc-{0}-{1}', range(0, parameters('vmCount'))[1], parameters('deploymentNameSuffix')))]",
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-adds-dc-{0}-{1}', range(0, parameters('vmCount'))[0], parameters('deploymentNameSuffix')))]"
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-adds-dc-{0}-{1}', range(0, parameters('vmCount'))[0], parameters('deploymentNameSuffix')))]",
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-adds-dc-{0}-{1}', range(0, parameters('vmCount'))[1], parameters('deploymentNameSuffix')))]"
               ]
             }
           ],
@@ -10900,6 +11015,12 @@
           "bastionDiagnosticsMetrics": {
             "value": "[parameters('bastionDiagnosticsMetrics')]"
           },
+          "blobDiagnosticsLogs": {
+            "value": "[parameters('blobDiagnosticsLogs')]"
+          },
+          "blobDiagnosticsMetrics": {
+            "value": "[parameters('blobDiagnosticsMetrics')]"
+          },
           "delimiter": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.delimiter.value]"
           },
@@ -10911,6 +11032,12 @@
           },
           "deploymentNameSuffix": {
             "value": "[parameters('deploymentNameSuffix')]"
+          },
+          "fileDiagnosticsLogs": {
+            "value": "[parameters('fileDiagnosticsLogs')]"
+          },
+          "fileDiagnosticsMetrics": {
+            "value": "[parameters('fileDiagnosticsMetrics')]"
           },
           "firewallDiagnosticsLogs": {
             "value": "[parameters('firewallDiagnosticsLogs')]"
@@ -10951,11 +11078,29 @@
           "publicIPAddressDiagnosticsMetrics": {
             "value": "[parameters('publicIPAddressDiagnosticsMetrics')]"
           },
+          "queueDiagnosticsLogs": {
+            "value": "[parameters('queueDiagnosticsLogs')]"
+          },
+          "queueDiagnosticsMetrics": {
+            "value": "[parameters('queueDiagnosticsMetrics')]"
+          },
+          "storageAccountDiagLogs": {
+            "value": "[parameters('storageAccountDiagnosticsLogs')]"
+          },
+          "storageAccountDiagMetrics": {
+            "value": "[parameters('storageAccountDiagnosticsMetrics')]"
+          },
           "storageAccountResourceIds": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-log-storage-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.storageAccountResourceIds.value]"
           },
           "supportedClouds": {
             "value": "[parameters('supportedClouds')]"
+          },
+          "tableDiagnosticsLogs": {
+            "value": "[parameters('tableDiagnosticsLogs')]"
+          },
+          "tableDiagnosticsMetrics": {
+            "value": "[parameters('tableDiagnosticsMetrics')]"
           },
           "tiers": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tiers.value]"
@@ -10968,7 +11113,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.39.26.7824",
-              "templateHash": "16085445012640787337"
+              "templateHash": "1120013681248949187"
             }
           },
           "parameters": {
@@ -10976,6 +11121,12 @@
               "type": "array"
             },
             "bastionDiagnosticsMetrics": {
+              "type": "array"
+            },
+            "blobDiagnosticsLogs": {
+              "type": "array"
+            },
+            "blobDiagnosticsMetrics": {
               "type": "array"
             },
             "delimiter": {
@@ -10989,6 +11140,12 @@
             },
             "deployNetworkWatcherTrafficAnalytics": {
               "type": "bool"
+            },
+            "fileDiagnosticsLogs": {
+              "type": "array"
+            },
+            "fileDiagnosticsMetrics": {
+              "type": "array"
             },
             "firewallDiagnosticsLogs": {
               "type": "array"
@@ -11029,10 +11186,28 @@
             "publicIPAddressDiagnosticsMetrics": {
               "type": "array"
             },
+            "queueDiagnosticsLogs": {
+              "type": "array"
+            },
+            "queueDiagnosticsMetrics": {
+              "type": "array"
+            },
+            "storageAccountDiagLogs": {
+              "type": "array"
+            },
+            "storageAccountDiagMetrics": {
+              "type": "array"
+            },
             "storageAccountResourceIds": {
               "type": "array"
             },
             "supportedClouds": {
+              "type": "array"
+            },
+            "tableDiagnosticsLogs": {
+              "type": "array"
+            },
+            "tableDiagnosticsMetrics": {
               "type": "array"
             },
             "tiers": {
@@ -11076,7 +11251,7 @@
               },
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2025-04-01",
-              "name": "[format('deploy-activity-diags-{0}-{1}', copyIndex(), parameters('deploymentNameSuffix'))]",
+              "name": "[format('deploy-activity-diag-{0}-{1}', copyIndex(), parameters('deploymentNameSuffix'))]",
               "subscriptionId": "[variables('dedupedSubscriptionIds')[copyIndex()]]",
               "location": "[deployment().location]",
               "properties": {
@@ -11230,6 +11405,184 @@
             },
             {
               "copy": {
+                "name": "storageAccountDiagnosticSettings",
+                "count": "[length(parameters('tiers'))]",
+                "mode": "serial",
+                "batchSize": 1
+              },
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2025-04-01",
+              "name": "[format('deploy-sa-diag-{0}-{1}', parameters('tiers')[copyIndex()].name, parameters('deploymentNameSuffix'))]",
+              "subscriptionId": "[parameters('tiers')[copyIndex()].subscriptionId]",
+              "resourceGroup": "[parameters('tiers')[copyIndex()].resourceGroupName]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "blobDiagnosticsLogs": {
+                    "value": "[parameters('blobDiagnosticsLogs')]"
+                  },
+                  "blobDiagnosticsMetrics": {
+                    "value": "[parameters('blobDiagnosticsMetrics')]"
+                  },
+                  "fileDiagnosticsLogs": {
+                    "value": "[parameters('fileDiagnosticsLogs')]"
+                  },
+                  "fileDiagnosticsMetrics": {
+                    "value": "[parameters('fileDiagnosticsMetrics')]"
+                  },
+                  "logAnalyticsWorkspaceResourceId": {
+                    "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
+                  },
+                  "logStorageAccountResourceId": "[if(equals(parameters('tiers')[copyIndex()].name, 'hub'), createObject('value', parameters('storageAccountResourceIds')[1]), createObject('value', parameters('storageAccountResourceIds')[0]))]",
+                  "queueDiagnosticsLogs": {
+                    "value": "[parameters('queueDiagnosticsLogs')]"
+                  },
+                  "queueDiagnosticsMetrics": {
+                    "value": "[parameters('queueDiagnosticsMetrics')]"
+                  },
+                  "storageAccountDiagnosticSettingName": {
+                    "value": "[parameters('tiers')[copyIndex()].namingConvention.storageAccountDiagnosticSetting]"
+                  },
+                  "storageAccountDiagnosticsLogs": {
+                    "value": "[parameters('storageAccountDiagLogs')]"
+                  },
+                  "storageAccountDiagnosticsMetrics": {
+                    "value": "[parameters('storageAccountDiagMetrics')]"
+                  },
+                  "storageAccountName": {
+                    "value": "[split(parameters('storageAccountResourceIds')[copyIndex()], '/')[8]]"
+                  },
+                  "tableDiagnosticsLogs": {
+                    "value": "[parameters('tableDiagnosticsLogs')]"
+                  },
+                  "tableDiagnosticsMetrics": {
+                    "value": "[parameters('tableDiagnosticsMetrics')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.39.26.7824",
+                      "templateHash": "12903219436507602342"
+                    }
+                  },
+                  "parameters": {
+                    "blobDiagnosticsLogs": {
+                      "type": "array"
+                    },
+                    "blobDiagnosticsMetrics": {
+                      "type": "array"
+                    },
+                    "fileDiagnosticsLogs": {
+                      "type": "array"
+                    },
+                    "fileDiagnosticsMetrics": {
+                      "type": "array"
+                    },
+                    "logAnalyticsWorkspaceResourceId": {
+                      "type": "string"
+                    },
+                    "logStorageAccountResourceId": {
+                      "type": "string"
+                    },
+                    "queueDiagnosticsLogs": {
+                      "type": "array"
+                    },
+                    "queueDiagnosticsMetrics": {
+                      "type": "array"
+                    },
+                    "storageAccountDiagnosticSettingName": {
+                      "type": "string"
+                    },
+                    "storageAccountDiagnosticsLogs": {
+                      "type": "array"
+                    },
+                    "storageAccountDiagnosticsMetrics": {
+                      "type": "array"
+                    },
+                    "storageAccountName": {
+                      "type": "string"
+                    },
+                    "tableDiagnosticsLogs": {
+                      "type": "array"
+                    },
+                    "tableDiagnosticsMetrics": {
+                      "type": "array"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Insights/diagnosticSettings",
+                      "apiVersion": "2021-05-01-preview",
+                      "scope": "[format('Microsoft.Storage/storageAccounts/{0}', parameters('storageAccountName'))]",
+                      "name": "[parameters('storageAccountDiagnosticSettingName')]",
+                      "properties": {
+                        "logs": "[parameters('storageAccountDiagnosticsLogs')]",
+                        "metrics": "[parameters('storageAccountDiagnosticsMetrics')]",
+                        "storageAccountId": "[parameters('logStorageAccountResourceId')]",
+                        "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]"
+                      }
+                    },
+                    {
+                      "type": "Microsoft.Insights/diagnosticSettings",
+                      "apiVersion": "2021-05-01-preview",
+                      "scope": "[format('Microsoft.Storage/storageAccounts/{0}/blobServices/{1}', parameters('storageAccountName'), 'default')]",
+                      "name": "[parameters('storageAccountDiagnosticSettingName')]",
+                      "properties": {
+                        "logs": "[parameters('blobDiagnosticsLogs')]",
+                        "metrics": "[parameters('blobDiagnosticsMetrics')]",
+                        "storageAccountId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
+                        "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]"
+                      }
+                    },
+                    {
+                      "type": "Microsoft.Insights/diagnosticSettings",
+                      "apiVersion": "2021-05-01-preview",
+                      "scope": "[format('Microsoft.Storage/storageAccounts/{0}/fileServices/{1}', parameters('storageAccountName'), 'default')]",
+                      "name": "[parameters('storageAccountDiagnosticSettingName')]",
+                      "properties": {
+                        "logs": "[parameters('fileDiagnosticsLogs')]",
+                        "metrics": "[parameters('fileDiagnosticsMetrics')]",
+                        "storageAccountId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
+                        "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]"
+                      }
+                    },
+                    {
+                      "type": "Microsoft.Insights/diagnosticSettings",
+                      "apiVersion": "2021-05-01-preview",
+                      "scope": "[format('Microsoft.Storage/storageAccounts/{0}/queueServices/{1}', parameters('storageAccountName'), 'default')]",
+                      "name": "[parameters('storageAccountDiagnosticSettingName')]",
+                      "properties": {
+                        "logs": "[parameters('queueDiagnosticsLogs')]",
+                        "metrics": "[parameters('queueDiagnosticsMetrics')]",
+                        "storageAccountId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
+                        "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]"
+                      }
+                    },
+                    {
+                      "type": "Microsoft.Insights/diagnosticSettings",
+                      "apiVersion": "2021-05-01-preview",
+                      "scope": "[format('Microsoft.Storage/storageAccounts/{0}/tableServices/{1}', parameters('storageAccountName'), 'default')]",
+                      "name": "[parameters('storageAccountDiagnosticSettingName')]",
+                      "properties": {
+                        "logs": "[parameters('tableDiagnosticsLogs')]",
+                        "metrics": "[parameters('tableDiagnosticsMetrics')]",
+                        "storageAccountId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
+                        "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]"
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "copy": {
                 "name": "networkSecurityGroupDiagnostics",
                 "count": "[length(variables('networkSecurityGroups'))]",
                 "mode": "serial",
@@ -11237,7 +11590,7 @@
               },
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2025-04-01",
-              "name": "[format('deploy-nsg-diags-{0}-{1}', variables('networkSecurityGroups')[copyIndex()].tierName, parameters('deploymentNameSuffix'))]",
+              "name": "[format('deploy-nsg-diag-{0}-{1}', variables('networkSecurityGroups')[copyIndex()].tierName, parameters('deploymentNameSuffix'))]",
               "subscriptionId": "[variables('networkSecurityGroups')[copyIndex()].subscriptionId]",
               "resourceGroup": "[variables('networkSecurityGroups')[copyIndex()].resourceGroupName]",
               "properties": {
@@ -11290,7 +11643,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.39.26.7824",
-                      "templateHash": "5779601753711728121"
+                      "templateHash": "2353528595173058256"
                     }
                   },
                   "parameters": {
@@ -11333,8 +11686,8 @@
                   },
                   "resources": [
                     {
-                      "type": "microsoft.insights/diagnosticSettings",
-                      "apiVersion": "2017-05-01-preview",
+                      "type": "Microsoft.Insights/diagnosticSettings",
+                      "apiVersion": "2021-05-01-preview",
                       "scope": "[format('Microsoft.Network/networkSecurityGroups/{0}', parameters('networkSecurityGroupName'))]",
                       "name": "[parameters('networkSecurityGroupDiagnosticSettingName')]",
                       "properties": {
@@ -11460,7 +11813,7 @@
               },
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2025-04-01",
-              "name": "[format('deploy-vnet-diags-{0}-{1}', parameters('tiers')[copyIndex()].name, parameters('deploymentNameSuffix'))]",
+              "name": "[format('deploy-vnet-diag-{0}-{1}', parameters('tiers')[copyIndex()].name, parameters('deploymentNameSuffix'))]",
               "subscriptionId": "[parameters('tiers')[copyIndex()].subscriptionId]",
               "resourceGroup": "[parameters('tiers')[copyIndex()].resourceGroupName]",
               "properties": {
@@ -11516,7 +11869,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.39.26.7824",
-                      "templateHash": "9057905153020554236"
+                      "templateHash": "10948034446360727735"
                     }
                   },
                   "parameters": {
@@ -11568,15 +11921,15 @@
                   },
                   "resources": [
                     {
-                      "type": "microsoft.insights/diagnosticSettings",
-                      "apiVersion": "2017-05-01-preview",
+                      "type": "Microsoft.Insights/diagnosticSettings",
+                      "apiVersion": "2021-05-01-preview",
                       "scope": "[format('Microsoft.Network/virtualNetworks/{0}', parameters('virtualNetworkName'))]",
                       "name": "[parameters('virtualNetworkDiagnosticSettingName')]",
                       "properties": {
-                        "storageAccountId": "[parameters('logStorageAccountResourceId')]",
-                        "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]",
                         "logs": "[if(contains(parameters('supportedClouds'), environment().name), parameters('logs'), createArray())]",
-                        "metrics": "[parameters('metrics')]"
+                        "metrics": "[parameters('metrics')]",
+                        "storageAccountId": "[parameters('logStorageAccountResourceId')]",
+                        "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]"
                       }
                     },
                     {
@@ -11693,7 +12046,7 @@
               },
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2025-04-01",
-              "name": "[format('deploy-pip-diags-{0}-{1}', copyIndex(), parameters('deploymentNameSuffix'))]",
+              "name": "[format('deploy-pip-diag-{0}-{1}', copyIndex(), parameters('deploymentNameSuffix'))]",
               "subscriptionId": "[variables('hub').subscriptionId]",
               "resourceGroup": "[variables('hub').resourceGroupName]",
               "properties": {
@@ -11728,7 +12081,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.39.26.7824",
-                      "templateHash": "15720868279718191148"
+                      "templateHash": "3344760959246822166"
                     }
                   },
                   "parameters": {
@@ -11753,15 +12106,15 @@
                   },
                   "resources": [
                     {
-                      "type": "microsoft.insights/diagnosticSettings",
-                      "apiVersion": "2017-05-01-preview",
+                      "type": "Microsoft.Insights/diagnosticSettings",
+                      "apiVersion": "2021-05-01-preview",
                       "scope": "[format('Microsoft.Network/publicIPAddresses/{0}', parameters('publicIPAddressName'))]",
                       "name": "[parameters('publicIPAddressDiagnosticSettingName')]",
                       "properties": {
-                        "storageAccountId": "[parameters('hubStorageAccountResourceId')]",
-                        "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]",
                         "logs": "[parameters('publicIPAddressDiagnosticsLogs')]",
-                        "metrics": "[parameters('publicIPAddressDiagnosticsMetrics')]"
+                        "metrics": "[parameters('publicIPAddressDiagnosticsMetrics')]",
+                        "storageAccountId": "[parameters('hubStorageAccountResourceId')]",
+                        "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]"
                       }
                     }
                   ]
@@ -11771,7 +12124,7 @@
             {
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2025-04-01",
-              "name": "[format('deploy-afw-diags-{0}', parameters('deploymentNameSuffix'))]",
+              "name": "[format('deploy-afw-diag-{0}', parameters('deploymentNameSuffix'))]",
               "subscriptionId": "[variables('hub').subscriptionId]",
               "resourceGroup": "[variables('hub').resourceGroupName]",
               "properties": {
@@ -11806,7 +12159,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.39.26.7824",
-                      "templateHash": "624299096120892849"
+                      "templateHash": "16573283720187644859"
                     }
                   },
                   "parameters": {
@@ -11831,8 +12184,8 @@
                   },
                   "resources": [
                     {
-                      "type": "microsoft.insights/diagnosticSettings",
-                      "apiVersion": "2017-05-01-preview",
+                      "type": "Microsoft.Insights/diagnosticSettings",
+                      "apiVersion": "2021-05-01-preview",
                       "scope": "[format('Microsoft.Network/azureFirewalls/{0}', parameters('firewallName'))]",
                       "name": "[parameters('firewallDiagnosticSettingsName')]",
                       "properties": {
@@ -11859,7 +12212,7 @@
               },
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2025-04-01",
-              "name": "[format('deploy-kv-diags-{0}-{1}', copyIndex(), parameters('deploymentNameSuffix'))]",
+              "name": "[format('deploy-kv-diag-{0}-{1}', copyIndex(), parameters('deploymentNameSuffix'))]",
               "subscriptionId": "[parameters('keyVaults')[copyIndex()].subscriptionId]",
               "resourceGroup": "[parameters('keyVaults')[copyIndex()].resourceGroupName]",
               "properties": {
@@ -11894,7 +12247,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.39.26.7824",
-                      "templateHash": "4481454083899344173"
+                      "templateHash": "94314266934325699"
                     }
                   },
                   "parameters": {
@@ -11919,8 +12272,8 @@
                   },
                   "resources": [
                     {
-                      "type": "microsoft.insights/diagnosticSettings",
-                      "apiVersion": "2017-05-01-preview",
+                      "type": "Microsoft.Insights/diagnosticSettings",
+                      "apiVersion": "2021-05-01-preview",
                       "scope": "[format('Microsoft.KeyVault/vaults/{0}', parameters('keyVaultName'))]",
                       "name": "[parameters('keyVaultDiagnosticSettingName')]",
                       "properties": {
@@ -11938,7 +12291,7 @@
               "condition": "[parameters('deployBastion')]",
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2025-04-01",
-              "name": "[format('deploy-bastion-diags-{0}', parameters('deploymentNameSuffix'))]",
+              "name": "[format('deploy-bastion-diag-{0}', parameters('deploymentNameSuffix'))]",
               "subscriptionId": "[variables('hub').subscriptionId]",
               "resourceGroup": "[variables('hub').resourceGroupName]",
               "properties": {
@@ -11973,7 +12326,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.39.26.7824",
-                      "templateHash": "14891478741298329435"
+                      "templateHash": "2810936270793179607"
                     }
                   },
                   "parameters": {
@@ -11998,8 +12351,8 @@
                   },
                   "resources": [
                     {
-                      "type": "microsoft.insights/diagnosticSettings",
-                      "apiVersion": "2017-05-01-preview",
+                      "type": "Microsoft.Insights/diagnosticSettings",
+                      "apiVersion": "2021-05-01-preview",
                       "scope": "[format('Microsoft.Network/bastionHosts/{0}', parameters('name'))]",
                       "name": "[parameters('diagnosticSettingName')]",
                       "properties": {
@@ -12020,7 +12373,7 @@
               },
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2025-04-01",
-              "name": "[format('deploy-nic-diags-{0}-{1}', copyIndex(), parameters('deploymentNameSuffix'))]",
+              "name": "[format('deploy-nic-diag-{0}-{1}', copyIndex(), parameters('deploymentNameSuffix'))]",
               "subscriptionId": "[split(parameters('networkInterfaceResourceIds')[copyIndex()], '/')[2]]",
               "resourceGroup": "[split(parameters('networkInterfaceResourceIds')[copyIndex()], '/')[4]]",
               "properties": {
