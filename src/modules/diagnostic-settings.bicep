@@ -105,18 +105,22 @@ module storageAccountDiagnosticSettings 'storage-account-diagnostic-settings.bic
   name: 'deploy-sa-diag-${tier.name}-${deploymentNameSuffix}'
   scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
   params: {
+    blobDiagnosticSettingName: tier.namingConvention.storageAccountBlobDiagnosticSetting
     blobDiagnosticsLogs: blobDiagnosticsLogs
     blobDiagnosticsMetrics: blobDiagnosticsMetrics
+    fileDiagnosticSettingName: tier.namingConvention.storageAccountFileDiagnosticSetting
     fileDiagnosticsLogs: fileDiagnosticsLogs
     fileDiagnosticsMetrics: fileDiagnosticsMetrics
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     logStorageAccountResourceId: tier.name == 'hub' ? storageAccountResourceIds[1] : storageAccountResourceIds[0]
+    queueDiagnosticSettingName: tier.namingConvention.storageAccountQueueDiagnosticSetting
     queueDiagnosticsLogs: queueDiagnosticsLogs
     queueDiagnosticsMetrics: queueDiagnosticsMetrics
     storageAccountDiagnosticSettingName: tier.namingConvention.storageAccountDiagnosticSetting
     storageAccountDiagnosticsLogs: storageAccountDiagLogs
     storageAccountDiagnosticsMetrics: storageAccountDiagMetrics
     storageAccountName: split(storageAccountResourceIds[i], '/')[8]
+    tableDiagnosticSettingName: tier.namingConvention.storageAccountTableDiagnosticSetting
     tableDiagnosticsLogs: tableDiagnosticsLogs
     tableDiagnosticsMetrics: tableDiagnosticsMetrics
   }

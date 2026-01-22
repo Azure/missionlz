@@ -1,15 +1,19 @@
+param blobDiagnosticSettingName string
 param blobDiagnosticsLogs array
 param blobDiagnosticsMetrics array
+param fileDiagnosticSettingName string
 param fileDiagnosticsLogs array
 param fileDiagnosticsMetrics array
 param logAnalyticsWorkspaceResourceId string
 param logStorageAccountResourceId string
+param queueDiagnosticSettingName string
 param queueDiagnosticsLogs array
 param queueDiagnosticsMetrics array
 param storageAccountDiagnosticSettingName string
 param storageAccountDiagnosticsLogs array
 param storageAccountDiagnosticsMetrics array
 param storageAccountName string
+param tableDiagnosticSettingName string
 param tableDiagnosticsLogs array
 param tableDiagnosticsMetrics array
 
@@ -34,7 +38,7 @@ resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2023-01-01'
 }
 
 resource diagnosticSetting_blobService 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
-  name: storageAccountDiagnosticSettingName
+  name: blobDiagnosticSettingName
   properties: {
     logs: blobDiagnosticsLogs
     metrics: blobDiagnosticsMetrics
@@ -50,7 +54,7 @@ resource fileService 'Microsoft.Storage/storageAccounts/fileServices@2023-01-01'
 }
 
 resource diagnosticSetting_fileService 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
-  name: storageAccountDiagnosticSettingName
+  name: fileDiagnosticSettingName
   properties: {
     logs: fileDiagnosticsLogs
     metrics: fileDiagnosticsMetrics
@@ -66,7 +70,7 @@ resource queueService 'Microsoft.Storage/storageAccounts/queueServices@2023-01-0
 }
 
 resource diagnosticSetting_queueService 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
-  name: storageAccountDiagnosticSettingName
+  name: queueDiagnosticSettingName
   properties: {
     logs: queueDiagnosticsLogs
     metrics: queueDiagnosticsMetrics
@@ -82,7 +86,7 @@ resource tableService 'Microsoft.Storage/storageAccounts/tableServices@2023-01-0
 }
 
 resource diagnosticSetting_tableService 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
-  name: storageAccountDiagnosticSettingName
+  name: tableDiagnosticSettingName
   properties: {
     logs: tableDiagnosticsLogs
     metrics: tableDiagnosticsMetrics

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.39.26.7824",
-      "templateHash": "1994060036073026442"
+      "templateHash": "16474945883912234523"
     }
   },
   "parameters": {
@@ -1210,7 +1210,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.39.26.7824",
-              "templateHash": "709767662766469926"
+              "templateHash": "7388003772368839653"
             }
           },
           "parameters": {
@@ -1302,7 +1302,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.39.26.7824",
-                      "templateHash": "33840072713842827"
+                      "templateHash": "11570096001142936723"
                     }
                   },
                   "parameters": {
@@ -1806,7 +1806,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.39.26.7824",
-                              "templateHash": "11684708945930884183"
+                              "templateHash": "3586416288292584721"
                             }
                           },
                           "parameters": {
@@ -1917,6 +1917,7 @@
                               "storageAccountBlobDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, format('{0}{1}blob', parameters('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
                               "storageAccountBlobNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), variables('tokens').service, format('{0}{1}blob', parameters('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
                               "storageAccountBlobPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), variables('tokens').service, format('{0}{1}blob', parameters('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
+                              "storageAccountDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, parameters('resourceAbbreviations').storageAccounts)]",
                               "storageAccountFileDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, format('{0}{1}file', parameters('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
                               "storageAccountFileNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), variables('tokens').service, format('{0}{1}file', parameters('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
                               "storageAccountFilePrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), variables('tokens').service, format('{0}{1}file', parameters('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
@@ -5210,7 +5211,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.39.26.7824",
-              "templateHash": "14234228378020963652"
+              "templateHash": "8365356121286035393"
             }
           },
           "parameters": {
@@ -7832,8 +7833,8 @@
               },
               "dependsOn": [
                 "[subscriptionResourceId(parameters('tier').subscriptionId, 'Microsoft.Resources/deployments', format('deploy-adds-cmk-{0}', parameters('deploymentNameSuffix')))]",
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-adds-dc-{0}-{1}', range(0, parameters('vmCount'))[0], parameters('deploymentNameSuffix')))]",
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-adds-dc-{0}-{1}', range(0, parameters('vmCount'))[1], parameters('deploymentNameSuffix')))]"
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-adds-dc-{0}-{1}', range(0, parameters('vmCount'))[1], parameters('deploymentNameSuffix')))]",
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-adds-dc-{0}-{1}', range(0, parameters('vmCount'))[0], parameters('deploymentNameSuffix')))]"
               ]
             }
           ],
@@ -11113,7 +11114,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.39.26.7824",
-              "templateHash": "1120013681248949187"
+              "templateHash": "15193272509679623732"
             }
           },
           "parameters": {
@@ -11421,11 +11422,17 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
+                  "blobDiagnosticSettingName": {
+                    "value": "[parameters('tiers')[copyIndex()].namingConvention.storageAccountBlobDiagnosticSetting]"
+                  },
                   "blobDiagnosticsLogs": {
                     "value": "[parameters('blobDiagnosticsLogs')]"
                   },
                   "blobDiagnosticsMetrics": {
                     "value": "[parameters('blobDiagnosticsMetrics')]"
+                  },
+                  "fileDiagnosticSettingName": {
+                    "value": "[parameters('tiers')[copyIndex()].namingConvention.storageAccountFileDiagnosticSetting]"
                   },
                   "fileDiagnosticsLogs": {
                     "value": "[parameters('fileDiagnosticsLogs')]"
@@ -11437,6 +11444,9 @@
                     "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
                   },
                   "logStorageAccountResourceId": "[if(equals(parameters('tiers')[copyIndex()].name, 'hub'), createObject('value', parameters('storageAccountResourceIds')[1]), createObject('value', parameters('storageAccountResourceIds')[0]))]",
+                  "queueDiagnosticSettingName": {
+                    "value": "[parameters('tiers')[copyIndex()].namingConvention.storageAccountQueueDiagnosticSetting]"
+                  },
                   "queueDiagnosticsLogs": {
                     "value": "[parameters('queueDiagnosticsLogs')]"
                   },
@@ -11455,6 +11465,9 @@
                   "storageAccountName": {
                     "value": "[split(parameters('storageAccountResourceIds')[copyIndex()], '/')[8]]"
                   },
+                  "tableDiagnosticSettingName": {
+                    "value": "[parameters('tiers')[copyIndex()].namingConvention.storageAccountTableDiagnosticSetting]"
+                  },
                   "tableDiagnosticsLogs": {
                     "value": "[parameters('tableDiagnosticsLogs')]"
                   },
@@ -11469,15 +11482,21 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.39.26.7824",
-                      "templateHash": "12903219436507602342"
+                      "templateHash": "5970314524091355941"
                     }
                   },
                   "parameters": {
+                    "blobDiagnosticSettingName": {
+                      "type": "string"
+                    },
                     "blobDiagnosticsLogs": {
                       "type": "array"
                     },
                     "blobDiagnosticsMetrics": {
                       "type": "array"
+                    },
+                    "fileDiagnosticSettingName": {
+                      "type": "string"
                     },
                     "fileDiagnosticsLogs": {
                       "type": "array"
@@ -11489,6 +11508,9 @@
                       "type": "string"
                     },
                     "logStorageAccountResourceId": {
+                      "type": "string"
+                    },
+                    "queueDiagnosticSettingName": {
                       "type": "string"
                     },
                     "queueDiagnosticsLogs": {
@@ -11507,6 +11529,9 @@
                       "type": "array"
                     },
                     "storageAccountName": {
+                      "type": "string"
+                    },
+                    "tableDiagnosticSettingName": {
                       "type": "string"
                     },
                     "tableDiagnosticsLogs": {
@@ -11533,7 +11558,7 @@
                       "type": "Microsoft.Insights/diagnosticSettings",
                       "apiVersion": "2021-05-01-preview",
                       "scope": "[format('Microsoft.Storage/storageAccounts/{0}/blobServices/{1}', parameters('storageAccountName'), 'default')]",
-                      "name": "[parameters('storageAccountDiagnosticSettingName')]",
+                      "name": "[parameters('blobDiagnosticSettingName')]",
                       "properties": {
                         "logs": "[parameters('blobDiagnosticsLogs')]",
                         "metrics": "[parameters('blobDiagnosticsMetrics')]",
@@ -11545,7 +11570,7 @@
                       "type": "Microsoft.Insights/diagnosticSettings",
                       "apiVersion": "2021-05-01-preview",
                       "scope": "[format('Microsoft.Storage/storageAccounts/{0}/fileServices/{1}', parameters('storageAccountName'), 'default')]",
-                      "name": "[parameters('storageAccountDiagnosticSettingName')]",
+                      "name": "[parameters('fileDiagnosticSettingName')]",
                       "properties": {
                         "logs": "[parameters('fileDiagnosticsLogs')]",
                         "metrics": "[parameters('fileDiagnosticsMetrics')]",
@@ -11557,7 +11582,7 @@
                       "type": "Microsoft.Insights/diagnosticSettings",
                       "apiVersion": "2021-05-01-preview",
                       "scope": "[format('Microsoft.Storage/storageAccounts/{0}/queueServices/{1}', parameters('storageAccountName'), 'default')]",
-                      "name": "[parameters('storageAccountDiagnosticSettingName')]",
+                      "name": "[parameters('queueDiagnosticSettingName')]",
                       "properties": {
                         "logs": "[parameters('queueDiagnosticsLogs')]",
                         "metrics": "[parameters('queueDiagnosticsMetrics')]",
@@ -11569,7 +11594,7 @@
                       "type": "Microsoft.Insights/diagnosticSettings",
                       "apiVersion": "2021-05-01-preview",
                       "scope": "[format('Microsoft.Storage/storageAccounts/{0}/tableServices/{1}', parameters('storageAccountName'), 'default')]",
-                      "name": "[parameters('storageAccountDiagnosticSettingName')]",
+                      "name": "[parameters('tableDiagnosticSettingName')]",
                       "properties": {
                         "logs": "[parameters('tableDiagnosticsLogs')]",
                         "metrics": "[parameters('tableDiagnosticsMetrics')]",
