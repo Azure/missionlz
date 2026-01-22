@@ -42,7 +42,7 @@ resource diagnosticSetting_blobService 'Microsoft.Insights/diagnosticSettings@20
   properties: {
     logs: blobDiagnosticsLogs
     metrics: blobDiagnosticsMetrics
-    storageAccountId: storageAccount.id
+    storageAccountId: logStorageAccountResourceId
     workspaceId: logAnalyticsWorkspaceResourceId
   }
   scope: blobService
@@ -58,7 +58,7 @@ resource diagnosticSetting_fileService 'Microsoft.Insights/diagnosticSettings@20
   properties: {
     logs: fileDiagnosticsLogs
     metrics: fileDiagnosticsMetrics
-    storageAccountId: storageAccount.id
+    storageAccountId: logStorageAccountResourceId
     workspaceId: logAnalyticsWorkspaceResourceId
   }
   scope: fileService
@@ -74,7 +74,7 @@ resource diagnosticSetting_queueService 'Microsoft.Insights/diagnosticSettings@2
   properties: {
     logs: queueDiagnosticsLogs
     metrics: queueDiagnosticsMetrics
-    storageAccountId: storageAccount.id
+    storageAccountId: logStorageAccountResourceId
     workspaceId: logAnalyticsWorkspaceResourceId
   }
   scope: queueService
@@ -90,7 +90,7 @@ resource diagnosticSetting_tableService 'Microsoft.Insights/diagnosticSettings@2
   properties: {
     logs: tableDiagnosticsLogs
     metrics: tableDiagnosticsMetrics
-    storageAccountId: storageAccount.id
+    storageAccountId: logStorageAccountResourceId
     workspaceId: logAnalyticsWorkspaceResourceId
   }
   scope: tableService

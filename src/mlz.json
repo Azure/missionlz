@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.39.26.7824",
-      "templateHash": "16474945883912234523"
+      "templateHash": "13972570594610395013"
     }
   },
   "parameters": {
@@ -11114,7 +11114,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.39.26.7824",
-              "templateHash": "15193272509679623732"
+              "templateHash": "11117385590182126748"
             }
           },
           "parameters": {
@@ -11482,7 +11482,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.39.26.7824",
-                      "templateHash": "5970314524091355941"
+                      "templateHash": "8475755565801146619"
                     }
                   },
                   "parameters": {
@@ -11562,7 +11562,7 @@
                       "properties": {
                         "logs": "[parameters('blobDiagnosticsLogs')]",
                         "metrics": "[parameters('blobDiagnosticsMetrics')]",
-                        "storageAccountId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
+                        "storageAccountId": "[parameters('logStorageAccountResourceId')]",
                         "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]"
                       }
                     },
@@ -11574,7 +11574,7 @@
                       "properties": {
                         "logs": "[parameters('fileDiagnosticsLogs')]",
                         "metrics": "[parameters('fileDiagnosticsMetrics')]",
-                        "storageAccountId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
+                        "storageAccountId": "[parameters('logStorageAccountResourceId')]",
                         "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]"
                       }
                     },
@@ -11586,7 +11586,7 @@
                       "properties": {
                         "logs": "[parameters('queueDiagnosticsLogs')]",
                         "metrics": "[parameters('queueDiagnosticsMetrics')]",
-                        "storageAccountId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
+                        "storageAccountId": "[parameters('logStorageAccountResourceId')]",
                         "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]"
                       }
                     },
@@ -11598,7 +11598,7 @@
                       "properties": {
                         "logs": "[parameters('tableDiagnosticsLogs')]",
                         "metrics": "[parameters('tableDiagnosticsMetrics')]",
-                        "storageAccountId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
+                        "storageAccountId": "[parameters('logStorageAccountResourceId')]",
                         "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]"
                       }
                     }
