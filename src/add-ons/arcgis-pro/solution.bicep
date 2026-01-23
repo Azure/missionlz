@@ -141,6 +141,7 @@ module azureVirtualDesktop '../azure-virtual-desktop/solution.bicep' = {
     environmentAbbreviation: 'dev'
     fslogixStorageService: 'None'
     hubAzureFirewallResourceId: missionLandingZone.outputs.azureFirewallResourceId
+    hubStorageAccountResourceId: missionLandingZone.outputs.hubStorageAccountResourceId
     hubVirtualNetworkResourceId: missionLandingZone.outputs.hubVirtualNetworkResourceId
     identifier: 'poc'
     locationVirtualMachines: location

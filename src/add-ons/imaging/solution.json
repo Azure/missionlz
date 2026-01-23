@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.38.33.27573",
-      "templateHash": "862252102260766223"
+      "version": "0.39.26.7824",
+      "templateHash": "17370531241123016633"
     }
   },
   "parameters": {
@@ -149,6 +149,12 @@
       "defaultValue": [],
       "metadata": {
         "description": "The array of policy assignment IDs to exempt to prevent issues with the build process."
+      }
+    },
+    "hubStorageAccountResourceId": {
+      "type": "string",
+      "metadata": {
+        "description": "The resource ID for the storage account in the HUB."
       }
     },
     "hubVirtualNetworkResourceId": {
@@ -607,6 +613,9 @@
           "firewallResourceId": {
             "value": "[parameters('azureFirewallResourceId')]"
           },
+          "hubStorageAccountResourceId": {
+            "value": "[parameters('hubStorageAccountResourceId')]"
+          },
           "hubVirtualNetworkResourceId": {
             "value": "[parameters('hubVirtualNetworkResourceId')]"
           },
@@ -680,8 +689,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.38.33.27573",
-              "templateHash": "7112883853013059074"
+              "version": "0.39.26.7824",
+              "templateHash": "13650264710382619715"
             }
           },
           "parameters": {
@@ -690,6 +699,30 @@
               "defaultValue": [],
               "metadata": {
                 "description": "An array of additional subnets to support the tier3 workload."
+              }
+            },
+            "blobDiagnosticsLogs": {
+              "type": "array",
+              "defaultValue": [
+                {
+                  "categoryGroup": "allLogs",
+                  "enabled": true
+                }
+              ],
+              "metadata": {
+                "description": "An array of Blob Diagnostic Logs categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/storage/blobs/monitor-blob-storage?tabs=azure-portal#enable-diagnostic-logging."
+              }
+            },
+            "blobDiagnosticsMetrics": {
+              "type": "array",
+              "defaultValue": [
+                {
+                  "category": "Transaction",
+                  "enabled": true
+                }
+              ],
+              "metadata": {
+                "description": "An array of Blob Diagnostic Metrics categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/storage/blobs/monitor-blob-storage?tabs=azure-portal#enable-metrics."
               }
             },
             "customFirewallRuleCollectionGroups": {
@@ -749,10 +782,40 @@
                 "description": "The abbreviation for the environment."
               }
             },
+            "fileDiagnosticsLogs": {
+              "type": "array",
+              "defaultValue": [
+                {
+                  "categoryGroup": "allLogs",
+                  "enabled": true
+                }
+              ],
+              "metadata": {
+                "description": "An array of File Diagnostic Logs categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/storage/files/monitor-file-storage?tabs=azure-portal#enable-diagnostic-logging."
+              }
+            },
+            "fileDiagnosticsMetrics": {
+              "type": "array",
+              "defaultValue": [
+                {
+                  "category": "Transaction",
+                  "enabled": true
+                }
+              ],
+              "metadata": {
+                "description": "An array of File Diagnostic Metrics categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/storage/files/monitor-file-storage?tabs=azure-portal#enable-metrics."
+              }
+            },
             "firewallResourceId": {
               "type": "string",
               "metadata": {
                 "description": "The resource ID of the Azure Firewall in the HUB."
+              }
+            },
+            "hubStorageAccountResourceId": {
+              "type": "string",
+              "metadata": {
+                "description": "The resource ID of the HUB Storage Account."
               }
             },
             "hubVirtualNetworkResourceId": {
@@ -869,6 +932,30 @@
                 "description": "When set to \"true\", enables Virtual Network Flow Logs. It defaults to \"true\" as its required by MCSB."
               }
             },
+            "queueDiagnosticsLogs": {
+              "type": "array",
+              "defaultValue": [
+                {
+                  "categoryGroup": "allLogs",
+                  "enabled": true
+                }
+              ],
+              "metadata": {
+                "description": "An array of Queue Diagnostic Logs categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/storage/queues/monitor-queue-storage?tabs=azure-portal#enable-diagnostic-logging."
+              }
+            },
+            "queueDiagnosticsMetrics": {
+              "type": "array",
+              "defaultValue": [
+                {
+                  "category": "Transaction",
+                  "enabled": true
+                }
+              ],
+              "metadata": {
+                "description": "An array of Queue Diagnostic Metrics categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/storage/queues/monitor-queue-storage?tabs=azure-portal#enable-metrics."
+              }
+            },
             "policy": {
               "type": "string",
               "defaultValue": "NISTRev4",
@@ -883,6 +970,25 @@
                 "description": "The stamp index allows for multiple deployments of a similar workload without naming conflicts."
               }
             },
+            "storageAccountDiagnosticsLogs": {
+              "type": "array",
+              "defaultValue": [],
+              "metadata": {
+                "description": "An array of Storage Account Diagnostic Logs categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/storage/common/monitor-storage?tabs=azure-portal#enable-diagnostic-logging."
+              }
+            },
+            "storageAccountDiagnosticsMetrics": {
+              "type": "array",
+              "defaultValue": [
+                {
+                  "category": "Transaction",
+                  "enabled": true
+                }
+              ],
+              "metadata": {
+                "description": "An array of Storage Account Diagnostic Metrics categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/storage/common/monitor-storage?tabs=azure-portal#enable-metrics."
+              }
+            },
             "subnetAddressPrefix": {
               "type": "string",
               "defaultValue": "",
@@ -895,6 +1001,30 @@
               "defaultValue": "",
               "metadata": {
                 "description": "The custom name for the workload subnet if the naming convention is not desired. Subnets are child resources and do not require a unique name between virtual networks, only within the same virtual network."
+              }
+            },
+            "tableDiagnosticsLogs": {
+              "type": "array",
+              "defaultValue": [
+                {
+                  "categoryGroup": "allLogs",
+                  "enabled": true
+                }
+              ],
+              "metadata": {
+                "description": "An array of Table Diagnostic Logs categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/storage/tables/monitor-table-storage?tabs=azure-portal#enable-diagnostic-logging."
+              }
+            },
+            "tableDiagnosticsMetrics": {
+              "type": "array",
+              "defaultValue": [
+                {
+                  "category": "Transaction",
+                  "enabled": true
+                }
+              ],
+              "metadata": {
+                "description": "An array of Table Diagnostic Metrics categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/storage/tables/monitor-table-storage?tabs=azure-portal#enable-metrics."
               }
             },
             "tags": {
@@ -994,8 +1124,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.38.33.27573",
-                      "templateHash": "3433973305024553548"
+                      "version": "0.39.26.7824",
+                      "templateHash": "14485657875320012072"
                     }
                   },
                   "parameters": {
@@ -1044,8 +1174,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.38.33.27573",
-                      "templateHash": "7733386912179374452"
+                      "version": "0.39.26.7824",
+                      "templateHash": "9064864829309345113"
                     }
                   },
                   "parameters": {
@@ -1144,8 +1274,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.38.33.27573",
-                      "templateHash": "17144844398764546616"
+                      "version": "0.39.26.7824",
+                      "templateHash": "3809606057588512267"
                     }
                   },
                   "parameters": {
@@ -1231,8 +1361,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.38.33.27573",
-                              "templateHash": "9936027755787940840"
+                              "version": "0.39.26.7824",
+                              "templateHash": "11570096001142936723"
                             }
                           },
                           "parameters": {
@@ -1635,6 +1765,8 @@
                               "diskEncryptionSets": "des",
                               "disks": "disk",
                               "firewallPolicies": "afwp",
+                              "applicationGateways": "agw",
+                              "applicationGatewayWafPolicies": "agwwafp",
                               "functionApps": "func",
                               "hostPools": "vdpool",
                               "ipConfigurations": "ipconf",
@@ -1733,8 +1865,8 @@
                                   "metadata": {
                                     "_generator": {
                                       "name": "bicep",
-                                      "version": "0.38.33.27573",
-                                      "templateHash": "4814373816617804290"
+                                      "version": "0.39.26.7824",
+                                      "templateHash": "3586416288292584721"
                                     }
                                   },
                                   "parameters": {
@@ -1787,6 +1919,13 @@
                                       "azureFirewallPublicIPAddressDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, format('{0}{1}{2}', parameters('resourceAbbreviations').publicIPAddresses, parameters('delimiter'), parameters('resourceAbbreviations').azureFirewalls))]",
                                       "azureFirewallDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, parameters('resourceAbbreviations').azureFirewalls)]",
                                       "azureFirewallPolicy": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').firewallPolicies)]",
+                                      "applicationGateway": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').applicationGateways)]",
+                                      "applicationGatewayPublicIPAddress": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').publicIPAddresses), variables('tokens').service, parameters('resourceAbbreviations').applicationGateways)]",
+                                      "applicationGatewayDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, parameters('resourceAbbreviations').applicationGateways)]",
+                                      "applicationGatewayWafPolicy": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').applicationGatewayWafPolicies)]",
+                                      "applicationGatewayWafPolicyDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, parameters('resourceAbbreviations').applicationGatewayWafPolicies)]",
+                                      "applicationGatewayRouteTable": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').routeTables), variables('tokens').service, parameters('resourceAbbreviations').applicationGateways)]",
+                                      "applicationGatewayNetworkSecurityGroup": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').networkSecurityGroups), variables('tokens').service, parameters('resourceAbbreviations').applicationGateways)]",
                                       "bastionHost": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').bastionHosts)]",
                                       "bastionHostDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, parameters('resourceAbbreviations').bastionHosts)]",
                                       "bastionHostNetworkSecurityGroup": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').networkSecurityGroups), variables('tokens').service, parameters('resourceAbbreviations').bastionHosts)]",
@@ -1838,6 +1977,7 @@
                                       "storageAccountBlobDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, format('{0}{1}blob', parameters('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
                                       "storageAccountBlobNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), variables('tokens').service, format('{0}{1}blob', parameters('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
                                       "storageAccountBlobPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), variables('tokens').service, format('{0}{1}blob', parameters('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
+                                      "storageAccountDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, parameters('resourceAbbreviations').storageAccounts)]",
                                       "storageAccountFileDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, format('{0}{1}file', parameters('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
                                       "storageAccountFileNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), variables('tokens').service, format('{0}{1}file', parameters('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
                                       "storageAccountFilePrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), variables('tokens').service, format('{0}{1}file', parameters('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
@@ -1890,8 +2030,8 @@
                                   "metadata": {
                                     "_generator": {
                                       "name": "bicep",
-                                      "version": "0.38.33.27573",
-                                      "templateHash": "2077649972658418330"
+                                      "version": "0.39.26.7824",
+                                      "templateHash": "67734725024985285"
                                     }
                                   },
                                   "variables": {
@@ -2004,8 +2144,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.38.33.27573",
-                              "templateHash": "3122783923749923784"
+                              "version": "0.39.26.7824",
+                              "templateHash": "6902469917586543260"
                             }
                           },
                           "parameters": {
@@ -2101,8 +2241,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.38.33.27573",
-                              "templateHash": "6848271100280911562"
+                              "version": "0.39.26.7824",
+                              "templateHash": "9796412293041317065"
                             }
                           },
                           "parameters": {
@@ -2198,8 +2338,8 @@
                                   "metadata": {
                                     "_generator": {
                                       "name": "bicep",
-                                      "version": "0.38.33.27573",
-                                      "templateHash": "2733122027624574847"
+                                      "version": "0.39.26.7824",
+                                      "templateHash": "16438028713840255561"
                                     }
                                   },
                                   "parameters": {
@@ -2281,8 +2421,8 @@
                                   "metadata": {
                                     "_generator": {
                                       "name": "bicep",
-                                      "version": "0.38.33.27573",
-                                      "templateHash": "9592722628372817997"
+                                      "version": "0.39.26.7824",
+                                      "templateHash": "14716415322656266319"
                                     }
                                   },
                                   "parameters": {
@@ -2398,8 +2538,8 @@
                                   "metadata": {
                                     "_generator": {
                                       "name": "bicep",
-                                      "version": "0.38.33.27573",
-                                      "templateHash": "6928048103337724481"
+                                      "version": "0.39.26.7824",
+                                      "templateHash": "7779446728495115235"
                                     }
                                   },
                                   "parameters": {
@@ -2542,8 +2682,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.38.33.27573",
-                              "templateHash": "4218439444270428470"
+                              "version": "0.39.26.7824",
+                              "templateHash": "8666736007470883905"
                             }
                           },
                           "parameters": {
@@ -2595,8 +2735,8 @@
                                   "metadata": {
                                     "_generator": {
                                       "name": "bicep",
-                                      "version": "0.38.33.27573",
-                                      "templateHash": "10703690626298140714"
+                                      "version": "0.39.26.7824",
+                                      "templateHash": "7340460699741442449"
                                     }
                                   },
                                   "parameters": {
@@ -2670,8 +2810,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.38.33.27573",
-                              "templateHash": "2435408922840759242"
+                              "version": "0.39.26.7824",
+                              "templateHash": "9428153684607913388"
                             }
                           },
                           "parameters": {
@@ -2723,8 +2863,8 @@
                                   "metadata": {
                                     "_generator": {
                                       "name": "bicep",
-                                      "version": "0.38.33.27573",
-                                      "templateHash": "10703690626298140714"
+                                      "version": "0.39.26.7824",
+                                      "templateHash": "7340460699741442449"
                                     }
                                   },
                                   "parameters": {
@@ -2879,8 +3019,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.38.33.27573",
-                      "templateHash": "17467202923586654347"
+                      "version": "0.39.26.7824",
+                      "templateHash": "14471705217624194442"
                     }
                   },
                   "parameters": {
@@ -2997,8 +3137,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.38.33.27573",
-                              "templateHash": "13050128231383977449"
+                              "version": "0.39.26.7824",
+                              "templateHash": "15020316016009677208"
                             }
                           },
                           "parameters": {
@@ -3078,8 +3218,8 @@
                                   "metadata": {
                                     "_generator": {
                                       "name": "bicep",
-                                      "version": "0.38.33.27573",
-                                      "templateHash": "540897604926164370"
+                                      "version": "0.39.26.7824",
+                                      "templateHash": "15031139150215494995"
                                     }
                                   },
                                   "parameters": {
@@ -3176,8 +3316,8 @@
                                   "metadata": {
                                     "_generator": {
                                       "name": "bicep",
-                                      "version": "0.38.33.27573",
-                                      "templateHash": "4290870515308350355"
+                                      "version": "0.39.26.7824",
+                                      "templateHash": "10403495100213539569"
                                     }
                                   },
                                   "parameters": {
@@ -3404,8 +3544,8 @@
                                   "metadata": {
                                     "_generator": {
                                       "name": "bicep",
-                                      "version": "0.38.33.27573",
-                                      "templateHash": "14749790561592821900"
+                                      "version": "0.39.26.7824",
+                                      "templateHash": "2637012458681427447"
                                     }
                                   },
                                   "parameters": {
@@ -3481,8 +3621,8 @@
                                           "metadata": {
                                             "_generator": {
                                               "name": "bicep",
-                                              "version": "0.38.33.27573",
-                                              "templateHash": "14496771895167673520"
+                                              "version": "0.39.26.7824",
+                                              "templateHash": "18061649913040420672"
                                             }
                                           },
                                           "parameters": {
@@ -3648,8 +3788,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.38.33.27573",
-                              "templateHash": "9400986562793474850"
+                              "version": "0.39.26.7824",
+                              "templateHash": "601228445217000460"
                             }
                           },
                           "parameters": {
@@ -3896,6 +4036,12 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
+                  "blobDiagnosticsLogs": {
+                    "value": "[parameters('blobDiagnosticsLogs')]"
+                  },
+                  "blobDiagnosticsMetrics": {
+                    "value": "[parameters('blobDiagnosticsMetrics')]"
+                  },
                   "deployActivityLogDiagnosticSetting": {
                     "value": "[parameters('deployActivityLogDiagnosticSetting')]"
                   },
@@ -3904,6 +4050,15 @@
                   },
                   "deployNetworkWatcherTrafficAnalytics": {
                     "value": "[parameters('deployNetworkWatcherTrafficAnalytics')]"
+                  },
+                  "fileDiagnosticsLogs": {
+                    "value": "[parameters('fileDiagnosticsLogs')]"
+                  },
+                  "fileDiagnosticsMetrics": {
+                    "value": "[parameters('fileDiagnosticsMetrics')]"
+                  },
+                  "hubStorageAccountResourceId": {
+                    "value": "[parameters('hubStorageAccountResourceId')]"
                   },
                   "keyVaultDiagnosticLogs": {
                     "value": "[parameters('keyVaultDiagnosticLogs')]"
@@ -3935,8 +4090,26 @@
                   "networkWatcherFlowLogsType": {
                     "value": "[parameters('networkWatcherFlowLogsType')]"
                   },
+                  "queueDiagnosticsLogs": {
+                    "value": "[parameters('queueDiagnosticsLogs')]"
+                  },
+                  "queueDiagnosticsMetrics": {
+                    "value": "[parameters('queueDiagnosticsMetrics')]"
+                  },
+                  "storageAccountDiagnosticsLogs": {
+                    "value": "[parameters('storageAccountDiagnosticsLogs')]"
+                  },
+                  "storageAccountDiagnosticsMetrics": {
+                    "value": "[parameters('storageAccountDiagnosticsMetrics')]"
+                  },
                   "storageAccountResourceId": {
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-storage-{0}-{1}{2}', parameters('workloadShortName'), variables('deploymentIndex'), parameters('deploymentNameSuffix'))), '2025-04-01').outputs.storageAccountResourceId.value]"
+                  },
+                  "tableDiagnosticsLogs": {
+                    "value": "[parameters('tableDiagnosticsLogs')]"
+                  },
+                  "tableDiagnosticsMetrics": {
+                    "value": "[parameters('tableDiagnosticsMetrics')]"
                   },
                   "tier": {
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-network-{0}-{1}{2}', parameters('workloadShortName'), variables('deploymentIndex'), parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tier.value]"
@@ -3957,11 +4130,17 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.38.33.27573",
-                      "templateHash": "6647523203450573039"
+                      "version": "0.39.26.7824",
+                      "templateHash": "1810455861026817648"
                     }
                   },
                   "parameters": {
+                    "blobDiagnosticsLogs": {
+                      "type": "array"
+                    },
+                    "blobDiagnosticsMetrics": {
+                      "type": "array"
+                    },
                     "deployActivityLogDiagnosticSetting": {
                       "type": "bool"
                     },
@@ -3970,6 +4149,15 @@
                     },
                     "deployNetworkWatcherTrafficAnalytics": {
                       "type": "bool"
+                    },
+                    "fileDiagnosticsLogs": {
+                      "type": "array"
+                    },
+                    "fileDiagnosticsMetrics": {
+                      "type": "array"
+                    },
+                    "hubStorageAccountResourceId": {
+                      "type": "string"
                     },
                     "keyVaultDiagnosticLogs": {
                       "type": "array"
@@ -4001,8 +4189,26 @@
                     "networkWatcherFlowLogsType": {
                       "type": "string"
                     },
+                    "queueDiagnosticsLogs": {
+                      "type": "array"
+                    },
+                    "queueDiagnosticsMetrics": {
+                      "type": "array"
+                    },
+                    "storageAccountDiagnosticsLogs": {
+                      "type": "array"
+                    },
+                    "storageAccountDiagnosticsMetrics": {
+                      "type": "array"
+                    },
                     "storageAccountResourceId": {
                       "type": "string"
+                    },
+                    "tableDiagnosticsLogs": {
+                      "type": "array"
+                    },
+                    "tableDiagnosticsMetrics": {
+                      "type": "array"
                     },
                     "tier": {
                       "type": "object"
@@ -4041,8 +4247,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.38.33.27573",
-                              "templateHash": "6934956808390225471"
+                              "version": "0.39.26.7824",
+                              "templateHash": "4263556345704686596"
                             }
                           },
                           "parameters": {
@@ -4100,6 +4306,204 @@
                     {
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2025-04-01",
+                      "name": "[format('deploy-sa-diag-{0}-{1}', parameters('tier').name, parameters('deploymentNameSuffix'))]",
+                      "subscriptionId": "[parameters('tier').subscriptionId]",
+                      "resourceGroup": "[parameters('tier').resourceGroupName]",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "parameters": {
+                          "blobDiagnosticSettingName": {
+                            "value": "[parameters('tier').namingConvention.storageAccountBlobDiagnosticSetting]"
+                          },
+                          "blobDiagnosticsLogs": {
+                            "value": "[parameters('blobDiagnosticsLogs')]"
+                          },
+                          "blobDiagnosticsMetrics": {
+                            "value": "[parameters('blobDiagnosticsMetrics')]"
+                          },
+                          "fileDiagnosticSettingName": {
+                            "value": "[parameters('tier').namingConvention.storageAccountFileDiagnosticSetting]"
+                          },
+                          "fileDiagnosticsLogs": {
+                            "value": "[parameters('fileDiagnosticsLogs')]"
+                          },
+                          "fileDiagnosticsMetrics": {
+                            "value": "[parameters('fileDiagnosticsMetrics')]"
+                          },
+                          "logAnalyticsWorkspaceResourceId": {
+                            "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
+                          },
+                          "logStorageAccountResourceId": {
+                            "value": "[parameters('hubStorageAccountResourceId')]"
+                          },
+                          "queueDiagnosticSettingName": {
+                            "value": "[parameters('tier').namingConvention.storageAccountQueueDiagnosticSetting]"
+                          },
+                          "queueDiagnosticsLogs": {
+                            "value": "[parameters('queueDiagnosticsLogs')]"
+                          },
+                          "queueDiagnosticsMetrics": {
+                            "value": "[parameters('queueDiagnosticsMetrics')]"
+                          },
+                          "storageAccountDiagnosticSettingName": {
+                            "value": "[parameters('tier').namingConvention.storageAccountDiagnosticSetting]"
+                          },
+                          "storageAccountDiagnosticsLogs": {
+                            "value": "[parameters('storageAccountDiagnosticsLogs')]"
+                          },
+                          "storageAccountDiagnosticsMetrics": {
+                            "value": "[parameters('storageAccountDiagnosticsMetrics')]"
+                          },
+                          "storageAccountName": {
+                            "value": "[split(parameters('storageAccountResourceId'), '/')[8]]"
+                          },
+                          "tableDiagnosticSettingName": {
+                            "value": "[parameters('tier').namingConvention.storageAccountTableDiagnosticSetting]"
+                          },
+                          "tableDiagnosticsLogs": {
+                            "value": "[parameters('tableDiagnosticsLogs')]"
+                          },
+                          "tableDiagnosticsMetrics": {
+                            "value": "[parameters('tableDiagnosticsMetrics')]"
+                          }
+                        },
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "0.39.26.7824",
+                              "templateHash": "8475755565801146619"
+                            }
+                          },
+                          "parameters": {
+                            "blobDiagnosticSettingName": {
+                              "type": "string"
+                            },
+                            "blobDiagnosticsLogs": {
+                              "type": "array"
+                            },
+                            "blobDiagnosticsMetrics": {
+                              "type": "array"
+                            },
+                            "fileDiagnosticSettingName": {
+                              "type": "string"
+                            },
+                            "fileDiagnosticsLogs": {
+                              "type": "array"
+                            },
+                            "fileDiagnosticsMetrics": {
+                              "type": "array"
+                            },
+                            "logAnalyticsWorkspaceResourceId": {
+                              "type": "string"
+                            },
+                            "logStorageAccountResourceId": {
+                              "type": "string"
+                            },
+                            "queueDiagnosticSettingName": {
+                              "type": "string"
+                            },
+                            "queueDiagnosticsLogs": {
+                              "type": "array"
+                            },
+                            "queueDiagnosticsMetrics": {
+                              "type": "array"
+                            },
+                            "storageAccountDiagnosticSettingName": {
+                              "type": "string"
+                            },
+                            "storageAccountDiagnosticsLogs": {
+                              "type": "array"
+                            },
+                            "storageAccountDiagnosticsMetrics": {
+                              "type": "array"
+                            },
+                            "storageAccountName": {
+                              "type": "string"
+                            },
+                            "tableDiagnosticSettingName": {
+                              "type": "string"
+                            },
+                            "tableDiagnosticsLogs": {
+                              "type": "array"
+                            },
+                            "tableDiagnosticsMetrics": {
+                              "type": "array"
+                            }
+                          },
+                          "resources": [
+                            {
+                              "type": "Microsoft.Insights/diagnosticSettings",
+                              "apiVersion": "2021-05-01-preview",
+                              "scope": "[format('Microsoft.Storage/storageAccounts/{0}', parameters('storageAccountName'))]",
+                              "name": "[parameters('storageAccountDiagnosticSettingName')]",
+                              "properties": {
+                                "logs": "[parameters('storageAccountDiagnosticsLogs')]",
+                                "metrics": "[parameters('storageAccountDiagnosticsMetrics')]",
+                                "storageAccountId": "[parameters('logStorageAccountResourceId')]",
+                                "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]"
+                              }
+                            },
+                            {
+                              "type": "Microsoft.Insights/diagnosticSettings",
+                              "apiVersion": "2021-05-01-preview",
+                              "scope": "[format('Microsoft.Storage/storageAccounts/{0}/blobServices/{1}', parameters('storageAccountName'), 'default')]",
+                              "name": "[parameters('blobDiagnosticSettingName')]",
+                              "properties": {
+                                "logs": "[parameters('blobDiagnosticsLogs')]",
+                                "metrics": "[parameters('blobDiagnosticsMetrics')]",
+                                "storageAccountId": "[parameters('logStorageAccountResourceId')]",
+                                "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]"
+                              }
+                            },
+                            {
+                              "type": "Microsoft.Insights/diagnosticSettings",
+                              "apiVersion": "2021-05-01-preview",
+                              "scope": "[format('Microsoft.Storage/storageAccounts/{0}/fileServices/{1}', parameters('storageAccountName'), 'default')]",
+                              "name": "[parameters('fileDiagnosticSettingName')]",
+                              "properties": {
+                                "logs": "[parameters('fileDiagnosticsLogs')]",
+                                "metrics": "[parameters('fileDiagnosticsMetrics')]",
+                                "storageAccountId": "[parameters('logStorageAccountResourceId')]",
+                                "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]"
+                              }
+                            },
+                            {
+                              "type": "Microsoft.Insights/diagnosticSettings",
+                              "apiVersion": "2021-05-01-preview",
+                              "scope": "[format('Microsoft.Storage/storageAccounts/{0}/queueServices/{1}', parameters('storageAccountName'), 'default')]",
+                              "name": "[parameters('queueDiagnosticSettingName')]",
+                              "properties": {
+                                "logs": "[parameters('queueDiagnosticsLogs')]",
+                                "metrics": "[parameters('queueDiagnosticsMetrics')]",
+                                "storageAccountId": "[parameters('logStorageAccountResourceId')]",
+                                "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]"
+                              }
+                            },
+                            {
+                              "type": "Microsoft.Insights/diagnosticSettings",
+                              "apiVersion": "2021-05-01-preview",
+                              "scope": "[format('Microsoft.Storage/storageAccounts/{0}/tableServices/{1}', parameters('storageAccountName'), 'default')]",
+                              "name": "[parameters('tableDiagnosticSettingName')]",
+                              "properties": {
+                                "logs": "[parameters('tableDiagnosticsLogs')]",
+                                "metrics": "[parameters('tableDiagnosticsMetrics')]",
+                                "storageAccountId": "[parameters('logStorageAccountResourceId')]",
+                                "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2025-04-01",
                       "name": "[format('deploy-kv-diags-{0}-{1}', parameters('tier').shortName, parameters('deploymentNameSuffix'))]",
                       "subscriptionId": "[parameters('tier').subscriptionId]",
                       "resourceGroup": "[parameters('tier').resourceGroupName]",
@@ -4134,8 +4538,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.38.33.27573",
-                              "templateHash": "4963594230353987211"
+                              "version": "0.39.26.7824",
+                              "templateHash": "94314266934325699"
                             }
                           },
                           "parameters": {
@@ -4160,8 +4564,8 @@
                           },
                           "resources": [
                             {
-                              "type": "microsoft.insights/diagnosticSettings",
-                              "apiVersion": "2017-05-01-preview",
+                              "type": "Microsoft.Insights/diagnosticSettings",
+                              "apiVersion": "2021-05-01-preview",
                               "scope": "[format('Microsoft.KeyVault/vaults/{0}', parameters('keyVaultName'))]",
                               "name": "[parameters('keyVaultDiagnosticSettingName')]",
                               "properties": {
@@ -4230,8 +4634,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.38.33.27573",
-                              "templateHash": "6263776528882740202"
+                              "version": "0.39.26.7824",
+                              "templateHash": "2353528595173058256"
                             }
                           },
                           "parameters": {
@@ -4274,8 +4678,8 @@
                           },
                           "resources": [
                             {
-                              "type": "microsoft.insights/diagnosticSettings",
-                              "apiVersion": "2017-05-01-preview",
+                              "type": "Microsoft.Insights/diagnosticSettings",
+                              "apiVersion": "2021-05-01-preview",
                               "scope": "[format('Microsoft.Network/networkSecurityGroups/{0}', parameters('networkSecurityGroupName'))]",
                               "name": "[parameters('networkSecurityGroupDiagnosticSettingName')]",
                               "properties": {
@@ -4328,8 +4732,8 @@
                                   "metadata": {
                                     "_generator": {
                                       "name": "bicep",
-                                      "version": "0.38.33.27573",
-                                      "templateHash": "14084670775677067314"
+                                      "version": "0.39.26.7824",
+                                      "templateHash": "8258229738636282635"
                                     }
                                   },
                                   "parameters": {
@@ -4450,8 +4854,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.38.33.27573",
-                              "templateHash": "10341686035182223611"
+                              "version": "0.39.26.7824",
+                              "templateHash": "10948034446360727735"
                             }
                           },
                           "parameters": {
@@ -4503,15 +4907,15 @@
                           },
                           "resources": [
                             {
-                              "type": "microsoft.insights/diagnosticSettings",
-                              "apiVersion": "2017-05-01-preview",
+                              "type": "Microsoft.Insights/diagnosticSettings",
+                              "apiVersion": "2021-05-01-preview",
                               "scope": "[format('Microsoft.Network/virtualNetworks/{0}', parameters('virtualNetworkName'))]",
                               "name": "[parameters('virtualNetworkDiagnosticSettingName')]",
                               "properties": {
-                                "storageAccountId": "[parameters('logStorageAccountResourceId')]",
-                                "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]",
                                 "logs": "[if(contains(parameters('supportedClouds'), environment().name), parameters('logs'), createArray())]",
-                                "metrics": "[parameters('metrics')]"
+                                "metrics": "[parameters('metrics')]",
+                                "storageAccountId": "[parameters('logStorageAccountResourceId')]",
+                                "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]"
                               }
                             },
                             {
@@ -4557,8 +4961,8 @@
                                   "metadata": {
                                     "_generator": {
                                       "name": "bicep",
-                                      "version": "0.38.33.27573",
-                                      "templateHash": "14084670775677067314"
+                                      "version": "0.39.26.7824",
+                                      "templateHash": "8258229738636282635"
                                     }
                                   },
                                   "parameters": {
@@ -4666,8 +5070,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.38.33.27573",
-                              "templateHash": "18360941758794350279"
+                              "version": "0.39.26.7824",
+                              "templateHash": "6611377672162736019"
                             }
                           },
                           "parameters": {
@@ -4697,8 +5101,8 @@
                           },
                           "resources": [
                             {
-                              "type": "microsoft.insights/diagnosticSettings",
-                              "apiVersion": "2017-05-01-preview",
+                              "type": "Microsoft.Insights/diagnosticSettings",
+                              "apiVersion": "2021-05-01-preview",
                               "scope": "[format('Microsoft.Network/networkInterfaces/{0}', split(parameters('networkInterfaceResourceId'), '/')[8])]",
                               "name": "[variables('networkInterfaceDiagnosticSettingName')]",
                               "properties": {
@@ -4759,8 +5163,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.38.33.27573",
-                      "templateHash": "11578701650009900956"
+                      "version": "0.39.26.7824",
+                      "templateHash": "17042367692982474017"
                     }
                   },
                   "parameters": {
@@ -4822,8 +5226,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.38.33.27573",
-                              "templateHash": "6267406220507485294"
+                              "version": "0.39.26.7824",
+                              "templateHash": "13304535195176582507"
                             }
                           },
                           "parameters": {
@@ -4983,8 +5387,8 @@
                                   "metadata": {
                                     "_generator": {
                                       "name": "bicep",
-                                      "version": "0.38.33.27573",
-                                      "templateHash": "14496771895167673520"
+                                      "version": "0.39.26.7824",
+                                      "templateHash": "18061649913040420672"
                                     }
                                   },
                                   "parameters": {
@@ -5064,8 +5468,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.38.33.27573",
-                      "templateHash": "15688329836297491933"
+                      "version": "0.39.26.7824",
+                      "templateHash": "17569425286732074213"
                     }
                   },
                   "parameters": {
@@ -5344,8 +5748,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.38.33.27573",
-              "templateHash": "18262733409902280219"
+              "version": "0.39.26.7824",
+              "templateHash": "18361987304711553966"
             }
           },
           "parameters": {
@@ -5421,8 +5825,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.38.33.27573",
-                      "templateHash": "3122783923749923784"
+                      "version": "0.39.26.7824",
+                      "templateHash": "6902469917586543260"
                     }
                   },
                   "parameters": {
@@ -5501,8 +5905,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.38.33.27573",
-                      "templateHash": "8846982042343339765"
+                      "version": "0.39.26.7824",
+                      "templateHash": "13734122846162298716"
                     }
                   },
                   "parameters": {
@@ -5570,8 +5974,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.38.33.27573",
-                      "templateHash": "14822317262184166081"
+                      "version": "0.39.26.7824",
+                      "templateHash": "4625754661509775859"
                     }
                   },
                   "parameters": {
@@ -5635,8 +6039,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.38.33.27573",
-                      "templateHash": "7842254391145761780"
+                      "version": "0.39.26.7824",
+                      "templateHash": "13006003193696042118"
                     }
                   },
                   "parameters": {
@@ -5723,8 +6127,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.38.33.27573",
-                      "templateHash": "13050128231383977449"
+                      "version": "0.39.26.7824",
+                      "templateHash": "15020316016009677208"
                     }
                   },
                   "parameters": {
@@ -5804,8 +6208,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.38.33.27573",
-                              "templateHash": "540897604926164370"
+                              "version": "0.39.26.7824",
+                              "templateHash": "15031139150215494995"
                             }
                           },
                           "parameters": {
@@ -5902,8 +6306,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.38.33.27573",
-                              "templateHash": "4290870515308350355"
+                              "version": "0.39.26.7824",
+                              "templateHash": "10403495100213539569"
                             }
                           },
                           "parameters": {
@@ -6130,8 +6534,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.38.33.27573",
-                              "templateHash": "14749790561592821900"
+                              "version": "0.39.26.7824",
+                              "templateHash": "2637012458681427447"
                             }
                           },
                           "parameters": {
@@ -6207,8 +6611,8 @@
                                   "metadata": {
                                     "_generator": {
                                       "name": "bicep",
-                                      "version": "0.38.33.27573",
-                                      "templateHash": "14496771895167673520"
+                                      "version": "0.39.26.7824",
+                                      "templateHash": "18061649913040420672"
                                     }
                                   },
                                   "parameters": {
@@ -6356,8 +6760,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.38.33.27573",
-                      "templateHash": "1977287858078185798"
+                      "version": "0.39.26.7824",
+                      "templateHash": "17103665852045776398"
                     }
                   },
                   "parameters": {
@@ -6447,8 +6851,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.38.33.27573",
-                      "templateHash": "11525986639088300338"
+                      "version": "0.39.26.7824",
+                      "templateHash": "2458112876939028254"
                     }
                   },
                   "parameters": {
@@ -6715,8 +7119,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.38.33.27573",
-              "templateHash": "3383838321755161466"
+              "version": "0.39.26.7824",
+              "templateHash": "5224765883462980799"
             }
           },
           "parameters": {
@@ -6955,8 +7359,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.38.33.27573",
-                      "templateHash": "1873258799197625971"
+                      "version": "0.39.26.7824",
+                      "templateHash": "15669512833819712590"
                     }
                   },
                   "parameters": {
@@ -7041,8 +7445,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.38.33.27573",
-                      "templateHash": "12780196712899408988"
+                      "version": "0.39.26.7824",
+                      "templateHash": "18103184084865478282"
                     }
                   },
                   "parameters": {
@@ -7251,8 +7655,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.38.33.27573",
-                      "templateHash": "4510888031908713877"
+                      "version": "0.39.26.7824",
+                      "templateHash": "3396568143462730367"
                     }
                   },
                   "parameters": {
@@ -9242,8 +9646,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.38.33.27573",
-                      "templateHash": "14711928181399128857"
+                      "version": "0.39.26.7824",
+                      "templateHash": "9073341607260419613"
                     }
                   },
                   "parameters": {
@@ -9609,8 +10013,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.38.33.27573",
-                      "templateHash": "4305376900338439591"
+                      "version": "0.39.26.7824",
+                      "templateHash": "8999284803241615588"
                     }
                   },
                   "parameters": {
@@ -10145,8 +10549,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.38.33.27573",
-                              "templateHash": "16938150656620170777"
+                              "version": "0.39.26.7824",
+                              "templateHash": "836067807115086798"
                             }
                           },
                           "parameters": {
@@ -10507,8 +10911,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.38.33.27573",
-              "templateHash": "3315603178246777108"
+              "version": "0.39.26.7824",
+              "templateHash": "12571081846493439068"
             }
           },
           "parameters": {
@@ -10769,8 +11173,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.38.33.27573",
-                      "templateHash": "14711928181399128857"
+                      "version": "0.39.26.7824",
+                      "templateHash": "9073341607260419613"
                     }
                   },
                   "parameters": {
@@ -10979,8 +11383,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.38.33.27573",
-                      "templateHash": "3445426712289262081"
+                      "version": "0.39.26.7824",
+                      "templateHash": "7406257675303083234"
                     }
                   },
                   "parameters": {
@@ -11230,8 +11634,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.38.33.27573",
-                      "templateHash": "18200300278348192914"
+                      "version": "0.39.26.7824",
+                      "templateHash": "16403173317967833834"
                     }
                   },
                   "parameters": {
@@ -11653,8 +12057,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.38.33.27573",
-                      "templateHash": "18218108634839608328"
+                      "version": "0.39.26.7824",
+                      "templateHash": "3301206976619954839"
                     }
                   },
                   "parameters": {
@@ -11759,8 +12163,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.38.33.27573",
-                      "templateHash": "2216683665927851829"
+                      "version": "0.39.26.7824",
+                      "templateHash": "448173412433958018"
                     }
                   },
                   "parameters": {
@@ -11846,8 +12250,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.38.33.27573",
-                      "templateHash": "18218108634839608328"
+                      "version": "0.39.26.7824",
+                      "templateHash": "3301206976619954839"
                     }
                   },
                   "parameters": {
@@ -11945,8 +12349,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.38.33.27573",
-                      "templateHash": "7543465850152878669"
+                      "version": "0.39.26.7824",
+                      "templateHash": "12289034998254058024"
                     }
                   },
                   "parameters": {
@@ -12026,8 +12430,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.38.33.27573",
-                      "templateHash": "10398176882394964792"
+                      "version": "0.39.26.7824",
+                      "templateHash": "13329696646122428195"
                     }
                   },
                   "parameters": {
@@ -12147,8 +12551,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.38.33.27573",
-                      "templateHash": "7516669231765155274"
+                      "version": "0.39.26.7824",
+                      "templateHash": "13525877112382007699"
                     }
                   },
                   "parameters": {
@@ -12303,8 +12707,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.38.33.27573",
-                      "templateHash": "189544762965246210"
+                      "version": "0.39.26.7824",
+                      "templateHash": "14890194876777958365"
                     }
                   },
                   "parameters": {

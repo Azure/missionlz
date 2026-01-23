@@ -144,6 +144,9 @@ param hostPoolType string = 'Pooled'
 @description('The resource ID for the Azure Firewall in the HUB subscription')
 param hubAzureFirewallResourceId string
 
+@description('The resource ID for the Storage Account in the HUB subscription.')
+param hubStorageAccountResourceId string
+
 @description('The resource ID for the Azure Virtual Network in the HUB subscription.')
 param hubVirtualNetworkResourceId string
 
@@ -483,6 +486,7 @@ module tier3_shared '../tier3/solution.bicep' = {
     emailSecurityContact: emailSecurityContact
     environmentAbbreviation: environmentAbbreviation
     firewallResourceId: hubAzureFirewallResourceId
+    hubStorageAccountResourceId: hubStorageAccountResourceId
     hubVirtualNetworkResourceId: hubVirtualNetworkResourceId
     identifier: identifier
     keyVaultDiagnosticLogs: keyVaultDiagnosticsLogs
@@ -703,6 +707,7 @@ module tier3_stamp '../tier3/solution.bicep' = {
     emailSecurityContact: emailSecurityContact
     environmentAbbreviation: environmentAbbreviation
     firewallResourceId: hubAzureFirewallResourceId
+    hubStorageAccountResourceId: hubStorageAccountResourceId
     hubVirtualNetworkResourceId: hubVirtualNetworkResourceId
     identifier: identifier
     keyVaultDiagnosticLogs: keyVaultDiagnosticsLogs

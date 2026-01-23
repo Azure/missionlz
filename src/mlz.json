@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.39.26.7824",
-      "templateHash": "13972570594610395013"
+      "templateHash": "88766518032617822"
     }
   },
   "parameters": {
@@ -11085,10 +11085,10 @@
           "queueDiagnosticsMetrics": {
             "value": "[parameters('queueDiagnosticsMetrics')]"
           },
-          "storageAccountDiagLogs": {
+          "storageAccountDiagnosticsLogs": {
             "value": "[parameters('storageAccountDiagnosticsLogs')]"
           },
-          "storageAccountDiagMetrics": {
+          "storageAccountDiagnosticsMetrics": {
             "value": "[parameters('storageAccountDiagnosticsMetrics')]"
           },
           "storageAccountResourceIds": {
@@ -11114,7 +11114,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.39.26.7824",
-              "templateHash": "11117385590182126748"
+              "templateHash": "1159362253742212918"
             }
           },
           "parameters": {
@@ -11193,10 +11193,10 @@
             "queueDiagnosticsMetrics": {
               "type": "array"
             },
-            "storageAccountDiagLogs": {
+            "storageAccountDiagnosticsLogs": {
               "type": "array"
             },
-            "storageAccountDiagMetrics": {
+            "storageAccountDiagnosticsMetrics": {
               "type": "array"
             },
             "storageAccountResourceIds": {
@@ -11457,10 +11457,10 @@
                     "value": "[parameters('tiers')[copyIndex()].namingConvention.storageAccountDiagnosticSetting]"
                   },
                   "storageAccountDiagnosticsLogs": {
-                    "value": "[parameters('storageAccountDiagLogs')]"
+                    "value": "[parameters('storageAccountDiagnosticsLogs')]"
                   },
                   "storageAccountDiagnosticsMetrics": {
-                    "value": "[parameters('storageAccountDiagMetrics')]"
+                    "value": "[parameters('storageAccountDiagnosticsMetrics')]"
                   },
                   "storageAccountName": {
                     "value": "[split(parameters('storageAccountResourceIds')[copyIndex()], '/')[8]]"

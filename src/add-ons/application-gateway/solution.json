@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.38.33.27573",
-      "templateHash": "17842325597737277685"
+      "version": "0.39.26.7824",
+      "templateHash": "18388714181440629850"
     }
   },
   "parameters": {
@@ -42,13 +42,6 @@
         "description": "Subnet name for the Application Gateway."
       }
     },
-    "disablePrivateEndpointNetworkPolicies": {
-      "type": "bool",
-      "defaultValue": true,
-      "metadata": {
-        "description": "Disable private endpoint network policies on the AppGateway subnet (prevents Private Endpoint creation there)."
-      }
-    },
     "commonDefaults": {
       "type": "object",
       "metadata": {
@@ -58,7 +51,7 @@
     "apps": {
       "type": "array",
       "metadata": {
-        "description": "Array of application definitions. Each app: { name, backendAddresses:[{ipAddress|fqdn}], certificateSecretId, (optional) addressPrefix, (optional) addressPrefixes:[CIDR...], (optional) wafOverrides:{ mode, requestBodyCheck, maxRequestBodySizeInKb, fileUploadLimitInMb, managedRuleSetVersion } }. addressPrefixes overrides addressPrefix when provided."
+        "description": "Array of application definitions. Each app: { name, hostNames:[string...], backendAddresses:[{ipAddress|fqdn}], certificateSecretId, addressPrefixes:[CIDR... REQUIRED], (optional) backendPort, (optional) backendProtocol, (optional) healthProbePath, (optional) wafOverrides:{ mode, requestBodyCheck, maxRequestBodySizeInKb, fileUploadLimitInMb, managedRuleSetVersion }, (optional) wafExclusions, (optional) wafPolicyId }. NOTE: addressPrefixes is REQUIRED for routing and firewall rule generation."
       }
     },
     "tags": {
@@ -73,13 +66,6 @@
       "defaultValue": "",
       "metadata": {
         "description": "Existing WAF policy resource ID (if provided, skip creating new policy)"
-      }
-    },
-    "createSubnetNsg": {
-      "type": "bool",
-      "defaultValue": true,
-      "metadata": {
-        "description": "Whether to create and associate an NSG to the App Gateway subnet."
       }
     },
     "customAppGatewayFirewallRuleCollectionGroups": {
@@ -148,25 +134,11 @@
         "description": "Resource abbreviations object from core deployment (passed through from MLZ core)."
       }
     },
-    "createKeyVaultSecretAccessRole": {
-      "type": "bool",
-      "defaultValue": true,
-      "metadata": {
-        "description": "Whether to create a Key Vault secrets read role assignment for the user-assigned identity (RBAC-enabled vault)."
-      }
-    },
     "keyVaultResourceGroupName": {
       "type": "string",
       "defaultValue": "",
       "metadata": {
         "description": "Optional override for Key Vault resource group (defaults to hub RG)."
-      }
-    },
-    "enableDiagnostics": {
-      "type": "bool",
-      "defaultValue": true,
-      "metadata": {
-        "description": "Enable diagnostics (Log Analytics) for the Application Gateway"
       }
     },
     "operationsLogAnalyticsWorkspaceResourceId": {
@@ -221,7 +193,7 @@
       {
         "name": "appsPrefixMatrix",
         "count": "[length(parameters('apps'))]",
-        "input": "[if(not(empty(tryGet(parameters('apps')[copyIndex('appsPrefixMatrix')], 'addressPrefixes'))), parameters('apps')[copyIndex('appsPrefixMatrix')].addressPrefixes, if(not(empty(tryGet(parameters('apps')[copyIndex('appsPrefixMatrix')], 'addressPrefix'))), createArray(parameters('apps')[copyIndex('appsPrefixMatrix')].addressPrefix), createArray()))]"
+        "input": "[parameters('apps')[copyIndex('appsPrefixMatrix')].addressPrefixes]"
       },
       {
         "name": "dedupPrefixes",
@@ -334,7 +306,7 @@
     "generatedPolicyMaxRequestBodySizeInKb": "[coalesce(tryGet(variables('cd'), 'generatedPolicyMaxRequestBodySizeInKb'), parameters('wafMaxRequestBodySizeInKb'))]",
     "generatedPolicyFileUploadLimitInMb": "[coalesce(tryGet(variables('cd'), 'generatedPolicyFileUploadLimitInMb'), parameters('wafFileUploadLimitInMb'))]",
     "generatedPolicyManagedRuleSetVersion": "[coalesce(tryGet(variables('cd'), 'generatedPolicyManagedRuleSetVersion'), parameters('wafManagedRuleSetVersion'))]",
-    "effectiveEnableDiagnostics": "[and(parameters('enableDiagnostics'), not(empty(parameters('operationsLogAnalyticsWorkspaceResourceId'))))]"
+    "diagnosticsEnabled": "[not(empty(parameters('operationsLogAnalyticsWorkspaceResourceId')))]"
   },
   "resources": [
     {
@@ -373,8 +345,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.38.33.27573",
-              "templateHash": "6859637770885056581"
+              "version": "0.39.26.7824",
+              "templateHash": "3586416288292584721"
             }
           },
           "parameters": {
@@ -485,6 +457,7 @@
               "storageAccountBlobDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, format('{0}{1}blob', parameters('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
               "storageAccountBlobNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), variables('tokens').service, format('{0}{1}blob', parameters('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
               "storageAccountBlobPrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), variables('tokens').service, format('{0}{1}blob', parameters('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
+              "storageAccountDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, parameters('resourceAbbreviations').storageAccounts)]",
               "storageAccountFileDiagnosticSetting": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').diagnosticSettings), variables('tokens').service, format('{0}{1}file', parameters('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
               "storageAccountFileNetworkInterface": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').networkInterfaces), variables('tokens').service, format('{0}{1}file', parameters('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
               "storageAccountFilePrivateEndpoint": "[replace(replace(variables('namingConvention_Service'), variables('tokens').resource, parameters('resourceAbbreviations').privateEndpoints), variables('tokens').service, format('{0}{1}file', parameters('resourceAbbreviations').storageAccounts, parameters('delimiter')))]",
@@ -547,8 +520,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.38.33.27573",
-              "templateHash": "12285096379499238301"
+              "version": "0.39.26.7824",
+              "templateHash": "17113650539295506424"
             }
           },
           "parameters": {
@@ -598,7 +571,7 @@
       ]
     },
     {
-      "condition": "[and(parameters('createKeyVaultSecretAccessRole'), not(empty(variables('keyVaultName'))))]",
+      "condition": "[not(empty(variables('keyVaultName')))]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-04-01",
       "name": "kvSecretsReader",
@@ -631,8 +604,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.38.33.27573",
-              "templateHash": "9373064827377362599"
+              "version": "0.39.26.7824",
+              "templateHash": "16366355705828683158"
             }
           },
           "parameters": {
@@ -726,8 +699,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.38.33.27573",
-              "templateHash": "17772060478696339190"
+              "version": "0.39.26.7824",
+              "templateHash": "11978798076540525271"
             }
           },
           "parameters": {
@@ -752,7 +725,6 @@
       ]
     },
     {
-      "condition": "[parameters('createSubnetNsg')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-04-01",
       "name": "appgwNsg",
@@ -779,8 +751,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.38.33.27573",
-              "templateHash": "4252691944658950174"
+              "version": "0.39.26.7824",
+              "templateHash": "935501328054947567"
             }
           },
           "parameters": {
@@ -907,8 +879,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.38.33.27573",
-              "templateHash": "792584134925113245"
+              "version": "0.39.26.7824",
+              "templateHash": "18355671349153605356"
             }
           },
           "parameters": {
@@ -1014,13 +986,12 @@
           "defaultOutboundAccess": {
             "value": false
           },
-          "disablePrivateEndpointNetworkPolicies": {
-            "value": "[parameters('disablePrivateEndpointNetworkPolicies')]"
-          },
           "routeTableId": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubRgName')), 'Microsoft.Resources/deployments', 'appgwRouteTable'), '2025-04-01').outputs.routeTableId.value]"
           },
-          "nsgId": "[if(parameters('createSubnetNsg'), createObject('value', resourceId(subscription().subscriptionId, variables('hubRgName'), 'Microsoft.Network/networkSecurityGroups', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.names.value.applicationGatewayNetworkSecurityGroup)), createObject('value', ''))]"
+          "nsgId": {
+            "value": "[resourceId(subscription().subscriptionId, variables('hubRgName'), 'Microsoft.Network/networkSecurityGroups', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.names.value.applicationGatewayNetworkSecurityGroup)]"
+          }
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -1028,8 +999,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.38.33.27573",
-              "templateHash": "4040836809667592844"
+              "version": "0.39.26.7824",
+              "templateHash": "13677338439047982494"
             }
           },
           "parameters": {
@@ -1047,10 +1018,6 @@
             "defaultOutboundAccess": {
               "type": "bool",
               "defaultValue": false
-            },
-            "disablePrivateEndpointNetworkPolicies": {
-              "type": "bool",
-              "defaultValue": true
             },
             "routeTableId": {
               "type": "string"
@@ -1071,7 +1038,6 @@
               "properties": {
                 "addressPrefix": "[parameters('addressPrefix')]",
                 "defaultOutboundAccess": "[parameters('defaultOutboundAccess')]",
-                "privateEndpointNetworkPolicies": "[if(parameters('disablePrivateEndpointNetworkPolicies'), 'Disabled', 'Enabled')]",
                 "networkSecurityGroup": "[if(empty(parameters('nsgId')), null(), createObject('id', parameters('nsgId')))]",
                 "routeTable": {
                   "id": "[parameters('routeTableId')]"
@@ -1146,8 +1112,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.38.33.27573",
-              "templateHash": "10555445536349364134"
+              "version": "0.39.26.7824",
+              "templateHash": "12618474352627477464"
             }
           },
           "parameters": {
@@ -1363,8 +1329,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.38.33.27573",
-              "templateHash": "8058697452146453423"
+              "version": "0.39.26.7824",
+              "templateHash": "7472914306287463943"
             }
           },
           "parameters": {
@@ -1778,7 +1744,7 @@
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.names.value.applicationGateway]"
           },
           "enable": {
-            "value": "[variables('effectiveEnableDiagnostics')]"
+            "value": "[variables('diagnosticsEnabled')]"
           }
         },
         "template": {
@@ -1787,8 +1753,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.38.33.27573",
-              "templateHash": "4699852040818062367"
+              "version": "0.39.26.7824",
+              "templateHash": "10385523554041341910"
             }
           },
           "parameters": {
@@ -1878,8 +1844,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.38.33.27573",
-              "templateHash": "7336137186706412041"
+              "version": "0.39.26.7824",
+              "templateHash": "3611262194390837040"
             }
           },
           "parameters": {
@@ -2139,7 +2105,7 @@
     },
     "diagnosticsSettingId": {
       "type": "string",
-      "value": "[if(variables('effectiveEnableDiagnostics'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubRgName')), 'Microsoft.Resources/deployments', 'appgwDiagnostics'), '2025-04-01').outputs.diagnosticsSettingId.value, '')]"
+      "value": "[if(variables('diagnosticsEnabled'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubRgName')), 'Microsoft.Resources/deployments', 'appgwDiagnostics'), '2025-04-01').outputs.diagnosticsSettingId.value, '')]"
     },
     "operationsLogAnalyticsWorkspaceResourceIdOut": {
       "type": "string",

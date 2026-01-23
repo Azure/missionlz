@@ -83,6 +83,27 @@
                     "required": true,
                     "allowedValues": "[map(steps('basics').hub.azureFirewallsApi.value, (item) => parse(concat('{\"label\":\"', item.name, '\",\"value\":\"', item.id, '\"}')))]"
                   }
+                },
+                {
+                  "name": "storageAccountsApi",
+                  "type": "Microsoft.Solutions.ArmApiControl",
+                  "request": {
+                    "method": "GET",
+                    "path": "[concat(steps('basics').hub.subscription, '/resourceGroups/', first(skip(split(steps('basics').hub.virtualNetwork, '/'), 4)), '/providers/Microsoft.Storage/storageAccounts?api-version=2025-06-01')]"
+                  }
+                },
+                {
+                  "name": "storageAccount",
+                  "type": "Microsoft.Common.DropDown",
+                  "visible": true,
+                  "label": "Storage Account",
+                  "defaultValue": "[first(map(steps('basics').hub.storageAccountsApi.value, (item) => item.name))]",
+                  "filter": true,
+                  "toolTip": "Select the existing Hub Storage Account.",
+                  "constraints": {
+                    "required": true,
+                    "allowedValues": "[map(steps('basics').hub.storageAccountsApi.value, (item) => parse(concat('{\"label\":\"', item.name, '\",\"value\":\"', item.id, '\"}')))]"
+                  }
                 }
               ]
             },
@@ -472,6 +493,7 @@
         "emailSecurityContact": "[if(and(steps('compliance').defenderForCloud.deployDefender, empty(steps('compliance').defenderForCloud.workspaceSettingsApi.value)), steps('compliance').defenderForCloud.emailSecurityContact, '')]",
         "environmentAbbreviation": "[steps('basics').naming.environment]",
         "firewallResourceId": "[steps('basics').hub.azureFirewall]",
+        "hubStorageAccountResourceId": "[steps('basics').hub.storageAccount]",
         "hubVirtualNetworkResourceId": "[steps('basics').hub.virtualNetwork]",
         "identifier": "[steps('basics').naming.identifier]",
         "location": "[steps('basics').scope.location.name]",

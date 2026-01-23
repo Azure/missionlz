@@ -50,6 +50,9 @@ param environmentAbbreviation string = 'dev'
 @description('The name of the file share')
 param fileShareName string
 
+@description('The resource ID of the HUB Storage Account.')
+param hubStorageAccountResourceId string
+
 @description('The resource ID of the HUB Virtual Network.')
 param hubVirtualNetworkResourceId string
 
@@ -187,6 +190,7 @@ module tier3 '../tier3/solution.bicep' = {
     emailSecurityContact: emailSecurityContact
     environmentAbbreviation: environmentAbbreviation
     firewallResourceId: azureFirewallResourceId
+    hubStorageAccountResourceId: hubStorageAccountResourceId
     hubVirtualNetworkResourceId: hubVirtualNetworkResourceId
     identifier: identifier
     keyVaultDiagnosticLogs: keyVaultDiagnosticLogs

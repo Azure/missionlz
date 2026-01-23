@@ -30,8 +30,8 @@ param publicIPAddressDiagnosticsLogs array
 param publicIPAddressDiagnosticsMetrics array
 param queueDiagnosticsLogs array
 param queueDiagnosticsMetrics array
-param storageAccountDiagLogs array
-param storageAccountDiagMetrics array
+param storageAccountDiagnosticsLogs array
+param storageAccountDiagnosticsMetrics array
 param storageAccountResourceIds array
 param supportedClouds array
 param tableDiagnosticsLogs array
@@ -117,8 +117,8 @@ module storageAccountDiagnosticSettings 'storage-account-diagnostic-settings.bic
     queueDiagnosticsLogs: queueDiagnosticsLogs
     queueDiagnosticsMetrics: queueDiagnosticsMetrics
     storageAccountDiagnosticSettingName: tier.namingConvention.storageAccountDiagnosticSetting
-    storageAccountDiagnosticsLogs: storageAccountDiagLogs
-    storageAccountDiagnosticsMetrics: storageAccountDiagMetrics
+    storageAccountDiagnosticsLogs: storageAccountDiagnosticsLogs
+    storageAccountDiagnosticsMetrics: storageAccountDiagnosticsMetrics
     storageAccountName: split(storageAccountResourceIds[i], '/')[8]
     tableDiagnosticSettingName: tier.namingConvention.storageAccountTableDiagnosticSetting
     tableDiagnosticsLogs: tableDiagnosticsLogs

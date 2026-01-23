@@ -1103,8 +1103,8 @@ module diagnosticSettings 'modules/diagnostic-settings.bicep' = {
     publicIPAddressDiagnosticsMetrics: publicIPAddressDiagnosticsMetrics
     queueDiagnosticsLogs: queueDiagnosticsLogs
     queueDiagnosticsMetrics: queueDiagnosticsMetrics
-    storageAccountDiagLogs: storageAccountDiagnosticsLogs
-    storageAccountDiagMetrics: storageAccountDiagnosticsMetrics
+    storageAccountDiagnosticsLogs: storageAccountDiagnosticsLogs
+    storageAccountDiagnosticsMetrics: storageAccountDiagnosticsMetrics
     storageAccountResourceIds: storage.outputs.storageAccountResourceIds
     supportedClouds: supportedClouds
     tableDiagnosticsLogs: tableDiagnosticsLogs
@@ -1134,6 +1134,7 @@ module security 'modules/security.bicep' = {
 }
 
 output azureFirewallResourceId string = networking.outputs.azureFirewallResourceId
+output hubStorageAccountResourceId string = storage.outputs.storageAccountResourceIds[0]
 output hubVirtualNetworkResourceId string = networking.outputs.hubVirtualNetworkResourceId
 output logAnalyticsWorkspaceResourceId string = monitoring.outputs.logAnalyticsWorkspaceResourceId
 output privateLinkScopeResourceId string = monitoring.outputs.privateLinkScopeResourceId
