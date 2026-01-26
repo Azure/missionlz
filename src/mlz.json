@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.40.2.10011",
-      "templateHash": "10937128222164720426"
+      "templateHash": "3580079016981359217"
     }
   },
   "parameters": {
@@ -5269,7 +5269,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "8894523428549572002"
+              "templateHash": "17651354657670852630"
             }
           },
           "parameters": {
@@ -7908,8 +7908,8 @@
               },
               "dependsOn": [
                 "[subscriptionResourceId(parameters('tier').subscriptionId, 'Microsoft.Resources/deployments', format('deploy-adds-cmk-{0}', parameters('deploymentNameSuffix')))]",
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-adds-dc-{0}-{1}', range(0, parameters('vmCount'))[1], parameters('deploymentNameSuffix')))]",
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-adds-dc-{0}-{1}', range(0, parameters('vmCount'))[0], parameters('deploymentNameSuffix')))]"
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-adds-dc-{0}-{1}', range(0, parameters('vmCount'))[0], parameters('deploymentNameSuffix')))]",
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-adds-dc-{0}-{1}', range(0, parameters('vmCount'))[1], parameters('deploymentNameSuffix')))]"
               ]
             }
           ],
@@ -7956,9 +7956,6 @@
           },
           "bastionHostSubnetResourceId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.bastionHostSubnetResourceId.value]"
-          },
-          "delimiter": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.delimiter.value]"
           },
           "deployBastion": {
             "value": "[parameters('deployBastion')]"
@@ -8058,7 +8055,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "610175433278943694"
+              "templateHash": "12290811131912607304"
             }
           },
           "parameters": {
@@ -8072,9 +8069,6 @@
               "type": "string"
             },
             "bastionHostSubnetResourceId": {
-              "type": "string"
-            },
-            "delimiter": {
               "type": "string"
             },
             "deployBastion": {
@@ -8175,7 +8169,7 @@
             }
           },
           "variables": {
-            "jbResourceGroupName": "[format('{0}{1}jumpBoxes', parameters('tier').namingConvention.resourceGroup, parameters('delimiter'))]"
+            "jbResourceGroupName": "[replace(parameters('tier').namingConvention.resourceGroup, parameters('tokens').purpose, 'jumpBoxes')]"
           },
           "resources": [
             {
@@ -8279,7 +8273,7 @@
                     "value": "[parameters('environmentAbbreviation')]"
                   },
                   "keyName": {
-                    "value": "[parameters('tier').namingConvention.diskEncryptionSet]"
+                    "value": "[replace(parameters('tier').namingConvention.diskEncryptionSet, parameters('tokens').purpose, 'cmk')]"
                   },
                   "keyVaultPrivateDnsZoneResourceId": {
                     "value": "[parameters('keyVaultPrivateDnsZoneResourceId')]"
@@ -8937,7 +8931,7 @@
                     "value": "[reference(subscriptionResourceId(parameters('tier').subscriptionId, 'Microsoft.Resources/deployments', format('deploy-ra-cmk-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.diskEncryptionSetResourceId.value]"
                   },
                   "diskName": {
-                    "value": "[format('{0}{1}lra', parameters('tier').namingConvention.virtualMachineDisk, parameters('delimiter'))]"
+                    "value": "[replace(parameters('tier').namingConvention.virtualMachineDisk, parameters('tokens').purpose, 'lra')]"
                   },
                   "imageOffer": {
                     "value": "[parameters('linuxVmImageOffer')]"
@@ -8958,7 +8952,7 @@
                     "value": "[parameters('mlzTags')]"
                   },
                   "networkInterfaceName": {
-                    "value": "[format('{0}{1}lra', parameters('tier').namingConvention.virtualMachineNetworkInterface, parameters('delimiter'))]"
+                    "value": "[replace(parameters('tier').namingConvention.virtualMachineNetworkInterface, parameters('tokens').purpose, 'lra')]"
                   },
                   "networkSecurityGroupResourceId": {
                     "value": "[parameters('tier').networkSecurityGroupResourceId]"
@@ -8973,7 +8967,7 @@
                     "value": "[parameters('tags')]"
                   },
                   "virtualMachineName": {
-                    "value": "[format('{0}lra', parameters('tier').namingConvention.virtualMachine)]"
+                    "value": "[replace(parameters('tier').namingConvention.virtualMachine, parameters('tokens').purpose, 'lra')]"
                   },
                   "virtualMachineSize": {
                     "value": "[parameters('linuxVmSize')]"
@@ -9433,7 +9427,7 @@
                     "value": "[reference(subscriptionResourceId(parameters('tier').subscriptionId, 'Microsoft.Resources/deployments', format('deploy-ra-cmk-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.diskEncryptionSetResourceId.value]"
                   },
                   "diskName": {
-                    "value": "[format('{0}{1}wra', parameters('tier').namingConvention.virtualMachineDisk, parameters('delimiter'))]"
+                    "value": "[replace(parameters('tier').namingConvention.virtualMachineDisk, parameters('tokens').purpose, 'wra')]"
                   },
                   "hybridUseBenefit": {
                     "value": "[parameters('hybridUseBenefit')]"
@@ -9457,7 +9451,7 @@
                     "value": "[parameters('mlzTags')]"
                   },
                   "networkInterfaceName": {
-                    "value": "[format('{0}{1}wra', parameters('tier').namingConvention.virtualMachineNetworkInterface, parameters('delimiter'))]"
+                    "value": "[replace(parameters('tier').namingConvention.virtualMachineNetworkInterface, parameters('tokens').purpose, 'wra')]"
                   },
                   "networkSecurityGroupResourceId": {
                     "value": "[parameters('tier').networkSecurityGroupResourceId]"
@@ -9472,7 +9466,7 @@
                     "value": "[parameters('tags')]"
                   },
                   "virtualMachineName": {
-                    "value": "[format('{0}wra', parameters('tier').namingConvention.virtualMachine)]"
+                    "value": "[replace(parameters('tier').namingConvention.virtualMachine, parameters('tokens').purpose, 'wra')]"
                   },
                   "virtualMachineSize": {
                     "value": "[parameters('windowsVmSize')]"
@@ -9929,7 +9923,7 @@
                     "value": "[parameters('mlzTags')]"
                   },
                   "name": {
-                    "value": "[parameters('tier').namingConvention.bastionHost]"
+                    "value": "[replace(parameters('tier').namingConvention.bastionHost, parameters('tokens').purpose, '')]"
                   },
                   "publicIPAddressAllocationMethod": {
                     "value": "[parameters('bastionHostPublicIPAddressAllocationMethod')]"
@@ -9938,7 +9932,7 @@
                     "value": "[parameters('bastionHostPublicIPAddressAvailabilityZones')]"
                   },
                   "publicIPAddressName": {
-                    "value": "[parameters('tier').namingConvention.bastionHostPublicIPAddress]"
+                    "value": "[replace(parameters('tier').namingConvention.bastionHostPublicIPAddress, parameters('tokens').purpose, '')]"
                   },
                   "publicIPAddressSkuName": {
                     "value": "[parameters('bastionHostPublicIPAddressSkuName')]"

@@ -80,7 +80,7 @@ var subnets = union([
       addressPrefix: bastionHostSubnetAddressPrefix
       defaultOutboundAccess: false
       networkSecurityGroup: {
-        id: bastionNetworkSecurityGroup.outputs.id
+        id: bastionNetworkSecurityGroup!.outputs.id
       }
     }
   } 
