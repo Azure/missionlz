@@ -213,7 +213,7 @@ param logStorageSkuName string = 'Standard_GRS'
 param managementSubnetAddressPrefix string = '10.0.1${41 + (2 * stampIndex)}.0/26'
 
 @description('The virtual machine size for the management virtual machine.')
-param managementVirtualMachineSize string = 'Standard_DS1_v2'
+param managementVirtualMachineSize string = 'Standard_D2ds_v4'
 
 @description('An array of metrics to enable on the diagnostic setting for network interfaces.')
 param networkInterfaceDiagnosticsMetrics array = [

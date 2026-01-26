@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.40.2.10011",
-      "templateHash": "8717394672742296463"
+      "templateHash": "98004540198428118"
     }
   },
   "parameters": {
@@ -405,7 +405,7 @@
     },
     "managementVirtualMachineSize": {
       "type": "string",
-      "defaultValue": "Standard_DS1_v2",
+      "defaultValue": "Standard_D2ds_v4",
       "metadata": {
         "description": "The virtual machine size for the management virtual machine."
       }
