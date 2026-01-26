@@ -944,6 +944,7 @@ module networking 'modules/networking.bicep' = {
 module monitoring 'modules/monitoring.bicep' = {
   name: 'deploy-monitoring-${deploymentNameSuffix}'
   params: {
+    delimiter: networking.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
     deploySentinel: deploySentinel
     location: location
@@ -954,6 +955,7 @@ module monitoring 'modules/monitoring.bicep' = {
     mlzTags: networking.outputs.mlzTags
     tags: tags
     tier: filter(networking.outputs.tiers, tier => tier.name == 'operations')[0]
+    tokens: networking.outputs.tokens
   }
 }
 
@@ -983,6 +985,7 @@ module activeDirectoryDomainServices 'modules/active-directory-domain-services.b
     safeModeAdminPassword: addsSafeModeAdminPassword
     tags: tags
     tier: filter(networking.outputs.tiers, tier => tier.name == 'identity')[0]
+    tokens: networking.outputs.tokens
     vmSize: addsVmSize
   }
 }
@@ -1018,6 +1021,7 @@ module remoteAccess 'modules/remote-access.bicep' = if (deployBastion || deployL
     resourceAbbreviations: networking.outputs.resourceAbbreviations
     tags: tags
     tier: filter(networking.outputs.tiers, tier => tier.name == 'hub')[0]
+    tokens: networking.outputs.tokens
     windowsVmAdminPassword: windowsVmAdminPassword
     windowsVmAdminUsername: windowsVmAdminUsername
     windowsVmImageOffer: windowsVmImageOffer
@@ -1032,7 +1036,7 @@ module remoteAccess 'modules/remote-access.bicep' = if (deployBastion || deployL
 // STORAGE FOR LOGGING
 
 module storage 'modules/storage.bicep' = {
-  name: 'deploy-log-storage-${deploymentNameSuffix}'
+  name: 'deploy-diag-storage-${deploymentNameSuffix}'
   params: {
     delimiter: networking.outputs.delimiter
     //deployIdentity: deployIdentity
@@ -1042,9 +1046,11 @@ module storage 'modules/storage.bicep' = {
     logStorageSkuName: logStorageSkuName
     mlzTags: networking.outputs.mlzTags
     privateDnsZoneResourceIds: networking.outputs.privateDnsZoneResourceIds
+    purpose: 'diag'
     resourceAbbreviations: networking.outputs.resourceAbbreviations
     tags: tags
     tiers: networking.outputs.tiers
+    tokens: networking.outputs.tokens
   }
   dependsOn: [
     activeDirectoryDomainServices // This is needed to ensure the first two IPs in the identity subnet are availabile for the domain controllers
@@ -1110,6 +1116,7 @@ module diagnosticSettings 'modules/diagnostic-settings.bicep' = {
     tableDiagnosticsLogs: tableDiagnosticsLogs
     tableDiagnosticsMetrics: tableDiagnosticsMetrics
     tiers: networking.outputs.tiers
+    tokens: networking.outputs.tokens
   }
 }
 

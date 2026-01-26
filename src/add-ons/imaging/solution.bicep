@@ -471,7 +471,6 @@ module tier3 '../tier3/solution.bicep' = {
 module baseline 'modules/baseline.bicep' = {
   name: 'deploy-imaging-baseline-${deploymentNameSuffix}'
   params: {
-    delimiter: tier3.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
     enableBuildAutomation: enableBuildAutomation
     environmentAbbreviation: environmentAbbreviation
@@ -483,6 +482,7 @@ module baseline 'modules/baseline.bicep' = {
     storageAccountResourceId: storageAccountResourceId
     tags: tags
     tier: tier3.outputs.tier
+    tokens: tier3.outputs.tokens
   }
 }
 

@@ -25,6 +25,7 @@ param firewallCustomPipCount int
 param firewallIntrusionDetectionMode string
 param firewallManagementPublicIPAddressAvailabilityZones array
 param firewallManagementSubnetAddressPrefix string
+param firewallRuleCollectionGroups array
 param firewallSkuTier string
 
 @allowed([
@@ -39,8 +40,8 @@ param resourceGroupName string
 param subscriptionId string
 param tags object
 param tier object
+param tokens object
 param vNetDnsServers array
-param firewallRuleCollectionGroups array
 
 var subnets = union([
   {
@@ -58,7 +59,7 @@ var subnets = union([
     }
   }
   {
-    name: tier.namingConvention.subnet
+    name: replace(tier.namingConvention.subnet, '${delimiter}${tokens.purpose}', '')
     properties: {
       addressPrefix: tier.subnetAddressPrefix
       defaultOutboundAccess: false
@@ -220,7 +221,7 @@ module networkSecurityGroup '../modules/network-security-group.bicep' = {
   params: {
     location: location
     mlzTags: mlzTags
-    name: tier.namingConvention.networkSecurityGroup
+    name: replace(tier.namingConvention.networkSecurityGroup, '${delimiter}${tokens.purpose}', '')
     securityRules: tier.nsgRules
     tags: tags
   }
@@ -232,7 +233,7 @@ module bastionNetworkSecurityGroup '../modules/network-security-group.bicep' = i
   params: {
     location: location
     mlzTags: mlzTags
-    name: tier.namingConvention.bastionHostNetworkSecurityGroup
+    name: replace(tier.namingConvention.bastionHostNetworkSecurityGroup, '${delimiter}${tokens.purpose}', '')
     securityRules: bastionNetworkSecurityGroupRules
     tags: tags
   }
@@ -245,7 +246,7 @@ module routeTable '../modules/route-table.bicep' = {
     disableBgpRoutePropagation: false
     location: location
     mlzTags: mlzTags
-    name: tier.namingConvention.routeTable
+    name: replace(tier.namingConvention.routeTable, '${delimiter}${tokens.purpose}', '')
     routeNextHopIpAddress: firewallClientPrivateIpAddress
     tags: tags
   }
@@ -258,7 +259,7 @@ module virtualNetwork '../modules/virtual-network.bicep' = {
     addressPrefix: tier.vnetAddressPrefix
     location: location
     mlzTags: mlzTags
-    name: tier.namingConvention.virtualNetwork
+    name: replace(tier.namingConvention.virtualNetwork, '${delimiter}${tokens.purpose}', '')
     subnets: subnets
     tags: tags
     vNetDnsServers: vNetDnsServers
@@ -272,7 +273,7 @@ module firewallClientPublicIPAddress '../modules/public-ip-address.bicep' = {
     availabilityZones: firewallClientPublicIPAddressAvailabilityZones
     location: location
     mlzTags: mlzTags
-    name: '${tier.namingConvention.azureFirewallPublicIPAddress}${delimiter}client'
+    name: replace(tier.namingConvention.azureFirewallPublicIPAddress, tokens.purpose, 'client')
     publicIpAllocationMethod: 'Static'
     skuName: 'Standard'
     tags: tags
@@ -286,7 +287,7 @@ module firewallManagementPublicIPAddress '../modules/public-ip-address.bicep' = 
     availabilityZones: firewallManagementPublicIPAddressAvailabilityZones
     location: location
     mlzTags: mlzTags
-    name: '${tier.namingConvention.azureFirewallPublicIPAddress}${delimiter}management'
+    name: replace(tier.namingConvention.azureFirewallPublicIPAddress, tokens.purpose, 'management')
     publicIpAllocationMethod: 'Static'
     skuName: 'Standard'
     tags: tags
@@ -300,7 +301,7 @@ module firewallCustomPublicIPAddresses '../modules/public-ip-address.bicep' = [f
     availabilityZones: firewallClientPublicIPAddressAvailabilityZones
     location: location
     mlzTags: mlzTags
-    name: '${tier.namingConvention.azureFirewallPublicIPAddress}${delimiter}client${delimiter}${i}'
+    name: '${replace(tier.namingConvention.azureFirewallPublicIPAddress, tokens.purpose, 'client')}${delimiter}${i}'
     publicIpAllocationMethod: 'Static'
     skuName: 'Standard'
     tags: tags
@@ -314,16 +315,16 @@ module firewall '../modules/firewall.bicep' = {
     clientIpConfigurationPublicIPAddressResourceId: firewallClientPublicIPAddress.outputs.id
     clientIpConfigurationSubnetResourceId: '${virtualNetwork.outputs.id}/subnets/AzureFirewallSubnet'
     customPipCount: firewallCustomPipCount
-    customPublicIPAddressNamePrefix: '${tier.namingConvention.azureFirewallPublicIPAddress}${delimiter}client${delimiter}'
+    customPublicIPAddressNamePrefix: '${replace(tier.namingConvention.azureFirewallPublicIPAddress, tokens.purpose, 'client')}${delimiter}'
     dnsServers: dnsServers
     enableProxy: enableProxy
-    firewallPolicyName: tier.namingConvention.azureFirewallPolicy
+    firewallPolicyName: replace(tier.namingConvention.azureFirewallPolicy, '${delimiter}${tokens.purpose}', '')
     intrusionDetectionMode: firewallIntrusionDetectionMode
     location: location
     managementIpConfigurationPublicIPAddressResourceId: firewallManagementPublicIPAddress.outputs.id
     managementIpConfigurationSubnetResourceId: '${virtualNetwork.outputs.id}/subnets/AzureFirewallManagementSubnet'
     mlzTags: mlzTags
-    name: tier.namingConvention.azureFirewall
+    name: replace(tier.namingConvention.azureFirewall, '${delimiter}${tokens.purpose}', '')
     resourceGroupName: resourceGroupName
     skuTier: firewallSkuTier
     subscriptionId: subscriptionId

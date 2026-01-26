@@ -742,7 +742,6 @@ module management 'modules/management/management.bicep' = {
   name: 'deploy-management-${deploymentNameSuffix}'
   params: {
     avdObjectId: avdObjectId
-    delimiter: tier3_stamp.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
     diskSku: diskSku
     domainJoinPassword: domainJoinPassword
@@ -758,6 +757,7 @@ module management 'modules/management/management.bicep' = {
     resourceAbbreviations: tier3_stamp.outputs.resourceAbbreviations
     tags: tags
     tier: tier3_stamp.outputs.tier
+    tokens: tier3_stamp.outputs.tokens
     virtualMachineAdminPassword: virtualMachineAdminPassword
     virtualMachineAdminUsername: virtualMachineAdminUsername
     virtualMachineSize: managementVirtualMachineSize
@@ -768,7 +768,6 @@ module management 'modules/management/management.bicep' = {
 module shared 'modules/shared/shared.bicep' = {
   name: 'deploy-shared-${deploymentNameSuffix}'
   params: {
-    delimiter: tier3_shared.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedIdentityPrincipalId: management.outputs.deploymentUserAssignedIdentityPrincipalId
     enableApplicationInsights: enableApplicationInsights
@@ -789,6 +788,7 @@ module shared 'modules/shared/shared.bicep' = {
     privateLinkScopeResourceId: privateLinkScopeResourceId
     tags: tags
     tier: tier3_shared.outputs.tier
+    tokens: tier3_shared.outputs.tokens
   }
 }
 
@@ -799,7 +799,6 @@ module controlPlane 'modules/control-plane/control-plane.bicep' = {
     avdPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3_stamp.outputs.privateDnsZones, name => startsWith(name, 'privatelink.wvd'))[0]}'
     customImageId: customImageId
     customRdpProperty: customRdpProperty
-    delimiter: tier3_stamp.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedIdentityClientId: management.outputs.deploymentUserAssignedIdentityClientId
     desktopFriendlyName: desktopFriendlyName
@@ -827,6 +826,7 @@ module controlPlane 'modules/control-plane/control-plane.bicep' = {
       tier3_shared.outputs.tier
       tier3_stamp.outputs.tier
     ]
+    tokens: tier3_shared.outputs.tokens
     validationEnvironment: validationEnvironment
     virtualMachineSize: virtualMachineSize
     workspaceFriendlyName: workspaceFriendlyName
@@ -839,7 +839,6 @@ module sharedServices 'modules/shared-services/shared-services.bicep' = {
   name: 'deploy-shared-services-${deploymentNameSuffix}'
   scope: subscription(split(sharedServicesSubnetResourceId, '/')[2])
   params: {
-    delimiter: tier3_shared.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
     identifier: identifier
     identifierHub: virtualNetwork_hub.tags.identifier
@@ -847,6 +846,7 @@ module sharedServices 'modules/shared-services/shared-services.bicep' = {
     mlzTags: tier3_shared.outputs.mlzTags
     sharedServicesSubnetResourceId: sharedServicesSubnetResourceId
     tier: tier3_shared.outputs.tier
+    tokens: tier3_shared.outputs.tokens
     workspaceGlobalPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3_stamp.outputs.privateDnsZones, name => startsWith(name, 'privatelink-global.wvd'))[0]}'
   }
 }
@@ -888,6 +888,7 @@ module fslogix 'modules/fslogix/fslogix.bicep' = if (deployFslogix) {
     storageSku: storageSku
     tags: tags
     tier: tier3_stamp.outputs.tier
+    tokens: tier3_stamp.outputs.tokens
   }
 }
 
@@ -957,6 +958,7 @@ module sessionHosts 'modules/session-hosts/session-hosts.bicep' = {
     storageSuffix: storageSuffix
     tags: tags
     tier: tier3_stamp.outputs.tier
+    tokens: tier3_stamp.outputs.tokens
     virtualMachineAdminPassword: virtualMachineAdminPassword
     virtualMachineAdminUsername: virtualMachineAdminUsername
     virtualMachineSize: virtualMachineSize

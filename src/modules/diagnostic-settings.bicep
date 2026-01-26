@@ -37,15 +37,16 @@ param supportedClouds array
 param tableDiagnosticsLogs array
 param tableDiagnosticsMetrics array
 param tiers array
+param tokens object
 
 var dedupedSubscriptionIds = union(subscriptionIds, [])
 var hub = filter(tiers, tier => tier.name == 'hub')[0]
 var networkSecurityGroups = union(networkSecurityGroups_Tiers, networkSecurityGroup_Bastion)
 var networkSecurityGroups_Tiers = [for (tier, i) in tiers: {
   diagnosticLogs: tier.nsgDiagLogs
-  diagnosticSettingName: tier.namingConvention.networkSecurityGroupDiagnosticSetting
-  flowLogsName: tier.namingConvention.networkWatcherFlowLogsNetworkSecurityGroup
-  name: tier.namingConvention.networkSecurityGroup
+  diagnosticSettingName: replace(tier.namingConvention.networkSecurityGroupDiagnosticSetting, '${delimiter}${tokens.purpose}', '')
+  flowLogsName: replace(tier.namingConvention.networkWatcherFlowLogsNetworkSecurityGroup, '${delimiter}${tokens.purpose}', '')
+  name: replace(tier.namingConvention.networkSecurityGroup, '${delimiter}${tokens.purpose}', '')
   resourceGroupName: tier.resourceGroupName
   storageAccountResourceId: storageAccountResourceIds[i]
   subscriptionId: tier.subscriptionId
@@ -54,9 +55,9 @@ var networkSecurityGroups_Tiers = [for (tier, i) in tiers: {
 var networkSecurityGroup_Bastion = deployBastion ? [
   {
     diagnosticLogs: hub.nsgDiagLogs
-    diagnosticSettingName: hub.namingConvention.bastionHostNetworkSecurityGroupDiagnosticSetting
-    flowLogsName: '${hub.namingConvention.networkWatcherFlowLogsNetworkSecurityGroup}${delimiter}bastion'
-    name: hub.namingConvention.bastionHostNetworkSecurityGroup
+    diagnosticSettingName: replace(hub.namingConvention.bastionHostNetworkSecurityGroupDiagnosticSetting, '${delimiter}${tokens.purpose}', '')
+    flowLogsName: replace(hub.namingConvention.networkWatcherFlowLogsNetworkSecurityGroup, tokens.purpose, 'bastion')
+    name: replace(hub.namingConvention.bastionHostNetworkSecurityGroup, '${delimiter}${tokens.purpose}', '')
     resourceGroupName: hub.resourceGroupName
     storageAccountResourceId: storageAccountResourceIds[0]
     subscriptionId: hub.subscriptionId
@@ -66,17 +67,17 @@ var networkSecurityGroup_Bastion = deployBastion ? [
 var operations = filter(tiers, tier => tier.name == 'operations')[0]
 var publicIPAddresses = union([
   {
-    name: '${hub.namingConvention.azureFirewallPublicIPAddress}${delimiter}client'
-    diagName: '${hub.namingConvention.azureFirewallPublicIPAddressDiagnosticSetting}${delimiter}client'
+    name: replace(hub.namingConvention.azureFirewallPublicIPAddress, tokens.purpose, 'client')
+    diagName: replace(hub.namingConvention.azureFirewallPublicIPAddressDiagnosticSetting, tokens.purpose, 'client')
   }
   {
-    name: '${hub.namingConvention.azureFirewallPublicIPAddress}${delimiter}management'
-    diagName: '${hub.namingConvention.azureFirewallPublicIPAddressDiagnosticSetting}${delimiter}management'
+    name: replace(hub.namingConvention.azureFirewallPublicIPAddress, tokens.purpose, 'management')
+    diagName: replace(hub.namingConvention.azureFirewallPublicIPAddressDiagnosticSetting, tokens.purpose, 'management')
   }
 ], deployBastion ? [
   {
-    name: hub.namingConvention.bastionHostPublicIPAddress
-    diagName: hub.namingConvention.bastionHostPublicIPAddressDiagnosticSetting
+    name: replace(hub.namingConvention.bastionHostPublicIPAddress, '${delimiter}${tokens.purpose}', '')
+    diagName: replace(hub.namingConvention.bastionHostPublicIPAddressDiagnosticSetting, '${delimiter}${tokens.purpose}', '')
   }
 ] : [])
 var subscriptionIds = [for tier in tiers: tier.subscriptionId]
@@ -94,7 +95,7 @@ module logAnalyticsWorkspaceDiagnosticSetting 'log-analytics-diagnostic-setting.
   scope: resourceGroup(operations.subscriptionId, operations.resourceGroupName)
   params: {
     diagnosticStorageAccountName: split(storageAccountResourceIds[1], '/')[8]
-    logAnalyticsWorkspaceDiagnosticSettingName: operations.namingConvention.logAnalyticsWorkspaceDiagnosticSetting
+    logAnalyticsWorkspaceDiagnosticSettingName: replace(operations.namingConvention.logAnalyticsWorkspaceDiagnosticSetting, '${delimiter}${tokens.purpose}', '')
     logAnalyticsWorkspaceName: split(logAnalyticsWorkspaceResourceId, '/')[8]
     supportedClouds: supportedClouds
   }
@@ -105,22 +106,22 @@ module storageAccountDiagnosticSettings 'storage-account-diagnostic-settings.bic
   name: 'deploy-sa-diag-${tier.name}-${deploymentNameSuffix}'
   scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
   params: {
-    blobDiagnosticSettingName: tier.namingConvention.storageAccountBlobDiagnosticSetting
+    blobDiagnosticSettingName: replace(tier.namingConvention.storageAccountBlobDiagnosticSetting, '${delimiter}${tokens.purpose}', '')
     blobDiagnosticsLogs: blobDiagnosticsLogs
     blobDiagnosticsMetrics: blobDiagnosticsMetrics
-    fileDiagnosticSettingName: tier.namingConvention.storageAccountFileDiagnosticSetting
+    fileDiagnosticSettingName: replace(tier.namingConvention.storageAccountFileDiagnosticSetting, '${delimiter}${tokens.purpose}', '')
     fileDiagnosticsLogs: fileDiagnosticsLogs
     fileDiagnosticsMetrics: fileDiagnosticsMetrics
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     logStorageAccountResourceId: tier.name == 'hub' ? storageAccountResourceIds[1] : storageAccountResourceIds[0]
-    queueDiagnosticSettingName: tier.namingConvention.storageAccountQueueDiagnosticSetting
+    queueDiagnosticSettingName: replace(tier.namingConvention.storageAccountQueueDiagnosticSetting, '${delimiter}${tokens.purpose}', '')
     queueDiagnosticsLogs: queueDiagnosticsLogs
     queueDiagnosticsMetrics: queueDiagnosticsMetrics
-    storageAccountDiagnosticSettingName: tier.namingConvention.storageAccountDiagnosticSetting
+    storageAccountDiagnosticSettingName: replace(tier.namingConvention.storageAccountDiagnosticSetting, '${delimiter}${tokens.purpose}', '')
     storageAccountDiagnosticsLogs: storageAccountDiagnosticsLogs
     storageAccountDiagnosticsMetrics: storageAccountDiagnosticsMetrics
     storageAccountName: split(storageAccountResourceIds[i], '/')[8]
-    tableDiagnosticSettingName: tier.namingConvention.storageAccountTableDiagnosticSetting
+    tableDiagnosticSettingName: replace(tier.namingConvention.storageAccountTableDiagnosticSetting, '${delimiter}${tokens.purpose}', '')
     tableDiagnosticsLogs: tableDiagnosticsLogs
     tableDiagnosticsMetrics: tableDiagnosticsMetrics
   }
@@ -153,7 +154,7 @@ module virtualNetworkDiagnostics '../modules/virtual-network-diagnostic-setting.
   params: {
     deploymentNameSuffix: deploymentNameSuffix
     deployNetworkWatcherTrafficAnalytics: deployNetworkWatcherTrafficAnalytics
-    flowLogsName: tier.namingConvention.networkWatcherFlowLogsVirtualNetwork
+    flowLogsName: replace(tier.namingConvention.networkWatcherFlowLogsVirtualNetwork, '${delimiter}${tokens.purpose}', '')
     location: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     logs: tier.vnetDiagLogs
@@ -162,8 +163,8 @@ module virtualNetworkDiagnostics '../modules/virtual-network-diagnostic-setting.
     networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
     networkWatcherFlowLogsType: networkWatcherFlowLogsType
     tiername: tier.name
-    virtualNetworkDiagnosticSettingName: tier.namingConvention.virtualNetworkDiagnosticSetting
-    virtualNetworkName: tier.namingConvention.virtualNetwork
+    virtualNetworkDiagnosticSettingName: replace(tier.namingConvention.virtualNetworkDiagnosticSetting, '${delimiter}${tokens.purpose}', '')
+    virtualNetworkName: replace(tier.namingConvention.virtualNetwork, '${delimiter}${tokens.purpose}', '')
   }
 }]
 
@@ -184,8 +185,8 @@ module firewallDiagnosticSetting '../modules/firewall-diagnostic-setting.bicep' 
   name: 'deploy-afw-diag-${deploymentNameSuffix}'
   scope: resourceGroup(hub.subscriptionId, hub.resourceGroupName)
   params: {
-    firewallDiagnosticSettingsName: hub.namingConvention.azureFirewallDiagnosticSetting
-    firewallName: hub.namingConvention.azureFirewall
+    firewallDiagnosticSettingsName: replace(hub.namingConvention.azureFirewallDiagnosticSetting, '${delimiter}${tokens.purpose}', '')
+    firewallName: replace(hub.namingConvention.azureFirewall, '${delimiter}${tokens.purpose}', '')
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     logs: firewallDiagnosticsLogs
     logStorageAccountResourceId: storageAccountResourceIds[0]
@@ -210,11 +211,11 @@ module bastionDiagnostics '../modules/bastion-diagnostic-setting.bicep' = if (de
   name: 'deploy-bastion-diag-${deploymentNameSuffix}'
   scope: resourceGroup(hub.subscriptionId, hub.resourceGroupName)
   params: {
-    diagnosticSettingName: hub.namingConvention.bastionHostDiagnosticSetting
+    diagnosticSettingName: replace(hub.namingConvention.bastionHostDiagnosticSetting, '${delimiter}${tokens.purpose}', '')
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     logs: bastionDiagnosticsLogs
     metrics: bastionDiagnosticsMetrics
-    name: hub.namingConvention.bastionHost
+    name: replace(hub.namingConvention.bastionHost, '${delimiter}${tokens.purpose}', '')
     storageAccountResourceId: storageAccountResourceIds[0]
   }
 }
@@ -223,11 +224,13 @@ module networkInterfaceDiagnostics '../modules/network-interface-diagnostic-sett
   name: 'deploy-nic-diag-${i}-${deploymentNameSuffix}'
   scope: resourceGroup(split(networkInterfaceResourceId, '/')[2], split(networkInterfaceResourceId, '/')[4])
   params: {
+    delimiter: delimiter
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     logs: []
     metrics: networkInterfaceDiagnosticsMetrics
     networkInterfaceResourceId: networkInterfaceResourceId
     storageAccountResourceIds: storageAccountResourceIds
     tiers: tiers
+    tokens: tokens
   }
 }]

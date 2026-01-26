@@ -36,9 +36,10 @@ param storageSku string
 param storageService string
 param tags object
 param tier object
+param tokens object
 
 resource resourceGroup 'Microsoft.Resources/resourceGroups@2023-07-01' = {
-  name: '${tier.namingConvention.resourceGroup}${delimiter}fslogix'
+  name: replace(tier.namingConvention.resourceGroup, tokens.purpose, 'fslogix')
   location: location
   tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Resources/resourceGroups'] ?? {}, mlzTags)
 }
@@ -82,10 +83,10 @@ module azureNetAppFiles 'azure-netapp-files.bicep' = if (storageService == 'Azur
     hostPoolResourceId: hostPoolResourceId
     location: location
     mlzTags: mlzTags
-    netAppAccountNamePrefix: tier.namingConvention.netAppAccount
-    netAppCapacityPoolNamePrefix: tier.namingConvention.netAppAccountCapacityPool
+    netAppAccountNamePrefix: replace(tier.namingConvention.netAppAccount, tokens.purpose, '')
+    netAppCapacityPoolNamePrefix: replace(tier.namingConvention.netAppAccountCapacityPool, tokens.purpose, '')
     organizationalUnitPath: organizationalUnitPath
-    smbServerName: tier.namingConvention.netAppAccountSmbServer
+    smbServerName: replace(tier.namingConvention.netAppAccountSmbServer, tokens.purpose, '')
     storageSku: storageSku
     suffix: 'fslogix'
     tags: tags
@@ -118,6 +119,7 @@ module azureFiles 'azure-files/azure-files.bicep' = if (storageService == 'Azure
     storageSku: storageSku
     subnetResourceId: tier.subnets[0].id
     tags: tags
+    tokens: tokens
   }
 }
 
@@ -144,7 +146,7 @@ module ntfsPermissions 'ntfs-permissions.bicep' = {
       }
       {
         name: 'SmbServerNamePrefix'
-        value: azureNetAppFiles.outputs.smbServerNamePrefix
+        value: azureNetAppFiles!.outputs.smbServerNamePrefix
       }
       {
         name: 'StorageService'
@@ -177,7 +179,7 @@ module ntfsPermissions 'ntfs-permissions.bicep' = {
       }
       {
         name: 'StorageAccountPrefix'
-        value: azureFiles.outputs.storageAccountNamePrefix
+        value: azureFiles!.outputs.storageAccountNamePrefix
       }
       {
         name: 'StorageAccountResourceGroupName'
@@ -214,7 +216,7 @@ module ntfsPermissions 'ntfs-permissions.bicep' = {
   }
 }
 
-output netAppShares array = storageService == 'AzureNetAppFiles' ? azureNetAppFiles.outputs.fileShares : [
+output netAppShares array = storageService == 'AzureNetAppFiles' ? azureNetAppFiles!.outputs.fileShares : [
   'None'
 ]
-output storageAccountNamePrefix string = storageService == 'AzureFiles' ? azureFiles.outputs.storageAccountNamePrefix : ''
+output storageAccountNamePrefix string = storageService == 'AzureFiles' ? azureFiles!.outputs.storageAccountNamePrefix : ''

@@ -18,6 +18,7 @@ param resourceAbbreviations object
 param stampIndex string = '' // Enables multiple deployments of the same workload within a namespace
 
 var tokens = {
+  purpose: 'purpose_token'
   resource: 'resource_token'
   service: 'service_token'
 }
@@ -34,14 +35,15 @@ var tokens = {
   - environmentAbbreviation: A short abbreviation that represents the environment in which the resource is deployed. Common values include "prod" for production, "dev" for development, and "test" for testing.
   - locationAbbreviation: A short abbreviation that represents the geographical location of the resource. This is a two to four letter code that corresponds to the Azure region in which the resource is deployed.
   - networkName: A name that represents the network tier in which the resource is deployed.
+  - tokens.purpose: This is a placeholder value for the purpose of the resource that is replaced in the module for the resources.
   - tokens.resource: This is a placeholder value for the resource type that is replaced in the "names" var.
   - tokens.service: This is a placeholder value for the service type, typically representing a parent child relationship, that is replaced in the "names" var.
   - stampIdex: A unique integer value that is used to identify the specific instance of a workload.
 
 */
 
-var namingConvention = '${toLower(identifier)}${delimiter}${environmentAbbreviation}${delimiter}${locationAbbreviation}${delimiter}${networkName}${delimiter}${tokens.resource}${empty(stampIndex) ? '' : '${delimiter}${stampIndex}'}'
-var namingConvention_Service = '${toLower(identifier)}${delimiter}${environmentAbbreviation}${delimiter}${locationAbbreviation}${delimiter}${networkName}${delimiter}${tokens.service}${delimiter}${tokens.resource}${empty(stampIndex) ? '' : '${delimiter}${stampIndex}'}'
+var namingConvention = '${toLower(identifier)}${delimiter}${environmentAbbreviation}${delimiter}${locationAbbreviation}${delimiter}${networkName}${delimiter}${tokens.resource}${delimiter}${tokens.purpose}${empty(stampIndex) ? '' : '${delimiter}${stampIndex}'}'
+var namingConvention_Service = '${toLower(identifier)}${delimiter}${environmentAbbreviation}${delimiter}${locationAbbreviation}${delimiter}${networkName}${delimiter}${tokens.service}${delimiter}${tokens.resource}${delimiter}${tokens.purpose}${empty(stampIndex) ? '' : '${delimiter}${stampIndex}'}'
 
 /*
 
@@ -155,4 +157,6 @@ var names = {
   workspacePrivateEndpoint: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.privateEndpoints), tokens.service, resourceAbbreviations.workspaces)
 }
 
+output delimiter string = delimiter
 output names object = names
+output tokens object = tokens

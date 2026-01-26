@@ -20,6 +20,7 @@ param mlzTags object
 param subnetResourceId string
 param tags object
 param tier object
+param tokens object
 param virtualMachineNames array
 
 resource virtualNetwork 'Microsoft.Network/virtualNetworks@2024-07-01' existing = {
@@ -35,19 +36,19 @@ module managementVirtualMachine 'virtual-machine.bicep' = {
     adminUsername: adminUsername
     authenticationType: 'password'
     diskEncryptionSetResourceId: diskEncryptionSetResourceId
-    diskName: '${tier.namingConvention.virtualMachineDisk}${delimiter}mgt${delimiter}0'
+    diskName: '${replace(tier.namingConvention.virtualMachineDisk, tokens.purpose, 'mgt')}${delimiter}0'
     imageOffer: 'WindowsServer'
     imagePublisher: 'MicrosoftWindowsServer'
     imageSku: '2019-datacenter-core-g2'
     imageVersion: 'latest'
     location: location
     mlzTags: mlzTags
-    networkInterfaceName: '${tier.namingConvention.virtualMachineNetworkInterface}${delimiter}mgt'
+    networkInterfaceName: replace(tier.namingConvention.virtualMachineNetworkInterface, tokens.purpose, 'mgt')
     networkSecurityGroupResourceId: virtualNetwork.properties.subnets[0].properties.networkSecurityGroup.id
     storageAccountType: 'Premium_LRS'
     subnetResourceId: subnetResourceId
     tags: tags
-    virtualMachineName: '${tier.namingConvention.virtualMachine}mgt'
+    virtualMachineName: replace(tier.namingConvention.virtualMachine, tokens.purpose, 'mgt')
     virtualMachineSize: 'Standard_DS1_v2'
   }
 }

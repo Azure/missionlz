@@ -3,14 +3,16 @@ Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
 
+param delimiter string
 param logAnalyticsWorkspaceResourceId string
 param logs array
 param metrics array
 param networkInterfaceResourceId string
 param storageAccountResourceIds array
 param tiers array
+param tokens object
 
-var networkInterfaceDiagnosticSettingName = tiers[tierIndex].namingConvention.virtualMachineNetworkInterfaceDiagnosticSetting
+var networkInterfaceDiagnosticSettingName = replace(tiers[tierIndex].namingConvention.virtualMachineNetworkInterfaceDiagnosticSetting, '${delimiter}${tokens.purpose}', '')
 var storageAccountResourceId = storageAccountResourceIds[tierIndex]
 var tierIndex = contains(networkInterfaceResourceId, '-ops-') ? 1 : contains(networkInterfaceResourceId, '-svcs-') ? 2 : contains(networkInterfaceResourceId, '-id-') ? 3 : 0
 

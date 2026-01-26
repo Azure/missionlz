@@ -7,6 +7,7 @@ targetScope = 'subscription'
 
 param blobDiagnosticsLogs array
 param blobDiagnosticsMetrics array
+param delimiter string
 param deployActivityLogDiagnosticSetting bool
 param deploymentNameSuffix string
 param deployNetworkWatcherTrafficAnalytics bool
@@ -31,6 +32,7 @@ param storageAccountResourceId string
 param tableDiagnosticsLogs array
 param tableDiagnosticsMetrics array
 param tier object
+param tokens object
 param virtualNetworkDiagnosticsLogs array
 param virtualNetworkDiagnosticsMetrics array
 param virtualNetworkName string
@@ -125,6 +127,7 @@ module networkInterfaceDiagnostics '../../../modules/network-interface-diagnosti
   name: 'deploy-nic-diags-${i}-${deploymentNameSuffix}'
   scope: resourceGroup(split(networkInterfaceResourceId, '/')[2], split(networkInterfaceResourceId, '/')[4])
   params: {
+    delimiter: delimiter
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     logs: []
     metrics: networkInterfaceDiagnosticsMetrics
@@ -135,5 +138,6 @@ module networkInterfaceDiagnostics '../../../modules/network-interface-diagnosti
     tiers: [
       tier
     ]
+    tokens: tokens
   }
 }]

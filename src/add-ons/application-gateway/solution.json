@@ -4,30 +4,11 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.39.26.7824",
-      "templateHash": "18388714181440629850"
+      "version": "0.40.2.10011",
+      "templateHash": "2891664983009123466"
     }
   },
   "parameters": {
-    "location": {
-      "type": "string",
-      "metadata": {
-        "description": "Azure region for deployment"
-      }
-    },
-    "deploymentNameSuffix": {
-      "type": "string",
-      "defaultValue": "[utcNow()]",
-      "metadata": {
-        "description": "A suffix to use for uniquely naming deployment-scoped modules (not part of resource names)."
-      }
-    },
-    "hubVnetResourceId": {
-      "type": "string",
-      "metadata": {
-        "description": "Hub VNet resource ID where AppGateway subnet will reside"
-      }
-    },
     "appGatewaySubnetAddressPrefix": {
       "type": "string",
       "defaultValue": "10.0.129.0/26",
@@ -42,37 +23,10 @@
         "description": "Subnet name for the Application Gateway."
       }
     },
-    "commonDefaults": {
-      "type": "object",
-      "metadata": {
-        "description": "Common default settings object applied to each app unless overridden"
-      }
-    },
     "apps": {
       "type": "array",
       "metadata": {
         "description": "Array of application definitions. Each app: { name, hostNames:[string...], backendAddresses:[{ipAddress|fqdn}], certificateSecretId, addressPrefixes:[CIDR... REQUIRED], (optional) backendPort, (optional) backendProtocol, (optional) healthProbePath, (optional) wafOverrides:{ mode, requestBodyCheck, maxRequestBodySizeInKb, fileUploadLimitInMb, managedRuleSetVersion }, (optional) wafExclusions, (optional) wafPolicyId }. NOTE: addressPrefixes is REQUIRED for routing and firewall rule generation."
-      }
-    },
-    "tags": {
-      "type": "object",
-      "defaultValue": {},
-      "metadata": {
-        "description": "Tags to apply to all created resources"
-      }
-    },
-    "existingWafPolicyId": {
-      "type": "string",
-      "defaultValue": "",
-      "metadata": {
-        "description": "Existing WAF policy resource ID (if provided, skip creating new policy)"
-      }
-    },
-    "customAppGatewayFirewallRuleCollectionGroups": {
-      "type": "array",
-      "defaultValue": [],
-      "metadata": {
-        "description": "Optional custom firewall rule collection groups for App Gateway egress. If empty, an opinionated default group will be created."
       }
     },
     "backendAllowPorts": {
@@ -84,13 +38,6 @@
         "description": "Destination ports to allow from Application Gateway subnet to backend prefixes (array of strings, supports ranges e.g. 443-445)."
       }
     },
-    "backendPrefixPortMaps": {
-      "type": "array",
-      "defaultValue": [],
-      "metadata": {
-        "description": "Internal: future manual override for per-prefix port maps (leave empty)."
-      }
-    },
     "backendAppPortMaps": {
       "type": "array",
       "defaultValue": [],
@@ -98,40 +45,75 @@
         "description": "Derived per-listener backend port maps (do not set manually)."
       }
     },
+    "backendPrefixPortMaps": {
+      "type": "array",
+      "defaultValue": [],
+      "metadata": {
+        "description": "Internal: future manual override for per-prefix port maps (leave empty)."
+      }
+    },
+    "commonDefaults": {
+      "type": "object",
+      "metadata": {
+        "description": "Common default settings object applied to each app unless overridden"
+      }
+    },
+    "customAppGatewayFirewallRuleCollectionGroups": {
+      "type": "array",
+      "defaultValue": [],
+      "metadata": {
+        "description": "Optional custom firewall rule collection groups for App Gateway egress. If empty, an opinionated default group will be created."
+      }
+    },
     "delimiter": {
       "type": "string",
       "defaultValue": "-",
+      "allowedValues": [
+        "-",
+        ""
+      ],
       "metadata": {
         "description": "Delimiter used in MLZ naming convention (pass through from core)."
       }
     },
-    "identifier": {
+    "deploymentNameSuffix": {
       "type": "string",
-      "defaultValue": "",
+      "defaultValue": "[utcNow()]",
       "metadata": {
-        "description": "Identifier / environment / location tokens used for naming; if not provided they will be inferred from hub VNet name when possible."
+        "description": "A suffix to use for uniquely naming deployment-scoped modules (not part of resource names)."
       }
     },
     "environmentAbbreviation": {
       "type": "string",
-      "defaultValue": ""
-    },
-    "locationAbbreviation": {
-      "type": "string",
-      "defaultValue": ""
-    },
-    "networkName": {
-      "type": "string",
-      "defaultValue": "hub",
+      "defaultValue": "dev",
+      "allowedValues": [
+        "dev",
+        "prod",
+        "test"
+      ],
       "metadata": {
-        "description": "Network name token for naming (e.g. hub). If not provided inferred from hub VNet name segmentation."
+        "description": "[dev/prod/test] The abbreviation for the target environment."
       }
     },
-    "resourceAbbreviations": {
-      "type": "object",
-      "defaultValue": "[variables('$fxv#0')]",
+    "existingWafPolicyId": {
+      "type": "string",
+      "defaultValue": "",
       "metadata": {
-        "description": "Resource abbreviations object from core deployment (passed through from MLZ core)."
+        "description": "Existing WAF policy resource ID (if provided, skip creating new policy)"
+      }
+    },
+    "hubVnetResourceId": {
+      "type": "string",
+      "metadata": {
+        "description": "Hub VNet resource ID where AppGateway subnet will reside"
+      }
+    },
+    "identifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 5,
+      "metadata": {
+        "description": "1-5 alphanumeric characters without whitespace, used to name resources and generate uniqueness for resources within your subscription. Ideally, the value should represent an organization, department, or business unit."
       }
     },
     "keyVaultResourceGroupName": {
@@ -141,11 +123,59 @@
         "description": "Optional override for Key Vault resource group (defaults to hub RG)."
       }
     },
+    "location": {
+      "type": "string",
+      "metadata": {
+        "description": "Azure region for deployment"
+      }
+    },
+    "networkName": {
+      "type": "string",
+      "defaultValue": "hub",
+      "metadata": {
+        "description": "Network name token for naming (e.g. hub). If not provided inferred from hub VNet name segmentation."
+      }
+    },
     "operationsLogAnalyticsWorkspaceResourceId": {
       "type": "string",
       "defaultValue": "",
       "metadata": {
         "description": "Resource ID of the operations Log Analytics Workspace used for diagnostics (leave empty to skip)."
+      }
+    },
+    "purpose": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "A single word value to describe the purpose the application gateway. This value is used in the resource names."
+      }
+    },
+    "tags": {
+      "type": "object",
+      "defaultValue": {},
+      "metadata": {
+        "description": "Tags to apply to all created resources"
+      }
+    },
+    "wafFileUploadLimitInMb": {
+      "type": "int",
+      "defaultValue": 100,
+      "metadata": {
+        "description": "Optional file upload limit (MB) when creating new WAF policy."
+      }
+    },
+    "wafManagedRuleSetVersion": {
+      "type": "string",
+      "defaultValue": "3.2",
+      "metadata": {
+        "description": "OWASP Core Rule Set version (e.g. 3.2, 3.1)."
+      }
+    },
+    "wafMaxRequestBodySizeInKb": {
+      "type": "int",
+      "defaultValue": 128,
+      "metadata": {
+        "description": "Optional max request body size (KB) when creating new WAF policy."
       }
     },
     "wafPolicyMode": {
@@ -159,32 +189,11 @@
         "description": "Desired WAF policy mode when creating new policy (Prevention or Detection)."
       }
     },
-    "wafManagedRuleSetVersion": {
-      "type": "string",
-      "defaultValue": "3.2",
-      "metadata": {
-        "description": "OWASP Core Rule Set version (e.g. 3.2, 3.1)."
-      }
-    },
     "wafRequestBodyCheck": {
       "type": "bool",
       "defaultValue": true,
       "metadata": {
         "description": "Enable or disable WAF requestBodyCheck when creating policy."
-      }
-    },
-    "wafMaxRequestBodySizeInKb": {
-      "type": "int",
-      "defaultValue": 128,
-      "metadata": {
-        "description": "Optional max request body size (KB) when creating new WAF policy."
-      }
-    },
-    "wafFileUploadLimitInMb": {
-      "type": "int",
-      "defaultValue": 100,
-      "metadata": {
-        "description": "Optional file upload limit (MB) when creating new WAF policy."
       }
     }
   },
@@ -228,6 +237,362 @@
       }
     ],
     "$fxv#0": {
+      "AzureChina": {
+        "chinaeast": {
+          "abbreviation": "cne",
+          "recoveryServicesGeo": "sha",
+          "timeDifference": "+8:00",
+          "timeZone": "China Standard Time"
+        },
+        "chinaeast2": {
+          "abbreviation": "cne2",
+          "recoveryServicesGeo": "sha2",
+          "timeDifference": "+8:00",
+          "timeZone": "China Standard Time"
+        },
+        "chinanorth": {
+          "abbreviation": "cnn",
+          "recoveryServicesGeo": "bjb",
+          "timeDifference": "+8:00",
+          "timeZone": "China Standard Time"
+        },
+        "chinanorth2": {
+          "abbreviation": "cnn2",
+          "recoveryServicesGeo": "bjb2",
+          "timeDifference": "+8:00",
+          "timeZone": "China Standard Time"
+        }
+      },
+      "AzureCloud": {
+        "australiacentral": {
+          "abbreviation": "auc",
+          "recoveryServicesGeo": "acl",
+          "timeDifference": "+10:00",
+          "timeZone": "AUS Eastern Standard Time"
+        },
+        "australiacentral2": {
+          "abbreviation": "auc2",
+          "recoveryServicesGeo": "acl2",
+          "timeDifference": "+10:00",
+          "timeZone": "AUS Eastern Standard Time"
+        },
+        "australiaeast": {
+          "abbreviation": "aue",
+          "recoveryServicesGeo": "ae",
+          "timeDifference": "+10:00",
+          "timeZone": "AUS Eastern Standard Time"
+        },
+        "australiasoutheast": {
+          "abbreviation": "ause",
+          "recoveryServicesGeo": "ase",
+          "timeDifference": "+10:00",
+          "timeZone": "AUS Eastern Standard Time"
+        },
+        "brazilsouth": {
+          "abbreviation": "brs",
+          "recoveryServicesGeo": "brs",
+          "timeDifference": "-3:00",
+          "timeZone": "E. South America Standard Time"
+        },
+        "brazilsoutheast": {
+          "abbreviation": "brse",
+          "recoveryServicesGeo": "bse",
+          "timeDifference": "-3:00",
+          "timeZone": "E. South America Standard Time"
+        },
+        "canadacentral": {
+          "abbreviation": "cac",
+          "recoveryServicesGeo": "cnc",
+          "timeDifference": "-5:00",
+          "timeZone": "Eastern Standard Time"
+        },
+        "canadaeast": {
+          "abbreviation": "cae",
+          "recoveryServicesGeo": "cne",
+          "timeDifference": "-5:00",
+          "timeZone": "Eastern Standard Time"
+        },
+        "centralindia": {
+          "abbreviation": "inc",
+          "recoveryServicesGeo": "inc",
+          "timeDifference": "+5:30",
+          "timeZone": "India Standard Time"
+        },
+        "centralus": {
+          "abbreviation": "usc",
+          "recoveryServicesGeo": "cus",
+          "timeDifference": "-6:00",
+          "timeZone": "Central Standard Time"
+        },
+        "eastasia": {
+          "abbreviation": "ase",
+          "recoveryServicesGeo": "ea",
+          "timeDifference": "+8:00",
+          "timeZone": "China Standard Time"
+        },
+        "eastus": {
+          "abbreviation": "use",
+          "recoveryServicesGeo": "eus",
+          "timeDifference": "-5:00",
+          "timeZone": "Eastern Standard Time"
+        },
+        "eastus2": {
+          "abbreviation": "use2",
+          "recoveryServicesGeo": "eus2",
+          "timeDifference": "-5:00",
+          "timeZone": "Eastern Standard Time"
+        },
+        "francecentral": {
+          "abbreviation": "frc",
+          "recoveryServicesGeo": "frc",
+          "timeDifference": "+1:00",
+          "timeZone": "Central Europe Standard Time"
+        },
+        "francesouth": {
+          "abbreviation": "frs",
+          "recoveryServicesGeo": "frs",
+          "timeDifference": "+1:00",
+          "timeZone": "Central Europe Standard Time"
+        },
+        "germanynorth": {
+          "abbreviation": "den",
+          "recoveryServicesGeo": "gn",
+          "timeDifference": "+1:00",
+          "timeZone": "Central Europe Standard Time"
+        },
+        "germanywestcentral": {
+          "abbreviation": "dewc",
+          "recoveryServicesGeo": "gwc",
+          "timeDifference": "+1:00",
+          "timeZone": "Central Europe Standard Time"
+        },
+        "israelcentral": {
+          "abbreviation": "ilc",
+          "recoveryServicesGeo": "ilc",
+          "timeDifference": "+2:00",
+          "timeZone": "Israel Standard Time"
+        },
+        "italynorth": {
+          "abbreviation": "itn",
+          "recoveryServicesGeo": "itn",
+          "timeDifference": "+1:00",
+          "timeZone": "Central Europe Standard Time"
+        },
+        "japaneast": {
+          "abbreviation": "jpe",
+          "recoveryServicesGeo": "jpe",
+          "timeDifference": "+9:00",
+          "timeZone": "Tokyo Standard Time"
+        },
+        "japanwest": {
+          "abbreviation": "jpw",
+          "recoveryServicesGeo": "jpw",
+          "timeDifference": "+9:00",
+          "timeZone": "Tokyo Standard Time"
+        },
+        "jioindiacentral": {
+          "abbreviation": "injc",
+          "recoveryServicesGeo": "jic",
+          "timeDifference": "+5:30",
+          "timeZone": "India Standard Time"
+        },
+        "jioindiawest": {
+          "abbreviation": "injw",
+          "recoveryServicesGeo": "jiw",
+          "timeDifference": "+5:30",
+          "timeZone": "India Standard Time"
+        },
+        "koreacentral": {
+          "abbreviation": "krc",
+          "recoveryServicesGeo": "krc",
+          "timeDifference": "+9:00",
+          "timeZone": "Korea Standard Time"
+        },
+        "koreasouth": {
+          "abbreviation": "krs",
+          "recoveryServicesGeo": "krs",
+          "timeDifference": "+9:00",
+          "timeZone": "Korea Standard Time"
+        },
+        "northcentralus": {
+          "abbreviation": "usnc",
+          "recoveryServicesGeo": "ncus",
+          "timeDifference": "-6:00",
+          "timeZone": "Central Standard Time"
+        },
+        "northeurope": {
+          "abbreviation": "eun",
+          "recoveryServicesGeo": "ne",
+          "timeDifference": "0:00",
+          "timeZone": "GMT Standard Time"
+        },
+        "norwayeast": {
+          "abbreviation": "noe",
+          "recoveryServicesGeo": "nwe",
+          "timeDifference": "+1:00",
+          "timeZone": "Central Europe Standard Time"
+        },
+        "norwaywest": {
+          "abbreviation": "now",
+          "recoveryServicesGeo": "nww",
+          "timeDifference": "+1:00",
+          "timeZone": "Central Europe Standard Time"
+        },
+        "polandcentral": {
+          "abbreviation": "plc",
+          "recoveryServicesGeo": "plc",
+          "timeDifference": "+1:00",
+          "timeZone": "Central Europe Standard Time"
+        },
+        "qatarcentral": {
+          "abbreviation": "qac",
+          "recoveryServicesGeo": "qac",
+          "timeDifference": "+3:00",
+          "timeZone": "Arabian Standard Time"
+        },
+        "southafricanorth": {
+          "abbreviation": "zan",
+          "recoveryServicesGeo": "san",
+          "timeDifference": "+2:00",
+          "timeZone": "South Africa Standard Time"
+        },
+        "southafricawest": {
+          "abbreviation": "zaw",
+          "recoveryServicesGeo": "saw",
+          "timeDifference": "+2:00",
+          "timeZone": "South Africa Standard Time"
+        },
+        "southcentralus": {
+          "abbreviation": "ussc",
+          "recoveryServicesGeo": "scus",
+          "timeDifference": "-6:00",
+          "timeZone": "Central Standard Time"
+        },
+        "southeastasia": {
+          "abbreviation": "asse",
+          "recoveryServicesGeo": "sea",
+          "timeDifference": "+8:00",
+          "timeZone": "Singapore Standard Time"
+        },
+        "southindia": {
+          "abbreviation": "ins",
+          "recoveryServicesGeo": "ins",
+          "timeDifference": "+5:30",
+          "timeZone": "India Standard Time"
+        },
+        "swedencentral": {
+          "abbreviation": "sec",
+          "recoveryServicesGeo": "sdc",
+          "timeDifference": "+1:00",
+          "timeZone": "Central Europe Standard Time"
+        },
+        "switzerlandnorth": {
+          "abbreviation": "chn",
+          "recoveryServicesGeo": "szn",
+          "timeDifference": "+1:00",
+          "timeZone": "Central Europe Standard Time"
+        },
+        "switzerlandwest": {
+          "abbreviation": "chw",
+          "recoveryServicesGeo": "szw",
+          "timeDifference": "+1:00",
+          "timeZone": "Central Europe Standard Time"
+        },
+        "uaecentral": {
+          "abbreviation": "aec",
+          "recoveryServicesGeo": "uac",
+          "timeDifference": "+3:00",
+          "timeZone": "Arabian Standard Time"
+        },
+        "uaenorth": {
+          "abbreviation": "aen",
+          "recoveryServicesGeo": "uan",
+          "timeDifference": "+3:00",
+          "timeZone": "Arabian Standard Time"
+        },
+        "uksouth": {
+          "abbreviation": "uks",
+          "recoveryServicesGeo": "uks",
+          "timeDifference": "0:00",
+          "timeZone": "GMT Standard Time"
+        },
+        "ukwest": {
+          "abbreviation": "ukw",
+          "recoveryServicesGeo": "ukw",
+          "timeDifference": "0:00",
+          "timeZone": "GMT Standard Time"
+        },
+        "westcentralus": {
+          "abbreviation": "uswc",
+          "recoveryServicesGeo": "wcus",
+          "timeDifference": "-7:00",
+          "timeZone": "Mountain Standard Time"
+        },
+        "westeurope": {
+          "abbreviation": "euw",
+          "recoveryServicesGeo": "we",
+          "timeDifference": "+1:00",
+          "timeZone": "Central Europe Standard Time"
+        },
+        "westindia": {
+          "abbreviation": "inw",
+          "recoveryServicesGeo": "inw",
+          "timeDifference": "+5:30",
+          "timeZone": "India Standard Time"
+        },
+        "westus": {
+          "abbreviation": "usw",
+          "recoveryServicesGeo": "wus",
+          "timeDifference": "-8:00",
+          "timeZone": "Pacific Standard Time"
+        },
+        "westus2": {
+          "abbreviation": "usw2",
+          "recoveryServicesGeo": "wus2",
+          "timeDifference": "-8:00",
+          "timeZone": "Pacific Standard Time"
+        },
+        "westus3": {
+          "abbreviation": "usw3",
+          "recoveryServicesGeo": "wus3",
+          "timeDifference": "-7:00",
+          "timeZone": "Mountain Standard Time"
+        }
+      },
+      "AzureUSGovernment": {
+        "usdodcentral": {
+          "abbreviation": "dodc",
+          "recoveryServicesGeo": "udc",
+          "timeDifference": "-6:00",
+          "timeZone": "Central Standard Time"
+        },
+        "usdodeast": {
+          "abbreviation": "dode",
+          "recoveryServicesGeo": "ude",
+          "timeDifference": "-5:00",
+          "timeZone": "Eastern Standard Time"
+        },
+        "usgovarizona": {
+          "abbreviation": "az",
+          "recoveryServicesGeo": "uga",
+          "timeDifference": "-7:00",
+          "timeZone": "Mountain Standard Time"
+        },
+        "usgovtexas": {
+          "abbreviation": "tx",
+          "recoveryServicesGeo": "ugt",
+          "timeDifference": "-6:00",
+          "timeZone": "Central Standard Time"
+        },
+        "usgovvirginia": {
+          "abbreviation": "va",
+          "recoveryServicesGeo": "ugv",
+          "timeDifference": "-5:00",
+          "timeZone": "Eastern Standard Time"
+        }
+      }
+    },
+    "$fxv#1": {
       "actionGroups": "ag",
       "applicationGroups": "vdag",
       "applicationInsights": "appi",
@@ -279,15 +644,17 @@
     },
     "hubRgName": "[split(parameters('hubVnetResourceId'), '/')[4]]",
     "baseSecretId": "[if(and(contains(parameters('commonDefaults'), 'defaultCertificateSecretId'), not(empty(parameters('commonDefaults').defaultCertificateSecretId))), parameters('commonDefaults').defaultCertificateSecretId, if(not(empty(parameters('apps'))), parameters('apps')[0].certificateSecretId, ''))]",
+    "effectiveKeyVaultRg": "[if(empty(parameters('keyVaultResourceGroupName')), variables('hubRgName'), parameters('keyVaultResourceGroupName'))]",
     "keyVaultHost": "[if(not(empty(variables('baseSecretId'))), split(split(variables('baseSecretId'), '//')[1], '/')[0], '')]",
     "keyVaultName": "[if(not(empty(variables('keyVaultHost'))), substring(variables('keyVaultHost'), 0, indexOf(variables('keyVaultHost'), '.vault')), '')]",
     "keyVaultRoleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '4633458b-17de-408a-b874-0445c86b69e6')]",
-    "effectiveKeyVaultRg": "[if(empty(parameters('keyVaultResourceGroupName')), variables('hubRgName'), parameters('keyVaultResourceGroupName'))]",
+    "locationAbbreviation": "[variables('$fxv#0')[parameters('location')].abbreviation]",
+    "resourceAbbreviations": "[variables('$fxv#1')]",
     "hubVnetName": "[last(split(parameters('hubVnetResourceId'), '/'))]",
     "inferredTokens": "[split(variables('hubVnetName'), parameters('delimiter'))]",
     "effectiveIdentifier": "[if(and(empty(parameters('identifier')), greater(length(variables('inferredTokens')), 0)), variables('inferredTokens')[0], parameters('identifier'))]",
     "effectiveEnvironment": "[if(and(empty(parameters('environmentAbbreviation')), greater(length(variables('inferredTokens')), 1)), variables('inferredTokens')[1], parameters('environmentAbbreviation'))]",
-    "effectiveLocationAbbrev": "[if(and(empty(parameters('locationAbbreviation')), greater(length(variables('inferredTokens')), 2)), variables('inferredTokens')[2], parameters('locationAbbreviation'))]",
+    "effectiveLocationAbbrev": "[if(and(empty(variables('locationAbbreviation')), greater(length(variables('inferredTokens')), 2)), variables('inferredTokens')[2], variables('locationAbbreviation'))]",
     "allAppPrefixes": "[flatten(variables('appsPrefixMatrix'))]",
     "cd": "[parameters('commonDefaults')]",
     "defaultBackendPort": "[coalesce(tryGet(variables('cd'), 'backendPort'), 443)]",
@@ -336,7 +703,7 @@
             "value": "[parameters('networkName')]"
           },
           "resourceAbbreviations": {
-            "value": "[parameters('resourceAbbreviations')]"
+            "value": "[variables('resourceAbbreviations')]"
           }
         },
         "template": {
@@ -345,8 +712,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.39.26.7824",
-              "templateHash": "3586416288292584721"
+              "version": "0.40.2.10011",
+              "templateHash": "6403027296801861578"
             }
           },
           "parameters": {
@@ -379,11 +746,12 @@
           },
           "variables": {
             "tokens": {
+              "purpose": "purpose_token",
               "resource": "resource_token",
               "service": "service_token"
             },
-            "namingConvention": "[format('{0}{1}{2}{3}{4}{5}{6}{7}{8}{9}', toLower(parameters('identifier')), parameters('delimiter'), parameters('environmentAbbreviation'), parameters('delimiter'), parameters('locationAbbreviation'), parameters('delimiter'), parameters('networkName'), parameters('delimiter'), variables('tokens').resource, if(empty(parameters('stampIndex')), '', format('{0}{1}', parameters('delimiter'), parameters('stampIndex'))))]",
-            "namingConvention_Service": "[format('{0}{1}{2}{3}{4}{5}{6}{7}{8}{9}{10}{11}', toLower(parameters('identifier')), parameters('delimiter'), parameters('environmentAbbreviation'), parameters('delimiter'), parameters('locationAbbreviation'), parameters('delimiter'), parameters('networkName'), parameters('delimiter'), variables('tokens').service, parameters('delimiter'), variables('tokens').resource, if(empty(parameters('stampIndex')), '', format('{0}{1}', parameters('delimiter'), parameters('stampIndex'))))]",
+            "namingConvention": "[format('{0}{1}{2}{3}{4}{5}{6}{7}{8}{9}{10}{11}', toLower(parameters('identifier')), parameters('delimiter'), parameters('environmentAbbreviation'), parameters('delimiter'), parameters('locationAbbreviation'), parameters('delimiter'), parameters('networkName'), parameters('delimiter'), variables('tokens').resource, parameters('delimiter'), variables('tokens').purpose, if(empty(parameters('stampIndex')), '', format('{0}{1}', parameters('delimiter'), parameters('stampIndex'))))]",
+            "namingConvention_Service": "[format('{0}{1}{2}{3}{4}{5}{6}{7}{8}{9}{10}{11}{12}{13}', toLower(parameters('identifier')), parameters('delimiter'), parameters('environmentAbbreviation'), parameters('delimiter'), parameters('locationAbbreviation'), parameters('delimiter'), parameters('networkName'), parameters('delimiter'), variables('tokens').service, parameters('delimiter'), variables('tokens').resource, parameters('delimiter'), variables('tokens').purpose, if(empty(parameters('stampIndex')), '', format('{0}{1}', parameters('delimiter'), parameters('stampIndex'))))]",
             "names": {
               "actionGroup": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').actionGroups)]",
               "applicationGroup": "[replace(variables('namingConvention'), variables('tokens').resource, parameters('resourceAbbreviations').applicationGroups)]",
@@ -485,9 +853,17 @@
           },
           "resources": [],
           "outputs": {
+            "delimiter": {
+              "type": "string",
+              "value": "[parameters('delimiter')]"
+            },
             "names": {
               "type": "object",
               "value": "[variables('names')]"
+            },
+            "tokens": {
+              "type": "object",
+              "value": "[variables('tokens')]"
             }
           }
         }
@@ -504,9 +880,7 @@
         },
         "mode": "Incremental",
         "parameters": {
-          "identityName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.names.value.userAssignedIdentity]"
-          },
+          "identityName": "[if(empty(parameters('purpose')), createObject('value', replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.names.value.userAssignedIdentity, format('{0}{1}', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.delimiter.value, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value.purpose), '')), createObject('value', replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.names.value.userAssignedIdentity, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value.purpose, parameters('purpose'))))]",
           "location": {
             "value": "[parameters('location')]"
           },
@@ -520,8 +894,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.39.26.7824",
-              "templateHash": "17113650539295506424"
+              "version": "0.40.2.10011",
+              "templateHash": "4595568304460889064"
             }
           },
           "parameters": {
@@ -604,8 +978,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.39.26.7824",
-              "templateHash": "16366355705828683158"
+              "version": "0.40.2.10011",
+              "templateHash": "13631129177154754284"
             }
           },
           "parameters": {
@@ -657,7 +1031,7 @@
               "condition": "[variables('createNew')]",
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2022-04-01",
-              "scope": "[format('Microsoft.KeyVault/vaults/{0}', parameters('keyVaultName'))]",
+              "scope": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
               "name": "[variables('deterministicName')]",
               "properties": {
                 "principalId": "[parameters('principalId')]",
@@ -689,9 +1063,7 @@
         },
         "mode": "Incremental",
         "parameters": {
-          "firewallName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.names.value.azureFirewall]"
-          }
+          "firewallName": "[if(empty(parameters('purpose')), createObject('value', replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.names.value.azureFirewall, format('{0}{1}', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.delimiter.value, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value.purpose), '')), createObject('value', replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.names.value.azureFirewall, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value.purpose, parameters('purpose'))))]"
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -699,8 +1071,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.39.26.7824",
-              "templateHash": "11978798076540525271"
+              "version": "0.40.2.10011",
+              "templateHash": "372559586024150957"
             }
           },
           "parameters": {
@@ -738,9 +1110,7 @@
           "location": {
             "value": "[parameters('location')]"
           },
-          "nsgName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.names.value.applicationGatewayNetworkSecurityGroup]"
-          },
+          "nsgName": "[if(empty(parameters('purpose')), createObject('value', replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.names.value.applicationGatewayNetworkSecurityGroup, format('{0}{1}', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.delimiter.value, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value.purpose), '')), createObject('value', replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.names.value.applicationGatewayNetworkSecurityGroup, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value.purpose, parameters('purpose'))))]",
           "tags": {
             "value": "[parameters('tags')]"
           }
@@ -751,8 +1121,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.39.26.7824",
-              "templateHash": "935501328054947567"
+              "version": "0.40.2.10011",
+              "templateHash": "17126713397242740574"
             }
           },
           "parameters": {
@@ -857,9 +1227,7 @@
           "location": {
             "value": "[parameters('location')]"
           },
-          "routeTableName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.names.value.applicationGatewayRouteTable]"
-          },
+          "routeTableName": "[if(empty(parameters('purpose')), createObject('value', replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.names.value.applicationGatewayRouteTable, format('{0}{1}', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.delimiter.value, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value.purpose), '')), createObject('value', replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.names.value.applicationGatewayRouteTable, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value.purpose, parameters('purpose'))))]",
           "firewallPrivateIp": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubRgName')), 'Microsoft.Resources/deployments', 'resolveFirewallIp'), '2025-04-01').outputs.privateIpAddress.value]"
           },
@@ -879,8 +1247,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.39.26.7824",
-              "templateHash": "18355671349153605356"
+              "version": "0.40.2.10011",
+              "templateHash": "7810045916884198518"
             }
           },
           "parameters": {
@@ -990,7 +1358,7 @@
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubRgName')), 'Microsoft.Resources/deployments', 'appgwRouteTable'), '2025-04-01').outputs.routeTableId.value]"
           },
           "nsgId": {
-            "value": "[resourceId(subscription().subscriptionId, variables('hubRgName'), 'Microsoft.Network/networkSecurityGroups', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.names.value.applicationGatewayNetworkSecurityGroup)]"
+            "value": "[resourceId(subscription().subscriptionId, variables('hubRgName'), 'Microsoft.Network/networkSecurityGroups', if(empty(parameters('purpose')), replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.names.value.applicationGatewayNetworkSecurityGroup, format('{0}{1}', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.delimiter.value, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value.purpose), ''), replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.names.value.applicationGatewayNetworkSecurityGroup, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value.purpose, parameters('purpose'))))]"
           }
         },
         "template": {
@@ -999,8 +1367,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.39.26.7824",
-              "templateHash": "13677338439047982494"
+              "version": "0.40.2.10011",
+              "templateHash": "9243119185248612848"
             }
           },
           "parameters": {
@@ -1102,9 +1470,7 @@
           "fileUploadLimitInMb": {
             "value": "[parameters('wafFileUploadLimitInMb')]"
           },
-          "policyName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.names.value.applicationGatewayWafPolicy]"
-          }
+          "policyName": "[if(empty(parameters('purpose')), createObject('value', replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.names.value.applicationGatewayWafPolicy, format('{0}{1}', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.delimiter.value, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value.purpose), '')), createObject('value', replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.names.value.applicationGatewayWafPolicy, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value.purpose, parameters('purpose'))))]"
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -1112,8 +1478,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.39.26.7824",
-              "templateHash": "12618474352627477464"
+              "version": "0.40.2.10011",
+              "templateHash": "15207328192653864687"
             }
           },
           "parameters": {
@@ -1250,12 +1616,8 @@
           "location": {
             "value": "[parameters('location')]"
           },
-          "appGatewayName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.names.value.applicationGateway]"
-          },
-          "publicIpName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.names.value.applicationGatewayPublicIPAddress]"
-          },
+          "appGatewayName": "[if(empty(parameters('purpose')), createObject('value', replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.names.value.applicationGateway, format('{0}{1}', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.delimiter.value, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value.purpose), '')), createObject('value', replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.names.value.applicationGateway, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value.purpose, parameters('purpose'))))]",
+          "publicIpName": "[if(empty(parameters('purpose')), createObject('value', replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.names.value.applicationGatewayPublicIPAddress, format('{0}{1}', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.delimiter.value, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value.purpose), '')), createObject('value', replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.names.value.applicationGatewayPublicIPAddress, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value.purpose, parameters('purpose'))))]",
           "subnetId": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubRgName')), 'Microsoft.Resources/deployments', 'appgwSubnet'), '2025-04-01').outputs.subnetId.value]"
           },
@@ -1319,9 +1681,7 @@
           "userAssignedIdentityResourceId": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubRgName')), 'Microsoft.Resources/deployments', 'userAssignedIdentity'), '2025-04-01').outputs.identityResourceId.value]"
           },
-          "baseWafPolicyName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.names.value.applicationGatewayWafPolicy]"
-          }
+          "baseWafPolicyName": "[if(empty(parameters('purpose')), createObject('value', replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.names.value.applicationGatewayWafPolicy, format('{0}{1}', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.delimiter.value, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value.purpose), '')), createObject('value', replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.names.value.applicationGatewayWafPolicy, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value.purpose, parameters('purpose'))))]"
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -1329,8 +1689,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.39.26.7824",
-              "templateHash": "7472914306287463943"
+              "version": "0.40.2.10011",
+              "templateHash": "126042200069909122"
             }
           },
           "parameters": {
@@ -1740,9 +2100,7 @@
           "logAnalyticsWorkspaceId": {
             "value": "[parameters('operationsLogAnalyticsWorkspaceResourceId')]"
           },
-          "appGatewayName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.names.value.applicationGateway]"
-          },
+          "appGatewayName": "[if(empty(parameters('purpose')), createObject('value', replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.names.value.applicationGateway, format('{0}{1}', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.delimiter.value, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value.purpose), '')), createObject('value', replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.names.value.applicationGateway, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value.purpose, parameters('purpose'))))]",
           "enable": {
             "value": "[variables('diagnosticsEnabled')]"
           }
@@ -1753,8 +2111,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.39.26.7824",
-              "templateHash": "10385523554041341910"
+              "version": "0.40.2.10011",
+              "templateHash": "2072251260823298598"
             }
           },
           "parameters": {
@@ -1774,7 +2132,7 @@
               "condition": "[parameters('enable')]",
               "type": "Microsoft.Insights/diagnosticSettings",
               "apiVersion": "2021-05-01-preview",
-              "scope": "[format('Microsoft.Network/applicationGateways/{0}', parameters('appGatewayName'))]",
+              "scope": "[resourceId('Microsoft.Network/applicationGateways', parameters('appGatewayName'))]",
               "name": "[format('diag-{0}', parameters('appGatewayName'))]",
               "properties": {
                 "workspaceId": "[parameters('logAnalyticsWorkspaceId')]",
@@ -1817,7 +2175,7 @@
         "mode": "Incremental",
         "parameters": {
           "firewallPolicyResourceId": {
-            "value": "[resourceId(subscription().subscriptionId, variables('hubRgName'), 'Microsoft.Network/firewallPolicies', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.names.value.azureFirewallPolicy)]"
+            "value": "[resourceId(subscription().subscriptionId, variables('hubRgName'), 'Microsoft.Network/firewallPolicies', if(empty(parameters('purpose')), replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.names.value.azureFirewallPolicy, format('{0}{1}', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.delimiter.value, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value.purpose), ''), replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.names.value.azureFirewallPolicy, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('naming-appgw-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value.purpose, parameters('purpose'))))]"
           },
           "customRuleCollectionGroups": {
             "value": "[parameters('customAppGatewayFirewallRuleCollectionGroups')]"
@@ -1844,8 +2202,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.39.26.7824",
-              "templateHash": "3611262194390837040"
+              "version": "0.40.2.10011",
+              "templateHash": "4132213319073088342"
             }
           },
           "parameters": {

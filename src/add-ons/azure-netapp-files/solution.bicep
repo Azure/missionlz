@@ -220,7 +220,7 @@ module rg '../../modules/resource-group.bicep' = {
   params: {
     location: location
     mlzTags: tier3.outputs.mlzTags
-    name: '${tier3.outputs.tier.namingConvention.resourceGroup}${tier3.outputs.delimiter}netAppFiles'
+    name: replace(tier3.outputs.tier.namingConvention.resourceGroup, tier3.outputs.tokens.purpose, 'netAppFiles')
     tags: tags
   }
 }
@@ -239,11 +239,11 @@ module netAppFiles 'modules/azureNetAppFiles.bicep' = {
     fileShareName: fileShareName
     location: location
     mlzTags: tier3.outputs.mlzTags
-    netAppAccountName: tier3.outputs.tier.namingConvention.netAppAccount
-    netAppCapacityPoolName: tier3.outputs.tier.namingConvention.netAppAccountCapacityPool
+    netAppAccountName: replace(tier3.outputs.tier.namingConvention.netAppAccount, '${tier3.outputs.delimiter}${tier3.outputs.tokens.purpose}', '')
+    netAppCapacityPoolName: replace(tier3.outputs.tier.namingConvention.netAppAccountCapacityPool, '${tier3.outputs.delimiter}${tier3.outputs.tokens.purpose}', '')
     organizationalUnitPath: organizationalUnitPath
     resourceGroupName: rg.outputs.name
-    smbServerName: tier3.outputs.tier.namingConvention.netAppAccountSmbServer
+    smbServerName: replace(tier3.outputs.tier.namingConvention.netAppAccountSmbServer, '${tier3.outputs.delimiter}${tier3.outputs.tokens.purpose}', '')
     sku: sku
     tags: tags
   }

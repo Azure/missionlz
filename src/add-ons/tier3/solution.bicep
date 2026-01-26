@@ -302,8 +302,12 @@ module storage 'modules/storage.bicep' = {
   params: {
     blobsPrivateDnsZoneResourceId: resourceId(hubSubscriptionId, hubResourceGroupName, 'Microsoft.Network/privateDnsZones', 'privatelink.blob.${environment().suffixes.storage}')
     delimiter: networking.outputs.delimiter
+    deploymentIndex: deploymentIndex
     deploymentNameSuffix: deploymentNameSuffix
+    environmentAbbreviation: environmentAbbreviation
     filesPrivateDnsZoneResourceId: resourceId(hubSubscriptionId, hubResourceGroupName, 'Microsoft.Network/privateDnsZones', 'privatelink.file.${environment().suffixes.storage}')
+    hubResourceGroupName: hubResourceGroupName
+    hubSubscriptionId: hubSubscriptionId
     location: location
     logStorageSkuName: logStorageSkuName
     mlzTags: networking.outputs.mlzTags
@@ -314,10 +318,7 @@ module storage 'modules/storage.bicep' = {
     tablesPrivateDnsZoneResourceId: resourceId(hubSubscriptionId, hubResourceGroupName, 'Microsoft.Network/privateDnsZones', 'privatelink.table.${environment().suffixes.storage}')
     tags: tags
     tier: networking.outputs.tier
-    deploymentIndex: deploymentIndex
-    environmentAbbreviation: environmentAbbreviation
-    hubResourceGroupName: hubResourceGroupName
-    hubSubscriptionId: hubSubscriptionId
+    tokens: networking.outputs.tokens
     workloadShortName: workloadShortName
   }
 }
@@ -327,6 +328,7 @@ module diagnostics 'modules/diagnostics.bicep' = {
   params: {
     blobDiagnosticsLogs: blobDiagnosticsLogs
     blobDiagnosticsMetrics: blobDiagnosticsMetrics
+    delimiter: networking.outputs.delimiter
     deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
     deploymentNameSuffix: deploymentNameSuffix
     deployNetworkWatcherTrafficAnalytics: deployNetworkWatcherTrafficAnalytics
@@ -351,6 +353,7 @@ module diagnostics 'modules/diagnostics.bicep' = {
     tableDiagnosticsLogs: tableDiagnosticsLogs
     tableDiagnosticsMetrics: tableDiagnosticsMetrics
     tier: networking.outputs.tier
+    tokens: networking.outputs.tokens
     virtualNetworkDiagnosticsLogs: virtualNetworkDiagnosticsLogs
     virtualNetworkDiagnosticsMetrics: virtualNetworkDiagnosticsMetrics
     virtualNetworkName: networking.outputs.virtualNetworkName
@@ -391,3 +394,4 @@ output tier object = union({
 }, 
   networking.outputs.tier
 )
+output tokens object = networking.outputs.tokens

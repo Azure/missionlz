@@ -6,6 +6,7 @@ Licensed under the MIT License.
 targetScope = 'subscription'
 
 param additionalSubnets array = []
+param delimiter string
 param customSubnetName string = ''
 param location string
 param mlzTags object
@@ -13,6 +14,7 @@ param resourceGroupName string
 param routeTableRouteNextHopIpAddress string
 param tags object
 param tier object
+param tokens object
 param vNetDnsServers array
 
 var delegations = {
@@ -39,14 +41,14 @@ var delegations = {
 }
 var subnets = union([
   {
-    name: empty(customSubnetName) ? tier.namingConvention.subnet : customSubnetName
+    name: empty(customSubnetName) ? replace(tier.namingConvention.subnet, '${delimiter}${tokens.purpose}', '') : customSubnetName
     properties: {
       addressPrefix: tier.subnetAddressPrefix
     }
   }
 ], additionalSubnets)
 var subscriptionId = tier.subscriptionId
-var virtualNetworkName = tier.namingConvention.virtualNetwork
+var virtualNetworkName = replace(tier.namingConvention.virtualNetwork, '${delimiter}${tokens.purpose}', '')
 
 module networkSecurityGroup '../modules/network-security-group.bicep' = {
   name: 'networkSecurityGroup'
@@ -54,7 +56,7 @@ module networkSecurityGroup '../modules/network-security-group.bicep' = {
   params: {
     location: location
     mlzTags: mlzTags
-    name: tier.namingConvention.networkSecurityGroup
+    name: replace(tier.namingConvention.networkSecurityGroup, '${delimiter}${tokens.purpose}', '')
     securityRules: tier.nsgRules
     tags: tags
   }
@@ -67,7 +69,7 @@ module routeTable '../modules/route-table.bicep' = {
     disableBgpRoutePropagation: true
     location: location
     mlzTags: mlzTags
-    name: tier.namingConvention.routeTable
+    name: replace(tier.namingConvention.routeTable, '${delimiter}${tokens.purpose}', '')
     routeNextHopIpAddress: routeTableRouteNextHopIpAddress
     tags: tags
   }

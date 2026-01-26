@@ -1,22 +1,35 @@
 targetScope = 'subscription'
 
+@description('Optional: Provide your own Firewall Policy rule collection groups. When non-empty, these override the default VGW-OnPrem group built by this template.')
+param customFirewallRuleCollectionGroups array = []
+
 @description('A suffix to use for naming deployments uniquely.')
 param deploymentNameSuffix string = utcNow()
+
+@allowed([
+  'dev'
+  'prod'
+  'test'
+])
+@description('[dev/prod/test] The abbreviation for the target environment.')
+param environmentAbbreviation string = 'dev'
 
 @description('The resource ID of the hub virtual network.')
 param hubVirtualNetworkResourceId string
 
-@description('Resource ID of the Operations Log Analytics Workspace where diagnostics should be sent.')
-param operationsLogAnalyticsWorkspaceResourceId string
-
-@description('List of peered networks that should use the VPN Gateway once configured.')
-param virtualNetworkResourceIdList array
+@minLength(1)
+@maxLength(5)
+@description('1-5 alphanumeric characters without whitespace, used to name resources and generate uniqueness for resources within your subscription. Ideally, the value should represent an organization, department, or business unit.')
+param identifier string
 
 @description('Address prefixes of the Local Network which will be routable through the VPN Gateway')
 param localAddressPrefixes array
 
 @description('IP Address of the Local Network Gateway, must be a public IP address reachable from the MLZ network')
 param localGatewayIpAddress string
+
+@description('Resource ID of the Operations Log Analytics Workspace where diagnostics should be sent.')
+param operationsLogAnalyticsWorkspaceResourceId string
 
 @description('The shared key to use for the VPN connection. If not provided, a random GUID will be generated.')
 @secure()
@@ -26,51 +39,51 @@ param sharedKey string = newGuid()
 @allowed(['VpnGw2', 'VpnGw3', 'VpnGw4', 'VpnGw5'])
 param virtualNetworkGatewaySku string = 'VpnGw2'
 
-@description('Optional: Provide your own Firewall Policy rule collection groups. When non-empty, these override the default VGW-OnPrem group built by this template.')
-param customFirewallRuleCollectionGroups array = []
+@description('List of peered networks that should use the VPN Gateway once configured.')
+param virtualNetworkResourceIdList array
 
-
-
-
-@description('Default CIDR to use when creating the GatewaySubnet if it does not exist.')
-var defaultGatewaySubnetPrefix = '10.0.129.192/26'
-
-var azureFirewallIpConfigurationResourceId = filter(virtualNetwork_hub.properties.subnets, subnet => subnet.name == 'AzureFirewallSubnet')[0].properties.ipConfigurations[0].id
+var azureFirewallIpConfigurationResourceId = filter(virtualNetwork.properties.subnets, subnet => subnet.name == 'AzureFirewallSubnet')[0].properties.ipConfigurations[0].id
 var azureFirewallResourceId = resourceId(split(azureFirewallIpConfigurationResourceId, '/')[2], split(azureFirewallIpConfigurationResourceId, '/')[4], 'Microsoft.Network/azureFirewalls', split(azureFirewallIpConfigurationResourceId, '/')[8])
+var defaultGatewaySubnetPrefix = '10.0.129.192/26'
 var delimiter = '-'
 var hubResourceGroupName = split(hubVirtualNetworkResourceId, '/')[4]
 var hubVirtualNetworkName = split(hubVirtualNetworkResourceId, '/')[8]
-var location = virtualNetwork_hub.location
-
-// Derive naming tokens from hub VNet name (expected pattern: <id>-<env>-<loc>-hub-vnet)
-var nameTokens = split(hubVirtualNetworkName, '-')
-var idToken = nameTokens[0]
-var envToken = nameTokens[1]
-var locToken = nameTokens[2]
+var location = virtualNetwork.location
 
 // Remove start-time var causing error; pass VNet list down and let module derive
 // Precompute spoke address prefixes to avoid runtime copy in nested deployment params
 // var spokeAddressPrefixSets = [for (vnetId, i) in virtualNetworkResourceIdList: retrieveVnetInfo[i].outputs.vnetAddressSpace]
 
-// Derived resource names following MLZ conventions without requiring separate parameters
-var vgwRouteTableName = '${idToken}-${envToken}-${locToken}-vgw-rt'
-var vpnGatewayName = '${idToken}-${envToken}-${locToken}-hub-vgw'
-var publicIpAddressBaseName = '${idToken}-${envToken}-${locToken}-hub-pip'
-var hubRouteTableName = '${idToken}-${envToken}-${locToken}-hub-rt'
-
 // Determine existing GatewaySubnet prefix (if discovered) or fall back to default
 // Discover GatewaySubnet prefix directly from the hub VNet's subnets (safe even if missing)
-var gatewaySubnetMatches = filter(virtualNetwork_hub.properties.subnets, s => s.name == 'GatewaySubnet')
+var gatewaySubnetMatches = filter(virtualNetwork.properties.subnets, s => s.name == 'GatewaySubnet')
 var discoveredGatewaySubnetPrefix = length(gatewaySubnetMatches) > 0 ? gatewaySubnetMatches[0].properties.addressPrefix : ''
 var effectiveGatewaySubnetPrefix = !empty(discoveredGatewaySubnetPrefix) ? discoveredGatewaySubnetPrefix : defaultGatewaySubnetPrefix
 
 // No explicit Local Network Gateway parameters; on-prem specific rules are omitted in this minimal-parameter variant
 
-resource virtualNetwork_hub 'Microsoft.Network/virtualNetworks@2023-11-01' existing = {
+resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-11-01' existing = {
   name: split(hubVirtualNetworkResourceId, '/')[8]
   scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
 }
 
+module logic '../../modules/logic.bicep' = {
+  name: 'logic-${deploymentNameSuffix}'
+  params: {
+    delimiter: '-'
+    deploymentNameSuffix: deploymentNameSuffix
+    environmentAbbreviation: environmentAbbreviation
+    identifier: identifier
+    location: location
+    networks: [
+      {
+        name: 'hub'
+        shortName: 'hub'
+        subscriptionId: subscription().subscriptionId
+      }
+    ]
+  }
+}
 
 module firewallPolicy 'modules/firewall-policy.bicep' = {
   name: 'firewallPolicy-${deploymentNameSuffix}'
@@ -93,7 +106,7 @@ module firewallRules 'modules/firewall-rules-vgw.bicep' = {
   scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
   params: {
     firewallPolicyName: firewallPolicy.outputs.name
-    hubAddressPrefixes: virtualNetwork_hub.properties.addressSpace.addressPrefixes
+    hubAddressPrefixes: virtualNetwork.properties.addressSpace.addressPrefixes
     spokeAddressPrefixSets: collectSpokeAddresses.outputs.spokeAddressPrefixSets
     localAddressPrefixes: localAddressPrefixes
     firewallRuleCollectionGroups: customFirewallRuleCollectionGroups
@@ -104,15 +117,17 @@ module firewallRules 'modules/firewall-rules-vgw.bicep' = {
 // No validation resource needed since shared key / certificate inputs were removed
 
 // calling Virtual Network Gateway Module
-module vpnGatewayModule 'modules/vpn-gateway.bicep' = {
+module virtualNetworkGateway 'modules/virtual-network-gateway.bicep' = {
   name: 'vpnGateway-${deploymentNameSuffix}'
   scope: resourceGroup(hubResourceGroupName)
   params: {
     delimiter: delimiter
     location: location
-  publicIpAddressName: publicIpAddressBaseName
-  virtualNetworkGatewayName: vpnGatewayName
-  virtualNetworkGatewaySku: virtualNetworkGatewaySku
+    publicIpAddressName: logic.outputs.tiers[0].namingConvention.publicIpAddress
+    resourceAbbreviations: logic.outputs.resourceAbbreviations
+    tokens: logic.outputs.tokens
+    virtualNetworkGatewayName: replace(logic.outputs.tiers[0].namingConvention.virtualNetworkGateway, logic.outputs.tokens.purpose, '')
+    virtualNetworkGatewaySku: virtualNetworkGatewaySku
     virtualNetworkName: hubVirtualNetworkName
   }
   dependsOn: [
@@ -121,51 +136,51 @@ module vpnGatewayModule 'modules/vpn-gateway.bicep' = {
 }
 
 // Configure diagnostics to Operations Log Analytics workspace
-module vpnGatewayDiagnostics 'modules/vpn-gateway-diagnostics.bicep' = {
+module vpnGatewayDiagnostics 'modules/virtual-network-gateway-diagnostics.bicep' = {
   name: 'vpnGateway-diagnostics-${deploymentNameSuffix}'
   scope: resourceGroup(hubResourceGroupName)
   params: {
-    virtualNetworkGatewayName: vpnGatewayName
     logAnalyticsWorkspaceResourceId: operationsLogAnalyticsWorkspaceResourceId
+    virtualNetworkGatewayName: replace(logic.outputs.tiers[0].namingConvention.virtualNetworkGateway, logic.outputs.tokens.purpose, '')
   }
   dependsOn: [
-    vpnGatewayModule
+    virtualNetworkGateway
   ]
 }
 
 // Create Local Network Gateway based on provided on-prem configuration
-module localNetworkGatewayModule 'modules/local-network-gateway.bicep' = {
+module localNetworkGateway 'modules/local-network-gateway.bicep' = {
   name: 'localNetworkGateway-${deploymentNameSuffix}'
   scope: resourceGroup(hubResourceGroupName)
   params: {
-    vgwlocation: location
-    localNetworkGatewayName: '${idToken}-${envToken}-${locToken}-hub-lgw'
-    gatewayIpAddress: localGatewayIpAddress
     addressPrefixes: localAddressPrefixes
+    gatewayIpAddress: localGatewayIpAddress
+    localNetworkGatewayName: replace(logic.outputs.tiers[0].namingConvention.localNetworkGateway, logic.outputs.tokens.purpose, '')
+    vgwlocation: location
   }
 }
 
 // Create VPN Connection using the shared key
-module vpnConnectionModule 'modules/vpn-connection.bicep' = {
+module vpnConnection 'modules/virtual-network-gateway-connection.bicep' = {
   name: 'vpnConnection-${deploymentNameSuffix}'
   scope: resourceGroup(hubResourceGroupName)
   params: {
-    vpnConnectionName: '${vpnGatewayName}-to-${idToken}-${envToken}-${locToken}-hub-lgw'
-    vgwlocation: location
-    vpnGatewayName: vpnGatewayName
-    vpnGatewayResourceGroupName: hubResourceGroupName
-    sharedKey: sharedKey
     keyVaultCertificateUri: ''
-    localNetworkGatewayName: '${idToken}-${envToken}-${locToken}-hub-lgw'
+    localNetworkGatewayName: replace(logic.outputs.tiers[0].namingConvention.localNetworkGateway, logic.outputs.tokens.purpose, '')
+    sharedKey: sharedKey
+    vgwlocation: location
+    vpnConnectionName: '${replace(logic.outputs.tiers[0].namingConvention.virtualNetworkGateway, logic.outputs.tokens.purpose, '')}-to-${replace(logic.outputs.tiers[0].namingConvention.localNetworkGateway, logic.outputs.tokens.purpose, '')}'
+    vpnGatewayName: replace(logic.outputs.tiers[0].namingConvention.virtualNetworkGateway, logic.outputs.tokens.purpose, '')
+    vpnGatewayResourceGroupName: hubResourceGroupName
   }
   dependsOn: [
-    vpnGatewayModule
-    localNetworkGatewayModule
+    virtualNetworkGateway
+    localNetworkGateway
   ]
 }
 
 // Loop through the vnetResourceIdList and to retrieve the peerings for each VNet
-module retrieveVnetInfo 'modules/vnet-info.bicep' = [for (vnetId, i) in virtualNetworkResourceIdList: {
+module retrieveVnetInfo 'modules/virtual-network-info.bicep' = [for (vnetId, i) in virtualNetworkResourceIdList: {
   name: 'retrieveVnetPeerings-${deploymentNameSuffix}-${i}'
   scope: resourceGroup(split(vnetId, '/')[2], split(vnetId, '/')[4])
   params: {
@@ -174,7 +189,7 @@ module retrieveVnetInfo 'modules/vnet-info.bicep' = [for (vnetId, i) in virtualN
 }]
 
 // Get the hub virtual network peerings
-module retrieveHubVnetInfo 'modules/vnet-info.bicep' = {
+module retrieveHubVnetInfo 'modules/virtual-network-info.bicep' = {
   name: 'retrieveHubVnetPeerings-${deploymentNameSuffix}'
   scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
   params: {
@@ -202,7 +217,7 @@ module ensureGatewaySubnet 'modules/create-gateway-subnet.bicep' = {
 }
 
 // Call update the Hub peerings first to enable spokes to use the VPN Gateway, if not done first, spokes will fail their update
-module updateHubPeerings 'modules/vnet-peerings.bicep' = {
+module updateHubPeerings 'modules/virtual-network-peerings.bicep' = {
   name: 'updateHubPeerings-${deploymentNameSuffix}'
   scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
   params: {
@@ -210,13 +225,13 @@ module updateHubPeerings 'modules/vnet-peerings.bicep' = {
     peeringsList: retrieveHubVnetInfo.outputs.peeringsData.peeringsList
   }
   dependsOn: [
-    vpnGatewayModule
+    virtualNetworkGateway
   ]
 }
 
 
 // Update the peerings for each spoke VNet to use the VPN Gateway
-module updatePeerings 'modules/vnet-peerings.bicep' = [for (vnetId, i) in virtualNetworkResourceIdList: {
+module updatePeerings 'modules/virtual-network-peerings.bicep' = [for (vnetId, i) in virtualNetworkResourceIdList: {
   name: 'updatePeerings-${deploymentNameSuffix}-${i}'
   scope: resourceGroup(split(vnetId, '/')[2], split(vnetId, '/')[4])
   params: {
@@ -225,7 +240,7 @@ module updatePeerings 'modules/vnet-peerings.bicep' = [for (vnetId, i) in virtua
   }
   dependsOn: [
     updateHubPeerings
-  vpnGatewayModule
+    virtualNetworkGateway
   ]
 }]
 
@@ -234,7 +249,7 @@ module createRouteTable 'modules/route-table.bicep' = {
   name: 'createVgwRouteTable-${deploymentNameSuffix}'
   scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
   params: {
-    routeTableName: vgwRouteTableName
+    routeTableName: replace(logic.outputs.tiers[0].namingConvention.routeTable, logic.outputs.tokens.purpose, 'vgw')
     // Disable BGP propagation (no BGP usage; static enforcement)
     disableBgpRoutePropagation: true
   }
@@ -245,11 +260,11 @@ module createRoutes 'modules/routes.bicep' = [for (vnetResourceId, i) in virtual
   name: 'createRoute-${i}-${deploymentNameSuffix}'
   scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
   params: {
-    routeTableName: vgwRouteTableName
     addressSpace: retrieveVnetInfo[i].outputs.vnetAddressSpace
-    routeName: 'route-${i}'
+    nextHopIpAddress: firewallInfo.outputs.firewallPrivateIp
     nextHopType: 'VirtualAppliance'
-  nextHopIpAddress: firewallInfo.outputs.firewallPrivateIp
+    routeName: 'route-${i}'
+    routeTableName: replace(logic.outputs.tiers[0].namingConvention.routeTable, logic.outputs.tokens.purpose, 'vgw')
   }
   dependsOn: [
     createRouteTable
@@ -261,8 +276,8 @@ module createHubCidrRoutes 'modules/routes.bicep' = {
   name: 'createHubCidrRoutes-${deploymentNameSuffix}'
   scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
   params: {
-    routeTableName: vgwRouteTableName
-    addressSpace: virtualNetwork_hub.properties.addressSpace.addressPrefixes
+    routeTableName: replace(logic.outputs.tiers[0].namingConvention.routeTable, logic.outputs.tokens.purpose, 'vgw')
+    addressSpace: virtualNetwork.properties.addressSpace.addressPrefixes
     routeName: 'route-hub'
     nextHopType: 'VirtualAppliance'
   nextHopIpAddress: firewallInfo.outputs.firewallPrivateIp
@@ -278,11 +293,11 @@ module createHubRouteOverrides 'modules/routes.bicep' = {
   name: 'createHubRouteOverrides-${deploymentNameSuffix}'
   scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
   params: {
-    routeTableName: hubRouteTableName
     addressSpace: localAddressPrefixes
-    routeName: 'route-onprem-override'
+    nextHopIpAddress: firewallInfo.outputs.firewallPrivateIp
     nextHopType: 'VirtualAppliance'
-  nextHopIpAddress: firewallInfo.outputs.firewallPrivateIp
+    routeName: 'route-onprem-override'
+    routeTableName: replace(logic.outputs.tiers[0].namingConvention.routeTable, logic.outputs.tokens.purpose, '')
   }
 }
 
@@ -300,7 +315,7 @@ module associateRouteTable 'modules/associate-route-table.bicep' = {
   }
   dependsOn: [
     ensureGatewaySubnet
-    vpnGatewayModule
+    virtualNetworkGateway
   ]
 }
 

@@ -2,7 +2,7 @@
   "view": {
     "kind": "Form",
     "properties": {
-      "title": "Virtual Network Gateway Add-on",
+      "title": "Mission Landing Zone Add-On: Virtual Network Gateway",
       "isWizard": true,
       "steps": [
         {
@@ -13,7 +13,7 @@
               "name": "intro",
               "type": "Microsoft.Common.TextBlock",
               "options": {
-                "text": "Configure the Virtual Network Gateway add-on. This connects your hub to on-prem via site-to-site VPN, ensures GatewaySubnet, routes through Azure Firewall, and applies firewall rules.",
+                "text": "Configure the Virtual Network Gateway add-on. This connects your hub to on-prem via site-to-site VPN. It also ensures GatewaySubnet routes through the Azure Firewall, and applies the appropriate firewall rules.",
                 "link": {
                   "label": "Mission LZ",
                   "uri": "https://aka.ms/missionlz"
@@ -23,6 +23,61 @@
             {
               "name": "resourceScope",
               "type": "Microsoft.Common.ResourceScope"
+            },
+            {
+              "name": "naming",
+              "type": "Microsoft.Common.Section",
+              "label": "Naming Components",
+              "elements": [
+                {
+                  "name": "description",
+                  "type": "Microsoft.Common.TextBlock",
+                  "options": {
+                    "text": "The values selected below will be used as components in your naming convention to name your Azure resource groups and resources.",
+                    "link": {
+                      "label": "Click here for more information on the naming convention used in this solution.",
+                      "uri": "https://github.com/Azure/missionlz/blob/main/src/add-ons/azure-virtual-desktop/docs/design/naming.md"
+                    }
+                  }
+                },
+                {
+                  "name": "identifier",
+                  "type": "Microsoft.Common.TextBox",
+                  "label": "Identifier",
+                  "toolTip": "Input a 3 character identifier for the resource group and resource names created with this solution. The identifier should represent a unique value within your organization, such as a business unit or project.",
+                  "placeholder": "Example: it1",
+                  "constraints": {
+                    "required": true,
+                    "regex": "^[a-z][a-z0-9]{1,2}$",
+                    "validationMessage": "The value must be 1 - 3 characters in length, alphanumeric, and lowercase."
+                  }
+                },
+                {
+                  "name": "environment",
+                  "type": "Microsoft.Common.DropDown",
+                  "visible": true,
+                  "label": "Environment Abbreviation",
+                  "defaultValue": "Development (dev)",
+                  "toolTip": "Select the target environment for the solution. The single letter environment abbreviation will be used as part of the naming convention for the resoure groups and resources.",
+                  "constraints": {
+                    "required": true,
+                    "allowedValues": [
+                      {
+                        "label": "Development (dev)",
+                        "value": "dev"
+                      },
+                      {
+                        "label": "Production (prod)",
+                        "value": "prod"
+                      },
+                      {
+                        "label": "Test (test)",
+                        "value": "test"
+                      }
+                    ]
+                  }
+                }
+              ]
             },
             {
               "name": "subscriptionApi",
@@ -104,20 +159,38 @@
                 "required": true,
                 "allowedValues": "[map(steps('networks').spokeVnetsApi.value, (v) => parse(concat('{\"label\":\"', v.name, ' (RG: ', last(skip(split(v.id, '/'), 4)), ')\",\"value\":\"', v.id, '\"}')))]"
               }
+            },
+            {
+              "name": "hubVirtualNetworkPeeringsApi",
+              "type": "Microsoft.Solutions.ArmApiControl",
+              "condition": "[not(empty(steps('networks').hubVnetDrop))]",
+              "request": {
+                "method": "GET",
+                "path": "[concat(steps('networks').hubVnetDrop, '/virtualNetworkPeerings?api-version=2024-01-01')]"
+              }
+            },
+            {
+              "name": "operationsLogAnalyticsWorkspaceApi",
+              "type": "Microsoft.Solutions.ArmApiControl",
+              "condition": "[not(empty(steps('networks').hubVirtualNetworkPeeringsApi))]",
+              "request": {
+                "method": "GET",
+                "path": "[concat('subscriptions/', first(skip(split(first(map(filter(steps('networks').hubVirtualNetworkPeeringsApi.value, (item) => contains(item.properties.remoteVirtualNetwork.id, 'operations')), (item) => item.properties.remoteVirtualNetwork.id)), '/'), 2)), '/resourcegroups/', first(skip(split(first(map(filter(steps('networks').hubVirtualNetworkPeeringsApi.value, (item) => contains(item.properties.remoteVirtualNetwork.id, 'operations')), (item) => item.properties.remoteVirtualNetwork.id)), '/'), 4)), '/providers/Microsoft.OperationalInsights/workspaces?api-version=2023-09-01')]"
+              }
             }
           ]
         },
         {
           "name": "onprem",
-          "label": "On‑prem connectivity",
+          "label": "On-prem connectivity",
           "elements": [
             {
               "name": "localAddressPrefixes",
-              "label": "Local (on‑prem) address prefixes",
+              "label": "Local (on-prem) address prefixes",
               "type": "Microsoft.Common.TextBox",
               "placeholder": "10.1.0.0/16, 10.2.0.0/16",
               "multiLine": true,
-              "toolTip": "Enter one or more CIDR prefixes, comma‑separated (e.g., 10.1.0.0/16, 10.2.0.0/16). Use CIDR notation.",
+              "toolTip": "Enter one or more CIDR prefixes, comma-separated (e.g., 10.1.0.0/16, 10.2.0.0/16). Use CIDR notation.",
               "constraints": {
                 "required": true
               }
@@ -127,7 +200,7 @@
               "label": "Local gateway public IP address",
               "type": "Microsoft.Common.TextBox",
               "placeholder": "x.x.x.x",
-              "toolTip": "Public IP address of the on‑premises VPN device.",
+              "toolTip": "Public IP address of the on-premises VPN device.",
               "constraints": {
                 "required": true,
                 "validations": [
@@ -142,7 +215,7 @@
               "name": "sharedKey",
               "label": "Shared key",
               "type": "Microsoft.Common.SecureString",
-              "toolTip": "Pre‑shared key used for the VPN connection.",
+              "toolTip": "Pre-shared key used for the VPN connection.",
               "constraints": {
                 "required": true,
                 "minLength": 1
@@ -155,16 +228,6 @@
           "label": "Gateway",
           "elements": [
             {
-              "name": "includeHubOnPrem",
-              "label": "Include Hub ↔ On‑Prem allow rules",
-              "type": "Microsoft.Common.CheckBox",
-              "defaultValue": false,
-              "toolTip": "When enabled, also allow Hub CIDRs to reach On‑Prem and vice versa via the firewall policy.",
-              "constraints": {
-                "required": false
-              }
-            },
-            {
               "name": "gatewaySku",
               "label": "Virtual Network Gateway SKU",
               "type": "Microsoft.Common.DropDown",
@@ -172,10 +235,22 @@
               "constraints": {
                 "required": true,
                 "allowedValues": [
-                  { "label": "VpnGw2", "value": "VpnGw2" },
-                  { "label": "VpnGw3", "value": "VpnGw3" },
-                  { "label": "VpnGw4", "value": "VpnGw4" },
-                  { "label": "VpnGw5", "value": "VpnGw5" }
+                  {
+                    "label": "VpnGw2",
+                    "value": "VpnGw2"
+                  },
+                  {
+                    "label": "VpnGw3",
+                    "value": "VpnGw3"
+                  },
+                  {
+                    "label": "VpnGw4",
+                    "value": "VpnGw4"
+                  },
+                  {
+                    "label": "VpnGw5",
+                    "value": "VpnGw5"
+                  }
                 ]
               }
             },
@@ -195,13 +270,15 @@
   "outputs": {
     "location": "[steps('basics').resourceScope.location]",
     "parameters": {
+      "environmentAbbreviation": "[steps('basics').naming.environment]",
       "hubVirtualNetworkResourceId": "[steps('networks').hubVnetDrop]",
-      "virtualNetworkResourceIdList": "[steps('networks').spokeVnetsDrop]",
+      "identifier": "[steps('basics').naming.identifier]",
       "localAddressPrefixes": "[if(equals(trim(steps('onprem').localAddressPrefixes), ''), json('[]'), map(where(split(steps('onprem').localAddressPrefixes, ','), (p) => not(equals(trim(p), ''))), (p) => trim(p)))]",
       "localGatewayIpAddress": "[steps('onprem').localGatewayIp]",
+      "operationsLogAnalyticsWorkspaceResourceId": "[first(map(steps('networks').operationsLogAnalyticsWorkspaceApi.value, (item) => item.id))]",
       "sharedKey": "[steps('onprem').sharedKey]",
-  "virtualNetworkGatewaySku": "[steps('gateway').gatewaySku]",
-  "includeHubOnPrem": "[steps('gateway').includeHubOnPrem]"
+      "virtualNetworkGatewaySku": "[steps('gateway').gatewaySku]",
+      "virtualNetworkResourceIdList": "[steps('networks').spokeVnetsDrop]"
     }
   }
 }

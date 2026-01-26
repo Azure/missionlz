@@ -26,6 +26,7 @@ param safeModeAdminPassword string
 param subnetResourceId string
 param tags object = {}
 param tier object
+param tokens object
 param vmSize string
 
 resource virtualNetwork 'Microsoft.Network/virtualNetworks@2024-07-01' existing = {
@@ -51,11 +52,11 @@ module virtualMachine 'virtual-machine.bicep' = {
         }
         storageAccountType: 'Premium_LRS'
       }
-      name: '${tier.namingConvention.virtualMachineDisk}${delimiter}dc${delimiter}${index}${delimiter}1'
+      name: '${replace(tier.namingConvention.virtualMachineDisk, tokens.purpose, 'dc')}${delimiter}${index}${delimiter}1'
     }]
     diskCaching: 'None'
     diskEncryptionSetResourceId: diskEncryptionSetResourceId
-    diskName: '${tier.namingConvention.virtualMachineDisk}${delimiter}dc${delimiter}${index}${delimiter}0'
+    diskName: '${replace(tier.namingConvention.virtualMachineDisk, tokens.purpose, 'dc')}${delimiter}${index}${delimiter}0'
     domainJoin: false
     domainName: domainName
     hybridUseBenefit: hybridUseBenefit
@@ -65,13 +66,13 @@ module virtualMachine 'virtual-machine.bicep' = {
     imageVersion: imageVersion
     location: location
     mlzTags: mlzTags
-    networkInterfaceName: '${tier.namingConvention.virtualMachineNetworkInterface}${delimiter}dc${delimiter}${index}'
+    networkInterfaceName: '${replace(tier.namingConvention.virtualMachineNetworkInterface, tokens.purpose, 'dc')}${delimiter}${index}'
     networkSecurityGroupResourceId: virtualNetwork.properties.subnets[0].properties.networkSecurityGroup.id
     privateIPAddress: cidrHost(virtualNetwork.properties.subnets[0].properties.addressPrefix, index + privateIPAddressOffset)
     storageAccountType: 'Premium_LRS'
     subnetResourceId: subnetResourceId
     tags: tags
-    virtualMachineName: '${tier.namingConvention.virtualMachine}dc${index}'
+    virtualMachineName: '${replace(tier.namingConvention.virtualMachine, tokens.purpose, 'dc')}${index}'
     virtualMachineSize: vmSize
   }  
 }

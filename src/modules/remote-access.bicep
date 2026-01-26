@@ -39,6 +39,7 @@ param mlzTags object
 param resourceAbbreviations object
 param tags object
 param tier object
+param tokens object
 @secure()
 @minLength(12)
 param windowsVmAdminPassword string
@@ -67,7 +68,6 @@ module customerManagedKeys 'customer-managed-keys.bicep' = if (deployLinuxVirtua
   name: 'deploy-ra-cmk-${deploymentNameSuffix}'
   scope: subscription(tier.subscriptionId)
   params: {
-    delimiter: delimiter
     deploymentNameSuffix: deploymentNameSuffix
     environmentAbbreviation: environmentAbbreviation
     keyName: tier.namingConvention.diskEncryptionSet
@@ -78,6 +78,7 @@ module customerManagedKeys 'customer-managed-keys.bicep' = if (deployLinuxVirtua
     resourceGroupName: jbResourceGroupName
     tags: tags
     tier: tier
+    tokens: tokens
     type: 'virtualMachine'
   }
   dependsOn: [
