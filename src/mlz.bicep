@@ -999,6 +999,7 @@ module remoteAccess 'modules/remote-access.bicep' = if (deployBastion || deployL
     bastionHostPublicIPAddressAvailabilityZones: bastionHostPublicIPAddressAvailabilityZones
     bastionHostPublicIPAddressSkuName: 'Standard'
     bastionHostSubnetResourceId: networking.outputs.bastionHostSubnetResourceId
+    delimiter: networking.outputs.delimiter
     deployBastion: deployBastion
     deployLinuxVirtualMachine: deployLinuxVirtualMachine
     deploymentNameSuffix: deploymentNameSuffix

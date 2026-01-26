@@ -83,10 +83,10 @@ module azureNetAppFiles 'azure-netapp-files.bicep' = if (storageService == 'Azur
     hostPoolResourceId: hostPoolResourceId
     location: location
     mlzTags: mlzTags
-    netAppAccountNamePrefix: replace(tier.namingConvention.netAppAccount, tokens.purpose, '')
-    netAppCapacityPoolNamePrefix: replace(tier.namingConvention.netAppAccountCapacityPool, tokens.purpose, '')
+    netAppAccountNamePrefix: replace(tier.namingConvention.netAppAccount, '${delimiter}${tokens.purpose}', '')
+    netAppCapacityPoolNamePrefix: replace(tier.namingConvention.netAppAccountCapacityPool, '${delimiter}${tokens.purpose}', '')
     organizationalUnitPath: organizationalUnitPath
-    smbServerName: replace(tier.namingConvention.netAppAccountSmbServer, tokens.purpose, '')
+    smbServerName: replace(tier.namingConvention.netAppAccountSmbServer, '${delimiter}${tokens.purpose}', '')
     storageSku: storageSku
     suffix: 'fslogix'
     tags: tags

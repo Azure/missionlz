@@ -65,7 +65,7 @@ param virtualMachineAdminPassword string
 param virtualMachineAdminUsername string
 param virtualMachineSize string
 
-var availabilitySetNamePrefix = replace(tier.namingConvention.availabilitySet, tokens.purpose, '')
+var availabilitySetNamePrefix = replace(tier.namingConvention.availabilitySet, '${delimiter}${tokens.purpose}', '')
 var tagsVirtualMachines = union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Compute/virtualMachines'] ?? {}, mlzTags)
 var uniqueToken = uniqueString(identifier, environmentAbbreviation, subscription().subscriptionId)
 
@@ -157,7 +157,7 @@ module disableAutoscale '../common/run-command.bicep' = {
       }
       {
         name: 'ScalingPlanName' 
-        value: replace(tier.namingConvention.scalingPlan, tokens.purpose, '')
+        value: replace(tier.namingConvention.scalingPlan, '${delimiter}${tokens.purpose}', '')
       }
       {
         name: 'SubscriptionId' 
@@ -185,14 +185,14 @@ module virtualMachines 'virtual-machines.bicep' = [for i in range(1, sessionHost
     availabilityZones: availabilityZones
     avdConfigurationZipFileUri: avdConfigurationZipFileUri
     batchCount: i
-    dataCollectionRuleAssociationName: replace(tier.namingConvention.dataCollectionRuleAssociation, tokens.purpose, '')
+    dataCollectionRuleAssociationName: replace(tier.namingConvention.dataCollectionRuleAssociation, '${delimiter}${tokens.purpose}', '')
     dataCollectionRuleResourceId: dataCollectionRuleResourceId
     delimiter: delimiter
     deployFslogix: deployFslogix
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedidentityClientId: deploymentUserAssignedIdentityClientId
     diskEncryptionSetResourceId: diskEncryptionSetResourceId
-    diskNamePrefix: replace(tier.namingConvention.virtualMachineDisk, tokens.purpose, '')
+    diskNamePrefix: replace(tier.namingConvention.virtualMachineDisk, '${delimiter}${tokens.purpose}', '')
     diskSku: diskSku
     domainJoinPassword: domainJoinPassword
     domainJoinUserPrincipalName: domainJoinUserPrincipalName
@@ -215,7 +215,7 @@ module virtualMachines 'virtual-machines.bicep' = [for i in range(1, sessionHost
     location: location
     managementVirtualMachineName: managementVirtualMachineName
     netAppFileShares: netAppFileShares
-    networkInterfaceNamePrefix: replace(tier.namingConvention.virtualMachineNetworkInterface, tokens.purpose, '')
+    networkInterfaceNamePrefix: replace(tier.namingConvention.virtualMachineNetworkInterface, '${delimiter}${tokens.purpose}', '')
     networkSecurityGroupResourceId: tier.networkSecurityGroupResourceId
     organizationalUnitPath: organizationalUnitPath
     profile: profile
@@ -231,7 +231,7 @@ module virtualMachines 'virtual-machines.bicep' = [for i in range(1, sessionHost
     tagsNetworkInterfaces: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Network/networkInterfaces'] ?? {}, mlzTags)
     tagsVirtualMachines: tagsVirtualMachines
     uniqueToken: uniqueToken
-    virtualMachineNamePrefix: replace(tier.namingConvention.virtualMachine, tokens.purpose, '')
+    virtualMachineNamePrefix: replace(tier.namingConvention.virtualMachine, '${delimiter}${tokens.purpose}', '')
     virtualMachineAdminPassword: virtualMachineAdminPassword
     virtualMachineAdminUsername: virtualMachineAdminUsername
     virtualMachineSize: virtualMachineSize
@@ -274,8 +274,8 @@ module scalingPlan '../control-plane/scaling-plan.bicep' = {
     hostPoolType: hostPoolType
     location: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
-    scalingPlanDiagnosticSettingName: replace(tier.namingConvention.scalingPlanDiagnosticSetting, tokens.purpose, '')
-    scalingPlanName: replace(tier.namingConvention.scalingPlan, tokens.purpose, '')
+    scalingPlanDiagnosticSettingName: replace(tier.namingConvention.scalingPlanDiagnosticSetting, '${delimiter}${tokens.purpose}', '')
+    scalingPlanName: replace(tier.namingConvention.scalingPlan, '${delimiter}${tokens.purpose}', '')
     tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.DesktopVirtualization/scalingPlans'] ?? {}, mlzTags)
     timeZone: locationProperties.timeZone
     weekdaysOffPeakStartTime: scalingWeekdaysOffPeakStartTime

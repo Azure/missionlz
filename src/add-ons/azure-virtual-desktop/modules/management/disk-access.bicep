@@ -1,4 +1,5 @@
 param azureBlobsPrivateDnsZoneResourceId string
+param delimiter string
 param hostPoolResourceId string
 param location string
 param mlzTags object
@@ -8,21 +9,21 @@ param tags object
 param tokens object
 
 resource diskAccess 'Microsoft.Compute/diskAccesses@2021-04-01' = {
-  name: replace(names.diskAccess, tokens.purpose, '')
+  name: replace(names.diskAccess, '${delimiter}${tokens.purpose}', '')
   location: location
   tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Compute/diskAccesses'] ?? {}, mlzTags)
   properties: {}
 }
 
 resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = {
-  name: replace(names.diskAccessPrivateEndpoint, tokens.purpose, '')
+  name: replace(names.diskAccessPrivateEndpoint, '${delimiter}${tokens.purpose}', '')
   location: location
   tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Network/privateEndpoints'] ?? {}, mlzTags)
   properties: {
-    customNetworkInterfaceName: replace(names.diskAccessNetworkInterface, tokens.purpose, '')
+    customNetworkInterfaceName: replace(names.diskAccessNetworkInterface, '${delimiter}${tokens.purpose}', '')
     privateLinkServiceConnections: [
       {
-        name: replace(names.diskAccessPrivateEndpoint, tokens.purpose, '')
+        name: replace(names.diskAccessPrivateEndpoint, '${delimiter}${tokens.purpose}', '')
         properties: {
           privateLinkServiceId: diskAccess.id
           groupIds: [

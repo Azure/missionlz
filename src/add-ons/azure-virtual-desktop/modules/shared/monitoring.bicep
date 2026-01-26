@@ -1,3 +1,4 @@
+param delimiter string
 param deploymentNameSuffix string
 param enableAvdInsights bool
 param hostPoolResourceId string
@@ -37,7 +38,7 @@ module privateLinkScope_logAnalyticsWorkspace '../common/private-link-scope.bice
 }
 
 resource dataCollectionRule 'Microsoft.Insights/dataCollectionRules@2022-06-01' = if (enableAvdInsights) {
-  name: 'microsoft-avdi-${replace(names.dataCollectionRule, tokens.purpose, '')}' // The name must start with 'microsoft-avdi-' for proper integration with AVD Insights
+  name: 'microsoft-avdi-${replace(names.dataCollectionRule, '${delimiter}${tokens.purpose}', '')}' // The name must start with 'microsoft-avdi-' for proper integration with AVD Insights
   location: location
   tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Insights/dataCollectionRules'] ?? {}, mlzTags)
   kind: 'Windows'

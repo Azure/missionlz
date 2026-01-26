@@ -1,5 +1,6 @@
 targetScope = 'subscription'
 
+param delimiter string
 param deploymentNameSuffix string
 param deploymentUserAssignedIdentityPrincipalId string
 param enableApplicationInsights bool
@@ -20,7 +21,7 @@ param tags object
 param tier object
 param tokens object
 
-var hostPoolResourceId = '${subscription().id}/resourceGroups/${resourceGroupManagement}/providers/Microsoft.DesktopVirtualization/hostpools/${replace(tier.namingConvention.hostPool, tokens.purpose, '')}'
+var hostPoolResourceId = '${subscription().id}/resourceGroups/${resourceGroupManagement}/providers/Microsoft.DesktopVirtualization/hostpools/${replace(tier.namingConvention.hostPool, '${delimiter}${tokens.purpose}', '')}'
 var resourceGroupShared = replace(tier.namingConvention.resourceGroup, tokens.purpose, 'shared')
 var resourceGroupFslogix = replace(tier.namingConvention.resourceGroup, tokens.purpose, 'fslogix')
 var resourceGroupManagement = replace(tier.namingConvention.resourceGroup, tokens.purpose, 'management')
@@ -38,6 +39,7 @@ module monitoring 'monitoring.bicep' = if (enableApplicationInsights || enableAv
   name: 'deploy-monitoring-${deploymentNameSuffix}'
   scope: resourceGroup_shared
   params: {
+    delimiter: delimiter
     deploymentNameSuffix: deploymentNameSuffix
     enableAvdInsights: enableAvdInsights
     hostPoolResourceId: hostPoolResourceId
@@ -87,9 +89,9 @@ module roleAssignment '../common/role-assignments/resource-group.bicep' = if (!e
     location: locationVirtualMachines
     mlzTags: mlzTags
     recoveryServicesPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(privateDnsZones, name => startsWith(name, 'privatelink.${recoveryServicesGeo}.backup.windowsazure'))[0]}'
-    recoveryServicesVaultName: replace(tier.namingConvention.recoveryServicesVault, tokens.purpose, '')
-    recoveryServicesVaultNetworkInterfaceName: replace(tier.namingConvention.recoveryServicesVaultNetworkInterface, tokens.purpose, '')
-    recoveryServicesVaultPrivateEndpointName: replace(tier.namingConvention.recoveryServicesVaultPrivateEndpoint, tokens.purpose, '')
+    recoveryServicesVaultName: replace(tier.namingConvention.recoveryServicesVault, '${delimiter}${tokens.purpose}', '')
+    recoveryServicesVaultNetworkInterfaceName: replace(tier.namingConvention.recoveryServicesVaultNetworkInterface, '${delimiter}${tokens.purpose}', '')
+    recoveryServicesVaultPrivateEndpointName: replace(tier.namingConvention.recoveryServicesVaultPrivateEndpoint, '${delimiter}${tokens.purpose}', '')
     storageService: storageService
     subnetId: subnetResourceId
     tags: tags

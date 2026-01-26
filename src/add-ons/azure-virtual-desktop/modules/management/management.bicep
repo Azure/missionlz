@@ -1,6 +1,7 @@
 targetScope = 'subscription'
 
 param avdObjectId string
+param delimiter string
 param deploymentNameSuffix string
 param diskSku string
 @secure()
@@ -23,7 +24,7 @@ param virtualMachineAdminPassword string
 param virtualMachineAdminUsername string
 param virtualMachineSize string
 
-var hostPoolResourceId = resourceId(subscription().subscriptionId, resourceGroupManagement, 'Microsoft.DesktopVirtualization/hostpools', replace(tier.namingConvention.hostPool, tokens.purpose, ''))
+var hostPoolResourceId = resourceId(subscription().subscriptionId, resourceGroupManagement, 'Microsoft.DesktopVirtualization/hostpools', replace(tier.namingConvention.hostPool, '${delimiter}${tokens.purpose}', ''))
 var resourceGroupManagement = replace(tier.namingConvention.resourceGroup, tokens.purpose, 'management')
 
 resource resourceGroup 'Microsoft.Resources/resourceGroups@2023-07-01' = {
@@ -72,6 +73,7 @@ module diskAccess 'disk-access.bicep' = {
   name: 'deploy-disk-access-${deploymentNameSuffix}'
   params: {
     azureBlobsPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(privateDnsZones, name => contains(name, 'blob'))[0]}'
+    delimiter: delimiter
     hostPoolResourceId: hostPoolResourceId
     location: locationVirtualMachines
     mlzTags: mlzTags

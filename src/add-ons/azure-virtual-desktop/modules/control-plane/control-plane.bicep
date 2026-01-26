@@ -4,6 +4,7 @@ param activeDirectorySolution string
 param avdPrivateDnsZoneResourceId string
 param customImageId string
 param customRdpProperty string
+param delimiter string
 param deploymentNameSuffix string
 param deploymentUserAssignedIdentityClientId string
 param desktopFriendlyName string
@@ -57,10 +58,10 @@ module hostPool 'host-pool.bicep' = {
     galleryImagePublisher: galleryImagePublisher
     galleryImageSku: galleryImageSku
     galleryItemId: galleryItemId
-    hostPoolDiagnosticSettingName: replace(stampTier.namingConvention.hostPoolDiagnosticSetting, tokens.purpose, '')
-    hostPoolName: replace(stampTier.namingConvention.hostPool, tokens.purpose, '')
-    hostPoolNetworkInterfaceName: replace(stampTier.namingConvention.hostPoolNetworkInterface, tokens.purpose, '')
-    hostPoolPrivateEndpointName: replace(stampTier.namingConvention.hostPoolPrivateEndpoint, tokens.purpose, '')
+    hostPoolDiagnosticSettingName: replace(stampTier.namingConvention.hostPoolDiagnosticSetting, '${delimiter}${tokens.purpose}', '')
+    hostPoolName: replace(stampTier.namingConvention.hostPool, '${delimiter}${tokens.purpose}', '')
+    hostPoolNetworkInterfaceName: replace(stampTier.namingConvention.hostPoolNetworkInterface, '${delimiter}${tokens.purpose}', '')
+    hostPoolPrivateEndpointName: replace(stampTier.namingConvention.hostPoolPrivateEndpoint, '${delimiter}${tokens.purpose}', '')
     hostPoolPublicNetworkAccess: hostPoolPublicNetworkAccess
     hostPoolType: hostPoolType
     imageType: imageType
@@ -68,7 +69,7 @@ module hostPool 'host-pool.bicep' = {
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     maxSessionLimit: maxSessionLimit
     mlzTags: mlzTags
-    sessionHostNamePrefix: replace(stampTier.namingConvention.virtualMachine, tokens.purpose, '')
+    sessionHostNamePrefix: replace(stampTier.namingConvention.virtualMachine, '${delimiter}${tokens.purpose}', '')
     subnetResourceId: stampTier.subnets[0].id
     tags: tags
     validationEnvironment: validationEnvironment
@@ -82,7 +83,7 @@ module applicationGroup 'application-group.bicep' = {
   params: {
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedIdentityClientId: deploymentUserAssignedIdentityClientId
-    desktopApplicationGroupName: replace(stampTier.namingConvention.applicationGroup, tokens.purpose, '')
+    desktopApplicationGroupName: replace(stampTier.namingConvention.applicationGroup, '${delimiter}${tokens.purpose}', '')
     hostPoolResourceId: hostPool.outputs.resourceId
     locationControlPlane: locationControlPlane
     locationVirtualMachines: locationVirtualMachines
@@ -118,7 +119,7 @@ module workspace_feed '../shared/workspace-feed.bicep' = {
     workspaceFeedName: replace(sharedTier.namingConvention.workspace, tokens.purpose, 'feed')
     workspaceFeedNetworkInterfaceName: replace(sharedTier.namingConvention.workspaceNetworkInterface, tokens.purpose, 'feed')
     workspaceFeedPrivateEndpointName: replace(sharedTier.namingConvention.workspacePrivateEndpoint, tokens.purpose, 'feed')
-    workspaceFriendlyName: empty(workspaceFriendlyName) ? replace(sharedTier.namingConvention.workspace, tokens.purpose, '') : '${workspaceFriendlyName} (${locationControlPlane})'
+    workspaceFriendlyName: empty(workspaceFriendlyName) ? replace(sharedTier.namingConvention.workspace, '${delimiter}${tokens.purpose}', '') : '${workspaceFriendlyName} (${locationControlPlane})'
     workspacePublicNetworkAccess: workspacePublicNetworkAccess
   }
 }

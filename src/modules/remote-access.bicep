@@ -11,6 +11,7 @@ param bastionHostPublicIPAddressSkuName string
 param bastionHostSubnetResourceId string
 // param dataCollectionRuleAssociationName string
 // param dataCollectionRuleResourceId string
+param delimiter string
 param deployBastion bool
 param deployLinuxVirtualMachine bool
 param deploymentNameSuffix string
@@ -153,10 +154,10 @@ module bastionHost '../modules/bastion-host.bicep' = if (deployBastion) {
     bastionHostSubnetResourceId: bastionHostSubnetResourceId
     location: location
     mlzTags: mlzTags
-    name: replace(tier.namingConvention.bastionHost, tokens.purpose, '')
+    name: replace(tier.namingConvention.bastionHost, '${delimiter}${tokens.purpose}', '')
     publicIPAddressAllocationMethod: bastionHostPublicIPAddressAllocationMethod
     publicIPAddressAvailabilityZones: bastionHostPublicIPAddressAvailabilityZones
-    publicIPAddressName: replace(tier.namingConvention.bastionHostPublicIPAddress, tokens.purpose, '')
+    publicIPAddressName: replace(tier.namingConvention.bastionHostPublicIPAddress, '${delimiter}${tokens.purpose}', '')
     publicIPAddressSkuName: bastionHostPublicIPAddressSkuName
     tags: tags
   }

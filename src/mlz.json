@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.40.2.10011",
-      "templateHash": "3580079016981359217"
+      "templateHash": "15791999740043504505"
     }
   },
   "parameters": {
@@ -7957,6 +7957,9 @@
           "bastionHostSubnetResourceId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.bastionHostSubnetResourceId.value]"
           },
+          "delimiter": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.delimiter.value]"
+          },
           "deployBastion": {
             "value": "[parameters('deployBastion')]"
           },
@@ -8055,7 +8058,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "12290811131912607304"
+              "templateHash": "1053910264736214354"
             }
           },
           "parameters": {
@@ -8069,6 +8072,9 @@
               "type": "string"
             },
             "bastionHostSubnetResourceId": {
+              "type": "string"
+            },
+            "delimiter": {
               "type": "string"
             },
             "deployBastion": {
@@ -9923,7 +9929,7 @@
                     "value": "[parameters('mlzTags')]"
                   },
                   "name": {
-                    "value": "[replace(parameters('tier').namingConvention.bastionHost, parameters('tokens').purpose, '')]"
+                    "value": "[replace(parameters('tier').namingConvention.bastionHost, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), '')]"
                   },
                   "publicIPAddressAllocationMethod": {
                     "value": "[parameters('bastionHostPublicIPAddressAllocationMethod')]"
@@ -9932,7 +9938,7 @@
                     "value": "[parameters('bastionHostPublicIPAddressAvailabilityZones')]"
                   },
                   "publicIPAddressName": {
-                    "value": "[replace(parameters('tier').namingConvention.bastionHostPublicIPAddress, parameters('tokens').purpose, '')]"
+                    "value": "[replace(parameters('tier').namingConvention.bastionHostPublicIPAddress, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), '')]"
                   },
                   "publicIPAddressSkuName": {
                     "value": "[parameters('bastionHostPublicIPAddressSkuName')]"
