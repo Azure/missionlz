@@ -231,7 +231,7 @@ module virtualMachines 'virtual-machines.bicep' = [for i in range(1, sessionHost
     tagsNetworkInterfaces: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Network/networkInterfaces'] ?? {}, mlzTags)
     tagsVirtualMachines: tagsVirtualMachines
     uniqueToken: uniqueToken
-    virtualMachineNamePrefix: replace(tier.namingConvention.virtualMachine, '${delimiter}${tokens.purpose}', '')
+    virtualMachineNamePrefix: replace(tier.namingConvention.virtualMachine, tokens.purpose, '')
     virtualMachineAdminPassword: virtualMachineAdminPassword
     virtualMachineAdminUsername: virtualMachineAdminUsername
     virtualMachineSize: virtualMachineSize
