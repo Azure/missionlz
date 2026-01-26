@@ -65,8 +65,38 @@ if ( $DomainControllerNumber -eq 1 ) {
 
 # Add domain controller to the forest
 if ( $DomainControllerNumber -eq 2 ) {
+    # Join to the domain, if not already joined
+    $ComputerSystem = Get-CimInstance -ClassName Win32_ComputerSystem
+    if ( -not $ComputerSystem.PartOfDomain) {
+        $joined = $false
+        while (-not $joined) {
+            try {
+                Add-Computer -DomainName $DomainName -Credential $DomainCredential -ErrorAction Stop
+
+                $joined = $true
+            }
+            catch {
+                Start-Sleep -Seconds 15
+            }
+        }
+    }
+
+    # Loop until an Active Directory domain controller is returned
+    while ( -not (Get-ADDomainController -Discover -ErrorAction 'SilentlyContinue') ) {
+        Start-Sleep -Seconds 10
+    }
+
     [array]$ExistingDomainControllers = (Get-ADDomainController).Name
     if ( $ExistingDomainControllers -notcontains $env:COMPUTERNAME ) {
+        # Wait for secure channel using nltest directly in condition
+        do {
+            nltest /sc_verify:$DomainName 2>$null
+            $exitCode = $LASTEXITCODE
+            if ($exitCode -ne 0) {
+              Start-Sleep -Seconds 5
+            }
+        } while ($exitCode -ne 0)
+
         Install-ADDSDomainController `
             -Credential $DomainCredential `
             -DatabasePath 'F:\NTDS' `
@@ -86,7 +116,6 @@ $IPv4Address = $DNSServerSettings.ListeningIpAddress | Where-Object { $_ -match 
 $DNSServerSettings.ListeningIpAddress = $IPv4Address
 $DNSServerSettings | Set-DnsServerSetting | Out-Null
 
-
 # Set DNS forwarder on the DNS server
 $ExistingDNSForwarder = (Get-DnsServerForwarder -ErrorAction 'SilentlyContinue').IPAddress
 if ( $ExistingDNSForwarder -ne $DNSForwarder ) {
@@ -94,5 +123,5 @@ if ( $ExistingDNSForwarder -ne $DNSForwarder ) {
         -IPAddress $DNSForwarder `
         -UseRootHint:$true | Out-Null
 }
-
 Restart-Computer -Force
+
