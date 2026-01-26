@@ -1213,6 +1213,32 @@
           "label": "Management",
           "elements": [
             {
+              "name": "virtualMachine",
+              "type": "Microsoft.Common.Section",
+              "label": "Virtual Machine",
+              "visible": true,
+              "elements": [
+                {
+                  "name": "size",
+                  "type": "Microsoft.Compute.SizeSelector",
+                  "label": "Size",
+                  "toolTip": "Select the size of the management virtual machine used for running PowerShell scripts during the deployment of AVD.",
+                  "recommendedSizes": [
+                    "Standard_D2ds_v4"
+                  ],
+                  "constraints": {
+                    "allowedSizes": []
+                  },
+                  "options": {
+                    "hideDiskTypeFilter": false
+                  },
+                  "osPlatform": "Windows",
+                  "count": 1,
+                  "visible": true
+                }
+              ]
+            }, 
+            {
               "name": "drainMode",
               "type": "Microsoft.Common.Section",
               "label": "Drain Mode",
@@ -1404,7 +1430,7 @@
               "type": "Microsoft.Common.Section",
               "visible": true,
               "elements": [
-                                {
+                {
                   "name": "info",
                   "type": "Microsoft.Common.TextBlock",
                   "visible": true,
@@ -1853,6 +1879,7 @@
         "logAnalyticsWorkspaceRetention": 30,
         "logAnalyticsWorkspaceSku": "PerGB2018",
         "managementSubnetAddressPrefix": "[steps('network').stampVnet.managementSubnetAddressCidrRange]",
+        "managementVirtualMachineSize": "[steps('management').virtualMachine.size]",
         "networkWatcherFlowLogsRetentionDays": "[steps('network').flowLogsSection.retentionDays]",
         "networkWatcherFlowLogsType": "[steps('network').flowLogsSection.flowLogsType]",
         "operationsLogAnalyticsWorkspaceResourceId": "[first(map(steps('basics').operationsLogAnalyticsWorkspaceApi.value, (item) => item.id))]",
