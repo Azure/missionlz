@@ -803,7 +803,7 @@
                   "condition": "[not(empty(steps('hosts').virtualMachines.resourceSkusApi))]",
                   "request": {
                     "method": "GET",
-                    "path": "[concat(steps('basics').scope.subscription.id, '/providers/Microsoft.Compute/locations/', steps('basics').enclaveSelector.location, '/usages?api-version=2025-04-01')]"
+                    "path": "[concat(steps('basics').scope.subscription.id, '/providers/Microsoft.Compute/locations/', steps('basics').scope.location.name, '/usages?api-version=2025-04-01')]"
                   }
                 },
                 {
@@ -824,14 +824,6 @@
                   "osPlatform": "Windows",
                   "count": "[steps('hosts').virtualMachines.count]",
                   "visible": "[equals(steps('basics').scenario.profile, 'generic')]"
-                },
-                {
-                  "name": "resourceSkusApi",
-                  "type": "Microsoft.Solutions.ArmApiControl",
-                  "request": {
-                    "method": "GET",
-                    "path": "[concat(steps('basics').scope.subscription.id, '/providers/Microsoft.Compute/skus?api-version=2021-07-01&$filter=location eq ', decodeUriComponent('%27'), steps('basics').scope.location.name, decodeUriComponent('%27'))]"
-                  }
                 },
                 {
                   "name": "sizeGenericQuotaError",
