@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.40.2.10011",
-      "templateHash": "17546315071788629555"
+      "templateHash": "8005360203394010455"
     }
   },
   "parameters": {
@@ -1330,7 +1330,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "5057988788611806661"
+              "templateHash": "6683191246899285903"
             }
           },
           "parameters": {
@@ -1425,8 +1425,8 @@
                 }
               },
               "dependsOn": [
-                "[resourceId('Microsoft.Network/publicIPAddresses', format('{0}{1}{2}', replace(parameters('publicIpAddressName'), parameters('tokens').purpose, parameters('resourceAbbreviations').virtualNetworkGateways), parameters('delimiter'), range(0, 2)[1]))]",
-                "[resourceId('Microsoft.Network/publicIPAddresses', format('{0}{1}{2}', replace(parameters('publicIpAddressName'), parameters('tokens').purpose, parameters('resourceAbbreviations').virtualNetworkGateways), parameters('delimiter'), range(0, 2)[0]))]"
+                "[resourceId('Microsoft.Network/publicIPAddresses', format('{0}{1}{2}', replace(parameters('publicIpAddressName'), parameters('tokens').purpose, parameters('resourceAbbreviations').virtualNetworkGateways), parameters('delimiter'), range(0, 2)[0]))]",
+                "[resourceId('Microsoft.Network/publicIPAddresses', format('{0}{1}{2}', replace(parameters('publicIpAddressName'), parameters('tokens').purpose, parameters('resourceAbbreviations').virtualNetworkGateways), parameters('delimiter'), range(0, 2)[1]))]"
               ]
             }
           ]
