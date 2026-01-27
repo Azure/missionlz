@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.40.2.10011",
-      "templateHash": "98004540198428118"
+      "templateHash": "2042567441143428383"
     }
   },
   "parameters": {
@@ -17281,7 +17281,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "3696075525610002210"
+              "templateHash": "15912310718980973673"
             }
           },
           "parameters": {
@@ -17978,7 +17978,7 @@
                     "value": "[variables('uniqueToken')]"
                   },
                   "virtualMachineNamePrefix": {
-                    "value": "[replace(parameters('tier').namingConvention.virtualMachine, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), '')]"
+                    "value": "[replace(parameters('tier').namingConvention.virtualMachine, parameters('tokens').purpose, '')]"
                   },
                   "virtualMachineAdminPassword": {
                     "value": "[parameters('virtualMachineAdminPassword')]"
