@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.40.2.10011",
-      "templateHash": "2042567441143428383"
+      "templateHash": "14931086822129081628"
     }
   },
   "parameters": {
@@ -872,7 +872,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "10944772738671208737"
+              "templateHash": "17925719239097115400"
             }
           },
           "parameters": {
@@ -4372,7 +4372,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "13191900415448300418"
+                      "templateHash": "2297357647816897874"
                     }
                   },
                   "parameters": {
@@ -4563,7 +4563,7 @@
                         "mode": "Incremental",
                         "parameters": {
                           "blobDiagnosticSettingName": {
-                            "value": "[parameters('tier').namingConvention.storageAccountBlobDiagnosticSetting]"
+                            "value": "[replace(parameters('tier').namingConvention.storageAccountBlobDiagnosticSetting, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), '')]"
                           },
                           "blobDiagnosticsLogs": {
                             "value": "[parameters('blobDiagnosticsLogs')]"
@@ -4572,7 +4572,7 @@
                             "value": "[parameters('blobDiagnosticsMetrics')]"
                           },
                           "fileDiagnosticSettingName": {
-                            "value": "[parameters('tier').namingConvention.storageAccountFileDiagnosticSetting]"
+                            "value": "[replace(parameters('tier').namingConvention.storageAccountFileDiagnosticSetting, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), '')]"
                           },
                           "fileDiagnosticsLogs": {
                             "value": "[parameters('fileDiagnosticsLogs')]"
@@ -4587,7 +4587,7 @@
                             "value": "[parameters('hubStorageAccountResourceId')]"
                           },
                           "queueDiagnosticSettingName": {
-                            "value": "[parameters('tier').namingConvention.storageAccountQueueDiagnosticSetting]"
+                            "value": "[replace(parameters('tier').namingConvention.storageAccountQueueDiagnosticSetting, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), '')]"
                           },
                           "queueDiagnosticsLogs": {
                             "value": "[parameters('queueDiagnosticsLogs')]"
@@ -4596,7 +4596,7 @@
                             "value": "[parameters('queueDiagnosticsMetrics')]"
                           },
                           "storageAccountDiagnosticSettingName": {
-                            "value": "[parameters('tier').namingConvention.storageAccountDiagnosticSetting]"
+                            "value": "[replace(parameters('tier').namingConvention.storageAccountDiagnosticSetting, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), '')]"
                           },
                           "storageAccountDiagnosticsLogs": {
                             "value": "[parameters('storageAccountDiagnosticsLogs')]"
@@ -4608,7 +4608,7 @@
                             "value": "[split(parameters('storageAccountResourceId'), '/')[8]]"
                           },
                           "tableDiagnosticSettingName": {
-                            "value": "[parameters('tier').namingConvention.storageAccountTableDiagnosticSetting]"
+                            "value": "[replace(parameters('tier').namingConvention.storageAccountTableDiagnosticSetting, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), '')]"
                           },
                           "tableDiagnosticsLogs": {
                             "value": "[parameters('tableDiagnosticsLogs')]"
@@ -4761,7 +4761,7 @@
                         "mode": "Incremental",
                         "parameters": {
                           "keyVaultDiagnosticSettingName": {
-                            "value": "[parameters('tier').namingConvention.keyVaultDiagnosticSetting]"
+                            "value": "[replace(parameters('tier').namingConvention.keyVaultDiagnosticSetting, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), '')]"
                           },
                           "keyVaultName": {
                             "value": "[parameters('keyVaultName')]"
@@ -4845,7 +4845,7 @@
                             "value": "[parameters('deployNetworkWatcherTrafficAnalytics')]"
                           },
                           "flowLogsName": {
-                            "value": "[parameters('tier').namingConvention.networkWatcherFlowLogsNetworkSecurityGroup]"
+                            "value": "[replace(parameters('tier').namingConvention.networkWatcherFlowLogsNetworkSecurityGroup, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), '')]"
                           },
                           "location": {
                             "value": "[parameters('location')]"
@@ -4857,7 +4857,7 @@
                             "value": "[parameters('networkSecurityGroupDiagnosticsLogs')]"
                           },
                           "networkSecurityGroupDiagnosticSettingName": {
-                            "value": "[parameters('tier').namingConvention.networkSecurityGroupDiagnosticSetting]"
+                            "value": "[replace(parameters('tier').namingConvention.networkSecurityGroupDiagnosticSetting, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), '')]"
                           },
                           "networkSecurityGroupName": {
                             "value": "[split(parameters('tier').networkSecurityGroupResourceId, '/')[8]]"
@@ -5062,7 +5062,7 @@
                             "value": "[parameters('deployNetworkWatcherTrafficAnalytics')]"
                           },
                           "flowLogsName": {
-                            "value": "[parameters('tier').namingConvention.networkWatcherFlowLogsVirtualNetwork]"
+                            "value": "[replace(parameters('tier').namingConvention.networkWatcherFlowLogsVirtualNetwork, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), '')]"
                           },
                           "location": {
                             "value": "[parameters('location')]"
@@ -5089,7 +5089,7 @@
                             "value": "[parameters('tier').name]"
                           },
                           "virtualNetworkDiagnosticSettingName": {
-                            "value": "[parameters('tier').namingConvention.virtualNetworkDiagnosticSetting]"
+                            "value": "[replace(parameters('tier').namingConvention.virtualNetworkDiagnosticSetting, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), '')]"
                           },
                           "virtualNetworkName": {
                             "value": "[parameters('virtualNetworkName')]"
@@ -6072,7 +6072,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "10944772738671208737"
+              "templateHash": "17925719239097115400"
             }
           },
           "parameters": {
@@ -9572,7 +9572,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "13191900415448300418"
+                      "templateHash": "2297357647816897874"
                     }
                   },
                   "parameters": {
@@ -9763,7 +9763,7 @@
                         "mode": "Incremental",
                         "parameters": {
                           "blobDiagnosticSettingName": {
-                            "value": "[parameters('tier').namingConvention.storageAccountBlobDiagnosticSetting]"
+                            "value": "[replace(parameters('tier').namingConvention.storageAccountBlobDiagnosticSetting, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), '')]"
                           },
                           "blobDiagnosticsLogs": {
                             "value": "[parameters('blobDiagnosticsLogs')]"
@@ -9772,7 +9772,7 @@
                             "value": "[parameters('blobDiagnosticsMetrics')]"
                           },
                           "fileDiagnosticSettingName": {
-                            "value": "[parameters('tier').namingConvention.storageAccountFileDiagnosticSetting]"
+                            "value": "[replace(parameters('tier').namingConvention.storageAccountFileDiagnosticSetting, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), '')]"
                           },
                           "fileDiagnosticsLogs": {
                             "value": "[parameters('fileDiagnosticsLogs')]"
@@ -9787,7 +9787,7 @@
                             "value": "[parameters('hubStorageAccountResourceId')]"
                           },
                           "queueDiagnosticSettingName": {
-                            "value": "[parameters('tier').namingConvention.storageAccountQueueDiagnosticSetting]"
+                            "value": "[replace(parameters('tier').namingConvention.storageAccountQueueDiagnosticSetting, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), '')]"
                           },
                           "queueDiagnosticsLogs": {
                             "value": "[parameters('queueDiagnosticsLogs')]"
@@ -9796,7 +9796,7 @@
                             "value": "[parameters('queueDiagnosticsMetrics')]"
                           },
                           "storageAccountDiagnosticSettingName": {
-                            "value": "[parameters('tier').namingConvention.storageAccountDiagnosticSetting]"
+                            "value": "[replace(parameters('tier').namingConvention.storageAccountDiagnosticSetting, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), '')]"
                           },
                           "storageAccountDiagnosticsLogs": {
                             "value": "[parameters('storageAccountDiagnosticsLogs')]"
@@ -9808,7 +9808,7 @@
                             "value": "[split(parameters('storageAccountResourceId'), '/')[8]]"
                           },
                           "tableDiagnosticSettingName": {
-                            "value": "[parameters('tier').namingConvention.storageAccountTableDiagnosticSetting]"
+                            "value": "[replace(parameters('tier').namingConvention.storageAccountTableDiagnosticSetting, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), '')]"
                           },
                           "tableDiagnosticsLogs": {
                             "value": "[parameters('tableDiagnosticsLogs')]"
@@ -9961,7 +9961,7 @@
                         "mode": "Incremental",
                         "parameters": {
                           "keyVaultDiagnosticSettingName": {
-                            "value": "[parameters('tier').namingConvention.keyVaultDiagnosticSetting]"
+                            "value": "[replace(parameters('tier').namingConvention.keyVaultDiagnosticSetting, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), '')]"
                           },
                           "keyVaultName": {
                             "value": "[parameters('keyVaultName')]"
@@ -10045,7 +10045,7 @@
                             "value": "[parameters('deployNetworkWatcherTrafficAnalytics')]"
                           },
                           "flowLogsName": {
-                            "value": "[parameters('tier').namingConvention.networkWatcherFlowLogsNetworkSecurityGroup]"
+                            "value": "[replace(parameters('tier').namingConvention.networkWatcherFlowLogsNetworkSecurityGroup, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), '')]"
                           },
                           "location": {
                             "value": "[parameters('location')]"
@@ -10057,7 +10057,7 @@
                             "value": "[parameters('networkSecurityGroupDiagnosticsLogs')]"
                           },
                           "networkSecurityGroupDiagnosticSettingName": {
-                            "value": "[parameters('tier').namingConvention.networkSecurityGroupDiagnosticSetting]"
+                            "value": "[replace(parameters('tier').namingConvention.networkSecurityGroupDiagnosticSetting, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), '')]"
                           },
                           "networkSecurityGroupName": {
                             "value": "[split(parameters('tier').networkSecurityGroupResourceId, '/')[8]]"
@@ -10262,7 +10262,7 @@
                             "value": "[parameters('deployNetworkWatcherTrafficAnalytics')]"
                           },
                           "flowLogsName": {
-                            "value": "[parameters('tier').namingConvention.networkWatcherFlowLogsVirtualNetwork]"
+                            "value": "[replace(parameters('tier').namingConvention.networkWatcherFlowLogsVirtualNetwork, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), '')]"
                           },
                           "location": {
                             "value": "[parameters('location')]"
@@ -10289,7 +10289,7 @@
                             "value": "[parameters('tier').name]"
                           },
                           "virtualNetworkDiagnosticSettingName": {
-                            "value": "[parameters('tier').namingConvention.virtualNetworkDiagnosticSetting]"
+                            "value": "[replace(parameters('tier').namingConvention.virtualNetworkDiagnosticSetting, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), '')]"
                           },
                           "virtualNetworkName": {
                             "value": "[parameters('virtualNetworkName')]"

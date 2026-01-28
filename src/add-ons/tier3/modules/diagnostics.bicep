@@ -50,22 +50,22 @@ module storageAccountDiagnosticSettings '../../../modules/storage-account-diagno
   name: 'deploy-sa-diag-${tier.name}-${deploymentNameSuffix}'
   scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
   params: {
-    blobDiagnosticSettingName: tier.namingConvention.storageAccountBlobDiagnosticSetting
+    blobDiagnosticSettingName: replace(tier.namingConvention.storageAccountBlobDiagnosticSetting, '${delimiter}${tokens.purpose}', '')
     blobDiagnosticsLogs: blobDiagnosticsLogs
     blobDiagnosticsMetrics: blobDiagnosticsMetrics
-    fileDiagnosticSettingName: tier.namingConvention.storageAccountFileDiagnosticSetting
+    fileDiagnosticSettingName: replace(tier.namingConvention.storageAccountFileDiagnosticSetting, '${delimiter}${tokens.purpose}', '')
     fileDiagnosticsLogs: fileDiagnosticsLogs
     fileDiagnosticsMetrics: fileDiagnosticsMetrics
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     logStorageAccountResourceId: hubStorageAccountResourceId
-    queueDiagnosticSettingName: tier.namingConvention.storageAccountQueueDiagnosticSetting
+    queueDiagnosticSettingName: replace(tier.namingConvention.storageAccountQueueDiagnosticSetting, '${delimiter}${tokens.purpose}', '')
     queueDiagnosticsLogs: queueDiagnosticsLogs
     queueDiagnosticsMetrics: queueDiagnosticsMetrics
-    storageAccountDiagnosticSettingName: tier.namingConvention.storageAccountDiagnosticSetting
+    storageAccountDiagnosticSettingName: replace(tier.namingConvention.storageAccountDiagnosticSetting, '${delimiter}${tokens.purpose}', '')
     storageAccountDiagnosticsLogs: storageAccountDiagnosticsLogs
     storageAccountDiagnosticsMetrics: storageAccountDiagnosticsMetrics
     storageAccountName: split(storageAccountResourceId, '/')[8]
-    tableDiagnosticSettingName: tier.namingConvention.storageAccountTableDiagnosticSetting
+    tableDiagnosticSettingName: replace(tier.namingConvention.storageAccountTableDiagnosticSetting, '${delimiter}${tokens.purpose}', '')
     tableDiagnosticsLogs: tableDiagnosticsLogs
     tableDiagnosticsMetrics: tableDiagnosticsMetrics
   }
@@ -75,7 +75,7 @@ module keyvaultDiagnostics '../../../modules/key-vault-diagnostic-setting.bicep'
   name: 'deploy-kv-diags-${tier.shortName}-${deploymentNameSuffix}'
   scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
   params: {
-    keyVaultDiagnosticSettingName: tier.namingConvention.keyVaultDiagnosticSetting
+    keyVaultDiagnosticSettingName: replace(tier.namingConvention.keyVaultDiagnosticSetting, '${delimiter}${tokens.purpose}', '')
     keyVaultName: keyVaultName
     keyVaultStorageAccountId: storageAccountResourceId
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
@@ -90,11 +90,11 @@ module networkSecurityGroupDiagnostics '../../../modules/network-security-group-
   params: {
     deploymentNameSuffix: deploymentNameSuffix
     deployNetworkWatcherTrafficAnalytics: deployNetworkWatcherTrafficAnalytics
-    flowLogsName: tier.namingConvention.networkWatcherFlowLogsNetworkSecurityGroup
+    flowLogsName: replace(tier.namingConvention.networkWatcherFlowLogsNetworkSecurityGroup, '${delimiter}${tokens.purpose}', '')
     location: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     logs: networkSecurityGroupDiagnosticsLogs
-    networkSecurityGroupDiagnosticSettingName: tier.namingConvention.networkSecurityGroupDiagnosticSetting
+    networkSecurityGroupDiagnosticSettingName: replace(tier.namingConvention.networkSecurityGroupDiagnosticSetting, '${delimiter}${tokens.purpose}', '')
     networkSecurityGroupName: split(tier.networkSecurityGroupResourceId, '/')[8]
     networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
     networkWatcherFlowLogsType: networkWatcherFlowLogsType
@@ -109,7 +109,7 @@ module virtualNetworkDiagnostics '../../../modules/virtual-network-diagnostic-se
   params: {
     deploymentNameSuffix: deploymentNameSuffix
     deployNetworkWatcherTrafficAnalytics: deployNetworkWatcherTrafficAnalytics
-    flowLogsName: tier.namingConvention.networkWatcherFlowLogsVirtualNetwork
+    flowLogsName: replace(tier.namingConvention.networkWatcherFlowLogsVirtualNetwork, '${delimiter}${tokens.purpose}', '')
     location: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     logs: virtualNetworkDiagnosticsLogs
@@ -118,7 +118,7 @@ module virtualNetworkDiagnostics '../../../modules/virtual-network-diagnostic-se
     networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
     networkWatcherFlowLogsType: networkWatcherFlowLogsType
     tiername: tier.name
-    virtualNetworkDiagnosticSettingName: tier.namingConvention.virtualNetworkDiagnosticSetting
+    virtualNetworkDiagnosticSettingName: replace(tier.namingConvention.virtualNetworkDiagnosticSetting, '${delimiter}${tokens.purpose}', '')
     virtualNetworkName: virtualNetworkName
   }
 }
