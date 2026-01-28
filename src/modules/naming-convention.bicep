@@ -14,6 +14,7 @@ param environmentAbbreviation string
 param identifier string
 param locationAbbreviation string
 param networkName string
+param networkShortName string
 param resourceAbbreviations object
 param stampIndex string = '' // Enables multiple deployments of the same workload within a namespace
 
@@ -42,8 +43,15 @@ var tokens = {
 
 */
 
-var namingConvention = '${toLower(identifier)}${delimiter}${environmentAbbreviation}${delimiter}${locationAbbreviation}${delimiter}${networkName}${delimiter}${tokens.resource}${delimiter}${tokens.purpose}${empty(stampIndex) ? '' : '${delimiter}${stampIndex}'}'
-var namingConvention_Service = '${toLower(identifier)}${delimiter}${environmentAbbreviation}${delimiter}${locationAbbreviation}${delimiter}${networkName}${delimiter}${tokens.service}${delimiter}${tokens.resource}${delimiter}${tokens.purpose}${empty(stampIndex) ? '' : '${delimiter}${stampIndex}'}'
+// MODIFIED MLZ: Returned naming convention to previous format to avoid issues with existing deployments
+var namingConvention = '${toLower(identifier)}${empty(stampIndex) ? '' : '${delimiter}${stampIndex}'}${delimiter}${tokens.resource}${delimiter}${networkName}${delimiter}${tokens.purpose}${delimiter}${locationAbbreviation}${delimiter}${environmentAbbreviation}'
+var namingConvention_Service = '${toLower(identifier)}${empty(stampIndex) ? '' : '${delimiter}${stampIndex}'}${delimiter}${tokens.resource}${delimiter}${networkName}${delimiter}${tokens.service}${delimiter}${tokens.purpose}${delimiter}${locationAbbreviation}${delimiter}${environmentAbbreviation}'
+
+var namingConvention_InvertedService = '${toLower(identifier)}${empty(stampIndex) ? '' : '${delimiter}${stampIndex}'}${delimiter}${tokens.resource}${delimiter}${networkName}${delimiter}${tokens.purpose}${delimiter}${tokens.service}${delimiter}${locationAbbreviation}${delimiter}${environmentAbbreviation}'
+
+// NEW MLZ NAMING CONVENTION FORMAT (FOR FUTURE USE)
+//var namingConvention = '${toLower(identifier)}${delimiter}${environmentAbbreviation}${delimiter}${locationAbbreviation}${delimiter}${networkName}${delimiter}${tokens.resource}${delimiter}${tokens.purpose}${empty(stampIndex) ? '' : '${delimiter}${stampIndex}'}'
+//var namingConvention_Service = '${toLower(identifier)}${delimiter}${environmentAbbreviation}${delimiter}${locationAbbreviation}${delimiter}${networkName}${delimiter}${tokens.service}${delimiter}${tokens.resource}${delimiter}${tokens.purpose}${empty(stampIndex) ? '' : '${delimiter}${stampIndex}'}'
 
 /*
 
@@ -67,8 +75,8 @@ var names = {
   automationAccountPrivateEndpoint: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.privateEndpoints), tokens.service, resourceAbbreviations.automationAccounts)
   availabilitySet: replace(namingConvention, tokens.resource, resourceAbbreviations.availabilitySets)
   azureFirewall: replace(namingConvention, tokens.resource, resourceAbbreviations.azureFirewalls)
-  azureFirewallPublicIPAddress: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.publicIPAddresses), tokens.service, resourceAbbreviations.azureFirewalls)
-  azureFirewallPublicIPAddressDiagnosticSetting: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.diagnosticSettings), tokens.service, '${resourceAbbreviations.publicIPAddresses}${delimiter}${resourceAbbreviations.azureFirewalls}')
+  azureFirewallPublicIPAddress: replace(replace(namingConvention_InvertedService, tokens.resource, resourceAbbreviations.publicIPAddresses), tokens.service, resourceAbbreviations.azureFirewalls)
+  azureFirewallPublicIPAddressDiagnosticSetting: replace(replace(namingConvention_InvertedService, tokens.resource, resourceAbbreviations.diagnosticSettings), tokens.service, '${resourceAbbreviations.publicIPAddresses}${delimiter}${resourceAbbreviations.azureFirewalls}')
   azureFirewallDiagnosticSetting: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.diagnosticSettings), tokens.service, resourceAbbreviations.azureFirewalls)
   azureFirewallPolicy: replace(namingConvention, tokens.resource, resourceAbbreviations.firewallPolicies)
   // Application Gateway (Scenario A) additions
@@ -101,7 +109,8 @@ var names = {
   hostPoolDiagnosticSetting: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.diagnosticSettings), tokens.service, resourceAbbreviations.hostPools)
   hostPoolNetworkInterface: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.networkInterfaces), tokens.service, resourceAbbreviations.hostPools)
   hostPoolPrivateEndpoint: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.privateEndpoints), tokens.service, resourceAbbreviations.hostPools)
-  keyVault: replace(namingConvention, tokens.resource, resourceAbbreviations.keyVaults)
+  // Old keyVault naming: keyVault: replace(namingConvention, tokens.resource, resourceAbbreviations.keyVaults)
+  keyVault: replace(replace(replace(namingConvention, tokens.resource, resourceAbbreviations.keyVaults), delimiter, ''), networkName, networkShortName) // MODIFIED MLZ: Use old naming convention for keyVault to match existing deployments
   keyVaultDiagnosticSetting: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.diagnosticSettings), tokens.service, resourceAbbreviations.keyVaults)
   keyVaultNetworkInterface: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.networkInterfaces), tokens.service, resourceAbbreviations.keyVaults)
   keyVaultPrivateEndpoint: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.privateEndpoints), tokens.service, resourceAbbreviations.keyVaults)
@@ -127,7 +136,8 @@ var names = {
   routeTable: replace(namingConvention, tokens.resource, resourceAbbreviations.routeTables)
   scalingPlan: replace(namingConvention, tokens.resource, resourceAbbreviations.scalingPlans)
   scalingPlanDiagnosticSetting: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.diagnosticSettings), tokens.service, resourceAbbreviations.scalingPlans)
-  storageAccount: replace(namingConvention, tokens.resource, resourceAbbreviations.storageAccounts)
+  // Old storageAccount naming: storageAccount: replace(namingConvention, tokens.resource, resourceAbbreviations.storageAccounts)
+  storageAccount: replace(replace(namingConvention, tokens.resource, resourceAbbreviations.storageAccounts), networkName, networkShortName) // MODIFIED MLZ: Use old naming convention for storageAccount to match existing deployments
   storageAccountBlobDiagnosticSetting: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.diagnosticSettings), tokens.service, '${resourceAbbreviations.storageAccounts}${delimiter}blob')
   storageAccountBlobNetworkInterface: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.networkInterfaces), tokens.service, '${resourceAbbreviations.storageAccounts}${delimiter}blob')
   storageAccountBlobPrivateEndpoint: replace(replace(namingConvention_Service, tokens.resource, resourceAbbreviations.privateEndpoints), tokens.service, '${resourceAbbreviations.storageAccounts}${delimiter}blob')

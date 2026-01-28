@@ -29,6 +29,7 @@ param workloadShortName string
 module customerManagedKeys '../../../modules/customer-managed-keys.bicep' = {
   name: 'deploy-cmk-${workloadShortName}-${deploymentIndex}${deploymentNameSuffix}'
   params: {
+    delimiter: delimiter
     deploymentNameSuffix: deploymentNameSuffix
     environmentAbbreviation: environmentAbbreviation
     keyName: 'StorageEncryptionKey'
@@ -72,6 +73,7 @@ module storageAccount '../../../modules/storage-account.bicep' = {
   }
 }
 
+output diskEncryptionSetResourceId string = customerManagedKeys.outputs.diskEncryptionSetResourceId
 output keyVaultName string = customerManagedKeys.outputs.keyVaultName
 output keyVaultUri string = customerManagedKeys.outputs.keyVaultUri
 output networkInterfaceResourceIds array = union(
@@ -81,4 +83,5 @@ output networkInterfaceResourceIds array = union(
   storageAccount.outputs.networkInterfaceResourceIds
 )
 output storageAccountResourceId string = storageAccount.outputs.id
+output storageEncryptionKeyName string = customerManagedKeys.outputs.keyName
 output userAssignedIdentityResourceId string = customerManagedKeys.outputs.userAssignedIdentityResourceId

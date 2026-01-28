@@ -108,6 +108,7 @@ module policyAssignment 'policy-assignment.bicep' = {
 module customerManagedKeys '../../../../modules/customer-managed-keys.bicep' = {
   name: 'deploy-cmk-${deploymentNameSuffix}'
   params: {
+    delimiter: delimiter
     deploymentNameSuffix: deploymentNameSuffix
     environmentAbbreviation: environmentAbbreviation
     keyName: replace(tier.namingConvention.diskEncryptionSet, tokens.purpose, 'cmk')

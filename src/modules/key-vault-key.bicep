@@ -19,7 +19,7 @@ resource key 'Microsoft.KeyVault/vaults/keys@2022-07-01' = {
       enabled: true
     }
     keySize: 4096
-    kty: 'RSA-HSM'
+    kty: 'RSA' // MODIFIED MLZ: 'RSA-HSM' is newer but RSA is backwards compatible.
     rotationPolicy: {
       attributes: {
         expiryTime: 'P${string(keyExpirationInDays)}D'

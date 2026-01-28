@@ -22,6 +22,7 @@ param tokens object
 module customerManagedKeys 'customer-managed-keys.bicep' = {
   name: 'deploy-st-cmk-${deploymentNameSuffix}'
   params: {
+    delimiter: delimiter
     deploymentNameSuffix: deploymentNameSuffix
     environmentAbbreviation: environmentAbbreviation
     keyName: 'StorageEncryptionKey'
@@ -61,6 +62,7 @@ module storageAccounts 'storage-account.bicep' = [for (tier, i) in tiers: {
   }
 }]
 
+output diskEncryptionSetResourceId string = customerManagedKeys.outputs.diskEncryptionSetResourceId
 output keyVaultProperties object = customerManagedKeys.outputs.keyVaultProperties
 output networkInterfaceResourceIds array = [for (tier, i) in tiers: storageAccounts[i].outputs.networkInterfaceResourceIds]
 output storageAccountResourceIds array = [for (tier, i) in tiers: storageAccounts[i].outputs.id]

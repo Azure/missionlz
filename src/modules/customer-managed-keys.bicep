@@ -5,6 +5,7 @@ Licensed under the MIT License.
 
 targetScope = 'subscription'
 
+param delimiter string
 param deploymentNameSuffix string
 param environmentAbbreviation string
 param keyName string
@@ -31,7 +32,7 @@ module userAssignedIdentity 'user-assigned-identity.bicep' = {
     location: location
     mlzTags: mlzTags
     tags: tags
-    userAssignedIdentityName: replace(tier.namingConvention.userAssignedIdentity, tokens.purpose, workload)
+    userAssignedIdentityName: replace(tier.namingConvention.userAssignedIdentity, '${delimiter}${tokens.purpose}', '') // MODIFIED MLZ: Remove purpose from UAI name to match existing deployments
   }
 }
 
@@ -41,7 +42,7 @@ module keyVault 'key-vault.bicep' = {
   params: {
     environmentAbbreviation: environmentAbbreviation
     keyName: keyName
-    keyVaultName: '${resourceAbbreviations.keyVaults}${uniqueString(tier.subscriptionId, resourceGroupName, replace(tier.namingConvention.keyVault, tokens.purpose, workload))}'
+    keyVaultName: '${resourceAbbreviations.keyVaults}${uniqueString(replace(tier.namingConvention.keyVault, tokens.purpose, workload), resourceId(tier.subscriptionId, 'Microsoft.Resources/resourceGroups', resourceGroupName))}' // MODIFIED MLZ: For key vault name to match existing deployments
     keyVaultNetworkInterfaceName: replace(tier.namingConvention.keyVaultNetworkInterface, tokens.purpose, workload)
     keyVaultPrivateDnsZoneResourceId: keyVaultPrivateDnsZoneResourceId
     keyVaultPrivateEndpointName: replace(tier.namingConvention.keyVaultPrivateEndpoint, tokens.purpose, workload)
@@ -60,7 +61,7 @@ module diskEncryptionSet 'disk-encryption-set.bicep' = if (type == 'virtualMachi
   scope: resourceGroup(tier.subscriptionId, resourceGroupName)
   params: {
     deploymentNameSuffix: deploymentNameSuffix
-    diskEncryptionSetName: replace(tier.namingConvention.diskEncryptionSet, tokens.purpose, workload)
+    diskEncryptionSetName: replace(tier.namingConvention.diskEncryptionSet, '${delimiter}${tokens.purpose}', '') // MODIFIED MLZ: Remove purpose from DES name to match existing deployments
     keyUrl: keyVault.outputs.keyUriWithVersion
     keyVaultResourceId: keyVault.outputs.keyVaultResourceId
     location: location
@@ -72,7 +73,7 @@ module diskEncryptionSet 'disk-encryption-set.bicep' = if (type == 'virtualMachi
 output diskEncryptionSetResourceId string = type == 'virtualMachine' ? diskEncryptionSet!.outputs.resourceId : ''
 // The following output is needed to setup the diagnostic setting for the key vault
 output keyVaultProperties object = {
-  diagnosticSettingName: replace(tier.namingConvention.keyVaultDiagnosticSetting, tokens.purpose, workload)
+  diagnosticSettingName: replace(tier.namingConvention.keyVaultDiagnosticSetting, '${delimiter}${tokens.purpose}', '') // MODIFIED MLZ: Remove purpose from key vault diagnostic setting name to match existing deployments
   name: keyVault.outputs.keyVaultName
   resourceGroupName: resourceGroupName
   subscriptionId: tier.subscriptionId

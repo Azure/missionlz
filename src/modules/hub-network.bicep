@@ -287,7 +287,7 @@ module firewallManagementPublicIPAddress '../modules/public-ip-address.bicep' = 
     availabilityZones: firewallManagementPublicIPAddressAvailabilityZones
     location: location
     mlzTags: mlzTags
-    name: replace(tier.namingConvention.azureFirewallPublicIPAddress, tokens.purpose, 'management')
+    name: replace(tier.namingConvention.azureFirewallPublicIPAddress, tokens.purpose, 'mgmt') // MODIFIED MLZ: MGMT for management restored to previous naming
     publicIpAllocationMethod: 'Static'
     skuName: 'Standard'
     tags: tags

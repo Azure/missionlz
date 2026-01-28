@@ -51,6 +51,7 @@ module customerManagedKeys 'customer-managed-keys.bicep' = {
   name: 'deploy-adds-cmk-${deploymentNameSuffix}'
   scope: subscription(tier.subscriptionId)
   params: {
+    delimiter: delimiter
     deploymentNameSuffix: deploymentNameSuffix
     environmentAbbreviation: environmentAbbreviation
     keyName: replace(tier.namingConvention.diskEncryptionSet, tokens.purpose, 'cmk')

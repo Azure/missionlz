@@ -384,10 +384,14 @@ module defenderForCloud '../../modules/defender-for-cloud.bicep' =
   }
 
 output delimiter string = networking.outputs.delimiter
+output diskEncryptionSetResourceId string = storage.outputs.diskEncryptionSetResourceId
+output keyVaultUri string = storage.outputs.keyVaultUri
 output locationProperties object = networking.outputs.locationProperties
 output mlzTags object = networking.outputs.mlzTags
 output privateDnsZones array = networking.outputs.privateDnsZones
 output resourceAbbreviations object = networking.outputs.resourceAbbreviations
+output storageAccountResourceId string = storage.outputs.storageAccountResourceId
+output storageEncryptionKeyName string = storage.outputs.storageEncryptionKeyName
 output tier object = union({
   dnsServers: virtualNetwork_hub.properties.?dhcpOptions.dnsServers ?? []
   logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
@@ -395,3 +399,4 @@ output tier object = union({
   networking.outputs.tier
 )
 output tokens object = networking.outputs.tokens
+output userAssignedIdentityResourceId string = storage.outputs.userAssignedIdentityResourceId

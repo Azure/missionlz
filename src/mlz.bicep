@@ -1046,7 +1046,7 @@ module storage 'modules/storage.bicep' = {
     logStorageSkuName: logStorageSkuName
     mlzTags: networking.outputs.mlzTags
     privateDnsZoneResourceIds: networking.outputs.privateDnsZoneResourceIds
-    purpose: 'diag'
+    purpose: 'log'
     resourceAbbreviations: networking.outputs.resourceAbbreviations
     tags: tags
     tiers: networking.outputs.tiers
@@ -1141,6 +1141,7 @@ module security 'modules/security.bicep' = {
 }
 
 output azureFirewallResourceId string = networking.outputs.azureFirewallResourceId
+output diskEncryptionSetResourceId string = storage.outputs.diskEncryptionSetResourceId
 output hubStorageAccountResourceId string = storage.outputs.storageAccountResourceIds[0]
 output hubVirtualNetworkResourceId string = networking.outputs.hubVirtualNetworkResourceId
 output logAnalyticsWorkspaceResourceId string = monitoring.outputs.logAnalyticsWorkspaceResourceId

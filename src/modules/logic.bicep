@@ -52,6 +52,7 @@ module namingConventions 'naming-convention.bicep' = [for network in networks: {
     locationAbbreviation: locations[location].abbreviation
     networkName: network.name
     resourceAbbreviations: resourceAbbreviations
+    networkShortName: network.shortName
     stampIndex: stampIndex
   }
 }]

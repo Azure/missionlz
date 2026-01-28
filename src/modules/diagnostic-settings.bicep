@@ -71,8 +71,8 @@ var publicIPAddresses = union([
     diagName: replace(hub.namingConvention.azureFirewallPublicIPAddressDiagnosticSetting, tokens.purpose, 'client')
   }
   {
-    name: replace(hub.namingConvention.azureFirewallPublicIPAddress, tokens.purpose, 'management')
-    diagName: replace(hub.namingConvention.azureFirewallPublicIPAddressDiagnosticSetting, tokens.purpose, 'management')
+    name: replace(hub.namingConvention.azureFirewallPublicIPAddress, tokens.purpose, 'mgmt')
+    diagName: replace(hub.namingConvention.azureFirewallPublicIPAddressDiagnosticSetting, tokens.purpose, 'mgmt')
   }
 ], deployBastion ? [
   {
