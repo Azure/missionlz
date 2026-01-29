@@ -29,6 +29,13 @@ param virtualNetworkGatewaySku string = 'VpnGw2'
 @description('Optional: Provide your own Firewall Policy rule collection groups. When non-empty, these override the default VGW-OnPrem group built by this template.')
 param customFirewallRuleCollectionGroups array = []
 
+@description('Optional configuration for VPN NAT (Network Address Translation). Defines rules and their association with the connection.')
+param natConfiguration object = {
+  natRules: []
+  ingressNatRuleNames: []
+  egressNatRuleNames: []
+}
+
 
 
 
@@ -114,6 +121,7 @@ module vpnGatewayModule 'modules/vpn-gateway.bicep' = {
   virtualNetworkGatewayName: vpnGatewayName
   virtualNetworkGatewaySku: virtualNetworkGatewaySku
     virtualNetworkName: hubVirtualNetworkName
+    natRules: natConfiguration.natRules
   }
   dependsOn: [
     ensureGatewaySubnet
@@ -157,6 +165,8 @@ module vpnConnectionModule 'modules/vpn-connection.bicep' = {
     sharedKey: sharedKey
     keyVaultCertificateUri: ''
     localNetworkGatewayName: '${idToken}-${envToken}-${locToken}-hub-lgw'
+    ingressNatRuleIds: [for name in natConfiguration.ingressNatRuleNames: '${vpnGatewayModule.outputs.virtualNetworkGatewayId}/natRules/${name}']
+    egressNatRuleIds: [for name in natConfiguration.egressNatRuleNames: '${vpnGatewayModule.outputs.virtualNetworkGatewayId}/natRules/${name}']
   }
   dependsOn: [
     vpnGatewayModule

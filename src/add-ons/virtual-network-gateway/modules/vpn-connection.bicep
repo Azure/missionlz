@@ -5,6 +5,8 @@ param vpnGatewayResourceGroupName string
 param sharedKey string
 param keyVaultCertificateUri string
 param localNetworkGatewayName string
+param ingressNatRuleIds array = []
+param egressNatRuleIds array = []
 
 // Determine if either sharedKey or keyVaultCertificateUri is provided
 var useSharedKey = !empty(sharedKey)
@@ -56,5 +58,11 @@ resource vpnConnection 'Microsoft.Network/connections@2023-02-01' = if (empty(er
     // Additional properties as required
     enableBgp: false
     usePolicyBasedTrafficSelectors: false
+    ingressNatRules: [for ruleId in ingressNatRuleIds: {
+      id: ruleId
+    }]
+    egressNatRules: [for ruleId in egressNatRuleIds: {
+      id: ruleId
+    }]
   }
 }
