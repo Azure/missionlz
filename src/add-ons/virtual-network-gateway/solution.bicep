@@ -42,7 +42,18 @@ param virtualNetworkGatewaySku string = 'VpnGw2'
 @description('List of peered networks that should use the VPN Gateway once configured.')
 param virtualNetworkResourceIdList array
 
+@description('Optional configuration for VPN NAT (Network Address Translation). Defines rules and their association with the connection.')
+param natConfiguration object = {
+  natRules: []
+  ingressNatRuleNames: []
+  egressNatRuleNames: []
+}
+
+@description('Default CIDR to use when creating the GatewaySubnet if it does not exist.')
+var defaultGatewaySubnetPrefix = '10.0.129.192/26'
+
 var azureFirewallIpConfigurationResourceId = filter(virtualNetwork.properties.subnets, subnet => subnet.name == 'AzureFirewallSubnet')[0].properties.ipConfigurations[0].id
+
 var azureFirewallResourceId = resourceId(split(azureFirewallIpConfigurationResourceId, '/')[2], split(azureFirewallIpConfigurationResourceId, '/')[4], 'Microsoft.Network/azureFirewalls', split(azureFirewallIpConfigurationResourceId, '/')[8])
 var defaultGatewaySubnetPrefix = '10.0.129.192/26'
 var hubResourceGroupName = split(hubVirtualNetworkResourceId, '/')[4]
@@ -128,6 +139,7 @@ module virtualNetworkGateway 'modules/virtual-network-gateway.bicep' = {
     virtualNetworkGatewayName: replace(logic.outputs.tiers[0].namingConvention.virtualNetworkGateway, '${logic.outputs.delimiter}${logic.outputs.tokens.purpose}', '')
     virtualNetworkGatewaySku: virtualNetworkGatewaySku
     virtualNetworkName: hubVirtualNetworkName
+    natRules: natConfiguration.natRules
   }
   dependsOn: [
     ensureGatewaySubnet
@@ -171,6 +183,8 @@ module vpnConnection 'modules/virtual-network-gateway-connection.bicep' = {
     vpnConnectionName: '${replace(logic.outputs.tiers[0].namingConvention.virtualNetworkGateway, '${logic.outputs.delimiter}${logic.outputs.tokens.purpose}', '')}-to-${replace(logic.outputs.tiers[0].namingConvention.localNetworkGateway, '${logic.outputs.delimiter}${logic.outputs.tokens.purpose}', '')}'
     vpnGatewayName: replace(logic.outputs.tiers[0].namingConvention.virtualNetworkGateway, '${logic.outputs.delimiter}${logic.outputs.tokens.purpose}', '')
     vpnGatewayResourceGroupName: hubResourceGroupName
+    ingressNatRuleIds: [for name in natConfiguration.ingressNatRuleNames: '${virtualNetworkGateway.outputs.virtualNetworkGatewayId}/natRules/${name}']
+    egressNatRuleIds: [for name in natConfiguration.egressNatRuleNames: '${virtualNetworkGateway.outputs.virtualNetworkGatewayId}/natRules/${name}']
   }
   dependsOn: [
     virtualNetworkGateway

@@ -6,6 +6,7 @@ param tokens object
 param virtualNetworkGatewayName string
 param virtualNetworkGatewaySku string
 param virtualNetworkName string
+param natRules array = []
 
 // Existing Virtual Network and Subnet
 resource vnet 'Microsoft.Network/virtualNetworks@2023-02-01' existing = {
@@ -78,5 +79,16 @@ resource vpnGateway 'Microsoft.Network/virtualNetworkGateways@2023-02-01' = {
       name: virtualNetworkGatewaySku
       tier: virtualNetworkGatewaySku
     }
+    natRules: [for rule in natRules: {
+      name: rule.name
+      properties: {
+        type: rule.type
+        mode: rule.mode
+        internalMappings: rule.internalMappings
+        externalMappings: rule.externalMappings
+      }
+    }]
   }
 }
+
+output virtualNetworkGatewayId string = vpnGateway.id

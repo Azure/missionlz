@@ -52,6 +52,35 @@ Key points:
 | `sharedKey` | PSK for the VPN connection (secure param). | If omitted template generates a GUID – recommend replacing with a high-entropy secret. |
 | `virtualNetworkGatewaySku` | Gateway SKU (`VpnGw2`..`VpnGw5`). | Choose based on throughput & tunnels required. |
 | `customFirewallRuleCollectionGroups` | Optional override of default firewall rule collection group. | Empty array uses opinionated default rules. |
+| `natConfiguration` | Object defining NAT rules for the Gateway. | See details below. |
+
+### NAT Configuration Structure
+
+The `natConfiguration` parameter allows you to define Static or Dynamic NAT rules to handle overlapping address spaces.
+
+**Example Structure:**
+
+```json
+{
+  "natRules": [
+    {
+      "name": "nat-rule-egress-static",
+      "type": "Static",
+      "mode": "EgressSnat",
+      "internalMappings": [
+        { "addressSpace": "10.0.0.0/24" }
+      ],
+      "externalMappings": [
+        { "addressSpace": "192.168.0.0/24" }
+      ]
+    }
+  ],
+  "ingressNatRuleNames": [],
+  "egressNatRuleNames": [
+    "nat-rule-egress-static"
+  ]
+}
+```
 
 ### Recommended Shared Key Practice
 
@@ -83,7 +112,6 @@ Use a 256-bit random value (Base64 or hex) rather than a GUID. Rotate periodical
 * No dynamic route propagation (BGP disabled) – manual updates required for new on-prem prefixes.
 * Active-active gateway deployed but template does not orchestrate ECMP verification; monitor both tunnels for SLA.
 * Route aggregation not automatic – if many spoke VNets are added, consider summarizing CIDRs manually where possible.
-* No NAT rules included – if overlapping address spaces are required, additional modules must be added.
 * Assumes Azure Firewall already exists in hub and has a private IP configuration accessible in the template.
 * Default on-prem ↔ Azure allow rules mean segmentation requires explicit override; absence of custom groups yields broad connectivity limited only by specified prefixes.
 
