@@ -18,12 +18,14 @@ param privateDnsZones array
 param resourceAbbreviations object
 param tags object
 param tier object
+param tokens object
 @secure()
 param virtualMachineAdminPassword string
 param virtualMachineAdminUsername string
+param virtualMachineSize string
 
-var hostPoolResourceId = resourceId(subscription().subscriptionId, resourceGroupManagement, 'Microsoft.DesktopVirtualization/hostpools', tier.namingConvention.hostPool)
-var resourceGroupManagement = '${tier.namingConvention.resourceGroup}${delimiter}management'
+var hostPoolResourceId = resourceId(subscription().subscriptionId, resourceGroupManagement, 'Microsoft.DesktopVirtualization/hostpools', replace(tier.namingConvention.hostPool, '${delimiter}${tokens.purpose}', ''))
+var resourceGroupManagement = replace(tier.namingConvention.resourceGroup, tokens.purpose, 'management')
 
 resource resourceGroup 'Microsoft.Resources/resourceGroups@2023-07-01' = {
   name: resourceGroupManagement
@@ -36,7 +38,7 @@ module deploymentUserAssignedIdentity 'user-assigned-identity.bicep' = {
   name: 'deploy-id-deployment-${deploymentNameSuffix}'
   params: {
     location: locationVirtualMachines
-    name: '${tier.namingConvention.userAssignedIdentity}${delimiter}deployment'
+    name: replace(tier.namingConvention.userAssignedIdentity, tokens.purpose, 'deployment')
     tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.ManagedIdentity/userAssignedIdentities'] ?? {}, mlzTags)
   }
 }
@@ -71,12 +73,14 @@ module diskAccess 'disk-access.bicep' = {
   name: 'deploy-disk-access-${deploymentNameSuffix}'
   params: {
     azureBlobsPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(privateDnsZones, name => contains(name, 'blob'))[0]}'
+    delimiter: delimiter
     hostPoolResourceId: hostPoolResourceId
     location: locationVirtualMachines
     mlzTags: mlzTags
     names: tier.namingConvention
     subnetResourceId: tier.subnets[0].id
     tags: tags
+    tokens: tokens
   }
 }
 
@@ -104,10 +108,9 @@ module policyAssignment 'policy-assignment.bicep' = {
 module customerManagedKeys '../../../../modules/customer-managed-keys.bicep' = {
   name: 'deploy-cmk-${deploymentNameSuffix}'
   params: {
-    delimiter: delimiter
     deploymentNameSuffix: deploymentNameSuffix
     environmentAbbreviation: environmentAbbreviation
-    keyName: tier.namingConvention.diskEncryptionSet
+    keyName: replace(tier.namingConvention.diskEncryptionSet, tokens.purpose, 'cmk')
     keyVaultPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(privateDnsZones, name => contains(name, 'vaultcore'))[0]}'
     location: locationVirtualMachines
     mlzTags: mlzTags
@@ -115,6 +118,7 @@ module customerManagedKeys '../../../../modules/customer-managed-keys.bicep' = {
     resourceGroupName: resourceGroup.name
     tags: tags
     tier: tier
+    tokens: tokens
     type: 'virtualMachine'
   }
 }
@@ -128,7 +132,7 @@ module virtualMachine 'virtual-machine.bicep' = {
     deploymentUserAssignedIdentityPrincipalId: deploymentUserAssignedIdentity.outputs.principalId
     deploymentUserAssignedIdentityResourceId: deploymentUserAssignedIdentity.outputs.resourceId
     diskEncryptionSetResourceId: customerManagedKeys.outputs.diskEncryptionSetResourceId
-    diskName: '${tier.namingConvention.virtualMachineDisk}${delimiter}mgt'
+    diskName: replace(tier.namingConvention.virtualMachineDisk, tokens.purpose, 'mgt')
     diskSku: diskSku
     domainJoinPassword: domainJoinPassword
     domainJoinUserPrincipalName: domainJoinUserPrincipalName
@@ -136,13 +140,14 @@ module virtualMachine 'virtual-machine.bicep' = {
     hostPoolResourceId: hostPoolResourceId
     location: locationVirtualMachines
     mlzTags: mlzTags
-    networkInterfaceName: '${tier.namingConvention.virtualMachineNetworkInterface}${delimiter}mgt'
+    networkInterfaceName: replace(tier.namingConvention.virtualMachineNetworkInterface, tokens.purpose, 'mgt')
     organizationalUnitPath: organizationalUnitPath
     subnetResourceId: tier.subnets[0].id
     tags: tags
-    virtualMachineName: '${tier.namingConvention.virtualMachine}mgt'
     virtualMachineAdminPassword: virtualMachineAdminPassword
     virtualMachineAdminUsername: virtualMachineAdminUsername
+    virtualMachineName: replace(tier.namingConvention.virtualMachine, tokens.purpose, 'mgt')
+    virtualMachineSize: virtualMachineSize
   }
 }
 

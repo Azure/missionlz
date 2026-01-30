@@ -108,10 +108,10 @@ module virtualMachine 'virtual-machine.bicep' = {
     tags: tags
     userAssignedIdentityResourceId: userAssignedIdentityResourceId
     virtualMachineAdminPassword: runbookExecution
-      ? keyVault.getSecret('VirtualMachineAdminPassword')
+      ? keyVault!.getSecret('VirtualMachineAdminPassword')
       : virtualMachineAdminPassword
     virtualMachineAdminUsername: runbookExecution
-      ? keyVault.getSecret('VirtualMachineAdminUsername')
+      ? keyVault!.getSecret('VirtualMachineAdminUsername')
       : virtualMachineAdminUsername
     virtualMachineName: '${tier.namingConvention.virtualMachine}wb'
     virtualMachineSize: virtualMachineSize
@@ -165,7 +165,7 @@ module restartVirtualMachine1 'restart-virtual-machine.bicep' = {
     mlzTags: mlzTags
     tags: tags
     userAssignedIdentityClientId: userAssignedIdentityClientId
-    virtualMachineName: enableBuildAutomation ? managementVirtualMachineName : managementVM.outputs.name
+    virtualMachineName: enableBuildAutomation ? managementVirtualMachineName : managementVM!.outputs.name
   }
   dependsOn: [
     addCustomizations
@@ -199,7 +199,7 @@ module restartVirtualMachine2 'restart-virtual-machine.bicep' = if (installUpdat
     mlzTags: mlzTags
     tags: tags
     userAssignedIdentityClientId: userAssignedIdentityClientId
-    virtualMachineName: enableBuildAutomation ? managementVirtualMachineName : managementVM.outputs.name
+    virtualMachineName: enableBuildAutomation ? managementVirtualMachineName : managementVM!.outputs.name
   }
   dependsOn: [
     microsoftUdpates
@@ -231,7 +231,7 @@ module generalizeVirtualMachine 'generalize-virtual-machine.bicep' = {
     mlzTags: mlzTags
     tags: tags
     userAssignedIdentityClientId: userAssignedIdentityClientId
-    virtualMachineName: enableBuildAutomation ? managementVirtualMachineName : managementVM.outputs.name
+    virtualMachineName: enableBuildAutomation ? managementVirtualMachineName : managementVM!.outputs.name
   }
   dependsOn: [
     sysprepVirtualMachine
@@ -271,7 +271,7 @@ module removeVirtualMachine 'remove-virtual-machine.bicep' = {
     mlzTags: mlzTags
     tags: tags
     userAssignedIdentityClientId: userAssignedIdentityClientId
-    virtualMachineName: enableBuildAutomation ? managementVirtualMachineName : managementVM.outputs.name
+    virtualMachineName: enableBuildAutomation ? managementVirtualMachineName : managementVM!.outputs.name
   }
   dependsOn: [
     imageVersion

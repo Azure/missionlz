@@ -80,3 +80,4 @@ output tiers array = [for (network, i) in networks: {
   vnetDiagLogs: network.?vnetDiagLogs ?? []
   vnetDiagMetrics: network.?vnetDiagMetrics ?? []
 }]
+output tokens object = namingConventions[0].outputs.tokens

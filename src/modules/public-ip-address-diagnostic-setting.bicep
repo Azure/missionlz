@@ -14,13 +14,13 @@ resource publicIPAddress 'Microsoft.Network/publicIPAddresses@2021-02-01' existi
   name: publicIPAddressName
 }
 
-resource publicIpAddressDiagnostics 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' = {
+resource publicIpAddressDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
   scope: publicIPAddress
   name: publicIPAddressDiagnosticSettingName
   properties: {
-    storageAccountId: hubStorageAccountResourceId
-    workspaceId: logAnalyticsWorkspaceResourceId
     logs: publicIPAddressDiagnosticsLogs
     metrics: publicIPAddressDiagnosticsMetrics
+    storageAccountId: hubStorageAccountResourceId
+    workspaceId: logAnalyticsWorkspaceResourceId
   }
 }

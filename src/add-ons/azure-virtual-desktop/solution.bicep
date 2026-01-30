@@ -20,9 +20,6 @@ param availability string = 'AvailabilityZones'
 @description('The availability zones allowed for the AVD session hosts deployment location.')
 param availabilityZones array = ['1', '2', '3']
 
-@description('The file name for the ZIP file containing the AVD agents and DSC configuration.')
-param avdConfigurationZipFileUri string = ''
-
 @description('The object ID for the Azure Virtual Desktop enterprise application in Microsoft Entra ID.  The object ID can found by selecting Microsoft Applications using the Application type filter in the Enterprise Applications blade of Microsoft Entra ID.')
 param avdObjectId string
 
@@ -147,6 +144,9 @@ param hostPoolType string = 'Pooled'
 @description('The resource ID for the Azure Firewall in the HUB subscription')
 param hubAzureFirewallResourceId string
 
+@description('The resource ID for the Storage Account in the HUB subscription.')
+param hubStorageAccountResourceId string
+
 @description('The resource ID for the Azure Virtual Network in the HUB subscription.')
 param hubVirtualNetworkResourceId string
 
@@ -211,6 +211,9 @@ param logStorageSkuName string = 'Standard_GRS'
 
 @description('The address prefix(es) for the new subnet(s) that will be created in the spoke virtual network(s). Specify only one address prefix in the array if the session hosts location and the control plan location are the same. If different locations are specified, add a second address prefix for the hosts virtual network.')
 param managementSubnetAddressPrefix string = '10.0.1${41 + (2 * stampIndex)}.0/26'
+
+@description('The virtual machine size for the management virtual machine.')
+param managementVirtualMachineSize string = 'Standard_D2ds_v4'
 
 @description('An array of metrics to enable on the diagnostic setting for network interfaces.')
 param networkInterfaceDiagnosticsMetrics array = [
@@ -375,14 +378,13 @@ var endAvSetRange = (sessionHostCount + sessionHostIndex) / maxAvSetMembers // T
 var availabilitySetsCount = length(range(beginAvSetRange, (endAvSetRange - beginAvSetRange) + 1))
 
 // OTHER LOGIC & COMPUTED VALUES
-var agentTrafficUniqueString = substring(cloud, 2, 1) == 'n'
-  ? 'wvd${first(cloudSuffix)}xportalcontainer'
-  : 'wvdportalstorageblob'
 var agentUpdatesUniqueString = cloud == 'AzureCloud'
   ? 'eus2prod'
   : cloud == 'AzureUSGovernment'
       ? 'ugviffx'
       : '${first(cloud)}${take(skip(cloud, 2), 1)}${first(locationVirtualMachines)}${substring(cloud, 2, 1) == 'n' ? first(cloudSuffix) : substring(cloudSuffix, 3, 1)}x'
+var avdStorageAccountEndpoint = '${avdStorageAccountName}.blob.${environment().suffixes.storage}'
+var avdStorageAccountName = startsWith(locationVirtualMachines, 'usn') ? 'wvdexportalcontainer' : 'wvdportalstorageblob'
 var cloud = environment().name
 var cloudSuffix = replace(replace(environment().resourceManager, 'https://management.', ''), '/', '')
 var customImageId = empty(imageVersionResourceId) ? 'null' : '"${imageVersionResourceId}"'
@@ -484,6 +486,7 @@ module tier3_shared '../tier3/solution.bicep' = {
     emailSecurityContact: emailSecurityContact
     environmentAbbreviation: environmentAbbreviation
     firewallResourceId: hubAzureFirewallResourceId
+    hubStorageAccountResourceId: hubStorageAccountResourceId
     hubVirtualNetworkResourceId: hubVirtualNetworkResourceId
     identifier: identifier
     keyVaultDiagnosticLogs: keyVaultDiagnosticsLogs
@@ -595,7 +598,7 @@ module tier3_stamp '../tier3/solution.bicep' = {
                         targetFqdns: [
                           split(environment().resourceManager, '/')[2]
                           'mrsglobalst${agentUpdatesUniqueString}.blob.${environment().suffixes.storage}'
-                          '${agentTrafficUniqueString}.blob.${environment().suffixes.storage}'
+                          avdStorageAccountEndpoint
                           'gcs${cloud == 'AzureCloud' ? '.prod' : ''}.monitoring.${environment().suffixes.storage}'
                           '*.prod.warm.ingest.monitor.${environment().suffixes.storage}'
                           '*.guestconfiguration.${privateDnsZoneSuffixes_AzureVirtualDesktop[?environment().name] ?? cloudSuffix}'
@@ -663,7 +666,33 @@ module tier3_stamp '../tier3/solution.bicep' = {
                             sourceIpGroups: []
                           }
                         ]
-                      : []
+                      : [],
+                    contains(hostPoolPublicNetworkAccess, 'Enabled')
+                      ? []
+                      : [
+                          {
+                            name: 'AzureVirtualDesktop'
+                            ruleType: 'ApplicationRule'
+                            protocols: [
+                              {
+                                protocolType: 'Https'
+                                port: 443
+                              }
+                            ]
+                            fqdnTags: [
+                              'WindowsVirtualDesktop'
+                            ]
+                            webCategories: []
+                            targetFqdns: []
+                            targetUrls: []
+                            terminateTLS: false
+                            sourceAddresses: [
+                              stampVirtualNetworkAddressPrefix
+                            ]
+                            destinationAddresses: []
+                            sourceIpGroups: []
+                          }
+                        ]
                   )
                 }
               ]
@@ -678,6 +707,7 @@ module tier3_stamp '../tier3/solution.bicep' = {
     emailSecurityContact: emailSecurityContact
     environmentAbbreviation: environmentAbbreviation
     firewallResourceId: hubAzureFirewallResourceId
+    hubStorageAccountResourceId: hubStorageAccountResourceId
     hubVirtualNetworkResourceId: hubVirtualNetworkResourceId
     identifier: identifier
     keyVaultDiagnosticLogs: keyVaultDiagnosticsLogs
@@ -728,8 +758,10 @@ module management 'modules/management/management.bicep' = {
     resourceAbbreviations: tier3_stamp.outputs.resourceAbbreviations
     tags: tags
     tier: tier3_stamp.outputs.tier
+    tokens: tier3_stamp.outputs.tokens
     virtualMachineAdminPassword: virtualMachineAdminPassword
     virtualMachineAdminUsername: virtualMachineAdminUsername
+    virtualMachineSize: managementVirtualMachineSize
   }
 }
 
@@ -758,6 +790,7 @@ module shared 'modules/shared/shared.bicep' = {
     privateLinkScopeResourceId: privateLinkScopeResourceId
     tags: tags
     tier: tier3_shared.outputs.tier
+    tokens: tier3_shared.outputs.tokens
   }
 }
 
@@ -768,7 +801,7 @@ module controlPlane 'modules/control-plane/control-plane.bicep' = {
     avdPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3_stamp.outputs.privateDnsZones, name => startsWith(name, 'privatelink.wvd'))[0]}'
     customImageId: customImageId
     customRdpProperty: customRdpProperty
-    delimiter: tier3_stamp.outputs.delimiter
+    delimiter: tier3_shared.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedIdentityClientId: management.outputs.deploymentUserAssignedIdentityClientId
     desktopFriendlyName: desktopFriendlyName
@@ -796,6 +829,7 @@ module controlPlane 'modules/control-plane/control-plane.bicep' = {
       tier3_shared.outputs.tier
       tier3_stamp.outputs.tier
     ]
+    tokens: tier3_shared.outputs.tokens
     validationEnvironment: validationEnvironment
     virtualMachineSize: virtualMachineSize
     workspaceFriendlyName: workspaceFriendlyName
@@ -808,7 +842,6 @@ module sharedServices 'modules/shared-services/shared-services.bicep' = {
   name: 'deploy-shared-services-${deploymentNameSuffix}'
   scope: subscription(split(sharedServicesSubnetResourceId, '/')[2])
   params: {
-    delimiter: tier3_shared.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
     identifier: identifier
     identifierHub: virtualNetwork_hub.tags.identifier
@@ -816,6 +849,7 @@ module sharedServices 'modules/shared-services/shared-services.bicep' = {
     mlzTags: tier3_shared.outputs.mlzTags
     sharedServicesSubnetResourceId: sharedServicesSubnetResourceId
     tier: tier3_shared.outputs.tier
+    tokens: tier3_shared.outputs.tokens
     workspaceGlobalPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3_stamp.outputs.privateDnsZones, name => startsWith(name, 'privatelink-global.wvd'))[0]}'
   }
 }
@@ -857,6 +891,7 @@ module fslogix 'modules/fslogix/fslogix.bicep' = if (deployFslogix) {
     storageSku: storageSku
     tags: tags
     tier: tier3_stamp.outputs.tier
+    tokens: tier3_stamp.outputs.tokens
   }
 }
 
@@ -869,7 +904,7 @@ module sessionHosts 'modules/session-hosts/session-hosts.bicep' = {
     availabilitySetsCount: availabilitySetsCount
     availabilitySetsIndex: beginAvSetRange
     availabilityZones: availabilityZones
-    avdConfigurationZipFileUri: empty(avdConfigurationZipFileUri) ? 'https://wvdportalstorageblob.blob.${environment().suffixes.storage}/galleryartifacts/Configuration_1.0.03188.965.zip' : avdConfigurationZipFileUri
+    avdConfigurationZipFileUri: 'https://${avdStorageAccountEndpoint}/galleryartifacts/Configuration_1.0.03211.1002.zip'
     dataCollectionRuleResourceId: shared.outputs.dataCollectionRuleResourceId
     delimiter: tier3_stamp.outputs.delimiter
     deployFslogix: deployFslogix
@@ -926,6 +961,7 @@ module sessionHosts 'modules/session-hosts/session-hosts.bicep' = {
     storageSuffix: storageSuffix
     tags: tags
     tier: tier3_stamp.outputs.tier
+    tokens: tier3_stamp.outputs.tokens
     virtualMachineAdminPassword: virtualMachineAdminPassword
     virtualMachineAdminUsername: virtualMachineAdminUsername
     virtualMachineSize: virtualMachineSize

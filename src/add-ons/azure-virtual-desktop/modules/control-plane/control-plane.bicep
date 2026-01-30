@@ -29,6 +29,7 @@ param resourceGroupShared string
 param securityPrincipalObjectIds array
 param tags object
 param tiers array
+param tokens object
 param validationEnvironment bool
 param virtualMachineSize string
 param workspaceFriendlyName string
@@ -57,10 +58,10 @@ module hostPool 'host-pool.bicep' = {
     galleryImagePublisher: galleryImagePublisher
     galleryImageSku: galleryImageSku
     galleryItemId: galleryItemId
-    hostPoolDiagnosticSettingName: stampTier.namingConvention.hostPoolDiagnosticSetting
-    hostPoolName: stampTier.namingConvention.hostPool
-    hostPoolNetworkInterfaceName: stampTier.namingConvention.hostPoolNetworkInterface
-    hostPoolPrivateEndpointName: stampTier.namingConvention.hostPoolPrivateEndpoint
+    hostPoolDiagnosticSettingName: replace(stampTier.namingConvention.hostPoolDiagnosticSetting, '${delimiter}${tokens.purpose}', '')
+    hostPoolName: replace(stampTier.namingConvention.hostPool, '${delimiter}${tokens.purpose}', '')
+    hostPoolNetworkInterfaceName: replace(stampTier.namingConvention.hostPoolNetworkInterface, '${delimiter}${tokens.purpose}', '')
+    hostPoolPrivateEndpointName: replace(stampTier.namingConvention.hostPoolPrivateEndpoint, '${delimiter}${tokens.purpose}', '')
     hostPoolPublicNetworkAccess: hostPoolPublicNetworkAccess
     hostPoolType: hostPoolType
     imageType: imageType
@@ -68,7 +69,7 @@ module hostPool 'host-pool.bicep' = {
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     maxSessionLimit: maxSessionLimit
     mlzTags: mlzTags
-    sessionHostNamePrefix: stampTier.namingConvention.virtualMachine
+    sessionHostNamePrefix: replace(stampTier.namingConvention.virtualMachine, '${delimiter}${tokens.purpose}', '')
     subnetResourceId: stampTier.subnets[0].id
     tags: tags
     validationEnvironment: validationEnvironment
@@ -82,7 +83,7 @@ module applicationGroup 'application-group.bicep' = {
   params: {
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedIdentityClientId: deploymentUserAssignedIdentityClientId
-    desktopApplicationGroupName: stampTier.namingConvention.applicationGroup
+    desktopApplicationGroupName: replace(stampTier.namingConvention.applicationGroup, '${delimiter}${tokens.purpose}', '')
     hostPoolResourceId: hostPool.outputs.resourceId
     locationControlPlane: locationControlPlane
     locationVirtualMachines: locationVirtualMachines
@@ -114,11 +115,11 @@ module workspace_feed '../shared/workspace-feed.bicep' = {
     subnetResourceId: sharedTier.subnets[0].id
     tags: tags
     virtualMachineName: managementVirtualMachineName
-    workspaceFeedDiagnoticSettingName: '${sharedTier.namingConvention.workspaceDiagnosticSetting}${delimiter}feed'
-    workspaceFeedName: '${sharedTier.namingConvention.workspace}${delimiter}feed'
-    workspaceFeedNetworkInterfaceName: '${sharedTier.namingConvention.workspaceNetworkInterface}${delimiter}feed'
-    workspaceFeedPrivateEndpointName: '${sharedTier.namingConvention.workspacePrivateEndpoint}${delimiter}feed'
-    workspaceFriendlyName: empty(workspaceFriendlyName) ? sharedTier.namingConvention.workspace : '${workspaceFriendlyName} (${locationControlPlane})'
+    workspaceFeedDiagnoticSettingName: replace(sharedTier.namingConvention.workspaceDiagnosticSetting, tokens.purpose, 'feed')
+    workspaceFeedName: replace(sharedTier.namingConvention.workspace, tokens.purpose, 'feed')
+    workspaceFeedNetworkInterfaceName: replace(sharedTier.namingConvention.workspaceNetworkInterface, tokens.purpose, 'feed')
+    workspaceFeedPrivateEndpointName: replace(sharedTier.namingConvention.workspacePrivateEndpoint, tokens.purpose, 'feed')
+    workspaceFriendlyName: empty(workspaceFriendlyName) ? replace(sharedTier.namingConvention.workspace, '${delimiter}${tokens.purpose}', '') : '${workspaceFriendlyName} (${locationControlPlane})'
     workspacePublicNetworkAccess: workspacePublicNetworkAccess
   }
 }

@@ -37,7 +37,7 @@ module rg '../../../modules/resource-group.bicep' = {
   params: {
     location: location
     mlzTags: logic.outputs.mlzTags
-    name: '${logic.outputs.tiers[0].namingConvention.resourceGroup}${logic.outputs.delimiter}network'
+    name: replace(logic.outputs.tiers[0].namingConvention.resourceGroup, logic.outputs.tokens.purpose, 'network')
     tags: tags
   }
 }
@@ -47,12 +47,14 @@ module spokeNetwork '../../../modules/spoke-network.bicep' = {
   params: {
     additionalSubnets: additionalSubnets
     customSubnetName: subnetName
+    delimiter: logic.outputs.delimiter
     location: location
     mlzTags: logic.outputs.mlzTags
     resourceGroupName: rg.outputs.name
     routeTableRouteNextHopIpAddress: routeTableRouteNextHopIpAddress
     tags: tags
     tier: logic.outputs.tiers[0]
+    tokens: logic.outputs.tokens
     vNetDnsServers: vNetDnsServers
   }
 }
@@ -96,4 +98,5 @@ output tier object = {
   subnets: spokeNetwork.outputs.subnets
   subscriptionId: network.subscriptionId
 }
+output tokens object = logic.outputs.tokens
 output virtualNetworkName string = spokeNetwork.outputs.virtualNetworkName

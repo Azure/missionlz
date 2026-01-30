@@ -1,8 +1,10 @@
 
-# Esri ArcGIS Pro on Azure Virtual Desktop (AVD) Accelerator
+# ArcGIS Pro Add-On
 
 > [!CAUTION]
-> This repository is a WORK-IN-PROGRESS and is not yet fully complete.  
+> This repository is a WORK-IN-PROGRESS and is not yet fully complete.
+
+This workload accelerator offers an architectural approach and reference implementation to prepare Azure subscriptions for scalable ArcGIS deployments. It combines Azure cloud-native services and traditional infrastructure virtual machines. Upon completion, users will have a base deployment for rapid enterprise GIS adoption.
 
 ## Quick Start Summary
 
@@ -10,10 +12,6 @@
 - **Scenario 2:** [Single-Tier Deployment (ArcGIS Enterprise + ArcGIS Pro on AVD)](#scenario-2-single-tier-deployment-arcgis-enterprise--arcgis-pro-on-avd)
 - **Scenario 3:** [Multi-Tier Deployment (ArcGIS Enterprise + ArcGIS Pro on AVD)](#scenario-3-multi-tier-deployment-arcgis-enterprise--arcgis-pro-on-avd)
 - **Who Would Use Each:** [Guidance on Choosing the Right Deployment Scenario](#who-would-use-each)
-
-## Solution Description
-
-This accelerator offers an architectural approach and reference implementation to prepare Azure subscriptions for scalable ArcGIS deployments. It combines Azure cloud-native services and traditional infrastructure virtual machines. Upon completion, users will have a base deployment for rapid enterprise GIS adoption.
 
 ### Who is this for?
 
@@ -30,20 +28,18 @@ This accelerator provides a modern, cloud-native foundation for deploying ArcGIS
 - **Cost Optimization:** Flexible pricing with pooled or personal desktops reduces idle capacity and aligns with usage patterns.
 - **Simplified Management:** Centralized provisioning, updates, and policy enforcement streamline IT operations.
 
-### ☁️ ArcGIS Enterprise on Azure
+<!-- ### ☁️ ArcGIS Enterprise on Azure
 
 - **Elastic Scalability:** Easily scale compute, storage, and services to meet growing user and data demands — without hardware constraints.
 - **High Availability & Resilience:** Azure-native features like availability zones, load balancing, and backup services improve uptime and disaster recovery.
 - **Security & Compliance:** Benefit from Azure’s enterprise-grade security, identity integration (Microsoft Entra ID), and compliance certifications.
 - **Operational Efficiency:** Automate deployments with infrastructure-as-code (Bicep/ARM), reducing manual setup and configuration time.
 - **Global Reach:** Deploy closer to your users with Azure’s global data center footprint, improving performance and reducing latency.
-- **Integration Ready:** Seamlessly connect ArcGIS Enterprise with other Azure services (e.g., Azure SQL, Azure Maps, AI/ML tools) for advanced workflows.
+- **Integration Ready:** Seamlessly connect ArcGIS Enterprise with other Azure services (e.g., Azure SQL, Azure Maps, AI/ML tools) for advanced workflows. -->
 
 ## Components
 
-This accelerator is designed to be deployed **after** the [Mission Landing Zone](https://github.com/Azure/missionlz) has been set up. The Mission Landing Zone provides the foundational Azure infrastructure (identity, networking, security, and governance) required to support ArcGIS workloads.
-
-Once the Mission Landing Zone is deployed, you can choose from three deployment scenarios depending on your needs:
+This accelerator is designed to deploy [Mission Landing Zone](https://github.com/Azure/missionlz) first. Mission Landing Zone provides the foundational Azure infrastructure (identity, networking, security, and governance) required to support ArcGIS workloads. Depending on your needs, you can choose from three deployment scenarios:
 
 - **Scenario 1:** ArcGIS Pro on Azure Virtual Desktop (AVD)
 - **Scenario 2:** Single-Tier ArcGIS Enterprise + ArcGIS Pro on AVD

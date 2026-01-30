@@ -39,6 +39,7 @@ param mlzTags object
 param resourceAbbreviations object
 param tags object
 param tier object
+param tokens object
 @secure()
 @minLength(12)
 param windowsVmAdminPassword string
@@ -50,7 +51,7 @@ param windowsVmSize string
 param windowsVmStorageAccountType string
 param windowsVmVersion string
 
-var jbResourceGroupName = '${tier.namingConvention.resourceGroup}${delimiter}jumpBoxes'
+var jbResourceGroupName = replace(tier.namingConvention.resourceGroup, tokens.purpose, 'jumpBoxes')
 
 module rg 'resource-group.bicep' = if (deployLinuxVirtualMachine || deployWindowsVirtualMachine) {
   name: 'deploy-ra-rg-${tier.name}-${deploymentNameSuffix}'
@@ -67,10 +68,9 @@ module customerManagedKeys 'customer-managed-keys.bicep' = if (deployLinuxVirtua
   name: 'deploy-ra-cmk-${deploymentNameSuffix}'
   scope: subscription(tier.subscriptionId)
   params: {
-    delimiter: delimiter
     deploymentNameSuffix: deploymentNameSuffix
     environmentAbbreviation: environmentAbbreviation
-    keyName: tier.namingConvention.diskEncryptionSet
+    keyName: replace(tier.namingConvention.diskEncryptionSet, tokens.purpose, 'cmk')
     keyVaultPrivateDnsZoneResourceId: keyVaultPrivateDnsZoneResourceId
     location: location
     mlzTags: mlzTags
@@ -78,6 +78,7 @@ module customerManagedKeys 'customer-managed-keys.bicep' = if (deployLinuxVirtua
     resourceGroupName: jbResourceGroupName
     tags: tags
     tier: tier
+    tokens: tokens
     type: 'virtualMachine'
   }
   dependsOn: [
@@ -95,19 +96,19 @@ module linuxVirtualMachine '../modules/virtual-machine.bicep' = if (deployLinuxV
     // dataCollectionRuleAssociationName: dataCollectionRuleAssociationName
     // dataCollectionRuleResourceId: dataCollectionRuleResourceId
     diskEncryptionSetResourceId: customerManagedKeys!.outputs.diskEncryptionSetResourceId
-    diskName: '${tier.namingConvention.virtualMachineDisk}${delimiter}lra' // lra = Linux Remote Access
+    diskName: replace(tier.namingConvention.virtualMachineDisk, tokens.purpose, 'lra') // lra = Linux Remote Access
     imageOffer: linuxVmImageOffer
     imagePublisher: linuxVmImagePublisher
     imageSku: linuxVmImageSku
     imageVersion: linuxVmImageVersion
     location: location
     mlzTags: mlzTags
-    networkInterfaceName: '${tier.namingConvention.virtualMachineNetworkInterface}${delimiter}lra' // lra = Linux Remote Access
+    networkInterfaceName: replace(tier.namingConvention.virtualMachineNetworkInterface, tokens.purpose, 'lra') // lra = Linux Remote Access
     networkSecurityGroupResourceId: tier.networkSecurityGroupResourceId
     storageAccountType: linuxVmOsDiskType
     subnetResourceId: tier.subnetResourceId
     tags: tags
-    virtualMachineName: '${tier.namingConvention.virtualMachine}lra' // lra = Linux Remote Access
+    virtualMachineName: replace(tier.namingConvention.virtualMachine, tokens.purpose, 'lra') // lra = Linux Remote Access
     virtualMachineSize: linuxVmSize
   }
   dependsOn: [
@@ -125,7 +126,7 @@ module windowsVirtualMachine '../modules/virtual-machine.bicep' = if (deployWind
     // dataCollectionRuleAssociationName: dataCollectionRuleAssociationName
     // dataCollectionRuleResourceId: dataCollectionRuleResourceId
     diskEncryptionSetResourceId: customerManagedKeys!.outputs.diskEncryptionSetResourceId
-    diskName: '${tier.namingConvention.virtualMachineDisk}${delimiter}wra' // wra = Windows Remote Access
+    diskName: replace(tier.namingConvention.virtualMachineDisk, tokens.purpose, 'wra') // wra = Windows Remote Access
     hybridUseBenefit: hybridUseBenefit
     imageOffer: windowsVmImageOffer
     imagePublisher: windowsVmImagePublisher
@@ -133,12 +134,12 @@ module windowsVirtualMachine '../modules/virtual-machine.bicep' = if (deployWind
     imageVersion: windowsVmVersion
     location: location
     mlzTags: mlzTags
-    networkInterfaceName: '${tier.namingConvention.virtualMachineNetworkInterface}${delimiter}wra' // wra = Windows Remote Access
+    networkInterfaceName: replace(tier.namingConvention.virtualMachineNetworkInterface, tokens.purpose, 'wra') // wra = Windows Remote Access
     networkSecurityGroupResourceId: tier.networkSecurityGroupResourceId
     storageAccountType: windowsVmStorageAccountType
     subnetResourceId: tier.subnetResourceId
     tags: tags
-    virtualMachineName: '${tier.namingConvention.virtualMachine}wra' // wra = Windows Remote Access
+    virtualMachineName: replace(tier.namingConvention.virtualMachine, tokens.purpose, 'wra') // wra = Windows Remote Access
     virtualMachineSize: windowsVmSize
   }
   dependsOn: [
@@ -153,10 +154,10 @@ module bastionHost '../modules/bastion-host.bicep' = if (deployBastion) {
     bastionHostSubnetResourceId: bastionHostSubnetResourceId
     location: location
     mlzTags: mlzTags
-    name: tier.namingConvention.bastionHost
+    name: replace(tier.namingConvention.bastionHost, '${delimiter}${tokens.purpose}', '')
     publicIPAddressAllocationMethod: bastionHostPublicIPAddressAllocationMethod
     publicIPAddressAvailabilityZones: bastionHostPublicIPAddressAvailabilityZones
-    publicIPAddressName: tier.namingConvention.bastionHostPublicIPAddress
+    publicIPAddressName: replace(tier.namingConvention.bastionHostPublicIPAddress, '${delimiter}${tokens.purpose}', '')
     publicIPAddressSkuName: bastionHostPublicIPAddressSkuName
     tags: tags
   }

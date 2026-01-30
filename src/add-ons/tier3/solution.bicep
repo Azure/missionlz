@@ -8,6 +8,22 @@ targetScope = 'subscription'
 @description('An array of additional subnets to support the tier3 workload.')
 param additionalSubnets array = []
 
+@description('An array of Blob Diagnostic Logs categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/storage/blobs/monitor-blob-storage?tabs=azure-portal#enable-diagnostic-logging.')
+param blobDiagnosticsLogs array = [
+  {
+    categoryGroup: 'allLogs'
+    enabled: true
+  }
+]
+
+@description('An array of Blob Diagnostic Metrics categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/storage/blobs/monitor-blob-storage?tabs=azure-portal#enable-metrics.')
+param blobDiagnosticsMetrics array = [
+  {
+    category: 'Transaction'
+    enabled: true
+  }
+]
+
 @description('The custom firewall rule collection groups that override the default firewall rule collection groups.')
 param customFirewallRuleCollectionGroups array = []
 
@@ -37,8 +53,27 @@ param emailSecurityContact string
 @description('The abbreviation for the environment.')
 param environmentAbbreviation string = 'dev'
 
+@description('An array of File Diagnostic Logs categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/storage/files/monitor-file-storage?tabs=azure-portal#enable-diagnostic-logging.')
+param fileDiagnosticsLogs array = [
+  {
+    categoryGroup: 'allLogs'
+    enabled: true
+  }
+]
+
+@description('An array of File Diagnostic Metrics categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/storage/files/monitor-file-storage?tabs=azure-portal#enable-metrics.')
+param fileDiagnosticsMetrics array = [
+  {
+    category: 'Transaction'
+    enabled: true
+  }
+]
+
 @description('The resource ID of the Azure Firewall in the HUB.')
 param firewallResourceId string
+
+@description('The resource ID of the HUB Storage Account.')
+param hubStorageAccountResourceId string
 
 @description('The resource ID of the HUB Virtual Network.')
 param hubVirtualNetworkResourceId string
@@ -109,17 +144,60 @@ param networkWatcherFlowLogsRetentionDays int = 30
 @description('When set to "true", enables Virtual Network Flow Logs. It defaults to "true" as its required by MCSB.')
 param networkWatcherFlowLogsType string = 'VirtualNetwork'
 
+@description('An array of Queue Diagnostic Logs categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/storage/queues/monitor-queue-storage?tabs=azure-portal#enable-diagnostic-logging.')
+param queueDiagnosticsLogs array = [
+  {
+    categoryGroup: 'allLogs'
+    enabled: true
+  }
+]
+
+@description('An array of Queue Diagnostic Metrics categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/storage/queues/monitor-queue-storage?tabs=azure-portal#enable-metrics.')
+param queueDiagnosticsMetrics array = [
+  {
+    category: 'Transaction'
+    enabled: true
+  }
+]
+
 @description('The policy to assign to the workload.')
 param policy string = 'NISTRev4'
 
 @description('The stamp index allows for multiple deployments of a similar workload without naming conflicts.')
 param stampIndex string = ''
 
+@description('An array of Storage Account Diagnostic Logs categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/storage/common/monitor-storage?tabs=azure-portal#enable-diagnostic-logging.')
+param storageAccountDiagnosticsLogs array = []
+
+@description('An array of Storage Account Diagnostic Metrics categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/storage/common/monitor-storage?tabs=azure-portal#enable-metrics.')
+param storageAccountDiagnosticsMetrics array = [
+  {
+    category: 'Transaction'
+    enabled: true
+  }
+]
+
 @description('The address prefix for the workload subnet.')
 param subnetAddressPrefix string = ''
 
 @description('The custom name for the workload subnet if the naming convention is not desired. Subnets are child resources and do not require a unique name between virtual networks, only within the same virtual network.')
 param subnetName string = ''
+
+@description('An array of Table Diagnostic Logs categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/storage/tables/monitor-table-storage?tabs=azure-portal#enable-diagnostic-logging.')
+param tableDiagnosticsLogs array = [
+  {
+    categoryGroup: 'allLogs'
+    enabled: true
+  }
+]
+
+@description('An array of Table Diagnostic Metrics categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/storage/tables/monitor-table-storage?tabs=azure-portal#enable-metrics.')
+param tableDiagnosticsMetrics array = [
+  {
+    category: 'Transaction'
+    enabled: true
+  }
+]
 
 @description('The tags to apply to the resources.')
 param tags object = {}
@@ -224,8 +302,12 @@ module storage 'modules/storage.bicep' = {
   params: {
     blobsPrivateDnsZoneResourceId: resourceId(hubSubscriptionId, hubResourceGroupName, 'Microsoft.Network/privateDnsZones', 'privatelink.blob.${environment().suffixes.storage}')
     delimiter: networking.outputs.delimiter
+    deploymentIndex: deploymentIndex
     deploymentNameSuffix: deploymentNameSuffix
+    environmentAbbreviation: environmentAbbreviation
     filesPrivateDnsZoneResourceId: resourceId(hubSubscriptionId, hubResourceGroupName, 'Microsoft.Network/privateDnsZones', 'privatelink.file.${environment().suffixes.storage}')
+    hubResourceGroupName: hubResourceGroupName
+    hubSubscriptionId: hubSubscriptionId
     location: location
     logStorageSkuName: logStorageSkuName
     mlzTags: networking.outputs.mlzTags
@@ -236,10 +318,7 @@ module storage 'modules/storage.bicep' = {
     tablesPrivateDnsZoneResourceId: resourceId(hubSubscriptionId, hubResourceGroupName, 'Microsoft.Network/privateDnsZones', 'privatelink.table.${environment().suffixes.storage}')
     tags: tags
     tier: networking.outputs.tier
-    deploymentIndex: deploymentIndex
-    environmentAbbreviation: environmentAbbreviation
-    hubResourceGroupName: hubResourceGroupName
-    hubSubscriptionId: hubSubscriptionId
+    tokens: networking.outputs.tokens
     workloadShortName: workloadShortName
   }
 }
@@ -247,9 +326,15 @@ module storage 'modules/storage.bicep' = {
 module diagnostics 'modules/diagnostics.bicep' = {
   name: 'deploy-diag-${workloadShortName}-${deploymentIndex}${deploymentNameSuffix}'
   params: {
+    blobDiagnosticsLogs: blobDiagnosticsLogs
+    blobDiagnosticsMetrics: blobDiagnosticsMetrics
+    delimiter: networking.outputs.delimiter
     deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
     deploymentNameSuffix: deploymentNameSuffix
     deployNetworkWatcherTrafficAnalytics: deployNetworkWatcherTrafficAnalytics
+    fileDiagnosticsLogs: fileDiagnosticsLogs
+    fileDiagnosticsMetrics: fileDiagnosticsMetrics
+    hubStorageAccountResourceId: hubStorageAccountResourceId
     keyVaultDiagnosticLogs: keyVaultDiagnosticLogs
     keyVaultDiagnosticMetrics: keyVaultDiagnosticMetrics
     keyVaultName: storage.outputs.keyVaultName
@@ -260,8 +345,15 @@ module diagnostics 'modules/diagnostics.bicep' = {
     networkSecurityGroupDiagnosticsLogs: networkSecurityGroupDiagnosticsLogs
     networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
     networkWatcherFlowLogsType: networkWatcherFlowLogsType
+    queueDiagnosticsLogs: queueDiagnosticsLogs
+    queueDiagnosticsMetrics: queueDiagnosticsMetrics
+    storageAccountDiagnosticsLogs: storageAccountDiagnosticsLogs
+    storageAccountDiagnosticsMetrics: storageAccountDiagnosticsMetrics
     storageAccountResourceId: storage.outputs.storageAccountResourceId
+    tableDiagnosticsLogs: tableDiagnosticsLogs
+    tableDiagnosticsMetrics: tableDiagnosticsMetrics
     tier: networking.outputs.tier
+    tokens: networking.outputs.tokens
     virtualNetworkDiagnosticsLogs: virtualNetworkDiagnosticsLogs
     virtualNetworkDiagnosticsMetrics: virtualNetworkDiagnosticsMetrics
     virtualNetworkName: networking.outputs.virtualNetworkName
@@ -302,3 +394,4 @@ output tier object = union({
 }, 
   networking.outputs.tier
 )
+output tokens object = networking.outputs.tokens

@@ -78,6 +78,9 @@ param excludeFromLatest bool = true
 @description('The array of policy assignment IDs to exempt to prevent issues with the build process.')
 param exemptPolicyAssignmentIds array = []
 
+@description('The resource ID for the storage account in the HUB.')
+param hubStorageAccountResourceId string
+
 @description('The resource ID for the hub virtual network.')
 param hubVirtualNetworkResourceId string
 
@@ -439,6 +442,7 @@ module tier3 '../tier3/solution.bicep' = {
     emailSecurityContact: emailSecurityContact
     environmentAbbreviation: environmentAbbreviation
     firewallResourceId: azureFirewallResourceId
+    hubStorageAccountResourceId: hubStorageAccountResourceId
     hubVirtualNetworkResourceId: hubVirtualNetworkResourceId
     identifier: identifier
     keyVaultDiagnosticLogs: keyVaultDiagnosticLogs
@@ -467,7 +471,6 @@ module tier3 '../tier3/solution.bicep' = {
 module baseline 'modules/baseline.bicep' = {
   name: 'deploy-imaging-baseline-${deploymentNameSuffix}'
   params: {
-    delimiter: tier3.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
     enableBuildAutomation: enableBuildAutomation
     environmentAbbreviation: environmentAbbreviation
@@ -479,6 +482,7 @@ module baseline 'modules/baseline.bicep' = {
     storageAccountResourceId: storageAccountResourceId
     tags: tags
     tier: tier3.outputs.tier
+    tokens: tier3.outputs.tokens
   }
 }
 

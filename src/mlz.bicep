@@ -56,6 +56,22 @@ param bastionHostPublicIPAddressAvailabilityZones array = []
 @description('The CIDR Subnet Address Prefix for the Azure Bastion Subnet. It must be in the Hub Virtual Network space "hubVirtualNetworkAddressPrefix" parameter value. It must be /27 or larger.')
 param bastionHostSubnetAddressPrefix string = '10.0.128.192/26'
 
+@description('An array of Blob Diagnostic Logs categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/storage/blobs/monitor-blob-storage?tabs=azure-portal#enable-diagnostic-logging.')
+param blobDiagnosticsLogs array = [
+  {
+    categoryGroup: 'allLogs'
+    enabled: true
+  }
+]
+
+@description('An array of Blob Diagnostic Metrics categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/storage/blobs/monitor-blob-storage?tabs=azure-portal#enable-metrics.')
+param blobDiagnosticsMetrics array = [
+  {
+    category: 'Transaction'
+    enabled: true
+  }
+]
+
 @description('The firewall rules that will be applied to the Azure Firewall.')
 param customFirewallRuleCollectionGroups array = []
 
@@ -106,6 +122,9 @@ param deployDefender bool = true
 @description('The Paid Workload Protection plans for Defender for Cloud. Default value = "VirtualMachines". See the following URL for valid settings: https://learn.microsoft.com/rest/api/defenderforcloud-composite/pricings/update?view=rest-defenderforcloud-composite-latest&tabs=HTTP.')
 param deployDefenderPlans array = ['VirtualMachines']
 
+@description('Choose to deploy Entra Cloud Sync when the identity spoke and ADDS are deployed.')
+param deployEntraCloudSync bool = false
+
 @description('Choose to deploy the identity resources. The identity resoures are not required if you plan to use cloud identities.')
 param deployIdentity bool = false
 
@@ -143,6 +162,22 @@ param enableProxy bool = true
 ])
 @description('[dev/prod/test] The abbreviation for the target environment.')
 param environmentAbbreviation string = 'dev'
+
+@description('An array of File Diagnostic Logs categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/storage/files/monitor-file-storage?tabs=azure-portal#enable-diagnostic-logging.')
+param fileDiagnosticsLogs array = [
+  {
+    categoryGroup: 'allLogs'
+    enabled: true
+  }
+]
+
+@description('An array of File Diagnostic Metrics categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/storage/files/monitor-file-storage?tabs=azure-portal#enable-metrics.')
+param fileDiagnosticsMetrics array = [
+  {
+    category: 'Transaction'
+    enabled: true
+  }
+]
 
 @description('An array of Azure Firewall Public IP Address Availability Zones. Default value = "[]" because Availability Zones are not available in every cloud. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-network/ip-services/public-ip-addresses#sku.')
 param firewallClientPublicIPAddressAvailabilityZones array = []
@@ -293,6 +328,13 @@ param hubVirtualNetworkDiagnosticsMetrics array = [
     enabled: true
   }
 ]
+
+@description('The password for the hybrid identity administrator for the Azure AD tenant. This is required when deploying Entra Cloud Sync. The account must have MFA temporarily disabled. Default value = "".')
+@secure()
+param hybridIdentityAdministratorPassword string = ''
+
+@description('The user principal name (UPN) of the hybrid identity administrator for the Azure AD tenant. This is required when deploying Entra Cloud Sync. The account must have MFA temporarily disabled.Default value = "".')
+param hybridIdentityAdministratorUserPrincipalName string = ''
 
 @description('The hybrid use benefit provides a discount on virtual machines when a customer has an on-premises Windows Server license with Software Assurance. Default value = "false".')
 param hybridUseBenefit bool = false
@@ -521,6 +563,22 @@ param publicIPAddressDiagnosticsMetrics array = [
   }
 ]
 
+@description('An array of Queue Diagnostic Logs categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/storage/queues/monitor-queue-storage?tabs=azure-portal#enable-diagnostic-logging.')
+param queueDiagnosticsLogs array = [
+  {
+    categoryGroup: 'allLogs'
+    enabled: true
+  }
+]
+
+@description('An array of Queue Diagnostic Metrics categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/storage/queues/monitor-queue-storage?tabs=azure-portal#enable-metrics.')
+param queueDiagnosticsMetrics array = [
+  {
+    category: 'Transaction'
+    enabled: true
+  }
+]
+
 @description('An array of Network Security Group diagnostic logs to apply to the SharedServices Virtual Network. See the following URL for valid settings: https://learn.microsoft.com/azure/virtual-network/virtual-network-nsg-manage-log#log-categories.')
 param sharedServicesNetworkSecurityGroupDiagnosticsLogs array = [
   {
@@ -561,10 +619,37 @@ param sharedServicesVirtualNetworkDiagnosticsMetrics array = [
   }
 ]
 
+@description('An array of Storage Account Diagnostic Logs categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/storage/common/monitor-storage?tabs=azure-portal#enable-diagnostic-logging.')
+param storageAccountDiagnosticsLogs array = []
+
+@description('An array of Storage Account Diagnostic Metrics categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/storage/common/monitor-storage?tabs=azure-portal#enable-metrics.')
+param storageAccountDiagnosticsMetrics array = [
+  {
+    category: 'Transaction'
+    enabled: true
+  }
+]
+
 @description('The Azure clouds that support specific service features. Default value = "[\'AzureCloud\',\'AzureUSGovernment\']".')
 param supportedClouds array = [
   'AzureCloud'
   'AzureUSGovernment'
+]
+
+@description('An array of Table Diagnostic Logs categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/storage/tables/monitor-table-storage?tabs=azure-portal#enable-diagnostic-logging.')
+param tableDiagnosticsLogs array = [
+  {
+    categoryGroup: 'allLogs'
+    enabled: true
+  }
+]
+
+@description('An array of Table Diagnostic Metrics categories to collect. See the following URL for valid values: https://learn.microsoft.com/azure/storage/tables/monitor-table-storage?tabs=azure-portal#enable-metrics.')
+param tableDiagnosticsMetrics array = [
+  {
+    category: 'Transaction'
+    enabled: true
+  }
 ]
 
 @description('A string dictionary of tags to add to deployed resources. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-resource-manager/management/tag-resources?tabs=json#arm-templates.')
@@ -616,8 +701,8 @@ module networking 'modules/networking.bicep' = {
     deployAzureGatewaySubnet: deployAzureGatewaySubnet
     dnsServers: deployIdentity && deployActiveDirectoryDomainServices
       ? [
-          cidrHost(identitySubnetAddressPrefix,5)
-          cidrHost(identitySubnetAddressPrefix,6)
+          cidrHost(identitySubnetAddressPrefix, 5)
+          cidrHost(identitySubnetAddressPrefix, 6)
         ]
       : dnsServers
     enableProxy: enableProxy
@@ -859,6 +944,7 @@ module networking 'modules/networking.bicep' = {
 module monitoring 'modules/monitoring.bicep' = {
   name: 'deploy-monitoring-${deploymentNameSuffix}'
   params: {
+    delimiter: networking.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
     deploySentinel: deploySentinel
     location: location
@@ -869,6 +955,7 @@ module monitoring 'modules/monitoring.bicep' = {
     mlzTags: networking.outputs.mlzTags
     tags: tags
     tier: filter(networking.outputs.tiers, tier => tier.name == 'operations')[0]
+    tokens: networking.outputs.tokens
   }
 }
 
@@ -880,9 +967,12 @@ module activeDirectoryDomainServices 'modules/active-directory-domain-services.b
     adminPassword: addsVmAdminPassword
     adminUsername: addsVmAdminUsername
     delimiter: networking.outputs.delimiter
+    deployEntraCloudSync: deployEntraCloudSync
     deploymentNameSuffix: deploymentNameSuffix
     domainName: addsDomainName
     environmentAbbreviation: environmentAbbreviation
+    hybridIdentityAdministratorPassword: hybridIdentityAdministratorPassword
+    hybridIdentityAdministratorUserPrincipalName: hybridIdentityAdministratorUserPrincipalName
     hybridUseBenefit: hybridUseBenefit
     imageOffer: 'WindowsServer'
     imagePublisher: 'MicrosoftWindowsServer'
@@ -895,6 +985,7 @@ module activeDirectoryDomainServices 'modules/active-directory-domain-services.b
     safeModeAdminPassword: addsSafeModeAdminPassword
     tags: tags
     tier: filter(networking.outputs.tiers, tier => tier.name == 'identity')[0]
+    tokens: networking.outputs.tokens
     vmSize: addsVmSize
   }
 }
@@ -930,6 +1021,7 @@ module remoteAccess 'modules/remote-access.bicep' = if (deployBastion || deployL
     resourceAbbreviations: networking.outputs.resourceAbbreviations
     tags: tags
     tier: filter(networking.outputs.tiers, tier => tier.name == 'hub')[0]
+    tokens: networking.outputs.tokens
     windowsVmAdminPassword: windowsVmAdminPassword
     windowsVmAdminUsername: windowsVmAdminUsername
     windowsVmImageOffer: windowsVmImageOffer
@@ -944,7 +1036,7 @@ module remoteAccess 'modules/remote-access.bicep' = if (deployBastion || deployL
 // STORAGE FOR LOGGING
 
 module storage 'modules/storage.bicep' = {
-  name: 'deploy-log-storage-${deploymentNameSuffix}'
+  name: 'deploy-diag-storage-${deploymentNameSuffix}'
   params: {
     delimiter: networking.outputs.delimiter
     //deployIdentity: deployIdentity
@@ -954,9 +1046,11 @@ module storage 'modules/storage.bicep' = {
     logStorageSkuName: logStorageSkuName
     mlzTags: networking.outputs.mlzTags
     privateDnsZoneResourceIds: networking.outputs.privateDnsZoneResourceIds
+    purpose: 'diag'
     resourceAbbreviations: networking.outputs.resourceAbbreviations
     tags: tags
     tiers: networking.outputs.tiers
+    tokens: networking.outputs.tokens
   }
   dependsOn: [
     activeDirectoryDomainServices // This is needed to ensure the first two IPs in the identity subnet are availabile for the domain controllers
@@ -971,22 +1065,30 @@ module diagnosticSettings 'modules/diagnostic-settings.bicep' = {
   params: {
     bastionDiagnosticsLogs: bastionDiagnosticsLogs
     bastionDiagnosticsMetrics: bastionDiagnosticsMetrics
+    blobDiagnosticsLogs: blobDiagnosticsLogs
+    blobDiagnosticsMetrics: blobDiagnosticsMetrics
     delimiter: networking.outputs.delimiter
     deployBastion: deployBastion
     deployNetworkWatcherTrafficAnalytics: deployNetworkWatcherTrafficAnalytics
     deploymentNameSuffix: deploymentNameSuffix
+    fileDiagnosticsLogs: fileDiagnosticsLogs
+    fileDiagnosticsMetrics: fileDiagnosticsMetrics
     firewallDiagnosticsLogs: firewallDiagnosticsLogs
     firewallDiagnosticsMetrics: firewallDiagnosticsMetrics
     keyVaults: union(
       [
         storage.outputs.keyVaultProperties
       ],
-      deployActiveDirectoryDomainServices ? [
-        activeDirectoryDomainServices.outputs.keyVaultProperties
-      ] : [],
-      deployLinuxVirtualMachine || deployWindowsVirtualMachine ? [
-        remoteAccess.outputs.keyVaultProperties
-      ] : []
+      deployActiveDirectoryDomainServices
+        ? [
+            activeDirectoryDomainServices!.outputs.keyVaultProperties
+          ]
+        : [],
+      deployLinuxVirtualMachine || deployWindowsVirtualMachine
+        ? [
+            remoteAccess!.outputs.keyVaultProperties
+          ]
+        : []
     )
     keyVaultDiagnosticLogs: keyVaultDiagnosticsLogs
     keyVaultDiagnosticMetrics: keyVaultDiagnosticsMetrics
@@ -994,18 +1096,27 @@ module diagnosticSettings 'modules/diagnostic-settings.bicep' = {
     logAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
     networkInterfaceDiagnosticsMetrics: networkInterfaceDiagnosticsMetrics
     networkInterfaceResourceIds: union(
-      deployActiveDirectoryDomainServices && deployIdentity ? activeDirectoryDomainServices.outputs.networkInterfaceResourceIds : [],
+      deployActiveDirectoryDomainServices && deployIdentity
+        ? activeDirectoryDomainServices!.outputs.networkInterfaceResourceIds
+        : [],
       monitoring.outputs.networkInterfaceResourceIds,
-      deployLinuxVirtualMachine || deployWindowsVirtualMachine ? remoteAccess.outputs.networkInterfaceResourceIds : [],
+      deployLinuxVirtualMachine || deployWindowsVirtualMachine ? remoteAccess!.outputs.networkInterfaceResourceIds : [],
       flatten(storage.outputs.networkInterfaceResourceIds)
     )
     networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
     networkWatcherFlowLogsType: networkWatcherFlowLogsType
     publicIPAddressDiagnosticsLogs: publicIPAddressDiagnosticsLogs
     publicIPAddressDiagnosticsMetrics: publicIPAddressDiagnosticsMetrics
+    queueDiagnosticsLogs: queueDiagnosticsLogs
+    queueDiagnosticsMetrics: queueDiagnosticsMetrics
+    storageAccountDiagnosticsLogs: storageAccountDiagnosticsLogs
+    storageAccountDiagnosticsMetrics: storageAccountDiagnosticsMetrics
     storageAccountResourceIds: storage.outputs.storageAccountResourceIds
     supportedClouds: supportedClouds
+    tableDiagnosticsLogs: tableDiagnosticsLogs
+    tableDiagnosticsMetrics: tableDiagnosticsMetrics
     tiers: networking.outputs.tiers
+    tokens: networking.outputs.tokens
   }
 }
 
@@ -1030,6 +1141,7 @@ module security 'modules/security.bicep' = {
 }
 
 output azureFirewallResourceId string = networking.outputs.azureFirewallResourceId
+output hubStorageAccountResourceId string = storage.outputs.storageAccountResourceIds[0]
 output hubVirtualNetworkResourceId string = networking.outputs.hubVirtualNetworkResourceId
 output logAnalyticsWorkspaceResourceId string = monitoring.outputs.logAnalyticsWorkspaceResourceId
 output privateLinkScopeResourceId string = monitoring.outputs.privateLinkScopeResourceId

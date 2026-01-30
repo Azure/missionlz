@@ -1,6 +1,6 @@
-# Azure Zero Trust Imaging
+# Imaging Add-On
 
-This Azure imaging solution creates images using a zero trust process and resources. While other options exist in Azure, its either a manual process or it doesn't adhere to zero trust. For instance, Azure Image Builder (AIB) is a great imaging service but deploys a storage account that cannot be configured with a private endpoint.
+This workload accelerator creates images using a zero trust process and resources in Azure. While other options exist in Azure, its either a manual process or it doesn't adhere to zero trust. For instance, Azure Image Builder (AIB) is a great imaging service but deploys a storage account that cannot be configured with a private endpoint.
 
 ```mermaid
 graph TD;

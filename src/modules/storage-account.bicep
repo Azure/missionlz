@@ -4,10 +4,12 @@ Licensed under the MIT License.
 */
 
 param blobsPrivateDnsZoneResourceId string
+param delimiter string
 param filesPrivateDnsZoneResourceId string
 param keyVaultUri string
 param location string
 param mlzTags object
+param purpose string
 param queuesPrivateDnsZoneResourceId string
 param skuName string
 param storageEncryptionKeyName string
@@ -15,33 +17,34 @@ param subnetResourceId string
 param tablesPrivateDnsZoneResourceId string
 param tags object
 param tier object
+param tokens object
 param userAssignedIdentityResourceId string
 
 var  subResources = [
   {
     id: blobsPrivateDnsZoneResourceId
-    nic: '${tier.namingConvention.storageAccountBlobNetworkInterface}'
-    pe: '${tier.namingConvention.storageAccountBlobPrivateEndpoint}'
+    nic: replace(tier.namingConvention.storageAccountBlobNetworkInterface, '${delimiter}${tokens.purpose}', '')
+    pe: replace(tier.namingConvention.storageAccountBlobPrivateEndpoint, '${delimiter}${tokens.purpose}', '')
   }
   {
     id: filesPrivateDnsZoneResourceId
-    nic: '${tier.namingConvention.storageAccountFileNetworkInterface}'
-    pe: '${tier.namingConvention.storageAccountFilePrivateEndpoint}'
+    nic: replace(tier.namingConvention.storageAccountFileNetworkInterface, '${delimiter}${tokens.purpose}', '')
+    pe: replace(tier.namingConvention.storageAccountFilePrivateEndpoint, '${delimiter}${tokens.purpose}', '')
   }
   {
     id: queuesPrivateDnsZoneResourceId
-    nic: '${tier.namingConvention.storageAccountQueueNetworkInterface}'
-    pe: '${tier.namingConvention.storageAccountQueuePrivateEndpoint}'
+    nic: replace(tier.namingConvention.storageAccountQueueNetworkInterface, '${delimiter}${tokens.purpose}', '')
+    pe: replace(tier.namingConvention.storageAccountQueuePrivateEndpoint, '${delimiter}${tokens.purpose}', '')
   }
   {
     id: tablesPrivateDnsZoneResourceId
-    nic: '${tier.namingConvention.storageAccountTableNetworkInterface}'
-    pe: '${tier.namingConvention.storageAccountTablePrivateEndpoint}'
+    nic: replace(tier.namingConvention.storageAccountTableNetworkInterface, '${delimiter}${tokens.purpose}', '')
+    pe: replace(tier.namingConvention.storageAccountTablePrivateEndpoint, '${delimiter}${tokens.purpose}', '')
   }
 ]
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
-  name: uniqueString(tier.namingConvention.storageAccount, resourceGroup().id)
+  name: uniqueString(replace(tier.namingConvention.storageAccount, tokens.purpose, purpose), resourceGroup().id)
   location: location
   tags: union(tags[?'Microsoft.Storage/storageAccounts'] ?? {}, mlzTags)
   identity: {

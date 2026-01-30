@@ -5,7 +5,6 @@ Licensed under the MIT License.
 
 targetScope = 'subscription'
 
-param delimiter string
 param deploymentNameSuffix string
 param environmentAbbreviation string
 param keyName string
@@ -16,6 +15,7 @@ param resourceAbbreviations object
 param resourceGroupName string
 param tags object
 param tier object
+param tokens object
 @allowed([
   'storageAccount'
   'virtualMachine'
@@ -25,26 +25,26 @@ param type string
 var workload = 'cmk'
 
 module userAssignedIdentity 'user-assigned-identity.bicep' = {
-  name: 'deploy-cmk-id-${deploymentNameSuffix}'
+  name: 'deploy-${workload}-id-${deploymentNameSuffix}'
   scope: resourceGroup(tier.subscriptionId, resourceGroupName)
   params: {
     location: location
     mlzTags: mlzTags
     tags: tags
-    userAssignedIdentityName: '${tier.namingConvention.userAssignedIdentity}${delimiter}${workload}'
+    userAssignedIdentityName: replace(tier.namingConvention.userAssignedIdentity, tokens.purpose, workload)
   }
 }
 
 module keyVault 'key-vault.bicep' = {
-  name: 'deploy-cmk-kv-${deploymentNameSuffix}'
+  name: 'deploy-${workload}-kv-${deploymentNameSuffix}'
   scope: resourceGroup(tier.subscriptionId, resourceGroupName)
   params: {
     environmentAbbreviation: environmentAbbreviation
     keyName: keyName
-    keyVaultName: '${resourceAbbreviations.keyVaults}${uniqueString(tier.subscriptionId, resourceGroupName, tier.namingConvention.keyVault, workload)}'
-    keyVaultNetworkInterfaceName: '${tier.namingConvention.keyVaultNetworkInterface}${delimiter}${workload}'
+    keyVaultName: '${resourceAbbreviations.keyVaults}${uniqueString(tier.subscriptionId, resourceGroupName, replace(tier.namingConvention.keyVault, tokens.purpose, workload))}'
+    keyVaultNetworkInterfaceName: replace(tier.namingConvention.keyVaultNetworkInterface, tokens.purpose, workload)
     keyVaultPrivateDnsZoneResourceId: keyVaultPrivateDnsZoneResourceId
-    keyVaultPrivateEndpointName: '${tier.namingConvention.keyVaultPrivateEndpoint}${delimiter}${workload}'
+    keyVaultPrivateEndpointName: replace(tier.namingConvention.keyVaultPrivateEndpoint, tokens.purpose, workload)
     location: location
     mlzTags: mlzTags
     subnetResourceId: tier.subnetResourceId
@@ -56,11 +56,11 @@ module keyVault 'key-vault.bicep' = {
 }
 
 module diskEncryptionSet 'disk-encryption-set.bicep' = if (type == 'virtualMachine') {
-  name: 'deploy-cmk-des-${deploymentNameSuffix}'
+  name: 'deploy-${workload}-des-${deploymentNameSuffix}'
   scope: resourceGroup(tier.subscriptionId, resourceGroupName)
   params: {
     deploymentNameSuffix: deploymentNameSuffix
-    diskEncryptionSetName: '${tier.namingConvention.diskEncryptionSet}${delimiter}${workload}'
+    diskEncryptionSetName: replace(tier.namingConvention.diskEncryptionSet, tokens.purpose, workload)
     keyUrl: keyVault.outputs.keyUriWithVersion
     keyVaultResourceId: keyVault.outputs.keyVaultResourceId
     location: location
@@ -72,7 +72,7 @@ module diskEncryptionSet 'disk-encryption-set.bicep' = if (type == 'virtualMachi
 output diskEncryptionSetResourceId string = type == 'virtualMachine' ? diskEncryptionSet!.outputs.resourceId : ''
 // The following output is needed to setup the diagnostic setting for the key vault
 output keyVaultProperties object = {
-  diagnosticSettingName: '${tier.namingConvention.keyVaultDiagnosticSetting}${delimiter}${workload}'
+  diagnosticSettingName: replace(tier.namingConvention.keyVaultDiagnosticSetting, tokens.purpose, workload)
   name: keyVault.outputs.keyVaultName
   resourceGroupName: resourceGroupName
   subscriptionId: tier.subscriptionId
