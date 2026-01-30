@@ -42,16 +42,12 @@ param virtualNetworkGatewaySku string = 'VpnGw2'
 @description('List of peered networks that should use the VPN Gateway once configured.')
 param virtualNetworkResourceIdList array
 
-<<<<<<< HEAD
 @description('Optional configuration for VPN NAT (Network Address Translation). Defines rules and their association with the connection.')
 param natConfiguration object = {
   natRules: []
   ingressNatRuleNames: []
   egressNatRuleNames: []
 }
-
-
-
 
 @description('Default CIDR to use when creating the GatewaySubnet if it does not exist.')
 var defaultGatewaySubnetPrefix = '10.0.129.192/26'
