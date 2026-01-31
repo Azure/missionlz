@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.40.2.10011",
-      "templateHash": "8420740553526988268"
+      "templateHash": "5611207703043904816"
     }
   },
   "parameters": {
@@ -74,6 +74,7 @@
     },
     "emailSecurityContact": {
       "type": "string",
+      "defaultValue": "",
       "metadata": {
         "description": "The email address to use for Defender for Cloud notifications."
       }

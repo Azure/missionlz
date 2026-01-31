@@ -37,7 +37,7 @@ param domainJoinUserPrincipalName string
 param domainName string
 
 @description('The email address to use for Defender for Cloud notifications.')
-param emailSecurityContact string
+param emailSecurityContact string = ''
 
 @allowed([
   'dev'
