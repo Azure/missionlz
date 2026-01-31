@@ -156,6 +156,29 @@ module azureVirtualDesktop '../azure-virtual-desktop/solution.bicep' = {
   }
 }
 
+module azureNetAppFiles '../azure-netapp-files/solution.bicep' = {
+  name: 'deploy-azure-netapp-files-${deploymentNameSuffix}'
+  params: {
+    azureFirewallResourceId: missionLandingZone.outputs.azureFirewallResourceId
+    deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
+    deployDefender: deployDefender
+    deploymentNameSuffix: deploymentNameSuffix
+    deployPolicy: deployPolicy
+    domainJoinPassword: virtualMachineAdminPassword
+    domainJoinUserPrincipalName: virtualMachineAdminUsername
+    domainName: addsDomainName
+    environmentAbbreviation: 'dev'
+    fileShareName: 'arcgispro'
+    hubStorageAccountResourceId: missionLandingZone.outputs.hubStorageAccountResourceId
+    hubVirtualNetworkResourceId: missionLandingZone.outputs.hubVirtualNetworkResourceId
+    identifier: 'poc'
+    location: location
+    logAnalyticsWorkspaceResourceId: missionLandingZone.outputs.logAnalyticsWorkspaceResourceId
+    sku: 'Standard'
+    tags: tags
+  }
+}
+
 // Commented out the ArcGIS Enterprise deployment until its ready
 /* module arcGisEnterprise '../esri-enterprise/solution.bicep' = {
   name: 'deploy-esri-enterprise-${deploymentNameSuffix}'
