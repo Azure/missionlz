@@ -55,7 +55,6 @@ var defaultGatewaySubnetPrefix = '10.0.129.192/26'
 var azureFirewallIpConfigurationResourceId = filter(virtualNetwork.properties.subnets, subnet => subnet.name == 'AzureFirewallSubnet')[0].properties.ipConfigurations[0].id
 
 var azureFirewallResourceId = resourceId(split(azureFirewallIpConfigurationResourceId, '/')[2], split(azureFirewallIpConfigurationResourceId, '/')[4], 'Microsoft.Network/azureFirewalls', split(azureFirewallIpConfigurationResourceId, '/')[8])
-var defaultGatewaySubnetPrefix = '10.0.129.192/26'
 var hubResourceGroupName = split(hubVirtualNetworkResourceId, '/')[4]
 var hubVirtualNetworkName = split(hubVirtualNetworkResourceId, '/')[8]
 var location = virtualNetwork.location
@@ -133,7 +132,7 @@ module virtualNetworkGateway 'modules/virtual-network-gateway.bicep' = {
   params: {
     delimiter: logic.outputs.delimiter
     location: location
-    publicIpAddressName: logic.outputs.tiers[0].namingConvention.publicIpAddress
+    publicIpAddressName: logic.outputs.tiers[0].namingConvention.virtualNetworkGatewayPublicIpAddress
     resourceAbbreviations: logic.outputs.resourceAbbreviations
     tokens: logic.outputs.tokens
     virtualNetworkGatewayName: replace(logic.outputs.tiers[0].namingConvention.virtualNetworkGateway, '${logic.outputs.delimiter}${logic.outputs.tokens.purpose}', '')
@@ -187,7 +186,6 @@ module vpnConnection 'modules/virtual-network-gateway-connection.bicep' = {
     egressNatRuleIds: [for name in natConfiguration.egressNatRuleNames: '${virtualNetworkGateway.outputs.virtualNetworkGatewayId}/natRules/${name}']
   }
   dependsOn: [
-    virtualNetworkGateway
     localNetworkGateway
   ]
 }
