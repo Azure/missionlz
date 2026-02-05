@@ -1,4 +1,7 @@
 param (
+    [Parameter(Mandatory = $false)]
+    [string]$AccessToken,
+
     [Parameter(Mandatory = $true)]
     [string]$AzureEnvironment,
 
@@ -15,16 +18,19 @@ param (
     [string]$DomainName,
 
     [Parameter(Mandatory = $true)]
-    [string]$HybridIdentityAdministratorPassword,
+    [string]$SubscriptionId,
 
     [Parameter(Mandatory = $true)]
-    [string]$HybridIdentityAdministratorUserPrincipalName,
+    [string]$TenantId,
 
     [Parameter(Mandatory = $true)]
-    [string]$SubscriptionId
+    [string]$UserPrincipalName
 )
 
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+
 # Variables
+$ErrorActionPreference = 'Stop'
 $AzureResourceManagerDomain = $AzureResourceManagerUri.Split('/')[2]
 $AzureDomainSuffix = switch ($AzureEnvironment) {
     'AzureCloud' { 'net' }
@@ -32,35 +38,40 @@ $AzureDomainSuffix = switch ($AzureEnvironment) {
     Default { $AzureResourceManagerDomain.Replace('management.azure.', '') }
 }
 $Netbios = $DomainName.Split('.')[0]
+$ProvisioningAgentInstallerPath = 'C:\Temp\AADConnectProvisioningAgentSetup.exe'
 
-# Download the provisioning agent installer
+# Download the provisioning agent for Entra Cloud Sync
 Invoke-WebRequest `
     -Uri $('https://download.msappproxy.' + $AzureDomainSuffix + '/Subscription/' + $SubscriptionId + '/Connector/previewProvisioningAgentInstaller') `
-    -OutFile 'C:\Temp\AADConnectProvisioningAgentSetup.exe'
+    -OutFile $ProvisioningAgentInstallerPath
 
-# Install the provisioning agent in quiet mode
+# Install the provisioning agent for Entra Cloud Sync
 Start-Process `
-    -FilePath 'C:\Temp\AADConnectProvisioningAgentSetup.exe' `
+    -FilePath $ProvisioningAgentInstallerPath `
     -ArgumentList "/quiet ENVIRONMENTNAME=$AzureEnvironment" `
     -NoNewWindow `
     -PassThru `
     -Wait
 
-# Import the provisioning agent PowerShell module
-Import-Module 'C:\Program Files\Microsoft Azure AD Connect Provisioning Agent\Microsoft.CloudSync.PowerShell.dll'
+if ($AzureEnvironment -eq 'AzureCloud')
+{
+    # Import the provisioning agent PowerShell module
+    Import-Module 'C:\Program Files\Microsoft Azure AD Connect Provisioning Agent\Microsoft.CloudSync.PowerShell.dll'
 
-# Connect to Microsoft Entra ID using an account with the hybrid identity role
-$CloudAdminPassword = ConvertTo-SecureString -String $HybridIdentityAdministratorPassword -AsPlainText -Force
-$CloudAdminCreds = New-Object System.Management.Automation.PSCredential -ArgumentList ($HybridIdentityAdministratorUserPrincipalName, $CloudAdminPassword)
-Connect-AADCloudSyncAzureAD -Credential $CloudAdminCreds
+    # Connect to Microsoft Entra ID using the access token and UPN of an Hybrid Identity Administrator
+    Connect-AADCloudSyncAzureAD -AccessToken $AccessToken -TenantId $TenantId -UserPrincipalName $UserPrincipalName
 
-# Add the gMSA account
-$DomainAdminPassword = ConvertTo-SecureString -String $DomainAdministratorPassword -AsPlainText -Force
-$DomainAdminCreds = New-Object System.Management.Automation.PSCredential -ArgumentList ("$Netbios\$DomainAdministratorUsername", $DomainAdminPassword)
-Add-AADCloudSyncGMSA -Credential $DomainAdminCreds
+    # Create the KDS root key if it does not exist
+    Add-KdsRootKey -EffectiveTime ((get-date).addhours(-10))
 
-# Add the domain
-Add-AADCloudSyncADDomain -DomainName $DomainName -Credential $DomainAdminCreds
+    # Add the gMSA account
+    $SecureDomainAdministratorPassword = ConvertTo-SecureString -String $DomainAdministratorPassword -AsPlainText -Force
+    $DomainAdministratorCredential = New-Object System.Management.Automation.PSCredential -ArgumentList ("$Netbios\$DomainAdministratorUsername", $SecureDomainAdministratorPassword)
+    Add-AADCloudSyncGMSA -Credential $DomainAdministratorCredential
 
-# Restart the service
-Restart-Service -Name 'AADConnectProvisioningAgent'
+    # Add the domain
+    Add-AADCloudSyncADDomain -DomainName $DomainName -Credential $DomainAdministratorCredential
+
+    # Restart the service
+    Restart-Service -Name 'AADConnectProvisioningAgent'
+}
