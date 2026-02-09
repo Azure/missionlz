@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.40.2.10011",
-      "templateHash": "3319613780319427997"
+      "templateHash": "16153148264609512453"
     }
   },
   "parameters": {
@@ -5239,7 +5239,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "4906221996971840258"
+              "templateHash": "17913004419298504997"
             }
           },
           "parameters": {
@@ -6221,7 +6221,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "15611672630926921558"
+                      "templateHash": "1737958153295117058"
                     }
                   },
                   "parameters": {
@@ -6409,7 +6409,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "15967902113885028938"
+                              "templateHash": "16794041801135670912"
                             }
                           },
                           "parameters": {
@@ -6814,9 +6814,9 @@
                               "type": "string",
                               "value": "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaceName'))]"
                             },
-                            "virtualMachineName": {
+                            "virtualMachineResourceId": {
                               "type": "string",
-                              "value": "[parameters('virtualMachineName')]"
+                              "value": "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
                             },
                             "virtualMachinePrincipalId": {
                               "type": "string",
@@ -6881,7 +6881,7 @@
                             "value": true
                           },
                           "virtualMachineName": {
-                            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('deploy-adds-vm-{0}-{1}', parameters('index'), parameters('deploymentNameSuffix'))), '2025-04-01').outputs.virtualMachineName.value]"
+                            "value": "[split(reference(resourceId('Microsoft.Resources/deployments', format('deploy-adds-vm-{0}-{1}', parameters('index'), parameters('deploymentNameSuffix'))), '2025-04-01').outputs.virtualMachineResourceId.value, '/')[8]]"
                           }
                         },
                         "template": {
@@ -6960,9 +6960,9 @@
                       "type": "string",
                       "value": "[reference(resourceId('Microsoft.Resources/deployments', format('deploy-adds-vm-{0}-{1}', parameters('index'), parameters('deploymentNameSuffix'))), '2025-04-01').outputs.networkInterfaceResourceId.value]"
                     },
-                    "virtualMachineName": {
+                    "virtualMachineResourceId": {
                       "type": "string",
-                      "value": "[reference(resourceId('Microsoft.Resources/deployments', format('deploy-adds-vm-{0}-{1}', parameters('index'), parameters('deploymentNameSuffix'))), '2025-04-01').outputs.virtualMachineName.value]"
+                      "value": "[reference(resourceId('Microsoft.Resources/deployments', format('deploy-adds-vm-{0}-{1}', parameters('index'), parameters('deploymentNameSuffix'))), '2025-04-01').outputs.virtualMachineResourceId.value]"
                     }
                   }
                 }
@@ -6985,6 +6985,13 @@
                 "[reference(subscriptionResourceId(parameters('tier').subscriptionId, 'Microsoft.Resources/deployments', format('deploy-adds-cmk-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.keyVaultNetworkInterfaceResourceId.value]",
                 "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-adds-dc-{0}-{1}', range(0, parameters('vmCount'))[0], parameters('deploymentNameSuffix'))), '2025-04-01').outputs.networkInterfaceResourceId.value]",
                 "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-adds-dc-{0}-{1}', range(0, parameters('vmCount'))[1], parameters('deploymentNameSuffix'))), '2025-04-01').outputs.networkInterfaceResourceId.value]"
+              ]
+            },
+            "virtualMachineResourceIds": {
+              "type": "array",
+              "value": [
+                "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-adds-dc-{0}-{1}', range(0, parameters('vmCount'))[0], parameters('deploymentNameSuffix'))), '2025-04-01').outputs.virtualMachineResourceId.value]",
+                "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('tier').subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-adds-dc-{0}-{1}', range(0, parameters('vmCount'))[1], parameters('deploymentNameSuffix'))), '2025-04-01').outputs.virtualMachineResourceId.value]"
               ]
             }
           }
@@ -7119,7 +7126,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "1053910264736214354"
+              "templateHash": "10016150817043036833"
             }
           },
           "parameters": {
@@ -8047,7 +8054,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "15967902113885028938"
+                      "templateHash": "16794041801135670912"
                     }
                   },
                   "parameters": {
@@ -8452,9 +8459,9 @@
                       "type": "string",
                       "value": "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaceName'))]"
                     },
-                    "virtualMachineName": {
+                    "virtualMachineResourceId": {
                       "type": "string",
-                      "value": "[parameters('virtualMachineName')]"
+                      "value": "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
                     },
                     "virtualMachinePrincipalId": {
                       "type": "string",
@@ -8546,7 +8553,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "15967902113885028938"
+                      "templateHash": "16794041801135670912"
                     }
                   },
                   "parameters": {
@@ -8951,9 +8958,9 @@
                       "type": "string",
                       "value": "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaceName'))]"
                     },
-                    "virtualMachineName": {
+                    "virtualMachineResourceId": {
                       "type": "string",
-                      "value": "[parameters('virtualMachineName')]"
+                      "value": "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
                     },
                     "virtualMachinePrincipalId": {
                       "type": "string",
@@ -12269,6 +12276,10 @@
       "type": "string",
       "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.azureFirewallResourceId.value]"
     },
+    "domainControllerResourceIds": {
+      "type": "array",
+      "value": "[if(and(parameters('deployActiveDirectoryDomainServices'), parameters('deployIdentity')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-adds-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.virtualMachineResourceIds.value, createArray())]"
+    },
     "hubStorageAccountResourceId": {
       "type": "string",
       "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-diag-storage-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.storageAccountResourceIds.value[0]]"
@@ -12280,6 +12291,10 @@
     "logAnalyticsWorkspaceResourceId": {
       "type": "string",
       "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.logAnalyticsWorkspaceResourceId.value]"
+    },
+    "mlzTags": {
+      "type": "object",
+      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.mlzTags.value]"
     },
     "privateLinkScopeResourceId": {
       "type": "string",
