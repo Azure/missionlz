@@ -1,5 +1,9 @@
 targetScope = 'subscription'
 
+@secure()
+@description('The Azure Active Directory Graph API access token with sufficient permissions to deploy Entra Cloud Sync. Refer to the documentation to get this value. It is only supported in AzureCloud / Commercial.')
+param aadGraphAccessToken string = ''
+
 @description('The root domain name for the new forest in Active Directory Domain Services. Required when deployActiveDirectoryDomainServices is true.')
 param addsDomainName string = ''
 
@@ -125,6 +129,30 @@ module missionLandingZone '../../mlz.bicep' = {
     identifier: 'poc'
     location: location
     tags: tags
+  }
+}
+
+module entraCloudSync 'entra-cloud-sync.bicep' = if (deployEntraCloudSync) {
+  name: 'deploy-entra-cloud-sync-${deploymentNameSuffix}'
+  scope: resourceGroup(tier.subscriptionId, resourceGroupName)
+  params: {
+    accessToken: aadGraphAccessToken
+    adminPassword: adminPassword
+    adminUsername: adminUsername
+    delimiter: delimiter
+    deploymentNameSuffix: deploymentNameSuffix
+    diskEncryptionSetResourceId: customerManagedKeys.outputs.diskEncryptionSetResourceId
+    domainName: domainName
+    location: location
+    mlzTags: mlzTags
+    subnetResourceId: tier.subnetResourceId
+    tags: tags
+    tier: tier
+    tokens: tokens
+    virtualMachineNames: [
+      domainControllers[0].outputs.virtualMachineName
+      domainControllers[1].outputs.virtualMachineName
+    ]
   }
 }
 
