@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.40.2.10011",
-      "templateHash": "16153148264609512453"
+      "templateHash": "10724513282167246736"
     }
   },
   "parameters": {
@@ -23,18 +23,18 @@
         "description": "The password for the safe mode administrator account. Required when deployActiveDirectoryDomainServices is true."
       }
     },
-    "addsVmAdminPassword": {
+    "addsAdministratorPassword": {
       "type": "securestring",
       "defaultValue": "",
       "metadata": {
-        "description": "The password for the local administrator accounts on the Active Directory Domain Services (ADDS) domain controllers. Required when deployActiveDirectoryDomainServices is true."
+        "description": "The password for the domain administrator account on the Active Directory Domain Services (ADDS) domain controllers. Required when deployActiveDirectoryDomainServices is true."
       }
     },
-    "addsVmAdminUsername": {
+    "addsAdministratorUsername": {
       "type": "string",
       "defaultValue": "",
       "metadata": {
-        "description": "The username for the local administrator accounts on the Active Directory Domain Services (ADDS) domain controllers. Required when deployActiveDirectoryDomainServices is true."
+        "description": "The username for the domain administrator account on the Active Directory Domain Services (ADDS) domain controllers. Required when deployActiveDirectoryDomainServices is true."
       }
     },
     "addsVmImageSku": {
@@ -5172,10 +5172,10 @@
         "mode": "Incremental",
         "parameters": {
           "adminPassword": {
-            "value": "[parameters('addsVmAdminPassword')]"
+            "value": "[parameters('addsAdministratorPassword')]"
           },
           "adminUsername": {
-            "value": "[parameters('addsVmAdminUsername')]"
+            "value": "[parameters('addsAdministratorUsername')]"
           },
           "delimiter": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.delimiter.value]"

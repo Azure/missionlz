@@ -12,12 +12,12 @@ param addsDomainName string = ''
 @description('The password for the safe mode administrator account. Required when deployActiveDirectoryDomainServices is true.')
 param addsSafeModeAdminPassword string = ''
 
-@description('The password for the local administrator accounts on the Active Directory Domain Services (ADDS) domain controllers. Required when deployActiveDirectoryDomainServices is true.')
+@description('The password for the domain administrator account on the Active Directory Domain Services (ADDS) domain controllers. Required when deployActiveDirectoryDomainServices is true.')
 @secure()
-param addsVmAdminPassword string = ''
+param addsAdministratorPassword string = ''
 
-@description('The username for the local administrator accounts on the Active Directory Domain Services (ADDS) domain controllers. Required when deployActiveDirectoryDomainServices is true.')
-param addsVmAdminUsername string = ''
+@description('The username for the domain administrator account on the Active Directory Domain Services (ADDS) domain controllers. Required when deployActiveDirectoryDomainServices is true.')
+param addsAdministratorUsername string = ''
 
 @allowed([
   '2019-datacenter-core-g2' // Windows Server 2019 Datacenter Core Gen2
@@ -954,8 +954,8 @@ module monitoring 'modules/monitoring.bicep' = {
 module activeDirectoryDomainServices 'modules/active-directory-domain-services.bicep' = if (deployActiveDirectoryDomainServices && deployIdentity) {
   name: 'deploy-adds-${deploymentNameSuffix}'
   params: {
-    adminPassword: addsVmAdminPassword
-    adminUsername: addsVmAdminUsername
+    adminPassword: addsAdministratorPassword
+    adminUsername: addsAdministratorUsername
     delimiter: networking.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
     domainName: addsDomainName
