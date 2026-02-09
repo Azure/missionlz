@@ -106,9 +106,9 @@ module runCommand_DomainControllerPromotion 'run-command.bicep' = {
     script: loadTextContent('../artifacts/New-ADDSForest.ps1')
     tags: tags
     treatFailureAsDeploymentFailure: true
-    virtualMachineName: virtualMachine.outputs.virtualMachineName
+    virtualMachineName: split(virtualMachine.outputs.virtualMachineResourceId, '/')[8]
   }
 }
 
 output networkInterfaceResourceId string = virtualMachine.outputs.networkInterfaceResourceId
-output virtualMachineName string = virtualMachine.outputs.virtualMachineName
+output virtualMachineResourceId string = virtualMachine.outputs.virtualMachineResourceId

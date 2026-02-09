@@ -121,3 +121,7 @@ output networkInterfaceResourceIds array = [
   domainControllers[0].outputs.networkInterfaceResourceId
   domainControllers[1].outputs.networkInterfaceResourceId
 ]
+output virtualMachineResourceIds array = [
+  domainControllers[0].outputs.virtualMachineResourceId
+  domainControllers[1].outputs.virtualMachineResourceId
+]
