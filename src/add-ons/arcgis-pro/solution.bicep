@@ -7,26 +7,6 @@ targetScope = 'subscription'
 @description('The root domain name for the new forest in Active Directory Domain Services. Required when deployActiveDirectoryDomainServices is true.')
 param addsDomainName string
 
-@secure()
-@description('The password for the safe mode administrator account. Required when deployActiveDirectoryDomainServices is true.')
-param addsSafeModeAdminPassword string
-
-@description('The password for the local administrator accounts on the Active Directory Domain Services (ADDS) domain controllers. Required when deployActiveDirectoryDomainServices is true.')
-@secure()
-param addsVmAdminPassword string
-
-@description('The username for the local administrator accounts on the Active Directory Domain Services (ADDS) domain controllers. Required when deployActiveDirectoryDomainServices is true.')
-param addsVmAdminUsername string
-
-@allowed([
-  '2019-datacenter-core-g2' // Windows Server 2019 Datacenter Core Gen2
-  '2019-datacenter-gensecond' // Windows Server 2019 Datacenter Gen2
-  '2022-datacenter-core-g2' // Windows Server 2022 Datacenter Core Gen2
-  '2022-datacenter-g2' // Windows Server 2022 Datacenter Gen2
-])
-@description('The Windows image SKU in the Azure marketplace for the Active Directory Domain Services (ADDS) domain controllers.')
-param addsVmImageSku string = '2022-datacenter-g2'
-
 @description('The virtual machine size for the Active Directory Domain Services (ADDS) domain controllers.')
 param addsVmSize string = 'Standard_D2s_v3'
 
@@ -40,12 +20,6 @@ param addsVmSize string = 'Standard_D2s_v3'
 @description('The object ID for the Azure Virtual Desktop enterprise application in Microsoft Entra ID.  The object ID can found by selecting Microsoft Applications using the Application type filter in the Enterprise Applications blade of Microsoft Entra ID.')
 param avdObjectId string
 
-@description('Choose whether to deploy a diagnostic setting for the Activity Log.')
-param deployActivityLogDiagnosticSetting bool
-
-@description('Choose whether to deploy Defender for Cloud.')
-param deployDefender bool
-
 @description('The suffix used for naming deployments uniquely. It defaults to a timestamp with the utcNow function.')
 param deploymentNameSuffix string = utcNow()
 
@@ -53,17 +27,46 @@ param deploymentNameSuffix string = utcNow()
 param deployPolicy bool
 
 @secure()
-@description('The password for the domain user account for accessing Azure NetApp Files.')
+@description('The password for the domain administrator account.')
+param domainAdministratorPassword string
+
+@description('The username for the domain administrator account.')
+param domainAdministratorUsername string
+
+@secure()
+@description('The password for the domain user account.')
 param domainUserPassword string
 
-@description('The username for the domain user account for accessing Azure NetApp Files.')
+@description('The username for the domain user account.')
 param domainUserUsername string
+
+@allowed([
+  'dev'
+  'prod'
+  'test'
+])
+@description('[dev/prod/test] The abbreviation for the target environment.')
+param environmentAbbreviation string = 'dev'
 
 @description('Determines whether to use the hybrid use benefit for the Windows virtual machines.')
 param hybridUseBenefit bool
 
+@minLength(1)
+@maxLength(3)
+@description('1-3 alphanumeric characters without whitespace, used to name resources and generate uniqueness for resources within your subscription. Ideally, the value should represent an organization, department, or business unit.')
+param identifier string
+
 @description('The region to deploy resources into. It defaults to the deployment location.')
 param location string = deployment().location
+
+@allowed([
+  'NISTRev4'
+  'NISTRev5'
+  'IL5' // AzureUsGoverment only, trying to deploy IL5 in AzureCloud will switch to NISTRev4
+  'CMMC'
+])
+@description('[NISTRev4/NISTRev5/IL5/CMMC] Built-in policy assignments to assign, Default value = "NISTRev4". IL5 is only available for AzureUsGovernment and will switch to NISTRev4 if tried in AzureCloud.')
+param policy string = 'NISTRev4'
 
 // @description('The base 64 encoded string containing the license file for the ESRI portal.')
 // param portalLicenseFile string
@@ -104,40 +107,62 @@ param tags object = {}
 // @description('The client ID for the user assigned managed identity assigned to the domain controllers. The identity is required to deploy and configure Entra Cloud Sync.')
 // param userAssignedManagedIdentityClientId string
 
-@secure()
-@description('The password for the local administrator account on the virtual machines.')
-param virtualMachineAdminPassword string
-
-@description('The username for the local administrator account on the virtual machines.')
-param virtualMachineAdminUsername string
-
-@allowed([
-  'Standard_NV4as_v4'
-  'Standard_NV8as_v4'
-  'Standard_NV16as_v4'
-  'Standard_NV32as_v4'
-])
-@description('The virtual machine SKU for the AVD session hosts.')
-param virtualMachineSize string = 'Standard_NV4as_v4'
-
 module missionLandingZone '../../mlz.bicep' = {
   name: 'deploy-mission-landing-zone-${deploymentNameSuffix}'
   params: {
     addsDomainName: addsDomainName
-    addsSafeModeAdminPassword: addsSafeModeAdminPassword
-    addsVmAdminPassword: addsVmAdminPassword
-    addsVmAdminUsername: addsVmAdminUsername
-    addsVmImageSku: addsVmImageSku
+    addsSafeModeAdminPassword: domainAdministratorPassword
+    addsAdministratorPassword: domainAdministratorPassword
+    addsAdministratorUsername: domainAdministratorUsername
+    addsVmImageSku: '2022-datacenter-g2'
     addsVmSize: addsVmSize
+    customFirewallRuleCollectionGroups: [
+      {
+        name: 'MLZ-DefaultCollectionGroup'
+        properties: {
+          priority: 100
+          ruleCollections: [
+            {
+              name: 'NetworkRules'
+              priority: 100
+              ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
+              action: {
+                type: 'Allow'
+              }
+              rules: [
+                {
+                  name: 'Allow-Any-Any'
+                  ruleType: 'NetworkRule'
+                  ipProtocols: ['Any']
+                  sourceAddresses: ['*']
+                  destinationAddresses: ['*']
+                  destinationPorts: ['*']
+                }
+              ]
+            }
+            {
+              name: 'ApplicationRules'
+              priority: 200
+              ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
+              action: {
+                type: 'Allow'
+              }
+              rules: []
+            }
+          ]
+        }
+      }
+    ]
     deployActiveDirectoryDomainServices: true
     deployBastion: true
     deployIdentity: true
     deployNetworkWatcherTrafficAnalytics: true
-    environmentAbbreviation: 'dev'
+    environmentAbbreviation: environmentAbbreviation
     firewallSkuTier: 'Standard'
     hybridUseBenefit: hybridUseBenefit
-    identifier: 'poc'
+    identifier: identifier
     location: location
+    policy: policy
     tags: tags
   }
 }
@@ -172,31 +197,32 @@ module domainUserAccount 'modules/domain-user-account.bicep' = {
   }
 }
 
-module azureVirtualDesktop '../azure-virtual-desktop/solution.bicep' = {
+module azureVirtualDesktop 'modules/azure-virtual-desktop.bicep' = {
   name: 'deploy-azure-virtual-desktop-${deploymentNameSuffix}'
   params: {
     activeDirectorySolution: 'MicrosoftEntraId'
-    availability: 'None'
     avdObjectId: avdObjectId
-    deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
-    deployDefender: deployDefender
+    deployActivityLogDiagnosticSetting: true
+    deployDefender: true
     deployPolicy: deployPolicy
     enableAcceleratedNetworking: true
-    environmentAbbreviation: 'dev'
+    environmentAbbreviation: environmentAbbreviation
     fslogixStorageService: 'None'
     hubAzureFirewallResourceId: missionLandingZone.outputs.azureFirewallResourceId
     hubStorageAccountResourceId: missionLandingZone.outputs.hubStorageAccountResourceId
     hubVirtualNetworkResourceId: missionLandingZone.outputs.hubVirtualNetworkResourceId
-    identifier: 'poc'
+    identifier: identifier
     locationVirtualMachines: location
     operationsLogAnalyticsWorkspaceResourceId: missionLandingZone.outputs.logAnalyticsWorkspaceResourceId
+    policy: policy
     privateLinkScopeResourceId: missionLandingZone.outputs.privateLinkScopeResourceId
     securityPrincipals: securityPrincipals
     sharedServicesSubnetResourceId: missionLandingZone.outputs.sharedServicesSubnetResourceId
-    virtualMachineAdminPassword: virtualMachineAdminPassword
-    virtualMachineAdminUsername: virtualMachineAdminUsername
-    virtualMachineSize: virtualMachineSize
-    virtualMachineVirtualCpuCount: int(replace(replace(virtualMachineSize, 'Standard_NV', ''), 'as_v4', ''))
+    usersPerCore: 1
+    virtualMachineAdminPassword: domainAdministratorPassword
+    virtualMachineAdminUsername: domainAdministratorUsername
+    virtualMachineSize: 'Standard_NV4ads_V710_v5'
+    virtualMachineVirtualCpuCount: 4
   }
 }
 
@@ -204,20 +230,21 @@ module azureNetAppFiles '../azure-netapp-files/solution.bicep' = {
   name: 'deploy-azure-netapp-files-${deploymentNameSuffix}'
   params: {
     azureFirewallResourceId: missionLandingZone.outputs.azureFirewallResourceId
-    deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
-    deployDefender: deployDefender
+    deployActivityLogDiagnosticSetting: true
+    deployDefender: true
     deploymentNameSuffix: deploymentNameSuffix
     deployPolicy: deployPolicy
-    domainJoinPassword: virtualMachineAdminPassword
-    domainJoinUserPrincipalName: virtualMachineAdminUsername
+    domainJoinPassword: domainAdministratorPassword
+    domainJoinUserPrincipalName: '${domainAdministratorUsername}@${addsDomainName}'
     domainName: addsDomainName
-    environmentAbbreviation: 'dev'
+    environmentAbbreviation: environmentAbbreviation
     fileShareName: 'arcgispro'
     hubStorageAccountResourceId: missionLandingZone.outputs.hubStorageAccountResourceId
     hubVirtualNetworkResourceId: missionLandingZone.outputs.hubVirtualNetworkResourceId
-    identifier: 'poc'
+    identifier: identifier
     location: location
     logAnalyticsWorkspaceResourceId: missionLandingZone.outputs.logAnalyticsWorkspaceResourceId
+    policy: policy
     sku: 'Standard'
     tags: tags
   }
@@ -227,8 +254,8 @@ module azureNetAppFiles '../azure-netapp-files/solution.bicep' = {
 /* module arcGisEnterprise '../esri-enterprise/solution.bicep' = {
   name: 'deploy-esri-enterprise-${deploymentNameSuffix}'
   params: {
-    adminPassword: virtualMachineAdminPassword
-    adminUsername: virtualMachineAdminUsername
+    adminPassword: domainAdministratorPassword
+    adminUsername: domainAdministratorUsername
     arcgisServiceAccountIsDomainAccount: true
     arcgisServiceAccountPassword: arcgisServiceAccountPassword
     arcgisServiceAccountUsername: arcgisServiceAccountUsername
@@ -264,8 +291,8 @@ module azureNetAppFiles '../azure-netapp-files/solution.bicep' = {
     spokelogAnalyticsWorkspaceResourceId: missionLandingZone.outputs.logAnalyticsWorkspaceResourceId
     useAzureFiles: false
     useCloudStorage: false
-    windowsDomainAdministratorPassword: virtualMachineAdminPassword
-    windowsDomainAdministratorUserName: virtualMachineAdminUsername
+    windowsDomainAdministratorPassword: domainAdministratorPassword
+    windowsDomainAdministratorUserName: domainAdministratorUsername
     windowsDomainName: domainName
   }
 } */
