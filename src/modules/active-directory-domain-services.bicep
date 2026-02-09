@@ -9,14 +9,10 @@ targetScope = 'subscription'
 param adminPassword string
 param adminUsername string
 param delimiter string
-param deployEntraCloudSync bool
 param deploymentNameSuffix string
 param dnsForwarder string = '168.63.129.16'
 param domainName string
 param environmentAbbreviation string
-@secure()
-param hybridIdentityAdministratorPassword string
-param hybridIdentityAdministratorUserPrincipalName string
 param hybridUseBenefit bool
 param imageOffer string
 param imagePublisher string
@@ -118,31 +114,6 @@ module domainControllers 'domain-controller.bicep' = [
     ]
   }
 ]
-
-module entraCloudSync 'entra-cloud-sync.bicep' = if (deployEntraCloudSync) {
-  name: 'deploy-entra-cloud-sync-${deploymentNameSuffix}'
-  scope: resourceGroup(tier.subscriptionId, resourceGroupName)
-  params: {
-    adminPassword: adminPassword
-    adminUsername: adminUsername
-    delimiter: delimiter
-    deploymentNameSuffix: deploymentNameSuffix
-    diskEncryptionSetResourceId: customerManagedKeys.outputs.diskEncryptionSetResourceId
-    domainName: domainName
-    hybridIdentityAdministratorPassword: hybridIdentityAdministratorPassword
-    hybridIdentityAdministratorUserPrincipalName: hybridIdentityAdministratorUserPrincipalName
-    location: location
-    mlzTags: mlzTags
-    subnetResourceId: tier.subnetResourceId
-    tags: tags
-    tier: tier
-    tokens: tokens
-    virtualMachineNames: [
-      domainControllers[0].outputs.virtualMachineName
-      domainControllers[1].outputs.virtualMachineName
-    ]
-  }
-}
 
 output keyVaultProperties object = customerManagedKeys.outputs.keyVaultProperties
 output networkInterfaceResourceIds array = [
