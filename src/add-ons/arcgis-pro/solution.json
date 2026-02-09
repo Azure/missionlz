@@ -5,41 +5,37 @@
     "_generator": {
       "name": "bicep",
       "version": "0.40.2.10011",
-      "templateHash": "4041405193382192904"
+      "templateHash": "10505393506815328114"
     }
   },
   "parameters": {
     "addsDomainName": {
       "type": "string",
-      "defaultValue": "",
       "metadata": {
         "description": "The root domain name for the new forest in Active Directory Domain Services. Required when deployActiveDirectoryDomainServices is true."
       }
     },
     "addsSafeModeAdminPassword": {
       "type": "securestring",
-      "defaultValue": "",
       "metadata": {
         "description": "The password for the safe mode administrator account. Required when deployActiveDirectoryDomainServices is true."
       }
     },
     "addsVmAdminPassword": {
       "type": "securestring",
-      "defaultValue": "",
       "metadata": {
         "description": "The password for the local administrator accounts on the Active Directory Domain Services (ADDS) domain controllers. Required when deployActiveDirectoryDomainServices is true."
       }
     },
     "addsVmAdminUsername": {
       "type": "string",
-      "defaultValue": "",
       "metadata": {
         "description": "The username for the local administrator accounts on the Active Directory Domain Services (ADDS) domain controllers. Required when deployActiveDirectoryDomainServices is true."
       }
     },
     "addsVmImageSku": {
       "type": "string",
-      "defaultValue": "2019-datacenter-gensecond",
+      "defaultValue": "2022-datacenter-g2",
       "allowedValues": [
         "2019-datacenter-core-g2",
         "2019-datacenter-gensecond",

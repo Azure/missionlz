@@ -5,18 +5,18 @@ targetScope = 'subscription'
 // param aadGraphAccessToken string = ''
 
 @description('The root domain name for the new forest in Active Directory Domain Services. Required when deployActiveDirectoryDomainServices is true.')
-param addsDomainName string = ''
+param addsDomainName string
 
 @secure()
 @description('The password for the safe mode administrator account. Required when deployActiveDirectoryDomainServices is true.')
-param addsSafeModeAdminPassword string = ''
+param addsSafeModeAdminPassword string
 
 @description('The password for the local administrator accounts on the Active Directory Domain Services (ADDS) domain controllers. Required when deployActiveDirectoryDomainServices is true.')
 @secure()
-param addsVmAdminPassword string = ''
+param addsVmAdminPassword string
 
 @description('The username for the local administrator accounts on the Active Directory Domain Services (ADDS) domain controllers. Required when deployActiveDirectoryDomainServices is true.')
-param addsVmAdminUsername string = ''
+param addsVmAdminUsername string
 
 @allowed([
   '2019-datacenter-core-g2' // Windows Server 2019 Datacenter Core Gen2
@@ -25,7 +25,7 @@ param addsVmAdminUsername string = ''
   '2022-datacenter-g2' // Windows Server 2022 Datacenter Gen2
 ])
 @description('The Windows image SKU in the Azure marketplace for the Active Directory Domain Services (ADDS) domain controllers.')
-param addsVmImageSku string = '2019-datacenter-gensecond'
+param addsVmImageSku string = '2022-datacenter-g2'
 
 @description('The virtual machine size for the Active Directory Domain Services (ADDS) domain controllers.')
 param addsVmSize string = 'Standard_D2s_v3'
