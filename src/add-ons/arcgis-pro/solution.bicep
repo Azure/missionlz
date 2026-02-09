@@ -135,7 +135,7 @@ module missionLandingZone '../../mlz.bicep' = {
   }
 }
 
-// Commented out until Entra Cloud Sync automation is complete
+// Commented out Entra Cloud Sync automation until complete
 // module entraCloudSync 'modules/entra-cloud-sync.bicep' = {
 //   name: 'deploy-entra-cloud-sync-${deploymentNameSuffix}'
 //   params: {
@@ -203,7 +203,7 @@ module azureNetAppFiles '../azure-netapp-files/solution.bicep' = {
   }
 }
 
-// Commented out the ArcGIS Enterprise deployment until its ready
+// Commented out ArcGIS Enterprise deployment until ready
 /* module arcGisEnterprise '../esri-enterprise/solution.bicep' = {
   name: 'deploy-esri-enterprise-${deploymentNameSuffix}'
   params: {
