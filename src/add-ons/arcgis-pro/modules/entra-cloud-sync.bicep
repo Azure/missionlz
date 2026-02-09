@@ -5,6 +5,8 @@ Licensed under the MIT License.
 
 extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:1.0.0'
 
+targetScope = 'subscription'
+
 param accessToken string
 @secure()
 param adminPassword string
@@ -16,11 +18,15 @@ param location string
 param mlzTags object
 param tags object
 param userAssignedManagedIdentityClientId string
-param virtualMachineNames array
+param virtualMachineResourceIds array
+
+var resourceGroupName = split(virtualMachineResourceIds[0], '/')[4]
+var subscriptionId = split(virtualMachineResourceIds[0], '/')[2]
 
 // Run command to install Entra Cloud Sync on the domain controllers
-module installEntraCloudSyncAgents '../../../modules/run-command.bicep' = [ for (virtualMachineName, i) in virtualMachineNames: {
-  name: 'install-entra-cloud-sync-${i}-${deploymentNameSuffix}'
+module installEntraCloudSyncAgents '../../../modules/run-command.bicep' = {
+  name: 'install-entra-cloud-sync-${deploymentNameSuffix}'
+  scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
     location: location
     mlzTags: mlzTags
@@ -58,13 +64,14 @@ module installEntraCloudSyncAgents '../../../modules/run-command.bicep' = [ for 
     protectedParameters: '[{\'name\':\'AccessToken\',\'value\':\'${accessToken}\'},{\'name\':\'DomainAdministratorPassword\',\'value\':\'${adminPassword}\'}]'
     script: loadTextContent('../artifacts/Install-EntraCloudSyncAgent.ps1')
     tags: tags
-    virtualMachineName: virtualMachineName
+    virtualMachineName: split(virtualMachineResourceIds[0], '/')[8]
   }
-}]
+}
 
 // Run command to provision the Entra Cloud Sync configuration in Entra ID
 module provisionEntraCloudSyncConfiguration '../../../modules/run-command.bicep' = {
   name: 'provision-entra-cloud-sync-config-${deploymentNameSuffix}'
+  scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
     location: location
     mlzTags: mlzTags
@@ -89,7 +96,7 @@ module provisionEntraCloudSyncConfiguration '../../../modules/run-command.bicep'
     ]
     script: loadTextContent('../artifacts/New-EntraCloudSyncConfiguration.ps1')
     tags: tags
-    virtualMachineName: virtualMachineNames[0]
+    virtualMachineName: split(virtualMachineResourceIds[0], '/')[8]
   }
   dependsOn: [
     installEntraCloudSyncAgents
