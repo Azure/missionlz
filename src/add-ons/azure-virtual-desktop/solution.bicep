@@ -301,12 +301,6 @@ param sessionHostsSubnetAddressPrefix string = '10.0.1${40 + (2 * stampIndex)}.0
 @description('The resource ID for the subnet in the Shared Services subscription. This is required for the private endpoint on the AVD Global Workspace.')
 param sharedServicesSubnetResourceId string
 
-@description('The address prefix for the AVD Shared subnet that will be created in the AVD Shared spoke virtual network.')
-param sharedSubnetAddressPrefix string = '10.0.139.0/24'
-
-@description('The address prefix for the AVD Shared virtual network.')
-param sharedVirtualNetworkAddressPrefix string = '10.0.139.0/24'
-
 @maxValue(9)
 @minValue(0)
 @description('The stamp index allows for multiple AVD stamps with the same business unit or project to support different use cases. For example, "0" could be used for an office workers host pool and "1" could be used for a developers host pool within the "finance" business unit.')
@@ -475,45 +469,8 @@ resource partnerTelemetry 'Microsoft.Resources/deployments@2021-04-01' = if (ena
   }
 }
 
-// Deploys the tier3 resources to support the AVD shared resources
-module tier3_shared '../tier3/solution.bicep' = {
-  name: 'deploy-tier3-avd-shared-${deploymentNameSuffix}'
-  params: {
-    deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
-    deployDefender: deployDefender
-    deployNetworkWatcherTrafficAnalytics: deployNetworkWatcherTrafficAnalytics
-    deployPolicy: deployPolicy
-    emailSecurityContact: emailSecurityContact
-    environmentAbbreviation: environmentAbbreviation
-    firewallResourceId: hubAzureFirewallResourceId
-    hubStorageAccountResourceId: hubStorageAccountResourceId
-    hubVirtualNetworkResourceId: hubVirtualNetworkResourceId
-    identifier: identifier
-    keyVaultDiagnosticLogs: keyVaultDiagnosticsLogs
-    keyVaultDiagnosticMetrics: keyVaultDiagnosticMetrics
-    location: locationVirtualMachines
-    logAnalyticsWorkspaceResourceId: operationsLogAnalyticsWorkspaceResourceId
-    logStorageSkuName: logStorageSkuName
-    networkInterfaceDiagnosticsMetrics: networkInterfaceDiagnosticsMetrics
-    networkSecurityGroupDiagnosticsLogs: networkSecurityGroupDiagnosticsLogs
-    networkSecurityGroupRules: networkSecurityGroupRules
-    networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
-    networkWatcherFlowLogsType: networkWatcherFlowLogsType
-    policy: policy
-    subnetAddressPrefix: sharedSubnetAddressPrefix
-    subnetName: 'avd-shared'
-    tags: tags
-    virtualNetworkAddressPrefix: sharedVirtualNetworkAddressPrefix
-    virtualNetworkDiagnosticsLogs: virtualNetworkDiagnosticsLogs
-    virtualNetworkDiagnosticsMetrics: virtualNetworkDiagnosticsMetrics
-    windowsAdministratorsGroupMembership: virtualMachineAdminUsername
-    workloadName: 'avd'
-    workloadShortName: 'avd'
-  }
-}
-
-// Deploys the tier3 resources to support the AVD stamp resources
-module tier3_stamp '../tier3/solution.bicep' = {
+// Deploys the tier3 resources to support AVD
+module tier3 '../tier3/solution.bicep' = {
   name: 'deploy-tier3-avd-stamp-${deploymentNameSuffix}'
   params: {
     additionalSubnets: union(subnets.avdManagement, subnets.azureNetAppFiles, subnets.functionApp)
@@ -732,9 +689,6 @@ module tier3_stamp '../tier3/solution.bicep' = {
     workloadName: 'avd'
     workloadShortName: 'avd'
   }
-  dependsOn: [
-    tier3_shared
-  ]
 }
 
 // Deploys the management resource group and resources
@@ -742,7 +696,7 @@ module management 'modules/management/management.bicep' = {
   name: 'deploy-management-${deploymentNameSuffix}'
   params: {
     avdObjectId: avdObjectId
-    delimiter: tier3_stamp.outputs.delimiter
+    delimiter: tier3.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
     diskSku: diskSku
     domainJoinPassword: domainJoinPassword
@@ -751,14 +705,14 @@ module management 'modules/management/management.bicep' = {
     environmentAbbreviation: environmentAbbreviation
     locationControlPlane: virtualNetwork_hub.location
     locationVirtualMachines: locationVirtualMachines
-    mlzTags: tier3_stamp.outputs.mlzTags
+    mlzTags: tier3.outputs.mlzTags
     organizationalUnitPath: organizationalUnitPath
     privateDnsZoneResourceIdPrefix: privateDnsZoneResourceIdPrefix
-    privateDnsZones: tier3_stamp.outputs.privateDnsZones
-    resourceAbbreviations: tier3_stamp.outputs.resourceAbbreviations
+    privateDnsZones: tier3.outputs.privateDnsZones
+    resourceAbbreviations: tier3.outputs.resourceAbbreviations
     tags: tags
-    tier: tier3_stamp.outputs.tier
-    tokens: tier3_stamp.outputs.tokens
+    tier: tier3.outputs.tier
+    tokens: tier3.outputs.tokens
     virtualMachineAdminPassword: virtualMachineAdminPassword
     virtualMachineAdminUsername: virtualMachineAdminUsername
     virtualMachineSize: managementVirtualMachineSize
@@ -769,7 +723,7 @@ module management 'modules/management/management.bicep' = {
 module shared 'modules/shared/shared.bicep' = {
   name: 'deploy-shared-${deploymentNameSuffix}'
   params: {
-    delimiter: tier3_shared.outputs.delimiter
+    delimiter: tier3.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedIdentityPrincipalId: management.outputs.deploymentUserAssignedIdentityPrincipalId
     enableApplicationInsights: enableApplicationInsights
@@ -784,13 +738,13 @@ module shared 'modules/shared/shared.bicep' = {
     locationVirtualMachines: locationVirtualMachines
     logAnalyticsWorkspaceRetention: logAnalyticsWorkspaceRetention
     logAnalyticsWorkspaceSku: logAnalyticsWorkspaceSku
-    mlzTags: tier3_shared.outputs.mlzTags
+    mlzTags: tier3.outputs.mlzTags
     privateDnsZoneResourceIdPrefix: privateDnsZoneResourceIdPrefix
-    privateDnsZones: tier3_stamp.outputs.privateDnsZones
+    privateDnsZones: tier3.outputs.privateDnsZones
     privateLinkScopeResourceId: privateLinkScopeResourceId
     tags: tags
-    tier: tier3_shared.outputs.tier
-    tokens: tier3_shared.outputs.tokens
+    tier: tier3.outputs.tier
+    tokens: tier3.outputs.tokens
   }
 }
 
@@ -798,10 +752,10 @@ module controlPlane 'modules/control-plane/control-plane.bicep' = {
   name: 'deploy-control-plane-${deploymentNameSuffix}'
   params: {
     activeDirectorySolution: activeDirectorySolution
-    avdPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3_stamp.outputs.privateDnsZones, name => startsWith(name, 'privatelink.wvd'))[0]}'
+    avdPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3.outputs.privateDnsZones, name => startsWith(name, 'privatelink.wvd'))[0]}'
     customImageId: customImageId
     customRdpProperty: customRdpProperty
-    delimiter: tier3_shared.outputs.delimiter
+    delimiter: tier3.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedIdentityClientId: management.outputs.deploymentUserAssignedIdentityClientId
     desktopFriendlyName: desktopFriendlyName
@@ -820,16 +774,14 @@ module controlPlane 'modules/control-plane/control-plane.bicep' = {
     logAnalyticsWorkspaceResourceId: shared.outputs.logAnalyticsWorkspaceResourceId
     managementVirtualMachineName: management.outputs.virtualMachineName
     maxSessionLimit: usersPerCore * virtualMachineVirtualCpuCount
-    mlzTags: tier3_stamp.outputs.mlzTags
+    mlzTags: tier3.outputs.mlzTags
+    namingConvention: tier3.outputs.tier.namingConvention
     resourceGroupManagement: management.outputs.resourceGroupName
     resourceGroupShared: shared.outputs.resourceGroupName
     securityPrincipalObjectIds: map(securityPrincipals, item => item.objectId)
+    subnetResourceId: tier3.outputs.tier.subnetResourceId
     tags: tags
-    tiers: [
-      tier3_shared.outputs.tier
-      tier3_stamp.outputs.tier
-    ]
-    tokens: tier3_shared.outputs.tokens
+    tokens: tier3.outputs.tokens
     validationEnvironment: validationEnvironment
     virtualMachineSize: virtualMachineSize
     workspaceFriendlyName: workspaceFriendlyName
@@ -846,11 +798,11 @@ module sharedServices 'modules/shared-services/shared-services.bicep' = {
     identifier: identifier
     identifierHub: virtualNetwork_hub.tags.identifier
     locationControlPlane: virtualNetwork_hub.location
-    mlzTags: tier3_shared.outputs.mlzTags
+    mlzTags: tier3.outputs.mlzTags
     sharedServicesSubnetResourceId: sharedServicesSubnetResourceId
-    tier: tier3_shared.outputs.tier
-    tokens: tier3_shared.outputs.tokens
-    workspaceGlobalPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3_stamp.outputs.privateDnsZones, name => startsWith(name, 'privatelink-global.wvd'))[0]}'
+    tier: tier3.outputs.tier
+    tokens: tier3.outputs.tokens
+    workspaceGlobalPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3.outputs.privateDnsZones, name => startsWith(name, 'privatelink-global.wvd'))[0]}'
   }
 }
 
@@ -860,8 +812,8 @@ module fslogix 'modules/fslogix/fslogix.bicep' = if (deployFslogix) {
   params: {
     activeDirectorySolution: activeDirectorySolution
     availability: availability
-    azureFilesPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3_stamp.outputs.privateDnsZones, name => contains(name, 'file'))[0]}'
-    delimiter: tier3_stamp.outputs.delimiter
+    azureFilesPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3.outputs.privateDnsZones, name => contains(name, 'file'))[0]}'
+    delimiter: tier3.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedIdentityClientId: management.outputs.deploymentUserAssignedIdentityClientId
     deploymentUserAssignedIdentityPrincipalId: management.outputs.deploymentUserAssignedIdentityPrincipalId
@@ -879,7 +831,7 @@ module fslogix 'modules/fslogix/fslogix.bicep' = if (deployFslogix) {
     keyVaultUri: management.outputs.keyVaultUri
     location: locationVirtualMachines
     managementVirtualMachineName: management.outputs.virtualMachineName
-    mlzTags: tier3_stamp.outputs.mlzTags
+    mlzTags: tier3.outputs.mlzTags
     netbios: netbios
     organizationalUnitPath: organizationalUnitPath
     resourceGroupManagement: management.outputs.resourceGroupName
@@ -890,8 +842,8 @@ module fslogix 'modules/fslogix/fslogix.bicep' = if (deployFslogix) {
     storageService: storageService
     storageSku: storageSku
     tags: tags
-    tier: tier3_stamp.outputs.tier
-    tokens: tier3_stamp.outputs.tokens
+    tier: tier3.outputs.tier
+    tokens: tier3.outputs.tokens
   }
 }
 
@@ -906,7 +858,7 @@ module sessionHosts 'modules/session-hosts/session-hosts.bicep' = {
     availabilityZones: availabilityZones
     avdConfigurationZipFileUri: 'https://${avdStorageAccountEndpoint}/galleryartifacts/Configuration_1.0.03211.1002.zip'
     dataCollectionRuleResourceId: shared.outputs.dataCollectionRuleResourceId
-    delimiter: tier3_stamp.outputs.delimiter
+    delimiter: tier3.outputs.delimiter
     deployFslogix: deployFslogix
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedIdentityClientId: management.outputs.deploymentUserAssignedIdentityClientId
@@ -934,11 +886,11 @@ module sessionHosts 'modules/session-hosts/session-hosts.bicep' = {
     imageSku: imageSku
     imageVersionResourceId: imageVersionResourceId
     location: locationVirtualMachines
-    locationProperties: tier3_stamp.outputs.locationProperties
+    locationProperties: tier3.outputs.locationProperties
     logAnalyticsWorkspaceResourceId: shared.outputs.logAnalyticsWorkspaceResourceId
     managementVirtualMachineName: management.outputs.virtualMachineName
     maxResourcesPerTemplateDeployment: maxResourcesPerTemplateDeployment
-    mlzTags: tier3_stamp.outputs.mlzTags
+    mlzTags: tier3.outputs.mlzTags
     netAppFileShares: deployFslogix
       ? fslogix!.outputs.netAppShares
       : [
@@ -960,8 +912,8 @@ module sessionHosts 'modules/session-hosts/session-hosts.bicep' = {
     storageService: storageService
     storageSuffix: storageSuffix
     tags: tags
-    tier: tier3_stamp.outputs.tier
-    tokens: tier3_stamp.outputs.tokens
+    tier: tier3.outputs.tier
+    tokens: tier3.outputs.tokens
     virtualMachineAdminPassword: virtualMachineAdminPassword
     virtualMachineAdminUsername: virtualMachineAdminUsername
     virtualMachineSize: virtualMachineSize
