@@ -3,17 +3,15 @@ Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
 
-extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:1.0.0'
-
 targetScope = 'subscription'
 
+@secure()
 param accessToken string
 @secure()
 param adminPassword string
 param adminUsername string
 param deploymentNameSuffix string
 param domainName string
-@secure()
 param location string
 param mlzTags object
 param tags object
