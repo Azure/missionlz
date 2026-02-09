@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.40.2.10011",
-      "templateHash": "16191664046515640464"
+      "templateHash": "4041405193382192904"
     }
   },
   "parameters": {
@@ -86,6 +86,18 @@
       "type": "bool",
       "metadata": {
         "description": "Choose whether to deploy a policy assignment."
+      }
+    },
+    "domainUserPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "The password for the domain user account for accessing Azure NetApp Files."
+      }
+    },
+    "domainUserUsername": {
+      "type": "string",
+      "metadata": {
+        "description": "The username for the domain user account for accessing Azure NetApp Files."
       }
     },
     "hybridUseBenefit": {
@@ -12514,6 +12526,194 @@
           }
         }
       }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "[format('deploy-domain-user-account-{0}', parameters('deploymentNameSuffix'))]",
+      "location": "[deployment().location]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "deploymentNameSuffix": {
+            "value": "[parameters('deploymentNameSuffix')]"
+          },
+          "domainUserPassword": {
+            "value": "[parameters('domainUserPassword')]"
+          },
+          "domainUserUsername": {
+            "value": "[parameters('domainUserUsername')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "mlzTags": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-mission-landing-zone-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.mlzTags.value]"
+          },
+          "tags": {
+            "value": "[parameters('tags')]"
+          },
+          "virtualMachineResourceIds": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-mission-landing-zone-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.domainControllerResourceIds.value]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.40.2.10011",
+              "templateHash": "1469794074528414962"
+            }
+          },
+          "parameters": {
+            "deploymentNameSuffix": {
+              "type": "string"
+            },
+            "domainUserPassword": {
+              "type": "securestring"
+            },
+            "domainUserUsername": {
+              "type": "string"
+            },
+            "location": {
+              "type": "string"
+            },
+            "mlzTags": {
+              "type": "object"
+            },
+            "tags": {
+              "type": "object"
+            },
+            "virtualMachineResourceIds": {
+              "type": "array"
+            }
+          },
+          "variables": {
+            "$fxv#0": "param (\r\n\r\n    [Parameter(Mandatory = $true)]\r\n    [string]$DomainUserPassword,\r\n\r\n    [Parameter(Mandatory = $true)]\r\n    [string]$DomainUserUsername\r\n)\r\n\r\n# Ensure the ActiveDirectory module is loaded\r\nImport-Module ActiveDirectory -ErrorAction Stop\r\n\r\n# Convert password to secure string\r\n$SecureDomainUserPassword = ConvertTo-SecureString -String $DomainUserPassword -AsPlainText\r\n\r\n# Create the new AD user\r\nNew-ADUser `\r\n    -Name $DomainUserUsername `\r\n    -AccountPassword $SecureDomainUserPassword `\r\n    -Enabled $true `\r\n    -ChangePasswordAtLogon $false `\r\n    -PasswordNeverExpires $true\r\n        ",
+            "resourceGroupName": "[split(parameters('virtualMachineResourceIds')[0], '/')[4]]",
+            "subscriptionId": "[split(parameters('virtualMachineResourceIds')[0], '/')[2]]"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2025-04-01",
+              "name": "[format('new-domain-user-account-{0}', parameters('deploymentNameSuffix'))]",
+              "subscriptionId": "[variables('subscriptionId')]",
+              "resourceGroup": "[variables('resourceGroupName')]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
+                  "mlzTags": {
+                    "value": "[parameters('mlzTags')]"
+                  },
+                  "name": {
+                    "value": "New-DomainUserAccount"
+                  },
+                  "parameters": {
+                    "value": [
+                      {
+                        "name": "DomainUserUsername",
+                        "value": "[parameters('domainUserUsername')]"
+                      }
+                    ]
+                  },
+                  "protectedParameters": {
+                    "value": "[format('[{{''name'':''DomainUserPassword'',''value'':''{0}''}}]', parameters('domainUserPassword'))]"
+                  },
+                  "script": {
+                    "value": "[variables('$fxv#0')]"
+                  },
+                  "tags": {
+                    "value": "[parameters('tags')]"
+                  },
+                  "virtualMachineName": {
+                    "value": "[split(parameters('virtualMachineResourceIds')[0], '/')[8]]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.40.2.10011",
+                      "templateHash": "14122911598649465472"
+                    }
+                  },
+                  "parameters": {
+                    "asyncExecution": {
+                      "type": "bool",
+                      "defaultValue": false
+                    },
+                    "location": {
+                      "type": "string"
+                    },
+                    "mlzTags": {
+                      "type": "object"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "parameters": {
+                      "type": "array",
+                      "defaultValue": []
+                    },
+                    "protectedParameters": {
+                      "type": "securestring",
+                      "defaultValue": ""
+                    },
+                    "script": {
+                      "type": "string"
+                    },
+                    "tags": {
+                      "type": "object"
+                    },
+                    "treatFailureAsDeploymentFailure": {
+                      "type": "bool",
+                      "defaultValue": true
+                    },
+                    "virtualMachineName": {
+                      "type": "string"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Compute/virtualMachines/runCommands",
+                      "apiVersion": "2023-09-01",
+                      "name": "[format('{0}/{1}', parameters('virtualMachineName'), parameters('name'))]",
+                      "location": "[parameters('location')]",
+                      "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/virtualMachines'), createObject()), parameters('mlzTags'))]",
+                      "properties": {
+                        "asyncExecution": "[parameters('asyncExecution')]",
+                        "parameters": "[parameters('parameters')]",
+                        "protectedParameters": "[json(parameters('protectedParameters'))]",
+                        "source": {
+                          "script": "[parameters('script')]"
+                        },
+                        "treatFailureAsDeploymentFailure": "[parameters('treatFailureAsDeploymentFailure')]"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-mission-landing-zone-{0}', parameters('deploymentNameSuffix')))]"
+      ]
     },
     {
       "type": "Microsoft.Resources/deployments",

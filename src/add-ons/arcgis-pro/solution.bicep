@@ -52,6 +52,13 @@ param deploymentNameSuffix string = utcNow()
 @description('Choose whether to deploy a policy assignment.')
 param deployPolicy bool
 
+@secure()
+@description('The password for the domain user account for accessing Azure NetApp Files.')
+param domainUserPassword string
+
+@description('The username for the domain user account for accessing Azure NetApp Files.')
+param domainUserUsername string
+
 @description('Determines whether to use the hybrid use benefit for the Windows virtual machines.')
 param hybridUseBenefit bool
 
@@ -151,6 +158,19 @@ module missionLandingZone '../../mlz.bicep' = {
 //     virtualMachineResourceIds: missionLandingZone.outputs.domainControllerResourceIds
 //   }
 // }
+
+module domainUserAccount 'modules/domain-user-account.bicep' = {
+  name: 'deploy-domain-user-account-${deploymentNameSuffix}'
+  params: {
+    deploymentNameSuffix: deploymentNameSuffix
+    domainUserPassword: domainUserPassword
+    domainUserUsername: domainUserUsername
+    location: location
+    mlzTags: missionLandingZone.outputs.mlzTags
+    tags: tags
+    virtualMachineResourceIds: missionLandingZone.outputs.domainControllerResourceIds
+  }
+}
 
 module azureVirtualDesktop '../azure-virtual-desktop/solution.bicep' = {
   name: 'deploy-azure-virtual-desktop-${deploymentNameSuffix}'
