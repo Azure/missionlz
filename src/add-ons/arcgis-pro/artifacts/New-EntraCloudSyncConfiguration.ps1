@@ -85,22 +85,32 @@ $PasswordHashJob = Invoke-RestMethod `
 # Get the provisioning job schema
 # Required Permissions: Synchronization.ReadWrite.All
 # https://learn.microsoft.com/graph/api/synchronization-synchronizationschema-get?view=graph-rest-beta&tabs=http
-$ProvisioningJobSchema = Invoke-RestMethod `
+$ProvisioningJobSchema = (Invoke-WebRequest `
     -Headers $Headers `
     -Method 'GET' `
-    -Uri $($MicrosoftGraphEndpoint + '/beta/servicePrincipals/' + $ServicePrincipalObjectId + '/synchronization/jobs/' + $ProvisioningJob.id + '/schema')
+    -Uri $($MicrosoftGraphEndpoint + '/beta/servicePrincipals/' + $ServicePrincipalObjectId + '/synchronization/jobs/' + $ProvisioningJob.id + '/schema') `
+    -UseBasicParsing).Content
+
+$UpdateProvisioningJobSchema1 = $ProvisioningJobSchema.Replace('"name":"Provision Active Directory users","sourceObjectName":"user","targetObjectName":"User","attributeMappings":[', '"name":"Provision Active Directory users","sourceObjectName":"user","targetObjectName":"User","attributeMappings":[{"defaultValue":null,"exportMissingReferences":false,"flowBehavior":"FlowWhenChanged","flowType":"Always","matchingPriority":0,"targetAttributeName":"CredentialData","source":{"expression":"[PasswordHash]","name":"PasswordHash","type":"Attribute","parameters":[]}},')
+$UpdatedProvisioningJobSchema = $UpdateProvisioningJobSchema1.Replace('"name":"Provision Active Directory inetOrgPersons","sourceObjectName":"inetOrgPerson","targetObjectName":"User","attributeMappings":[', '"name":"Provision Active Directory inetOrgPersons","sourceObjectName":"inetOrgPerson","targetObjectName":"User","attributeMappings":[{"defaultValue":null,"exportMissingReferences":false,"flowBehavior":"FlowWhenChanged","flowType":"Always","matchingPriority":0,"targetAttributeName":"CredentialData","source":{"expression":"[PasswordHash]","name":"PasswordHash","type":"Attribute","parameters":[]}},')
 
 # Update the provisioning job schema
 # Required Permissions: Synchronization.ReadWrite.All
 # https://learn.microsoft.com/graph/api/synchronization-synchronizationschema-update?view=graph-rest-beta&tabs=http
 Invoke-RestMethod `
-    -Body $($Schema.Replace('ServicePrincipalObjectId',$ServicePrincipalObjectId)).Replace('ProvisioningJobId',$ProvisioningJob.id) `
+    -Body $UpdatedProvisioningJobSchema `
     -Headers $Headers `
     -Method 'PUT' `
     -Uri $($MicrosoftGraphEndpoint + '/beta/servicePrincipals/' + $ServicePrincipalObjectId + '/synchronization/jobs/' + $ProvisioningJob.id + '/schema')
 
 # Discover the schema directory for the provisioning synchronization job
 # This has always thrown a 500 error and not how to incorpate it. The portal uses this API when deploying a new configuration.
+
+# $DirectoryId = ((Invoke-RestMethod `
+#     -Headers $Headers `
+#     -Method 'GET' `
+#     -Uri $($MicrosoftGraphEndpoint + '/beta/servicePrincipals/' + $ServicePrincipalObjectId + '/synchronization/jobs/' + $ProvisioningJob.id + '/schema')).directories | Where-Object {$_.name -eq 'Active Directory'}).id
+
 # Invoke-RestMethod `
 #     -Headers $Headers `
 #     -Method 'POST' `
