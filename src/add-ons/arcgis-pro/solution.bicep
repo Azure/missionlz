@@ -1,8 +1,8 @@
 targetScope = 'subscription'
 
-@secure()
-@description('The Azure Active Directory Graph API access token with sufficient permissions to deploy Entra Cloud Sync. Refer to the documentation to get this value. It is only supported in AzureCloud / Commercial.')
-param aadGraphAccessToken string = ''
+// @secure()
+// @description('The Azure Active Directory Graph API access token with sufficient permissions to deploy Entra Cloud Sync. Refer to the documentation to get this value. It is only supported in AzureCloud / Commercial.')
+// param aadGraphAccessToken string = ''
 
 @description('The root domain name for the new forest in Active Directory Domain Services. Required when deployActiveDirectoryDomainServices is true.')
 param addsDomainName string = ''
@@ -94,6 +94,9 @@ param securityPrincipals array
 @description('A string dictionary of tags to add to deployed resources. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-resource-manager/management/tag-resources?tabs=json#arm-templates.')
 param tags object = {}
 
+// @description('The client ID for the user assigned managed identity assigned to the domain controllers. The identity is required to deploy and configure Entra Cloud Sync.')
+// param userAssignedManagedIdentityClientId string
+
 @secure()
 @description('The password for the local administrator account on the virtual machines.')
 param virtualMachineAdminPassword string
@@ -132,29 +135,22 @@ module missionLandingZone '../../mlz.bicep' = {
   }
 }
 
-module entraCloudSync 'entra-cloud-sync.bicep' = if (deployEntraCloudSync) {
-  name: 'deploy-entra-cloud-sync-${deploymentNameSuffix}'
-  scope: resourceGroup(tier.subscriptionId, resourceGroupName)
-  params: {
-    accessToken: aadGraphAccessToken
-    adminPassword: adminPassword
-    adminUsername: adminUsername
-    delimiter: delimiter
-    deploymentNameSuffix: deploymentNameSuffix
-    diskEncryptionSetResourceId: customerManagedKeys.outputs.diskEncryptionSetResourceId
-    domainName: domainName
-    location: location
-    mlzTags: mlzTags
-    subnetResourceId: tier.subnetResourceId
-    tags: tags
-    tier: tier
-    tokens: tokens
-    virtualMachineNames: [
-      domainControllers[0].outputs.virtualMachineName
-      domainControllers[1].outputs.virtualMachineName
-    ]
-  }
-}
+// Commented out until Entra Cloud Sync automation is complete
+// module entraCloudSync 'modules/entra-cloud-sync.bicep' = {
+//   name: 'deploy-entra-cloud-sync-${deploymentNameSuffix}'
+//   params: {
+//     accessToken: aadGraphAccessToken
+//     adminPassword: virtualMachineAdminPassword
+//     adminUsername: virtualMachineAdminUsername
+//     deploymentNameSuffix: deploymentNameSuffix
+//     domainName: addsDomainName
+//     location: location
+//     mlzTags: missionLandingZone.outputs.mlzTags
+//     tags: tags
+//     userAssignedManagedIdentityClientId: userAssignedManagedIdentityClientId
+//     virtualMachineResourceIds: missionLandingZone.outputs.domainControllerResourceIds
+//   }
+// }
 
 module azureVirtualDesktop '../azure-virtual-desktop/solution.bicep' = {
   name: 'deploy-azure-virtual-desktop-${deploymentNameSuffix}'
