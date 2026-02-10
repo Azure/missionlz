@@ -51,15 +51,17 @@ param windowsVmSize string
 param windowsVmStorageAccountType string
 param windowsVmVersion string
 
-resource resourceGroup 'Microsoft.Resources/resourceGroups@2019-05-01' = if (deployLinuxVirtualMachine || deployWindowsVirtualMachine) {
-  name: replace(tier.namingConvention.resourceGroup, tokens.purpose, 'jumpBoxes')
+var resourceGroupName = replace(tier.namingConvention.resourceGroup, tokens.purpose, 'jumpBoxes')
+
+resource rg 'Microsoft.Resources/resourceGroups@2019-05-01' = if (deployLinuxVirtualMachine || deployWindowsVirtualMachine) {
+  name: resourceGroupName
   location: location
   tags: union(tags[?'Microsoft.Resources/resourceGroups'] ?? {}, mlzTags)
 }
 
 module customerManagedKeys 'customer-managed-keys.bicep' = if (deployLinuxVirtualMachine || deployWindowsVirtualMachine) {
   name: 'deploy-ra-cmk-${deploymentNameSuffix}'
-  scope: resourceGroup
+  scope: resourceGroup(resourceGroupName)
   params: {
     deploymentNameSuffix: deploymentNameSuffix
     environmentAbbreviation: environmentAbbreviation
@@ -74,13 +76,13 @@ module customerManagedKeys 'customer-managed-keys.bicep' = if (deployLinuxVirtua
     type: 'virtualMachine'
   }
   dependsOn: [
-    resourceGroup
+    rg
   ]
 }
 
 module linuxVirtualMachine '../modules/virtual-machine.bicep' = if (deployLinuxVirtualMachine) {
   name: 'deploy-ra-linux-vm-${deploymentNameSuffix}'
-  scope: resourceGroup
+  scope: resourceGroup(resourceGroupName)
   params: {
     adminPasswordOrKey: linuxVmAdminPasswordOrKey
     adminUsername: linuxVmAdminUsername
@@ -104,13 +106,13 @@ module linuxVirtualMachine '../modules/virtual-machine.bicep' = if (deployLinuxV
     virtualMachineSize: linuxVmSize
   }
   dependsOn: [
-    resourceGroup
+    rg
   ]
 }
 
 module windowsVirtualMachine '../modules/virtual-machine.bicep' = if (deployWindowsVirtualMachine) {
   name: 'deploy-ra-windows-vm-${deploymentNameSuffix}'
-  scope: resourceGroup
+  scope: resourceGroup(resourceGroupName)
   params: {
     adminPasswordOrKey: windowsVmAdminPassword
     adminUsername: windowsVmAdminUsername
@@ -135,13 +137,13 @@ module windowsVirtualMachine '../modules/virtual-machine.bicep' = if (deployWind
     virtualMachineSize: windowsVmSize
   }
   dependsOn: [
-    resourceGroup
+    rg
   ]
 }
 
 module bastionHost '../modules/bastion-host.bicep' = if (deployBastion) {
   name: 'deploy-ra-bastion-host-${deploymentNameSuffix}'
-  scope: resourceGroup
+  scope: resourceGroup(resourceGroupName)
   params: {
     bastionHostSubnetResourceId: bastionHostSubnetResourceId
     location: location
@@ -154,7 +156,7 @@ module bastionHost '../modules/bastion-host.bicep' = if (deployBastion) {
     tags: tags
   }
   dependsOn: [
-    resourceGroup
+    rg
   ]
 }
 
