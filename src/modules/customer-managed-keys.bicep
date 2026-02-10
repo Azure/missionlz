@@ -363,5 +363,5 @@ output keyUriWithVersion string = keyInfo.properties.keyUriWithVersion
 output keyVaultName string = vault.name
 output keyVaultUri string = vault.properties.vaultUri
 output keyVaultResourceId string = vault.id
-output keyVaultNetworkInterfaceResourceId string = privateEndpoint.id
+output keyVaultNetworkInterfaceResourceId string = privateEndpoint.properties.networkInterfaces[0].id
 output userAssignedIdentityResourceId string = userAssignedIdentity.id

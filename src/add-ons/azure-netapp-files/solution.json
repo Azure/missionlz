@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.40.2.10011",
-      "templateHash": "13184723058346713264"
+      "templateHash": "6033319717512729108"
     }
   },
   "parameters": {
@@ -422,7 +422,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "14516376344752639605"
+              "templateHash": "13393003564235949518"
             }
           },
           "parameters": {
@@ -2778,7 +2778,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "16602327530122281011"
+                      "templateHash": "12631315095079235546"
                     }
                   },
                   "parameters": {
@@ -2898,7 +2898,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "2387072657942466014"
+                              "templateHash": "6008155815559423500"
                             }
                           },
                           "parameters": {
@@ -3515,7 +3515,7 @@
                             },
                             "keyVaultNetworkInterfaceResourceId": {
                               "type": "string",
-                              "value": "[resourceId('Microsoft.Network/privateEndpoints', variables('keyVaultPrivateEndpointName'))]"
+                              "value": "[reference('privateEndpoint').networkInterfaces[0].id]"
                             },
                             "userAssignedIdentityResourceId": {
                               "type": "string",
