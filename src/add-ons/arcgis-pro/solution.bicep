@@ -191,7 +191,6 @@ module domainUserAccount 'modules/domain-user-account.bicep' = {
     domainUserPassword: domainUserPassword
     domainUserUsername: domainUserUsername
     location: location
-    mlzTags: missionLandingZone.outputs.mlzTags
     tags: tags
     virtualMachineResourceIds: missionLandingZone.outputs.domainControllerResourceIds
   }
