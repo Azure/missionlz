@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.40.2.10011",
-      "templateHash": "3113448339648684775"
+      "templateHash": "17103184324709571243"
     }
   },
   "parameters": {
@@ -91,6 +91,17 @@
       "type": "array",
       "metadata": {
         "description": "List of peered networks that should use the VPN Gateway once configured."
+      }
+    },
+    "natConfiguration": {
+      "type": "object",
+      "defaultValue": {
+        "natRules": [],
+        "ingressNatRuleNames": [],
+        "egressNatRuleNames": []
+      },
+      "metadata": {
+        "description": "Optional configuration for VPN NAT (Network Address Translation). Defines rules and their association with the connection."
       }
     }
   },
@@ -1304,7 +1315,7 @@
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01', 'full').location]"
           },
           "publicIpAddressName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('logic-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tiers.value[0].namingConvention.publicIpAddress]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('logic-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tiers.value[0].namingConvention.virtualNetworkGatewayPublicIpAddress]"
           },
           "resourceAbbreviations": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('logic-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.resourceAbbreviations.value]"
@@ -1320,6 +1331,9 @@
           },
           "virtualNetworkName": {
             "value": "[variables('hubVirtualNetworkName')]"
+          },
+          "natRules": {
+            "value": "[parameters('natConfiguration').natRules]"
           }
         },
         "template": {
@@ -1329,7 +1343,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "6683191246899285903"
+              "templateHash": "12896512692818879593"
             }
           },
           "parameters": {
@@ -1356,6 +1370,10 @@
             },
             "virtualNetworkName": {
               "type": "string"
+            },
+            "natRules": {
+              "type": "array",
+              "defaultValue": []
             }
           },
           "variables": {
@@ -1386,6 +1404,21 @@
               "name": "[parameters('virtualNetworkGatewayName')]",
               "location": "[parameters('location')]",
               "properties": {
+                "copy": [
+                  {
+                    "name": "natRules",
+                    "count": "[length(parameters('natRules'))]",
+                    "input": {
+                      "name": "[parameters('natRules')[copyIndex('natRules')].name]",
+                      "properties": {
+                        "type": "[parameters('natRules')[copyIndex('natRules')].type]",
+                        "mode": "[parameters('natRules')[copyIndex('natRules')].mode]",
+                        "internalMappings": "[parameters('natRules')[copyIndex('natRules')].internalMappings]",
+                        "externalMappings": "[parameters('natRules')[copyIndex('natRules')].externalMappings]"
+                      }
+                    }
+                  }
+                ],
                 "gatewayType": "Vpn",
                 "ipConfigurations": [
                   {
@@ -1424,11 +1457,17 @@
                 }
               },
               "dependsOn": [
-                "[resourceId('Microsoft.Network/publicIPAddresses', format('{0}{1}{2}', replace(parameters('publicIpAddressName'), parameters('tokens').purpose, parameters('resourceAbbreviations').virtualNetworkGateways), parameters('delimiter'), range(0, 2)[0]))]",
-                "[resourceId('Microsoft.Network/publicIPAddresses', format('{0}{1}{2}', replace(parameters('publicIpAddressName'), parameters('tokens').purpose, parameters('resourceAbbreviations').virtualNetworkGateways), parameters('delimiter'), range(0, 2)[1]))]"
+                "[resourceId('Microsoft.Network/publicIPAddresses', format('{0}{1}{2}', replace(parameters('publicIpAddressName'), parameters('tokens').purpose, parameters('resourceAbbreviations').virtualNetworkGateways), parameters('delimiter'), range(0, 2)[1]))]",
+                "[resourceId('Microsoft.Network/publicIPAddresses', format('{0}{1}{2}', replace(parameters('publicIpAddressName'), parameters('tokens').purpose, parameters('resourceAbbreviations').virtualNetworkGateways), parameters('delimiter'), range(0, 2)[0]))]"
               ]
             }
-          ]
+          ],
+          "outputs": {
+            "virtualNetworkGatewayId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/virtualNetworkGateways', parameters('virtualNetworkGatewayName'))]"
+            }
+          }
         }
       },
       "dependsOn": [
@@ -1602,6 +1641,24 @@
           },
           "vpnGatewayResourceGroupName": {
             "value": "[variables('hubResourceGroupName')]"
+          },
+          "ingressNatRuleIds": {
+            "copy": [
+              {
+                "name": "value",
+                "count": "[length(parameters('natConfiguration').ingressNatRuleNames)]",
+                "input": "[format('{0}/natRules/{1}', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('vpnGateway-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.virtualNetworkGatewayId.value, parameters('natConfiguration').ingressNatRuleNames[copyIndex('value')])]"
+              }
+            ]
+          },
+          "egressNatRuleIds": {
+            "copy": [
+              {
+                "name": "value",
+                "count": "[length(parameters('natConfiguration').egressNatRuleNames)]",
+                "input": "[format('{0}/natRules/{1}', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('hubResourceGroupName')), 'Microsoft.Resources/deployments', format('vpnGateway-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.virtualNetworkGatewayId.value, parameters('natConfiguration').egressNatRuleNames[copyIndex('value')])]"
+              }
+            ]
           }
         },
         "template": {
@@ -1611,7 +1668,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "12847541487848073629"
+              "templateHash": "16294220662618783319"
             }
           },
           "parameters": {
@@ -1635,6 +1692,14 @@
             },
             "localNetworkGatewayName": {
               "type": "string"
+            },
+            "ingressNatRuleIds": {
+              "type": "array",
+              "defaultValue": []
+            },
+            "egressNatRuleIds": {
+              "type": "array",
+              "defaultValue": []
             }
           },
           "variables": {
@@ -1652,6 +1717,22 @@
               "name": "[parameters('vpnConnectionName')]",
               "location": "[parameters('vgwlocation')]",
               "properties": {
+                "copy": [
+                  {
+                    "name": "ingressNatRules",
+                    "count": "[length(parameters('ingressNatRuleIds'))]",
+                    "input": {
+                      "id": "[parameters('ingressNatRuleIds')[copyIndex('ingressNatRules')]]"
+                    }
+                  },
+                  {
+                    "name": "egressNatRules",
+                    "count": "[length(parameters('egressNatRuleIds'))]",
+                    "input": {
+                      "id": "[parameters('egressNatRuleIds')[copyIndex('egressNatRules')]]"
+                    }
+                  }
+                ],
                 "virtualNetworkGateway1": {
                   "id": "[resourceId(parameters('vpnGatewayResourceGroupName'), 'Microsoft.Network/virtualNetworkGateways', parameters('vpnGatewayName'))]",
                   "properties": {}

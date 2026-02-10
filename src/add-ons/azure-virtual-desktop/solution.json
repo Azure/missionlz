@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.40.2.10011",
-      "templateHash": "8828485434135872419"
+      "templateHash": "12041262684032003183"
     }
   },
   "parameters": {
@@ -865,7 +865,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "5259186817103372141"
+              "templateHash": "6633290067248340896"
             }
           },
           "parameters": {
@@ -1450,7 +1450,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "9531646494675497337"
+                      "templateHash": "659833522225265916"
                     }
                   },
                   "parameters": {
@@ -2316,14 +2316,11 @@
                           "location": {
                             "value": "[parameters('location')]"
                           },
-                          "mlzTags": {
-                            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}{2}', parameters('network').shortName, parameters('deploymentIndex'), parameters('deploymentNameSuffix'))), '2025-04-01').outputs.mlzTags.value]"
-                          },
                           "name": {
                             "value": "[replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}{2}', parameters('network').shortName, parameters('deploymentIndex'), parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tiers.value[0].namingConvention.resourceGroup, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}{2}', parameters('network').shortName, parameters('deploymentIndex'), parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value.purpose, 'network')]"
                           },
                           "tags": {
-                            "value": "[parameters('tags')]"
+                            "value": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Resources/resourceGroups'), createObject()), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('get-logic-{0}-{1}{2}', parameters('network').shortName, parameters('deploymentIndex'), parameters('deploymentNameSuffix'))), '2025-04-01').outputs.mlzTags.value)]"
                           }
                         },
                         "template": {
@@ -2333,13 +2330,10 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "17111218779911131787"
+                              "templateHash": "29921048879103880"
                             }
                           },
                           "parameters": {
-                            "mlzTags": {
-                              "type": "object"
-                            },
                             "name": {
                               "type": "string"
                             },
@@ -2357,7 +2351,7 @@
                               "apiVersion": "2019-05-01",
                               "name": "[parameters('name')]",
                               "location": "[parameters('location')]",
-                              "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Resources/resourceGroups'), createObject()), parameters('mlzTags'))]"
+                              "tags": "[parameters('tags')]"
                             }
                           ],
                           "outputs": {

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.40.2.10011",
-      "templateHash": "9162872495160092298"
+      "templateHash": "12702396480942400997"
     }
   },
   "parameters": {
@@ -1189,7 +1189,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "4820610396050922068"
+              "templateHash": "11949549366116511572"
             }
           },
           "parameters": {
@@ -2086,7 +2086,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "990590035348587323"
+                      "templateHash": "1860956754057576062"
                     }
                   },
                   "parameters": {
@@ -2131,9 +2131,6 @@
                         },
                         "mode": "Incremental",
                         "parameters": {
-                          "mlzTags": {
-                            "value": "[parameters('mlzTags')]"
-                          },
                           "name": {
                             "value": "[replace(parameters('tiers')[copyIndex()].namingConvention.resourceGroup, parameters('tokens').purpose, parameters('purpose'))]"
                           },
@@ -2141,7 +2138,7 @@
                             "value": "[parameters('location')]"
                           },
                           "tags": {
-                            "value": "[parameters('tags')]"
+                            "value": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Resources/resourceGroups'), createObject()), parameters('mlzTags'))]"
                           }
                         },
                         "template": {
@@ -2151,13 +2148,10 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "17111218779911131787"
+                              "templateHash": "29921048879103880"
                             }
                           },
                           "parameters": {
-                            "mlzTags": {
-                              "type": "object"
-                            },
                             "name": {
                               "type": "string"
                             },
@@ -2175,7 +2169,7 @@
                               "apiVersion": "2019-05-01",
                               "name": "[parameters('name')]",
                               "location": "[parameters('location')]",
-                              "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Resources/resourceGroups'), createObject()), parameters('mlzTags'))]"
+                              "tags": "[parameters('tags')]"
                             }
                           ],
                           "outputs": {
