@@ -82,7 +82,6 @@ module runCommand_DomainControllerPromotion 'run-command.bicep' = {
   params: {
     asyncExecution: true
     location: location
-    mlzTags: mlzTags
     name: 'New-ADDSForest-${index}'
     parameters: [
       {
