@@ -31,14 +31,6 @@ $Settings = @(
         Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services'
         PropertyType = 'DWord'
         Value = 1
-    },
-
-    # Configure GPU-accelerated frame encoding: https://learn.microsoft.com/azure/virtual-desktop/configure-vm-gpu#configure-gpu-accelerated-frame-encoding
-    [PSCustomObject]@{
-        Name = 'AVChardwareEncodePreferred'
-        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services'
-        PropertyType = 'DWord'
-        Value = 1
     }
 )
 

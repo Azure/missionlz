@@ -278,41 +278,20 @@ resource extension_AADLoginForWindows 'Microsoft.Compute/virtualMachines/extensi
   ]
 }
 
-// resource extension_AmdGpuDriverWindows 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [for i in range(0, sessionHostCount): if (amdVmSize) {
-//   parent: virtualMachine[i]
-//   name: 'AmdGpuDriverWindows'
-//   location: location
-//   tags: tagsVirtualMachines
-//   properties: {
-//     publisher: 'Microsoft.HpcCompute'
-//     type: 'AmdGpuDriverWindows'
-//     typeHandlerVersion: '1.0'
-//     autoUpgradeMinorVersion: true
-//     settings: {}
-//   }
-//   dependsOn: [
-//     extension_AADLoginForWindows
-//     extension_JsonADDomainExtension
-//   ]
-// }]
-
-resource extension_NvidiaGpuDriverWindows 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = {
+resource extension_AmdGpuDriverWindows 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = {
   parent: virtualMachine
-  name: 'NvidiaGpuDriverWindows'
+  name: 'AmdGpuDriverWindows'
   location: location
   tags: tagsVirtualMachines
   properties: {
     publisher: 'Microsoft.HpcCompute'
-    type: 'NvidiaGpuDriverWindows'
-    typeHandlerVersion: '1.9'
+    type: 'AmdGpuDriverWindows'
+    typeHandlerVersion: '1.0'
     autoUpgradeMinorVersion: true
-    // NVv3 VM sizes require a specific driver version: https://learn.microsoft.com/azure/virtual-machines/extensions/hpccompute-gpu-windows#known-issues
-    settings: startsWith(virtualMachineSize, 'Standard_NV') && (endsWith(virtualMachineSize, 's_v3') || endsWith(virtualMachineSize, 's_A10_v5')) ? {
-      driverVersion: '538.46'
-    } : {}
+    settings: {}
   }
   dependsOn: [
     extension_AADLoginForWindows
-    // extension_JsonADDomainExtension
+    //extension_JsonADDomainExtension
   ]
 }

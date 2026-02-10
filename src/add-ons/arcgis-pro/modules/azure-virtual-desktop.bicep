@@ -448,6 +448,7 @@ module sessionHosts 'session-hosts/session-hosts.bicep' = {
     imageSku: imageSku
     location: location
     mlzTags: tier3.outputs.mlzTags
+    resourceGroupName: resourceGroupName
     securityPrincipalObjectId: map(securityPrincipals, item => item.objectId)[0]
     tags: tags
     tier: tier3.outputs.tier

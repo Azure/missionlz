@@ -18,6 +18,7 @@ param imagePublisher string
 param imageSku string
 param location string
 param mlzTags object
+param resourceGroupName string
 param securityPrincipalObjectId string
 param tags object
 param tier object
@@ -29,16 +30,10 @@ param virtualMachineSize string
 
 var tagsVirtualMachines = union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Compute/virtualMachines'] ?? {}, mlzTags)
 
-resource rg 'Microsoft.Resources/resourceGroups@2023-07-01' = {
-  name: replace(tier.namingConvention.resourceGroup, tokens.purpose, 'hosts')
-  location: location
-  tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Resources/resourceGroups'] ?? {}, mlzTags)
-}
-
 // Sets an Azure policy to disable public network access to managed disks
 module policyAssignment '../../../azure-virtual-desktop/modules/management/policy-assignment.bicep' = {
   name: 'assign-policy-diskAccess-${deploymentNameSuffix}'
-  scope: rg
+  scope: resourceGroup(tier.subscriptionId, resourceGroupName)
   params: {
     diskAccessResourceId: diskAccessResourceId
     location: location
@@ -53,7 +48,7 @@ module policyAssignment '../../../azure-virtual-desktop/modules/management/polic
 // to enable the login to Entra joined virtual machines
 module roleAssignments '../../../azure-virtual-desktop/modules/common/role-assignments/resource-group.bicep' = if (contains(activeDirectorySolution, 'EntraId')) {
   name: 'assign-role-${deploymentNameSuffix}'
-  scope: rg
+  scope: resourceGroup(tier.subscriptionId, resourceGroupName)
   params: {
     principalId: securityPrincipalObjectId
     principalType: 'Group'
@@ -63,7 +58,7 @@ module roleAssignments '../../../azure-virtual-desktop/modules/common/role-assig
 
 module virtualMachine 'virtual-machine.bicep' = {
   name: 'deploy-vm-${deploymentNameSuffix}'
-  scope: rg
+  scope: resourceGroup(tier.subscriptionId, resourceGroupName)
   params: {
     activeDirectorySolution: activeDirectorySolution
     avdConfigurationZipFileUri: avdConfigurationZipFileUri
