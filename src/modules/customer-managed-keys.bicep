@@ -37,7 +37,7 @@ resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@
 }
 
 resource roleAssignment_keyVaultContributor 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
-  name: guid(userAssignedIdentityName, 'e147488a-f6f5-4113-8e2d-b22465e65bf6', resourceGroup().id)
+  name: guid(userAssignedIdentityName, 'f25e0fa2-a7c8-4377-a976-54943a77a395', resourceGroup().id)
   properties: {
     principalId: userAssignedIdentity.properties.principalId
     principalType: 'ServicePrincipal'
