@@ -8,7 +8,7 @@ param location string
 param name string
 param parameters array = []
 @secure()
-param protectedParameters string = ''
+param protectedParameters string
 param script string
 param tags object
 param treatFailureAsDeploymentFailure bool = true
