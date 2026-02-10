@@ -7,7 +7,6 @@ Param(
 )
 
 $ErrorActionPreference = 'Stop'
-$WarningPreference = 'SilentlyContinue'
 
 # Get an access token for Azure resources
 $AccessToken = (Invoke-RestMethod `

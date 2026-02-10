@@ -29,6 +29,7 @@ param tokens object
 param validationEnvironment bool
 param virtualMachineSize string
 param workspaceFriendlyName string
+param workspaceGlobalPrivateDnsZoneResourceId string
 param workspacePublicNetworkAccess string
 
 var galleryImageOffer = empty(imageVersionResourceId) ? '"${imageOffer}"' : 'null'
@@ -103,6 +104,21 @@ module workspace_feed 'workspace-feed.bicep' = {
     workspaceFeedPrivateEndpointName: replace(namingConvention.workspacePrivateEndpoint, tokens.purpose, 'feed')
     workspaceFriendlyName: empty(workspaceFriendlyName) ? replace(namingConvention.workspace, '${delimiter}${tokens.purpose}', '') : '${workspaceFriendlyName} (${location})'
     workspacePublicNetworkAccess: workspacePublicNetworkAccess
+  }
+}
+
+// Deploys the AVD global workspace
+module workspace_global '../../../azure-virtual-desktop/modules/shared-services/workspace-global.bicep' = {
+  name: 'deploy-vdws-global-${deploymentNameSuffix}'
+  scope: resourceGroup(resourceGroupName)
+  params: {
+    globalWorkspacePrivateDnsZoneResourceId: workspaceGlobalPrivateDnsZoneResourceId
+    location: location
+    subnetResourceId: subnetResourceId
+    tags: mlzTags
+    workspaceGlobalName: replace(namingConvention.workspace, tokens.purpose, 'global')
+    workspaceGlobalNetworkInterfaceName: replace(namingConvention.workspaceNetworkInterface, tokens.purpose, 'global')
+    workspaceGlobalPrivateEndpointName: replace(namingConvention.workspacePrivateEndpoint, tokens.purpose, 'global')
   }
 }
 

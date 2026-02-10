@@ -223,11 +223,13 @@ resource privateDnsZoneGroups 'Microsoft.Network/privateEndpoints/privateDnsZone
   }
 }
 
-module key 'run-command.bicep' = {
-  name: 'deploy-key-cmk-${deploymentNameSuffix}'
-  params: {
-    location: location
-    name: keyName
+resource key 'Microsoft.Compute/virtualMachines/runCommands@2023-09-01' = {
+  parent: virtualMachine
+  name: keyName
+  location: location
+  tags: tags
+  properties: {
+    asyncExecution: false
     parameters: [
       {
         name: 'KeyExpirationInDays'
@@ -250,15 +252,11 @@ module key 'run-command.bicep' = {
         value: userAssignedIdentity.properties.clientId
       }
     ]
-    protectedParameters: '[]'
-    script: loadTextContent('../artifacts/New-KeyVaultKey.ps1')
-    tags: tags
-    virtualMachineName: virtualMachine.name
+    source: {
+      script: loadTextContent('../artifacts/New-KeyVaultKey.ps1')
+    }
+    treatFailureAsDeploymentFailure: true
   }
-  dependsOn: [
-    privateDnsZoneGroups
-    privateEndpoint
-  ]
 }
 
 resource keyInfo 'Microsoft.KeyVault/vaults/keys@2022-07-01' existing = {

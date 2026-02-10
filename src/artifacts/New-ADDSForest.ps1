@@ -1,25 +1,13 @@
 param(
-    [Parameter(Mandatory = $true)]
     [string]$AdminPassword,
-
-    [Parameter(Mandatory = $true)]
     [string]$AdminUsername,
-
-    [Parameter(Mandatory = $true)]
     [int]$DomainControllerNumber,
-
-    [Parameter(Mandatory = $true)]
     [string]$DomainName,
-
-    [Parameter(Mandatory = $true)]
     [string]$DNSForwarder,
-
-    [Parameter(Mandatory = $true)]
     [string]$SafeModeAdminPassword
 )
 
 $ErrorActionPreference = 'Stop'
-$WarningPreference = 'SilentlyContinue'
 
 $SecureAdminPassword = ConvertTo-SecureString -String $AdminPassword -AsPlainText -Force
 $DomainCredential = New-Object System.Management.Automation.PSCredential ("$($DomainName.Split('.')[0])\$($AdminUsername)", $SecureAdminPassword)

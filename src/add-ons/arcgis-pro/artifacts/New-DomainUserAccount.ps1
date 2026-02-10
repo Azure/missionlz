@@ -1,9 +1,5 @@
 param (
-
-    [Parameter(Mandatory = $true)]
     [string]$DomainUserPassword,
-
-    [Parameter(Mandatory = $true)]
     [string]$DomainUserUsername
 )
 
@@ -11,7 +7,7 @@ param (
 Import-Module ActiveDirectory -ErrorAction Stop
 
 # Convert password to secure string
-$SecureDomainUserPassword = ConvertTo-SecureString -String $DomainUserPassword -AsPlainText
+$SecureDomainUserPassword = ConvertTo-SecureString -String $DomainUserPassword -AsPlainText -Force
 
 # Create the new AD user
 New-ADUser `

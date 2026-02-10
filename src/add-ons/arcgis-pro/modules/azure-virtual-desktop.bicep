@@ -212,9 +212,6 @@ param securityPrincipals array
 @description('The address prefix(es) for the new subnet(s) that will be created in the spoke virtual network(s). Specify only one address prefix in the array if the session hosts location and the control plan location are the same. If different locations are specified, add a second address prefix for the hosts virtual network.')
 param sessionHostsSubnetAddressPrefix string = '10.0.140.0/24'
 
-@description('The resource ID for the subnet in the Shared Services subscription. This is required for the private endpoint on the AVD Global Workspace.')
-param sharedServicesSubnetResourceId string
-
 @description('The address prefix for the new spoke virtual network(s). Specify only one address prefix in the array if the session hosts location and the control plan location are the same. If different locations are specified, add a second address prefix for the hosts virtual network.')
 param stampVirtualNetworkAddressPrefix string = '10.0.140.0/23'
 
@@ -292,12 +289,6 @@ var subnets = {
     : []
 }
 var subscriptionId = subscription().subscriptionId
-
-// Gets the MLZ hub virtual network for its location, tags, and peerings
-resource virtualNetwork_hub 'Microsoft.Network/virtualNetworks@2023-11-01' existing = {
-  name: split(hubVirtualNetworkResourceId, '/')[8]
-  scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
-}
 
 // Optionally deploys telemetry for ArcGIS Pro deployments
 #disable-next-line no-deployments-resources
@@ -436,24 +427,8 @@ module controlPlane 'control-plane/control-plane.bicep' = {
     validationEnvironment: validationEnvironment
     virtualMachineSize: virtualMachineSize
     workspaceFriendlyName: workspaceFriendlyName
-    workspacePublicNetworkAccess: workspacePublicNetworkAccess
-  }
-}
-
-// Deploys AVD global workspace to the Shared Services subscription and virtual network
-module sharedServices '../../azure-virtual-desktop/modules/shared-services/shared-services.bicep' = {
-  name: 'deploy-shared-services-${deploymentNameSuffix}'
-  scope: subscription(split(sharedServicesSubnetResourceId, '/')[2])
-  params: {
-    deploymentNameSuffix: deploymentNameSuffix
-    identifier: identifier
-    identifierHub: virtualNetwork_hub.tags.identifier
-    locationControlPlane: virtualNetwork_hub.location
-    mlzTags: tier3.outputs.mlzTags
-    sharedServicesSubnetResourceId: sharedServicesSubnetResourceId
-    tier: tier3.outputs.tier
-    tokens: tier3.outputs.tokens
     workspaceGlobalPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3.outputs.privateDnsZones, name => startsWith(name, 'privatelink-global.wvd'))[0]}'
+    workspacePublicNetworkAccess: workspacePublicNetworkAccess
   }
 }
 

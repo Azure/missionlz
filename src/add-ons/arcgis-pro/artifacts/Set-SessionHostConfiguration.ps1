@@ -1,7 +1,4 @@
 ﻿$ErrorActionPreference = 'Stop'
-$WarningPreference = 'SilentlyContinue'
-
-#  Add Recommended AVD & GPU Settings
 $Settings = @(
 
     # Disable Automatic Updates: https://learn.microsoft.com/azure/virtual-desktop/set-up-customize-master-image#disable-automatic-updates
@@ -44,7 +41,6 @@ $Settings = @(
         Value = 1
     }
 )
-
 
 # Set registry settings
 foreach($Setting in $Settings)

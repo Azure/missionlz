@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.40.2.10011",
-      "templateHash": "13009387614933796053"
+      "templateHash": "11384557427869814760"
     }
   },
   "parameters": {
@@ -5256,7 +5256,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "13633470847890260976"
+              "templateHash": "16286814130449686415"
             }
           },
           "parameters": {
@@ -5401,7 +5401,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "1566339408827817525"
+                      "templateHash": "2974155785719358561"
                     }
                   },
                   "parameters": {
@@ -5460,7 +5460,7 @@
                     }
                   },
                   "variables": {
-                    "$fxv#0": "Param(\r\n    [int]$KeyExpirationInDays,\r\n    [string]$KeyName,\r\n    [string]$KeyVaultServiceUri,\r\n    [string]$KeyVaultUri,\r\n    [string]$UserAssignedIdentityClientId\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n$WarningPreference = 'SilentlyContinue'\r\n\r\n# Get an access token for Azure resources\r\n$AccessToken = (Invoke-RestMethod `\r\n        -Headers @{Metadata = \"true\" } `\r\n        -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $KeyVaultServiceUri + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n# Set header for Azure Management API\r\n$Headers = @{\r\n    'Content-Type'  = 'application/json'\r\n    'Authorization' = 'Bearer ' + $AccessToken\r\n}\r\n\r\n$Body = [PSCustomObject]@{\r\n    kty            = 'RSA-HSM'\r\n    key_size       = 4096\r\n    attributes     = @{\r\n        enabled = $true\r\n    }\r\n    rotationPolicy = @{\r\n        attributes      = @{\r\n            expiryTime = $('P' + $KeyExpirationInDays + 'D')\r\n        }\r\n        lifetimeActions = @(\r\n            @{\r\n                action = @{\r\n                    type = 'Notify'\r\n                }\r\n                trigger = @{\r\n                    timeBeforeExpiry = 'P10D'\r\n                }\r\n            },\r\n            @{\r\n                action = @{\r\n                    type = 'Rotate'\r\n                }\r\n                trigger = @{\r\n                    timeAfterCreate = $('P' + ($KeyExpirationInDays - 7) + 'D')\r\n                }\r\n            }\r\n        )\r\n    }\r\n}\r\n\r\n# Create key vault key\r\nInvoke-RestMethod `\r\n    -Body ($Body | ConvertTo-Json -Depth 4) `\r\n    -Headers $Headers `\r\n    -Method 'POST' `\r\n    -Uri $($KeyVaultUri + 'keys/' + $KeyName + '?api-version=2025-07-01') | Out-Null",
+                    "$fxv#0": "Param(\r\n    [int]$KeyExpirationInDays,\r\n    [string]$KeyName,\r\n    [string]$KeyVaultServiceUri,\r\n    [string]$KeyVaultUri,\r\n    [string]$UserAssignedIdentityClientId\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n\r\n# Get an access token for Azure resources\r\n$AccessToken = (Invoke-RestMethod `\r\n        -Headers @{Metadata = \"true\" } `\r\n        -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $KeyVaultServiceUri + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n# Set header for Azure Management API\r\n$Headers = @{\r\n    'Content-Type'  = 'application/json'\r\n    'Authorization' = 'Bearer ' + $AccessToken\r\n}\r\n\r\n$Body = [PSCustomObject]@{\r\n    kty            = 'RSA-HSM'\r\n    key_size       = 4096\r\n    attributes     = @{\r\n        enabled = $true\r\n    }\r\n    rotationPolicy = @{\r\n        attributes      = @{\r\n            expiryTime = $('P' + $KeyExpirationInDays + 'D')\r\n        }\r\n        lifetimeActions = @(\r\n            @{\r\n                action = @{\r\n                    type = 'Notify'\r\n                }\r\n                trigger = @{\r\n                    timeBeforeExpiry = 'P10D'\r\n                }\r\n            },\r\n            @{\r\n                action = @{\r\n                    type = 'Rotate'\r\n                }\r\n                trigger = @{\r\n                    timeAfterCreate = $('P' + ($KeyExpirationInDays - 7) + 'D')\r\n                }\r\n            }\r\n        )\r\n    }\r\n}\r\n\r\n# Create key vault key\r\nInvoke-RestMethod `\r\n    -Body ($Body | ConvertTo-Json -Depth 4) `\r\n    -Headers $Headers `\r\n    -Method 'POST' `\r\n    -Uri $($KeyVaultUri + 'keys/' + $KeyName + '?api-version=2025-07-01') | Out-Null",
                     "$fxv#1": "param(\r\n    [string]$ResourceGroupName,\r\n    [string]$ResourceManagerUri,\r\n    [string]$UserAssignedIdentityClientId,\r\n    [string]$VirtualMachineResourceId\r\n)\r\n\r\n# Fix the resource manager URI since only AzureCloud contains a trailing slash\r\n$ResourceManagerUriFixed = if($ResourceManagerUri[-1] -eq '/'){$ResourceManagerUri.Substring(0,$ResourceManagerUri.Length - 1)} else {$ResourceManagerUri}\r\n\r\n# Get an access token for Azure resources\r\n$AzureManagementAccessToken = (Invoke-RestMethod `\r\n    -Headers @{Metadata=\"true\"} `\r\n    -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n# Set header for Azure Management API\r\n$AzureManagementHeader = @{\r\n    'Content-Type'='application/json'\r\n    'Authorization'='Bearer ' + $AzureManagementAccessToken\r\n}\r\n\r\nStart-Sleep -Seconds 30\r\n\r\n# Use the access token to delete the virtual machine\r\nInvoke-RestMethod `\r\n    -Headers $AzureManagementHeader `\r\n    -Method 'Delete' `\r\n    -Uri $($ResourceManagerUriFixed + $VirtualMachineResourceId + '?forceDeletion=true&api-version=2024-07-01') | Out-Null",
                     "keyVaultPrivateEndpointName": "[replace(parameters('tier').namingConvention.keyVaultPrivateEndpoint, parameters('tokens').purpose, variables('workload'))]",
                     "resourceGroupName": "[resourceGroup().name]",
@@ -5691,6 +5691,47 @@
                         "vault"
                       ]
                     },
+                    "key": {
+                      "type": "Microsoft.Compute/virtualMachines/runCommands",
+                      "apiVersion": "2023-09-01",
+                      "name": "[format('{0}/{1}', variables('virtualMachineName'), parameters('keyName'))]",
+                      "location": "[parameters('location')]",
+                      "tags": "[parameters('tags')]",
+                      "properties": {
+                        "asyncExecution": false,
+                        "parameters": [
+                          {
+                            "name": "KeyExpirationInDays",
+                            "value": "[parameters('keyExpirationInDays')]"
+                          },
+                          {
+                            "name": "KeyName",
+                            "value": "[parameters('keyName')]"
+                          },
+                          {
+                            "name": "KeyVaultServiceUri",
+                            "value": "[format('https://{0}', skip(environment().suffixes.keyvaultDns, 1))]"
+                          },
+                          {
+                            "name": "KeyVaultUri",
+                            "value": "[reference('vault').vaultUri]"
+                          },
+                          {
+                            "name": "UserAssignedIdentityClientId",
+                            "value": "[reference('userAssignedIdentity').clientId]"
+                          }
+                        ],
+                        "source": {
+                          "script": "[variables('$fxv#0')]"
+                        },
+                        "treatFailureAsDeploymentFailure": true
+                      },
+                      "dependsOn": [
+                        "userAssignedIdentity",
+                        "vault",
+                        "virtualMachine"
+                      ]
+                    },
                     "keyInfo": {
                       "existing": true,
                       "type": "Microsoft.KeyVault/vaults/keys",
@@ -5724,129 +5765,6 @@
                       "dependsOn": [
                         "keyInfo",
                         "vault"
-                      ]
-                    },
-                    "key": {
-                      "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2025-04-01",
-                      "name": "[format('deploy-key-cmk-{0}', parameters('deploymentNameSuffix'))]",
-                      "properties": {
-                        "expressionEvaluationOptions": {
-                          "scope": "inner"
-                        },
-                        "mode": "Incremental",
-                        "parameters": {
-                          "location": {
-                            "value": "[parameters('location')]"
-                          },
-                          "name": {
-                            "value": "[parameters('keyName')]"
-                          },
-                          "parameters": {
-                            "value": [
-                              {
-                                "name": "KeyExpirationInDays",
-                                "value": "[parameters('keyExpirationInDays')]"
-                              },
-                              {
-                                "name": "KeyName",
-                                "value": "[parameters('keyName')]"
-                              },
-                              {
-                                "name": "KeyVaultServiceUri",
-                                "value": "[format('https://{0}', skip(environment().suffixes.keyvaultDns, 1))]"
-                              },
-                              {
-                                "name": "KeyVaultUri",
-                                "value": "[reference('vault').vaultUri]"
-                              },
-                              {
-                                "name": "UserAssignedIdentityClientId",
-                                "value": "[reference('userAssignedIdentity').clientId]"
-                              }
-                            ]
-                          },
-                          "protectedParameters": {
-                            "value": "[[]"
-                          },
-                          "script": {
-                            "value": "[variables('$fxv#0')]"
-                          },
-                          "tags": {
-                            "value": "[parameters('tags')]"
-                          },
-                          "virtualMachineName": {
-                            "value": "[variables('virtualMachineName')]"
-                          }
-                        },
-                        "template": {
-                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                          "contentVersion": "1.0.0.0",
-                          "metadata": {
-                            "_generator": {
-                              "name": "bicep",
-                              "version": "0.40.2.10011",
-                              "templateHash": "8333305544299446105"
-                            }
-                          },
-                          "parameters": {
-                            "asyncExecution": {
-                              "type": "bool",
-                              "defaultValue": false
-                            },
-                            "location": {
-                              "type": "string"
-                            },
-                            "name": {
-                              "type": "string"
-                            },
-                            "parameters": {
-                              "type": "array",
-                              "defaultValue": []
-                            },
-                            "protectedParameters": {
-                              "type": "securestring"
-                            },
-                            "script": {
-                              "type": "string"
-                            },
-                            "tags": {
-                              "type": "object"
-                            },
-                            "treatFailureAsDeploymentFailure": {
-                              "type": "bool",
-                              "defaultValue": true
-                            },
-                            "virtualMachineName": {
-                              "type": "string"
-                            }
-                          },
-                          "resources": [
-                            {
-                              "type": "Microsoft.Compute/virtualMachines/runCommands",
-                              "apiVersion": "2023-09-01",
-                              "name": "[format('{0}/{1}', parameters('virtualMachineName'), parameters('name'))]",
-                              "location": "[parameters('location')]",
-                              "tags": "[parameters('tags')]",
-                              "properties": {
-                                "asyncExecution": "[parameters('asyncExecution')]",
-                                "parameters": "[parameters('parameters')]",
-                                "protectedParameters": "[json(parameters('protectedParameters'))]",
-                                "source": {
-                                  "script": "[parameters('script')]"
-                                },
-                                "treatFailureAsDeploymentFailure": "[parameters('treatFailureAsDeploymentFailure')]"
-                              }
-                            }
-                          ]
-                        }
-                      },
-                      "dependsOn": [
-                        "privateDnsZoneGroups",
-                        "privateEndpoint",
-                        "userAssignedIdentity",
-                        "vault",
-                        "virtualMachine"
                       ]
                     },
                     "roleAssignment_diskEncryptionSet": {
@@ -6372,7 +6290,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "2574330538533496751"
+                      "templateHash": "10451668829639022691"
                     }
                   },
                   "parameters": {
@@ -6450,7 +6368,7 @@
                     }
                   },
                   "variables": {
-                    "$fxv#0": "param(\r\n    [Parameter(Mandatory = $true)]\r\n    [string]$AdminPassword,\r\n\r\n    [Parameter(Mandatory = $true)]\r\n    [string]$AdminUsername,\r\n\r\n    [Parameter(Mandatory = $true)]\r\n    [int]$DomainControllerNumber,\r\n\r\n    [Parameter(Mandatory = $true)]\r\n    [string]$DomainName,\r\n\r\n    [Parameter(Mandatory = $true)]\r\n    [string]$DNSForwarder,\r\n\r\n    [Parameter(Mandatory = $true)]\r\n    [string]$SafeModeAdminPassword\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n$WarningPreference = 'SilentlyContinue'\r\n\r\n$SecureAdminPassword = ConvertTo-SecureString -String $AdminPassword -AsPlainText -Force\r\n$DomainCredential = New-Object System.Management.Automation.PSCredential (\"$($DomainName.Split('.')[0])\\$($AdminUsername)\", $SecureAdminPassword)\r\n$SecureSafeModePassword = ConvertTo-SecureString -String $SafeModeAdminPassword -AsPlainText -Force\r\n\r\n# Initialize, partition, and format data disk\r\n$DiskNumber = (Get-Disk | Where-Object { $_.PartitionStyle -eq 'Raw' }).Number\r\nif ($DiskNumber) {\r\n    Initialize-Disk -Number $DiskNumber -PartitionStyle 'GPT' | Out-Null\r\n    New-Partition -DiskNumber $DiskNumber -DriveLetter 'F' -UseMaximumSize | Out-Null\r\n    Format-Volume -DriveLetter 'F' -FileSystem 'NTFS' -NewFileSystemLabel 'ADDS' -Confirm:$false | Out-Null\r\n}\r\n\r\n# Install AD DS role\r\n$FeatureInstalled = (Get-WindowsFeature -Name 'AD-Domain-Services').Installed\r\nif ( -not $FeatureInstalled ) {\r\n    Install-WindowsFeature -Name 'AD-Domain-Services' -IncludeManagementTools | Out-Null\r\n}\r\n\r\n# Import ADDSDeployment module\r\nImport-Module -Name 'ADDSDeployment'\r\n\r\n# Create new forest\r\nif ( $DomainControllerNumber -eq 1 ) {\r\n    try {\r\n        Get-ADForest | Out-Null\r\n    }\r\n    catch [Microsoft.ActiveDirectory.Management.ADIdentityNotFoundException] {\r\n        Install-ADDSForest `\r\n            -DatabasePath 'F:\\NTDS' `\r\n            -DomainMode 'WinThreshold' `\r\n            -DomainName $DomainName `\r\n            -DomainNetbiosName $DomainName.Split('.')[0] `\r\n            -Force `\r\n            -ForestMode 'WinThreshold' `\r\n            -InstallDNS `\r\n            -LogPath 'F:\\Logs' `\r\n            -NoRebootOnCompletion `\r\n            -SafeModeAdministratorPassword $SecureSafeModePassword `\r\n            -SysvolPath 'F:\\SYSVOL' | Out-Null\r\n    }\r\n}\r\n\r\n# Add domain controller to the forest\r\nif ( $DomainControllerNumber -eq 2 ) {\r\n    # Join to the domain, if not already joined\r\n    $ComputerSystem = Get-CimInstance -ClassName Win32_ComputerSystem\r\n    if ( -not $ComputerSystem.PartOfDomain) {\r\n        $joined = $false\r\n        while (-not $joined) {\r\n            try {\r\n                Add-Computer -DomainName $DomainName -Credential $DomainCredential -ErrorAction Stop\r\n\r\n                $joined = $true\r\n            }\r\n            catch {\r\n                Start-Sleep -Seconds 15\r\n            }\r\n        }\r\n    }\r\n\r\n    # Loop until an Active Directory domain controller is returned\r\n    while ( -not (Get-ADDomainController -Discover -ErrorAction 'SilentlyContinue') ) {\r\n        Start-Sleep -Seconds 10\r\n    }\r\n\r\n    [array]$ExistingDomainControllers = (Get-ADDomainController).Name\r\n    if ( $ExistingDomainControllers -notcontains $env:COMPUTERNAME ) {\r\n        # Wait for secure channel using nltest directly in condition\r\n        do {\r\n            nltest /sc_verify:$DomainName 2>$null\r\n            $exitCode = $LASTEXITCODE\r\n            if ($exitCode -ne 0) {\r\n              Start-Sleep -Seconds 5\r\n            }\r\n        } while ($exitCode -ne 0)\r\n\r\n        Install-ADDSDomainController `\r\n            -Credential $DomainCredential `\r\n            -DatabasePath 'F:\\NTDS' `\r\n            -DomainName $DomainName `\r\n            -Force `\r\n            -InstallDNS `\r\n            -LogPath 'F:\\Logs' `\r\n            -NoRebootOnCompletion `\r\n            -SafeModeAdministratorPassword $SecureSafeModePassword `\r\n            -SysvolPath 'F:\\SYSVOL' | Out-Null\r\n    }\r\n}\r\n\r\n# Set DNS server Listening Address to IPv4 address\r\n$DNSServerSettings = Get-DnsServerSetting -All\r\n$IPv4Address = $DNSServerSettings.ListeningIpAddress | Where-Object { $_ -match '^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$' }\r\n$DNSServerSettings.ListeningIpAddress = $IPv4Address\r\n$DNSServerSettings | Set-DnsServerSetting | Out-Null\r\n\r\n# Set DNS forwarder on the DNS server\r\n$ExistingDNSForwarder = (Get-DnsServerForwarder -ErrorAction 'SilentlyContinue').IPAddress\r\nif ( $ExistingDNSForwarder -ne $DNSForwarder ) {\r\n    Set-DnsServerForwarder `\r\n        -IPAddress $DNSForwarder `\r\n        -UseRootHint:$true | Out-Null\r\n}\r\nRestart-Computer -Force\r\n\r\n"
+                    "$fxv#0": "param(\r\n    [string]$AdminPassword,\r\n    [string]$AdminUsername,\r\n    [int]$DomainControllerNumber,\r\n    [string]$DomainName,\r\n    [string]$DNSForwarder,\r\n    [string]$SafeModeAdminPassword\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n\r\n$SecureAdminPassword = ConvertTo-SecureString -String $AdminPassword -AsPlainText -Force\r\n$DomainCredential = New-Object System.Management.Automation.PSCredential (\"$($DomainName.Split('.')[0])\\$($AdminUsername)\", $SecureAdminPassword)\r\n$SecureSafeModePassword = ConvertTo-SecureString -String $SafeModeAdminPassword -AsPlainText -Force\r\n\r\n# Initialize, partition, and format data disk\r\n$DiskNumber = (Get-Disk | Where-Object { $_.PartitionStyle -eq 'Raw' }).Number\r\nif ($DiskNumber) {\r\n    Initialize-Disk -Number $DiskNumber -PartitionStyle 'GPT' | Out-Null\r\n    New-Partition -DiskNumber $DiskNumber -DriveLetter 'F' -UseMaximumSize | Out-Null\r\n    Format-Volume -DriveLetter 'F' -FileSystem 'NTFS' -NewFileSystemLabel 'ADDS' -Confirm:$false | Out-Null\r\n}\r\n\r\n# Install AD DS role\r\n$FeatureInstalled = (Get-WindowsFeature -Name 'AD-Domain-Services').Installed\r\nif ( -not $FeatureInstalled ) {\r\n    Install-WindowsFeature -Name 'AD-Domain-Services' -IncludeManagementTools | Out-Null\r\n}\r\n\r\n# Import ADDSDeployment module\r\nImport-Module -Name 'ADDSDeployment'\r\n\r\n# Create new forest\r\nif ( $DomainControllerNumber -eq 1 ) {\r\n    try {\r\n        Get-ADForest | Out-Null\r\n    }\r\n    catch [Microsoft.ActiveDirectory.Management.ADIdentityNotFoundException] {\r\n        Install-ADDSForest `\r\n            -DatabasePath 'F:\\NTDS' `\r\n            -DomainMode 'WinThreshold' `\r\n            -DomainName $DomainName `\r\n            -DomainNetbiosName $DomainName.Split('.')[0] `\r\n            -Force `\r\n            -ForestMode 'WinThreshold' `\r\n            -InstallDNS `\r\n            -LogPath 'F:\\Logs' `\r\n            -NoRebootOnCompletion `\r\n            -SafeModeAdministratorPassword $SecureSafeModePassword `\r\n            -SysvolPath 'F:\\SYSVOL' | Out-Null\r\n    }\r\n}\r\n\r\n# Add domain controller to the forest\r\nif ( $DomainControllerNumber -eq 2 ) {\r\n    # Join to the domain, if not already joined\r\n    $ComputerSystem = Get-CimInstance -ClassName Win32_ComputerSystem\r\n    if ( -not $ComputerSystem.PartOfDomain) {\r\n        $joined = $false\r\n        while (-not $joined) {\r\n            try {\r\n                Add-Computer -DomainName $DomainName -Credential $DomainCredential -ErrorAction Stop\r\n\r\n                $joined = $true\r\n            }\r\n            catch {\r\n                Start-Sleep -Seconds 15\r\n            }\r\n        }\r\n    }\r\n\r\n    # Loop until an Active Directory domain controller is returned\r\n    while ( -not (Get-ADDomainController -Discover -ErrorAction 'SilentlyContinue') ) {\r\n        Start-Sleep -Seconds 10\r\n    }\r\n\r\n    [array]$ExistingDomainControllers = (Get-ADDomainController).Name\r\n    if ( $ExistingDomainControllers -notcontains $env:COMPUTERNAME ) {\r\n        # Wait for secure channel using nltest directly in condition\r\n        do {\r\n            nltest /sc_verify:$DomainName 2>$null\r\n            $exitCode = $LASTEXITCODE\r\n            if ($exitCode -ne 0) {\r\n              Start-Sleep -Seconds 5\r\n            }\r\n        } while ($exitCode -ne 0)\r\n\r\n        Install-ADDSDomainController `\r\n            -Credential $DomainCredential `\r\n            -DatabasePath 'F:\\NTDS' `\r\n            -DomainName $DomainName `\r\n            -Force `\r\n            -InstallDNS `\r\n            -LogPath 'F:\\Logs' `\r\n            -NoRebootOnCompletion `\r\n            -SafeModeAdministratorPassword $SecureSafeModePassword `\r\n            -SysvolPath 'F:\\SYSVOL' | Out-Null\r\n    }\r\n}\r\n\r\n# Set DNS server Listening Address to IPv4 address\r\n$DNSServerSettings = Get-DnsServerSetting -All\r\n$IPv4Address = $DNSServerSettings.ListeningIpAddress | Where-Object { $_ -match '^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$' }\r\n$DNSServerSettings.ListeningIpAddress = $IPv4Address\r\n$DNSServerSettings | Set-DnsServerSetting | Out-Null\r\n\r\n# Set DNS forwarder on the DNS server\r\n$ExistingDNSForwarder = (Get-DnsServerForwarder -ErrorAction 'SilentlyContinue').IPAddress\r\nif ( $ExistingDNSForwarder -ne $DNSForwarder ) {\r\n    Set-DnsServerForwarder `\r\n        -IPAddress $DNSForwarder `\r\n        -UseRootHint:$true | Out-Null\r\n}\r\nRestart-Computer -Force\r\n\r\n"
                   },
                   "resources": [
                     {
@@ -7271,7 +7189,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "17998581812528452588"
+              "templateHash": "18365399335484796811"
             }
           },
           "parameters": {
@@ -7453,7 +7371,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "1566339408827817525"
+                      "templateHash": "2974155785719358561"
                     }
                   },
                   "parameters": {
@@ -7512,7 +7430,7 @@
                     }
                   },
                   "variables": {
-                    "$fxv#0": "Param(\r\n    [int]$KeyExpirationInDays,\r\n    [string]$KeyName,\r\n    [string]$KeyVaultServiceUri,\r\n    [string]$KeyVaultUri,\r\n    [string]$UserAssignedIdentityClientId\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n$WarningPreference = 'SilentlyContinue'\r\n\r\n# Get an access token for Azure resources\r\n$AccessToken = (Invoke-RestMethod `\r\n        -Headers @{Metadata = \"true\" } `\r\n        -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $KeyVaultServiceUri + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n# Set header for Azure Management API\r\n$Headers = @{\r\n    'Content-Type'  = 'application/json'\r\n    'Authorization' = 'Bearer ' + $AccessToken\r\n}\r\n\r\n$Body = [PSCustomObject]@{\r\n    kty            = 'RSA-HSM'\r\n    key_size       = 4096\r\n    attributes     = @{\r\n        enabled = $true\r\n    }\r\n    rotationPolicy = @{\r\n        attributes      = @{\r\n            expiryTime = $('P' + $KeyExpirationInDays + 'D')\r\n        }\r\n        lifetimeActions = @(\r\n            @{\r\n                action = @{\r\n                    type = 'Notify'\r\n                }\r\n                trigger = @{\r\n                    timeBeforeExpiry = 'P10D'\r\n                }\r\n            },\r\n            @{\r\n                action = @{\r\n                    type = 'Rotate'\r\n                }\r\n                trigger = @{\r\n                    timeAfterCreate = $('P' + ($KeyExpirationInDays - 7) + 'D')\r\n                }\r\n            }\r\n        )\r\n    }\r\n}\r\n\r\n# Create key vault key\r\nInvoke-RestMethod `\r\n    -Body ($Body | ConvertTo-Json -Depth 4) `\r\n    -Headers $Headers `\r\n    -Method 'POST' `\r\n    -Uri $($KeyVaultUri + 'keys/' + $KeyName + '?api-version=2025-07-01') | Out-Null",
+                    "$fxv#0": "Param(\r\n    [int]$KeyExpirationInDays,\r\n    [string]$KeyName,\r\n    [string]$KeyVaultServiceUri,\r\n    [string]$KeyVaultUri,\r\n    [string]$UserAssignedIdentityClientId\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n\r\n# Get an access token for Azure resources\r\n$AccessToken = (Invoke-RestMethod `\r\n        -Headers @{Metadata = \"true\" } `\r\n        -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $KeyVaultServiceUri + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n# Set header for Azure Management API\r\n$Headers = @{\r\n    'Content-Type'  = 'application/json'\r\n    'Authorization' = 'Bearer ' + $AccessToken\r\n}\r\n\r\n$Body = [PSCustomObject]@{\r\n    kty            = 'RSA-HSM'\r\n    key_size       = 4096\r\n    attributes     = @{\r\n        enabled = $true\r\n    }\r\n    rotationPolicy = @{\r\n        attributes      = @{\r\n            expiryTime = $('P' + $KeyExpirationInDays + 'D')\r\n        }\r\n        lifetimeActions = @(\r\n            @{\r\n                action = @{\r\n                    type = 'Notify'\r\n                }\r\n                trigger = @{\r\n                    timeBeforeExpiry = 'P10D'\r\n                }\r\n            },\r\n            @{\r\n                action = @{\r\n                    type = 'Rotate'\r\n                }\r\n                trigger = @{\r\n                    timeAfterCreate = $('P' + ($KeyExpirationInDays - 7) + 'D')\r\n                }\r\n            }\r\n        )\r\n    }\r\n}\r\n\r\n# Create key vault key\r\nInvoke-RestMethod `\r\n    -Body ($Body | ConvertTo-Json -Depth 4) `\r\n    -Headers $Headers `\r\n    -Method 'POST' `\r\n    -Uri $($KeyVaultUri + 'keys/' + $KeyName + '?api-version=2025-07-01') | Out-Null",
                     "$fxv#1": "param(\r\n    [string]$ResourceGroupName,\r\n    [string]$ResourceManagerUri,\r\n    [string]$UserAssignedIdentityClientId,\r\n    [string]$VirtualMachineResourceId\r\n)\r\n\r\n# Fix the resource manager URI since only AzureCloud contains a trailing slash\r\n$ResourceManagerUriFixed = if($ResourceManagerUri[-1] -eq '/'){$ResourceManagerUri.Substring(0,$ResourceManagerUri.Length - 1)} else {$ResourceManagerUri}\r\n\r\n# Get an access token for Azure resources\r\n$AzureManagementAccessToken = (Invoke-RestMethod `\r\n    -Headers @{Metadata=\"true\"} `\r\n    -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n# Set header for Azure Management API\r\n$AzureManagementHeader = @{\r\n    'Content-Type'='application/json'\r\n    'Authorization'='Bearer ' + $AzureManagementAccessToken\r\n}\r\n\r\nStart-Sleep -Seconds 30\r\n\r\n# Use the access token to delete the virtual machine\r\nInvoke-RestMethod `\r\n    -Headers $AzureManagementHeader `\r\n    -Method 'Delete' `\r\n    -Uri $($ResourceManagerUriFixed + $VirtualMachineResourceId + '?forceDeletion=true&api-version=2024-07-01') | Out-Null",
                     "keyVaultPrivateEndpointName": "[replace(parameters('tier').namingConvention.keyVaultPrivateEndpoint, parameters('tokens').purpose, variables('workload'))]",
                     "resourceGroupName": "[resourceGroup().name]",
@@ -7743,6 +7661,47 @@
                         "vault"
                       ]
                     },
+                    "key": {
+                      "type": "Microsoft.Compute/virtualMachines/runCommands",
+                      "apiVersion": "2023-09-01",
+                      "name": "[format('{0}/{1}', variables('virtualMachineName'), parameters('keyName'))]",
+                      "location": "[parameters('location')]",
+                      "tags": "[parameters('tags')]",
+                      "properties": {
+                        "asyncExecution": false,
+                        "parameters": [
+                          {
+                            "name": "KeyExpirationInDays",
+                            "value": "[parameters('keyExpirationInDays')]"
+                          },
+                          {
+                            "name": "KeyName",
+                            "value": "[parameters('keyName')]"
+                          },
+                          {
+                            "name": "KeyVaultServiceUri",
+                            "value": "[format('https://{0}', skip(environment().suffixes.keyvaultDns, 1))]"
+                          },
+                          {
+                            "name": "KeyVaultUri",
+                            "value": "[reference('vault').vaultUri]"
+                          },
+                          {
+                            "name": "UserAssignedIdentityClientId",
+                            "value": "[reference('userAssignedIdentity').clientId]"
+                          }
+                        ],
+                        "source": {
+                          "script": "[variables('$fxv#0')]"
+                        },
+                        "treatFailureAsDeploymentFailure": true
+                      },
+                      "dependsOn": [
+                        "userAssignedIdentity",
+                        "vault",
+                        "virtualMachine"
+                      ]
+                    },
                     "keyInfo": {
                       "existing": true,
                       "type": "Microsoft.KeyVault/vaults/keys",
@@ -7776,129 +7735,6 @@
                       "dependsOn": [
                         "keyInfo",
                         "vault"
-                      ]
-                    },
-                    "key": {
-                      "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2025-04-01",
-                      "name": "[format('deploy-key-cmk-{0}', parameters('deploymentNameSuffix'))]",
-                      "properties": {
-                        "expressionEvaluationOptions": {
-                          "scope": "inner"
-                        },
-                        "mode": "Incremental",
-                        "parameters": {
-                          "location": {
-                            "value": "[parameters('location')]"
-                          },
-                          "name": {
-                            "value": "[parameters('keyName')]"
-                          },
-                          "parameters": {
-                            "value": [
-                              {
-                                "name": "KeyExpirationInDays",
-                                "value": "[parameters('keyExpirationInDays')]"
-                              },
-                              {
-                                "name": "KeyName",
-                                "value": "[parameters('keyName')]"
-                              },
-                              {
-                                "name": "KeyVaultServiceUri",
-                                "value": "[format('https://{0}', skip(environment().suffixes.keyvaultDns, 1))]"
-                              },
-                              {
-                                "name": "KeyVaultUri",
-                                "value": "[reference('vault').vaultUri]"
-                              },
-                              {
-                                "name": "UserAssignedIdentityClientId",
-                                "value": "[reference('userAssignedIdentity').clientId]"
-                              }
-                            ]
-                          },
-                          "protectedParameters": {
-                            "value": "[[]"
-                          },
-                          "script": {
-                            "value": "[variables('$fxv#0')]"
-                          },
-                          "tags": {
-                            "value": "[parameters('tags')]"
-                          },
-                          "virtualMachineName": {
-                            "value": "[variables('virtualMachineName')]"
-                          }
-                        },
-                        "template": {
-                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                          "contentVersion": "1.0.0.0",
-                          "metadata": {
-                            "_generator": {
-                              "name": "bicep",
-                              "version": "0.40.2.10011",
-                              "templateHash": "8333305544299446105"
-                            }
-                          },
-                          "parameters": {
-                            "asyncExecution": {
-                              "type": "bool",
-                              "defaultValue": false
-                            },
-                            "location": {
-                              "type": "string"
-                            },
-                            "name": {
-                              "type": "string"
-                            },
-                            "parameters": {
-                              "type": "array",
-                              "defaultValue": []
-                            },
-                            "protectedParameters": {
-                              "type": "securestring"
-                            },
-                            "script": {
-                              "type": "string"
-                            },
-                            "tags": {
-                              "type": "object"
-                            },
-                            "treatFailureAsDeploymentFailure": {
-                              "type": "bool",
-                              "defaultValue": true
-                            },
-                            "virtualMachineName": {
-                              "type": "string"
-                            }
-                          },
-                          "resources": [
-                            {
-                              "type": "Microsoft.Compute/virtualMachines/runCommands",
-                              "apiVersion": "2023-09-01",
-                              "name": "[format('{0}/{1}', parameters('virtualMachineName'), parameters('name'))]",
-                              "location": "[parameters('location')]",
-                              "tags": "[parameters('tags')]",
-                              "properties": {
-                                "asyncExecution": "[parameters('asyncExecution')]",
-                                "parameters": "[parameters('parameters')]",
-                                "protectedParameters": "[json(parameters('protectedParameters'))]",
-                                "source": {
-                                  "script": "[parameters('script')]"
-                                },
-                                "treatFailureAsDeploymentFailure": "[parameters('treatFailureAsDeploymentFailure')]"
-                              }
-                            }
-                          ]
-                        }
-                      },
-                      "dependsOn": [
-                        "privateDnsZoneGroups",
-                        "privateEndpoint",
-                        "userAssignedIdentity",
-                        "vault",
-                        "virtualMachine"
                       ]
                     },
                     "roleAssignment_diskEncryptionSet": {
@@ -9347,7 +9183,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "324603392392973454"
+              "templateHash": "8362689187699809544"
             }
           },
           "parameters": {
@@ -9447,7 +9283,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "1566339408827817525"
+                      "templateHash": "2974155785719358561"
                     }
                   },
                   "parameters": {
@@ -9506,7 +9342,7 @@
                     }
                   },
                   "variables": {
-                    "$fxv#0": "Param(\r\n    [int]$KeyExpirationInDays,\r\n    [string]$KeyName,\r\n    [string]$KeyVaultServiceUri,\r\n    [string]$KeyVaultUri,\r\n    [string]$UserAssignedIdentityClientId\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n$WarningPreference = 'SilentlyContinue'\r\n\r\n# Get an access token for Azure resources\r\n$AccessToken = (Invoke-RestMethod `\r\n        -Headers @{Metadata = \"true\" } `\r\n        -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $KeyVaultServiceUri + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n# Set header for Azure Management API\r\n$Headers = @{\r\n    'Content-Type'  = 'application/json'\r\n    'Authorization' = 'Bearer ' + $AccessToken\r\n}\r\n\r\n$Body = [PSCustomObject]@{\r\n    kty            = 'RSA-HSM'\r\n    key_size       = 4096\r\n    attributes     = @{\r\n        enabled = $true\r\n    }\r\n    rotationPolicy = @{\r\n        attributes      = @{\r\n            expiryTime = $('P' + $KeyExpirationInDays + 'D')\r\n        }\r\n        lifetimeActions = @(\r\n            @{\r\n                action = @{\r\n                    type = 'Notify'\r\n                }\r\n                trigger = @{\r\n                    timeBeforeExpiry = 'P10D'\r\n                }\r\n            },\r\n            @{\r\n                action = @{\r\n                    type = 'Rotate'\r\n                }\r\n                trigger = @{\r\n                    timeAfterCreate = $('P' + ($KeyExpirationInDays - 7) + 'D')\r\n                }\r\n            }\r\n        )\r\n    }\r\n}\r\n\r\n# Create key vault key\r\nInvoke-RestMethod `\r\n    -Body ($Body | ConvertTo-Json -Depth 4) `\r\n    -Headers $Headers `\r\n    -Method 'POST' `\r\n    -Uri $($KeyVaultUri + 'keys/' + $KeyName + '?api-version=2025-07-01') | Out-Null",
+                    "$fxv#0": "Param(\r\n    [int]$KeyExpirationInDays,\r\n    [string]$KeyName,\r\n    [string]$KeyVaultServiceUri,\r\n    [string]$KeyVaultUri,\r\n    [string]$UserAssignedIdentityClientId\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n\r\n# Get an access token for Azure resources\r\n$AccessToken = (Invoke-RestMethod `\r\n        -Headers @{Metadata = \"true\" } `\r\n        -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $KeyVaultServiceUri + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n# Set header for Azure Management API\r\n$Headers = @{\r\n    'Content-Type'  = 'application/json'\r\n    'Authorization' = 'Bearer ' + $AccessToken\r\n}\r\n\r\n$Body = [PSCustomObject]@{\r\n    kty            = 'RSA-HSM'\r\n    key_size       = 4096\r\n    attributes     = @{\r\n        enabled = $true\r\n    }\r\n    rotationPolicy = @{\r\n        attributes      = @{\r\n            expiryTime = $('P' + $KeyExpirationInDays + 'D')\r\n        }\r\n        lifetimeActions = @(\r\n            @{\r\n                action = @{\r\n                    type = 'Notify'\r\n                }\r\n                trigger = @{\r\n                    timeBeforeExpiry = 'P10D'\r\n                }\r\n            },\r\n            @{\r\n                action = @{\r\n                    type = 'Rotate'\r\n                }\r\n                trigger = @{\r\n                    timeAfterCreate = $('P' + ($KeyExpirationInDays - 7) + 'D')\r\n                }\r\n            }\r\n        )\r\n    }\r\n}\r\n\r\n# Create key vault key\r\nInvoke-RestMethod `\r\n    -Body ($Body | ConvertTo-Json -Depth 4) `\r\n    -Headers $Headers `\r\n    -Method 'POST' `\r\n    -Uri $($KeyVaultUri + 'keys/' + $KeyName + '?api-version=2025-07-01') | Out-Null",
                     "$fxv#1": "param(\r\n    [string]$ResourceGroupName,\r\n    [string]$ResourceManagerUri,\r\n    [string]$UserAssignedIdentityClientId,\r\n    [string]$VirtualMachineResourceId\r\n)\r\n\r\n# Fix the resource manager URI since only AzureCloud contains a trailing slash\r\n$ResourceManagerUriFixed = if($ResourceManagerUri[-1] -eq '/'){$ResourceManagerUri.Substring(0,$ResourceManagerUri.Length - 1)} else {$ResourceManagerUri}\r\n\r\n# Get an access token for Azure resources\r\n$AzureManagementAccessToken = (Invoke-RestMethod `\r\n    -Headers @{Metadata=\"true\"} `\r\n    -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n# Set header for Azure Management API\r\n$AzureManagementHeader = @{\r\n    'Content-Type'='application/json'\r\n    'Authorization'='Bearer ' + $AzureManagementAccessToken\r\n}\r\n\r\nStart-Sleep -Seconds 30\r\n\r\n# Use the access token to delete the virtual machine\r\nInvoke-RestMethod `\r\n    -Headers $AzureManagementHeader `\r\n    -Method 'Delete' `\r\n    -Uri $($ResourceManagerUriFixed + $VirtualMachineResourceId + '?forceDeletion=true&api-version=2024-07-01') | Out-Null",
                     "keyVaultPrivateEndpointName": "[replace(parameters('tier').namingConvention.keyVaultPrivateEndpoint, parameters('tokens').purpose, variables('workload'))]",
                     "resourceGroupName": "[resourceGroup().name]",
@@ -9737,6 +9573,47 @@
                         "vault"
                       ]
                     },
+                    "key": {
+                      "type": "Microsoft.Compute/virtualMachines/runCommands",
+                      "apiVersion": "2023-09-01",
+                      "name": "[format('{0}/{1}', variables('virtualMachineName'), parameters('keyName'))]",
+                      "location": "[parameters('location')]",
+                      "tags": "[parameters('tags')]",
+                      "properties": {
+                        "asyncExecution": false,
+                        "parameters": [
+                          {
+                            "name": "KeyExpirationInDays",
+                            "value": "[parameters('keyExpirationInDays')]"
+                          },
+                          {
+                            "name": "KeyName",
+                            "value": "[parameters('keyName')]"
+                          },
+                          {
+                            "name": "KeyVaultServiceUri",
+                            "value": "[format('https://{0}', skip(environment().suffixes.keyvaultDns, 1))]"
+                          },
+                          {
+                            "name": "KeyVaultUri",
+                            "value": "[reference('vault').vaultUri]"
+                          },
+                          {
+                            "name": "UserAssignedIdentityClientId",
+                            "value": "[reference('userAssignedIdentity').clientId]"
+                          }
+                        ],
+                        "source": {
+                          "script": "[variables('$fxv#0')]"
+                        },
+                        "treatFailureAsDeploymentFailure": true
+                      },
+                      "dependsOn": [
+                        "userAssignedIdentity",
+                        "vault",
+                        "virtualMachine"
+                      ]
+                    },
                     "keyInfo": {
                       "existing": true,
                       "type": "Microsoft.KeyVault/vaults/keys",
@@ -9770,129 +9647,6 @@
                       "dependsOn": [
                         "keyInfo",
                         "vault"
-                      ]
-                    },
-                    "key": {
-                      "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2025-04-01",
-                      "name": "[format('deploy-key-cmk-{0}', parameters('deploymentNameSuffix'))]",
-                      "properties": {
-                        "expressionEvaluationOptions": {
-                          "scope": "inner"
-                        },
-                        "mode": "Incremental",
-                        "parameters": {
-                          "location": {
-                            "value": "[parameters('location')]"
-                          },
-                          "name": {
-                            "value": "[parameters('keyName')]"
-                          },
-                          "parameters": {
-                            "value": [
-                              {
-                                "name": "KeyExpirationInDays",
-                                "value": "[parameters('keyExpirationInDays')]"
-                              },
-                              {
-                                "name": "KeyName",
-                                "value": "[parameters('keyName')]"
-                              },
-                              {
-                                "name": "KeyVaultServiceUri",
-                                "value": "[format('https://{0}', skip(environment().suffixes.keyvaultDns, 1))]"
-                              },
-                              {
-                                "name": "KeyVaultUri",
-                                "value": "[reference('vault').vaultUri]"
-                              },
-                              {
-                                "name": "UserAssignedIdentityClientId",
-                                "value": "[reference('userAssignedIdentity').clientId]"
-                              }
-                            ]
-                          },
-                          "protectedParameters": {
-                            "value": "[[]"
-                          },
-                          "script": {
-                            "value": "[variables('$fxv#0')]"
-                          },
-                          "tags": {
-                            "value": "[parameters('tags')]"
-                          },
-                          "virtualMachineName": {
-                            "value": "[variables('virtualMachineName')]"
-                          }
-                        },
-                        "template": {
-                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                          "contentVersion": "1.0.0.0",
-                          "metadata": {
-                            "_generator": {
-                              "name": "bicep",
-                              "version": "0.40.2.10011",
-                              "templateHash": "8333305544299446105"
-                            }
-                          },
-                          "parameters": {
-                            "asyncExecution": {
-                              "type": "bool",
-                              "defaultValue": false
-                            },
-                            "location": {
-                              "type": "string"
-                            },
-                            "name": {
-                              "type": "string"
-                            },
-                            "parameters": {
-                              "type": "array",
-                              "defaultValue": []
-                            },
-                            "protectedParameters": {
-                              "type": "securestring"
-                            },
-                            "script": {
-                              "type": "string"
-                            },
-                            "tags": {
-                              "type": "object"
-                            },
-                            "treatFailureAsDeploymentFailure": {
-                              "type": "bool",
-                              "defaultValue": true
-                            },
-                            "virtualMachineName": {
-                              "type": "string"
-                            }
-                          },
-                          "resources": [
-                            {
-                              "type": "Microsoft.Compute/virtualMachines/runCommands",
-                              "apiVersion": "2023-09-01",
-                              "name": "[format('{0}/{1}', parameters('virtualMachineName'), parameters('name'))]",
-                              "location": "[parameters('location')]",
-                              "tags": "[parameters('tags')]",
-                              "properties": {
-                                "asyncExecution": "[parameters('asyncExecution')]",
-                                "parameters": "[parameters('parameters')]",
-                                "protectedParameters": "[json(parameters('protectedParameters'))]",
-                                "source": {
-                                  "script": "[parameters('script')]"
-                                },
-                                "treatFailureAsDeploymentFailure": "[parameters('treatFailureAsDeploymentFailure')]"
-                              }
-                            }
-                          ]
-                        }
-                      },
-                      "dependsOn": [
-                        "privateDnsZoneGroups",
-                        "privateEndpoint",
-                        "userAssignedIdentity",
-                        "vault",
-                        "virtualMachine"
                       ]
                     },
                     "roleAssignment_diskEncryptionSet": {

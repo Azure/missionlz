@@ -216,7 +216,6 @@ module azureVirtualDesktop 'modules/azure-virtual-desktop.bicep' = {
     policy: policy
     privateLinkScopeResourceId: missionLandingZone.outputs.privateLinkScopeResourceId
     securityPrincipals: securityPrincipals
-    sharedServicesSubnetResourceId: missionLandingZone.outputs.sharedServicesSubnetResourceId
     usersPerCore: 1
     virtualMachineAdminPassword: domainAdministratorPassword
     virtualMachineAdminUsername: domainAdministratorUsername
@@ -248,50 +247,3 @@ module azureNetAppFiles '../azure-netapp-files/solution.bicep' = {
     tags: tags
   }
 }
-
-// Commented out ArcGIS Enterprise deployment until ready
-/* module arcGisEnterprise '../esri-enterprise/solution.bicep' = {
-  name: 'deploy-esri-enterprise-${deploymentNameSuffix}'
-  params: {
-    adminPassword: domainAdministratorPassword
-    adminUsername: domainAdministratorUsername
-    arcgisServiceAccountIsDomainAccount: true
-    arcgisServiceAccountPassword: arcgisServiceAccountPassword
-    arcgisServiceAccountUsername: arcgisServiceAccountUsername
-    architecture: 'singletier'
-    artifactsContainerName: containerName
-    artifactsStorageAccountName: split(storageAccountResourceId, '/')[8]
-    artifactsStorageAccountResourceGroupName: split(storageAccountResourceId, '/')[4]
-    artifactsStorageAccountSubscriptionId: split(storageAccountResourceId, '/')[2]
-    azureFirewallName: split(missionLandingZone.outputs.azureFirewallResourceId, '/')[8]
-    certificateFileName: certificateFileName
-    certificatePassword: certificatePassword
-    deployDefender: false
-    diskEncryptionSetResourceId: missionLandingZone.outputs.diskEncryptionSetResourceId
-    enableGraphDataStore: false
-    enableMonitoring: true
-    enableObjectDataStore: false
-    enableSpatiotemporalBigDataStore: true
-    enableTileCacheDataStore: true
-    externalDnsHostname: 'esri.${domainName}'
-    hubResourceGroupName: split(missionLandingZone.outputs.hubVirtualNetworkResourceId, '/')[4]
-    hubSubscriptionId: subscription().subscriptionId
-    hubVirtualNetworkName: split(missionLandingZone.outputs.hubVirtualNetworkResourceId, '/')[8]
-    joinEntraDomain: false
-    joinWindowsDomain: true
-    location: location
-    portalLicenseFile: portalLicenseFile
-    portalLicenseUserTypeId: portalLicenseUserTypeId
-    primarySiteAdministratorAccountPassword: primarySiteAdministratorAccountPassword
-    primarySiteAdministratorAccountUserName: primarySiteAdministratorAccountUserName
-    resourcePrefix: identifier
-    selfSignedCertificatePassword: certificatePassword
-    serverLicenseFile: serverLicenseFile
-    spokelogAnalyticsWorkspaceResourceId: missionLandingZone.outputs.logAnalyticsWorkspaceResourceId
-    useAzureFiles: false
-    useCloudStorage: false
-    windowsDomainAdministratorPassword: domainAdministratorPassword
-    windowsDomainAdministratorUserName: domainAdministratorUsername
-    windowsDomainName: domainName
-  }
-} */
