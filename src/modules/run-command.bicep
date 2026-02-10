@@ -5,7 +5,6 @@ Licensed under the MIT License.
 
 param asyncExecution bool = false
 param location string
-param mlzTags object
 param name string
 param parameters array = []
 @secure()
@@ -23,7 +22,7 @@ resource runCommand 'Microsoft.Compute/virtualMachines/runCommands@2023-09-01' =
   parent: virtualMachine
   name: name
   location: location
-  tags: union(tags[?'Microsoft.Compute/virtualMachines'] ?? {}, mlzTags)
+  tags: tags
   properties: {
     asyncExecution: asyncExecution
     parameters: parameters
