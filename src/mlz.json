@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.40.2.10011",
-      "templateHash": "10550930805023249677"
+      "templateHash": "11815212901285300254"
     }
   },
   "parameters": {
@@ -5233,7 +5233,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "4482485373029043075"
+              "templateHash": "12360164069709155618"
             }
           },
           "parameters": {
@@ -5369,7 +5369,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "11493649722921538774"
+                      "templateHash": "1566339408827817525"
                     }
                   },
                   "parameters": {
@@ -5613,16 +5613,6 @@
                         "tenantId": "[subscription().tenantId]"
                       }
                     },
-                    "keyInfo": {
-                      "existing": true,
-                      "type": "Microsoft.KeyVault/vaults/keys",
-                      "apiVersion": "2022-07-01",
-                      "name": "[format('{0}/{1}', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload')))), parameters('keyName'))]",
-                      "dependsOn": [
-                        "key",
-                        "vault"
-                      ]
-                    },
                     "privateEndpoint": {
                       "type": "Microsoft.Network/privateEndpoints",
                       "apiVersion": "2023-04-01",
@@ -5647,7 +5637,6 @@
                         }
                       },
                       "dependsOn": [
-                        "key",
                         "vault"
                       ]
                     },
@@ -5667,6 +5656,16 @@
                       },
                       "dependsOn": [
                         "privateEndpoint",
+                        "vault"
+                      ]
+                    },
+                    "keyInfo": {
+                      "existing": true,
+                      "type": "Microsoft.KeyVault/vaults/keys",
+                      "apiVersion": "2022-07-01",
+                      "name": "[format('{0}/{1}', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload')))), parameters('keyName'))]",
+                      "dependsOn": [
+                        "key",
                         "vault"
                       ]
                     },
@@ -5811,6 +5810,8 @@
                         }
                       },
                       "dependsOn": [
+                        "privateDnsZoneGroups",
+                        "privateEndpoint",
                         "userAssignedIdentity",
                         "vault",
                         "virtualMachine"
@@ -7138,7 +7139,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "16936191281075201513"
+              "templateHash": "17998581812528452588"
             }
           },
           "parameters": {
@@ -7320,7 +7321,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "11493649722921538774"
+                      "templateHash": "1566339408827817525"
                     }
                   },
                   "parameters": {
@@ -7564,16 +7565,6 @@
                         "tenantId": "[subscription().tenantId]"
                       }
                     },
-                    "keyInfo": {
-                      "existing": true,
-                      "type": "Microsoft.KeyVault/vaults/keys",
-                      "apiVersion": "2022-07-01",
-                      "name": "[format('{0}/{1}', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload')))), parameters('keyName'))]",
-                      "dependsOn": [
-                        "key",
-                        "vault"
-                      ]
-                    },
                     "privateEndpoint": {
                       "type": "Microsoft.Network/privateEndpoints",
                       "apiVersion": "2023-04-01",
@@ -7598,7 +7589,6 @@
                         }
                       },
                       "dependsOn": [
-                        "key",
                         "vault"
                       ]
                     },
@@ -7618,6 +7608,16 @@
                       },
                       "dependsOn": [
                         "privateEndpoint",
+                        "vault"
+                      ]
+                    },
+                    "keyInfo": {
+                      "existing": true,
+                      "type": "Microsoft.KeyVault/vaults/keys",
+                      "apiVersion": "2022-07-01",
+                      "name": "[format('{0}/{1}', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload')))), parameters('keyName'))]",
+                      "dependsOn": [
+                        "key",
                         "vault"
                       ]
                     },
@@ -7762,6 +7762,8 @@
                         }
                       },
                       "dependsOn": [
+                        "privateDnsZoneGroups",
+                        "privateEndpoint",
                         "userAssignedIdentity",
                         "vault",
                         "virtualMachine"
@@ -9213,7 +9215,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "1116414424901522716"
+              "templateHash": "324603392392973454"
             }
           },
           "parameters": {
@@ -9313,7 +9315,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "11493649722921538774"
+                      "templateHash": "1566339408827817525"
                     }
                   },
                   "parameters": {
@@ -9557,16 +9559,6 @@
                         "tenantId": "[subscription().tenantId]"
                       }
                     },
-                    "keyInfo": {
-                      "existing": true,
-                      "type": "Microsoft.KeyVault/vaults/keys",
-                      "apiVersion": "2022-07-01",
-                      "name": "[format('{0}/{1}', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload')))), parameters('keyName'))]",
-                      "dependsOn": [
-                        "key",
-                        "vault"
-                      ]
-                    },
                     "privateEndpoint": {
                       "type": "Microsoft.Network/privateEndpoints",
                       "apiVersion": "2023-04-01",
@@ -9591,7 +9583,6 @@
                         }
                       },
                       "dependsOn": [
-                        "key",
                         "vault"
                       ]
                     },
@@ -9611,6 +9602,16 @@
                       },
                       "dependsOn": [
                         "privateEndpoint",
+                        "vault"
+                      ]
+                    },
+                    "keyInfo": {
+                      "existing": true,
+                      "type": "Microsoft.KeyVault/vaults/keys",
+                      "apiVersion": "2022-07-01",
+                      "name": "[format('{0}/{1}', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload')))), parameters('keyName'))]",
+                      "dependsOn": [
+                        "key",
                         "vault"
                       ]
                     },
@@ -9755,6 +9756,8 @@
                         }
                       },
                       "dependsOn": [
+                        "privateDnsZoneGroups",
+                        "privateEndpoint",
                         "userAssignedIdentity",
                         "vault",
                         "virtualMachine"
