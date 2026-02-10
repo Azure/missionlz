@@ -423,7 +423,7 @@ module controlPlane 'control-plane/control-plane.bicep' = {
     imagePublisher: imagePublisher
     imageSku: imageSku
     imageVersionResourceId: imageVersionResourceId
-    locationControlPlane: virtualNetwork_hub.location
+    location: location
     logAnalyticsWorkspaceResourceId: management.outputs.logAnalyticsWorkspaceResourceId
     maxSessionLimit: usersPerCore * virtualMachineVirtualCpuCount
     mlzTags: tier3.outputs.mlzTags
