@@ -2,7 +2,6 @@ targetScope = 'subscription'
 
 param activeDirectorySolution string
 param avdPrivateDnsZoneResourceId string
-param customImageId string
 param customRdpProperty string
 param delimiter string
 param deploymentNameSuffix string
@@ -15,7 +14,6 @@ param hostPoolType string
 param imageOffer string
 param imagePublisher string
 param imageSku string
-param imageVersionResourceId string
 param location string
 param logAnalyticsWorkspaceResourceId string
 param maxSessionLimit int
@@ -32,11 +30,11 @@ param workspaceFriendlyName string
 param workspaceGlobalPrivateDnsZoneResourceId string
 param workspacePublicNetworkAccess string
 
-var galleryImageOffer = empty(imageVersionResourceId) ? '"${imageOffer}"' : 'null'
-var galleryImagePublisher = empty(imageVersionResourceId) ? '"${imagePublisher}"' : 'null'
-var galleryImageSku = empty(imageVersionResourceId) ? '"${imageSku}"' : 'null'
-var galleryItemId = empty(imageVersionResourceId) ? '"${imagePublisher}.${imageOffer}${imageSku}"' : 'null'
-var imageType = empty(imageVersionResourceId) ? '"Gallery"' : '"CustomImage"'
+var galleryImageOffer = '"${imageOffer}"'
+var galleryImagePublisher = '"${imagePublisher}"'
+var galleryImageSku = '"${imageSku}"'
+var galleryItemId = '"${imagePublisher}.${imageOffer}${imageSku}"'
+var imageType = '"Gallery"'
 
 module hostPool 'host-pool.bicep' = {
   name: 'deploy-vdpool-${deploymentNameSuffix}'
@@ -44,7 +42,6 @@ module hostPool 'host-pool.bicep' = {
   params: {
     activeDirectorySolution: activeDirectorySolution
     avdPrivateDnsZoneResourceId: avdPrivateDnsZoneResourceId
-    customImageId: customImageId
     customRdpProperty: customRdpProperty
     diskSku: diskSku
     domainName: domainName

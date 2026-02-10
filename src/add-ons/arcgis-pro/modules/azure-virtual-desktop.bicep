@@ -107,16 +107,13 @@ param hubVirtualNetworkResourceId string
 param identifier string = 'avd'
 
 @description('Offer for the virtual machine image')
-param imageOffer string = 'office-365'
+param imageOffer string = 'pro-byol'
 
 @description('Publisher for the virtual machine image')
-param imagePublisher string = 'MicrosoftWindowsDesktop'
+param imagePublisher string = 'esri'
 
 @description('SKU for the virtual machine image')
-param imageSku string = 'win11-22h2-avd-m365'
-
-@description('The resource ID for the Compute Gallery Image Version. Do not set this value if using a marketplace image.')
-param imageVersionResourceId string = ''
+param imageSku string = 'pro-byol-36'
 
 @description('An array of Key Vault Diagnostic Logs categories to collect. See "https://learn.microsoft.com/en-us/azure/key-vault/general/logging?tabs=Vault" for valid values.')
 param keyVaultDiagnosticsLogs array = [
@@ -256,7 +253,6 @@ param workspacePublicNetworkAccess string = 'Enabled'
 // OTHER LOGIC & COMPUTED VALUES
 var avdStorageAccountEndpoint = '${avdStorageAccountName}.blob.${environment().suffixes.storage}'
 var avdStorageAccountName = startsWith(location, 'usn') ? 'wvdexportalcontainer' : 'wvdportalstorageblob'
-var customImageId = empty(imageVersionResourceId) ? 'null' : '"${imageVersionResourceId}"'
 var privateDnsZoneResourceIdPrefix = '/subscriptions/${split(hubVirtualNetworkResourceId, '/')[2]}/resourceGroups/${split(hubVirtualNetworkResourceId, '/')[4]}/providers/Microsoft.Network/privateDnsZones/'
 var subnets = {
   avdManagement: [
@@ -400,7 +396,6 @@ module controlPlane 'control-plane/control-plane.bicep' = {
   params: {
     activeDirectorySolution: activeDirectorySolution
     avdPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3.outputs.privateDnsZones, name => startsWith(name, 'privatelink.wvd'))[0]}'
-    customImageId: customImageId
     customRdpProperty: customRdpProperty
     delimiter: tier3.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
@@ -413,7 +408,6 @@ module controlPlane 'control-plane/control-plane.bicep' = {
     imageOffer: imageOffer
     imagePublisher: imagePublisher
     imageSku: imageSku
-    imageVersionResourceId: imageVersionResourceId
     location: location
     logAnalyticsWorkspaceResourceId: management.outputs.logAnalyticsWorkspaceResourceId
     maxSessionLimit: usersPerCore * virtualMachineVirtualCpuCount

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.40.2.10011",
-      "templateHash": "1285011346414283501"
+      "templateHash": "2641134661139468416"
     }
   },
   "parameters": {
@@ -12881,7 +12881,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "11447470873517572766"
+              "templateHash": "17567912531930173117"
             }
           },
           "parameters": {
@@ -13080,30 +13080,23 @@
             },
             "imageOffer": {
               "type": "string",
-              "defaultValue": "office-365",
+              "defaultValue": "pro-byol",
               "metadata": {
                 "description": "Offer for the virtual machine image"
               }
             },
             "imagePublisher": {
               "type": "string",
-              "defaultValue": "MicrosoftWindowsDesktop",
+              "defaultValue": "esri",
               "metadata": {
                 "description": "Publisher for the virtual machine image"
               }
             },
             "imageSku": {
               "type": "string",
-              "defaultValue": "win11-22h2-avd-m365",
+              "defaultValue": "pro-byol-36",
               "metadata": {
                 "description": "SKU for the virtual machine image"
-              }
-            },
-            "imageVersionResourceId": {
-              "type": "string",
-              "defaultValue": "",
-              "metadata": {
-                "description": "The resource ID for the Compute Gallery Image Version. Do not set this value if using a marketplace image."
               }
             },
             "keyVaultDiagnosticsLogs": {
@@ -13354,7 +13347,6 @@
           "variables": {
             "avdStorageAccountEndpoint": "[format('{0}.blob.{1}', variables('avdStorageAccountName'), environment().suffixes.storage)]",
             "avdStorageAccountName": "[if(startsWith(parameters('location'), 'usn'), 'wvdexportalcontainer', 'wvdportalstorageblob')]",
-            "customImageId": "[if(empty(parameters('imageVersionResourceId')), 'null', format('\"{0}\"', parameters('imageVersionResourceId')))]",
             "privateDnsZoneResourceIdPrefix": "[format('/subscriptions/{0}/resourceGroups/{1}/providers/Microsoft.Network/privateDnsZones/', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4])]",
             "subnets": {
               "avdManagement": [
@@ -20334,9 +20326,6 @@
                   "avdPrivateDnsZoneResourceId": {
                     "value": "[format('{0}{1}', variables('privateDnsZoneResourceIdPrefix'), filter(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.privateDnsZones.value, lambda('name', startsWith(lambdaVariables('name'), 'privatelink.wvd')))[0])]"
                   },
-                  "customImageId": {
-                    "value": "[variables('customImageId')]"
-                  },
                   "customRdpProperty": {
                     "value": "[parameters('customRdpProperty')]"
                   },
@@ -20372,9 +20361,6 @@
                   },
                   "imageSku": {
                     "value": "[parameters('imageSku')]"
-                  },
-                  "imageVersionResourceId": {
-                    "value": "[parameters('imageVersionResourceId')]"
                   },
                   "location": {
                     "value": "[parameters('location')]"
@@ -20429,7 +20415,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "17812425633958904259"
+                      "templateHash": "10823135863848608695"
                     }
                   },
                   "parameters": {
@@ -20437,9 +20423,6 @@
                       "type": "string"
                     },
                     "avdPrivateDnsZoneResourceId": {
-                      "type": "string"
-                    },
-                    "customImageId": {
                       "type": "string"
                     },
                     "customRdpProperty": {
@@ -20476,9 +20459,6 @@
                       "type": "string"
                     },
                     "imageSku": {
-                      "type": "string"
-                    },
-                    "imageVersionResourceId": {
                       "type": "string"
                     },
                     "location": {
@@ -20528,11 +20508,11 @@
                     }
                   },
                   "variables": {
-                    "galleryImageOffer": "[if(empty(parameters('imageVersionResourceId')), format('\"{0}\"', parameters('imageOffer')), 'null')]",
-                    "galleryImagePublisher": "[if(empty(parameters('imageVersionResourceId')), format('\"{0}\"', parameters('imagePublisher')), 'null')]",
-                    "galleryImageSku": "[if(empty(parameters('imageVersionResourceId')), format('\"{0}\"', parameters('imageSku')), 'null')]",
-                    "galleryItemId": "[if(empty(parameters('imageVersionResourceId')), format('\"{0}.{1}{2}\"', parameters('imagePublisher'), parameters('imageOffer'), parameters('imageSku')), 'null')]",
-                    "imageType": "[if(empty(parameters('imageVersionResourceId')), '\"Gallery\"', '\"CustomImage\"')]"
+                    "galleryImageOffer": "[format('\"{0}\"', parameters('imageOffer'))]",
+                    "galleryImagePublisher": "[format('\"{0}\"', parameters('imagePublisher'))]",
+                    "galleryImageSku": "[format('\"{0}\"', parameters('imageSku'))]",
+                    "galleryItemId": "[format('\"{0}.{1}{2}\"', parameters('imagePublisher'), parameters('imageOffer'), parameters('imageSku'))]",
+                    "imageType": "\"Gallery\""
                   },
                   "resources": [
                     {
@@ -20551,9 +20531,6 @@
                           },
                           "avdPrivateDnsZoneResourceId": {
                             "value": "[parameters('avdPrivateDnsZoneResourceId')]"
-                          },
-                          "customImageId": {
-                            "value": "[parameters('customImageId')]"
                           },
                           "customRdpProperty": {
                             "value": "[parameters('customRdpProperty')]"
@@ -20635,7 +20612,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "14247732407734928229"
+                              "templateHash": "6942195241701174281"
                             }
                           },
                           "parameters": {
@@ -20643,9 +20620,6 @@
                               "type": "string"
                             },
                             "avdPrivateDnsZoneResourceId": {
-                              "type": "string"
-                            },
-                            "customImageId": {
                               "type": "string"
                             },
                             "customRdpProperty": {
@@ -20749,7 +20723,7 @@
                                 },
                                 "startVMOnConnect": true,
                                 "validationEnvironment": "[parameters('validationEnvironment')]",
-                                "vmTemplate": "[format('{{\"domain\":\"{0}\",\"galleryImageOffer\":{1},\"galleryImagePublisher\":{2},\"galleryImageSKU\":{3},\"imageType\":{4},\"customImageId\":{5},\"namePrefix\":\"{6}\",\"osDiskType\":\"{7}\",\"vmSize\":{{\"id\":\"{8}\",\"cores\":null,\"ram\":null,\"rdmaEnabled\": false,\"supportsMemoryPreservingMaintenance\": true}},\"galleryItemId\":{9},\"hibernate\":false,\"diskSizeGB\":0,\"securityType\":\"TrustedLaunch\",\"secureBoot\":true,\"vTPM\":true,\"vmInfrastructureType\":\"Cloud\",\"virtualProcessorCount\":null,\"memoryGB\":null,\"maximumMemoryGB\":null,\"minimumMemoryGB\":null,\"dynamicMemoryConfig\":false}}', parameters('domainName'), parameters('galleryImageOffer'), parameters('galleryImagePublisher'), parameters('galleryImageSku'), parameters('imageType'), parameters('customImageId'), parameters('sessionHostNamePrefix'), parameters('diskSku'), parameters('virtualMachineSize'), parameters('galleryItemId'))]"
+                                "vmTemplate": "[format('{{\"domain\":\"{0}\",\"galleryImageOffer\":{1},\"galleryImagePublisher\":{2},\"galleryImageSKU\":{3},\"imageType\":{4},\"customImageId\":null,\"namePrefix\":\"{5}\",\"osDiskType\":\"{6}\",\"vmSize\":{{\"id\":\"{7}\",\"cores\":null,\"ram\":null,\"rdmaEnabled\": false,\"supportsMemoryPreservingMaintenance\": true}},\"galleryItemId\":{8},\"hibernate\":false,\"diskSizeGB\":0,\"securityType\":\"TrustedLaunch\",\"secureBoot\":true,\"vTPM\":true,\"vmInfrastructureType\":\"Cloud\",\"virtualProcessorCount\":null,\"memoryGB\":null,\"maximumMemoryGB\":null,\"minimumMemoryGB\":null,\"dynamicMemoryConfig\":false}}', parameters('domainName'), parameters('galleryImageOffer'), parameters('galleryImagePublisher'), parameters('galleryImageSku'), parameters('imageType'), parameters('sessionHostNamePrefix'), parameters('diskSku'), parameters('virtualMachineSize'), parameters('galleryItemId'))]"
                               }
                             },
                             {
