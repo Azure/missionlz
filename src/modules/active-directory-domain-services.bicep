@@ -58,7 +58,7 @@ module customerManagedKeys 'customer-managed-keys.bicep' = {
   }
 }
 
-resource getFirewallPolicy 'Microsoft.Network/firewallPolicies@2022-05-01' existing = {
+resource getFirewallPolicy 'Microsoft.Network/firewallPolicies@2021-02-01' existing = {
   name: split(firewallPolicyResourceId, '/')[8]
   scope: resourceGroup(split(firewallPolicyResourceId, '/')[2], split(firewallPolicyResourceId, '/')[4])
 }
@@ -69,7 +69,7 @@ module updateFirewallPolicy 'firewall-policy.bicep' = {
   params: {
     dnsServers: ipAddresses
     enableProxy: getFirewallPolicy.properties.dnsSettings.enableProxy
-    intrusionDetectionMode: getFirewallPolicy.properties.intrusionDetection.mode
+    intrusionDetectionMode: getFirewallPolicy.properties.?intrusionDetection.?mode ?? ''
     location: getFirewallPolicy.location
     name: getFirewallPolicy.name
     skuTier: getFirewallPolicy.properties.sku.tier

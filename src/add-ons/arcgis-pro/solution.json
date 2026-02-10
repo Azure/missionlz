@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.40.2.10011",
-      "templateHash": "3724805120091343338"
+      "templateHash": "10518798143987340249"
     }
   },
   "parameters": {
@@ -243,7 +243,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "18437251305817037763"
+              "templateHash": "17079770143103718128"
             }
           },
           "parameters": {
@@ -5494,7 +5494,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "2174635493298269696"
+                      "templateHash": "1310392197868038503"
                     }
                   },
                   "parameters": {
@@ -6285,25 +6285,25 @@
                             "value": "[parameters('ipAddresses')]"
                           },
                           "enableProxy": {
-                            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('firewallPolicyResourceId'), '/')[2], split(parameters('firewallPolicyResourceId'), '/')[4]), 'Microsoft.Network/firewallPolicies', split(parameters('firewallPolicyResourceId'), '/')[8]), '2022-05-01').dnsSettings.enableProxy]"
+                            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('firewallPolicyResourceId'), '/')[2], split(parameters('firewallPolicyResourceId'), '/')[4]), 'Microsoft.Network/firewallPolicies', split(parameters('firewallPolicyResourceId'), '/')[8]), '2021-02-01').dnsSettings.enableProxy]"
                           },
                           "intrusionDetectionMode": {
-                            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('firewallPolicyResourceId'), '/')[2], split(parameters('firewallPolicyResourceId'), '/')[4]), 'Microsoft.Network/firewallPolicies', split(parameters('firewallPolicyResourceId'), '/')[8]), '2022-05-01').intrusionDetection.mode]"
+                            "value": "[coalesce(tryGet(tryGet(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('firewallPolicyResourceId'), '/')[2], split(parameters('firewallPolicyResourceId'), '/')[4]), 'Microsoft.Network/firewallPolicies', split(parameters('firewallPolicyResourceId'), '/')[8]), '2021-02-01'), 'intrusionDetection'), 'mode'), '')]"
                           },
                           "location": {
-                            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('firewallPolicyResourceId'), '/')[2], split(parameters('firewallPolicyResourceId'), '/')[4]), 'Microsoft.Network/firewallPolicies', split(parameters('firewallPolicyResourceId'), '/')[8]), '2022-05-01', 'full').location]"
+                            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('firewallPolicyResourceId'), '/')[2], split(parameters('firewallPolicyResourceId'), '/')[4]), 'Microsoft.Network/firewallPolicies', split(parameters('firewallPolicyResourceId'), '/')[8]), '2021-02-01', 'full').location]"
                           },
                           "name": {
                             "value": "[split(parameters('firewallPolicyResourceId'), '/')[8]]"
                           },
                           "skuTier": {
-                            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('firewallPolicyResourceId'), '/')[2], split(parameters('firewallPolicyResourceId'), '/')[4]), 'Microsoft.Network/firewallPolicies', split(parameters('firewallPolicyResourceId'), '/')[8]), '2022-05-01').sku.tier]"
+                            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('firewallPolicyResourceId'), '/')[2], split(parameters('firewallPolicyResourceId'), '/')[4]), 'Microsoft.Network/firewallPolicies', split(parameters('firewallPolicyResourceId'), '/')[8]), '2021-02-01').sku.tier]"
                           },
                           "tags": {
-                            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('firewallPolicyResourceId'), '/')[2], split(parameters('firewallPolicyResourceId'), '/')[4]), 'Microsoft.Network/firewallPolicies', split(parameters('firewallPolicyResourceId'), '/')[8]), '2022-05-01', 'full').tags]"
+                            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('firewallPolicyResourceId'), '/')[2], split(parameters('firewallPolicyResourceId'), '/')[4]), 'Microsoft.Network/firewallPolicies', split(parameters('firewallPolicyResourceId'), '/')[8]), '2021-02-01', 'full').tags]"
                           },
                           "threatIntelMode": {
-                            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('firewallPolicyResourceId'), '/')[2], split(parameters('firewallPolicyResourceId'), '/')[4]), 'Microsoft.Network/firewallPolicies', split(parameters('firewallPolicyResourceId'), '/')[8]), '2022-05-01').threatIntelMode]"
+                            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('firewallPolicyResourceId'), '/')[2], split(parameters('firewallPolicyResourceId'), '/')[4]), 'Microsoft.Network/firewallPolicies', split(parameters('firewallPolicyResourceId'), '/')[8]), '2021-02-01').threatIntelMode]"
                           }
                         },
                         "template": {
@@ -6313,7 +6313,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "13559207481878232084"
+                              "templateHash": "6864380443214305992"
                             }
                           },
                           "parameters": {
@@ -6351,7 +6351,7 @@
                               "tags": "[parameters('tags')]",
                               "properties": {
                                 "threatIntelMode": "[parameters('threatIntelMode')]",
-                                "intrusionDetection": "[if(equals(parameters('skuTier'), 'Premium'), createObject('mode', parameters('intrusionDetectionMode')), null())]",
+                                "intrusionDetection": "[if(and(equals(parameters('skuTier'), 'Premium'), not(empty(parameters('intrusionDetectionMode')))), createObject('mode', parameters('intrusionDetectionMode')), null())]",
                                 "sku": {
                                   "tier": "[parameters('skuTier')]"
                                 },
