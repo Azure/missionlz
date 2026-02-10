@@ -1,6 +1,7 @@
 Param(
     [int]$KeyExpirationInDays,
     [string]$KeyName,
+    [string]$KeyVaultServiceUri,
     [string]$KeyVaultUri,
     [string]$UserAssignedIdentityClientId
 )
@@ -11,7 +12,7 @@ $WarningPreference = 'SilentlyContinue'
 # Get an access token for Azure resources
 $AccessToken = (Invoke-RestMethod `
         -Headers @{Metadata = "true" } `
-        -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $KeyVaultUri + '&client_id=' + $UserAssignedIdentityClientId)).access_token
+        -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $KeyVaultServiceUri + '&client_id=' + $UserAssignedIdentityClientId)).access_token
 
 # Set header for Azure Management API
 $Headers = @{
@@ -55,4 +56,4 @@ Invoke-RestMethod `
     -Body ($Body | ConvertTo-Json -Depth 4) `
     -Headers $Headers `
     -Method 'POST' `
-    -Uri $($KeyVaultUri + '/keys/' + $KeyName + '?api-version=2023-09-05') | Out-Null
+    -Uri $($KeyVaultUri + '/keys/' + $KeyName + '?api-version=2025-07-01') | Out-Null
