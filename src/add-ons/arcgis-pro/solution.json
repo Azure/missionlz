@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.40.2.10011",
-      "templateHash": "3149700630967687026"
+      "templateHash": "17241523311472545201"
     }
   },
   "parameters": {
@@ -243,7 +243,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "11725720383273780914"
+              "templateHash": "11092463909873277152"
             }
           },
           "parameters": {
@@ -5471,7 +5471,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "542988814892216586"
+                      "templateHash": "8954690161629645276"
                     }
                   },
                   "parameters": {
@@ -5607,7 +5607,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "3029092852740181664"
+                              "templateHash": "5690965967108732307"
                             }
                           },
                           "parameters": {
@@ -5757,7 +5757,7 @@
                                     "managedDisk": {
                                       "storageAccountType": "Premium_LRS"
                                     },
-                                    "name": "[replace(parameters('tier').namingConvention.disk, parameters('tokens').purpose, variables('workload'))]"
+                                    "name": "[replace(parameters('tier').namingConvention.virtualMachineDisk, parameters('tokens').purpose, variables('workload'))]"
                                   },
                                   "dataDisks": []
                                 },
@@ -7369,7 +7369,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "6175075247507635954"
+                      "templateHash": "9637370843158530754"
                     }
                   },
                   "parameters": {
@@ -7551,7 +7551,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "3029092852740181664"
+                              "templateHash": "5690965967108732307"
                             }
                           },
                           "parameters": {
@@ -7701,7 +7701,7 @@
                                     "managedDisk": {
                                       "storageAccountType": "Premium_LRS"
                                     },
-                                    "name": "[replace(parameters('tier').namingConvention.disk, parameters('tokens').purpose, variables('workload'))]"
+                                    "name": "[replace(parameters('tier').namingConvention.virtualMachineDisk, parameters('tokens').purpose, variables('workload'))]"
                                   },
                                   "dataDisks": []
                                 },
@@ -9242,7 +9242,8 @@
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2025-04-01",
                       "name": "[format('deploy-ra-bastion-host-{0}', parameters('deploymentNameSuffix'))]",
-                      "resourceGroup": "[variables('resourceGroupName')]",
+                      "subscriptionId": "[parameters('tier').subscriptionId]",
+                      "resourceGroup": "[parameters('tier').resourceGroupName]",
                       "properties": {
                         "expressionEvaluationOptions": {
                           "scope": "inner"
@@ -9435,7 +9436,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "2314496266342450651"
+                      "templateHash": "4729272216307953411"
                     }
                   },
                   "parameters": {
@@ -9535,7 +9536,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "3029092852740181664"
+                              "templateHash": "5690965967108732307"
                             }
                           },
                           "parameters": {
@@ -9685,7 +9686,7 @@
                                     "managedDisk": {
                                       "storageAccountType": "Premium_LRS"
                                     },
-                                    "name": "[replace(parameters('tier').namingConvention.disk, parameters('tokens').purpose, variables('workload'))]"
+                                    "name": "[replace(parameters('tier').namingConvention.virtualMachineDisk, parameters('tokens').purpose, variables('workload'))]"
                                   },
                                   "dataDisks": []
                                 },
@@ -12942,7 +12943,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "3688389982514582469"
+              "templateHash": "4046210788315223983"
             }
           },
           "parameters": {
@@ -13567,7 +13568,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "15238883876759293659"
+                      "templateHash": "744862450149184885"
                     }
                   },
                   "parameters": {
@@ -15923,7 +15924,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "7606167160766310717"
+                              "templateHash": "15910771234048843901"
                             }
                           },
                           "parameters": {
@@ -16043,7 +16044,7 @@
                                     "_generator": {
                                       "name": "bicep",
                                       "version": "0.40.2.10011",
-                                      "templateHash": "3029092852740181664"
+                                      "templateHash": "5690965967108732307"
                                     }
                                   },
                                   "parameters": {
@@ -16193,7 +16194,7 @@
                                             "managedDisk": {
                                               "storageAccountType": "Premium_LRS"
                                             },
-                                            "name": "[replace(parameters('tier').namingConvention.disk, parameters('tokens').purpose, variables('workload'))]"
+                                            "name": "[replace(parameters('tier').namingConvention.virtualMachineDisk, parameters('tokens').purpose, variables('workload'))]"
                                           },
                                           "dataDisks": []
                                         },
@@ -18891,7 +18892,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "5350394095831652167"
+                      "templateHash": "17314222300968627573"
                     }
                   },
                   "parameters": {
@@ -19388,7 +19389,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "3029092852740181664"
+                              "templateHash": "5690965967108732307"
                             }
                           },
                           "parameters": {
@@ -19538,7 +19539,7 @@
                                     "managedDisk": {
                                       "storageAccountType": "Premium_LRS"
                                     },
-                                    "name": "[replace(parameters('tier').namingConvention.disk, parameters('tokens').purpose, variables('workload'))]"
+                                    "name": "[replace(parameters('tier').namingConvention.virtualMachineDisk, parameters('tokens').purpose, variables('workload'))]"
                                   },
                                   "dataDisks": []
                                 },
@@ -22487,7 +22488,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "143334380098555480"
+              "templateHash": "12358204981827211735"
             }
           },
           "parameters": {
@@ -22904,7 +22905,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "15238883876759293659"
+                      "templateHash": "744862450149184885"
                     }
                   },
                   "parameters": {
@@ -25260,7 +25261,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "7606167160766310717"
+                              "templateHash": "15910771234048843901"
                             }
                           },
                           "parameters": {
@@ -25380,7 +25381,7 @@
                                     "_generator": {
                                       "name": "bicep",
                                       "version": "0.40.2.10011",
-                                      "templateHash": "3029092852740181664"
+                                      "templateHash": "5690965967108732307"
                                     }
                                   },
                                   "parameters": {
@@ -25530,7 +25531,7 @@
                                             "managedDisk": {
                                               "storageAccountType": "Premium_LRS"
                                             },
-                                            "name": "[replace(parameters('tier').namingConvention.disk, parameters('tokens').purpose, variables('workload'))]"
+                                            "name": "[replace(parameters('tier').namingConvention.virtualMachineDisk, parameters('tokens').purpose, variables('workload'))]"
                                           },
                                           "dataDisks": []
                                         },
