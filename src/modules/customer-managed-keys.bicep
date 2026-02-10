@@ -185,6 +185,44 @@ resource vault 'Microsoft.KeyVault/vaults@2022-07-01' = {
   }
 }
 
+resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = {
+  name: keyVaultPrivateEndpointName
+  location: location
+  tags: tags
+  properties: {
+    customNetworkInterfaceName: replace(tier.namingConvention.keyVaultNetworkInterface, tokens.purpose, workload)
+    privateLinkServiceConnections: [
+      {
+        name: keyVaultPrivateEndpointName
+        properties: {
+          privateLinkServiceId: vault.id
+          groupIds: [
+            'vault'
+          ]
+        }
+      }
+    ]
+    subnet: {
+      id: subnetResourceId
+    }
+  }
+}
+
+resource privateDnsZoneGroups 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2021-08-01' = {
+  parent: privateEndpoint
+  name: vault.name
+  properties: {
+    privateDnsZoneConfigs: [
+      {
+        name: 'ipconfig1'
+        properties: {
+          privateDnsZoneId: keyVaultPrivateDnsZoneResourceId
+        }
+      }
+    ]
+  }
+}
+
 module key 'run-command.bicep' = {
   name: 'deploy-key-cmk-${deploymentNameSuffix}'
   params: {
@@ -217,6 +255,10 @@ module key 'run-command.bicep' = {
     tags: tags
     virtualMachineName: virtualMachine.name
   }
+  dependsOn: [
+    privateDnsZoneGroups
+    privateEndpoint
+  ]
 }
 
 resource keyInfo 'Microsoft.KeyVault/vaults/keys@2022-07-01' existing = {
@@ -225,47 +267,6 @@ resource keyInfo 'Microsoft.KeyVault/vaults/keys@2022-07-01' existing = {
   dependsOn: [
     key
   ]
-}
-
-resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = {
-  name: keyVaultPrivateEndpointName
-  location: location
-  tags: tags
-  properties: {
-    customNetworkInterfaceName: replace(tier.namingConvention.keyVaultNetworkInterface, tokens.purpose, workload)
-    privateLinkServiceConnections: [
-      {
-        name: keyVaultPrivateEndpointName
-        properties: {
-          privateLinkServiceId: vault.id
-          groupIds: [
-            'vault'
-          ]
-        }
-      }
-    ]
-    subnet: {
-      id: subnetResourceId
-    }
-  }
-  dependsOn: [
-    key
-  ]
-}
-
-resource privateDnsZoneGroups 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2021-08-01' = {
-  parent: privateEndpoint
-  name: vault.name
-  properties: {
-    privateDnsZoneConfigs: [
-      {
-        name: 'ipconfig1'
-        properties: {
-          privateDnsZoneId: keyVaultPrivateDnsZoneResourceId
-        }
-      }
-    ]
-  }
 }
 
 resource diskEncryptionSet 'Microsoft.Compute/diskEncryptionSets@2023-04-02' = if (type == 'virtualMachine') {
