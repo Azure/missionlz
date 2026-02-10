@@ -5,6 +5,7 @@ Licensed under the MIT License.
 
 param deploymentNameSuffix string
 param environmentAbbreviation string
+param keyExpirationInDays int = 30
 param keyName string
 param keyVaultPrivateDnsZoneResourceId string
 param location string
@@ -23,6 +24,7 @@ param virtualMachineAdminPassword string = newGuid()
 param virtualMachineAdminUsername string = 'xadmin'
 param virtualMachineSize string = 'Standard_D2ds_v4'
 
+var keyVaultPrivateEndpointName = replace(tier.namingConvention.keyVaultPrivateEndpoint, tokens.purpose, workload)
 var resourceGroupName = resourceGroup().name
 var userAssignedIdentityName = replace(tier.namingConvention.userAssignedIdentity, tokens.purpose, workload)
 var virtualMachineName = replace(tier.namingConvention.virtualMachine, tokens.purpose, workload)
@@ -156,32 +158,137 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   }
 }
 
-module keyVault 'key-vault.bicep' = {
-  name: 'deploy-${workload}-kv-${deploymentNameSuffix}'
-  params: {
-    environmentAbbreviation: environmentAbbreviation
-    keyName: keyName
-    keyVaultName: '${resourceAbbreviations.keyVaults}${uniqueString(tier.subscriptionId, resourceGroupName, replace(tier.namingConvention.keyVault, tokens.purpose, workload))}'
-    keyVaultNetworkInterfaceName: replace(tier.namingConvention.keyVaultNetworkInterface, tokens.purpose, workload)
-    keyVaultPrivateDnsZoneResourceId: keyVaultPrivateDnsZoneResourceId
-    keyVaultPrivateEndpointName: replace(tier.namingConvention.keyVaultPrivateEndpoint, tokens.purpose, workload)
-    location: location
-    managementVirtualMachineName: virtualMachine.name
-    subnetResourceId: tier.subnetResourceId
-    tags: tags
-    userAssignedIdentityClientId: userAssignedIdentity.properties.clientId
+resource vault 'Microsoft.KeyVault/vaults@2022-07-01' = {
+  name: '${resourceAbbreviations.keyVaults}${uniqueString(tier.subscriptionId, resourceGroupName, replace(tier.namingConvention.keyVault, tokens.purpose, workload))}'
+  location: location
+  tags: tags
+  properties: {
+    enabledForDeployment: false
+    enabledForDiskEncryption: false
+    enabledForTemplateDeployment: false
+    enablePurgeProtection: true
+    enableRbacAuthorization: true
+    enableSoftDelete: true
+    networkAcls: {
+      bypass: 'AzureServices'
+      defaultAction: 'Deny'
+      ipRules: []
+      virtualNetworkRules: []
+    }
+    publicNetworkAccess: 'Disabled'
+    sku: {
+      family: 'A'
+      name: 'premium'
+    }
+    softDeleteRetentionInDays: environmentAbbreviation == 'dev' || environmentAbbreviation == 'test' ? 7 : 90
+    tenantId: subscription().tenantId
   }
 }
 
-module diskEncryptionSet 'disk-encryption-set.bicep' = if (type == 'virtualMachine') {
-  name: 'deploy-${workload}-des-${deploymentNameSuffix}'
+module key 'run-command.bicep' = {
+  name: 'deploy-key-${keyName}-${environmentAbbreviation}'
   params: {
-    deploymentNameSuffix: deploymentNameSuffix
-    diskEncryptionSetName: replace(tier.namingConvention.diskEncryptionSet, tokens.purpose, workload)
-    keyUrl: keyVault.outputs.keyUriWithVersion
-    keyVaultResourceId: keyVault.outputs.keyVaultResourceId
     location: location
+    name: 'New-KeyVaultKey-${keyName}'
+    parameters: [
+      {
+        name: 'KeyExpirationInDays'
+        value: keyExpirationInDays
+      }
+      {
+        name: 'KeyName'
+        value: keyName
+      }
+      {
+        name: 'KeyVaultUri'
+        value: vault.properties.vaultUri
+      }
+      {
+        name: 'UserAssignedIdentityClientId'
+        value: userAssignedIdentity.properties.clientId
+      }
+    ]
+    script: loadTextContent('../artifacts/New-KeyVaultKey.ps1')
     tags: tags
+    virtualMachineName: virtualMachine.name
+  }
+}
+
+resource keyInfo 'Microsoft.KeyVault/vaults/keys@2022-07-01' existing = {
+  parent: vault
+  name: keyName
+  dependsOn: [
+    key
+  ]
+}
+
+resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = {
+  name: keyVaultPrivateEndpointName
+  location: location
+  tags: tags
+  properties: {
+    customNetworkInterfaceName: replace(tier.namingConvention.keyVaultNetworkInterface, tokens.purpose, workload)
+    privateLinkServiceConnections: [
+      {
+        name: keyVaultPrivateEndpointName
+        properties: {
+          privateLinkServiceId: vault.id
+          groupIds: [
+            'vault'
+          ]
+        }
+      }
+    ]
+    subnet: {
+      id: subnetResourceId
+    }
+  }
+  dependsOn: [
+    key
+  ]
+}
+
+resource privateDnsZoneGroups 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2021-08-01' = {
+  parent: privateEndpoint
+  name: vault.name
+  properties: {
+    privateDnsZoneConfigs: [
+      {
+        name: 'ipconfig1'
+        properties: {
+          privateDnsZoneId: keyVaultPrivateDnsZoneResourceId
+        }
+      }
+    ]
+  }
+}
+
+resource diskEncryptionSet 'Microsoft.Compute/diskEncryptionSets@2023-04-02' = if (type == 'virtualMachine') {
+  name: replace(tier.namingConvention.diskEncryptionSet, tokens.purpose, workload)
+  location: location
+  tags: tags
+  identity: {
+    type: 'SystemAssigned'
+  }
+  properties: {
+    activeKey: {
+      sourceVault: {
+        id: vault.id
+      }
+      keyUrl: keyInfo.properties.keyUriWithVersion
+    }
+    encryptionType: 'EncryptionAtRestWithPlatformAndCustomerKeys'
+    rotationToLatestKeyVersionEnabled: true
+  }
+}
+
+module roleAssignment_diskEncryptionSet 'role-assignment.bicep' = if (type == 'virtualMachine'){
+  name: 'assign-role-des-${deploymentNameSuffix}'
+  params: {
+    principalId: diskEncryptionSet!.identity.principalId
+    principalType: 'ServicePrincipal'
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions','e147488a-f6f5-4113-8e2d-b22465e65bf6') // Key Vault Crypto Service Encryption User
+    targetResourceId: resourceGroup().id
   }
 }
 
@@ -216,24 +323,24 @@ module deleteVirtualMachine 'run-command.bicep' = {
   }
   dependsOn: [
     diskEncryptionSet
-    keyVault
+    key
     roleAssignment
   ]
 }
 
-output diskEncryptionSetResourceId string = type == 'virtualMachine' ? diskEncryptionSet!.outputs.resourceId : ''
+output diskEncryptionSetResourceId string = type == 'virtualMachine' ? diskEncryptionSet.id : ''
 // The following output is needed to setup the diagnostic setting for the key vault
 output keyVaultProperties object = {
   diagnosticSettingName: replace(tier.namingConvention.keyVaultDiagnosticSetting, tokens.purpose, workload)
-  name: keyVault.outputs.keyVaultName
+  name: vault.name
   resourceGroupName: resourceGroupName
   subscriptionId: tier.subscriptionId
   tierName: tier.name // This value is used to associate the key vault diagnostic setting with the appropriate storage account
 }
-output keyName string = keyVault.outputs.keyName
-output keyUriWithVersion string = keyVault.outputs.keyUriWithVersion
-output keyVaultName string = keyVault.outputs.keyVaultName
-output keyVaultUri string = keyVault.outputs.keyVaultUri
-output keyVaultResourceId string = keyVault.outputs.keyVaultResourceId
-output keyVaultNetworkInterfaceResourceId string = keyVault.outputs.networkInterfaceResourceId
+output keyName string = keyInfo.name
+output keyUriWithVersion string = keyInfo.properties.keyUriWithVersion
+output keyVaultName string = vault.name
+output keyVaultUri string = vault.properties.vaultUri
+output keyVaultResourceId string = vault.id
+output keyVaultNetworkInterfaceResourceId string = privateEndpoint.id
 output userAssignedIdentityResourceId string = userAssignedIdentity.id
