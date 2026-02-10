@@ -28,6 +28,7 @@ param workloadShortName string
 
 module customerManagedKeys '../../../modules/customer-managed-keys.bicep' = {
   name: 'deploy-cmk-${workloadShortName}-${deploymentIndex}${deploymentNameSuffix}'
+  scope: resourceGroup(tier.subscriptionId, resourceGroupName)
   params: {
     deploymentNameSuffix: deploymentNameSuffix
     environmentAbbreviation: environmentAbbreviation
@@ -39,9 +40,8 @@ module customerManagedKeys '../../../modules/customer-managed-keys.bicep' = {
       replace('privatelink${environment().suffixes.keyvaultDns}', 'vault', 'vaultcore')
     )
     location: location
-    mlzTags: mlzTags
     resourceAbbreviations: resourceAbbreviations
-    resourceGroupName: tier.resourceGroupName
+    subnetResourceId: subnetResourceId
     tags: tags
     tier: tier
     tokens: tokens
