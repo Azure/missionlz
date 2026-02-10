@@ -36,9 +36,8 @@ module rg '../../../modules/resource-group.bicep' = {
   name: 'deploy-rg-${network.shortName}-${deploymentIndex}${deploymentNameSuffix}'
   params: {
     location: location
-    mlzTags: logic.outputs.mlzTags
     name: replace(logic.outputs.tiers[0].namingConvention.resourceGroup, logic.outputs.tokens.purpose, 'network')
-    tags: tags
+    tags: union(tags[?'Microsoft.Resources/resourceGroups'] ?? {}, logic.outputs.mlzTags)
   }
 }
 

@@ -211,7 +211,7 @@ module azureVirtualDesktop 'modules/azure-virtual-desktop.bicep' = {
     hubStorageAccountResourceId: missionLandingZone.outputs.hubStorageAccountResourceId
     hubVirtualNetworkResourceId: missionLandingZone.outputs.hubVirtualNetworkResourceId
     identifier: identifier
-    locationVirtualMachines: location
+    location: location
     operationsLogAnalyticsWorkspaceResourceId: missionLandingZone.outputs.logAnalyticsWorkspaceResourceId
     policy: policy
     privateLinkScopeResourceId: missionLandingZone.outputs.privateLinkScopeResourceId

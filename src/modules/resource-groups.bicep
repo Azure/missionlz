@@ -17,10 +17,9 @@ module resourceGroups 'resource-group.bicep' = [for tier in tiers: {
   name: 'deploy-rg-${tier.name}-${deploymentNameSuffix}'
   scope: subscription(tier.subscriptionId)
   params: {
-    mlzTags: mlzTags
     name: replace(tier.namingConvention.resourceGroup, tokens.purpose, purpose)
     location: location
-    tags: tags
+    tags: union(tags[?'Microsoft.Resources/resourceGroups'] ?? {}, mlzTags)
   }
 }]
 

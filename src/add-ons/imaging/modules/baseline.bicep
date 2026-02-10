@@ -24,10 +24,9 @@ module rg '../../../modules/resource-group.bicep' = {
   name: 'deploy-imaging-rg-${tier.name}-${deploymentNameSuffix}'
   scope: subscription(tier.subscriptionId)
   params: {
-    mlzTags: mlzTags
     name: resourceGroupName
     location: location
-    tags: tags
+    tags: union(tags[?'Microsoft.Resources/resourceGroups'] ?? {}, mlzTags)
   }
 }
 
@@ -70,15 +69,16 @@ module roleAssignment_StorageAccount 'role-assignments/storage-account.bicep' = 
 
 // Enables customer managed keys for disk encryption on the mgmt VM
 module customerManagedKeys '../../../modules/customer-managed-keys.bicep' = {
+  name: 'deploy-cmk-${deploymentNameSuffix}'
+  scope: resourceGroup(tier.subscriptionId, resourceGroupName)
   params: {
     deploymentNameSuffix: deploymentNameSuffix
     environmentAbbreviation: environmentAbbreviation
     keyName: replace(tier.namingConvention.diskEncryptionSet, tokens.purpose, 'cmk')
     keyVaultPrivateDnsZoneResourceId: keyVaultPrivateDnsZoneResourceId
     location: location
-    mlzTags: mlzTags
     resourceAbbreviations: resourceAbbreviations
-    resourceGroupName: resourceGroupName
+    subnetResourceId: tier.subnetResourceId
     tags: tags
     tier: tier
     tokens: tokens

@@ -21,8 +21,7 @@ param logAnalyticsWorkspaceResourceId string
 param maxSessionLimit int
 param mlzTags object
 param namingConvention object
-param resourceGroupManagement string
-param resourceGroupShared string
+param resourceGroupName string
 param securityPrincipalObjectId string
 param subnetResourceId string
 param tags object
@@ -40,7 +39,7 @@ var imageType = empty(imageVersionResourceId) ? '"Gallery"' : '"CustomImage"'
 
 module hostPool 'host-pool.bicep' = {
   name: 'deploy-vdpool-${deploymentNameSuffix}'
-  scope: resourceGroup(resourceGroupManagement)
+  scope: resourceGroup(resourceGroupName)
   params: {
     activeDirectorySolution: activeDirectorySolution
     avdPrivateDnsZoneResourceId: avdPrivateDnsZoneResourceId
@@ -74,7 +73,7 @@ module hostPool 'host-pool.bicep' = {
 
 module applicationGroup 'application-group.bicep' = {
   name: 'deploy-vdag-${deploymentNameSuffix}'
-  scope: resourceGroup(resourceGroupManagement)
+  scope: resourceGroup(resourceGroupName)
   params: {
     desktopApplicationGroupName: replace(namingConvention.applicationGroup, '${delimiter}${tokens.purpose}', '')
     hostPoolResourceId: hostPool.outputs.resourceId
@@ -88,7 +87,7 @@ module applicationGroup 'application-group.bicep' = {
 // Deploys the resources to create and configure the feed workspace
 module workspace_feed 'workspace-feed.bicep' = {
   name: 'deploy-vdws-feed-${deploymentNameSuffix}'
-  scope: resourceGroup(resourceGroupShared)
+  scope: resourceGroup(resourceGroupName)
   params: {
     applicationGroupResourceId: applicationGroup.outputs.resourceId
     avdPrivateDnsZoneResourceId: avdPrivateDnsZoneResourceId

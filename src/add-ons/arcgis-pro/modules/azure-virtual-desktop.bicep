@@ -139,7 +139,7 @@ param keyVaultDiagnosticMetrics array = [
 ]
 
 @description('The deployment location for the AVD sessions hosts. This is necessary when the users are closer to a different location than the control plane location.')
-param locationVirtualMachines string = deployment().location
+param location string = deployment().location
 
 @maxValue(730)
 @minValue(30)
@@ -258,7 +258,7 @@ param workspacePublicNetworkAccess string = 'Enabled'
 
 // OTHER LOGIC & COMPUTED VALUES
 var avdStorageAccountEndpoint = '${avdStorageAccountName}.blob.${environment().suffixes.storage}'
-var avdStorageAccountName = startsWith(locationVirtualMachines, 'usn') ? 'wvdexportalcontainer' : 'wvdportalstorageblob'
+var avdStorageAccountName = startsWith(location, 'usn') ? 'wvdexportalcontainer' : 'wvdportalstorageblob'
 var customImageId = empty(imageVersionResourceId) ? 'null' : '"${imageVersionResourceId}"'
 var privateDnsZoneResourceIdPrefix = '/subscriptions/${split(hubVirtualNetworkResourceId, '/')[2]}/resourceGroups/${split(hubVirtualNetworkResourceId, '/')[4]}/providers/Microsoft.Network/privateDnsZones/'
 var subnets = {
@@ -291,6 +291,7 @@ var subnets = {
       ]
     : []
 }
+var subscriptionId = subscription().subscriptionId
 
 // Gets the MLZ hub virtual network for its location, tags, and peerings
 resource virtualNetwork_hub 'Microsoft.Network/virtualNetworks@2023-11-01' existing = {
@@ -302,7 +303,7 @@ resource virtualNetwork_hub 'Microsoft.Network/virtualNetworks@2023-11-01' exist
 #disable-next-line no-deployments-resources
 resource partnerTelemetry 'Microsoft.Resources/deployments@2021-04-01' = {
   name: 'pid-4e82be1d-7fcb-4913-a90c-aa84d7ea3a1c'
-  location: locationVirtualMachines
+  location: location
   properties: {
     mode: 'Incremental'
     template: {
@@ -331,7 +332,7 @@ module tier3 '../../tier3/solution.bicep' = {
     identifier: identifier
     keyVaultDiagnosticLogs: keyVaultDiagnosticsLogs
     keyVaultDiagnosticMetrics: keyVaultDiagnosticMetrics
-    location: locationVirtualMachines
+    location: location
     logAnalyticsWorkspaceResourceId: operationsLogAnalyticsWorkspaceResourceId
     logStorageSkuName: logStorageSkuName
     networkInterfaceDiagnosticsMetrics: networkInterfaceDiagnosticsMetrics
@@ -352,6 +353,32 @@ module tier3 '../../tier3/solution.bicep' = {
   }
 }
 
+var resourceGroupName = replace(tier3.outputs.tier.namingConvention.resourceGroup, tier3.outputs.tokens.purpose, '')
+
+module rg '../../../modules/resource-group.bicep' = {
+  name: 'deploy-rg-${deploymentNameSuffix}'
+  params: {
+    location: location
+    name: resourceGroupName
+    tags: union(
+      {
+        'cm-resource-parent': resourceId(
+          subscription().subscriptionId,
+          resourceGroupName,
+          'Microsoft.DesktopVirtualization/hostpools',
+          replace(
+            tier3.outputs.tier.namingConvention.hostPool,
+            '${tier3.outputs.delimiter}${tier3.outputs.tokens.purpose}',
+            ''
+          )
+        )
+      },
+      tags[?'Microsoft.Resources/resourceGroups'] ?? {},
+      tier3.outputs.mlzTags
+    )
+  }
+}
+
 // Deploys the management resource group and resources
 module management 'management/management.bicep' = {
   name: 'deploy-management-${deploymentNameSuffix}'
@@ -361,8 +388,7 @@ module management 'management/management.bicep' = {
     deploymentNameSuffix: deploymentNameSuffix
     enableAvdInsights: enableAvdInsights
     environmentAbbreviation: environmentAbbreviation
-    locationControlPlane: virtualNetwork_hub.location
-    locationVirtualMachines: locationVirtualMachines
+    location: location
     logAnalyticsWorkspaceRetention: logAnalyticsWorkspaceRetention
     logAnalyticsWorkspaceSku: logAnalyticsWorkspaceSku
     mlzTags: tier3.outputs.mlzTags
@@ -370,6 +396,8 @@ module management 'management/management.bicep' = {
     privateDnsZones: tier3.outputs.privateDnsZones
     privateLinkScopeResourceId: privateLinkScopeResourceId
     resourceAbbreviations: tier3.outputs.resourceAbbreviations
+    resourceGroupName: rg.outputs.name
+    subscriptionId: subscriptionId
     tags: tags
     tier: tier3.outputs.tier
     tokens: tier3.outputs.tokens
@@ -400,8 +428,7 @@ module controlPlane 'control-plane/control-plane.bicep' = {
     maxSessionLimit: usersPerCore * virtualMachineVirtualCpuCount
     mlzTags: tier3.outputs.mlzTags
     namingConvention: tier3.outputs.tier.namingConvention
-    resourceGroupManagement: management.outputs.resourceGroupName
-    resourceGroupShared: management.outputs.resourceGroupName
+    resourceGroupName: resourceGroupName
     securityPrincipalObjectId: map(securityPrincipals, item => item.objectId)[0]
     subnetResourceId: tier3.outputs.tier.subnetResourceId
     tags: tags
@@ -450,7 +477,7 @@ module sessionHosts 'session-hosts/session-hosts.bicep' = {
     imageOffer: imageOffer
     imagePublisher: imagePublisher
     imageSku: imageSku
-    location: locationVirtualMachines
+    location: location
     mlzTags: tier3.outputs.mlzTags
     securityPrincipalObjectId: map(securityPrincipals, item => item.objectId)[0]
     tags: tags

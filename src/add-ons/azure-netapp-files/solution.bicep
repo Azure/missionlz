@@ -219,9 +219,8 @@ module rg '../../modules/resource-group.bicep' = {
   name: 'deploy-rg-${deploymentNameSuffix}'
   params: {
     location: location
-    mlzTags: tier3.outputs.mlzTags
     name: replace(tier3.outputs.tier.namingConvention.resourceGroup, tier3.outputs.tokens.purpose, 'netAppFiles')
-    tags: tags
+    tags: union(tags[?'Microsoft.Resources/resourceGroups'] ?? {}, tier3.outputs.mlzTags)
   }
 }
 
