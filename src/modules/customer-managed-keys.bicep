@@ -186,10 +186,10 @@ resource vault 'Microsoft.KeyVault/vaults@2022-07-01' = {
 }
 
 module key 'run-command.bicep' = {
-  name: 'deploy-key-${keyName}-${environmentAbbreviation}'
+  name: 'deploy-key-cmk-${deploymentNameSuffix}'
   params: {
     location: location
-    name: 'New-KeyVaultKey-${keyName}'
+    name: keyName
     parameters: [
       {
         name: 'KeyExpirationInDays'
@@ -208,6 +208,7 @@ module key 'run-command.bicep' = {
         value: userAssignedIdentity.properties.clientId
       }
     ]
+    protectedParameters: '[]'
     script: loadTextContent('../artifacts/New-KeyVaultKey.ps1')
     tags: tags
     virtualMachineName: virtualMachine.name
@@ -316,6 +317,7 @@ module deleteVirtualMachine 'run-command.bicep' = {
         value: virtualMachine.id
       }
     ]
+    protectedParameters: '[]'
     script: loadTextContent('../artifacts/Remove-VirtualMachine.ps1')
     tags: tags
     treatFailureAsDeploymentFailure: true
