@@ -143,7 +143,7 @@ module windowsVirtualMachine '../modules/virtual-machine.bicep' = if (deployWind
 
 module bastionHost '../modules/bastion-host.bicep' = if (deployBastion) {
   name: 'deploy-ra-bastion-host-${deploymentNameSuffix}'
-  scope: resourceGroup(resourceGroupName)
+  scope:resourceGroup(tier.subscriptionId, tier.resourceGroupName)
   params: {
     bastionHostSubnetResourceId: bastionHostSubnetResourceId
     location: location
