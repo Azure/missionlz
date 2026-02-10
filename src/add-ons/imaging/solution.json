@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.40.2.10011",
-      "templateHash": "1054714135344003584"
+      "templateHash": "11871598421534446810"
     }
   },
   "parameters": {
@@ -690,7 +690,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "6633290067248340896"
+              "templateHash": "14787700393571543758"
             }
           },
           "parameters": {
@@ -3046,7 +3046,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "4804815421665486075"
+                      "templateHash": "6860683937856033225"
                     }
                   },
                   "parameters": {
@@ -3166,7 +3166,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "7387788837320829587"
+                              "templateHash": "12117945558324211147"
                             }
                           },
                           "parameters": {
@@ -3270,7 +3270,7 @@
                             "networkInterface": {
                               "type": "Microsoft.Network/networkInterfaces",
                               "apiVersion": "2020-05-01",
-                              "name": "[replace(parameters('tier').namingConvention.networkInterface, parameters('tokens').purpose, 'cmk')]",
+                              "name": "[replace(parameters('tier').namingConvention.virtualMachineNetworkInterface, parameters('tokens').purpose, 'cmk')]",
                               "location": "[parameters('location')]",
                               "tags": "[parameters('tags')]",
                               "properties": {
@@ -3334,7 +3334,7 @@
                                 "networkProfile": {
                                   "networkInterfaces": [
                                     {
-                                      "id": "[resourceId('Microsoft.Network/networkInterfaces', replace(parameters('tier').namingConvention.networkInterface, parameters('tokens').purpose, 'cmk'))]",
+                                      "id": "[resourceId('Microsoft.Network/networkInterfaces', replace(parameters('tier').namingConvention.virtualMachineNetworkInterface, parameters('tokens').purpose, 'cmk'))]",
                                       "properties": {
                                         "deleteOption": "Delete"
                                       }
@@ -5920,7 +5920,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "8917313933394544357"
+              "templateHash": "8824465064191594874"
             }
           },
           "parameters": {
@@ -6292,7 +6292,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "7387788837320829587"
+                      "templateHash": "12117945558324211147"
                     }
                   },
                   "parameters": {
@@ -6396,7 +6396,7 @@
                     "networkInterface": {
                       "type": "Microsoft.Network/networkInterfaces",
                       "apiVersion": "2020-05-01",
-                      "name": "[replace(parameters('tier').namingConvention.networkInterface, parameters('tokens').purpose, 'cmk')]",
+                      "name": "[replace(parameters('tier').namingConvention.virtualMachineNetworkInterface, parameters('tokens').purpose, 'cmk')]",
                       "location": "[parameters('location')]",
                       "tags": "[parameters('tags')]",
                       "properties": {
@@ -6460,7 +6460,7 @@
                         "networkProfile": {
                           "networkInterfaces": [
                             {
-                              "id": "[resourceId('Microsoft.Network/networkInterfaces', replace(parameters('tier').namingConvention.networkInterface, parameters('tokens').purpose, 'cmk'))]",
+                              "id": "[resourceId('Microsoft.Network/networkInterfaces', replace(parameters('tier').namingConvention.virtualMachineNetworkInterface, parameters('tokens').purpose, 'cmk'))]",
                               "properties": {
                                 "deleteOption": "Delete"
                               }

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.40.2.10011",
-      "templateHash": "9314874979603968668"
+      "templateHash": "2250056196280872230"
     }
   },
   "parameters": {
@@ -243,7 +243,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "12702396480942400997"
+              "templateHash": "9589704848720121835"
             }
           },
           "parameters": {
@@ -5471,7 +5471,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "12028087753044573137"
+                      "templateHash": "14233607505246640558"
                     }
                   },
                   "parameters": {
@@ -5607,7 +5607,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "7387788837320829587"
+                              "templateHash": "12117945558324211147"
                             }
                           },
                           "parameters": {
@@ -5711,7 +5711,7 @@
                             "networkInterface": {
                               "type": "Microsoft.Network/networkInterfaces",
                               "apiVersion": "2020-05-01",
-                              "name": "[replace(parameters('tier').namingConvention.networkInterface, parameters('tokens').purpose, 'cmk')]",
+                              "name": "[replace(parameters('tier').namingConvention.virtualMachineNetworkInterface, parameters('tokens').purpose, 'cmk')]",
                               "location": "[parameters('location')]",
                               "tags": "[parameters('tags')]",
                               "properties": {
@@ -5775,7 +5775,7 @@
                                 "networkProfile": {
                                   "networkInterfaces": [
                                     {
-                                      "id": "[resourceId('Microsoft.Network/networkInterfaces', replace(parameters('tier').namingConvention.networkInterface, parameters('tokens').purpose, 'cmk'))]",
+                                      "id": "[resourceId('Microsoft.Network/networkInterfaces', replace(parameters('tier').namingConvention.virtualMachineNetworkInterface, parameters('tokens').purpose, 'cmk'))]",
                                       "properties": {
                                         "deleteOption": "Delete"
                                       }
@@ -7369,7 +7369,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "15025312931945424033"
+                      "templateHash": "9689419929371772672"
                     }
                   },
                   "parameters": {
@@ -7548,7 +7548,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "7387788837320829587"
+                              "templateHash": "12117945558324211147"
                             }
                           },
                           "parameters": {
@@ -7652,7 +7652,7 @@
                             "networkInterface": {
                               "type": "Microsoft.Network/networkInterfaces",
                               "apiVersion": "2020-05-01",
-                              "name": "[replace(parameters('tier').namingConvention.networkInterface, parameters('tokens').purpose, 'cmk')]",
+                              "name": "[replace(parameters('tier').namingConvention.virtualMachineNetworkInterface, parameters('tokens').purpose, 'cmk')]",
                               "location": "[parameters('location')]",
                               "tags": "[parameters('tags')]",
                               "properties": {
@@ -7716,7 +7716,7 @@
                                 "networkProfile": {
                                   "networkInterfaces": [
                                     {
-                                      "id": "[resourceId('Microsoft.Network/networkInterfaces', replace(parameters('tier').namingConvention.networkInterface, parameters('tokens').purpose, 'cmk'))]",
+                                      "id": "[resourceId('Microsoft.Network/networkInterfaces', replace(parameters('tier').namingConvention.virtualMachineNetworkInterface, parameters('tokens').purpose, 'cmk'))]",
                                       "properties": {
                                         "deleteOption": "Delete"
                                       }
@@ -9432,7 +9432,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "13933542131215349542"
+                      "templateHash": "7021588195950918826"
                     }
                   },
                   "parameters": {
@@ -9532,7 +9532,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "7387788837320829587"
+                              "templateHash": "12117945558324211147"
                             }
                           },
                           "parameters": {
@@ -9636,7 +9636,7 @@
                             "networkInterface": {
                               "type": "Microsoft.Network/networkInterfaces",
                               "apiVersion": "2020-05-01",
-                              "name": "[replace(parameters('tier').namingConvention.networkInterface, parameters('tokens').purpose, 'cmk')]",
+                              "name": "[replace(parameters('tier').namingConvention.virtualMachineNetworkInterface, parameters('tokens').purpose, 'cmk')]",
                               "location": "[parameters('location')]",
                               "tags": "[parameters('tags')]",
                               "properties": {
@@ -9700,7 +9700,7 @@
                                 "networkProfile": {
                                   "networkInterfaces": [
                                     {
-                                      "id": "[resourceId('Microsoft.Network/networkInterfaces', replace(parameters('tier').namingConvention.networkInterface, parameters('tokens').purpose, 'cmk'))]",
+                                      "id": "[resourceId('Microsoft.Network/networkInterfaces', replace(parameters('tier').namingConvention.virtualMachineNetworkInterface, parameters('tokens').purpose, 'cmk'))]",
                                       "properties": {
                                         "deleteOption": "Delete"
                                       }
@@ -12939,7 +12939,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "5496901040838804580"
+              "templateHash": "85806148720638544"
             }
           },
           "parameters": {
@@ -13564,7 +13564,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "6633290067248340896"
+                      "templateHash": "14787700393571543758"
                     }
                   },
                   "parameters": {
@@ -15920,7 +15920,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "4804815421665486075"
+                              "templateHash": "6860683937856033225"
                             }
                           },
                           "parameters": {
@@ -16040,7 +16040,7 @@
                                     "_generator": {
                                       "name": "bicep",
                                       "version": "0.40.2.10011",
-                                      "templateHash": "7387788837320829587"
+                                      "templateHash": "12117945558324211147"
                                     }
                                   },
                                   "parameters": {
@@ -16144,7 +16144,7 @@
                                     "networkInterface": {
                                       "type": "Microsoft.Network/networkInterfaces",
                                       "apiVersion": "2020-05-01",
-                                      "name": "[replace(parameters('tier').namingConvention.networkInterface, parameters('tokens').purpose, 'cmk')]",
+                                      "name": "[replace(parameters('tier').namingConvention.virtualMachineNetworkInterface, parameters('tokens').purpose, 'cmk')]",
                                       "location": "[parameters('location')]",
                                       "tags": "[parameters('tags')]",
                                       "properties": {
@@ -16208,7 +16208,7 @@
                                         "networkProfile": {
                                           "networkInterfaces": [
                                             {
-                                              "id": "[resourceId('Microsoft.Network/networkInterfaces', replace(parameters('tier').namingConvention.networkInterface, parameters('tokens').purpose, 'cmk'))]",
+                                              "id": "[resourceId('Microsoft.Network/networkInterfaces', replace(parameters('tier').namingConvention.virtualMachineNetworkInterface, parameters('tokens').purpose, 'cmk'))]",
                                               "properties": {
                                                 "deleteOption": "Delete"
                                               }
@@ -18888,7 +18888,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "15785043821288168414"
+                      "templateHash": "16765526034002581176"
                     }
                   },
                   "parameters": {
@@ -19385,7 +19385,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "7387788837320829587"
+                              "templateHash": "12117945558324211147"
                             }
                           },
                           "parameters": {
@@ -19489,7 +19489,7 @@
                             "networkInterface": {
                               "type": "Microsoft.Network/networkInterfaces",
                               "apiVersion": "2020-05-01",
-                              "name": "[replace(parameters('tier').namingConvention.networkInterface, parameters('tokens').purpose, 'cmk')]",
+                              "name": "[replace(parameters('tier').namingConvention.virtualMachineNetworkInterface, parameters('tokens').purpose, 'cmk')]",
                               "location": "[parameters('location')]",
                               "tags": "[parameters('tags')]",
                               "properties": {
@@ -19553,7 +19553,7 @@
                                 "networkProfile": {
                                   "networkInterfaces": [
                                     {
-                                      "id": "[resourceId('Microsoft.Network/networkInterfaces', replace(parameters('tier').namingConvention.networkInterface, parameters('tokens').purpose, 'cmk'))]",
+                                      "id": "[resourceId('Microsoft.Network/networkInterfaces', replace(parameters('tier').namingConvention.virtualMachineNetworkInterface, parameters('tokens').purpose, 'cmk'))]",
                                       "properties": {
                                         "deleteOption": "Delete"
                                       }
@@ -22484,7 +22484,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "4511767348279257838"
+              "templateHash": "6602288107442220446"
             }
           },
           "parameters": {
@@ -22901,7 +22901,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "6633290067248340896"
+                      "templateHash": "14787700393571543758"
                     }
                   },
                   "parameters": {
@@ -25257,7 +25257,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "4804815421665486075"
+                              "templateHash": "6860683937856033225"
                             }
                           },
                           "parameters": {
@@ -25377,7 +25377,7 @@
                                     "_generator": {
                                       "name": "bicep",
                                       "version": "0.40.2.10011",
-                                      "templateHash": "7387788837320829587"
+                                      "templateHash": "12117945558324211147"
                                     }
                                   },
                                   "parameters": {
@@ -25481,7 +25481,7 @@
                                     "networkInterface": {
                                       "type": "Microsoft.Network/networkInterfaces",
                                       "apiVersion": "2020-05-01",
-                                      "name": "[replace(parameters('tier').namingConvention.networkInterface, parameters('tokens').purpose, 'cmk')]",
+                                      "name": "[replace(parameters('tier').namingConvention.virtualMachineNetworkInterface, parameters('tokens').purpose, 'cmk')]",
                                       "location": "[parameters('location')]",
                                       "tags": "[parameters('tags')]",
                                       "properties": {
@@ -25545,7 +25545,7 @@
                                         "networkProfile": {
                                           "networkInterfaces": [
                                             {
-                                              "id": "[resourceId('Microsoft.Network/networkInterfaces', replace(parameters('tier').namingConvention.networkInterface, parameters('tokens').purpose, 'cmk'))]",
+                                              "id": "[resourceId('Microsoft.Network/networkInterfaces', replace(parameters('tier').namingConvention.virtualMachineNetworkInterface, parameters('tokens').purpose, 'cmk'))]",
                                               "properties": {
                                                 "deleteOption": "Delete"
                                               }
