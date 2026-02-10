@@ -57,7 +57,6 @@ resource resourceGroup 'Microsoft.Resources/resourceGroups@2019-05-01' = if (dep
   tags: union(tags[?'Microsoft.Resources/resourceGroups'] ?? {}, mlzTags)
 }
 
-
 module customerManagedKeys 'customer-managed-keys.bicep' = if (deployLinuxVirtualMachine || deployWindowsVirtualMachine) {
   name: 'deploy-ra-cmk-${deploymentNameSuffix}'
   scope: resourceGroup
@@ -74,6 +73,9 @@ module customerManagedKeys 'customer-managed-keys.bicep' = if (deployLinuxVirtua
     tokens: tokens
     type: 'virtualMachine'
   }
+  dependsOn: [
+    resourceGroup
+  ]
 }
 
 module linuxVirtualMachine '../modules/virtual-machine.bicep' = if (deployLinuxVirtualMachine) {
@@ -101,6 +103,9 @@ module linuxVirtualMachine '../modules/virtual-machine.bicep' = if (deployLinuxV
     virtualMachineName: replace(tier.namingConvention.virtualMachine, tokens.purpose, 'lra') // lra = Linux Remote Access
     virtualMachineSize: linuxVmSize
   }
+  dependsOn: [
+    resourceGroup
+  ]
 }
 
 module windowsVirtualMachine '../modules/virtual-machine.bicep' = if (deployWindowsVirtualMachine) {
@@ -129,6 +134,9 @@ module windowsVirtualMachine '../modules/virtual-machine.bicep' = if (deployWind
     virtualMachineName: replace(tier.namingConvention.virtualMachine, tokens.purpose, 'wra') // wra = Windows Remote Access
     virtualMachineSize: windowsVmSize
   }
+  dependsOn: [
+    resourceGroup
+  ]
 }
 
 module bastionHost '../modules/bastion-host.bicep' = if (deployBastion) {
@@ -145,6 +153,9 @@ module bastionHost '../modules/bastion-host.bicep' = if (deployBastion) {
     publicIPAddressSkuName: bastionHostPublicIPAddressSkuName
     tags: tags
   }
+  dependsOn: [
+    resourceGroup
+  ]
 }
 
 output keyVaultProperties object = deployLinuxVirtualMachine || deployWindowsVirtualMachine ? customerManagedKeys!.outputs.keyVaultProperties : {}
