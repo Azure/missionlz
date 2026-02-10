@@ -19,17 +19,20 @@ param tags object
 param tiers array
 param tokens object
 
+var resourceGroupName = filter(tiers, tier => tier.name == 'hub')[0].resourceGroupName
+var subscriptionId = filter(tiers, tier => tier.name == 'hub')[0].subscriptionId
+
 module customerManagedKeys 'customer-managed-keys.bicep' = {
   name: 'deploy-st-cmk-${deploymentNameSuffix}'
+  scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
     deploymentNameSuffix: deploymentNameSuffix
     environmentAbbreviation: environmentAbbreviation
     keyName: 'StorageEncryptionKey'
     keyVaultPrivateDnsZoneResourceId: privateDnsZoneResourceIds.keyVault
     location: location
-    mlzTags: mlzTags
     resourceAbbreviations: resourceAbbreviations
-    resourceGroupName: filter(tiers, tier => tier.name == 'hub')[0].resourceGroupName
+    subnetResourceId: filter(tiers, tier => tier.name == 'hub')[0].subnetResourceId
     tags: tags
     tier: filter(tiers, tier => tier.name == 'hub')[0]
     tokens: tokens
