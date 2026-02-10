@@ -55,7 +55,7 @@ resource roleAssignment_keyVaultCryptoServiceEncryptionUser 'Microsoft.Authoriza
 }
 
 resource networkInterface 'Microsoft.Network/networkInterfaces@2020-05-01' = {
-  name: replace(tier.namingConvention.networkInterface, tokens.purpose, 'cmk')
+  name: replace(tier.namingConvention.virtualMachineNetworkInterface, tokens.purpose, 'cmk')
   location: location
   tags: tags
   properties: {
