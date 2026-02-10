@@ -242,7 +242,7 @@ module netAppFiles 'modules/azureNetAppFiles.bicep' = {
     netAppCapacityPoolName: replace(tier3.outputs.tier.namingConvention.netAppAccountCapacityPool, '${tier3.outputs.delimiter}${tier3.outputs.tokens.purpose}', '')
     organizationalUnitPath: organizationalUnitPath
     resourceGroupName: rg.outputs.name
-    smbServerName: replace(tier3.outputs.tier.namingConvention.netAppAccountSmbServer, '${tier3.outputs.delimiter}${tier3.outputs.tokens.purpose}', '')
+    smbServerName: replace(tier3.outputs.tier.namingConvention.netAppAccountSmbServer, tier3.outputs.tokens.purpose, '')
     sku: sku
     tags: tags
   }
