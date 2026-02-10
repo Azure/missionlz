@@ -689,12 +689,13 @@ module networking 'modules/networking.bicep' = {
     deploymentNameSuffix: deploymentNameSuffix
     deployBastion: deployBastion
     deployAzureGatewaySubnet: deployAzureGatewaySubnet
-    dnsServers: deployIdentity && deployActiveDirectoryDomainServices
-      ? [
-          cidrHost(identitySubnetAddressPrefix, 5)
-          cidrHost(identitySubnetAddressPrefix, 6)
-        ]
-      : dnsServers
+    // dnsServers: deployIdentity && deployActiveDirectoryDomainServices
+    //   ? [
+    //       cidrHost(identitySubnetAddressPrefix, 5)
+    //       cidrHost(identitySubnetAddressPrefix, 6)
+    //     ]
+    //   : dnsServers
+    dnsServers: dnsServers
     enableProxy: enableProxy
     environmentAbbreviation: environmentAbbreviation
     firewallSettings: {
@@ -960,18 +961,23 @@ module activeDirectoryDomainServices 'modules/active-directory-domain-services.b
     deploymentNameSuffix: deploymentNameSuffix
     domainName: addsDomainName
     environmentAbbreviation: environmentAbbreviation
+    firewallPolicyResourceId: networking.outputs.firewallPolicyResourceId
     hybridUseBenefit: hybridUseBenefit
     imageOffer: 'WindowsServer'
     imagePublisher: 'MicrosoftWindowsServer'
     imageSku: addsVmImageSku
     imageVersion: windowsVmImageVersion
+    ipAddresses: [
+      cidrHost(identitySubnetAddressPrefix, 5)
+      cidrHost(identitySubnetAddressPrefix, 6)
+    ]
     keyVaultPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.keyVault
     location: location
     mlzTags: networking.outputs.mlzTags
     resourceAbbreviations: networking.outputs.resourceAbbreviations
     safeModeAdminPassword: addsSafeModeAdminPassword
     tags: tags
-    tier: filter(networking.outputs.tiers, tier => tier.name == 'identity')[0]
+    tiers: networking.outputs.tiers
     tokens: networking.outputs.tokens
     vmSize: addsVmSize
   }

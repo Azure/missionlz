@@ -147,6 +147,7 @@ module privateDnsZones 'private-dns-zones.bicep' = {
 output azureFirewallResourceId string = hubNetwork.outputs.firewallResourceId
 output bastionHostSubnetResourceId string = hubNetwork.outputs.bastionHostSubnetResourceId
 output delimiter string = logic.outputs.delimiter
+output firewallPolicyResourceId string = hubNetwork.outputs.firewallPolicyResourceId
 output hubVirtualNetworkResourceId string = hubNetwork.outputs.virtualNetworkResourceId
 output locationProperties object = logic.outputs.locationProperties
 output mlzTags object = logic.outputs.mlzTags

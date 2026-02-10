@@ -340,6 +340,7 @@ module firewall '../modules/firewall.bicep' = {
 output bastionHostSubnetResourceId string = deployBastion ? virtualNetwork.outputs.subnets[3].id : ''
 output dnsServers array = virtualNetwork.outputs.dnsServers
 output firewallName string = firewall.outputs.name
+output firewallPolicyResourceId string = firewall.outputs.policyResourceId
 output firewallPrivateIPAddress string = firewall.outputs.privateIPAddress
 output firewallResourceId string = firewall.outputs.resourceId
 output networkSecurityGroupName string = networkSecurityGroup.outputs.name
