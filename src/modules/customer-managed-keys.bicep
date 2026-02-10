@@ -30,30 +30,13 @@ var userAssignedIdentityName = replace(tier.namingConvention.userAssignedIdentit
 var virtualMachineName = replace(tier.namingConvention.virtualMachine, tokens.purpose, workload)
 var workload = 'cmk'
 
-resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' =  {
+resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
   name: userAssignedIdentityName
   location: location
   tags: tags
 }
 
-resource roleAssignment_keyVaultContributor 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
-  name: guid(userAssignedIdentityName, 'f25e0fa2-a7c8-4377-a976-54943a77a395', resourceGroup().id)
-  properties: {
-    principalId: userAssignedIdentity.properties.principalId
-    principalType: 'ServicePrincipal'
-    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', 'f25e0fa2-a7c8-4377-a976-54943a77a395')  // Key Vault Contributor
-  }
-}
-
-resource roleAssignment_keyVaultCryptoServiceEncryptionUser 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
-  name: guid(userAssignedIdentityName, 'e147488a-f6f5-4113-8e2d-b22465e65bf6', resourceGroup().id)
-  properties: {
-    principalId: userAssignedIdentity.properties.principalId
-    principalType: 'ServicePrincipal'
-    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', 'e147488a-f6f5-4113-8e2d-b22465e65bf6')  // Key Vault Crypto Service Encryption User
-  }
-}
-
+// Network interface for the management virtual machine
 resource networkInterface 'Microsoft.Network/networkInterfaces@2020-05-01' = {
   name: replace(tier.namingConvention.virtualMachineNetworkInterface, tokens.purpose, 'cmk')
   location: location
@@ -77,6 +60,7 @@ resource networkInterface 'Microsoft.Network/networkInterfaces@2020-05-01' = {
   }
 }
 
+// Management virtual machine
 resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-11-01' = {
   name: virtualMachineName
   location: location
@@ -149,10 +133,10 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-11-01' = {
 }
 
 resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(userAssignedIdentity.id, 'a959dbd1-f747-45e3-8ba6-dd80f235f97c', virtualMachine.id)
+  name: guid(userAssignedIdentity.id, '9980e02c-c2be-4d73-94e8-173b1dc7cf3c', virtualMachine.id)
   scope: virtualMachine
   properties: {
-    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', 'a959dbd1-f747-45e3-8ba6-dd80f235f97c') // Desktop Virtualization Virtual Machine Contributor (Purpose: remove the management virtual machine)
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', '9980e02c-c2be-4d73-94e8-173b1dc7cf3c') // Virtual Machine Contributor (Purpose: delete the management virtual machine)
     principalId: userAssignedIdentity.properties.principalId
     principalType: 'ServicePrincipal'
   }
@@ -185,6 +169,26 @@ resource vault 'Microsoft.KeyVault/vaults@2022-07-01' = {
   }
 }
 
+resource roleAssignment_keyVaultAdministrator 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+  name: guid(userAssignedIdentityName, '00482a5a-887f-4fb3-b363-3b7fe8e74483', vault.id)
+  scope: vault
+  properties: {
+    principalId: userAssignedIdentity.properties.principalId
+    principalType: 'ServicePrincipal'
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', '00482a5a-887f-4fb3-b363-3b7fe8e74483') // Key Vault Administrator
+  }
+}
+
+resource roleAssignment_keyVaultCryptoServiceEncryptionUser 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+  name: guid(userAssignedIdentityName, 'e147488a-f6f5-4113-8e2d-b22465e65bf6', vault.id)
+  scope: vault
+  properties: {
+    principalId: userAssignedIdentity.properties.principalId
+    principalType: 'ServicePrincipal'
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', 'e147488a-f6f5-4113-8e2d-b22465e65bf6') // Key Vault Crypto Service Encryption User
+  }
+}
+
 resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = {
   name: keyVaultPrivateEndpointName
   location: location
@@ -206,9 +210,13 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = {
       id: subnetResourceId
     }
   }
+  dependsOn: [
+    roleAssignment_keyVaultAdministrator
+    roleAssignment_keyVaultCryptoServiceEncryptionUser
+  ]
 }
 
-resource privateDnsZoneGroups 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2021-08-01' = {
+resource privateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2021-08-01' = {
   parent: privateEndpoint
   name: vault.name
   properties: {
@@ -221,6 +229,10 @@ resource privateDnsZoneGroups 'Microsoft.Network/privateEndpoints/privateDnsZone
       }
     ]
   }
+  dependsOn: [
+    roleAssignment_keyVaultAdministrator
+    roleAssignment_keyVaultCryptoServiceEncryptionUser
+  ]
 }
 
 resource key 'Microsoft.Compute/virtualMachines/runCommands@2023-09-01' = {
@@ -233,7 +245,7 @@ resource key 'Microsoft.Compute/virtualMachines/runCommands@2023-09-01' = {
     parameters: [
       {
         name: 'KeyExpirationInDays'
-        value: keyExpirationInDays
+        value: string(keyExpirationInDays)
       }
       {
         name: 'KeyName'
@@ -257,6 +269,10 @@ resource key 'Microsoft.Compute/virtualMachines/runCommands@2023-09-01' = {
     }
     treatFailureAsDeploymentFailure: true
   }
+  dependsOn: [
+    privateDnsZoneGroup
+    privateEndpoint
+  ]
 }
 
 resource keyInfo 'Microsoft.KeyVault/vaults/keys@2022-07-01' existing = {
@@ -286,12 +302,12 @@ resource diskEncryptionSet 'Microsoft.Compute/diskEncryptionSets@2023-04-02' = i
   }
 }
 
-module roleAssignment_diskEncryptionSet 'role-assignment.bicep' = if (type == 'virtualMachine'){
+module roleAssignment_diskEncryptionSet 'role-assignment.bicep' = if (type == 'virtualMachine') {
   name: 'assign-role-des-${deploymentNameSuffix}'
   params: {
     principalId: diskEncryptionSet!.identity.principalId
     principalType: 'ServicePrincipal'
-    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions','e147488a-f6f5-4113-8e2d-b22465e65bf6') // Key Vault Crypto Service Encryption User
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', 'e147488a-f6f5-4113-8e2d-b22465e65bf6') // Key Vault Crypto Service Encryption User
     targetResourceId: resourceGroup().id
   }
 }

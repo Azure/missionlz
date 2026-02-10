@@ -55,4 +55,4 @@ Invoke-RestMethod `
     -Body ($Body | ConvertTo-Json -Depth 4) `
     -Headers $Headers `
     -Method 'POST' `
-    -Uri $($KeyVaultUri + 'keys/' + $KeyName + '?api-version=2025-07-01') | Out-Null
+    -Uri $($KeyVaultUri + 'keys/' + $KeyName + '/create?api-version=2025-07-01') | Out-Null
