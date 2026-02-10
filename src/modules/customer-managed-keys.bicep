@@ -200,6 +200,10 @@ module key 'run-command.bicep' = {
         value: keyName
       }
       {
+        name: 'KeyVaultServiceUri'
+        value: 'https://${skip(environment().suffixes.keyvaultDns, 1)}'
+      }
+      {
         name: 'KeyVaultUri'
         value: vault.properties.vaultUri
       }
