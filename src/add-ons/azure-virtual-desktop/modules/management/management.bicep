@@ -107,15 +107,15 @@ module policyAssignment 'policy-assignment.bicep' = {
 
 module customerManagedKeys '../../../../modules/customer-managed-keys.bicep' = {
   name: 'deploy-cmk-${deploymentNameSuffix}'
+  scope: resourceGroup
   params: {
     deploymentNameSuffix: deploymentNameSuffix
     environmentAbbreviation: environmentAbbreviation
     keyName: replace(tier.namingConvention.diskEncryptionSet, tokens.purpose, 'cmk')
     keyVaultPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(privateDnsZones, name => contains(name, 'vaultcore'))[0]}'
     location: locationVirtualMachines
-    mlzTags: mlzTags
     resourceAbbreviations: resourceAbbreviations
-    resourceGroupName: resourceGroup.name
+    subnetResourceId: tier.subnets[0].id
     tags: tags
     tier: tier
     tokens: tokens
