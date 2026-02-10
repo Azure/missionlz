@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.40.2.10011",
-      "templateHash": "5848029342487153848"
+      "templateHash": "7015818437859625570"
     }
   },
   "parameters": {
@@ -12968,7 +12968,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "17535153342945958424"
+              "templateHash": "573924610681066855"
             }
           },
           "parameters": {
@@ -20613,8 +20613,8 @@
                   "imageVersionResourceId": {
                     "value": "[parameters('imageVersionResourceId')]"
                   },
-                  "locationControlPlane": {
-                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01', 'full').location]"
+                  "location": {
+                    "value": "[parameters('location')]"
                   },
                   "logAnalyticsWorkspaceResourceId": {
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.logAnalyticsWorkspaceResourceId.value]"
@@ -20663,7 +20663,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "9525068704838885829"
+                      "templateHash": "18141389452538533059"
                     }
                   },
                   "parameters": {
@@ -20715,7 +20715,7 @@
                     "imageVersionResourceId": {
                       "type": "string"
                     },
-                    "locationControlPlane": {
+                    "location": {
                       "type": "string"
                     },
                     "logAnalyticsWorkspaceResourceId": {
@@ -20832,7 +20832,7 @@
                             "value": "[variables('imageType')]"
                           },
                           "location": {
-                            "value": "[parameters('locationControlPlane')]"
+                            "value": "[parameters('location')]"
                           },
                           "logAnalyticsWorkspaceResourceId": {
                             "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
@@ -21079,7 +21079,7 @@
                             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vdpool-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.resourceId.value]"
                           },
                           "locationControlPlane": {
-                            "value": "[parameters('locationControlPlane')]"
+                            "value": "[parameters('location')]"
                           },
                           "mlzTags": {
                             "value": "[parameters('mlzTags')]"
@@ -21183,7 +21183,7 @@
                             "value": "[parameters('existingFeedWorkspaceResourceId')]"
                           },
                           "locationControlPlane": {
-                            "value": "[parameters('locationControlPlane')]"
+                            "value": "[parameters('location')]"
                           },
                           "logAnalyticsWorkspaceResourceId": {
                             "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
@@ -21206,7 +21206,7 @@
                           "workspaceFeedPrivateEndpointName": {
                             "value": "[replace(parameters('namingConvention').workspacePrivateEndpoint, parameters('tokens').purpose, 'feed')]"
                           },
-                          "workspaceFriendlyName": "[if(empty(parameters('workspaceFriendlyName')), createObject('value', replace(parameters('namingConvention').workspace, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), '')), createObject('value', format('{0} ({1})', parameters('workspaceFriendlyName'), parameters('locationControlPlane'))))]",
+                          "workspaceFriendlyName": "[if(empty(parameters('workspaceFriendlyName')), createObject('value', replace(parameters('namingConvention').workspace, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), '')), createObject('value', format('{0} ({1})', parameters('workspaceFriendlyName'), parameters('location'))))]",
                           "workspacePublicNetworkAccess": {
                             "value": "[parameters('workspacePublicNetworkAccess')]"
                           }
@@ -21356,14 +21356,6 @@
                     }
                   ],
                   "outputs": {
-                    "applicationGroupResourceId": {
-                      "type": "string",
-                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vdag-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.resourceId.value]"
-                    },
-                    "hostPoolName": {
-                      "type": "string",
-                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vdpool-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.name.value]"
-                    },
                     "hostPoolResourceId": {
                       "type": "string",
                       "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vdpool-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.resourceId.value]"
