@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.40.2.10011",
-      "templateHash": "11092463909873277152"
+      "templateHash": "16095801385762029905"
     }
   },
   "parameters": {
@@ -5233,7 +5233,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "8954690161629645276"
+              "templateHash": "6824053854150507871"
             }
           },
           "parameters": {
@@ -5369,7 +5369,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "5690965967108732307"
+                      "templateHash": "8919761435112750101"
                     }
                   },
                   "parameters": {
@@ -5698,7 +5698,7 @@
                     "key": {
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2025-04-01",
-                      "name": "[format('deploy-key-{0}-{1}', parameters('keyName'), parameters('environmentAbbreviation'))]",
+                      "name": "[format('deploy-key-cmk-{0}', parameters('deploymentNameSuffix'))]",
                       "properties": {
                         "expressionEvaluationOptions": {
                           "scope": "inner"
@@ -5709,7 +5709,7 @@
                             "value": "[parameters('location')]"
                           },
                           "name": {
-                            "value": "[format('New-KeyVaultKey-{0}', parameters('keyName'))]"
+                            "value": "[parameters('keyName')]"
                           },
                           "parameters": {
                             "value": [
@@ -5731,6 +5731,9 @@
                               }
                             ]
                           },
+                          "protectedParameters": {
+                            "value": "[[]"
+                          },
                           "script": {
                             "value": "[variables('$fxv#0')]"
                           },
@@ -5748,7 +5751,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "418944214128030267"
+                              "templateHash": "8333305544299446105"
                             }
                           },
                           "parameters": {
@@ -5767,8 +5770,7 @@
                               "defaultValue": []
                             },
                             "protectedParameters": {
-                              "type": "securestring",
-                              "defaultValue": ""
+                              "type": "securestring"
                             },
                             "script": {
                               "type": "string"
@@ -5927,6 +5929,9 @@
                               }
                             ]
                           },
+                          "protectedParameters": {
+                            "value": "[[]"
+                          },
                           "script": {
                             "value": "[variables('$fxv#1')]"
                           },
@@ -5947,7 +5952,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "418944214128030267"
+                              "templateHash": "8333305544299446105"
                             }
                           },
                           "parameters": {
@@ -5966,8 +5971,7 @@
                               "defaultValue": []
                             },
                             "protectedParameters": {
-                              "type": "securestring",
-                              "defaultValue": ""
+                              "type": "securestring"
                             },
                             "script": {
                               "type": "string"
@@ -6232,7 +6236,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "10630293889137574125"
+                      "templateHash": "2574330538533496751"
                     }
                   },
                   "parameters": {
@@ -6899,7 +6903,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "418944214128030267"
+                              "templateHash": "8333305544299446105"
                             }
                           },
                           "parameters": {
@@ -6918,8 +6922,7 @@
                               "defaultValue": []
                             },
                             "protectedParameters": {
-                              "type": "securestring",
-                              "defaultValue": ""
+                              "type": "securestring"
                             },
                             "script": {
                               "type": "string"
@@ -7131,7 +7134,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "9637370843158530754"
+              "templateHash": "7297266818330386316"
             }
           },
           "parameters": {
@@ -7313,7 +7316,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "5690965967108732307"
+                      "templateHash": "8919761435112750101"
                     }
                   },
                   "parameters": {
@@ -7642,7 +7645,7 @@
                     "key": {
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2025-04-01",
-                      "name": "[format('deploy-key-{0}-{1}', parameters('keyName'), parameters('environmentAbbreviation'))]",
+                      "name": "[format('deploy-key-cmk-{0}', parameters('deploymentNameSuffix'))]",
                       "properties": {
                         "expressionEvaluationOptions": {
                           "scope": "inner"
@@ -7653,7 +7656,7 @@
                             "value": "[parameters('location')]"
                           },
                           "name": {
-                            "value": "[format('New-KeyVaultKey-{0}', parameters('keyName'))]"
+                            "value": "[parameters('keyName')]"
                           },
                           "parameters": {
                             "value": [
@@ -7675,6 +7678,9 @@
                               }
                             ]
                           },
+                          "protectedParameters": {
+                            "value": "[[]"
+                          },
                           "script": {
                             "value": "[variables('$fxv#0')]"
                           },
@@ -7692,7 +7698,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "418944214128030267"
+                              "templateHash": "8333305544299446105"
                             }
                           },
                           "parameters": {
@@ -7711,8 +7717,7 @@
                               "defaultValue": []
                             },
                             "protectedParameters": {
-                              "type": "securestring",
-                              "defaultValue": ""
+                              "type": "securestring"
                             },
                             "script": {
                               "type": "string"
@@ -7871,6 +7876,9 @@
                               }
                             ]
                           },
+                          "protectedParameters": {
+                            "value": "[[]"
+                          },
                           "script": {
                             "value": "[variables('$fxv#1')]"
                           },
@@ -7891,7 +7899,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "418944214128030267"
+                              "templateHash": "8333305544299446105"
                             }
                           },
                           "parameters": {
@@ -7910,8 +7918,7 @@
                               "defaultValue": []
                             },
                             "protectedParameters": {
-                              "type": "securestring",
-                              "defaultValue": ""
+                              "type": "securestring"
                             },
                             "script": {
                               "type": "string"
@@ -9198,7 +9205,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "4729272216307953411"
+              "templateHash": "419817821870217206"
             }
           },
           "parameters": {
@@ -9298,7 +9305,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "5690965967108732307"
+                      "templateHash": "8919761435112750101"
                     }
                   },
                   "parameters": {
@@ -9627,7 +9634,7 @@
                     "key": {
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2025-04-01",
-                      "name": "[format('deploy-key-{0}-{1}', parameters('keyName'), parameters('environmentAbbreviation'))]",
+                      "name": "[format('deploy-key-cmk-{0}', parameters('deploymentNameSuffix'))]",
                       "properties": {
                         "expressionEvaluationOptions": {
                           "scope": "inner"
@@ -9638,7 +9645,7 @@
                             "value": "[parameters('location')]"
                           },
                           "name": {
-                            "value": "[format('New-KeyVaultKey-{0}', parameters('keyName'))]"
+                            "value": "[parameters('keyName')]"
                           },
                           "parameters": {
                             "value": [
@@ -9660,6 +9667,9 @@
                               }
                             ]
                           },
+                          "protectedParameters": {
+                            "value": "[[]"
+                          },
                           "script": {
                             "value": "[variables('$fxv#0')]"
                           },
@@ -9677,7 +9687,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "418944214128030267"
+                              "templateHash": "8333305544299446105"
                             }
                           },
                           "parameters": {
@@ -9696,8 +9706,7 @@
                               "defaultValue": []
                             },
                             "protectedParameters": {
-                              "type": "securestring",
-                              "defaultValue": ""
+                              "type": "securestring"
                             },
                             "script": {
                               "type": "string"
@@ -9856,6 +9865,9 @@
                               }
                             ]
                           },
+                          "protectedParameters": {
+                            "value": "[[]"
+                          },
                           "script": {
                             "value": "[variables('$fxv#1')]"
                           },
@@ -9876,7 +9888,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "418944214128030267"
+                              "templateHash": "8333305544299446105"
                             }
                           },
                           "parameters": {
@@ -9895,8 +9907,7 @@
                               "defaultValue": []
                             },
                             "protectedParameters": {
-                              "type": "securestring",
-                              "defaultValue": ""
+                              "type": "securestring"
                             },
                             "script": {
                               "type": "string"
