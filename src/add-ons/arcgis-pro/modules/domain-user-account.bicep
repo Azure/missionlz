@@ -5,7 +5,6 @@ param deploymentNameSuffix string
 param domainUserPassword string
 param domainUserUsername string
 param location string
-param mlzTags object
 param tags object
 param virtualMachineResourceIds array
 
@@ -17,7 +16,6 @@ module newDomainUserAccount '../../../modules/run-command.bicep' = {
   scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
     location: location
-    mlzTags: mlzTags
     name: 'New-DomainUserAccount'
     parameters: [
       {
