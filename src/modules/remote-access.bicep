@@ -51,44 +51,34 @@ param windowsVmSize string
 param windowsVmStorageAccountType string
 param windowsVmVersion string
 
-var jbResourceGroupName = replace(tier.namingConvention.resourceGroup, tokens.purpose, 'jumpBoxes')
-
-module rg 'resource-group.bicep' = if (deployLinuxVirtualMachine || deployWindowsVirtualMachine) {
-  name: 'deploy-ra-rg-${tier.name}-${deploymentNameSuffix}'
-  scope: subscription(tier.subscriptionId)
-  params: {
-    mlzTags: mlzTags
-    name: jbResourceGroupName
-    location: location
-    tags: tags
-  }
+resource resourceGroup 'Microsoft.Resources/resourceGroups@2019-05-01' = if (deployLinuxVirtualMachine || deployWindowsVirtualMachine) {
+  name: replace(tier.namingConvention.resourceGroup, tokens.purpose, 'jumpBoxes')
+  location: location
+  tags: union(tags[?'Microsoft.Resources/resourceGroups'] ?? {}, mlzTags)
 }
+
 
 module customerManagedKeys 'customer-managed-keys.bicep' = if (deployLinuxVirtualMachine || deployWindowsVirtualMachine) {
   name: 'deploy-ra-cmk-${deploymentNameSuffix}'
-  scope: subscription(tier.subscriptionId)
+  scope: resourceGroup
   params: {
     deploymentNameSuffix: deploymentNameSuffix
     environmentAbbreviation: environmentAbbreviation
     keyName: replace(tier.namingConvention.diskEncryptionSet, tokens.purpose, 'cmk')
     keyVaultPrivateDnsZoneResourceId: keyVaultPrivateDnsZoneResourceId
     location: location
-    mlzTags: mlzTags
     resourceAbbreviations: resourceAbbreviations
-    resourceGroupName: jbResourceGroupName
+    subnetResourceId: tier.subnetResourceId
     tags: tags
     tier: tier
     tokens: tokens
     type: 'virtualMachine'
   }
-  dependsOn: [
-    rg
-  ]
 }
 
 module linuxVirtualMachine '../modules/virtual-machine.bicep' = if (deployLinuxVirtualMachine) {
   name: 'deploy-ra-linux-vm-${deploymentNameSuffix}'
-  scope: resourceGroup(tier.subscriptionId, jbResourceGroupName)
+  scope: resourceGroup
   params: {
     adminPasswordOrKey: linuxVmAdminPasswordOrKey
     adminUsername: linuxVmAdminUsername
@@ -111,14 +101,11 @@ module linuxVirtualMachine '../modules/virtual-machine.bicep' = if (deployLinuxV
     virtualMachineName: replace(tier.namingConvention.virtualMachine, tokens.purpose, 'lra') // lra = Linux Remote Access
     virtualMachineSize: linuxVmSize
   }
-  dependsOn: [
-    rg
-  ]
 }
 
 module windowsVirtualMachine '../modules/virtual-machine.bicep' = if (deployWindowsVirtualMachine) {
   name: 'deploy-ra-windows-vm-${deploymentNameSuffix}'
-  scope: resourceGroup(tier.subscriptionId, jbResourceGroupName)
+  scope: resourceGroup
   params: {
     adminPasswordOrKey: windowsVmAdminPassword
     adminUsername: windowsVmAdminUsername
@@ -142,14 +129,11 @@ module windowsVirtualMachine '../modules/virtual-machine.bicep' = if (deployWind
     virtualMachineName: replace(tier.namingConvention.virtualMachine, tokens.purpose, 'wra') // wra = Windows Remote Access
     virtualMachineSize: windowsVmSize
   }
-  dependsOn: [
-    rg
-  ]
 }
 
 module bastionHost '../modules/bastion-host.bicep' = if (deployBastion) {
   name: 'deploy-ra-bastion-host-${deploymentNameSuffix}'
-  scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
+  scope: resourceGroup
   params: {
     bastionHostSubnetResourceId: bastionHostSubnetResourceId
     location: location
