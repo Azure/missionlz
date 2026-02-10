@@ -16,7 +16,7 @@ param imageOffer string
 param imagePublisher string
 param imageSku string
 param imageVersionResourceId string
-param locationControlPlane string
+param location string
 param logAnalyticsWorkspaceResourceId string
 param maxSessionLimit int
 param mlzTags object
@@ -59,7 +59,7 @@ module hostPool 'host-pool.bicep' = {
     hostPoolPublicNetworkAccess: hostPoolPublicNetworkAccess
     hostPoolType: hostPoolType
     imageType: imageType
-    location: locationControlPlane
+    location: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     maxSessionLimit: maxSessionLimit
     mlzTags: mlzTags
@@ -77,7 +77,7 @@ module applicationGroup 'application-group.bicep' = {
   params: {
     desktopApplicationGroupName: replace(namingConvention.applicationGroup, '${delimiter}${tokens.purpose}', '')
     hostPoolResourceId: hostPool.outputs.resourceId
-    locationControlPlane: locationControlPlane
+    locationControlPlane: location
     mlzTags: mlzTags
     securityPrincipalObjectId: securityPrincipalObjectId
     tags: tags
@@ -93,7 +93,7 @@ module workspace_feed 'workspace-feed.bicep' = {
     avdPrivateDnsZoneResourceId: avdPrivateDnsZoneResourceId
     enableAvdInsights: enableAvdInsights
     existingFeedWorkspaceResourceId: existingFeedWorkspaceResourceId
-    locationControlPlane: locationControlPlane
+    locationControlPlane: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     mlzTags: mlzTags
     subnetResourceId: subnetResourceId
@@ -101,11 +101,9 @@ module workspace_feed 'workspace-feed.bicep' = {
     workspaceFeedName: replace(namingConvention.workspace, tokens.purpose, 'feed')
     workspaceFeedNetworkInterfaceName: replace(namingConvention.workspaceNetworkInterface, tokens.purpose, 'feed')
     workspaceFeedPrivateEndpointName: replace(namingConvention.workspacePrivateEndpoint, tokens.purpose, 'feed')
-    workspaceFriendlyName: empty(workspaceFriendlyName) ? replace(namingConvention.workspace, '${delimiter}${tokens.purpose}', '') : '${workspaceFriendlyName} (${locationControlPlane})'
+    workspaceFriendlyName: empty(workspaceFriendlyName) ? replace(namingConvention.workspace, '${delimiter}${tokens.purpose}', '') : '${workspaceFriendlyName} (${location})'
     workspacePublicNetworkAccess: workspacePublicNetworkAccess
   }
 }
 
-output applicationGroupResourceId string = applicationGroup.outputs.resourceId
-output hostPoolName string = hostPool.outputs.name
 output hostPoolResourceId string = hostPool.outputs.resourceId
