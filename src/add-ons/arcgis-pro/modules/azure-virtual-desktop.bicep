@@ -344,7 +344,7 @@ module tier3 '../../tier3/solution.bicep' = {
   }
 }
 
-var resourceGroupName = replace(tier3.outputs.tier.namingConvention.resourceGroup, tier3.outputs.tokens.purpose, '')
+var resourceGroupName = replace(tier3.outputs.tier.namingConvention.resourceGroup, '${tier3.outputs.delimiter}${tier3.outputs.tokens.purpose}', '')
 
 module rg '../../../modules/resource-group.bicep' = {
   name: 'deploy-rg-${deploymentNameSuffix}'
