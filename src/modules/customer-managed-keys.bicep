@@ -100,7 +100,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-11-01' = {
         managedDisk: {
           storageAccountType: 'Premium_LRS'
         }
-        name: replace(tier.namingConvention.disk, tokens.purpose, workload)
+        name: replace(tier.namingConvention.virtualMachineDisk, tokens.purpose, workload)
       }
       dataDisks: []
     }
