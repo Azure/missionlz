@@ -30,60 +30,46 @@ param tokens object
 param vmCount int = 2
 param vmSize string
 
-var resourceGroupName = replace(tier.namingConvention.resourceGroup, tokens.purpose, 'domainControllers')
-
-module rg 'resource-group.bicep' = {
-  name: 'deploy-adds-rg-${tier.name}-${deploymentNameSuffix}'
-  scope: subscription(tier.subscriptionId)
-  params: {
-    mlzTags: mlzTags
-    name: resourceGroupName
-    location: location
-    tags: tags
-  }
+resource resourceGroup 'Microsoft.Resources/resourceGroups@2019-05-01' = {
+  name: replace(tier.namingConvention.resourceGroup, tokens.purpose, 'domainControllers')
+  location: location
+  tags: union(tags[?'Microsoft.Resources/resourceGroups'] ?? {}, mlzTags)
 }
 
 module customerManagedKeys 'customer-managed-keys.bicep' = {
   name: 'deploy-adds-cmk-${deploymentNameSuffix}'
-  scope: subscription(tier.subscriptionId)
+  scope: resourceGroup
   params: {
     deploymentNameSuffix: deploymentNameSuffix
     environmentAbbreviation: environmentAbbreviation
     keyName: replace(tier.namingConvention.diskEncryptionSet, tokens.purpose, 'cmk')
     keyVaultPrivateDnsZoneResourceId: keyVaultPrivateDnsZoneResourceId
     location: location
-    mlzTags: mlzTags
     resourceAbbreviations: resourceAbbreviations
-    resourceGroupName: resourceGroupName
+    subnetResourceId: tier.subnetResourceId
     tags: tags
     tier: tier
     tokens: tokens
     type: 'virtualMachine'
   }
-  dependsOn: [
-    rg
-  ]
 }
 
 module availabilitySet 'availability-set.bicep' = {
   name: 'deploy-adds-availability-set-${deploymentNameSuffix}'
-  scope: resourceGroup(tier.subscriptionId, resourceGroupName)
+  scope: resourceGroup
   params: {
     availabilitySetName: replace(tier.namingConvention.availabilitySet, tokens.purpose, 'domainControllers')
     location: location
     mlzTags: mlzTags
     tags: tags
   }
-  dependsOn: [
-    rg
-  ]
 }
 
 @batchSize(1)
 module domainControllers 'domain-controller.bicep' = [
   for i in range(0, vmCount): {
     name: 'deploy-adds-dc-${i}-${deploymentNameSuffix}'
-    scope: resourceGroup(tier.subscriptionId, resourceGroupName)
+    scope: resourceGroup
     params: {
       adminPassword: adminPassword
       adminUsername: adminUsername
@@ -109,9 +95,6 @@ module domainControllers 'domain-controller.bicep' = [
       tokens: tokens
       vmSize: vmSize
     }
-    dependsOn: [
-      rg
-    ]
   }
 ]
 
