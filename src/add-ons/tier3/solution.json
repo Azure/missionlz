@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.40.2.10011",
-      "templateHash": "14787700393571543758"
+      "templateHash": "15238883876759293659"
     }
   },
   "parameters": {
@@ -2361,7 +2361,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "6860683937856033225"
+              "templateHash": "7606167160766310717"
             }
           },
           "parameters": {
@@ -2481,7 +2481,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "12117945558324211147"
+                      "templateHash": "3029092852740181664"
                     }
                   },
                   "parameters": {
@@ -2559,7 +2559,7 @@
                     "roleAssignment_keyVaultContributor": {
                       "type": "Microsoft.Authorization/roleAssignments",
                       "apiVersion": "2020-04-01-preview",
-                      "name": "[guid(variables('userAssignedIdentityName'), 'e147488a-f6f5-4113-8e2d-b22465e65bf6', resourceGroup().id)]",
+                      "name": "[guid(variables('userAssignedIdentityName'), 'f25e0fa2-a7c8-4377-a976-54943a77a395', resourceGroup().id)]",
                       "properties": {
                         "principalId": "[reference('userAssignedIdentity').principalId]",
                         "principalType": "ServicePrincipal",

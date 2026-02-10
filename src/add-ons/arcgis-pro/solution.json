@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.40.2.10011",
-      "templateHash": "2250056196280872230"
+      "templateHash": "3149700630967687026"
     }
   },
   "parameters": {
@@ -243,7 +243,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "9589704848720121835"
+              "templateHash": "11725720383273780914"
             }
           },
           "parameters": {
@@ -5471,7 +5471,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "14233607505246640558"
+                      "templateHash": "542988814892216586"
                     }
                   },
                   "parameters": {
@@ -5607,7 +5607,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "12117945558324211147"
+                              "templateHash": "3029092852740181664"
                             }
                           },
                           "parameters": {
@@ -5685,7 +5685,7 @@
                             "roleAssignment_keyVaultContributor": {
                               "type": "Microsoft.Authorization/roleAssignments",
                               "apiVersion": "2020-04-01-preview",
-                              "name": "[guid(variables('userAssignedIdentityName'), 'e147488a-f6f5-4113-8e2d-b22465e65bf6', resourceGroup().id)]",
+                              "name": "[guid(variables('userAssignedIdentityName'), 'f25e0fa2-a7c8-4377-a976-54943a77a395', resourceGroup().id)]",
                               "properties": {
                                 "principalId": "[reference('userAssignedIdentity').principalId]",
                                 "principalType": "ServicePrincipal",
@@ -7369,7 +7369,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "9689419929371772672"
+                      "templateHash": "6175075247507635954"
                     }
                   },
                   "parameters": {
@@ -7485,12 +7485,15 @@
                       "type": "string"
                     }
                   },
+                  "variables": {
+                    "resourceGroupName": "[replace(parameters('tier').namingConvention.resourceGroup, parameters('tokens').purpose, 'jumpBoxes')]"
+                  },
                   "resources": [
                     {
                       "condition": "[or(parameters('deployLinuxVirtualMachine'), parameters('deployWindowsVirtualMachine'))]",
                       "type": "Microsoft.Resources/resourceGroups",
                       "apiVersion": "2019-05-01",
-                      "name": "[replace(parameters('tier').namingConvention.resourceGroup, parameters('tokens').purpose, 'jumpBoxes')]",
+                      "name": "[variables('resourceGroupName')]",
                       "location": "[parameters('location')]",
                       "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Resources/resourceGroups'), createObject()), parameters('mlzTags'))]"
                     },
@@ -7499,7 +7502,7 @@
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2025-04-01",
                       "name": "[format('deploy-ra-cmk-{0}', parameters('deploymentNameSuffix'))]",
-                      "resourceGroup": "[replace(parameters('tier').namingConvention.resourceGroup, parameters('tokens').purpose, 'jumpBoxes')]",
+                      "resourceGroup": "[variables('resourceGroupName')]",
                       "properties": {
                         "expressionEvaluationOptions": {
                           "scope": "inner"
@@ -7548,7 +7551,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "12117945558324211147"
+                              "templateHash": "3029092852740181664"
                             }
                           },
                           "parameters": {
@@ -7626,7 +7629,7 @@
                             "roleAssignment_keyVaultContributor": {
                               "type": "Microsoft.Authorization/roleAssignments",
                               "apiVersion": "2020-04-01-preview",
-                              "name": "[guid(variables('userAssignedIdentityName'), 'e147488a-f6f5-4113-8e2d-b22465e65bf6', resourceGroup().id)]",
+                              "name": "[guid(variables('userAssignedIdentityName'), 'f25e0fa2-a7c8-4377-a976-54943a77a395', resourceGroup().id)]",
                               "properties": {
                                 "principalId": "[reference('userAssignedIdentity').principalId]",
                                 "principalType": "ServicePrincipal",
@@ -8238,7 +8241,7 @@
                         }
                       },
                       "dependsOn": [
-                        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', replace(parameters('tier').namingConvention.resourceGroup, parameters('tokens').purpose, 'jumpBoxes'))]"
+                        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('resourceGroupName'))]"
                       ]
                     },
                     {
@@ -8246,7 +8249,7 @@
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2025-04-01",
                       "name": "[format('deploy-ra-linux-vm-{0}', parameters('deploymentNameSuffix'))]",
-                      "resourceGroup": "[replace(parameters('tier').namingConvention.resourceGroup, parameters('tokens').purpose, 'jumpBoxes')]",
+                      "resourceGroup": "[variables('resourceGroupName')]",
                       "properties": {
                         "expressionEvaluationOptions": {
                           "scope": "inner"
@@ -8263,7 +8266,7 @@
                             "value": "[parameters('linuxVmAuthenticationType')]"
                           },
                           "diskEncryptionSetResourceId": {
-                            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, replace(parameters('tier').namingConvention.resourceGroup, parameters('tokens').purpose, 'jumpBoxes')), 'Microsoft.Resources/deployments', format('deploy-ra-cmk-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.diskEncryptionSetResourceId.value]"
+                            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-ra-cmk-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.diskEncryptionSetResourceId.value]"
                           },
                           "diskName": {
                             "value": "[replace(parameters('tier').namingConvention.virtualMachineDisk, parameters('tokens').purpose, 'lra')]"
@@ -8732,8 +8735,8 @@
                         }
                       },
                       "dependsOn": [
-                        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, replace(parameters('tier').namingConvention.resourceGroup, parameters('tokens').purpose, 'jumpBoxes')), 'Microsoft.Resources/deployments', format('deploy-ra-cmk-{0}', parameters('deploymentNameSuffix')))]",
-                        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', replace(parameters('tier').namingConvention.resourceGroup, parameters('tokens').purpose, 'jumpBoxes'))]"
+                        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-ra-cmk-{0}', parameters('deploymentNameSuffix')))]",
+                        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('resourceGroupName'))]"
                       ]
                     },
                     {
@@ -8741,7 +8744,7 @@
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2025-04-01",
                       "name": "[format('deploy-ra-windows-vm-{0}', parameters('deploymentNameSuffix'))]",
-                      "resourceGroup": "[replace(parameters('tier').namingConvention.resourceGroup, parameters('tokens').purpose, 'jumpBoxes')]",
+                      "resourceGroup": "[variables('resourceGroupName')]",
                       "properties": {
                         "expressionEvaluationOptions": {
                           "scope": "inner"
@@ -8758,7 +8761,7 @@
                             "value": "password"
                           },
                           "diskEncryptionSetResourceId": {
-                            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, replace(parameters('tier').namingConvention.resourceGroup, parameters('tokens').purpose, 'jumpBoxes')), 'Microsoft.Resources/deployments', format('deploy-ra-cmk-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.diskEncryptionSetResourceId.value]"
+                            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-ra-cmk-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.diskEncryptionSetResourceId.value]"
                           },
                           "diskName": {
                             "value": "[replace(parameters('tier').namingConvention.virtualMachineDisk, parameters('tokens').purpose, 'wra')]"
@@ -9230,8 +9233,8 @@
                         }
                       },
                       "dependsOn": [
-                        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, replace(parameters('tier').namingConvention.resourceGroup, parameters('tokens').purpose, 'jumpBoxes')), 'Microsoft.Resources/deployments', format('deploy-ra-cmk-{0}', parameters('deploymentNameSuffix')))]",
-                        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', replace(parameters('tier').namingConvention.resourceGroup, parameters('tokens').purpose, 'jumpBoxes'))]"
+                        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-ra-cmk-{0}', parameters('deploymentNameSuffix')))]",
+                        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('resourceGroupName'))]"
                       ]
                     },
                     {
@@ -9239,7 +9242,7 @@
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2025-04-01",
                       "name": "[format('deploy-ra-bastion-host-{0}', parameters('deploymentNameSuffix'))]",
-                      "resourceGroup": "[replace(parameters('tier').namingConvention.resourceGroup, parameters('tokens').purpose, 'jumpBoxes')]",
+                      "resourceGroup": "[variables('resourceGroupName')]",
                       "properties": {
                         "expressionEvaluationOptions": {
                           "scope": "inner"
@@ -9357,18 +9360,18 @@
                         }
                       },
                       "dependsOn": [
-                        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', replace(parameters('tier').namingConvention.resourceGroup, parameters('tokens').purpose, 'jumpBoxes'))]"
+                        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('resourceGroupName'))]"
                       ]
                     }
                   ],
                   "outputs": {
                     "keyVaultProperties": {
                       "type": "object",
-                      "value": "[if(or(parameters('deployLinuxVirtualMachine'), parameters('deployWindowsVirtualMachine')), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, replace(parameters('tier').namingConvention.resourceGroup, parameters('tokens').purpose, 'jumpBoxes')), 'Microsoft.Resources/deployments', format('deploy-ra-cmk-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.keyVaultProperties.value, createObject())]"
+                      "value": "[if(or(parameters('deployLinuxVirtualMachine'), parameters('deployWindowsVirtualMachine')), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-ra-cmk-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.keyVaultProperties.value, createObject())]"
                     },
                     "networkInterfaceResourceIds": {
                       "type": "array",
-                      "value": "[union(if(or(parameters('deployLinuxVirtualMachine'), parameters('deployWindowsVirtualMachine')), createArray(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, replace(parameters('tier').namingConvention.resourceGroup, parameters('tokens').purpose, 'jumpBoxes')), 'Microsoft.Resources/deployments', format('deploy-ra-cmk-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.keyVaultNetworkInterfaceResourceId.value), createArray()), if(parameters('deployLinuxVirtualMachine'), createArray(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, replace(parameters('tier').namingConvention.resourceGroup, parameters('tokens').purpose, 'jumpBoxes')), 'Microsoft.Resources/deployments', format('deploy-ra-linux-vm-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.networkInterfaceResourceId.value), createArray()), if(parameters('deployWindowsVirtualMachine'), createArray(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, replace(parameters('tier').namingConvention.resourceGroup, parameters('tokens').purpose, 'jumpBoxes')), 'Microsoft.Resources/deployments', format('deploy-ra-windows-vm-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.networkInterfaceResourceId.value), createArray()))]"
+                      "value": "[union(if(or(parameters('deployLinuxVirtualMachine'), parameters('deployWindowsVirtualMachine')), createArray(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-ra-cmk-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.keyVaultNetworkInterfaceResourceId.value), createArray()), if(parameters('deployLinuxVirtualMachine'), createArray(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-ra-linux-vm-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.networkInterfaceResourceId.value), createArray()), if(parameters('deployWindowsVirtualMachine'), createArray(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-ra-windows-vm-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.networkInterfaceResourceId.value), createArray()))]"
                     }
                   }
                 }
@@ -9432,7 +9435,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "7021588195950918826"
+                      "templateHash": "2314496266342450651"
                     }
                   },
                   "parameters": {
@@ -9532,7 +9535,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "12117945558324211147"
+                              "templateHash": "3029092852740181664"
                             }
                           },
                           "parameters": {
@@ -9610,7 +9613,7 @@
                             "roleAssignment_keyVaultContributor": {
                               "type": "Microsoft.Authorization/roleAssignments",
                               "apiVersion": "2020-04-01-preview",
-                              "name": "[guid(variables('userAssignedIdentityName'), 'e147488a-f6f5-4113-8e2d-b22465e65bf6', resourceGroup().id)]",
+                              "name": "[guid(variables('userAssignedIdentityName'), 'f25e0fa2-a7c8-4377-a976-54943a77a395', resourceGroup().id)]",
                               "properties": {
                                 "principalId": "[reference('userAssignedIdentity').principalId]",
                                 "principalType": "ServicePrincipal",
@@ -12939,7 +12942,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "85806148720638544"
+              "templateHash": "3688389982514582469"
             }
           },
           "parameters": {
@@ -13564,7 +13567,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "14787700393571543758"
+                      "templateHash": "15238883876759293659"
                     }
                   },
                   "parameters": {
@@ -15920,7 +15923,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "6860683937856033225"
+                              "templateHash": "7606167160766310717"
                             }
                           },
                           "parameters": {
@@ -16040,7 +16043,7 @@
                                     "_generator": {
                                       "name": "bicep",
                                       "version": "0.40.2.10011",
-                                      "templateHash": "12117945558324211147"
+                                      "templateHash": "3029092852740181664"
                                     }
                                   },
                                   "parameters": {
@@ -16118,7 +16121,7 @@
                                     "roleAssignment_keyVaultContributor": {
                                       "type": "Microsoft.Authorization/roleAssignments",
                                       "apiVersion": "2020-04-01-preview",
-                                      "name": "[guid(variables('userAssignedIdentityName'), 'e147488a-f6f5-4113-8e2d-b22465e65bf6', resourceGroup().id)]",
+                                      "name": "[guid(variables('userAssignedIdentityName'), 'f25e0fa2-a7c8-4377-a976-54943a77a395', resourceGroup().id)]",
                                       "properties": {
                                         "principalId": "[reference('userAssignedIdentity').principalId]",
                                         "principalType": "ServicePrincipal",
@@ -18888,7 +18891,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "16765526034002581176"
+                      "templateHash": "5350394095831652167"
                     }
                   },
                   "parameters": {
@@ -19385,7 +19388,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "12117945558324211147"
+                              "templateHash": "3029092852740181664"
                             }
                           },
                           "parameters": {
@@ -19463,7 +19466,7 @@
                             "roleAssignment_keyVaultContributor": {
                               "type": "Microsoft.Authorization/roleAssignments",
                               "apiVersion": "2020-04-01-preview",
-                              "name": "[guid(variables('userAssignedIdentityName'), 'e147488a-f6f5-4113-8e2d-b22465e65bf6', resourceGroup().id)]",
+                              "name": "[guid(variables('userAssignedIdentityName'), 'f25e0fa2-a7c8-4377-a976-54943a77a395', resourceGroup().id)]",
                               "properties": {
                                 "principalId": "[reference('userAssignedIdentity').principalId]",
                                 "principalType": "ServicePrincipal",
@@ -22484,7 +22487,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "6602288107442220446"
+              "templateHash": "143334380098555480"
             }
           },
           "parameters": {
@@ -22901,7 +22904,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "14787700393571543758"
+                      "templateHash": "15238883876759293659"
                     }
                   },
                   "parameters": {
@@ -25257,7 +25260,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "6860683937856033225"
+                              "templateHash": "7606167160766310717"
                             }
                           },
                           "parameters": {
@@ -25377,7 +25380,7 @@
                                     "_generator": {
                                       "name": "bicep",
                                       "version": "0.40.2.10011",
-                                      "templateHash": "12117945558324211147"
+                                      "templateHash": "3029092852740181664"
                                     }
                                   },
                                   "parameters": {
@@ -25455,7 +25458,7 @@
                                     "roleAssignment_keyVaultContributor": {
                                       "type": "Microsoft.Authorization/roleAssignments",
                                       "apiVersion": "2020-04-01-preview",
-                                      "name": "[guid(variables('userAssignedIdentityName'), 'e147488a-f6f5-4113-8e2d-b22465e65bf6', resourceGroup().id)]",
+                                      "name": "[guid(variables('userAssignedIdentityName'), 'f25e0fa2-a7c8-4377-a976-54943a77a395', resourceGroup().id)]",
                                       "properties": {
                                         "principalId": "[reference('userAssignedIdentity').principalId]",
                                         "principalType": "ServicePrincipal",
