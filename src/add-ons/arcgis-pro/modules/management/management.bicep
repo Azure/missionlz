@@ -51,7 +51,7 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
 // Role Assignment for the AVD host pool
 // Purpose: assigns the Desktop Virtualization Contributor role to the managed identity on the 
 // management virtual machine to set the drain mode on the AVD session hosts and manage the scaling plan
-module roleAssignment_Management '../../../azure-virtual-desktop/modules/common/role-assignments/resource-group.bicep' = {
+module roleAssignment_AvdManagement '../../../azure-virtual-desktop/modules/common/role-assignments/resource-group.bicep' = {
   name: 'assign-role-mgmt-${deploymentNameSuffix}'
   scope: resourceGroup
   params: {
@@ -60,7 +60,6 @@ module roleAssignment_Management '../../../azure-virtual-desktop/modules/common/
     roleDefinitionId: '082f0a83-3be5-4ba1-904c-961cca79b387'
   }
 }
-
 
 module diskAccess 'disk-access.bicep' = {
   scope: resourceGroup
@@ -101,16 +100,17 @@ module policyAssignment 'policy-assignment.bicep' = {
 
 module customerManagedKeys '../../../../modules/customer-managed-keys.bicep' = {
   name: 'deploy-cmk-${deploymentNameSuffix}'
+  scope: resourceGroup
   params: {
     deploymentNameSuffix: deploymentNameSuffix
     environmentAbbreviation: environmentAbbreviation
     keyName: replace(tier.namingConvention.diskEncryptionSet, tokens.purpose, 'cmk')
     keyVaultPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(privateDnsZones, name => contains(name, 'vaultcore'))[0]}'
     location: locationVirtualMachines
-    mlzTags: mlzTags
     resourceAbbreviations: resourceAbbreviations
-    resourceGroupName: resourceGroup.name
-    tags: tags
+    subnetResourceId: tier.subnets[0].id
+    // TO DO: try to merge MLZ tags into the existing tags so the host pool resource ID isn't required in other deployments
+    tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Compute/virtualMachines'] ?? {}, mlzTags)
     tier: tier
     tokens: tokens
     type: 'virtualMachine'
