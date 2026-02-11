@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.40.2.10011",
-      "templateHash": "1263334751606865054"
+      "templateHash": "18169382795321180470"
     }
   },
   "parameters": {
@@ -5256,7 +5256,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "11111952571678411179"
+              "templateHash": "4006251219914948280"
             }
           },
           "parameters": {
@@ -5401,7 +5401,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "16773931645587592199"
+                      "templateHash": "13351752273097409491"
                     }
                   },
                   "parameters": {
@@ -5641,6 +5641,21 @@
                         "principalId": "[reference('userAssignedIdentity').principalId]",
                         "principalType": "ServicePrincipal",
                         "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '00482a5a-887f-4fb3-b363-3b7fe8e74483')]"
+                      },
+                      "dependsOn": [
+                        "userAssignedIdentity",
+                        "vault"
+                      ]
+                    },
+                    "roleAssignment_keyVaultContributor": {
+                      "type": "Microsoft.Authorization/roleAssignments",
+                      "apiVersion": "2020-04-01-preview",
+                      "scope": "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload')))))]",
+                      "name": "[guid(variables('userAssignedIdentityName'), 'f25e0fa2-a7c8-4377-a976-54943a77a395', resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload'))))))]",
+                      "properties": {
+                        "principalId": "[reference('userAssignedIdentity').principalId]",
+                        "principalType": "ServicePrincipal",
+                        "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'f25e0fa2-a7c8-4377-a976-54943a77a395')]"
                       },
                       "dependsOn": [
                         "userAssignedIdentity",
@@ -7046,7 +7061,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "17961229213303675988"
+              "templateHash": "12425349832493817712"
             }
           },
           "parameters": {
@@ -7228,7 +7243,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "16773931645587592199"
+                      "templateHash": "13351752273097409491"
                     }
                   },
                   "parameters": {
@@ -7468,6 +7483,21 @@
                         "principalId": "[reference('userAssignedIdentity').principalId]",
                         "principalType": "ServicePrincipal",
                         "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '00482a5a-887f-4fb3-b363-3b7fe8e74483')]"
+                      },
+                      "dependsOn": [
+                        "userAssignedIdentity",
+                        "vault"
+                      ]
+                    },
+                    "roleAssignment_keyVaultContributor": {
+                      "type": "Microsoft.Authorization/roleAssignments",
+                      "apiVersion": "2020-04-01-preview",
+                      "scope": "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload')))))]",
+                      "name": "[guid(variables('userAssignedIdentityName'), 'f25e0fa2-a7c8-4377-a976-54943a77a395', resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload'))))))]",
+                      "properties": {
+                        "principalId": "[reference('userAssignedIdentity').principalId]",
+                        "principalType": "ServicePrincipal",
+                        "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'f25e0fa2-a7c8-4377-a976-54943a77a395')]"
                       },
                       "dependsOn": [
                         "userAssignedIdentity",
@@ -8897,7 +8927,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "3230746208397024077"
+              "templateHash": "7057512715990222758"
             }
           },
           "parameters": {
@@ -8997,7 +9027,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "16773931645587592199"
+                      "templateHash": "13351752273097409491"
                     }
                   },
                   "parameters": {
@@ -9237,6 +9267,21 @@
                         "principalId": "[reference('userAssignedIdentity').principalId]",
                         "principalType": "ServicePrincipal",
                         "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '00482a5a-887f-4fb3-b363-3b7fe8e74483')]"
+                      },
+                      "dependsOn": [
+                        "userAssignedIdentity",
+                        "vault"
+                      ]
+                    },
+                    "roleAssignment_keyVaultContributor": {
+                      "type": "Microsoft.Authorization/roleAssignments",
+                      "apiVersion": "2020-04-01-preview",
+                      "scope": "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload')))))]",
+                      "name": "[guid(variables('userAssignedIdentityName'), 'f25e0fa2-a7c8-4377-a976-54943a77a395', resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload'))))))]",
+                      "properties": {
+                        "principalId": "[reference('userAssignedIdentity').principalId]",
+                        "principalType": "ServicePrincipal",
+                        "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'f25e0fa2-a7c8-4377-a976-54943a77a395')]"
                       },
                       "dependsOn": [
                         "userAssignedIdentity",

@@ -188,6 +188,16 @@ resource roleAssignment_keyVaultAdministrator 'Microsoft.Authorization/roleAssig
   }
 }
 
+resource roleAssignment_keyVaultContributor 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+  name: guid(userAssignedIdentityName, 'f25e0fa2-a7c8-4377-a976-54943a77a395', vault.id)
+  scope: vault
+  properties: {
+    principalId: userAssignedIdentity.properties.principalId
+    principalType: 'ServicePrincipal'
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', 'f25e0fa2-a7c8-4377-a976-54943a77a395') // Key Vault Contributor
+  }
+}
+
 resource roleAssignment_keyVaultCryptoServiceEncryptionUser 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
   name: guid(userAssignedIdentityName, 'e147488a-f6f5-4113-8e2d-b22465e65bf6', vault.id)
   scope: vault
