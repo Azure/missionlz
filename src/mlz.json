@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.40.2.10011",
-      "templateHash": "12519522315912455666"
+      "templateHash": "13199347027223933724"
     }
   },
   "parameters": {
@@ -5256,7 +5256,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "16388397697527400272"
+              "templateHash": "5646280027549206717"
             }
           },
           "parameters": {
@@ -5395,13 +5395,12 @@
                 },
                 "template": {
                   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                  "languageVersion": "2.0",
                   "contentVersion": "1.0.0.0",
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "13630254757729222253"
+                      "templateHash": "16154764937040063236"
                     }
                   },
                   "parameters": {
@@ -5468,15 +5467,15 @@
                     "virtualMachineName": "[replace(parameters('tier').namingConvention.virtualMachine, parameters('tokens').purpose, variables('workload'))]",
                     "workload": "cmk"
                   },
-                  "resources": {
-                    "userAssignedIdentity": {
+                  "resources": [
+                    {
                       "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
                       "apiVersion": "2018-11-30",
                       "name": "[variables('userAssignedIdentityName')]",
                       "location": "[parameters('location')]",
                       "tags": "[parameters('tags')]"
                     },
-                    "networkInterface": {
+                    {
                       "type": "Microsoft.Network/networkInterfaces",
                       "apiVersion": "2020-05-01",
                       "name": "[replace(parameters('tier').namingConvention.virtualMachineNetworkInterface, parameters('tokens').purpose, 'cmk')]",
@@ -5500,7 +5499,7 @@
                         "enableIPForwarding": false
                       }
                     },
-                    "virtualMachine": {
+                    {
                       "type": "Microsoft.Compute/virtualMachines",
                       "apiVersion": "2021-11-01",
                       "name": "[variables('virtualMachineName')]",
@@ -5572,39 +5571,39 @@
                         }
                       },
                       "dependsOn": [
-                        "networkInterface",
-                        "userAssignedIdentity"
+                        "[resourceId('Microsoft.Network/networkInterfaces', replace(parameters('tier').namingConvention.virtualMachineNetworkInterface, parameters('tokens').purpose, 'cmk'))]",
+                        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName'))]"
                       ]
                     },
-                    "roleAssignment_diskEncryptionSetOperator": {
+                    {
                       "type": "Microsoft.Authorization/roleAssignments",
                       "apiVersion": "2022-04-01",
                       "name": "[guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName')), '136d308c-0937-4a49-9bd7-edfb42adbffc', resourceGroup().id)]",
                       "properties": {
                         "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '136d308c-0937-4a49-9bd7-edfb42adbffc')]",
-                        "principalId": "[reference('userAssignedIdentity').principalId]",
+                        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName')), '2018-11-30').principalId]",
                         "principalType": "ServicePrincipal"
                       },
                       "dependsOn": [
-                        "userAssignedIdentity"
+                        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName'))]"
                       ]
                     },
-                    "roleAssignment_virtualMachineContributor": {
+                    {
                       "type": "Microsoft.Authorization/roleAssignments",
                       "apiVersion": "2022-04-01",
                       "scope": "[resourceId('Microsoft.Compute/virtualMachines', variables('virtualMachineName'))]",
                       "name": "[guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName')), '9980e02c-c2be-4d73-94e8-173b1dc7cf3c', resourceId('Microsoft.Compute/virtualMachines', variables('virtualMachineName')))]",
                       "properties": {
                         "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '9980e02c-c2be-4d73-94e8-173b1dc7cf3c')]",
-                        "principalId": "[reference('userAssignedIdentity').principalId]",
+                        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName')), '2018-11-30').principalId]",
                         "principalType": "ServicePrincipal"
                       },
                       "dependsOn": [
-                        "userAssignedIdentity",
-                        "virtualMachine"
+                        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName'))]",
+                        "[resourceId('Microsoft.Compute/virtualMachines', variables('virtualMachineName'))]"
                       ]
                     },
-                    "vault": {
+                    {
                       "type": "Microsoft.KeyVault/vaults",
                       "apiVersion": "2022-07-01",
                       "name": "[format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload'))))]",
@@ -5632,50 +5631,51 @@
                         "tenantId": "[subscription().tenantId]"
                       }
                     },
-                    "roleAssignment_keyVaultAdministrator": {
+                    {
                       "type": "Microsoft.Authorization/roleAssignments",
                       "apiVersion": "2020-04-01-preview",
                       "scope": "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload')))))]",
                       "name": "[guid(variables('userAssignedIdentityName'), '00482a5a-887f-4fb3-b363-3b7fe8e74483', resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload'))))))]",
                       "properties": {
-                        "principalId": "[reference('userAssignedIdentity').principalId]",
+                        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName')), '2018-11-30').principalId]",
                         "principalType": "ServicePrincipal",
                         "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '00482a5a-887f-4fb3-b363-3b7fe8e74483')]"
                       },
                       "dependsOn": [
-                        "userAssignedIdentity",
-                        "vault"
+                        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName'))]",
+                        "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload')))))]"
                       ]
                     },
-                    "roleAssignment_keyVaultContributor": {
+                    {
                       "type": "Microsoft.Authorization/roleAssignments",
                       "apiVersion": "2020-04-01-preview",
                       "scope": "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload')))))]",
                       "name": "[guid(variables('userAssignedIdentityName'), 'f25e0fa2-a7c8-4377-a976-54943a77a395', resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload'))))))]",
                       "properties": {
-                        "principalId": "[reference('userAssignedIdentity').principalId]",
+                        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName')), '2018-11-30').principalId]",
                         "principalType": "ServicePrincipal",
                         "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'f25e0fa2-a7c8-4377-a976-54943a77a395')]"
                       },
                       "dependsOn": [
-                        "userAssignedIdentity",
-                        "vault"
+                        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName'))]",
+                        "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload')))))]"
                       ]
                     },
-                    "roleAssignment_keyVaultCryptoServiceEncryptionUser_UAMI": {
+                    {
+                      "condition": "[equals(parameters('type'), 'storageAccount')]",
                       "type": "Microsoft.Authorization/roleAssignments",
                       "apiVersion": "2020-04-01-preview",
                       "name": "[guid(variables('userAssignedIdentityName'), 'e147488a-f6f5-4113-8e2d-b22465e65bf6', resourceGroup().id)]",
                       "properties": {
-                        "principalId": "[reference('userAssignedIdentity').principalId]",
+                        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName')), '2018-11-30').principalId]",
                         "principalType": "ServicePrincipal",
                         "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'e147488a-f6f5-4113-8e2d-b22465e65bf6')]"
                       },
                       "dependsOn": [
-                        "userAssignedIdentity"
+                        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName'))]"
                       ]
                     },
-                    "privateEndpoint": {
+                    {
                       "type": "Microsoft.Network/privateEndpoints",
                       "apiVersion": "2023-04-01",
                       "name": "[variables('keyVaultPrivateEndpointName')]",
@@ -5699,14 +5699,14 @@
                         }
                       },
                       "dependsOn": [
-                        "roleAssignment_diskEncryptionSetOperator",
-                        "roleAssignment_keyVaultAdministrator",
-                        "roleAssignment_keyVaultContributor",
-                        "roleAssignment_virtualMachineContributor",
-                        "vault"
+                        "[resourceId('Microsoft.Authorization/roleAssignments', guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName')), '136d308c-0937-4a49-9bd7-edfb42adbffc', resourceGroup().id))]",
+                        "[extensionResourceId(resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload'))))), 'Microsoft.Authorization/roleAssignments', guid(variables('userAssignedIdentityName'), '00482a5a-887f-4fb3-b363-3b7fe8e74483', resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload')))))))]",
+                        "[extensionResourceId(resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload'))))), 'Microsoft.Authorization/roleAssignments', guid(variables('userAssignedIdentityName'), 'f25e0fa2-a7c8-4377-a976-54943a77a395', resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload')))))))]",
+                        "[extensionResourceId(resourceId('Microsoft.Compute/virtualMachines', variables('virtualMachineName')), 'Microsoft.Authorization/roleAssignments', guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName')), '9980e02c-c2be-4d73-94e8-173b1dc7cf3c', resourceId('Microsoft.Compute/virtualMachines', variables('virtualMachineName'))))]",
+                        "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload')))))]"
                       ]
                     },
-                    "privateDnsZoneGroup": {
+                    {
                       "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                       "apiVersion": "2021-08-01",
                       "name": "[format('{0}/{1}', variables('keyVaultPrivateEndpointName'), format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload')))))]",
@@ -5721,11 +5721,11 @@
                         ]
                       },
                       "dependsOn": [
-                        "privateEndpoint",
-                        "vault"
+                        "[resourceId('Microsoft.Network/privateEndpoints', variables('keyVaultPrivateEndpointName'))]",
+                        "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload')))))]"
                       ]
                     },
-                    "key": {
+                    {
                       "type": "Microsoft.Compute/virtualMachines/runCommands",
                       "apiVersion": "2025-04-01",
                       "name": "[format('{0}/{1}', variables('virtualMachineName'), parameters('keyName'))]",
@@ -5756,7 +5756,7 @@
                           },
                           {
                             "name": "KeyVaultUri",
-                            "value": "[reference('vault').vaultUri]"
+                            "value": "[reference(resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload'))))), '2022-07-01').vaultUri]"
                           },
                           {
                             "name": "Location",
@@ -5780,7 +5780,7 @@
                           },
                           {
                             "name": "UserAssignedIdentityClientId",
-                            "value": "[reference('userAssignedIdentity').clientId]"
+                            "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName')), '2018-11-30').clientId]"
                           }
                         ],
                         "source": {
@@ -5789,40 +5789,14 @@
                         "treatFailureAsDeploymentFailure": true
                       },
                       "dependsOn": [
-                        "privateDnsZoneGroup",
-                        "privateEndpoint",
-                        "userAssignedIdentity",
-                        "vault",
-                        "virtualMachine"
+                        "[resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups', variables('keyVaultPrivateEndpointName'), format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload')))))]",
+                        "[resourceId('Microsoft.Network/privateEndpoints', variables('keyVaultPrivateEndpointName'))]",
+                        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName'))]",
+                        "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload')))))]",
+                        "[resourceId('Microsoft.Compute/virtualMachines', variables('virtualMachineName'))]"
                       ]
                     },
-                    "diskEncryptionSet": {
-                      "condition": "[equals(parameters('type'), 'virtualMachine')]",
-                      "existing": true,
-                      "type": "Microsoft.Compute/diskEncryptionSets",
-                      "apiVersion": "2023-04-02",
-                      "name": "[replace(parameters('tier').namingConvention.diskEncryptionSet, parameters('tokens').purpose, variables('workload'))]",
-                      "dependsOn": [
-                        "key"
-                      ]
-                    },
-                    "roleAssignment_keyVaultCryptoServiceEncryptionUser_DES": {
-                      "type": "Microsoft.Authorization/roleAssignments",
-                      "apiVersion": "2020-04-01-preview",
-                      "scope": "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload')))))]",
-                      "name": "[guid(replace(parameters('tier').namingConvention.diskEncryptionSet, parameters('tokens').purpose, variables('workload')), 'e147488a-f6f5-4113-8e2d-b22465e65bf6', resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload'))))))]",
-                      "properties": {
-                        "principalId": "[reference('diskEncryptionSet', '2023-04-02', 'full').identity.principalId]",
-                        "principalType": "ServicePrincipal",
-                        "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'e147488a-f6f5-4113-8e2d-b22465e65bf6')]"
-                      },
-                      "dependsOn": [
-                        "diskEncryptionSet",
-                        "key",
-                        "vault"
-                      ]
-                    },
-                    "deleteVirtualMachine": {
+                    {
                       "type": "Microsoft.Compute/virtualMachines/runCommands",
                       "apiVersion": "2023-09-01",
                       "name": "[format('{0}/{1}', variables('virtualMachineName'), format('delete-vm-{0}', parameters('deploymentNameSuffix')))]",
@@ -5841,7 +5815,7 @@
                           },
                           {
                             "name": "UserAssignedIdentityClientId",
-                            "value": "[reference('userAssignedIdentity').clientId]"
+                            "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName')), '2018-11-30').clientId]"
                           },
                           {
                             "name": "VirtualMachineResourceId",
@@ -5854,18 +5828,79 @@
                         "treatFailureAsDeploymentFailure": true
                       },
                       "dependsOn": [
-                        "diskEncryptionSet",
-                        "key",
-                        "roleAssignment_keyVaultCryptoServiceEncryptionUser_DES",
-                        "userAssignedIdentity",
-                        "virtualMachine"
+                        "[resourceId('Microsoft.Resources/deployments', format('deploy-des-{0}', parameters('deploymentNameSuffix')))]",
+                        "[resourceId('Microsoft.Compute/virtualMachines/runCommands', variables('virtualMachineName'), parameters('keyName'))]",
+                        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName'))]",
+                        "[resourceId('Microsoft.Compute/virtualMachines', variables('virtualMachineName'))]"
+                      ]
+                    },
+                    {
+                      "condition": "[equals(parameters('type'), 'virtualMachine')]",
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2025-04-01",
+                      "name": "[format('deploy-des-{0}', parameters('deploymentNameSuffix'))]",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "parameters": {
+                          "diskEncryptionSetName": {
+                            "value": "[replace(parameters('tier').namingConvention.diskEncryptionSet, parameters('tokens').purpose, variables('workload'))]"
+                          },
+                          "keyVaultName": {
+                            "value": "[format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload'))))]"
+                          }
+                        },
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "0.40.2.10011",
+                              "templateHash": "15118251701077090282"
+                            }
+                          },
+                          "parameters": {
+                            "diskEncryptionSetName": {
+                              "type": "string"
+                            },
+                            "keyVaultName": {
+                              "type": "string"
+                            }
+                          },
+                          "resources": [
+                            {
+                              "type": "Microsoft.Authorization/roleAssignments",
+                              "apiVersion": "2020-04-01-preview",
+                              "scope": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
+                              "name": "[guid(parameters('diskEncryptionSetName'), 'e147488a-f6f5-4113-8e2d-b22465e65bf6', resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName')))]",
+                              "properties": {
+                                "principalId": "[reference(resourceId('Microsoft.Compute/diskEncryptionSets', parameters('diskEncryptionSetName')), '2023-04-02', 'full').identity.principalId]",
+                                "principalType": "ServicePrincipal",
+                                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'e147488a-f6f5-4113-8e2d-b22465e65bf6')]"
+                              }
+                            }
+                          ],
+                          "outputs": {
+                            "resourceId": {
+                              "type": "string",
+                              "value": "[resourceId('Microsoft.Compute/diskEncryptionSets', parameters('diskEncryptionSetName'))]"
+                            }
+                          }
+                        }
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines/runCommands', variables('virtualMachineName'), parameters('keyName'))]",
+                        "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload')))))]"
                       ]
                     }
-                  },
+                  ],
                   "outputs": {
                     "diskEncryptionSetResourceId": {
                       "type": "string",
-                      "value": "[if(equals(parameters('type'), 'virtualMachine'), resourceId('Microsoft.Compute/diskEncryptionSets', replace(parameters('tier').namingConvention.diskEncryptionSet, parameters('tokens').purpose, variables('workload'))), '')]"
+                      "value": "[if(equals(parameters('type'), 'virtualMachine'), reference(resourceId('Microsoft.Resources/deployments', format('deploy-des-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.resourceId.value, '')]"
                     },
                     "keyVaultProperties": {
                       "type": "object",
@@ -5887,7 +5922,7 @@
                     },
                     "keyVaultUri": {
                       "type": "string",
-                      "value": "[reference('vault').vaultUri]"
+                      "value": "[reference(resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload'))))), '2022-07-01').vaultUri]"
                     },
                     "keyVaultResourceId": {
                       "type": "string",
@@ -5895,7 +5930,7 @@
                     },
                     "keyVaultNetworkInterfaceResourceId": {
                       "type": "string",
-                      "value": "[reference('privateEndpoint').networkInterfaces[0].id]"
+                      "value": "[reference(resourceId('Microsoft.Network/privateEndpoints', variables('keyVaultPrivateEndpointName')), '2023-04-01').networkInterfaces[0].id]"
                     },
                     "userAssignedIdentityResourceId": {
                       "type": "string",
@@ -7076,7 +7111,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "12371444949999950003"
+              "templateHash": "15822766972467490219"
             }
           },
           "parameters": {
@@ -7252,13 +7287,12 @@
                 },
                 "template": {
                   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                  "languageVersion": "2.0",
                   "contentVersion": "1.0.0.0",
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "13630254757729222253"
+                      "templateHash": "16154764937040063236"
                     }
                   },
                   "parameters": {
@@ -7325,15 +7359,15 @@
                     "virtualMachineName": "[replace(parameters('tier').namingConvention.virtualMachine, parameters('tokens').purpose, variables('workload'))]",
                     "workload": "cmk"
                   },
-                  "resources": {
-                    "userAssignedIdentity": {
+                  "resources": [
+                    {
                       "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
                       "apiVersion": "2018-11-30",
                       "name": "[variables('userAssignedIdentityName')]",
                       "location": "[parameters('location')]",
                       "tags": "[parameters('tags')]"
                     },
-                    "networkInterface": {
+                    {
                       "type": "Microsoft.Network/networkInterfaces",
                       "apiVersion": "2020-05-01",
                       "name": "[replace(parameters('tier').namingConvention.virtualMachineNetworkInterface, parameters('tokens').purpose, 'cmk')]",
@@ -7357,7 +7391,7 @@
                         "enableIPForwarding": false
                       }
                     },
-                    "virtualMachine": {
+                    {
                       "type": "Microsoft.Compute/virtualMachines",
                       "apiVersion": "2021-11-01",
                       "name": "[variables('virtualMachineName')]",
@@ -7429,39 +7463,39 @@
                         }
                       },
                       "dependsOn": [
-                        "networkInterface",
-                        "userAssignedIdentity"
+                        "[resourceId('Microsoft.Network/networkInterfaces', replace(parameters('tier').namingConvention.virtualMachineNetworkInterface, parameters('tokens').purpose, 'cmk'))]",
+                        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName'))]"
                       ]
                     },
-                    "roleAssignment_diskEncryptionSetOperator": {
+                    {
                       "type": "Microsoft.Authorization/roleAssignments",
                       "apiVersion": "2022-04-01",
                       "name": "[guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName')), '136d308c-0937-4a49-9bd7-edfb42adbffc', resourceGroup().id)]",
                       "properties": {
                         "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '136d308c-0937-4a49-9bd7-edfb42adbffc')]",
-                        "principalId": "[reference('userAssignedIdentity').principalId]",
+                        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName')), '2018-11-30').principalId]",
                         "principalType": "ServicePrincipal"
                       },
                       "dependsOn": [
-                        "userAssignedIdentity"
+                        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName'))]"
                       ]
                     },
-                    "roleAssignment_virtualMachineContributor": {
+                    {
                       "type": "Microsoft.Authorization/roleAssignments",
                       "apiVersion": "2022-04-01",
                       "scope": "[resourceId('Microsoft.Compute/virtualMachines', variables('virtualMachineName'))]",
                       "name": "[guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName')), '9980e02c-c2be-4d73-94e8-173b1dc7cf3c', resourceId('Microsoft.Compute/virtualMachines', variables('virtualMachineName')))]",
                       "properties": {
                         "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '9980e02c-c2be-4d73-94e8-173b1dc7cf3c')]",
-                        "principalId": "[reference('userAssignedIdentity').principalId]",
+                        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName')), '2018-11-30').principalId]",
                         "principalType": "ServicePrincipal"
                       },
                       "dependsOn": [
-                        "userAssignedIdentity",
-                        "virtualMachine"
+                        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName'))]",
+                        "[resourceId('Microsoft.Compute/virtualMachines', variables('virtualMachineName'))]"
                       ]
                     },
-                    "vault": {
+                    {
                       "type": "Microsoft.KeyVault/vaults",
                       "apiVersion": "2022-07-01",
                       "name": "[format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload'))))]",
@@ -7489,50 +7523,51 @@
                         "tenantId": "[subscription().tenantId]"
                       }
                     },
-                    "roleAssignment_keyVaultAdministrator": {
+                    {
                       "type": "Microsoft.Authorization/roleAssignments",
                       "apiVersion": "2020-04-01-preview",
                       "scope": "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload')))))]",
                       "name": "[guid(variables('userAssignedIdentityName'), '00482a5a-887f-4fb3-b363-3b7fe8e74483', resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload'))))))]",
                       "properties": {
-                        "principalId": "[reference('userAssignedIdentity').principalId]",
+                        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName')), '2018-11-30').principalId]",
                         "principalType": "ServicePrincipal",
                         "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '00482a5a-887f-4fb3-b363-3b7fe8e74483')]"
                       },
                       "dependsOn": [
-                        "userAssignedIdentity",
-                        "vault"
+                        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName'))]",
+                        "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload')))))]"
                       ]
                     },
-                    "roleAssignment_keyVaultContributor": {
+                    {
                       "type": "Microsoft.Authorization/roleAssignments",
                       "apiVersion": "2020-04-01-preview",
                       "scope": "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload')))))]",
                       "name": "[guid(variables('userAssignedIdentityName'), 'f25e0fa2-a7c8-4377-a976-54943a77a395', resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload'))))))]",
                       "properties": {
-                        "principalId": "[reference('userAssignedIdentity').principalId]",
+                        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName')), '2018-11-30').principalId]",
                         "principalType": "ServicePrincipal",
                         "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'f25e0fa2-a7c8-4377-a976-54943a77a395')]"
                       },
                       "dependsOn": [
-                        "userAssignedIdentity",
-                        "vault"
+                        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName'))]",
+                        "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload')))))]"
                       ]
                     },
-                    "roleAssignment_keyVaultCryptoServiceEncryptionUser_UAMI": {
+                    {
+                      "condition": "[equals(parameters('type'), 'storageAccount')]",
                       "type": "Microsoft.Authorization/roleAssignments",
                       "apiVersion": "2020-04-01-preview",
                       "name": "[guid(variables('userAssignedIdentityName'), 'e147488a-f6f5-4113-8e2d-b22465e65bf6', resourceGroup().id)]",
                       "properties": {
-                        "principalId": "[reference('userAssignedIdentity').principalId]",
+                        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName')), '2018-11-30').principalId]",
                         "principalType": "ServicePrincipal",
                         "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'e147488a-f6f5-4113-8e2d-b22465e65bf6')]"
                       },
                       "dependsOn": [
-                        "userAssignedIdentity"
+                        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName'))]"
                       ]
                     },
-                    "privateEndpoint": {
+                    {
                       "type": "Microsoft.Network/privateEndpoints",
                       "apiVersion": "2023-04-01",
                       "name": "[variables('keyVaultPrivateEndpointName')]",
@@ -7556,14 +7591,14 @@
                         }
                       },
                       "dependsOn": [
-                        "roleAssignment_diskEncryptionSetOperator",
-                        "roleAssignment_keyVaultAdministrator",
-                        "roleAssignment_keyVaultContributor",
-                        "roleAssignment_virtualMachineContributor",
-                        "vault"
+                        "[resourceId('Microsoft.Authorization/roleAssignments', guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName')), '136d308c-0937-4a49-9bd7-edfb42adbffc', resourceGroup().id))]",
+                        "[extensionResourceId(resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload'))))), 'Microsoft.Authorization/roleAssignments', guid(variables('userAssignedIdentityName'), '00482a5a-887f-4fb3-b363-3b7fe8e74483', resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload')))))))]",
+                        "[extensionResourceId(resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload'))))), 'Microsoft.Authorization/roleAssignments', guid(variables('userAssignedIdentityName'), 'f25e0fa2-a7c8-4377-a976-54943a77a395', resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload')))))))]",
+                        "[extensionResourceId(resourceId('Microsoft.Compute/virtualMachines', variables('virtualMachineName')), 'Microsoft.Authorization/roleAssignments', guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName')), '9980e02c-c2be-4d73-94e8-173b1dc7cf3c', resourceId('Microsoft.Compute/virtualMachines', variables('virtualMachineName'))))]",
+                        "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload')))))]"
                       ]
                     },
-                    "privateDnsZoneGroup": {
+                    {
                       "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                       "apiVersion": "2021-08-01",
                       "name": "[format('{0}/{1}', variables('keyVaultPrivateEndpointName'), format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload')))))]",
@@ -7578,11 +7613,11 @@
                         ]
                       },
                       "dependsOn": [
-                        "privateEndpoint",
-                        "vault"
+                        "[resourceId('Microsoft.Network/privateEndpoints', variables('keyVaultPrivateEndpointName'))]",
+                        "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload')))))]"
                       ]
                     },
-                    "key": {
+                    {
                       "type": "Microsoft.Compute/virtualMachines/runCommands",
                       "apiVersion": "2025-04-01",
                       "name": "[format('{0}/{1}', variables('virtualMachineName'), parameters('keyName'))]",
@@ -7613,7 +7648,7 @@
                           },
                           {
                             "name": "KeyVaultUri",
-                            "value": "[reference('vault').vaultUri]"
+                            "value": "[reference(resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload'))))), '2022-07-01').vaultUri]"
                           },
                           {
                             "name": "Location",
@@ -7637,7 +7672,7 @@
                           },
                           {
                             "name": "UserAssignedIdentityClientId",
-                            "value": "[reference('userAssignedIdentity').clientId]"
+                            "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName')), '2018-11-30').clientId]"
                           }
                         ],
                         "source": {
@@ -7646,40 +7681,14 @@
                         "treatFailureAsDeploymentFailure": true
                       },
                       "dependsOn": [
-                        "privateDnsZoneGroup",
-                        "privateEndpoint",
-                        "userAssignedIdentity",
-                        "vault",
-                        "virtualMachine"
+                        "[resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups', variables('keyVaultPrivateEndpointName'), format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload')))))]",
+                        "[resourceId('Microsoft.Network/privateEndpoints', variables('keyVaultPrivateEndpointName'))]",
+                        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName'))]",
+                        "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload')))))]",
+                        "[resourceId('Microsoft.Compute/virtualMachines', variables('virtualMachineName'))]"
                       ]
                     },
-                    "diskEncryptionSet": {
-                      "condition": "[equals(parameters('type'), 'virtualMachine')]",
-                      "existing": true,
-                      "type": "Microsoft.Compute/diskEncryptionSets",
-                      "apiVersion": "2023-04-02",
-                      "name": "[replace(parameters('tier').namingConvention.diskEncryptionSet, parameters('tokens').purpose, variables('workload'))]",
-                      "dependsOn": [
-                        "key"
-                      ]
-                    },
-                    "roleAssignment_keyVaultCryptoServiceEncryptionUser_DES": {
-                      "type": "Microsoft.Authorization/roleAssignments",
-                      "apiVersion": "2020-04-01-preview",
-                      "scope": "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload')))))]",
-                      "name": "[guid(replace(parameters('tier').namingConvention.diskEncryptionSet, parameters('tokens').purpose, variables('workload')), 'e147488a-f6f5-4113-8e2d-b22465e65bf6', resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload'))))))]",
-                      "properties": {
-                        "principalId": "[reference('diskEncryptionSet', '2023-04-02', 'full').identity.principalId]",
-                        "principalType": "ServicePrincipal",
-                        "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'e147488a-f6f5-4113-8e2d-b22465e65bf6')]"
-                      },
-                      "dependsOn": [
-                        "diskEncryptionSet",
-                        "key",
-                        "vault"
-                      ]
-                    },
-                    "deleteVirtualMachine": {
+                    {
                       "type": "Microsoft.Compute/virtualMachines/runCommands",
                       "apiVersion": "2023-09-01",
                       "name": "[format('{0}/{1}', variables('virtualMachineName'), format('delete-vm-{0}', parameters('deploymentNameSuffix')))]",
@@ -7698,7 +7707,7 @@
                           },
                           {
                             "name": "UserAssignedIdentityClientId",
-                            "value": "[reference('userAssignedIdentity').clientId]"
+                            "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName')), '2018-11-30').clientId]"
                           },
                           {
                             "name": "VirtualMachineResourceId",
@@ -7711,18 +7720,79 @@
                         "treatFailureAsDeploymentFailure": true
                       },
                       "dependsOn": [
-                        "diskEncryptionSet",
-                        "key",
-                        "roleAssignment_keyVaultCryptoServiceEncryptionUser_DES",
-                        "userAssignedIdentity",
-                        "virtualMachine"
+                        "[resourceId('Microsoft.Resources/deployments', format('deploy-des-{0}', parameters('deploymentNameSuffix')))]",
+                        "[resourceId('Microsoft.Compute/virtualMachines/runCommands', variables('virtualMachineName'), parameters('keyName'))]",
+                        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName'))]",
+                        "[resourceId('Microsoft.Compute/virtualMachines', variables('virtualMachineName'))]"
+                      ]
+                    },
+                    {
+                      "condition": "[equals(parameters('type'), 'virtualMachine')]",
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2025-04-01",
+                      "name": "[format('deploy-des-{0}', parameters('deploymentNameSuffix'))]",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "parameters": {
+                          "diskEncryptionSetName": {
+                            "value": "[replace(parameters('tier').namingConvention.diskEncryptionSet, parameters('tokens').purpose, variables('workload'))]"
+                          },
+                          "keyVaultName": {
+                            "value": "[format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload'))))]"
+                          }
+                        },
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "0.40.2.10011",
+                              "templateHash": "15118251701077090282"
+                            }
+                          },
+                          "parameters": {
+                            "diskEncryptionSetName": {
+                              "type": "string"
+                            },
+                            "keyVaultName": {
+                              "type": "string"
+                            }
+                          },
+                          "resources": [
+                            {
+                              "type": "Microsoft.Authorization/roleAssignments",
+                              "apiVersion": "2020-04-01-preview",
+                              "scope": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
+                              "name": "[guid(parameters('diskEncryptionSetName'), 'e147488a-f6f5-4113-8e2d-b22465e65bf6', resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName')))]",
+                              "properties": {
+                                "principalId": "[reference(resourceId('Microsoft.Compute/diskEncryptionSets', parameters('diskEncryptionSetName')), '2023-04-02', 'full').identity.principalId]",
+                                "principalType": "ServicePrincipal",
+                                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'e147488a-f6f5-4113-8e2d-b22465e65bf6')]"
+                              }
+                            }
+                          ],
+                          "outputs": {
+                            "resourceId": {
+                              "type": "string",
+                              "value": "[resourceId('Microsoft.Compute/diskEncryptionSets', parameters('diskEncryptionSetName'))]"
+                            }
+                          }
+                        }
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines/runCommands', variables('virtualMachineName'), parameters('keyName'))]",
+                        "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload')))))]"
                       ]
                     }
-                  },
+                  ],
                   "outputs": {
                     "diskEncryptionSetResourceId": {
                       "type": "string",
-                      "value": "[if(equals(parameters('type'), 'virtualMachine'), resourceId('Microsoft.Compute/diskEncryptionSets', replace(parameters('tier').namingConvention.diskEncryptionSet, parameters('tokens').purpose, variables('workload'))), '')]"
+                      "value": "[if(equals(parameters('type'), 'virtualMachine'), reference(resourceId('Microsoft.Resources/deployments', format('deploy-des-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.resourceId.value, '')]"
                     },
                     "keyVaultProperties": {
                       "type": "object",
@@ -7744,7 +7814,7 @@
                     },
                     "keyVaultUri": {
                       "type": "string",
-                      "value": "[reference('vault').vaultUri]"
+                      "value": "[reference(resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload'))))), '2022-07-01').vaultUri]"
                     },
                     "keyVaultResourceId": {
                       "type": "string",
@@ -7752,7 +7822,7 @@
                     },
                     "keyVaultNetworkInterfaceResourceId": {
                       "type": "string",
-                      "value": "[reference('privateEndpoint').networkInterfaces[0].id]"
+                      "value": "[reference(resourceId('Microsoft.Network/privateEndpoints', variables('keyVaultPrivateEndpointName')), '2023-04-01').networkInterfaces[0].id]"
                     },
                     "userAssignedIdentityResourceId": {
                       "type": "string",
@@ -8957,7 +9027,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "11137356483846898835"
+              "templateHash": "9153816190980352420"
             }
           },
           "parameters": {
@@ -9051,13 +9121,12 @@
                 },
                 "template": {
                   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                  "languageVersion": "2.0",
                   "contentVersion": "1.0.0.0",
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "13630254757729222253"
+                      "templateHash": "16154764937040063236"
                     }
                   },
                   "parameters": {
@@ -9124,15 +9193,15 @@
                     "virtualMachineName": "[replace(parameters('tier').namingConvention.virtualMachine, parameters('tokens').purpose, variables('workload'))]",
                     "workload": "cmk"
                   },
-                  "resources": {
-                    "userAssignedIdentity": {
+                  "resources": [
+                    {
                       "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
                       "apiVersion": "2018-11-30",
                       "name": "[variables('userAssignedIdentityName')]",
                       "location": "[parameters('location')]",
                       "tags": "[parameters('tags')]"
                     },
-                    "networkInterface": {
+                    {
                       "type": "Microsoft.Network/networkInterfaces",
                       "apiVersion": "2020-05-01",
                       "name": "[replace(parameters('tier').namingConvention.virtualMachineNetworkInterface, parameters('tokens').purpose, 'cmk')]",
@@ -9156,7 +9225,7 @@
                         "enableIPForwarding": false
                       }
                     },
-                    "virtualMachine": {
+                    {
                       "type": "Microsoft.Compute/virtualMachines",
                       "apiVersion": "2021-11-01",
                       "name": "[variables('virtualMachineName')]",
@@ -9228,39 +9297,39 @@
                         }
                       },
                       "dependsOn": [
-                        "networkInterface",
-                        "userAssignedIdentity"
+                        "[resourceId('Microsoft.Network/networkInterfaces', replace(parameters('tier').namingConvention.virtualMachineNetworkInterface, parameters('tokens').purpose, 'cmk'))]",
+                        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName'))]"
                       ]
                     },
-                    "roleAssignment_diskEncryptionSetOperator": {
+                    {
                       "type": "Microsoft.Authorization/roleAssignments",
                       "apiVersion": "2022-04-01",
                       "name": "[guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName')), '136d308c-0937-4a49-9bd7-edfb42adbffc', resourceGroup().id)]",
                       "properties": {
                         "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '136d308c-0937-4a49-9bd7-edfb42adbffc')]",
-                        "principalId": "[reference('userAssignedIdentity').principalId]",
+                        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName')), '2018-11-30').principalId]",
                         "principalType": "ServicePrincipal"
                       },
                       "dependsOn": [
-                        "userAssignedIdentity"
+                        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName'))]"
                       ]
                     },
-                    "roleAssignment_virtualMachineContributor": {
+                    {
                       "type": "Microsoft.Authorization/roleAssignments",
                       "apiVersion": "2022-04-01",
                       "scope": "[resourceId('Microsoft.Compute/virtualMachines', variables('virtualMachineName'))]",
                       "name": "[guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName')), '9980e02c-c2be-4d73-94e8-173b1dc7cf3c', resourceId('Microsoft.Compute/virtualMachines', variables('virtualMachineName')))]",
                       "properties": {
                         "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '9980e02c-c2be-4d73-94e8-173b1dc7cf3c')]",
-                        "principalId": "[reference('userAssignedIdentity').principalId]",
+                        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName')), '2018-11-30').principalId]",
                         "principalType": "ServicePrincipal"
                       },
                       "dependsOn": [
-                        "userAssignedIdentity",
-                        "virtualMachine"
+                        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName'))]",
+                        "[resourceId('Microsoft.Compute/virtualMachines', variables('virtualMachineName'))]"
                       ]
                     },
-                    "vault": {
+                    {
                       "type": "Microsoft.KeyVault/vaults",
                       "apiVersion": "2022-07-01",
                       "name": "[format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload'))))]",
@@ -9288,50 +9357,51 @@
                         "tenantId": "[subscription().tenantId]"
                       }
                     },
-                    "roleAssignment_keyVaultAdministrator": {
+                    {
                       "type": "Microsoft.Authorization/roleAssignments",
                       "apiVersion": "2020-04-01-preview",
                       "scope": "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload')))))]",
                       "name": "[guid(variables('userAssignedIdentityName'), '00482a5a-887f-4fb3-b363-3b7fe8e74483', resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload'))))))]",
                       "properties": {
-                        "principalId": "[reference('userAssignedIdentity').principalId]",
+                        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName')), '2018-11-30').principalId]",
                         "principalType": "ServicePrincipal",
                         "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '00482a5a-887f-4fb3-b363-3b7fe8e74483')]"
                       },
                       "dependsOn": [
-                        "userAssignedIdentity",
-                        "vault"
+                        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName'))]",
+                        "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload')))))]"
                       ]
                     },
-                    "roleAssignment_keyVaultContributor": {
+                    {
                       "type": "Microsoft.Authorization/roleAssignments",
                       "apiVersion": "2020-04-01-preview",
                       "scope": "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload')))))]",
                       "name": "[guid(variables('userAssignedIdentityName'), 'f25e0fa2-a7c8-4377-a976-54943a77a395', resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload'))))))]",
                       "properties": {
-                        "principalId": "[reference('userAssignedIdentity').principalId]",
+                        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName')), '2018-11-30').principalId]",
                         "principalType": "ServicePrincipal",
                         "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'f25e0fa2-a7c8-4377-a976-54943a77a395')]"
                       },
                       "dependsOn": [
-                        "userAssignedIdentity",
-                        "vault"
+                        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName'))]",
+                        "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload')))))]"
                       ]
                     },
-                    "roleAssignment_keyVaultCryptoServiceEncryptionUser_UAMI": {
+                    {
+                      "condition": "[equals(parameters('type'), 'storageAccount')]",
                       "type": "Microsoft.Authorization/roleAssignments",
                       "apiVersion": "2020-04-01-preview",
                       "name": "[guid(variables('userAssignedIdentityName'), 'e147488a-f6f5-4113-8e2d-b22465e65bf6', resourceGroup().id)]",
                       "properties": {
-                        "principalId": "[reference('userAssignedIdentity').principalId]",
+                        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName')), '2018-11-30').principalId]",
                         "principalType": "ServicePrincipal",
                         "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'e147488a-f6f5-4113-8e2d-b22465e65bf6')]"
                       },
                       "dependsOn": [
-                        "userAssignedIdentity"
+                        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName'))]"
                       ]
                     },
-                    "privateEndpoint": {
+                    {
                       "type": "Microsoft.Network/privateEndpoints",
                       "apiVersion": "2023-04-01",
                       "name": "[variables('keyVaultPrivateEndpointName')]",
@@ -9355,14 +9425,14 @@
                         }
                       },
                       "dependsOn": [
-                        "roleAssignment_diskEncryptionSetOperator",
-                        "roleAssignment_keyVaultAdministrator",
-                        "roleAssignment_keyVaultContributor",
-                        "roleAssignment_virtualMachineContributor",
-                        "vault"
+                        "[resourceId('Microsoft.Authorization/roleAssignments', guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName')), '136d308c-0937-4a49-9bd7-edfb42adbffc', resourceGroup().id))]",
+                        "[extensionResourceId(resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload'))))), 'Microsoft.Authorization/roleAssignments', guid(variables('userAssignedIdentityName'), '00482a5a-887f-4fb3-b363-3b7fe8e74483', resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload')))))))]",
+                        "[extensionResourceId(resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload'))))), 'Microsoft.Authorization/roleAssignments', guid(variables('userAssignedIdentityName'), 'f25e0fa2-a7c8-4377-a976-54943a77a395', resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload')))))))]",
+                        "[extensionResourceId(resourceId('Microsoft.Compute/virtualMachines', variables('virtualMachineName')), 'Microsoft.Authorization/roleAssignments', guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName')), '9980e02c-c2be-4d73-94e8-173b1dc7cf3c', resourceId('Microsoft.Compute/virtualMachines', variables('virtualMachineName'))))]",
+                        "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload')))))]"
                       ]
                     },
-                    "privateDnsZoneGroup": {
+                    {
                       "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                       "apiVersion": "2021-08-01",
                       "name": "[format('{0}/{1}', variables('keyVaultPrivateEndpointName'), format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload')))))]",
@@ -9377,11 +9447,11 @@
                         ]
                       },
                       "dependsOn": [
-                        "privateEndpoint",
-                        "vault"
+                        "[resourceId('Microsoft.Network/privateEndpoints', variables('keyVaultPrivateEndpointName'))]",
+                        "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload')))))]"
                       ]
                     },
-                    "key": {
+                    {
                       "type": "Microsoft.Compute/virtualMachines/runCommands",
                       "apiVersion": "2025-04-01",
                       "name": "[format('{0}/{1}', variables('virtualMachineName'), parameters('keyName'))]",
@@ -9412,7 +9482,7 @@
                           },
                           {
                             "name": "KeyVaultUri",
-                            "value": "[reference('vault').vaultUri]"
+                            "value": "[reference(resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload'))))), '2022-07-01').vaultUri]"
                           },
                           {
                             "name": "Location",
@@ -9436,7 +9506,7 @@
                           },
                           {
                             "name": "UserAssignedIdentityClientId",
-                            "value": "[reference('userAssignedIdentity').clientId]"
+                            "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName')), '2018-11-30').clientId]"
                           }
                         ],
                         "source": {
@@ -9445,40 +9515,14 @@
                         "treatFailureAsDeploymentFailure": true
                       },
                       "dependsOn": [
-                        "privateDnsZoneGroup",
-                        "privateEndpoint",
-                        "userAssignedIdentity",
-                        "vault",
-                        "virtualMachine"
+                        "[resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups', variables('keyVaultPrivateEndpointName'), format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload')))))]",
+                        "[resourceId('Microsoft.Network/privateEndpoints', variables('keyVaultPrivateEndpointName'))]",
+                        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName'))]",
+                        "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload')))))]",
+                        "[resourceId('Microsoft.Compute/virtualMachines', variables('virtualMachineName'))]"
                       ]
                     },
-                    "diskEncryptionSet": {
-                      "condition": "[equals(parameters('type'), 'virtualMachine')]",
-                      "existing": true,
-                      "type": "Microsoft.Compute/diskEncryptionSets",
-                      "apiVersion": "2023-04-02",
-                      "name": "[replace(parameters('tier').namingConvention.diskEncryptionSet, parameters('tokens').purpose, variables('workload'))]",
-                      "dependsOn": [
-                        "key"
-                      ]
-                    },
-                    "roleAssignment_keyVaultCryptoServiceEncryptionUser_DES": {
-                      "type": "Microsoft.Authorization/roleAssignments",
-                      "apiVersion": "2020-04-01-preview",
-                      "scope": "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload')))))]",
-                      "name": "[guid(replace(parameters('tier').namingConvention.diskEncryptionSet, parameters('tokens').purpose, variables('workload')), 'e147488a-f6f5-4113-8e2d-b22465e65bf6', resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload'))))))]",
-                      "properties": {
-                        "principalId": "[reference('diskEncryptionSet', '2023-04-02', 'full').identity.principalId]",
-                        "principalType": "ServicePrincipal",
-                        "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'e147488a-f6f5-4113-8e2d-b22465e65bf6')]"
-                      },
-                      "dependsOn": [
-                        "diskEncryptionSet",
-                        "key",
-                        "vault"
-                      ]
-                    },
-                    "deleteVirtualMachine": {
+                    {
                       "type": "Microsoft.Compute/virtualMachines/runCommands",
                       "apiVersion": "2023-09-01",
                       "name": "[format('{0}/{1}', variables('virtualMachineName'), format('delete-vm-{0}', parameters('deploymentNameSuffix')))]",
@@ -9497,7 +9541,7 @@
                           },
                           {
                             "name": "UserAssignedIdentityClientId",
-                            "value": "[reference('userAssignedIdentity').clientId]"
+                            "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName')), '2018-11-30').clientId]"
                           },
                           {
                             "name": "VirtualMachineResourceId",
@@ -9510,18 +9554,79 @@
                         "treatFailureAsDeploymentFailure": true
                       },
                       "dependsOn": [
-                        "diskEncryptionSet",
-                        "key",
-                        "roleAssignment_keyVaultCryptoServiceEncryptionUser_DES",
-                        "userAssignedIdentity",
-                        "virtualMachine"
+                        "[resourceId('Microsoft.Resources/deployments', format('deploy-des-{0}', parameters('deploymentNameSuffix')))]",
+                        "[resourceId('Microsoft.Compute/virtualMachines/runCommands', variables('virtualMachineName'), parameters('keyName'))]",
+                        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName'))]",
+                        "[resourceId('Microsoft.Compute/virtualMachines', variables('virtualMachineName'))]"
+                      ]
+                    },
+                    {
+                      "condition": "[equals(parameters('type'), 'virtualMachine')]",
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2025-04-01",
+                      "name": "[format('deploy-des-{0}', parameters('deploymentNameSuffix'))]",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "parameters": {
+                          "diskEncryptionSetName": {
+                            "value": "[replace(parameters('tier').namingConvention.diskEncryptionSet, parameters('tokens').purpose, variables('workload'))]"
+                          },
+                          "keyVaultName": {
+                            "value": "[format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload'))))]"
+                          }
+                        },
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "0.40.2.10011",
+                              "templateHash": "15118251701077090282"
+                            }
+                          },
+                          "parameters": {
+                            "diskEncryptionSetName": {
+                              "type": "string"
+                            },
+                            "keyVaultName": {
+                              "type": "string"
+                            }
+                          },
+                          "resources": [
+                            {
+                              "type": "Microsoft.Authorization/roleAssignments",
+                              "apiVersion": "2020-04-01-preview",
+                              "scope": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
+                              "name": "[guid(parameters('diskEncryptionSetName'), 'e147488a-f6f5-4113-8e2d-b22465e65bf6', resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName')))]",
+                              "properties": {
+                                "principalId": "[reference(resourceId('Microsoft.Compute/diskEncryptionSets', parameters('diskEncryptionSetName')), '2023-04-02', 'full').identity.principalId]",
+                                "principalType": "ServicePrincipal",
+                                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'e147488a-f6f5-4113-8e2d-b22465e65bf6')]"
+                              }
+                            }
+                          ],
+                          "outputs": {
+                            "resourceId": {
+                              "type": "string",
+                              "value": "[resourceId('Microsoft.Compute/diskEncryptionSets', parameters('diskEncryptionSetName'))]"
+                            }
+                          }
+                        }
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines/runCommands', variables('virtualMachineName'), parameters('keyName'))]",
+                        "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload')))))]"
                       ]
                     }
-                  },
+                  ],
                   "outputs": {
                     "diskEncryptionSetResourceId": {
                       "type": "string",
-                      "value": "[if(equals(parameters('type'), 'virtualMachine'), resourceId('Microsoft.Compute/diskEncryptionSets', replace(parameters('tier').namingConvention.diskEncryptionSet, parameters('tokens').purpose, variables('workload'))), '')]"
+                      "value": "[if(equals(parameters('type'), 'virtualMachine'), reference(resourceId('Microsoft.Resources/deployments', format('deploy-des-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.resourceId.value, '')]"
                     },
                     "keyVaultProperties": {
                       "type": "object",
@@ -9543,7 +9648,7 @@
                     },
                     "keyVaultUri": {
                       "type": "string",
-                      "value": "[reference('vault').vaultUri]"
+                      "value": "[reference(resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload'))))), '2022-07-01').vaultUri]"
                     },
                     "keyVaultResourceId": {
                       "type": "string",
@@ -9551,7 +9656,7 @@
                     },
                     "keyVaultNetworkInterfaceResourceId": {
                       "type": "string",
-                      "value": "[reference('privateEndpoint').networkInterfaces[0].id]"
+                      "value": "[reference(resourceId('Microsoft.Network/privateEndpoints', variables('keyVaultPrivateEndpointName')), '2023-04-01').networkInterfaces[0].id]"
                     },
                     "userAssignedIdentityResourceId": {
                       "type": "string",

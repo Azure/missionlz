@@ -198,7 +198,7 @@ resource roleAssignment_keyVaultContributor 'Microsoft.Authorization/roleAssignm
   }
 }
 
-resource roleAssignment_keyVaultCryptoServiceEncryptionUser_UAMI 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+resource roleAssignment_keyVaultCryptoServiceEncryptionUser_UAMI 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = if (type == 'storageAccount') {
   name: guid(userAssignedIdentityName, 'e147488a-f6f5-4113-8e2d-b22465e65bf6', resourceGroup().id)
   properties: {
     principalId: userAssignedIdentity.properties.principalId
@@ -319,21 +319,15 @@ resource key 'Microsoft.Compute/virtualMachines/runCommands@2025-04-01' = {
   ]
 }
 
-resource diskEncryptionSet 'Microsoft.Compute/diskEncryptionSets@2023-04-02' existing = if (type == 'virtualMachine') {
-  name: replace(tier.namingConvention.diskEncryptionSet, tokens.purpose, workload)
+module diskEncryptionSet 'disk-encryption-set.bicep' = if (type == 'virtualMachine') {
+  name: 'deploy-des-${deploymentNameSuffix}'
+  params: {
+    diskEncryptionSetName: replace(tier.namingConvention.diskEncryptionSet, tokens.purpose, workload)
+    keyVaultName: vault.name
+  }
   dependsOn: [
     key
   ]
-}
-
-resource roleAssignment_keyVaultCryptoServiceEncryptionUser_DES 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
-  name: guid(diskEncryptionSet.name, 'e147488a-f6f5-4113-8e2d-b22465e65bf6', vault.id)
-  scope: vault
-  properties: {
-    principalId: diskEncryptionSet!.identity.principalId
-    principalType: 'ServicePrincipal'
-    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', 'e147488a-f6f5-4113-8e2d-b22465e65bf6') // Key Vault Crypto Service Encryption User
-  }
 }
 
 resource deleteVirtualMachine 'Microsoft.Compute/virtualMachines/runCommands@2023-09-01' = {
@@ -369,11 +363,10 @@ resource deleteVirtualMachine 'Microsoft.Compute/virtualMachines/runCommands@202
   dependsOn: [
     diskEncryptionSet
     key
-    roleAssignment_keyVaultCryptoServiceEncryptionUser_DES
   ]
 }
 
-output diskEncryptionSetResourceId string = type == 'virtualMachine' ? diskEncryptionSet.id : ''
+output diskEncryptionSetResourceId string = type == 'virtualMachine' ? diskEncryptionSet!.outputs.resourceId : ''
 // The following output is needed to setup the diagnostic setting for the key vault
 output keyVaultProperties object = {
   diagnosticSettingName: replace(tier.namingConvention.keyVaultDiagnosticSetting, tokens.purpose, workload)
