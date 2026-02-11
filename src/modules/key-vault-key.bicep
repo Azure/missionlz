@@ -1,3 +1,8 @@
+/*
+Copyright (c) Microsoft Corporation.
+Licensed under the MIT License.
+*/
+
 param keyExpirationInDays int = 30
 param keyName string
 param keyVaultName string

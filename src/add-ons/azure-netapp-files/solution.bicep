@@ -37,7 +37,7 @@ param domainJoinUserPrincipalName string
 param domainName string
 
 @description('The email address to use for Defender for Cloud notifications.')
-param emailSecurityContact string
+param emailSecurityContact string = ''
 
 @allowed([
   'dev'
@@ -49,6 +49,9 @@ param environmentAbbreviation string = 'dev'
 
 @description('The name of the file share')
 param fileShareName string
+
+@description('The resource ID of the HUB Storage Account.')
+param hubStorageAccountResourceId string
 
 @description('The resource ID of the HUB Virtual Network.')
 param hubVirtualNetworkResourceId string
@@ -187,6 +190,7 @@ module tier3 '../tier3/solution.bicep' = {
     emailSecurityContact: emailSecurityContact
     environmentAbbreviation: environmentAbbreviation
     firewallResourceId: azureFirewallResourceId
+    hubStorageAccountResourceId: hubStorageAccountResourceId
     hubVirtualNetworkResourceId: hubVirtualNetworkResourceId
     identifier: identifier
     keyVaultDiagnosticLogs: keyVaultDiagnosticLogs
@@ -215,9 +219,8 @@ module rg '../../modules/resource-group.bicep' = {
   name: 'deploy-rg-${deploymentNameSuffix}'
   params: {
     location: location
-    mlzTags: tier3.outputs.mlzTags
-    name: '${tier3.outputs.tier.namingConvention.resourceGroup}${tier3.outputs.delimiter}netAppFiles'
-    tags: tags
+    name: replace(tier3.outputs.tier.namingConvention.resourceGroup, tier3.outputs.tokens.purpose, 'netAppFiles')
+    tags: union(tags[?'Microsoft.Resources/resourceGroups'] ?? {}, tier3.outputs.mlzTags)
   }
 }
 
@@ -235,12 +238,14 @@ module netAppFiles 'modules/azureNetAppFiles.bicep' = {
     fileShareName: fileShareName
     location: location
     mlzTags: tier3.outputs.mlzTags
-    netAppAccountName: tier3.outputs.tier.namingConvention.netAppAccount
-    netAppCapacityPoolName: tier3.outputs.tier.namingConvention.netAppAccountCapacityPool
+    netAppAccountName: replace(tier3.outputs.tier.namingConvention.netAppAccount, '${tier3.outputs.delimiter}${tier3.outputs.tokens.purpose}', '')
+    netAppCapacityPoolName: replace(tier3.outputs.tier.namingConvention.netAppAccountCapacityPool, '${tier3.outputs.delimiter}${tier3.outputs.tokens.purpose}', '')
     organizationalUnitPath: organizationalUnitPath
     resourceGroupName: rg.outputs.name
-    smbServerName: tier3.outputs.tier.namingConvention.netAppAccountSmbServer
+    smbServerName: replace(tier3.outputs.tier.namingConvention.netAppAccountSmbServer, tier3.outputs.tokens.purpose, '')
     sku: sku
     tags: tags
   }
 }
+
+output fileShare string = netAppFiles.outputs.fileShare

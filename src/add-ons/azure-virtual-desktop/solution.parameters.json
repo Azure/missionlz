@@ -105,6 +105,9 @@
       "hubAzureFirewallResourceId": {
           "value": ""
       },
+      "hubStorageAccountResourceId": {
+          "value": ""
+      },
       "hubVirtualNetworkResourceId": {
           "value": ""
       },
@@ -154,6 +157,9 @@
       },
       "logStorageSkuName": {
           "value": "Standard_GRS"
+      },
+      "managementVirtualMachineSize": {
+          "value": "Standard_DS1_v2"
       },
       "networkInterfaceDiagnosticsMetrics": {
           "value": [

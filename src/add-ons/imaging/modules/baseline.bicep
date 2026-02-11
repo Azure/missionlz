@@ -5,7 +5,6 @@ Licensed under the MIT License.
 
 targetScope = 'subscription'
 
-param delimiter string
 param deploymentNameSuffix string
 param enableBuildAutomation bool
 param environmentAbbreviation string
@@ -17,17 +16,17 @@ param resourceAbbreviations object
 param storageAccountResourceId string
 param tags object
 param tier object
+param tokens object
 
-var resourceGroupName = '${tier.namingConvention.resourceGroup}${delimiter}${tier.name}'
+var resourceGroupName = replace(tier.namingConvention.resourceGroup, tokens.purpose, tier.name)
 
 module rg '../../../modules/resource-group.bicep' = {
   name: 'deploy-imaging-rg-${tier.name}-${deploymentNameSuffix}'
   scope: subscription(tier.subscriptionId)
   params: {
-    mlzTags: mlzTags
     name: resourceGroupName
     location: location
-    tags: tags
+    tags: union(tags[?'Microsoft.Resources/resourceGroups'] ?? {}, mlzTags)
   }
 }
 
@@ -38,7 +37,7 @@ module userAssignedIdentity 'user-assigned-identity.bicep' = {
   params: {
     location: location
     mlzTags: mlzTags
-    name: '${tier.namingConvention.userAssignedIdentity}${delimiter}${tier.name}'
+    name: replace(tier.namingConvention.userAssignedIdentity, tokens.purpose, tier.name)
     tags: tags
   }
   dependsOn: [
@@ -70,18 +69,19 @@ module roleAssignment_StorageAccount 'role-assignments/storage-account.bicep' = 
 
 // Enables customer managed keys for disk encryption on the mgmt VM
 module customerManagedKeys '../../../modules/customer-managed-keys.bicep' = {
+  name: 'deploy-cmk-${deploymentNameSuffix}'
+  scope: resourceGroup(tier.subscriptionId, resourceGroupName)
   params: {
-    delimiter: delimiter
     deploymentNameSuffix: deploymentNameSuffix
     environmentAbbreviation: environmentAbbreviation
-    keyName: tier.namingConvention.diskEncryptionSet
+    keyName: replace(tier.namingConvention.diskEncryptionSet, tokens.purpose, 'cmk')
     keyVaultPrivateDnsZoneResourceId: keyVaultPrivateDnsZoneResourceId
     location: location
-    mlzTags: mlzTags
     resourceAbbreviations: resourceAbbreviations
-    resourceGroupName: resourceGroupName
+    subnetResourceId: tier.subnetResourceId
     tags: tags
     tier: tier
+    tokens: tokens
     type: 'virtualMachine'
   }
   dependsOn: [
@@ -103,7 +103,7 @@ module computeGallery 'compute-gallery.bicep' = {
   name: 'gallery-image-${deploymentNameSuffix}'
   scope: resourceGroup(tier.subscriptionId, resourceGroupName)
   params: {
-    computeGalleryName: tier.namingConvention.computeGallery
+    computeGalleryName: replace(tier.namingConvention.computeGallery, tokens.purpose, tier.name)
     enableBuildAutomation: enableBuildAutomation
     location: location
     mlzTags: mlzTags

@@ -9,9 +9,10 @@ param mlzTags object
 param names object
 param privateLinkScopeResourceId string
 param tags object
+param tokens object
 
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2021-06-01' = {
-  name: '${names.logAnalyticsWorkspace}${delimiter}avdi'
+  name: replace(names.logAnalyticsWorkspace, tokens.purpose, 'avdi')
   location: location
   tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.OperationalInsights/workspaces'] ?? {}, mlzTags)
   properties: {
@@ -37,7 +38,7 @@ module privateLinkScope_logAnalyticsWorkspace '../common/private-link-scope.bice
 }
 
 resource dataCollectionRule 'Microsoft.Insights/dataCollectionRules@2022-06-01' = if (enableAvdInsights) {
-  name: 'microsoft-avdi-${names.dataCollectionRule}' // The name must start with 'microsoft-avdi-' for proper integration with AVD Insights
+  name: 'microsoft-avdi-${replace(names.dataCollectionRule, '${delimiter}${tokens.purpose}', '')}' // The name must start with 'microsoft-avdi-' for proper integration with AVD Insights
   location: location
   tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Insights/dataCollectionRules'] ?? {}, mlzTags)
   kind: 'Windows'
@@ -118,7 +119,7 @@ resource dataCollectionRule 'Microsoft.Insights/dataCollectionRules@2022-06-01' 
 }
 
 resource dataCollectionEndpoint 'Microsoft.Insights/dataCollectionEndpoints@2021-04-01' = if (enableAvdInsights) {
-  name: '${names.dataCollectionEndpoint}${delimiter}avdi'
+  name: replace(names.dataCollectionEndpoint, tokens.purpose, 'avdi')
   location: location
   tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Insights/dataCollectionEndpoints'] ?? {}, mlzTags)
   kind: 'Windows'

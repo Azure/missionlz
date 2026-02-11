@@ -19,11 +19,12 @@ param privateDnsZones array
 param privateLinkScopeResourceId string
 param tags object
 param tier object
+param tokens object
 
-var hostPoolResourceId = '${subscription().id}/resourceGroups/${resourceGroupManagement}/providers/Microsoft.DesktopVirtualization/hostpools/${tier.namingConvention.hostPool}'
-var resourceGroupShared = '${tier.namingConvention.resourceGroup}${delimiter}shared'
-var resourceGroupFslogix = '${tier.namingConvention.resourceGroup}${delimiter}fslogix'
-var resourceGroupManagement = '${tier.namingConvention.resourceGroup}${delimiter}management'
+var hostPoolResourceId = '${subscription().id}/resourceGroups/${resourceGroupManagement}/providers/Microsoft.DesktopVirtualization/hostpools/${replace(tier.namingConvention.hostPool, '${delimiter}${tokens.purpose}', '')}'
+var resourceGroupShared = replace(tier.namingConvention.resourceGroup, tokens.purpose, 'shared')
+var resourceGroupFslogix = replace(tier.namingConvention.resourceGroup, tokens.purpose, 'fslogix')
+var resourceGroupManagement = replace(tier.namingConvention.resourceGroup, tokens.purpose, 'management')
 
 // Deploys the resource group for the shared resources
 resource resourceGroup_shared 'Microsoft.Resources/resourceGroups@2023-07-01' = {
@@ -49,6 +50,7 @@ module monitoring 'monitoring.bicep' = if (enableApplicationInsights || enableAv
     names: tier.namingConvention
     privateLinkScopeResourceId: privateLinkScopeResourceId
     tags: tags
+    tokens: tokens
   }
 }
 
@@ -87,9 +89,9 @@ module roleAssignment '../common/role-assignments/resource-group.bicep' = if (!e
     location: locationVirtualMachines
     mlzTags: mlzTags
     recoveryServicesPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(privateDnsZones, name => startsWith(name, 'privatelink.${recoveryServicesGeo}.backup.windowsazure'))[0]}'
-    recoveryServicesVaultName: namingConvention.recoveryServicesVault
-    recoveryServicesVaultNetworkInterfaceName: namingConvention.recoveryServicesVaultNetworkInterface
-    recoveryServicesVaultPrivateEndpointName: namingConvention.recoveryServicesVaultPrivateEndpoint
+    recoveryServicesVaultName: replace(tier.namingConvention.recoveryServicesVault, '${delimiter}${tokens.purpose}', '')
+    recoveryServicesVaultNetworkInterfaceName: replace(tier.namingConvention.recoveryServicesVaultNetworkInterface, '${delimiter}${tokens.purpose}', '')
+    recoveryServicesVaultPrivateEndpointName: replace(tier.namingConvention.recoveryServicesVaultPrivateEndpoint, '${delimiter}${tokens.purpose}', '')
     storageService: storageService
     subnetId: subnetResourceId
     tags: tags
@@ -103,12 +105,11 @@ module functionApp 'function-app.bicep' = if (fslogixStorageService == 'AzureFil
   scope: resourceGroup_shared
   params: {
     delegatedSubnetResourceId: filter(tier.subnets, subnet => contains(subnet.name, 'function-app-outbound'))[0].id
-    delimiter: delimiter
     deploymentNameSuffix: deploymentNameSuffix
     enableApplicationInsights: enableApplicationInsights
     environmentAbbreviation: environmentAbbreviation
     hostPoolResourceId: hostPoolResourceId
-    logAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
+    logAnalyticsWorkspaceResourceId: monitoring!.outputs.logAnalyticsWorkspaceResourceId
     mlzTags: mlzTags
     names: tier.namingConvention
     privateDnsZoneResourceIdPrefix: privateDnsZoneResourceIdPrefix
@@ -117,11 +118,12 @@ module functionApp 'function-app.bicep' = if (fslogixStorageService == 'AzureFil
     resourceGroupFslogix: resourceGroupFslogix
     subnetResourceId: tier.subnets[0].id
     tags: tags
+    tokens: tokens
   }
 }
 
-output dataCollectionRuleResourceId string = enableAvdInsights ? monitoring.outputs.dataCollectionRuleResourceId : ''
-output functionAppPrincipalId string = fslogixStorageService == 'AzureFiles Premium' ? functionApp.outputs.functionAppPrincipalId : ''
-output logAnalyticsWorkspaceName string = enableApplicationInsights || enableAvdInsights ? monitoring.outputs.logAnalyticsWorkspaceName : ''
-output logAnalyticsWorkspaceResourceId string = enableApplicationInsights || enableAvdInsights ? monitoring.outputs.logAnalyticsWorkspaceResourceId : ''
+output dataCollectionRuleResourceId string = enableAvdInsights ? monitoring!.outputs.dataCollectionRuleResourceId : ''
+output functionAppPrincipalId string = fslogixStorageService == 'AzureFiles Premium' ? functionApp!.outputs.functionAppPrincipalId : ''
+output logAnalyticsWorkspaceName string = enableApplicationInsights || enableAvdInsights ? monitoring!.outputs.logAnalyticsWorkspaceName : ''
+output logAnalyticsWorkspaceResourceId string = enableApplicationInsights || enableAvdInsights ? monitoring!.outputs.logAnalyticsWorkspaceResourceId : ''
 output resourceGroupName string = resourceGroup_shared.name

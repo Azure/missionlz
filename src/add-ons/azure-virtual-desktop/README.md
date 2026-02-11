@@ -1,8 +1,8 @@
-# Azure Virtual Desktop Solution
+# Azure Virtual Desktop Add-On
 
 [**Home**](./README.md) | [**Features**](./docs/features.md) | [**Design**](./docs/design.md) | [**Prerequisites**](./docs/prerequisites.md) | [**Troubleshooting**](./docs/troubleshooting.md)
 
-This solution will deploy a fully operational Azure Virtual Desktop (AVD) [stamp](https://learn.microsoft.com/azure/architecture/patterns/deployment-stamp) adhereing to the [Zero Trust principles](https://learn.microsoft.com/security/zero-trust/azure-infrastructure-avd). Many of the [common features](./docs/features.md) used with AVD have been automated in this solution for your convenience.
+This workload accelerator will deploy a fully operational Azure Virtual Desktop (AVD) [stamp](https://learn.microsoft.com/azure/architecture/patterns/deployment-stamp) adhereing to the [Zero Trust principles](https://learn.microsoft.com/security/zero-trust/azure-infrastructure-avd). Many of the [common features](./docs/features.md) used with AVD have been automated in this solution for your convenience.
 
 ## Deployment Options
 

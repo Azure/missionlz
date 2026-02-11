@@ -14,7 +14,7 @@ resource bastionHost 'Microsoft.Network/bastionHosts@2021-02-01' existing = {
   name: name
 }
 
-resource diagnostics 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' = {
+resource diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
   scope: bastionHost
   name: diagnosticSettingName
   properties: {

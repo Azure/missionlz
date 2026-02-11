@@ -5,21 +5,21 @@ Licensed under the MIT License.
 
 targetScope = 'subscription'
 
-param delimiter string
 param deploymentNameSuffix string
 param location string
 param mlzTags object
+param purpose string = ''
+param tags object = {}
 param tiers array
-param tags object
+param tokens object
 
 module resourceGroups 'resource-group.bicep' = [for tier in tiers: {
   name: 'deploy-rg-${tier.name}-${deploymentNameSuffix}'
   scope: subscription(tier.subscriptionId)
   params: {
-    mlzTags: mlzTags
-    name: '${tier.namingConvention.resourceGroup}${delimiter}network'
+    name: replace(tier.namingConvention.resourceGroup, tokens.purpose, purpose)
     location: location
-    tags: tags
+    tags: union(tags[?'Microsoft.Resources/resourceGroups'] ?? {}, mlzTags)
   }
 }]
 

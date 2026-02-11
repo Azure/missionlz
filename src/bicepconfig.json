@@ -1,28 +1,34 @@
 {
-    "analyzers": {
-      "core": {
-        "verbose": false,
-        "enabled": true,
-        "rules": {
-          "no-hardcoded-env-urls": {
-            "level": "warning"
-          },
-          "no-unused-params": {
-            "level": "error"
-          },
-          "no-unused-vars": {
-            "level": "error"
-          },
-          "prefer-interpolation": {
-            "level": "error"
-          },
-          "secure-parameter-default": {
-            "level": "error"
-          },
-          "simplify-interpolation": {
-            "level": "error"
-          }
+  "analyzers": {
+    "core": {
+      "verbose": false,
+      "enabled": true,
+      "experimentalFeaturesEnabled": {  
+        "extensibility": true  
+      },
+      "extensions": {  
+        "graphV1": "br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:1.0.0"
+      },
+      "rules": {
+        "no-hardcoded-env-urls": {
+          "level": "warning"
+        },
+        "no-unused-params": {
+          "level": "error"
+        },
+        "no-unused-vars": {
+          "level": "error"
+        },
+        "prefer-interpolation": {
+          "level": "error"
+        },
+        "secure-parameter-default": {
+          "level": "error"
+        },
+        "simplify-interpolation": {
+          "level": "error"
         }
       }
     }
   }
+}

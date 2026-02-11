@@ -1103,7 +1103,7 @@
                     ]
                   }
                 },
-                                {
+                {
                   "name": "hybridUseBenefit",
                   "type": "Microsoft.Common.CheckBox",
                   "label": "Enable hybrid use benefit?",
@@ -1620,8 +1620,8 @@
       "parameters": {
         "addsDomainName": "[steps('identity').forestSection.domainName]",
         "addsSafeModeAdminPassword": "[steps('identity').forestSection.safeModeAdminPassword]",
-        "addsVmAdminPassword": "[steps('identity').vmSection.vmAdminPassword.password]",
-        "addsVmAdminUsername": "[steps('identity').vmSection.vmAdminUsername]",
+        "addsAdministratorPassword": "[steps('identity').vmSection.vmAdminPassword.password]",
+        "addsAdministratorUsername": "[steps('identity').vmSection.vmAdminUsername]",
         "addsVmImageSku": "[steps('identity').vmSection.vmImageSku]",
         "addsVmSize": "[steps('identity').vmSection.vmSize]",
         "azureGatewaySubnetAddressPrefix": "[steps('remoteAccess').azureGatewaySubnetSection.azureGatewaySubnetAddressCidrRange]",

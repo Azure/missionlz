@@ -19,6 +19,7 @@ param virtualMachineName string
 @secure()
 param virtualMachineAdminPassword string
 param virtualMachineAdminUsername string
+param virtualMachineSize string
 
 var tagsVirtualMachines = union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Compute/virtualMachines'] ?? {}, mlzTags)
 
@@ -53,7 +54,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-11-01' = {
   tags: tagsVirtualMachines
   properties: {
     hardwareProfile: {
-      vmSize: 'Standard_B2s'
+      vmSize: virtualMachineSize
     }
     storageProfile: {
       imageReference: {

@@ -1,8 +1,7 @@
 
-# Esri ArcGIS Pro on Azure Virtual Desktop (AVD) Accelerator
+# ArcGIS Pro Add-On
 
-> [!CAUTION]
-> This repository is a WORK-IN-PROGRESS and is not yet fully complete.  
+This workload accelerator offers an architectural approach and reference implementation to prepare Azure subscriptions for scalable ArcGIS deployments. It combines Azure cloud-native services and traditional infrastructure virtual machines. Upon completion, users will have a base deployment for rapid enterprise GIS adoption.
 
 ## Quick Start Summary
 
@@ -11,15 +10,97 @@
 - **Scenario 3:** [Multi-Tier Deployment (ArcGIS Enterprise + ArcGIS Pro on AVD)](#scenario-3-multi-tier-deployment-arcgis-enterprise--arcgis-pro-on-avd)
 - **Who Would Use Each:** [Guidance on Choosing the Right Deployment Scenario](#who-would-use-each)
 
-## Solution Description
+## Prerequisites
 
-This accelerator offers an architectural approach and reference implementation to prepare Azure subscriptions for scalable ArcGIS deployments. It combines Azure cloud-native services and traditional infrastructure virtual machines. Upon completion, users will have a base deployment for rapid enterprise GIS adoption.
+Before deploying this accelerator, ensure you have the following:
 
-### Who is this for?
+### Azure Requirements
+
+- **Azure Subscription:** An active Azure subscription with sufficient quota for the required resources (VMs, storage, networking).
+- **Permissions:** Owner or Contributor role on the target subscription, plus User Access Administrator for role assignments.
+- **Mission Landing Zone:** A deployed instance of [Mission Landing Zone](https://github.com/Azure/missionlz) — this accelerator builds on top of MLZ's foundational infrastructure.
+- **Supported Regions:** Ensure your target Azure region supports Azure Virtual Desktop and GPU-enabled VM SKUs (e.g., NVv3, NVv4, NCasT4_v3 series).
+
+### ArcGIS Licensing
+
+- **ArcGIS Pro License:** Valid Named User or Concurrent Use license for ArcGIS Pro.
+- **ArcGIS Online or Enterprise Portal:** An ArcGIS Online organization or ArcGIS Enterprise portal for user authentication and licensing (required for Named User licenses).
+- **Esri License Server (optional):** For Concurrent Use licensing, a configured Esri License Server is required.
+
+### Network & Identity
+
+- **Microsoft Entra ID:** Users must be synced or created in Microsoft Entra ID for AVD authentication.
+- **Network Connectivity:** Outbound internet access for ArcGIS licensing, updates, and optional ArcGIS Online connectivity.
+- **DNS Configuration:** Proper DNS resolution for internal resources and ArcGIS services.
+
+### Recommended Knowledge
+
+- Familiarity with Azure Virtual Desktop concepts and management.
+- Basic understanding of ArcGIS Pro deployment and licensing models.
+- Experience with Azure Bicep or ARM templates (for customization).
+
+### Pre-Deployment Setup
+
+There are two required steps before the deployment of the ArcGIS Pro add-on. First, a managed identity must be set up in Azure with Microsoft Graph API permissions. Second, an access token to deploy the provisioning agent must be acquired and provided to the `accessToken` parameter before deployment.
+
+#### Step 1 - User Assigned Managed Identity with Microsoft Graph API Permissions
+
+The script below assumes you have the Azure and Microsoft Graph PowerShell modules installed. The variables at the top of the script must have values before executing the script.
+
+```powershell
+$SubscriptionId = ""
+$ResourceGroupName = ""
+$IdentityName = ""
+$Location = ""
+
+# Connect to Azure
+Connect-AzAccount
+Set-AzContext -SubscriptionId $SubscriptionId
+
+# Create resource group
+New-AzResourceGroup -Name $ResourceGroupName -Location $Location -Force
+
+# Create the User Assigned Managed Identity
+$Identity = New-AzUserAssignedIdentity -ResourceGroupName $ResourceGroupName -Name $IdentityName -Location $Location
+
+# Connect to Microsoft Graph
+Connect-MgGraph -Scopes "AppRoleAssignment.ReadWrite.All", "Application.Read.All"
+
+$ServicePrincipal = Get-MgServicePrincipal -Filter "AppId eq '$($Identity.ClientId)'"
+$GraphServicePrincipal = Get-MgServicePrincipal -Filter "AppId eq '00000003-0000-0000-c000-000000000000'"
+
+# List of required permissions
+$Permissions = @(
+    "Application.ReadWrite.All"
+    # "Directory.ReadWrite.All" # This permission is used for directory discovery which currently throws 500 errors
+    "Organization.ReadWrite.All"
+    "Synchronization.ReadWrite.All"
+)
+
+foreach ($Permission in $Permissions) {
+    $ApplicationRole = $GraphServicePrincipal.AppRoles | Where-Object { $_.Value -eq $Permission -and $_.AllowedMemberTypes -contains "Application" }
+    
+    New-MgServicePrincipalAppRoleAssignment -ServicePrincipalId $ServicePrincipal.Id -PrincipalId $ServicePrincipal.Id -ResourceId $GraphServicePrincipal.Id -AppRoleId $ApplicationRole.Id
+}
+```
+
+#### Step 2 - AAD Graph Access Token
+
+The script below requires Azure CLI. There is no PowerShell equivalent.
+
+```azurecli
+az login
+
+az account get-access-token --resource-type 'aad-graph' --scope 'https://proxy.cloudwebappproxy.net/registerapp/user_impersonation' --query accessToken -o tsv
+```
+
+---
+
+## Who is this for?
 
 This accelerator is designed for GIS administrators, IT/cloud architects, and organizations looking to modernize their GIS infrastructure by leveraging Azure's scalability, performance, and security. Whether you're migrating from on-premises or expanding your cloud footprint, this solution provides the tools and guidance needed for successful deployment.
 
-### Major Benefits
+## Major Benefits
 
 This accelerator provides a modern, cloud-native foundation for deploying ArcGIS Pro and ArcGIS Enterprise on Azure. Benefits span both desktop GIS performance and enterprise GIS infrastructure modernization:
 
@@ -41,17 +122,17 @@ This accelerator provides a modern, cloud-native foundation for deploying ArcGIS
 
 ## Components
 
-This accelerator is designed to be deployed **after** the [Mission Landing Zone](https://github.com/Azure/missionlz) has been set up. The Mission Landing Zone provides the foundational Azure infrastructure (identity, networking, security, and governance) required to support ArcGIS workloads.
-
-Once the Mission Landing Zone is deployed, you can choose from three deployment scenarios depending on your needs:
+This accelerator is designed to deploy [Mission Landing Zone](https://github.com/Azure/missionlz) first. Mission Landing Zone provides the foundational Azure infrastructure (identity, networking, security, and governance) required to support ArcGIS workloads. Depending on your needs, you can choose from three deployment scenarios:
 
 - **Scenario 1:** ArcGIS Pro on Azure Virtual Desktop (AVD)
+![Architecture diagram showing ArcGIS Pro deployed on Azure Virtual Desktop with Mission Landing Zone foundation, including hub-spoke networking, identity integration with Microsoft Entra ID, and optional ArcGIS Enterprise tiers for Scenarios 2 and 3](../../../docs/images/ArcGISPro-AVD.png)
 - **Scenario 2:** Single-Tier ArcGIS Enterprise + ArcGIS Pro on AVD
 - **Scenario 3:** Multi-Tier ArcGIS Enterprise + ArcGIS Pro on AVD
 
-Each scenario is self-contained and can be deployed independently, depending on your organization's GIS architecture and operational goals.
+> [!NOTE]
+> Scenarios 2 and 3 are under development and coming soon.
 
-![ArcGIS on Azure diagram](./images/ArcGIS-on-Azure_Updated.png)
+Each scenario is self-contained and can be deployed independently, depending on your organization's GIS architecture and operational goals.
 
 ## Scenario 1: ArcGIS Pro on AVD
 
@@ -72,44 +153,18 @@ This scenario is ideal for organizations that:
 - **Secure Access:** Integrates with Microsoft Entra ID and supports conditional access, MFA, and other enterprise-grade security features.
 
 <!-- markdownlint-disable MD013 -->
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fadd-ons%2Fesri-enterprise%2Fsolution.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fadd-ons%2Fesri-enterprise%2FuiDefinition.json) [![Deploy to Azure Gov](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fadd-ons%2Fesri-enterprise%2Fsolution.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fadd-ons%2Fesri-enterprise%2FuiDefinition.json)
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fadd-ons%2Farcgis-pro%2Fsolution.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fadd-ons%2Farcgis-pro%2FuiDefinition.json) [![Deploy to Azure Gov](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fadd-ons%2Farcgis-pro%2Fsolution.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fadd-ons%2Farcgis-pro%2FuiDefinition.json)
 <!-- markdownlint-enable MD013 -->
 
 ## Scenario 2: Single-Tier Deployment (ArcGIS Enterprise + ArcGIS Pro on AVD)
 
-The single-tier ArcGIS Enterprise deployment involves installing all components of ArcGIS Enterprise on a single virtual machine. This setup is straightforward and suitable for smaller implementations or proof-of-concept projects. It is ideal for organizations that:
-
-- Have limited resources and need a simple, cost-effective solution.
-- Are conducting a proof-of-concept, testing or development.
-- Do not require high availability or scalability.
-
-**Benefits:**
-
-- **Simplicity:** Easier to set up and manage since all components are on one machine.
-- **Cost-Effective:** Lower infrastructure costs as it requires fewer resources.
-- **Quick Deployment:** Faster to deploy and configure, making it suitable for short-term projects.
-
-<!-- markdownlint-disable MD013 -->
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fadd-ons%2Fesri-enterprise%2Fsolution.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fadd-ons%2Fesri-enterprise%2FuiDefinition.json) [![Deploy to Azure Gov](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fadd-ons%2Fesri-enterprise%2Fsolution.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fadd-ons%2Fesri-enterprise%2FuiDefinition.json)
-<!-- markdownlint-enable MD013 -->
+> [!NOTE]
+> This scenario is under development and coming soon.
 
 ## Scenario 3: Multi-Tier Deployment (ArcGIS Enterprise + ArcGIS Pro on AVD)
 
-A multi-tier deployment involves distributing the components of ArcGIS Enterprise across multiple virtual machines. This setup is more complex but offers better performance, scalability, and high availability. It is ideal for organizations that:
-
-- Require a robust and scalable solution for production environments.
-- Need to support a large number of users and high-demand applications.
-- Require high availability and disaster recovery capabilities.
-
-**Benefits:**
-
-- **Scalability:** Can handle larger workloads and more users by distributing components across multiple machines.
-- **High Availability:** Provides redundancy and failover capabilities, ensuring continuous operation.
-- **Performance:** Improved performance as different components can be optimized and scaled independently.
-
-<!-- markdownlint-disable MD013 -->
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fadd-ons%2Fesri-enterprise%2Fsolution.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fadd-ons%2Fesri-enterprise%2FuiDefinition.json) [![Deploy to Azure Gov](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fadd-ons%2Fesri-enterprise%2Fsolution.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmissionlz%2Fmain%2Fsrc%2Fadd-ons%2Fesri-enterprise%2FuiDefinition.json)
-<!-- markdownlint-enable MD013 -->
+> [!NOTE]
+> This scenario is under development and coming soon.
 
 ## Who Would Use Each?
 

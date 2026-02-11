@@ -1,9 +1,12 @@
 param delimiter string
 param location string
 param publicIpAddressName string
+param resourceAbbreviations object
+param tokens object
 param virtualNetworkGatewayName string
 param virtualNetworkGatewaySku string
 param virtualNetworkName string
+param natRules array = []
 
 // Existing Virtual Network and Subnet
 resource vnet 'Microsoft.Network/virtualNetworks@2023-02-01' existing = {
@@ -21,7 +24,7 @@ var gatewaySubnetId = gatewaySubnet.id
 // Public IP Addresses
 resource publicIpAddresses 'Microsoft.Network/publicIPAddresses@2023-02-01' = [
   for i in range(0, 2): {
-    name: '${publicIpAddressName}${delimiter}${padLeft(i, 2, '0')}'
+    name: '${replace(publicIpAddressName, tokens.purpose, resourceAbbreviations.virtualNetworkGateways)}${delimiter}${i}'
     location: location
     sku: {
       name: 'Standard'
@@ -76,5 +79,16 @@ resource vpnGateway 'Microsoft.Network/virtualNetworkGateways@2023-02-01' = {
       name: virtualNetworkGatewaySku
       tier: virtualNetworkGatewaySku
     }
+    natRules: [for rule in natRules: {
+      name: rule.name
+      properties: {
+        type: rule.type
+        mode: rule.mode
+        internalMappings: rule.internalMappings
+        externalMappings: rule.externalMappings
+      }
+    }]
   }
 }
+
+output virtualNetworkGatewayId string = vpnGateway.id

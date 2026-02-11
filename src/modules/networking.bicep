@@ -39,12 +39,13 @@ module logic 'logic.bicep' = {
 module resourceGroups 'resource-groups.bicep' = {
   name: 'deploy-resource-groups-${deploymentNameSuffix}'
   params: {
-    delimiter: logic.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
     location: location
     mlzTags: logic.outputs.mlzTags
+    purpose: 'network'
     tiers: logic.outputs.tiers
     tags: tags
+    tokens: logic.outputs.tokens
   }
 }
 
@@ -75,6 +76,7 @@ module hubNetwork 'hub-network.bicep' = {
     subscriptionId: hubSubscriptionId
     tags: tags
     tier: filter(logic.outputs.tiers, tier => tier.name == 'hub')[0]
+    tokens: logic.outputs.tokens
     vNetDnsServers: [
       firewallSettings.clientPrivateIpAddress
     ]
@@ -84,12 +86,14 @@ module hubNetwork 'hub-network.bicep' = {
 module spokeNetworks 'spoke-network.bicep' = [for (spoke, i) in spokes: {
   name: 'deploy-vnet-${spoke.name}-${deploymentNameSuffix}'
   params: {
+    delimiter: logic.outputs.delimiter
     location: location
     mlzTags: logic.outputs.mlzTags
     resourceGroupName: filter(resourceGroups.outputs.names, name => contains(name, spoke.name))[0]
     routeTableRouteNextHopIpAddress: firewallSettings.clientPrivateIpAddress
     tags: tags
     tier: filter(logic.outputs.tiers, tier => tier.name == spoke.name)[0]
+    tokens: logic.outputs.tokens
     vNetDnsServers: hubNetwork.outputs.dnsServers
   }
 }]
@@ -143,6 +147,7 @@ module privateDnsZones 'private-dns-zones.bicep' = {
 output azureFirewallResourceId string = hubNetwork.outputs.firewallResourceId
 output bastionHostSubnetResourceId string = hubNetwork.outputs.bastionHostSubnetResourceId
 output delimiter string = logic.outputs.delimiter
+output firewallPolicyResourceId string = hubNetwork.outputs.firewallPolicyResourceId
 output hubVirtualNetworkResourceId string = hubNetwork.outputs.virtualNetworkResourceId
 output locationProperties object = logic.outputs.locationProperties
 output mlzTags object = logic.outputs.mlzTags
@@ -183,3 +188,4 @@ output tiers array = [for (network, i) in networks: {
   vnetDiagLogs: network.vnetDiagLogs
   vnetDiagMetrics: network.vnetDiagMetrics
 }]
+output tokens object = logic.outputs.tokens

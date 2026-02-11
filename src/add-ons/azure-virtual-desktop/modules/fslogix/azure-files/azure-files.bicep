@@ -21,6 +21,7 @@ param storageIndex int
 param storageSku string
 param subnetResourceId string
 param tags object
+param tokens object
 
 var roleDefinitionId = '0c867c2a-1d8c-454a-a3db-ab2ea1bdc8bb' // Storage File Data SMB Share Contributor 
 var smbMultiChannel = {
@@ -34,7 +35,7 @@ var smbSettings = {
   kerberosTicketEncryption: 'AES-256;'
   channelEncryption: 'AES-128-GCM;AES-256-GCM;'
 }
-var storageAccountNamePrefix = uniqueString(names.storageAccount, resourceGroup().id)
+var storageAccountNamePrefix = uniqueString(replace(names.storageAccount, tokens.purpose, 'fslogix'), resourceGroup().id)
 var storageRedundancy = availability == 'availabilityZones' ? '_ZRS' : '_LRS'
 var tagsPrivateEndpoints = union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Network/privateEndpoints'] ?? {}, mlzTags)
 var tagsStorageAccounts = union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Storage/storageAccounts'] ?? {}, mlzTags)
@@ -159,14 +160,14 @@ module shares 'shares.bicep' = [for i in range(0, storageCount): {
 }]
 
 resource privateEndpoints 'Microsoft.Network/privateEndpoints@2023-04-01' = [for i in range(0, storageCount): {
-  name: '${names.storageAccountFilePrivateEndpoint}${delimiter}fslogix${delimiter}${padLeft(i + storageIndex, 2, '0')}'
+  name: '${replace(names.storageAccountFilePrivateEndpoint, tokens.purpose, 'fslogix')}${delimiter}${padLeft(i + storageIndex, 2, '0')}'
   location: location
   tags: tagsPrivateEndpoints
   properties: {
-    customNetworkInterfaceName: '${names.storageAccountFileNetworkInterface}${delimiter}fslogix${delimiter}${padLeft(i + storageIndex, 2, '0')}'
+    customNetworkInterfaceName: '${replace(names.storageAccountFileNetworkInterface, tokens.purpose, 'fslogix')}${delimiter}${padLeft(i + storageIndex, 2, '0')}'
     privateLinkServiceConnections: [
       {
-        name: '${names.storageAccountFilePrivateEndpoint}${delimiter}fslogix${delimiter}${padLeft(i + storageIndex, 2, '0')}'
+        name: '${replace(names.storageAccountFilePrivateEndpoint, tokens.purpose, 'fslogix')}${delimiter}${padLeft(i + storageIndex, 2, '0')}'
         properties: {
           privateLinkServiceId: storageAccounts[i].id
           groupIds: [

@@ -13,11 +13,13 @@ param deploymentNameSuffix string
 param dnsForwarder string = '168.63.129.16'
 param domainName string
 param environmentAbbreviation string
+param firewallPolicyResourceId string
 param hybridUseBenefit bool
 param imageOffer string
 param imagePublisher string
 param imageSku string
 param imageVersion string
+param ipAddresses array
 param keyVaultPrivateDnsZoneResourceId string
 param location string = deployment().location
 param mlzTags object
@@ -25,64 +27,76 @@ param resourceAbbreviations object
 @secure()
 param safeModeAdminPassword string
 param tags object = {}
-param tier object
+param tiers array
+param tokens object
 param vmCount int = 2
 param vmSize string
 
-var resourceGroupName = '${tier.namingConvention.resourceGroup}${delimiter}domainControllers'
+var identityTier = filter(tiers, tier => tier.name == 'identity')[0]
 
-module rg 'resource-group.bicep' = {
-  name: 'deploy-adds-rg-${tier.name}-${deploymentNameSuffix}'
-  scope: subscription(tier.subscriptionId)
-  params: {
-    mlzTags: mlzTags
-    name: resourceGroupName
-    location: location
-    tags: tags
-  }
+resource rg 'Microsoft.Resources/resourceGroups@2019-05-01' = {
+  name: replace(identityTier.namingConvention.resourceGroup, tokens.purpose, 'domainControllers')
+  location: location
+  tags: union(tags[?'Microsoft.Resources/resourceGroups'] ?? {}, mlzTags)
 }
 
 module customerManagedKeys 'customer-managed-keys.bicep' = {
   name: 'deploy-adds-cmk-${deploymentNameSuffix}'
-  scope: subscription(tier.subscriptionId)
+  scope: rg
   params: {
-    delimiter: delimiter
     deploymentNameSuffix: deploymentNameSuffix
     environmentAbbreviation: environmentAbbreviation
-    keyName: tier.namingConvention.diskEncryptionSet
+    keyName: replace(identityTier.namingConvention.diskEncryptionSet, tokens.purpose, 'cmk')
     keyVaultPrivateDnsZoneResourceId: keyVaultPrivateDnsZoneResourceId
     location: location
-    mlzTags: mlzTags
     resourceAbbreviations: resourceAbbreviations
-    resourceGroupName: resourceGroupName
+    subnetResourceId: identityTier.subnetResourceId
     tags: tags
-    tier: tier
+    tier: identityTier
+    tokens: tokens
     type: 'virtualMachine'
   }
+}
+
+resource getFirewallPolicy 'Microsoft.Network/firewallPolicies@2021-02-01' existing = {
+  name: split(firewallPolicyResourceId, '/')[8]
+  scope: resourceGroup(split(firewallPolicyResourceId, '/')[2], split(firewallPolicyResourceId, '/')[4])
+}
+
+module updateFirewallPolicy 'firewall-policy.bicep' = {
+  name: 'update-fw-policy-${deploymentNameSuffix}'
+  scope: resourceGroup(split(firewallPolicyResourceId, '/')[2], split(firewallPolicyResourceId, '/')[4])
+  params: {
+    dnsServers: ipAddresses
+    enableProxy: getFirewallPolicy.properties.dnsSettings.enableProxy
+    intrusionDetectionMode: getFirewallPolicy.properties.?intrusionDetection.?mode ?? ''
+    location: getFirewallPolicy.location
+    name: getFirewallPolicy.name
+    skuTier: getFirewallPolicy.properties.sku.tier
+    tags: getFirewallPolicy.tags
+    threatIntelMode: getFirewallPolicy.properties.threatIntelMode
+  }
   dependsOn: [
-    rg
+    customerManagedKeys
   ]
 }
 
 module availabilitySet 'availability-set.bicep' = {
   name: 'deploy-adds-availability-set-${deploymentNameSuffix}'
-  scope: resourceGroup(tier.subscriptionId, resourceGroupName)
+  scope: rg
   params: {
-    availabilitySetName: tier.namingConvention.availabilitySet
+    availabilitySetName: replace(identityTier.namingConvention.availabilitySet, tokens.purpose, 'domainControllers')
     location: location
     mlzTags: mlzTags
     tags: tags
   }
-  dependsOn: [
-    rg
-  ]
 }
 
 @batchSize(1)
 module domainControllers 'domain-controller.bicep' = [
   for i in range(0, vmCount): {
     name: 'deploy-adds-dc-${i}-${deploymentNameSuffix}'
-    scope: resourceGroup(tier.subscriptionId, resourceGroupName)
+    scope: rg
     params: {
       adminPassword: adminPassword
       adminUsername: adminUsername
@@ -102,13 +116,14 @@ module domainControllers 'domain-controller.bicep' = [
       mlzTags: mlzTags
       privateIPAddressOffset: 5
       safeModeAdminPassword: safeModeAdminPassword
-      subnetResourceId: tier.subnetResourceId
+      subnetResourceId: identityTier.subnetResourceId
       tags: tags
-      tier: tier
+      tier: identityTier
+      tokens: tokens
       vmSize: vmSize
     }
     dependsOn: [
-      rg
+      updateFirewallPolicy
     ]
   }
 ]
@@ -118,4 +133,8 @@ output networkInterfaceResourceIds array = [
   customerManagedKeys.outputs.keyVaultNetworkInterfaceResourceId
   domainControllers[0].outputs.networkInterfaceResourceId
   domainControllers[1].outputs.networkInterfaceResourceId
+]
+output virtualMachineResourceIds array = [
+  domainControllers[0].outputs.virtualMachineResourceId
+  domainControllers[1].outputs.virtualMachineResourceId
 ]

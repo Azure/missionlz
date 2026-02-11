@@ -14,7 +14,7 @@ resource firewall 'Microsoft.Network/azureFirewalls@2021-02-01' existing = {
   name: firewallName
 }
 
-resource diagnostics 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' = {
+resource diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
   scope: firewall
   name: firewallDiagnosticSettingsName
   properties: {

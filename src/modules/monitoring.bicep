@@ -5,6 +5,7 @@ Licensed under the MIT License.
 
 targetScope = 'subscription'
 
+param delimiter string
 param deploymentNameSuffix string
 param deploySentinel bool
 param location string
@@ -15,6 +16,7 @@ param mlzTags object
 param privateDnsZoneResourceIds object
 param tags object
 param tier object
+param tokens object
 
 module logAnalyticsWorkspace 'log-analytics-workspace.bicep' = {
   name: 'deploy-law-${deploymentNameSuffix}'
@@ -23,7 +25,7 @@ module logAnalyticsWorkspace 'log-analytics-workspace.bicep' = {
     deploySentinel: deploySentinel
     location: location
     mlzTags: mlzTags
-    name: tier.namingConvention.logAnalyticsWorkspace
+    name: replace(tier.namingConvention.logAnalyticsWorkspace, '${delimiter}${tokens.purpose}', '')
     retentionInDays: logAnalyticsWorkspaceRetentionInDays
     skuName: logAnalyticsWorkspaceSkuName
     tags: tags
@@ -37,7 +39,7 @@ module privateLinkScope 'private-link-scope.bicep' = {
   scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
   params: {
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspace.outputs.resourceId
-    name: tier.namingConvention.privateLinkScope
+    name: replace(tier.namingConvention.privateLinkScope, '${delimiter}${tokens.purpose}', '')
   }
 }
 
@@ -50,8 +52,8 @@ module privateEndpoint 'private-endpoint.bicep' = {
     ]
     location: location
     mlzTags: mlzTags
-    name: tier.namingConvention.privateLinkScopePrivateEndpoint
-    networkInterfaceName: tier.namingConvention.privateLinkScopeNetworkInterface
+    name: replace(tier.namingConvention.privateLinkScopePrivateEndpoint, '${delimiter}${tokens.purpose}', '')
+    networkInterfaceName: replace(tier.namingConvention.privateLinkScopeNetworkInterface, '${delimiter}${tokens.purpose}', '')
     privateDnsZoneConfigs: [
       {
         name: 'monitor'

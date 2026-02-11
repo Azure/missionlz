@@ -24,11 +24,13 @@ param logAnalyticsWorkspaceResourceId string
 param managementVirtualMachineName string
 param maxSessionLimit int
 param mlzTags object
+param namingConvention object
 param resourceGroupManagement string
 param resourceGroupShared string
 param securityPrincipalObjectIds array
+param subnetResourceId string
 param tags object
-param tiers array
+param tokens object
 param validationEnvironment bool
 param virtualMachineSize string
 param workspaceFriendlyName string
@@ -39,8 +41,6 @@ var galleryImagePublisher = empty(imageVersionResourceId) ? '"${imagePublisher}"
 var galleryImageSku = empty(imageVersionResourceId) ? '"${imageSku}"' : 'null'
 var galleryItemId = empty(imageVersionResourceId) ? '"${imagePublisher}.${imageOffer}${imageSku}"' : 'null'
 var imageType = empty(imageVersionResourceId) ? '"Gallery"' : '"CustomImage"'
-var sharedTier = tiers[0]
-var stampTier = tiers[1]
 
 module hostPool 'host-pool.bicep' = {
   name: 'deploy-vdpool-${deploymentNameSuffix}'
@@ -57,10 +57,10 @@ module hostPool 'host-pool.bicep' = {
     galleryImagePublisher: galleryImagePublisher
     galleryImageSku: galleryImageSku
     galleryItemId: galleryItemId
-    hostPoolDiagnosticSettingName: stampTier.namingConvention.hostPoolDiagnosticSetting
-    hostPoolName: stampTier.namingConvention.hostPool
-    hostPoolNetworkInterfaceName: stampTier.namingConvention.hostPoolNetworkInterface
-    hostPoolPrivateEndpointName: stampTier.namingConvention.hostPoolPrivateEndpoint
+    hostPoolDiagnosticSettingName: replace(namingConvention.hostPoolDiagnosticSetting, '${delimiter}${tokens.purpose}', '')
+    hostPoolName: replace(namingConvention.hostPool, '${delimiter}${tokens.purpose}', '')
+    hostPoolNetworkInterfaceName: replace(namingConvention.hostPoolNetworkInterface, '${delimiter}${tokens.purpose}', '')
+    hostPoolPrivateEndpointName: replace(namingConvention.hostPoolPrivateEndpoint, '${delimiter}${tokens.purpose}', '')
     hostPoolPublicNetworkAccess: hostPoolPublicNetworkAccess
     hostPoolType: hostPoolType
     imageType: imageType
@@ -68,8 +68,8 @@ module hostPool 'host-pool.bicep' = {
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     maxSessionLimit: maxSessionLimit
     mlzTags: mlzTags
-    sessionHostNamePrefix: stampTier.namingConvention.virtualMachine
-    subnetResourceId: stampTier.subnets[0].id
+    sessionHostNamePrefix: replace(namingConvention.virtualMachine, '${delimiter}${tokens.purpose}', '')
+    subnetResourceId: subnetResourceId
     tags: tags
     validationEnvironment: validationEnvironment
     virtualMachineSize: virtualMachineSize
@@ -82,7 +82,7 @@ module applicationGroup 'application-group.bicep' = {
   params: {
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedIdentityClientId: deploymentUserAssignedIdentityClientId
-    desktopApplicationGroupName: stampTier.namingConvention.applicationGroup
+    desktopApplicationGroupName: replace(namingConvention.applicationGroup, '${delimiter}${tokens.purpose}', '')
     hostPoolResourceId: hostPool.outputs.resourceId
     locationControlPlane: locationControlPlane
     locationVirtualMachines: locationVirtualMachines
@@ -111,14 +111,14 @@ module workspace_feed '../shared/workspace-feed.bicep' = {
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     mlzTags: mlzTags
     resourceGroupManagement: resourceGroupManagement
-    subnetResourceId: sharedTier.subnets[0].id
+    subnetResourceId: subnetResourceId
     tags: tags
     virtualMachineName: managementVirtualMachineName
-    workspaceFeedDiagnoticSettingName: '${sharedTier.namingConvention.workspaceDiagnosticSetting}${delimiter}feed'
-    workspaceFeedName: '${sharedTier.namingConvention.workspace}${delimiter}feed'
-    workspaceFeedNetworkInterfaceName: '${sharedTier.namingConvention.workspaceNetworkInterface}${delimiter}feed'
-    workspaceFeedPrivateEndpointName: '${sharedTier.namingConvention.workspacePrivateEndpoint}${delimiter}feed'
-    workspaceFriendlyName: empty(workspaceFriendlyName) ? sharedTier.namingConvention.workspace : '${workspaceFriendlyName} (${locationControlPlane})'
+    workspaceFeedDiagnoticSettingName: replace(namingConvention.workspaceDiagnosticSetting, tokens.purpose, 'feed')
+    workspaceFeedName: replace(namingConvention.workspace, tokens.purpose, 'feed')
+    workspaceFeedNetworkInterfaceName: replace(namingConvention.workspaceNetworkInterface, tokens.purpose, 'feed')
+    workspaceFeedPrivateEndpointName: replace(namingConvention.workspacePrivateEndpoint, tokens.purpose, 'feed')
+    workspaceFriendlyName: empty(workspaceFriendlyName) ? replace(namingConvention.workspace, '${delimiter}${tokens.purpose}', '') : '${workspaceFriendlyName} (${locationControlPlane})'
     workspacePublicNetworkAccess: workspacePublicNetworkAccess
   }
 }

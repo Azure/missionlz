@@ -11,14 +11,15 @@ param keyVaultNetworkInterfaceName string
 param keyVaultPrivateDnsZoneResourceId string
 param keyVaultPrivateEndpointName string
 param location string
-param mlzTags object
+param managementVirtualMachineName string
 param subnetResourceId string
 param tags object
+param userAssignedIdentityClientId string
 
 resource vault 'Microsoft.KeyVault/vaults@2022-07-01' = {
   name: keyVaultName
   location: location
-  tags: union(tags[?'Microsoft.KeyVault/vaults'] ?? {}, mlzTags)
+  tags: tags
   properties: {
     enabledForDeployment: false
     enabledForDiskEncryption: false
@@ -42,45 +43,47 @@ resource vault 'Microsoft.KeyVault/vaults@2022-07-01' = {
   }
 }
 
-resource key 'Microsoft.KeyVault/vaults/keys@2022-07-01' = {
+module key 'run-command.bicep' = {
+  name: 'deploy-key-${keyName}-${environmentAbbreviation}'
+  params: {
+    location: location
+    name: 'New-KeyVaultKey-${keyName}'
+    parameters: [
+      {
+        name: 'KeyExpirationInDays'
+        value: keyExpirationInDays
+      }
+      {
+        name: 'KeyName'
+        value: keyName
+      }
+      {
+        name: 'KeyVaultUri'
+        value: vault.properties.vaultUri
+      }
+      {
+        name: 'UserAssignedIdentityClientId'
+        value: userAssignedIdentityClientId
+      }
+    ]
+    script: loadTextContent('../artifacts/New-KeyVaultKey.ps1')
+    tags: tags
+    virtualMachineName: managementVirtualMachineName
+  }
+}
+
+resource keyInfo 'Microsoft.KeyVault/vaults/keys@2022-07-01' existing = {
   parent: vault
   name: keyName
-  properties: {
-    attributes: {
-      enabled: true
-    }
-    keySize: 4096
-    kty: 'RSA-HSM'
-    rotationPolicy: {
-      attributes: {
-        expiryTime: 'P${string(keyExpirationInDays)}D'
-      }
-      lifetimeActions: [
-        {
-          action: {
-            type: 'Notify'
-          }
-          trigger: {
-            timeBeforeExpiry: 'P10D'
-          }
-        }
-        {
-          action: {
-            type: 'Rotate'
-          }
-          trigger: {
-            timeAfterCreate: 'P${string(keyExpirationInDays - 7)}D'
-          }
-        }
-      ]
-    }
-  }
+  dependsOn: [
+    key
+  ]
 }
 
 resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = {
   name: keyVaultPrivateEndpointName
   location: location
-  tags: union(tags[?'Microsoft.Network/privateEndpoints'] ?? {}, mlzTags)
+  tags: tags
   properties: {
     customNetworkInterfaceName: keyVaultNetworkInterfaceName
     privateLinkServiceConnections: [
@@ -119,7 +122,7 @@ resource privateDnsZoneGroups 'Microsoft.Network/privateEndpoints/privateDnsZone
 }
 
 output keyName string = key.name
-output keyUriWithVersion string = key.properties.keyUriWithVersion
+output keyUriWithVersion string = keyInfo.properties.keyUriWithVersion
 output keyVaultName string = vault.name
 output keyVaultResourceId string = vault.id
 output keyVaultUri string = vault.properties.vaultUri

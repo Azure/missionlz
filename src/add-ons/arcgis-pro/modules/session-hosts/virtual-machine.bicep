@@ -1,0 +1,303 @@
+param activeDirectorySolution string
+param avdConfigurationZipFileUri string
+param dataCollectionRuleAssociationName string
+param dataCollectionRuleResourceId string
+param deploymentNameSuffix string
+param diskEncryptionSetResourceId string
+param diskNamePrefix string
+param diskSku string
+param enableAcceleratedNetworking bool
+param enableAvdInsights bool
+param fileShare string
+param hostPoolResourceId string
+param imageOffer string
+param imagePublisher string
+param imagePurchasePlan object
+param imageSku string
+param location string
+param networkInterfaceNamePrefix string
+param networkSecurityGroupResourceId string
+param subnetResourceId string
+param tagsNetworkInterfaces object
+param tagsVirtualMachines object
+param virtualMachineNamePrefix string
+@secure()
+param virtualMachineAdminPassword string
+param virtualMachineAdminUsername string
+param virtualMachineSize string
+
+var imageReference =  {
+  publisher: imagePublisher
+  offer: imageOffer
+  sku: imageSku
+  version: 'latest'
+}
+var intune = contains(activeDirectorySolution, 'IntuneEnrollment')
+
+resource hostPool 'Microsoft.DesktopVirtualization/hostPools@2023-09-05' existing = {
+  name: split(hostPoolResourceId, '/')[8]
+  scope: resourceGroup(split(hostPoolResourceId, '/')[2], split(hostPoolResourceId, '/')[4])
+}
+
+resource networkInterface 'Microsoft.Network/networkInterfaces@2020-05-01' = {
+  name: '${networkInterfaceNamePrefix}-0'
+  location: location
+  tags: tagsNetworkInterfaces
+  properties: {
+    ipConfigurations: [
+      {
+        name: 'ipconfig'
+        properties: {
+          privateIPAllocationMethod: 'Dynamic'
+          subnet: {
+            id: subnetResourceId
+          }
+          primary: true
+          privateIPAddressVersion: 'IPv4'
+        }
+      }
+    ]
+    networkSecurityGroup: {
+      id: networkSecurityGroupResourceId
+    }
+    enableAcceleratedNetworking: enableAcceleratedNetworking
+    enableIPForwarding: false
+  }
+}
+
+resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-03-01' = {
+  name: '${virtualMachineNamePrefix}-0'
+  location: location
+  tags: tagsVirtualMachines
+  identity: {
+    type: 'SystemAssigned' // Required for Entra join
+  }
+  plan: imagePurchasePlan
+  properties: {
+    hardwareProfile: {
+      vmSize: virtualMachineSize
+    }
+    storageProfile: {
+      imageReference: imageReference
+      osDisk: {
+        name: '${diskNamePrefix}-0'
+        osType: 'Windows'
+        createOption: 'FromImage'
+        caching: 'ReadWrite'
+        deleteOption: 'Delete'
+        managedDisk: {
+          diskEncryptionSet: {
+            id: diskEncryptionSetResourceId
+          }
+          storageAccountType: diskSku
+        }
+      }
+      dataDisks: []
+    }
+    osProfile: {
+      adminPassword: virtualMachineAdminPassword
+      adminUsername: virtualMachineAdminUsername
+      computerName: '${virtualMachineNamePrefix}-0'
+      windowsConfiguration: {
+        provisionVMAgent: true
+        enableAutomaticUpdates: true
+      }
+      secrets: []
+      allowExtensionOperations: true
+    }
+    networkProfile: {
+      networkInterfaces: [
+        {
+          id: networkInterface.id
+          properties: {
+            deleteOption: 'Delete'
+          }
+        }
+      ]
+    }
+    securityProfile: {
+      uefiSettings: {
+        secureBootEnabled: true
+        vTpmEnabled: true
+      }
+      securityType: 'trustedLaunch'
+      encryptionAtHost: true
+    }
+    diagnosticsProfile: {
+      bootDiagnostics: {
+        enabled: false
+      }
+    }
+    licenseType: ((imagePublisher == 'MicrosoftWindowsDesktop') ? 'Windows_Client' : 'Windows_Server')
+  }
+}
+
+resource extension_GuestAttestation 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = {
+  parent: virtualMachine
+  name: 'GuestAttestation'
+  location: location
+  properties: {
+    publisher: 'Microsoft.Azure.Security.WindowsAttestation'
+    type: 'GuestAttestation'
+    typeHandlerVersion: '1.0'
+    autoUpgradeMinorVersion: true
+    settings: {
+      AttestationConfig: {
+        MaaSettings: {
+          maaEndpoint: ''
+          maaTenantName: 'GuestAttestation'
+        }
+        AscSettings: {
+          ascReportingEndpoint: ''
+          ascReportingFrequency: ''
+        }
+        useCustomToken: 'false'
+        disableAlerts: 'false'
+      }
+    }
+  }
+}
+
+resource extension_AzureMonitorWindowsAgent 'Microsoft.Compute/virtualMachines/extensions@2023-03-01' = if (enableAvdInsights) {
+  parent: virtualMachine
+  name: 'AzureMonitorWindowsAgent'
+  location: location
+  tags: tagsVirtualMachines
+  properties: {
+    publisher: 'Microsoft.Azure.Monitor'
+    type: 'AzureMonitorWindowsAgent'
+    typeHandlerVersion: '1.0'
+    autoUpgradeMinorVersion: true
+    enableAutomaticUpgrade: true
+  }
+}
+
+resource dataCollectionRuleAssociation 'Microsoft.Insights/dataCollectionRuleAssociations@2022-06-01' = if (enableAvdInsights) {
+  scope: virtualMachine
+  name: dataCollectionRuleAssociationName
+  properties: {
+    dataCollectionRuleId: dataCollectionRuleResourceId
+    description: 'AVD Insights data collection rule association'
+  }
+  dependsOn: [
+    extension_AzureMonitorWindowsAgent
+  ]
+}
+
+module setSessionHostConfiguration '../../../azure-virtual-desktop/modules/common/run-command.bicep' = {
+  name: 'set-config-${deploymentNameSuffix}'
+  params: {
+    location: location
+    name: 'Set-SessionHostConfiguration'
+    parameters: [
+      {
+        name: 'FileShare'
+        value: fileShare
+      }
+    ]
+    script: loadTextContent('../../artifacts/Set-SessionHostConfiguration.ps1')
+    tags: tagsVirtualMachines
+    virtualMachineName: virtualMachine.name
+  }
+  dependsOn: [
+    dataCollectionRuleAssociation
+  ]
+}
+
+resource installAvdAgents 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = {
+  parent: virtualMachine
+  name: 'DesiredStateConfiguration'
+  location: location
+  properties: {
+    publisher: 'Microsoft.Powershell'
+    type: 'DSC'
+    typeHandlerVersion: '2.73'
+    autoUpgradeMinorVersion: true
+    settings: {
+      modulesUrl: avdConfigurationZipFileUri
+      configurationFunction: 'Configuration.ps1\\AddSessionHost'
+      properties: {
+        hostPoolName: split(hostPoolResourceId, '/')[8]
+        registrationInfoTokenCredential: {
+          UserName: 'PLACEHOLDER_DO_NOT_USE'
+          Password: 'PrivateSettingsRef:RegistrationInfoToken'
+        }
+        aadJoin: contains(activeDirectorySolution, 'EntraId')
+        UseAgentDownloadEndpoint: false
+        mdmId: intune ? '0000000a-0000-0000-c000-000000000000' : ''
+      }
+    }
+    protectedSettings: {
+      Items: {
+        RegistrationInfoToken: hostPool.listRegistrationTokens().value[0].token
+      }
+    }
+  }
+  dependsOn: [
+    setSessionHostConfiguration
+  ]
+}
+
+// resource extension_JsonADDomainExtension 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = if (contains(activeDirectorySolution, 'DomainServices')) {
+//   parent: virtualMachine
+//   name: 'JsonADDomainExtension'
+//   location: location
+//   tags: tagsVirtualMachines
+//   properties: {
+//     forceUpdateTag: timestamp
+//     publisher: 'Microsoft.Compute'
+//     type: 'JsonADDomainExtension'
+//     typeHandlerVersion: '1.3'
+//     autoUpgradeMinorVersion: true
+//     settings: {
+//       Name: domainName
+//       Options: '3'
+//       OUPath: organizationalUnitPath
+//       Restart: 'true'
+//       User: domainJoinUserPrincipalName
+//     }
+//     protectedSettings: {
+//       Password: domainJoinPassword
+//     }
+//   }
+//   dependsOn: [
+//     setSessionHostConfiguration
+//   ]
+// }
+
+resource extension_AADLoginForWindows 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = if (contains(activeDirectorySolution, 'EntraId')) {
+  parent: virtualMachine
+  name: 'AADLoginForWindows'
+  location: location
+  tags: tagsVirtualMachines
+  properties: {
+    publisher: 'Microsoft.Azure.ActiveDirectory'
+    type: 'AADLoginForWindows'
+    typeHandlerVersion: '2.0'
+    autoUpgradeMinorVersion: true
+    settings: intune ? {
+      mdmId: '0000000a-0000-0000-c000-000000000000'
+    } : null
+  }
+  dependsOn: [
+    setSessionHostConfiguration
+  ]
+}
+
+resource extension_AmdGpuDriverWindows 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = {
+  parent: virtualMachine
+  name: 'AmdGpuDriverWindows'
+  location: location
+  tags: tagsVirtualMachines
+  properties: {
+    publisher: 'Microsoft.HpcCompute'
+    type: 'AmdGpuDriverWindows'
+    typeHandlerVersion: '1.0'
+    autoUpgradeMinorVersion: true
+    settings: {}
+  }
+  dependsOn: [
+    extension_AADLoginForWindows
+    //extension_JsonADDomainExtension
+  ]
+}

@@ -23,12 +23,13 @@ param subnetResourceId string
 param tablesPrivateDnsZoneResourceId string
 param tags object
 param tier object
+param tokens object
 param workloadShortName string
 
 module customerManagedKeys '../../../modules/customer-managed-keys.bicep' = {
   name: 'deploy-cmk-${workloadShortName}-${deploymentIndex}${deploymentNameSuffix}'
+  scope: resourceGroup(tier.subscriptionId, resourceGroupName)
   params: {
-    delimiter: delimiter
     deploymentNameSuffix: deploymentNameSuffix
     environmentAbbreviation: environmentAbbreviation
     keyName: 'StorageEncryptionKey'
@@ -39,11 +40,11 @@ module customerManagedKeys '../../../modules/customer-managed-keys.bicep' = {
       replace('privatelink${environment().suffixes.keyvaultDns}', 'vault', 'vaultcore')
     )
     location: location
-    mlzTags: mlzTags
     resourceAbbreviations: resourceAbbreviations
-    resourceGroupName: tier.resourceGroupName
+    subnetResourceId: subnetResourceId
     tags: tags
     tier: tier
+    tokens: tokens
     type: 'storageAccount'
   }
 }
@@ -53,10 +54,12 @@ module storageAccount '../../../modules/storage-account.bicep' = {
   scope: resourceGroup(tier.subscriptionId, resourceGroupName)
   params: {
     blobsPrivateDnsZoneResourceId: blobsPrivateDnsZoneResourceId
+    delimiter: delimiter
     filesPrivateDnsZoneResourceId: filesPrivateDnsZoneResourceId
     keyVaultUri: customerManagedKeys.outputs.keyVaultUri
     location: location
     mlzTags: mlzTags
+    purpose: 'diag'
     queuesPrivateDnsZoneResourceId: queuesPrivateDnsZoneResourceId
     skuName: logStorageSkuName
     storageEncryptionKeyName: customerManagedKeys.outputs.keyName
@@ -64,6 +67,7 @@ module storageAccount '../../../modules/storage-account.bicep' = {
     tablesPrivateDnsZoneResourceId: tablesPrivateDnsZoneResourceId
     tags: tags
     tier: tier
+    tokens: tokens
     userAssignedIdentityResourceId: customerManagedKeys.outputs.userAssignedIdentityResourceId
   }
 }
