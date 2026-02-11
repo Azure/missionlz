@@ -5,6 +5,7 @@ Param(
     [string]$KeyVaultResourceId,
     [string]$KeyVaultServiceUri,
     [string]$KeyVaultUri,
+    [string]$Location,
     [string]$ResourceGroupName,
     [string]$ResourceManagerUri,
     [string]$SubscriptionId,
@@ -67,7 +68,7 @@ $KeyUriWithVersion = (Invoke-RestMethod `
         -Method 'POST' `
         -Uri $($KeyVaultUri + 'keys/' + $KeyName + '/create?api-version=2025-07-01')).key.kid
 
-if ($Type -eq 'VirtualMachine') {
+if ($Type -eq 'virtualMachine') {
 
     # Get an access token for Azure resources
     $ResourceManagerAccessToken = (Invoke-RestMethod `
@@ -81,9 +82,9 @@ if ($Type -eq 'VirtualMachine') {
     }
 
     $DiskEncryptionSetBody = @{
-        location   = "West US"
+        location   = $Location
         identity   = @{
-            type = "SystemAssigned"
+            type = 'SystemAssigned'
         }
         properties = @{
             activeKey                         = @{

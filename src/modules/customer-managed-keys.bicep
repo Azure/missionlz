@@ -198,9 +198,9 @@ resource roleAssignment_keyVaultContributor 'Microsoft.Authorization/roleAssignm
   }
 }
 
-resource roleAssignment_keyVaultCryptoServiceEncryptionUser 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
-  name: guid(userAssignedIdentityName, 'e147488a-f6f5-4113-8e2d-b22465e65bf6', vault.id)
-  scope: vault
+// This role assignment is used to setup CMKs on storage accounts
+resource roleAssignment_keyVaultCryptoServiceEncryptionUser_UAMI 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = if (type == 'storageAccount') {
+  name: guid(userAssignedIdentityName, 'e147488a-f6f5-4113-8e2d-b22465e65bf6', resourceGroup().id)
   properties: {
     principalId: userAssignedIdentity.properties.principalId
     principalType: 'ServicePrincipal'
@@ -231,7 +231,9 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = {
   }
   dependsOn: [
     roleAssignment_keyVaultAdministrator
-    roleAssignment_keyVaultCryptoServiceEncryptionUser
+    roleAssignment_keyVaultContributor
+    roleAssignment_diskEncryptionSetOperator
+    roleAssignment_virtualMachineContributor
   ]
 }
 
@@ -248,10 +250,6 @@ resource privateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneG
       }
     ]
   }
-  dependsOn: [
-    roleAssignment_keyVaultAdministrator
-    roleAssignment_keyVaultCryptoServiceEncryptionUser
-  ]
 }
 
 resource key 'Microsoft.Compute/virtualMachines/runCommands@2025-04-01' = {
@@ -285,6 +283,10 @@ resource key 'Microsoft.Compute/virtualMachines/runCommands@2025-04-01' = {
       {
         name: 'KeyVaultUri'
         value: vault.properties.vaultUri
+      }
+      {
+        name: 'Location'
+        value: location
       }
       {
         name: 'ResourceGroupName'
@@ -325,6 +327,16 @@ resource diskEncryptionSet 'Microsoft.Compute/diskEncryptionSets@2023-04-02' exi
   ]
 }
 
+resource roleAssignment_keyVaultCryptoServiceEncryptionUser_DES 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+  name: guid(diskEncryptionSet.name, 'e147488a-f6f5-4113-8e2d-b22465e65bf6', vault.id)
+  scope: vault
+  properties: {
+    principalId: diskEncryptionSet!.identity.principalId
+    principalType: 'ServicePrincipal'
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', 'e147488a-f6f5-4113-8e2d-b22465e65bf6') // Key Vault Crypto Service Encryption User
+  }
+}
+
 resource deleteVirtualMachine 'Microsoft.Compute/virtualMachines/runCommands@2023-09-01' = {
   parent: virtualMachine
   name: 'delete-vm-${deploymentNameSuffix}'
@@ -358,10 +370,7 @@ resource deleteVirtualMachine 'Microsoft.Compute/virtualMachines/runCommands@202
   dependsOn: [
     diskEncryptionSet
     key
-    roleAssignment_diskEncryptionSetOperator
-    roleAssignment_virtualMachineContributor
-    roleAssignment_keyVaultAdministrator
-    roleAssignment_keyVaultCryptoServiceEncryptionUser
+    roleAssignment_keyVaultCryptoServiceEncryptionUser_DES
   ]
 }
 

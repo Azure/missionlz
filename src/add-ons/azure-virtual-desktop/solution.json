@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.40.2.10011",
-      "templateHash": "15988407972320964473"
+      "templateHash": "7445945361158732063"
     }
   },
   "parameters": {
@@ -865,7 +865,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "14330095570623836087"
+              "templateHash": "584639874537005483"
             }
           },
           "parameters": {
@@ -3221,7 +3221,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "14091285119324522553"
+                      "templateHash": "14994597528457109334"
                     }
                   },
                   "parameters": {
@@ -3341,7 +3341,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "13351752273097409491"
+                              "templateHash": "2386261907497452145"
                             }
                           },
                           "parameters": {
@@ -3400,7 +3400,7 @@
                             }
                           },
                           "variables": {
-                            "$fxv#0": "Param(\r\n    [string]$DiskEncryptionSetName,\r\n    [int]$KeyExpirationInDays,\r\n    [string]$KeyName,\r\n    [string]$KeyVaultResourceId,\r\n    [string]$KeyVaultServiceUri,\r\n    [string]$KeyVaultUri,\r\n    [string]$ResourceGroupName,\r\n    [string]$ResourceManagerUri,\r\n    [string]$SubscriptionId,\r\n    [string]$Type,\r\n    [string]$UserAssignedIdentityClientId\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n$WarningPreference = 'SilentlyContinue'\r\n\r\n# Fix the resource manager URI since only AzureCloud contains a trailing slash\r\n$ResourceManagerUriFixed = if ($ResourceManagerUri[-1] -eq '/') { $ResourceManagerUri.Substring(0, $ResourceManagerUri.Length - 1) } else { $ResourceManagerUri }\r\n\r\n# Get an access token for Azure resources\r\n$KeyVaultAccessToken = (Invoke-RestMethod `\r\n        -Headers @{Metadata = \"true\" } `\r\n        -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $KeyVaultServiceUri + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n# Set header for Azure Management API\r\n$KeyVaultHeaders = @{\r\n    'Content-Type'  = 'application/json'\r\n    'Authorization' = 'Bearer ' + $KeyVaultAccessToken\r\n}\r\n\r\n$Body = [PSCustomObject]@{\r\n    kty            = 'RSA-HSM'\r\n    key_size       = 4096\r\n    attributes     = @{\r\n        enabled = $true\r\n    }\r\n    rotationPolicy = @{\r\n        attributes      = @{\r\n            expiryTime = $('P' + $KeyExpirationInDays + 'D')\r\n        }\r\n        lifetimeActions = @(\r\n            @{\r\n                action  = @{\r\n                    type = 'Notify'\r\n                }\r\n                trigger = @{\r\n                    timeBeforeExpiry = 'P10D'\r\n                }\r\n            },\r\n            @{\r\n                action  = @{\r\n                    type = 'Rotate'\r\n                }\r\n                trigger = @{\r\n                    timeAfterCreate = $('P' + ($KeyExpirationInDays - 7) + 'D')\r\n                }\r\n            }\r\n        )\r\n    }\r\n}\r\n\r\n# Create key vault key\r\n$KeyUriWithVersion = (Invoke-RestMethod `\r\n        -Body ($Body | ConvertTo-Json -Depth 4) `\r\n        -Headers $KeyVaultHeaders `\r\n        -Method 'POST' `\r\n        -Uri $($KeyVaultUri + 'keys/' + $KeyName + '/create?api-version=2025-07-01')).key.kid\r\n\r\nif ($Type -eq 'VirtualMachine') {\r\n\r\n    # Get an access token for Azure resources\r\n    $ResourceManagerAccessToken = (Invoke-RestMethod `\r\n            -Headers @{Metadata = \"true\" } `\r\n            -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n    # Set header for Azure Management API\r\n    $ResourceManagerHeaders = @{\r\n        'Content-Type'  = 'application/json'\r\n        'Authorization' = 'Bearer ' + $ResourceManagerAccessToken\r\n    }\r\n\r\n    $DiskEncryptionSetBody = @{\r\n        location   = \"West US\"\r\n        identity   = @{\r\n            type = \"SystemAssigned\"\r\n        }\r\n        properties = @{\r\n            activeKey                         = @{\r\n                sourceVault = @{\r\n                    id = $KeyVaultResourceId\r\n                }\r\n                keyUrl = $KeyUriWithVersion\r\n            }\r\n            encryptionType                    = 'EncryptionAtRestWithPlatformAndCustomerKeys'\r\n            rotationToLatestKeyVersionEnabled = $true\r\n        }\r\n    }\r\n\r\n    Invoke-RestMethod `\r\n        -Body ($DiskEncryptionSetBody | ConvertTo-Json -Depth 4) `\r\n        -Headers $ResourceManagerHeaders `\r\n        -Method 'PUT' `\r\n        -Uri $($ResourceManagerUriFixed + '/subscriptions/' + $SubscriptionId + '/resourceGroups/' + $ResourceGroupName + '/providers/Microsoft.Compute/diskEncryptionSets/' + $DiskEncryptionSetName + '?api-version=2025-01-02')\r\n}",
+                            "$fxv#0": "Param(\r\n    [string]$DiskEncryptionSetName,\r\n    [int]$KeyExpirationInDays,\r\n    [string]$KeyName,\r\n    [string]$KeyVaultResourceId,\r\n    [string]$KeyVaultServiceUri,\r\n    [string]$KeyVaultUri,\r\n    [string]$Location,\r\n    [string]$ResourceGroupName,\r\n    [string]$ResourceManagerUri,\r\n    [string]$SubscriptionId,\r\n    [string]$Type,\r\n    [string]$UserAssignedIdentityClientId\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n$WarningPreference = 'SilentlyContinue'\r\n\r\n# Fix the resource manager URI since only AzureCloud contains a trailing slash\r\n$ResourceManagerUriFixed = if ($ResourceManagerUri[-1] -eq '/') { $ResourceManagerUri.Substring(0, $ResourceManagerUri.Length - 1) } else { $ResourceManagerUri }\r\n\r\n# Get an access token for Azure resources\r\n$KeyVaultAccessToken = (Invoke-RestMethod `\r\n        -Headers @{Metadata = \"true\" } `\r\n        -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $KeyVaultServiceUri + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n# Set header for Azure Management API\r\n$KeyVaultHeaders = @{\r\n    'Content-Type'  = 'application/json'\r\n    'Authorization' = 'Bearer ' + $KeyVaultAccessToken\r\n}\r\n\r\n$Body = [PSCustomObject]@{\r\n    kty            = 'RSA-HSM'\r\n    key_size       = 4096\r\n    attributes     = @{\r\n        enabled = $true\r\n    }\r\n    rotationPolicy = @{\r\n        attributes      = @{\r\n            expiryTime = $('P' + $KeyExpirationInDays + 'D')\r\n        }\r\n        lifetimeActions = @(\r\n            @{\r\n                action  = @{\r\n                    type = 'Notify'\r\n                }\r\n                trigger = @{\r\n                    timeBeforeExpiry = 'P10D'\r\n                }\r\n            },\r\n            @{\r\n                action  = @{\r\n                    type = 'Rotate'\r\n                }\r\n                trigger = @{\r\n                    timeAfterCreate = $('P' + ($KeyExpirationInDays - 7) + 'D')\r\n                }\r\n            }\r\n        )\r\n    }\r\n}\r\n\r\n# Create key vault key\r\n$KeyUriWithVersion = (Invoke-RestMethod `\r\n        -Body ($Body | ConvertTo-Json -Depth 4) `\r\n        -Headers $KeyVaultHeaders `\r\n        -Method 'POST' `\r\n        -Uri $($KeyVaultUri + 'keys/' + $KeyName + '/create?api-version=2025-07-01')).key.kid\r\n\r\nif ($Type -eq 'virtualMachine') {\r\n\r\n    # Get an access token for Azure resources\r\n    $ResourceManagerAccessToken = (Invoke-RestMethod `\r\n            -Headers @{Metadata = \"true\" } `\r\n            -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n    # Set header for Azure Management API\r\n    $ResourceManagerHeaders = @{\r\n        'Content-Type'  = 'application/json'\r\n        'Authorization' = 'Bearer ' + $ResourceManagerAccessToken\r\n    }\r\n\r\n    $DiskEncryptionSetBody = @{\r\n        location   = $Location\r\n        identity   = @{\r\n            type = 'SystemAssigned'\r\n        }\r\n        properties = @{\r\n            activeKey                         = @{\r\n                sourceVault = @{\r\n                    id = $KeyVaultResourceId\r\n                }\r\n                keyUrl = $KeyUriWithVersion\r\n            }\r\n            encryptionType                    = 'EncryptionAtRestWithPlatformAndCustomerKeys'\r\n            rotationToLatestKeyVersionEnabled = $true\r\n        }\r\n    }\r\n\r\n    Invoke-RestMethod `\r\n        -Body ($DiskEncryptionSetBody | ConvertTo-Json -Depth 4) `\r\n        -Headers $ResourceManagerHeaders `\r\n        -Method 'PUT' `\r\n        -Uri $($ResourceManagerUriFixed + '/subscriptions/' + $SubscriptionId + '/resourceGroups/' + $ResourceGroupName + '/providers/Microsoft.Compute/diskEncryptionSets/' + $DiskEncryptionSetName + '?api-version=2025-01-02')\r\n}",
                             "$fxv#1": "param(\r\n    [string]$ResourceGroupName,\r\n    [string]$ResourceManagerUri,\r\n    [string]$UserAssignedIdentityClientId,\r\n    [string]$VirtualMachineResourceId\r\n)\r\n\r\n# Fix the resource manager URI since only AzureCloud contains a trailing slash\r\n$ResourceManagerUriFixed = if($ResourceManagerUri[-1] -eq '/'){$ResourceManagerUri.Substring(0,$ResourceManagerUri.Length - 1)} else {$ResourceManagerUri}\r\n\r\n# Get an access token for Azure resources\r\n$AzureManagementAccessToken = (Invoke-RestMethod `\r\n    -Headers @{Metadata=\"true\"} `\r\n    -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n# Set header for Azure Management API\r\n$AzureManagementHeader = @{\r\n    'Content-Type'='application/json'\r\n    'Authorization'='Bearer ' + $AzureManagementAccessToken\r\n}\r\n\r\nStart-Sleep -Seconds 30\r\n\r\n# Use the access token to delete the virtual machine\r\nInvoke-RestMethod `\r\n    -Headers $AzureManagementHeader `\r\n    -Method 'Delete' `\r\n    -Uri $($ResourceManagerUriFixed + $VirtualMachineResourceId + '?forceDeletion=true&api-version=2024-07-01') | Out-Null",
                             "keyVaultPrivateEndpointName": "[replace(parameters('tier').namingConvention.keyVaultPrivateEndpoint, parameters('tokens').purpose, variables('workload'))]",
                             "resourceGroupName": "[resourceGroup().name]",
@@ -3602,19 +3602,18 @@
                                 "vault"
                               ]
                             },
-                            "roleAssignment_keyVaultCryptoServiceEncryptionUser": {
+                            "roleAssignment_keyVaultCryptoServiceEncryptionUser_UAMI": {
+                              "condition": "[equals(parameters('type'), 'storageAccount')]",
                               "type": "Microsoft.Authorization/roleAssignments",
                               "apiVersion": "2020-04-01-preview",
-                              "scope": "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload')))))]",
-                              "name": "[guid(variables('userAssignedIdentityName'), 'e147488a-f6f5-4113-8e2d-b22465e65bf6', resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload'))))))]",
+                              "name": "[guid(variables('userAssignedIdentityName'), 'e147488a-f6f5-4113-8e2d-b22465e65bf6', resourceGroup().id)]",
                               "properties": {
                                 "principalId": "[reference('userAssignedIdentity').principalId]",
                                 "principalType": "ServicePrincipal",
                                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'e147488a-f6f5-4113-8e2d-b22465e65bf6')]"
                               },
                               "dependsOn": [
-                                "userAssignedIdentity",
-                                "vault"
+                                "userAssignedIdentity"
                               ]
                             },
                             "privateEndpoint": {
@@ -3641,8 +3640,10 @@
                                 }
                               },
                               "dependsOn": [
+                                "roleAssignment_diskEncryptionSetOperator",
                                 "roleAssignment_keyVaultAdministrator",
-                                "roleAssignment_keyVaultCryptoServiceEncryptionUser",
+                                "roleAssignment_keyVaultContributor",
+                                "roleAssignment_virtualMachineContributor",
                                 "vault"
                               ]
                             },
@@ -3662,8 +3663,6 @@
                               },
                               "dependsOn": [
                                 "privateEndpoint",
-                                "roleAssignment_keyVaultAdministrator",
-                                "roleAssignment_keyVaultCryptoServiceEncryptionUser",
                                 "vault"
                               ]
                             },
@@ -3699,6 +3698,10 @@
                                   {
                                     "name": "KeyVaultUri",
                                     "value": "[reference('vault').vaultUri]"
+                                  },
+                                  {
+                                    "name": "Location",
+                                    "value": "[parameters('location')]"
                                   },
                                   {
                                     "name": "ResourceGroupName",
@@ -3744,6 +3747,22 @@
                                 "key"
                               ]
                             },
+                            "roleAssignment_keyVaultCryptoServiceEncryptionUser_DES": {
+                              "type": "Microsoft.Authorization/roleAssignments",
+                              "apiVersion": "2020-04-01-preview",
+                              "scope": "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload')))))]",
+                              "name": "[guid(replace(parameters('tier').namingConvention.diskEncryptionSet, parameters('tokens').purpose, variables('workload')), 'e147488a-f6f5-4113-8e2d-b22465e65bf6', resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload'))))))]",
+                              "properties": {
+                                "principalId": "[reference('diskEncryptionSet', '2023-04-02', 'full').identity.principalId]",
+                                "principalType": "ServicePrincipal",
+                                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'e147488a-f6f5-4113-8e2d-b22465e65bf6')]"
+                              },
+                              "dependsOn": [
+                                "diskEncryptionSet",
+                                "key",
+                                "vault"
+                              ]
+                            },
                             "deleteVirtualMachine": {
                               "type": "Microsoft.Compute/virtualMachines/runCommands",
                               "apiVersion": "2023-09-01",
@@ -3778,10 +3797,7 @@
                               "dependsOn": [
                                 "diskEncryptionSet",
                                 "key",
-                                "roleAssignment_diskEncryptionSetOperator",
-                                "roleAssignment_keyVaultAdministrator",
-                                "roleAssignment_keyVaultCryptoServiceEncryptionUser",
-                                "roleAssignment_virtualMachineContributor",
+                                "roleAssignment_keyVaultCryptoServiceEncryptionUser_DES",
                                 "userAssignedIdentity",
                                 "virtualMachine"
                               ]
@@ -5921,7 +5937,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "13562001302972978543"
+              "templateHash": "2766210331786034128"
             }
           },
           "parameters": {
@@ -6499,7 +6515,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "13351752273097409491"
+                      "templateHash": "2386261907497452145"
                     }
                   },
                   "parameters": {
@@ -6558,7 +6574,7 @@
                     }
                   },
                   "variables": {
-                    "$fxv#0": "Param(\r\n    [string]$DiskEncryptionSetName,\r\n    [int]$KeyExpirationInDays,\r\n    [string]$KeyName,\r\n    [string]$KeyVaultResourceId,\r\n    [string]$KeyVaultServiceUri,\r\n    [string]$KeyVaultUri,\r\n    [string]$ResourceGroupName,\r\n    [string]$ResourceManagerUri,\r\n    [string]$SubscriptionId,\r\n    [string]$Type,\r\n    [string]$UserAssignedIdentityClientId\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n$WarningPreference = 'SilentlyContinue'\r\n\r\n# Fix the resource manager URI since only AzureCloud contains a trailing slash\r\n$ResourceManagerUriFixed = if ($ResourceManagerUri[-1] -eq '/') { $ResourceManagerUri.Substring(0, $ResourceManagerUri.Length - 1) } else { $ResourceManagerUri }\r\n\r\n# Get an access token for Azure resources\r\n$KeyVaultAccessToken = (Invoke-RestMethod `\r\n        -Headers @{Metadata = \"true\" } `\r\n        -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $KeyVaultServiceUri + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n# Set header for Azure Management API\r\n$KeyVaultHeaders = @{\r\n    'Content-Type'  = 'application/json'\r\n    'Authorization' = 'Bearer ' + $KeyVaultAccessToken\r\n}\r\n\r\n$Body = [PSCustomObject]@{\r\n    kty            = 'RSA-HSM'\r\n    key_size       = 4096\r\n    attributes     = @{\r\n        enabled = $true\r\n    }\r\n    rotationPolicy = @{\r\n        attributes      = @{\r\n            expiryTime = $('P' + $KeyExpirationInDays + 'D')\r\n        }\r\n        lifetimeActions = @(\r\n            @{\r\n                action  = @{\r\n                    type = 'Notify'\r\n                }\r\n                trigger = @{\r\n                    timeBeforeExpiry = 'P10D'\r\n                }\r\n            },\r\n            @{\r\n                action  = @{\r\n                    type = 'Rotate'\r\n                }\r\n                trigger = @{\r\n                    timeAfterCreate = $('P' + ($KeyExpirationInDays - 7) + 'D')\r\n                }\r\n            }\r\n        )\r\n    }\r\n}\r\n\r\n# Create key vault key\r\n$KeyUriWithVersion = (Invoke-RestMethod `\r\n        -Body ($Body | ConvertTo-Json -Depth 4) `\r\n        -Headers $KeyVaultHeaders `\r\n        -Method 'POST' `\r\n        -Uri $($KeyVaultUri + 'keys/' + $KeyName + '/create?api-version=2025-07-01')).key.kid\r\n\r\nif ($Type -eq 'VirtualMachine') {\r\n\r\n    # Get an access token for Azure resources\r\n    $ResourceManagerAccessToken = (Invoke-RestMethod `\r\n            -Headers @{Metadata = \"true\" } `\r\n            -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n    # Set header for Azure Management API\r\n    $ResourceManagerHeaders = @{\r\n        'Content-Type'  = 'application/json'\r\n        'Authorization' = 'Bearer ' + $ResourceManagerAccessToken\r\n    }\r\n\r\n    $DiskEncryptionSetBody = @{\r\n        location   = \"West US\"\r\n        identity   = @{\r\n            type = \"SystemAssigned\"\r\n        }\r\n        properties = @{\r\n            activeKey                         = @{\r\n                sourceVault = @{\r\n                    id = $KeyVaultResourceId\r\n                }\r\n                keyUrl = $KeyUriWithVersion\r\n            }\r\n            encryptionType                    = 'EncryptionAtRestWithPlatformAndCustomerKeys'\r\n            rotationToLatestKeyVersionEnabled = $true\r\n        }\r\n    }\r\n\r\n    Invoke-RestMethod `\r\n        -Body ($DiskEncryptionSetBody | ConvertTo-Json -Depth 4) `\r\n        -Headers $ResourceManagerHeaders `\r\n        -Method 'PUT' `\r\n        -Uri $($ResourceManagerUriFixed + '/subscriptions/' + $SubscriptionId + '/resourceGroups/' + $ResourceGroupName + '/providers/Microsoft.Compute/diskEncryptionSets/' + $DiskEncryptionSetName + '?api-version=2025-01-02')\r\n}",
+                    "$fxv#0": "Param(\r\n    [string]$DiskEncryptionSetName,\r\n    [int]$KeyExpirationInDays,\r\n    [string]$KeyName,\r\n    [string]$KeyVaultResourceId,\r\n    [string]$KeyVaultServiceUri,\r\n    [string]$KeyVaultUri,\r\n    [string]$Location,\r\n    [string]$ResourceGroupName,\r\n    [string]$ResourceManagerUri,\r\n    [string]$SubscriptionId,\r\n    [string]$Type,\r\n    [string]$UserAssignedIdentityClientId\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n$WarningPreference = 'SilentlyContinue'\r\n\r\n# Fix the resource manager URI since only AzureCloud contains a trailing slash\r\n$ResourceManagerUriFixed = if ($ResourceManagerUri[-1] -eq '/') { $ResourceManagerUri.Substring(0, $ResourceManagerUri.Length - 1) } else { $ResourceManagerUri }\r\n\r\n# Get an access token for Azure resources\r\n$KeyVaultAccessToken = (Invoke-RestMethod `\r\n        -Headers @{Metadata = \"true\" } `\r\n        -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $KeyVaultServiceUri + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n# Set header for Azure Management API\r\n$KeyVaultHeaders = @{\r\n    'Content-Type'  = 'application/json'\r\n    'Authorization' = 'Bearer ' + $KeyVaultAccessToken\r\n}\r\n\r\n$Body = [PSCustomObject]@{\r\n    kty            = 'RSA-HSM'\r\n    key_size       = 4096\r\n    attributes     = @{\r\n        enabled = $true\r\n    }\r\n    rotationPolicy = @{\r\n        attributes      = @{\r\n            expiryTime = $('P' + $KeyExpirationInDays + 'D')\r\n        }\r\n        lifetimeActions = @(\r\n            @{\r\n                action  = @{\r\n                    type = 'Notify'\r\n                }\r\n                trigger = @{\r\n                    timeBeforeExpiry = 'P10D'\r\n                }\r\n            },\r\n            @{\r\n                action  = @{\r\n                    type = 'Rotate'\r\n                }\r\n                trigger = @{\r\n                    timeAfterCreate = $('P' + ($KeyExpirationInDays - 7) + 'D')\r\n                }\r\n            }\r\n        )\r\n    }\r\n}\r\n\r\n# Create key vault key\r\n$KeyUriWithVersion = (Invoke-RestMethod `\r\n        -Body ($Body | ConvertTo-Json -Depth 4) `\r\n        -Headers $KeyVaultHeaders `\r\n        -Method 'POST' `\r\n        -Uri $($KeyVaultUri + 'keys/' + $KeyName + '/create?api-version=2025-07-01')).key.kid\r\n\r\nif ($Type -eq 'virtualMachine') {\r\n\r\n    # Get an access token for Azure resources\r\n    $ResourceManagerAccessToken = (Invoke-RestMethod `\r\n            -Headers @{Metadata = \"true\" } `\r\n            -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n    # Set header for Azure Management API\r\n    $ResourceManagerHeaders = @{\r\n        'Content-Type'  = 'application/json'\r\n        'Authorization' = 'Bearer ' + $ResourceManagerAccessToken\r\n    }\r\n\r\n    $DiskEncryptionSetBody = @{\r\n        location   = $Location\r\n        identity   = @{\r\n            type = 'SystemAssigned'\r\n        }\r\n        properties = @{\r\n            activeKey                         = @{\r\n                sourceVault = @{\r\n                    id = $KeyVaultResourceId\r\n                }\r\n                keyUrl = $KeyUriWithVersion\r\n            }\r\n            encryptionType                    = 'EncryptionAtRestWithPlatformAndCustomerKeys'\r\n            rotationToLatestKeyVersionEnabled = $true\r\n        }\r\n    }\r\n\r\n    Invoke-RestMethod `\r\n        -Body ($DiskEncryptionSetBody | ConvertTo-Json -Depth 4) `\r\n        -Headers $ResourceManagerHeaders `\r\n        -Method 'PUT' `\r\n        -Uri $($ResourceManagerUriFixed + '/subscriptions/' + $SubscriptionId + '/resourceGroups/' + $ResourceGroupName + '/providers/Microsoft.Compute/diskEncryptionSets/' + $DiskEncryptionSetName + '?api-version=2025-01-02')\r\n}",
                     "$fxv#1": "param(\r\n    [string]$ResourceGroupName,\r\n    [string]$ResourceManagerUri,\r\n    [string]$UserAssignedIdentityClientId,\r\n    [string]$VirtualMachineResourceId\r\n)\r\n\r\n# Fix the resource manager URI since only AzureCloud contains a trailing slash\r\n$ResourceManagerUriFixed = if($ResourceManagerUri[-1] -eq '/'){$ResourceManagerUri.Substring(0,$ResourceManagerUri.Length - 1)} else {$ResourceManagerUri}\r\n\r\n# Get an access token for Azure resources\r\n$AzureManagementAccessToken = (Invoke-RestMethod `\r\n    -Headers @{Metadata=\"true\"} `\r\n    -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n# Set header for Azure Management API\r\n$AzureManagementHeader = @{\r\n    'Content-Type'='application/json'\r\n    'Authorization'='Bearer ' + $AzureManagementAccessToken\r\n}\r\n\r\nStart-Sleep -Seconds 30\r\n\r\n# Use the access token to delete the virtual machine\r\nInvoke-RestMethod `\r\n    -Headers $AzureManagementHeader `\r\n    -Method 'Delete' `\r\n    -Uri $($ResourceManagerUriFixed + $VirtualMachineResourceId + '?forceDeletion=true&api-version=2024-07-01') | Out-Null",
                     "keyVaultPrivateEndpointName": "[replace(parameters('tier').namingConvention.keyVaultPrivateEndpoint, parameters('tokens').purpose, variables('workload'))]",
                     "resourceGroupName": "[resourceGroup().name]",
@@ -6760,19 +6776,18 @@
                         "vault"
                       ]
                     },
-                    "roleAssignment_keyVaultCryptoServiceEncryptionUser": {
+                    "roleAssignment_keyVaultCryptoServiceEncryptionUser_UAMI": {
+                      "condition": "[equals(parameters('type'), 'storageAccount')]",
                       "type": "Microsoft.Authorization/roleAssignments",
                       "apiVersion": "2020-04-01-preview",
-                      "scope": "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload')))))]",
-                      "name": "[guid(variables('userAssignedIdentityName'), 'e147488a-f6f5-4113-8e2d-b22465e65bf6', resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload'))))))]",
+                      "name": "[guid(variables('userAssignedIdentityName'), 'e147488a-f6f5-4113-8e2d-b22465e65bf6', resourceGroup().id)]",
                       "properties": {
                         "principalId": "[reference('userAssignedIdentity').principalId]",
                         "principalType": "ServicePrincipal",
                         "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'e147488a-f6f5-4113-8e2d-b22465e65bf6')]"
                       },
                       "dependsOn": [
-                        "userAssignedIdentity",
-                        "vault"
+                        "userAssignedIdentity"
                       ]
                     },
                     "privateEndpoint": {
@@ -6799,8 +6814,10 @@
                         }
                       },
                       "dependsOn": [
+                        "roleAssignment_diskEncryptionSetOperator",
                         "roleAssignment_keyVaultAdministrator",
-                        "roleAssignment_keyVaultCryptoServiceEncryptionUser",
+                        "roleAssignment_keyVaultContributor",
+                        "roleAssignment_virtualMachineContributor",
                         "vault"
                       ]
                     },
@@ -6820,8 +6837,6 @@
                       },
                       "dependsOn": [
                         "privateEndpoint",
-                        "roleAssignment_keyVaultAdministrator",
-                        "roleAssignment_keyVaultCryptoServiceEncryptionUser",
                         "vault"
                       ]
                     },
@@ -6857,6 +6872,10 @@
                           {
                             "name": "KeyVaultUri",
                             "value": "[reference('vault').vaultUri]"
+                          },
+                          {
+                            "name": "Location",
+                            "value": "[parameters('location')]"
                           },
                           {
                             "name": "ResourceGroupName",
@@ -6902,6 +6921,22 @@
                         "key"
                       ]
                     },
+                    "roleAssignment_keyVaultCryptoServiceEncryptionUser_DES": {
+                      "type": "Microsoft.Authorization/roleAssignments",
+                      "apiVersion": "2020-04-01-preview",
+                      "scope": "[resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload')))))]",
+                      "name": "[guid(replace(parameters('tier').namingConvention.diskEncryptionSet, parameters('tokens').purpose, variables('workload')), 'e147488a-f6f5-4113-8e2d-b22465e65bf6', resourceId('Microsoft.KeyVault/vaults', format('{0}{1}', parameters('resourceAbbreviations').keyVaults, uniqueString(parameters('tier').subscriptionId, variables('resourceGroupName'), replace(parameters('tier').namingConvention.keyVault, parameters('tokens').purpose, variables('workload'))))))]",
+                      "properties": {
+                        "principalId": "[reference('diskEncryptionSet', '2023-04-02', 'full').identity.principalId]",
+                        "principalType": "ServicePrincipal",
+                        "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'e147488a-f6f5-4113-8e2d-b22465e65bf6')]"
+                      },
+                      "dependsOn": [
+                        "diskEncryptionSet",
+                        "key",
+                        "vault"
+                      ]
+                    },
                     "deleteVirtualMachine": {
                       "type": "Microsoft.Compute/virtualMachines/runCommands",
                       "apiVersion": "2023-09-01",
@@ -6936,10 +6971,7 @@
                       "dependsOn": [
                         "diskEncryptionSet",
                         "key",
-                        "roleAssignment_diskEncryptionSetOperator",
-                        "roleAssignment_keyVaultAdministrator",
-                        "roleAssignment_keyVaultCryptoServiceEncryptionUser",
-                        "roleAssignment_virtualMachineContributor",
+                        "roleAssignment_keyVaultCryptoServiceEncryptionUser_DES",
                         "userAssignedIdentity",
                         "virtualMachine"
                       ]
