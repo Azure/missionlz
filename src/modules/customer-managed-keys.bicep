@@ -198,8 +198,7 @@ resource roleAssignment_keyVaultContributor 'Microsoft.Authorization/roleAssignm
   }
 }
 
-// This role assignment is used to setup CMKs on storage accounts
-resource roleAssignment_keyVaultCryptoServiceEncryptionUser_UAMI 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = if (type == 'storageAccount') {
+resource roleAssignment_keyVaultCryptoServiceEncryptionUser_UAMI 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
   name: guid(userAssignedIdentityName, 'e147488a-f6f5-4113-8e2d-b22465e65bf6', resourceGroup().id)
   properties: {
     principalId: userAssignedIdentity.properties.principalId

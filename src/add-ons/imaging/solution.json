@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.40.2.10011",
-      "templateHash": "5204491950579152262"
+      "templateHash": "2659794189352329893"
     }
   },
   "parameters": {
@@ -690,7 +690,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "584639874537005483"
+              "templateHash": "806157828006999876"
             }
           },
           "parameters": {
@@ -3046,7 +3046,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "14994597528457109334"
+                      "templateHash": "9988262126308952766"
                     }
                   },
                   "parameters": {
@@ -3166,7 +3166,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "2386261907497452145"
+                              "templateHash": "13630254757729222253"
                             }
                           },
                           "parameters": {
@@ -3428,7 +3428,6 @@
                               ]
                             },
                             "roleAssignment_keyVaultCryptoServiceEncryptionUser_UAMI": {
-                              "condition": "[equals(parameters('type'), 'storageAccount')]",
                               "type": "Microsoft.Authorization/roleAssignments",
                               "apiVersion": "2020-04-01-preview",
                               "name": "[guid(variables('userAssignedIdentityName'), 'e147488a-f6f5-4113-8e2d-b22465e65bf6', resourceGroup().id)]",
@@ -5735,7 +5734,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "11177711291792464211"
+              "templateHash": "12502656247593487444"
             }
           },
           "parameters": {
@@ -6107,7 +6106,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "2386261907497452145"
+                      "templateHash": "13630254757729222253"
                     }
                   },
                   "parameters": {
@@ -6369,7 +6368,6 @@
                       ]
                     },
                     "roleAssignment_keyVaultCryptoServiceEncryptionUser_UAMI": {
-                      "condition": "[equals(parameters('type'), 'storageAccount')]",
                       "type": "Microsoft.Authorization/roleAssignments",
                       "apiVersion": "2020-04-01-preview",
                       "name": "[guid(variables('userAssignedIdentityName'), 'e147488a-f6f5-4113-8e2d-b22465e65bf6', resourceGroup().id)]",
