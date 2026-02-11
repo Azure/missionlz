@@ -64,4 +64,4 @@ foreach($Setting in $Settings)
 }
 
 # Mount file share for geospatial data
-New-PSDrive -Name 'Z' -PSProvider 'FileSystem' -Root $FileShare -Persist -Scope 'Global'
+New-PSDrive -Name 'Z' -PSProvider 'FileSystem' -Root $('\\' + $FileShare) -Persist -Scope 'Global'

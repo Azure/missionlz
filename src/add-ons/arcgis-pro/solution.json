@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.40.2.10011",
-      "templateHash": "17185101629098802412"
+      "templateHash": "5901728880172752697"
     }
   },
   "parameters": {
@@ -18577,7 +18577,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "13800513105505728471"
+              "templateHash": "16921982877089723144"
             }
           },
           "parameters": {
@@ -26811,7 +26811,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "4418017163875245767"
+                      "templateHash": "8451725909542534851"
                     }
                   },
                   "parameters": {
@@ -27136,7 +27136,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "8237491964587948401"
+                              "templateHash": "2746318277783070647"
                             }
                           },
                           "parameters": {
@@ -27220,7 +27220,7 @@
                             }
                           },
                           "variables": {
-                            "$fxv#0": "param (\r\n    [string]$FileShare\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n$Settings = @(\r\n\r\n    # Disable Automatic Updates: https://learn.microsoft.com/azure/virtual-desktop/set-up-customize-master-image#disable-automatic-updates\r\n    [PSCustomObject]@{\r\n        Name = 'NoAutoUpdate'\r\n        Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU'\r\n        PropertyType = 'DWord'\r\n        Value = 1\r\n    },\r\n\r\n    # Enable Time Zone Redirection: https://learn.microsoft.com/azure/virtual-desktop/set-up-customize-master-image#set-up-time-zone-redirection\r\n    [PSCustomObject]@{\r\n        Name = 'fEnableTimeZoneRedirection'\r\n        Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n        PropertyType = 'DWord'\r\n        Value = 1\r\n    },\r\n\r\n    # Configure GPU-accelerated app rendering: https://learn.microsoft.com/azure/virtual-desktop/configure-vm-gpu#configure-gpu-accelerated-app-rendering\r\n    [PSCustomObject]@{\r\n        Name = 'bEnumerateHWBeforeSW'\r\n        Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n        PropertyType = 'DWord'\r\n        Value = 1\r\n    },\r\n\r\n    # Configure fullscreen video encoding: https://learn.microsoft.com/azure/virtual-desktop/configure-vm-gpu#configure-fullscreen-video-encoding\r\n    [PSCustomObject]@{\r\n        Name = 'AVC444ModePreferred'\r\n        Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n        PropertyType = 'DWord'\r\n        Value = 1\r\n    }\r\n)\r\n\r\n# Set registry settings\r\nforeach($Setting in $Settings)\r\n{\r\n    # Create registry key(s) if necessary\r\n    if(!(Test-Path -Path $Setting.Path))\r\n    {\r\n        New-Item -Path $Setting.Path -Force | Out-Null\r\n    }\r\n\r\n    # Checks for existing registry setting\r\n    $Value = Get-ItemProperty -Path $Setting.Path -Name $Setting.Name -ErrorAction 'SilentlyContinue'\r\n    \r\n    # Creates the registry setting when it does not exist\r\n    if(!$Value)\r\n    {\r\n        New-ItemProperty -Path $Setting.Path -Name $Setting.Name -PropertyType $Setting.PropertyType -Value $Setting.Value -Force | Out-Null\r\n    }\r\n    # Updates the registry setting when it already exists\r\n    elseif($Value.$($Setting.Name) -ne $Setting.Value)\r\n    {\r\n        Set-ItemProperty -Path $Setting.Path -Name $Setting.Name -Value $Setting.Value -Force | Out-Null\r\n    }\r\n    Start-Sleep -Seconds 1 | Out-Null\r\n}\r\n\r\n# Mount file share for geospatial data\r\nNew-PSDrive -Name 'Z' -PSProvider 'FileSystem' -Root $FileShare -Persist -Scope 'Global'\r\n",
+                            "$fxv#0": "param (\r\n    [string]$FileShare\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n$Settings = @(\r\n\r\n    # Disable Automatic Updates: https://learn.microsoft.com/azure/virtual-desktop/set-up-customize-master-image#disable-automatic-updates\r\n    [PSCustomObject]@{\r\n        Name = 'NoAutoUpdate'\r\n        Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU'\r\n        PropertyType = 'DWord'\r\n        Value = 1\r\n    },\r\n\r\n    # Enable Time Zone Redirection: https://learn.microsoft.com/azure/virtual-desktop/set-up-customize-master-image#set-up-time-zone-redirection\r\n    [PSCustomObject]@{\r\n        Name = 'fEnableTimeZoneRedirection'\r\n        Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n        PropertyType = 'DWord'\r\n        Value = 1\r\n    },\r\n\r\n    # Configure GPU-accelerated app rendering: https://learn.microsoft.com/azure/virtual-desktop/configure-vm-gpu#configure-gpu-accelerated-app-rendering\r\n    [PSCustomObject]@{\r\n        Name = 'bEnumerateHWBeforeSW'\r\n        Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n        PropertyType = 'DWord'\r\n        Value = 1\r\n    },\r\n\r\n    # Configure fullscreen video encoding: https://learn.microsoft.com/azure/virtual-desktop/configure-vm-gpu#configure-fullscreen-video-encoding\r\n    [PSCustomObject]@{\r\n        Name = 'AVC444ModePreferred'\r\n        Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n        PropertyType = 'DWord'\r\n        Value = 1\r\n    }\r\n)\r\n\r\n# Set registry settings\r\nforeach($Setting in $Settings)\r\n{\r\n    # Create registry key(s) if necessary\r\n    if(!(Test-Path -Path $Setting.Path))\r\n    {\r\n        New-Item -Path $Setting.Path -Force | Out-Null\r\n    }\r\n\r\n    # Checks for existing registry setting\r\n    $Value = Get-ItemProperty -Path $Setting.Path -Name $Setting.Name -ErrorAction 'SilentlyContinue'\r\n    \r\n    # Creates the registry setting when it does not exist\r\n    if(!$Value)\r\n    {\r\n        New-ItemProperty -Path $Setting.Path -Name $Setting.Name -PropertyType $Setting.PropertyType -Value $Setting.Value -Force | Out-Null\r\n    }\r\n    # Updates the registry setting when it already exists\r\n    elseif($Value.$($Setting.Name) -ne $Setting.Value)\r\n    {\r\n        Set-ItemProperty -Path $Setting.Path -Name $Setting.Name -Value $Setting.Value -Force | Out-Null\r\n    }\r\n    Start-Sleep -Seconds 1 | Out-Null\r\n}\r\n\r\n# Mount file share for geospatial data\r\nNew-PSDrive -Name 'Z' -PSProvider 'FileSystem' -Root $('\\\\' + $FileShare) -Persist -Scope 'Global'\r\n",
                             "imageReference": {
                               "publisher": "[parameters('imagePublisher')]",
                               "offer": "[parameters('imageOffer')]",
