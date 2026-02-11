@@ -132,7 +132,16 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-11-01' = {
   }
 }
 
-resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+resource roleAssignment_diskEncryptionSetOperator 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(userAssignedIdentity.id, '136d308c-0937-4a49-9bd7-edfb42adbffc', resourceGroup().id)
+  properties: {
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', '136d308c-0937-4a49-9bd7-edfb42adbffc') // Disk Encryption Set Operator for Managed Disks (Purpose: read and create disk encryption sets)
+    principalId: userAssignedIdentity.properties.principalId
+    principalType: 'ServicePrincipal'
+  }
+}
+
+resource roleAssignment_virtualMachineContributor 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid(userAssignedIdentity.id, '9980e02c-c2be-4d73-94e8-173b1dc7cf3c', virtualMachine.id)
   scope: virtualMachine
   properties: {
@@ -235,7 +244,7 @@ resource privateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneG
   ]
 }
 
-resource key 'Microsoft.Compute/virtualMachines/runCommands@2023-09-01' = {
+resource key 'Microsoft.Compute/virtualMachines/runCommands@2025-04-01' = {
   parent: virtualMachine
   name: keyName
   location: location
@@ -243,6 +252,10 @@ resource key 'Microsoft.Compute/virtualMachines/runCommands@2023-09-01' = {
   properties: {
     asyncExecution: false
     parameters: [
+      {
+        name: 'DiskEncryptionSetName'
+        value: replace(tier.namingConvention.diskEncryptionSet, tokens.purpose, workload)
+      }
       {
         name: 'KeyExpirationInDays'
         value: string(keyExpirationInDays)
@@ -252,12 +265,32 @@ resource key 'Microsoft.Compute/virtualMachines/runCommands@2023-09-01' = {
         value: keyName
       }
       {
+        name: 'KeyVaultResourceId'
+        value: vault.id
+      }
+      {
         name: 'KeyVaultServiceUri'
         value: 'https://${skip(environment().suffixes.keyvaultDns, 1)}'
       }
       {
         name: 'KeyVaultUri'
         value: vault.properties.vaultUri
+      }
+      {
+        name: 'ResourceGroupName'
+        value: resourceGroupName
+      }
+      {
+        name: 'ResourceManagerUri'
+        value: environment().resourceManager
+      }
+      {
+        name: 'SubscriptionId'
+        value: tier.subscriptionId
+      }
+      {
+        name: 'Type'
+        value: type
       }
       {
         name: 'UserAssignedIdentityClientId'
@@ -275,33 +308,11 @@ resource key 'Microsoft.Compute/virtualMachines/runCommands@2023-09-01' = {
   ]
 }
 
-resource diskEncryptionSet 'Microsoft.Compute/diskEncryptionSets@2023-04-02' = if (type == 'virtualMachine') {
+resource diskEncryptionSet 'Microsoft.Compute/diskEncryptionSets@2023-04-02' existing = if (type == 'virtualMachine') {
   name: replace(tier.namingConvention.diskEncryptionSet, tokens.purpose, workload)
-  location: location
-  tags: tags
-  identity: {
-    type: 'SystemAssigned'
-  }
-  properties: {
-    activeKey: {
-      sourceVault: {
-        id: vault.id
-      }
-      keyUrl: key.properties.instanceView.output
-    }
-    encryptionType: 'EncryptionAtRestWithPlatformAndCustomerKeys'
-    rotationToLatestKeyVersionEnabled: true
-  }
-}
-
-module roleAssignment_diskEncryptionSet 'role-assignment.bicep' = if (type == 'virtualMachine') {
-  name: 'assign-role-des-${deploymentNameSuffix}'
-  params: {
-    principalId: diskEncryptionSet!.identity.principalId
-    principalType: 'ServicePrincipal'
-    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', 'e147488a-f6f5-4113-8e2d-b22465e65bf6') // Key Vault Crypto Service Encryption User
-    targetResourceId: resourceGroup().id
-  }
+  dependsOn: [
+    key
+  ]
 }
 
 resource deleteVirtualMachine 'Microsoft.Compute/virtualMachines/runCommands@2023-09-01' = {
@@ -337,7 +348,10 @@ resource deleteVirtualMachine 'Microsoft.Compute/virtualMachines/runCommands@202
   dependsOn: [
     diskEncryptionSet
     key
-    roleAssignment
+    roleAssignment_diskEncryptionSetOperator
+    roleAssignment_virtualMachineContributor
+    roleAssignment_keyVaultAdministrator
+    roleAssignment_keyVaultCryptoServiceEncryptionUser
   ]
 }
 
@@ -351,7 +365,6 @@ output keyVaultProperties object = {
   tierName: tier.name // This value is used to associate the key vault diagnostic setting with the appropriate storage account
 }
 output keyName string = keyName
-output keyUriWithVersion string = key.properties.instanceView.output
 output keyVaultName string = vault.name
 output keyVaultUri string = vault.properties.vaultUri
 output keyVaultResourceId string = vault.id
