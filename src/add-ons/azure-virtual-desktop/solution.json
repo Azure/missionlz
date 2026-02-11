@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.40.2.10011",
-      "templateHash": "5978810025975498665"
+      "templateHash": "2919283248358144201"
     }
   },
   "parameters": {
@@ -865,7 +865,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "14018527802010785052"
+              "templateHash": "8006097016261100596"
             }
           },
           "parameters": {
@@ -3221,7 +3221,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "16933586937740046658"
+                      "templateHash": "11110803436921512973"
                     }
                   },
                   "parameters": {
@@ -3340,7 +3340,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "7396634250222901425"
+                              "templateHash": "13079310479368811368"
                             }
                           },
                           "parameters": {
@@ -3707,6 +3707,45 @@
                               ]
                             },
                             {
+                              "type": "Microsoft.Compute/virtualMachines/runCommands",
+                              "apiVersion": "2023-09-01",
+                              "name": "[format('{0}/{1}', variables('virtualMachineName'), format('delete-vm-{0}', parameters('deploymentNameSuffix')))]",
+                              "location": "[parameters('location')]",
+                              "tags": "[parameters('tags')]",
+                              "properties": {
+                                "asyncExecution": true,
+                                "parameters": [
+                                  {
+                                    "name": "ResourceGroupName",
+                                    "value": "[variables('resourceGroupName')]"
+                                  },
+                                  {
+                                    "name": "ResourceManagerUri",
+                                    "value": "[environment().resourceManager]"
+                                  },
+                                  {
+                                    "name": "UserAssignedIdentityClientId",
+                                    "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName')), '2018-11-30').clientId]"
+                                  },
+                                  {
+                                    "name": "VirtualMachineResourceId",
+                                    "value": "[resourceId('Microsoft.Compute/virtualMachines', variables('virtualMachineName'))]"
+                                  }
+                                ],
+                                "source": {
+                                  "script": "[variables('$fxv#1')]"
+                                },
+                                "treatFailureAsDeploymentFailure": true
+                              },
+                              "dependsOn": [
+                                "[resourceId('Microsoft.Compute/diskEncryptionSets', replace(parameters('tier').namingConvention.diskEncryptionSet, parameters('tokens').purpose, variables('workload')))]",
+                                "[resourceId('Microsoft.Compute/virtualMachines/runCommands', variables('virtualMachineName'), parameters('keyName'))]",
+                                "[extensionResourceId(resourceId('Microsoft.Compute/virtualMachines', variables('virtualMachineName')), 'Microsoft.Authorization/roleAssignments', guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName')), '9980e02c-c2be-4d73-94e8-173b1dc7cf3c', resourceId('Microsoft.Compute/virtualMachines', variables('virtualMachineName'))))]",
+                                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName'))]",
+                                "[resourceId('Microsoft.Compute/virtualMachines', variables('virtualMachineName'))]"
+                              ]
+                            },
+                            {
                               "condition": "[equals(parameters('type'), 'virtualMachine')]",
                               "type": "Microsoft.Resources/deployments",
                               "apiVersion": "2025-04-01",
@@ -3782,131 +3821,6 @@
                               },
                               "dependsOn": [
                                 "[resourceId('Microsoft.Compute/diskEncryptionSets', replace(parameters('tier').namingConvention.diskEncryptionSet, parameters('tokens').purpose, variables('workload')))]"
-                              ]
-                            },
-                            {
-                              "type": "Microsoft.Resources/deployments",
-                              "apiVersion": "2025-04-01",
-                              "name": "[format('delete-vm-{0}', parameters('deploymentNameSuffix'))]",
-                              "properties": {
-                                "expressionEvaluationOptions": {
-                                  "scope": "inner"
-                                },
-                                "mode": "Incremental",
-                                "parameters": {
-                                  "asyncExecution": {
-                                    "value": true
-                                  },
-                                  "location": {
-                                    "value": "[parameters('location')]"
-                                  },
-                                  "name": {
-                                    "value": "Remove-VirtualMachine"
-                                  },
-                                  "parameters": {
-                                    "value": [
-                                      {
-                                        "name": "ResourceGroupName",
-                                        "value": "[variables('resourceGroupName')]"
-                                      },
-                                      {
-                                        "name": "ResourceManagerUri",
-                                        "value": "[environment().resourceManager]"
-                                      },
-                                      {
-                                        "name": "UserAssignedIdentityClientId",
-                                        "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName')), '2018-11-30').clientId]"
-                                      },
-                                      {
-                                        "name": "VirtualMachineResourceId",
-                                        "value": "[resourceId('Microsoft.Compute/virtualMachines', variables('virtualMachineName'))]"
-                                      }
-                                    ]
-                                  },
-                                  "protectedParameters": {
-                                    "value": "[[]"
-                                  },
-                                  "script": {
-                                    "value": "[variables('$fxv#1')]"
-                                  },
-                                  "tags": {
-                                    "value": "[parameters('tags')]"
-                                  },
-                                  "treatFailureAsDeploymentFailure": {
-                                    "value": true
-                                  },
-                                  "virtualMachineName": {
-                                    "value": "[variables('virtualMachineName')]"
-                                  }
-                                },
-                                "template": {
-                                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                                  "contentVersion": "1.0.0.0",
-                                  "metadata": {
-                                    "_generator": {
-                                      "name": "bicep",
-                                      "version": "0.40.2.10011",
-                                      "templateHash": "8333305544299446105"
-                                    }
-                                  },
-                                  "parameters": {
-                                    "asyncExecution": {
-                                      "type": "bool",
-                                      "defaultValue": false
-                                    },
-                                    "location": {
-                                      "type": "string"
-                                    },
-                                    "name": {
-                                      "type": "string"
-                                    },
-                                    "parameters": {
-                                      "type": "array",
-                                      "defaultValue": []
-                                    },
-                                    "protectedParameters": {
-                                      "type": "securestring"
-                                    },
-                                    "script": {
-                                      "type": "string"
-                                    },
-                                    "tags": {
-                                      "type": "object"
-                                    },
-                                    "treatFailureAsDeploymentFailure": {
-                                      "type": "bool",
-                                      "defaultValue": true
-                                    },
-                                    "virtualMachineName": {
-                                      "type": "string"
-                                    }
-                                  },
-                                  "resources": [
-                                    {
-                                      "type": "Microsoft.Compute/virtualMachines/runCommands",
-                                      "apiVersion": "2023-09-01",
-                                      "name": "[format('{0}/{1}', parameters('virtualMachineName'), parameters('name'))]",
-                                      "location": "[parameters('location')]",
-                                      "tags": "[parameters('tags')]",
-                                      "properties": {
-                                        "asyncExecution": "[parameters('asyncExecution')]",
-                                        "parameters": "[parameters('parameters')]",
-                                        "protectedParameters": "[json(parameters('protectedParameters'))]",
-                                        "source": {
-                                          "script": "[parameters('script')]"
-                                        },
-                                        "treatFailureAsDeploymentFailure": "[parameters('treatFailureAsDeploymentFailure')]"
-                                      }
-                                    }
-                                  ]
-                                }
-                              },
-                              "dependsOn": [
-                                "[resourceId('Microsoft.Compute/diskEncryptionSets', replace(parameters('tier').namingConvention.diskEncryptionSet, parameters('tokens').purpose, variables('workload')))]",
-                                "[resourceId('Microsoft.Compute/virtualMachines/runCommands', variables('virtualMachineName'), parameters('keyName'))]",
-                                "[extensionResourceId(resourceId('Microsoft.Compute/virtualMachines', variables('virtualMachineName')), 'Microsoft.Authorization/roleAssignments', guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName')), '9980e02c-c2be-4d73-94e8-173b1dc7cf3c', resourceId('Microsoft.Compute/virtualMachines', variables('virtualMachineName'))))]",
-                                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName'))]",
-                                "[resourceId('Microsoft.Compute/virtualMachines', variables('virtualMachineName'))]"
                               ]
                             }
                           ],
@@ -6048,7 +5962,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "10117233624548476656"
+              "templateHash": "11110967853459021870"
             }
           },
           "parameters": {
@@ -6625,7 +6539,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "7396634250222901425"
+                      "templateHash": "13079310479368811368"
                     }
                   },
                   "parameters": {
@@ -6992,6 +6906,45 @@
                       ]
                     },
                     {
+                      "type": "Microsoft.Compute/virtualMachines/runCommands",
+                      "apiVersion": "2023-09-01",
+                      "name": "[format('{0}/{1}', variables('virtualMachineName'), format('delete-vm-{0}', parameters('deploymentNameSuffix')))]",
+                      "location": "[parameters('location')]",
+                      "tags": "[parameters('tags')]",
+                      "properties": {
+                        "asyncExecution": true,
+                        "parameters": [
+                          {
+                            "name": "ResourceGroupName",
+                            "value": "[variables('resourceGroupName')]"
+                          },
+                          {
+                            "name": "ResourceManagerUri",
+                            "value": "[environment().resourceManager]"
+                          },
+                          {
+                            "name": "UserAssignedIdentityClientId",
+                            "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName')), '2018-11-30').clientId]"
+                          },
+                          {
+                            "name": "VirtualMachineResourceId",
+                            "value": "[resourceId('Microsoft.Compute/virtualMachines', variables('virtualMachineName'))]"
+                          }
+                        ],
+                        "source": {
+                          "script": "[variables('$fxv#1')]"
+                        },
+                        "treatFailureAsDeploymentFailure": true
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Compute/diskEncryptionSets', replace(parameters('tier').namingConvention.diskEncryptionSet, parameters('tokens').purpose, variables('workload')))]",
+                        "[resourceId('Microsoft.Compute/virtualMachines/runCommands', variables('virtualMachineName'), parameters('keyName'))]",
+                        "[extensionResourceId(resourceId('Microsoft.Compute/virtualMachines', variables('virtualMachineName')), 'Microsoft.Authorization/roleAssignments', guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName')), '9980e02c-c2be-4d73-94e8-173b1dc7cf3c', resourceId('Microsoft.Compute/virtualMachines', variables('virtualMachineName'))))]",
+                        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName'))]",
+                        "[resourceId('Microsoft.Compute/virtualMachines', variables('virtualMachineName'))]"
+                      ]
+                    },
+                    {
                       "condition": "[equals(parameters('type'), 'virtualMachine')]",
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2025-04-01",
@@ -7067,131 +7020,6 @@
                       },
                       "dependsOn": [
                         "[resourceId('Microsoft.Compute/diskEncryptionSets', replace(parameters('tier').namingConvention.diskEncryptionSet, parameters('tokens').purpose, variables('workload')))]"
-                      ]
-                    },
-                    {
-                      "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2025-04-01",
-                      "name": "[format('delete-vm-{0}', parameters('deploymentNameSuffix'))]",
-                      "properties": {
-                        "expressionEvaluationOptions": {
-                          "scope": "inner"
-                        },
-                        "mode": "Incremental",
-                        "parameters": {
-                          "asyncExecution": {
-                            "value": true
-                          },
-                          "location": {
-                            "value": "[parameters('location')]"
-                          },
-                          "name": {
-                            "value": "Remove-VirtualMachine"
-                          },
-                          "parameters": {
-                            "value": [
-                              {
-                                "name": "ResourceGroupName",
-                                "value": "[variables('resourceGroupName')]"
-                              },
-                              {
-                                "name": "ResourceManagerUri",
-                                "value": "[environment().resourceManager]"
-                              },
-                              {
-                                "name": "UserAssignedIdentityClientId",
-                                "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName')), '2018-11-30').clientId]"
-                              },
-                              {
-                                "name": "VirtualMachineResourceId",
-                                "value": "[resourceId('Microsoft.Compute/virtualMachines', variables('virtualMachineName'))]"
-                              }
-                            ]
-                          },
-                          "protectedParameters": {
-                            "value": "[[]"
-                          },
-                          "script": {
-                            "value": "[variables('$fxv#1')]"
-                          },
-                          "tags": {
-                            "value": "[parameters('tags')]"
-                          },
-                          "treatFailureAsDeploymentFailure": {
-                            "value": true
-                          },
-                          "virtualMachineName": {
-                            "value": "[variables('virtualMachineName')]"
-                          }
-                        },
-                        "template": {
-                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                          "contentVersion": "1.0.0.0",
-                          "metadata": {
-                            "_generator": {
-                              "name": "bicep",
-                              "version": "0.40.2.10011",
-                              "templateHash": "8333305544299446105"
-                            }
-                          },
-                          "parameters": {
-                            "asyncExecution": {
-                              "type": "bool",
-                              "defaultValue": false
-                            },
-                            "location": {
-                              "type": "string"
-                            },
-                            "name": {
-                              "type": "string"
-                            },
-                            "parameters": {
-                              "type": "array",
-                              "defaultValue": []
-                            },
-                            "protectedParameters": {
-                              "type": "securestring"
-                            },
-                            "script": {
-                              "type": "string"
-                            },
-                            "tags": {
-                              "type": "object"
-                            },
-                            "treatFailureAsDeploymentFailure": {
-                              "type": "bool",
-                              "defaultValue": true
-                            },
-                            "virtualMachineName": {
-                              "type": "string"
-                            }
-                          },
-                          "resources": [
-                            {
-                              "type": "Microsoft.Compute/virtualMachines/runCommands",
-                              "apiVersion": "2023-09-01",
-                              "name": "[format('{0}/{1}', parameters('virtualMachineName'), parameters('name'))]",
-                              "location": "[parameters('location')]",
-                              "tags": "[parameters('tags')]",
-                              "properties": {
-                                "asyncExecution": "[parameters('asyncExecution')]",
-                                "parameters": "[parameters('parameters')]",
-                                "protectedParameters": "[json(parameters('protectedParameters'))]",
-                                "source": {
-                                  "script": "[parameters('script')]"
-                                },
-                                "treatFailureAsDeploymentFailure": "[parameters('treatFailureAsDeploymentFailure')]"
-                              }
-                            }
-                          ]
-                        }
-                      },
-                      "dependsOn": [
-                        "[resourceId('Microsoft.Compute/diskEncryptionSets', replace(parameters('tier').namingConvention.diskEncryptionSet, parameters('tokens').purpose, variables('workload')))]",
-                        "[resourceId('Microsoft.Compute/virtualMachines/runCommands', variables('virtualMachineName'), parameters('keyName'))]",
-                        "[extensionResourceId(resourceId('Microsoft.Compute/virtualMachines', variables('virtualMachineName')), 'Microsoft.Authorization/roleAssignments', guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName')), '9980e02c-c2be-4d73-94e8-173b1dc7cf3c', resourceId('Microsoft.Compute/virtualMachines', variables('virtualMachineName'))))]",
-                        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName'))]",
-                        "[resourceId('Microsoft.Compute/virtualMachines', variables('virtualMachineName'))]"
                       ]
                     }
                   ],

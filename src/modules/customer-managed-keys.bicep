@@ -304,12 +304,13 @@ module roleAssignment_diskEncryptionSet 'role-assignment.bicep' = if (type == 'v
   }
 }
 
-module deleteVirtualMachine 'run-command.bicep' = {
+resource deleteVirtualMachine 'Microsoft.Compute/virtualMachines/runCommands@2023-09-01' = {
+  parent: virtualMachine
   name: 'delete-vm-${deploymentNameSuffix}'
-  params: {
+  location: location
+  tags: tags
+  properties: {
     asyncExecution: true
-    location: location
-    name: 'Remove-VirtualMachine'
     parameters: [
       {
         name: 'ResourceGroupName'
@@ -328,11 +329,10 @@ module deleteVirtualMachine 'run-command.bicep' = {
         value: virtualMachine.id
       }
     ]
-    protectedParameters: '[]'
-    script: loadTextContent('../artifacts/Remove-VirtualMachine.ps1')
-    tags: tags
+    source: {
+      script: loadTextContent('../artifacts/Remove-VirtualMachine.ps1')
+    }
     treatFailureAsDeploymentFailure: true
-    virtualMachineName: virtualMachine.name
   }
   dependsOn: [
     diskEncryptionSet
