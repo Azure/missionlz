@@ -52,10 +52,10 @@ $Body = [PSCustomObject]@{
 }
 
 # Create key vault key
-$KeyUriWithVersion = Invoke-RestMethod `
+$KeyUriWithVersion = (Invoke-RestMethod `
     -Body ($Body | ConvertTo-Json -Depth 4) `
     -Headers $Headers `
     -Method 'POST' `
-    -Uri $($KeyVaultUri + 'keys/' + $KeyName + '/create?api-version=2025-07-01').key.kid
+    -Uri $($KeyVaultUri + 'keys/' + $KeyName + '/create?api-version=2025-07-01')).key.kid
 
 Write-Output $KeyUriWithVersion

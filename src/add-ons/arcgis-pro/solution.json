@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.40.2.10011",
-      "templateHash": "2279086958881928142"
+      "templateHash": "11058268224218752642"
     }
   },
   "parameters": {
@@ -243,7 +243,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "7180790038583955506"
+              "templateHash": "11626681933135615780"
             }
           },
           "parameters": {
@@ -5494,7 +5494,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "4224674395226762476"
+                      "templateHash": "5942479728458971826"
                     }
                   },
                   "parameters": {
@@ -5638,7 +5638,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "13079310479368811368"
+                              "templateHash": "17048764628616127193"
                             }
                           },
                           "parameters": {
@@ -5697,7 +5697,7 @@
                             }
                           },
                           "variables": {
-                            "$fxv#0": "Param(\r\n    [int]$KeyExpirationInDays,\r\n    [string]$KeyName,\r\n    [string]$KeyVaultServiceUri,\r\n    [string]$KeyVaultUri,\r\n    [string]$UserAssignedIdentityClientId\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n$WarningPreference = 'SilentlyContinue'\r\n\r\n# Get an access token for Azure resources\r\n$AccessToken = (Invoke-RestMethod `\r\n        -Headers @{Metadata = \"true\" } `\r\n        -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $KeyVaultServiceUri + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n# Set header for Azure Management API\r\n$Headers = @{\r\n    'Content-Type'  = 'application/json'\r\n    'Authorization' = 'Bearer ' + $AccessToken\r\n}\r\n\r\n$Body = [PSCustomObject]@{\r\n    kty            = 'RSA-HSM'\r\n    key_size       = 4096\r\n    attributes     = @{\r\n        enabled = $true\r\n    }\r\n    rotationPolicy = @{\r\n        attributes      = @{\r\n            expiryTime = $('P' + $KeyExpirationInDays + 'D')\r\n        }\r\n        lifetimeActions = @(\r\n            @{\r\n                action = @{\r\n                    type = 'Notify'\r\n                }\r\n                trigger = @{\r\n                    timeBeforeExpiry = 'P10D'\r\n                }\r\n            },\r\n            @{\r\n                action = @{\r\n                    type = 'Rotate'\r\n                }\r\n                trigger = @{\r\n                    timeAfterCreate = $('P' + ($KeyExpirationInDays - 7) + 'D')\r\n                }\r\n            }\r\n        )\r\n    }\r\n}\r\n\r\n# Create key vault key\r\n$KeyUriWithVersion = Invoke-RestMethod `\r\n    -Body ($Body | ConvertTo-Json -Depth 4) `\r\n    -Headers $Headers `\r\n    -Method 'POST' `\r\n    -Uri $($KeyVaultUri + 'keys/' + $KeyName + '/create?api-version=2025-07-01').key.kid\r\n\r\nWrite-Output $KeyUriWithVersion",
+                            "$fxv#0": "Param(\r\n    [int]$KeyExpirationInDays,\r\n    [string]$KeyName,\r\n    [string]$KeyVaultServiceUri,\r\n    [string]$KeyVaultUri,\r\n    [string]$UserAssignedIdentityClientId\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n$WarningPreference = 'SilentlyContinue'\r\n\r\n# Get an access token for Azure resources\r\n$AccessToken = (Invoke-RestMethod `\r\n        -Headers @{Metadata = \"true\" } `\r\n        -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $KeyVaultServiceUri + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n# Set header for Azure Management API\r\n$Headers = @{\r\n    'Content-Type'  = 'application/json'\r\n    'Authorization' = 'Bearer ' + $AccessToken\r\n}\r\n\r\n$Body = [PSCustomObject]@{\r\n    kty            = 'RSA-HSM'\r\n    key_size       = 4096\r\n    attributes     = @{\r\n        enabled = $true\r\n    }\r\n    rotationPolicy = @{\r\n        attributes      = @{\r\n            expiryTime = $('P' + $KeyExpirationInDays + 'D')\r\n        }\r\n        lifetimeActions = @(\r\n            @{\r\n                action = @{\r\n                    type = 'Notify'\r\n                }\r\n                trigger = @{\r\n                    timeBeforeExpiry = 'P10D'\r\n                }\r\n            },\r\n            @{\r\n                action = @{\r\n                    type = 'Rotate'\r\n                }\r\n                trigger = @{\r\n                    timeAfterCreate = $('P' + ($KeyExpirationInDays - 7) + 'D')\r\n                }\r\n            }\r\n        )\r\n    }\r\n}\r\n\r\n# Create key vault key\r\n$KeyUriWithVersion = (Invoke-RestMethod `\r\n    -Body ($Body | ConvertTo-Json -Depth 4) `\r\n    -Headers $Headers `\r\n    -Method 'POST' `\r\n    -Uri $($KeyVaultUri + 'keys/' + $KeyName + '/create?api-version=2025-07-01')).key.kid\r\n\r\nWrite-Output $KeyUriWithVersion",
                             "$fxv#1": "param(\r\n    [string]$ResourceGroupName,\r\n    [string]$ResourceManagerUri,\r\n    [string]$UserAssignedIdentityClientId,\r\n    [string]$VirtualMachineResourceId\r\n)\r\n\r\n# Fix the resource manager URI since only AzureCloud contains a trailing slash\r\n$ResourceManagerUriFixed = if($ResourceManagerUri[-1] -eq '/'){$ResourceManagerUri.Substring(0,$ResourceManagerUri.Length - 1)} else {$ResourceManagerUri}\r\n\r\n# Get an access token for Azure resources\r\n$AzureManagementAccessToken = (Invoke-RestMethod `\r\n    -Headers @{Metadata=\"true\"} `\r\n    -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n# Set header for Azure Management API\r\n$AzureManagementHeader = @{\r\n    'Content-Type'='application/json'\r\n    'Authorization'='Bearer ' + $AzureManagementAccessToken\r\n}\r\n\r\nStart-Sleep -Seconds 30\r\n\r\n# Use the access token to delete the virtual machine\r\nInvoke-RestMethod `\r\n    -Headers $AzureManagementHeader `\r\n    -Method 'Delete' `\r\n    -Uri $($ResourceManagerUriFixed + $VirtualMachineResourceId + '?forceDeletion=true&api-version=2024-07-01') | Out-Null",
                             "keyVaultPrivateEndpointName": "[replace(parameters('tier').namingConvention.keyVaultPrivateEndpoint, parameters('tokens').purpose, variables('workload'))]",
                             "resourceGroupName": "[resourceGroup().name]",
@@ -7340,7 +7340,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "10919348555491119457"
+                      "templateHash": "4539836185754666924"
                     }
                   },
                   "parameters": {
@@ -7521,7 +7521,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "13079310479368811368"
+                              "templateHash": "17048764628616127193"
                             }
                           },
                           "parameters": {
@@ -7580,7 +7580,7 @@
                             }
                           },
                           "variables": {
-                            "$fxv#0": "Param(\r\n    [int]$KeyExpirationInDays,\r\n    [string]$KeyName,\r\n    [string]$KeyVaultServiceUri,\r\n    [string]$KeyVaultUri,\r\n    [string]$UserAssignedIdentityClientId\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n$WarningPreference = 'SilentlyContinue'\r\n\r\n# Get an access token for Azure resources\r\n$AccessToken = (Invoke-RestMethod `\r\n        -Headers @{Metadata = \"true\" } `\r\n        -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $KeyVaultServiceUri + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n# Set header for Azure Management API\r\n$Headers = @{\r\n    'Content-Type'  = 'application/json'\r\n    'Authorization' = 'Bearer ' + $AccessToken\r\n}\r\n\r\n$Body = [PSCustomObject]@{\r\n    kty            = 'RSA-HSM'\r\n    key_size       = 4096\r\n    attributes     = @{\r\n        enabled = $true\r\n    }\r\n    rotationPolicy = @{\r\n        attributes      = @{\r\n            expiryTime = $('P' + $KeyExpirationInDays + 'D')\r\n        }\r\n        lifetimeActions = @(\r\n            @{\r\n                action = @{\r\n                    type = 'Notify'\r\n                }\r\n                trigger = @{\r\n                    timeBeforeExpiry = 'P10D'\r\n                }\r\n            },\r\n            @{\r\n                action = @{\r\n                    type = 'Rotate'\r\n                }\r\n                trigger = @{\r\n                    timeAfterCreate = $('P' + ($KeyExpirationInDays - 7) + 'D')\r\n                }\r\n            }\r\n        )\r\n    }\r\n}\r\n\r\n# Create key vault key\r\n$KeyUriWithVersion = Invoke-RestMethod `\r\n    -Body ($Body | ConvertTo-Json -Depth 4) `\r\n    -Headers $Headers `\r\n    -Method 'POST' `\r\n    -Uri $($KeyVaultUri + 'keys/' + $KeyName + '/create?api-version=2025-07-01').key.kid\r\n\r\nWrite-Output $KeyUriWithVersion",
+                            "$fxv#0": "Param(\r\n    [int]$KeyExpirationInDays,\r\n    [string]$KeyName,\r\n    [string]$KeyVaultServiceUri,\r\n    [string]$KeyVaultUri,\r\n    [string]$UserAssignedIdentityClientId\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n$WarningPreference = 'SilentlyContinue'\r\n\r\n# Get an access token for Azure resources\r\n$AccessToken = (Invoke-RestMethod `\r\n        -Headers @{Metadata = \"true\" } `\r\n        -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $KeyVaultServiceUri + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n# Set header for Azure Management API\r\n$Headers = @{\r\n    'Content-Type'  = 'application/json'\r\n    'Authorization' = 'Bearer ' + $AccessToken\r\n}\r\n\r\n$Body = [PSCustomObject]@{\r\n    kty            = 'RSA-HSM'\r\n    key_size       = 4096\r\n    attributes     = @{\r\n        enabled = $true\r\n    }\r\n    rotationPolicy = @{\r\n        attributes      = @{\r\n            expiryTime = $('P' + $KeyExpirationInDays + 'D')\r\n        }\r\n        lifetimeActions = @(\r\n            @{\r\n                action = @{\r\n                    type = 'Notify'\r\n                }\r\n                trigger = @{\r\n                    timeBeforeExpiry = 'P10D'\r\n                }\r\n            },\r\n            @{\r\n                action = @{\r\n                    type = 'Rotate'\r\n                }\r\n                trigger = @{\r\n                    timeAfterCreate = $('P' + ($KeyExpirationInDays - 7) + 'D')\r\n                }\r\n            }\r\n        )\r\n    }\r\n}\r\n\r\n# Create key vault key\r\n$KeyUriWithVersion = (Invoke-RestMethod `\r\n    -Body ($Body | ConvertTo-Json -Depth 4) `\r\n    -Headers $Headers `\r\n    -Method 'POST' `\r\n    -Uri $($KeyVaultUri + 'keys/' + $KeyName + '/create?api-version=2025-07-01')).key.kid\r\n\r\nWrite-Output $KeyUriWithVersion",
                             "$fxv#1": "param(\r\n    [string]$ResourceGroupName,\r\n    [string]$ResourceManagerUri,\r\n    [string]$UserAssignedIdentityClientId,\r\n    [string]$VirtualMachineResourceId\r\n)\r\n\r\n# Fix the resource manager URI since only AzureCloud contains a trailing slash\r\n$ResourceManagerUriFixed = if($ResourceManagerUri[-1] -eq '/'){$ResourceManagerUri.Substring(0,$ResourceManagerUri.Length - 1)} else {$ResourceManagerUri}\r\n\r\n# Get an access token for Azure resources\r\n$AzureManagementAccessToken = (Invoke-RestMethod `\r\n    -Headers @{Metadata=\"true\"} `\r\n    -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n# Set header for Azure Management API\r\n$AzureManagementHeader = @{\r\n    'Content-Type'='application/json'\r\n    'Authorization'='Bearer ' + $AzureManagementAccessToken\r\n}\r\n\r\nStart-Sleep -Seconds 30\r\n\r\n# Use the access token to delete the virtual machine\r\nInvoke-RestMethod `\r\n    -Headers $AzureManagementHeader `\r\n    -Method 'Delete' `\r\n    -Uri $($ResourceManagerUriFixed + $VirtualMachineResourceId + '?forceDeletion=true&api-version=2024-07-01') | Out-Null",
                             "keyVaultPrivateEndpointName": "[replace(parameters('tier').namingConvention.keyVaultPrivateEndpoint, parameters('tokens').purpose, variables('workload'))]",
                             "resourceGroupName": "[resourceGroup().name]",
@@ -9247,7 +9247,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "138906704895608016"
+                      "templateHash": "5619328661039722270"
                     }
                   },
                   "parameters": {
@@ -9346,7 +9346,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "13079310479368811368"
+                              "templateHash": "17048764628616127193"
                             }
                           },
                           "parameters": {
@@ -9405,7 +9405,7 @@
                             }
                           },
                           "variables": {
-                            "$fxv#0": "Param(\r\n    [int]$KeyExpirationInDays,\r\n    [string]$KeyName,\r\n    [string]$KeyVaultServiceUri,\r\n    [string]$KeyVaultUri,\r\n    [string]$UserAssignedIdentityClientId\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n$WarningPreference = 'SilentlyContinue'\r\n\r\n# Get an access token for Azure resources\r\n$AccessToken = (Invoke-RestMethod `\r\n        -Headers @{Metadata = \"true\" } `\r\n        -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $KeyVaultServiceUri + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n# Set header for Azure Management API\r\n$Headers = @{\r\n    'Content-Type'  = 'application/json'\r\n    'Authorization' = 'Bearer ' + $AccessToken\r\n}\r\n\r\n$Body = [PSCustomObject]@{\r\n    kty            = 'RSA-HSM'\r\n    key_size       = 4096\r\n    attributes     = @{\r\n        enabled = $true\r\n    }\r\n    rotationPolicy = @{\r\n        attributes      = @{\r\n            expiryTime = $('P' + $KeyExpirationInDays + 'D')\r\n        }\r\n        lifetimeActions = @(\r\n            @{\r\n                action = @{\r\n                    type = 'Notify'\r\n                }\r\n                trigger = @{\r\n                    timeBeforeExpiry = 'P10D'\r\n                }\r\n            },\r\n            @{\r\n                action = @{\r\n                    type = 'Rotate'\r\n                }\r\n                trigger = @{\r\n                    timeAfterCreate = $('P' + ($KeyExpirationInDays - 7) + 'D')\r\n                }\r\n            }\r\n        )\r\n    }\r\n}\r\n\r\n# Create key vault key\r\n$KeyUriWithVersion = Invoke-RestMethod `\r\n    -Body ($Body | ConvertTo-Json -Depth 4) `\r\n    -Headers $Headers `\r\n    -Method 'POST' `\r\n    -Uri $($KeyVaultUri + 'keys/' + $KeyName + '/create?api-version=2025-07-01').key.kid\r\n\r\nWrite-Output $KeyUriWithVersion",
+                            "$fxv#0": "Param(\r\n    [int]$KeyExpirationInDays,\r\n    [string]$KeyName,\r\n    [string]$KeyVaultServiceUri,\r\n    [string]$KeyVaultUri,\r\n    [string]$UserAssignedIdentityClientId\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n$WarningPreference = 'SilentlyContinue'\r\n\r\n# Get an access token for Azure resources\r\n$AccessToken = (Invoke-RestMethod `\r\n        -Headers @{Metadata = \"true\" } `\r\n        -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $KeyVaultServiceUri + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n# Set header for Azure Management API\r\n$Headers = @{\r\n    'Content-Type'  = 'application/json'\r\n    'Authorization' = 'Bearer ' + $AccessToken\r\n}\r\n\r\n$Body = [PSCustomObject]@{\r\n    kty            = 'RSA-HSM'\r\n    key_size       = 4096\r\n    attributes     = @{\r\n        enabled = $true\r\n    }\r\n    rotationPolicy = @{\r\n        attributes      = @{\r\n            expiryTime = $('P' + $KeyExpirationInDays + 'D')\r\n        }\r\n        lifetimeActions = @(\r\n            @{\r\n                action = @{\r\n                    type = 'Notify'\r\n                }\r\n                trigger = @{\r\n                    timeBeforeExpiry = 'P10D'\r\n                }\r\n            },\r\n            @{\r\n                action = @{\r\n                    type = 'Rotate'\r\n                }\r\n                trigger = @{\r\n                    timeAfterCreate = $('P' + ($KeyExpirationInDays - 7) + 'D')\r\n                }\r\n            }\r\n        )\r\n    }\r\n}\r\n\r\n# Create key vault key\r\n$KeyUriWithVersion = (Invoke-RestMethod `\r\n    -Body ($Body | ConvertTo-Json -Depth 4) `\r\n    -Headers $Headers `\r\n    -Method 'POST' `\r\n    -Uri $($KeyVaultUri + 'keys/' + $KeyName + '/create?api-version=2025-07-01')).key.kid\r\n\r\nWrite-Output $KeyUriWithVersion",
                             "$fxv#1": "param(\r\n    [string]$ResourceGroupName,\r\n    [string]$ResourceManagerUri,\r\n    [string]$UserAssignedIdentityClientId,\r\n    [string]$VirtualMachineResourceId\r\n)\r\n\r\n# Fix the resource manager URI since only AzureCloud contains a trailing slash\r\n$ResourceManagerUriFixed = if($ResourceManagerUri[-1] -eq '/'){$ResourceManagerUri.Substring(0,$ResourceManagerUri.Length - 1)} else {$ResourceManagerUri}\r\n\r\n# Get an access token for Azure resources\r\n$AzureManagementAccessToken = (Invoke-RestMethod `\r\n    -Headers @{Metadata=\"true\"} `\r\n    -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n# Set header for Azure Management API\r\n$AzureManagementHeader = @{\r\n    'Content-Type'='application/json'\r\n    'Authorization'='Bearer ' + $AzureManagementAccessToken\r\n}\r\n\r\nStart-Sleep -Seconds 30\r\n\r\n# Use the access token to delete the virtual machine\r\nInvoke-RestMethod `\r\n    -Headers $AzureManagementHeader `\r\n    -Method 'Delete' `\r\n    -Uri $($ResourceManagerUriFixed + $VirtualMachineResourceId + '?forceDeletion=true&api-version=2024-07-01') | Out-Null",
                             "keyVaultPrivateEndpointName": "[replace(parameters('tier').namingConvention.keyVaultPrivateEndpoint, parameters('tokens').purpose, variables('workload'))]",
                             "resourceGroupName": "[resourceGroup().name]",
@@ -12578,7 +12578,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "14314466622700225047"
+              "templateHash": "7502670323955866663"
             }
           },
           "parameters": {
@@ -12995,7 +12995,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "8006097016261100596"
+                      "templateHash": "3074218528072687737"
                     }
                   },
                   "parameters": {
@@ -15351,7 +15351,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "11110803436921512973"
+                              "templateHash": "9692373003689313449"
                             }
                           },
                           "parameters": {
@@ -15470,7 +15470,7 @@
                                     "_generator": {
                                       "name": "bicep",
                                       "version": "0.40.2.10011",
-                                      "templateHash": "13079310479368811368"
+                                      "templateHash": "17048764628616127193"
                                     }
                                   },
                                   "parameters": {
@@ -15529,7 +15529,7 @@
                                     }
                                   },
                                   "variables": {
-                                    "$fxv#0": "Param(\r\n    [int]$KeyExpirationInDays,\r\n    [string]$KeyName,\r\n    [string]$KeyVaultServiceUri,\r\n    [string]$KeyVaultUri,\r\n    [string]$UserAssignedIdentityClientId\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n$WarningPreference = 'SilentlyContinue'\r\n\r\n# Get an access token for Azure resources\r\n$AccessToken = (Invoke-RestMethod `\r\n        -Headers @{Metadata = \"true\" } `\r\n        -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $KeyVaultServiceUri + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n# Set header for Azure Management API\r\n$Headers = @{\r\n    'Content-Type'  = 'application/json'\r\n    'Authorization' = 'Bearer ' + $AccessToken\r\n}\r\n\r\n$Body = [PSCustomObject]@{\r\n    kty            = 'RSA-HSM'\r\n    key_size       = 4096\r\n    attributes     = @{\r\n        enabled = $true\r\n    }\r\n    rotationPolicy = @{\r\n        attributes      = @{\r\n            expiryTime = $('P' + $KeyExpirationInDays + 'D')\r\n        }\r\n        lifetimeActions = @(\r\n            @{\r\n                action = @{\r\n                    type = 'Notify'\r\n                }\r\n                trigger = @{\r\n                    timeBeforeExpiry = 'P10D'\r\n                }\r\n            },\r\n            @{\r\n                action = @{\r\n                    type = 'Rotate'\r\n                }\r\n                trigger = @{\r\n                    timeAfterCreate = $('P' + ($KeyExpirationInDays - 7) + 'D')\r\n                }\r\n            }\r\n        )\r\n    }\r\n}\r\n\r\n# Create key vault key\r\n$KeyUriWithVersion = Invoke-RestMethod `\r\n    -Body ($Body | ConvertTo-Json -Depth 4) `\r\n    -Headers $Headers `\r\n    -Method 'POST' `\r\n    -Uri $($KeyVaultUri + 'keys/' + $KeyName + '/create?api-version=2025-07-01').key.kid\r\n\r\nWrite-Output $KeyUriWithVersion",
+                                    "$fxv#0": "Param(\r\n    [int]$KeyExpirationInDays,\r\n    [string]$KeyName,\r\n    [string]$KeyVaultServiceUri,\r\n    [string]$KeyVaultUri,\r\n    [string]$UserAssignedIdentityClientId\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n$WarningPreference = 'SilentlyContinue'\r\n\r\n# Get an access token for Azure resources\r\n$AccessToken = (Invoke-RestMethod `\r\n        -Headers @{Metadata = \"true\" } `\r\n        -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $KeyVaultServiceUri + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n# Set header for Azure Management API\r\n$Headers = @{\r\n    'Content-Type'  = 'application/json'\r\n    'Authorization' = 'Bearer ' + $AccessToken\r\n}\r\n\r\n$Body = [PSCustomObject]@{\r\n    kty            = 'RSA-HSM'\r\n    key_size       = 4096\r\n    attributes     = @{\r\n        enabled = $true\r\n    }\r\n    rotationPolicy = @{\r\n        attributes      = @{\r\n            expiryTime = $('P' + $KeyExpirationInDays + 'D')\r\n        }\r\n        lifetimeActions = @(\r\n            @{\r\n                action = @{\r\n                    type = 'Notify'\r\n                }\r\n                trigger = @{\r\n                    timeBeforeExpiry = 'P10D'\r\n                }\r\n            },\r\n            @{\r\n                action = @{\r\n                    type = 'Rotate'\r\n                }\r\n                trigger = @{\r\n                    timeAfterCreate = $('P' + ($KeyExpirationInDays - 7) + 'D')\r\n                }\r\n            }\r\n        )\r\n    }\r\n}\r\n\r\n# Create key vault key\r\n$KeyUriWithVersion = (Invoke-RestMethod `\r\n    -Body ($Body | ConvertTo-Json -Depth 4) `\r\n    -Headers $Headers `\r\n    -Method 'POST' `\r\n    -Uri $($KeyVaultUri + 'keys/' + $KeyName + '/create?api-version=2025-07-01')).key.kid\r\n\r\nWrite-Output $KeyUriWithVersion",
                                     "$fxv#1": "param(\r\n    [string]$ResourceGroupName,\r\n    [string]$ResourceManagerUri,\r\n    [string]$UserAssignedIdentityClientId,\r\n    [string]$VirtualMachineResourceId\r\n)\r\n\r\n# Fix the resource manager URI since only AzureCloud contains a trailing slash\r\n$ResourceManagerUriFixed = if($ResourceManagerUri[-1] -eq '/'){$ResourceManagerUri.Substring(0,$ResourceManagerUri.Length - 1)} else {$ResourceManagerUri}\r\n\r\n# Get an access token for Azure resources\r\n$AzureManagementAccessToken = (Invoke-RestMethod `\r\n    -Headers @{Metadata=\"true\"} `\r\n    -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n# Set header for Azure Management API\r\n$AzureManagementHeader = @{\r\n    'Content-Type'='application/json'\r\n    'Authorization'='Bearer ' + $AzureManagementAccessToken\r\n}\r\n\r\nStart-Sleep -Seconds 30\r\n\r\n# Use the access token to delete the virtual machine\r\nInvoke-RestMethod `\r\n    -Headers $AzureManagementHeader `\r\n    -Method 'Delete' `\r\n    -Uri $($ResourceManagerUriFixed + $VirtualMachineResourceId + '?forceDeletion=true&api-version=2024-07-01') | Out-Null",
                                     "keyVaultPrivateEndpointName": "[replace(parameters('tier').namingConvention.keyVaultPrivateEndpoint, parameters('tokens').purpose, variables('workload'))]",
                                     "resourceGroupName": "[resourceGroup().name]",
@@ -18553,7 +18553,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "18417596583255369918"
+              "templateHash": "15692711403687743542"
             }
           },
           "parameters": {
@@ -19170,7 +19170,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "8006097016261100596"
+                      "templateHash": "3074218528072687737"
                     }
                   },
                   "parameters": {
@@ -21526,7 +21526,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "11110803436921512973"
+                              "templateHash": "9692373003689313449"
                             }
                           },
                           "parameters": {
@@ -21645,7 +21645,7 @@
                                     "_generator": {
                                       "name": "bicep",
                                       "version": "0.40.2.10011",
-                                      "templateHash": "13079310479368811368"
+                                      "templateHash": "17048764628616127193"
                                     }
                                   },
                                   "parameters": {
@@ -21704,7 +21704,7 @@
                                     }
                                   },
                                   "variables": {
-                                    "$fxv#0": "Param(\r\n    [int]$KeyExpirationInDays,\r\n    [string]$KeyName,\r\n    [string]$KeyVaultServiceUri,\r\n    [string]$KeyVaultUri,\r\n    [string]$UserAssignedIdentityClientId\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n$WarningPreference = 'SilentlyContinue'\r\n\r\n# Get an access token for Azure resources\r\n$AccessToken = (Invoke-RestMethod `\r\n        -Headers @{Metadata = \"true\" } `\r\n        -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $KeyVaultServiceUri + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n# Set header for Azure Management API\r\n$Headers = @{\r\n    'Content-Type'  = 'application/json'\r\n    'Authorization' = 'Bearer ' + $AccessToken\r\n}\r\n\r\n$Body = [PSCustomObject]@{\r\n    kty            = 'RSA-HSM'\r\n    key_size       = 4096\r\n    attributes     = @{\r\n        enabled = $true\r\n    }\r\n    rotationPolicy = @{\r\n        attributes      = @{\r\n            expiryTime = $('P' + $KeyExpirationInDays + 'D')\r\n        }\r\n        lifetimeActions = @(\r\n            @{\r\n                action = @{\r\n                    type = 'Notify'\r\n                }\r\n                trigger = @{\r\n                    timeBeforeExpiry = 'P10D'\r\n                }\r\n            },\r\n            @{\r\n                action = @{\r\n                    type = 'Rotate'\r\n                }\r\n                trigger = @{\r\n                    timeAfterCreate = $('P' + ($KeyExpirationInDays - 7) + 'D')\r\n                }\r\n            }\r\n        )\r\n    }\r\n}\r\n\r\n# Create key vault key\r\n$KeyUriWithVersion = Invoke-RestMethod `\r\n    -Body ($Body | ConvertTo-Json -Depth 4) `\r\n    -Headers $Headers `\r\n    -Method 'POST' `\r\n    -Uri $($KeyVaultUri + 'keys/' + $KeyName + '/create?api-version=2025-07-01').key.kid\r\n\r\nWrite-Output $KeyUriWithVersion",
+                                    "$fxv#0": "Param(\r\n    [int]$KeyExpirationInDays,\r\n    [string]$KeyName,\r\n    [string]$KeyVaultServiceUri,\r\n    [string]$KeyVaultUri,\r\n    [string]$UserAssignedIdentityClientId\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n$WarningPreference = 'SilentlyContinue'\r\n\r\n# Get an access token for Azure resources\r\n$AccessToken = (Invoke-RestMethod `\r\n        -Headers @{Metadata = \"true\" } `\r\n        -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $KeyVaultServiceUri + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n# Set header for Azure Management API\r\n$Headers = @{\r\n    'Content-Type'  = 'application/json'\r\n    'Authorization' = 'Bearer ' + $AccessToken\r\n}\r\n\r\n$Body = [PSCustomObject]@{\r\n    kty            = 'RSA-HSM'\r\n    key_size       = 4096\r\n    attributes     = @{\r\n        enabled = $true\r\n    }\r\n    rotationPolicy = @{\r\n        attributes      = @{\r\n            expiryTime = $('P' + $KeyExpirationInDays + 'D')\r\n        }\r\n        lifetimeActions = @(\r\n            @{\r\n                action = @{\r\n                    type = 'Notify'\r\n                }\r\n                trigger = @{\r\n                    timeBeforeExpiry = 'P10D'\r\n                }\r\n            },\r\n            @{\r\n                action = @{\r\n                    type = 'Rotate'\r\n                }\r\n                trigger = @{\r\n                    timeAfterCreate = $('P' + ($KeyExpirationInDays - 7) + 'D')\r\n                }\r\n            }\r\n        )\r\n    }\r\n}\r\n\r\n# Create key vault key\r\n$KeyUriWithVersion = (Invoke-RestMethod `\r\n    -Body ($Body | ConvertTo-Json -Depth 4) `\r\n    -Headers $Headers `\r\n    -Method 'POST' `\r\n    -Uri $($KeyVaultUri + 'keys/' + $KeyName + '/create?api-version=2025-07-01')).key.kid\r\n\r\nWrite-Output $KeyUriWithVersion",
                                     "$fxv#1": "param(\r\n    [string]$ResourceGroupName,\r\n    [string]$ResourceManagerUri,\r\n    [string]$UserAssignedIdentityClientId,\r\n    [string]$VirtualMachineResourceId\r\n)\r\n\r\n# Fix the resource manager URI since only AzureCloud contains a trailing slash\r\n$ResourceManagerUriFixed = if($ResourceManagerUri[-1] -eq '/'){$ResourceManagerUri.Substring(0,$ResourceManagerUri.Length - 1)} else {$ResourceManagerUri}\r\n\r\n# Get an access token for Azure resources\r\n$AzureManagementAccessToken = (Invoke-RestMethod `\r\n    -Headers @{Metadata=\"true\"} `\r\n    -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n# Set header for Azure Management API\r\n$AzureManagementHeader = @{\r\n    'Content-Type'='application/json'\r\n    'Authorization'='Bearer ' + $AzureManagementAccessToken\r\n}\r\n\r\nStart-Sleep -Seconds 30\r\n\r\n# Use the access token to delete the virtual machine\r\nInvoke-RestMethod `\r\n    -Headers $AzureManagementHeader `\r\n    -Method 'Delete' `\r\n    -Uri $($ResourceManagerUriFixed + $VirtualMachineResourceId + '?forceDeletion=true&api-version=2024-07-01') | Out-Null",
                                     "keyVaultPrivateEndpointName": "[replace(parameters('tier').namingConvention.keyVaultPrivateEndpoint, parameters('tokens').purpose, variables('workload'))]",
                                     "resourceGroupName": "[resourceGroup().name]",
@@ -24334,7 +24334,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "5726508685429980450"
+                      "templateHash": "14339180918078241220"
                     }
                   },
                   "parameters": {
@@ -24830,7 +24830,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "13079310479368811368"
+                              "templateHash": "17048764628616127193"
                             }
                           },
                           "parameters": {
@@ -24889,7 +24889,7 @@
                             }
                           },
                           "variables": {
-                            "$fxv#0": "Param(\r\n    [int]$KeyExpirationInDays,\r\n    [string]$KeyName,\r\n    [string]$KeyVaultServiceUri,\r\n    [string]$KeyVaultUri,\r\n    [string]$UserAssignedIdentityClientId\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n$WarningPreference = 'SilentlyContinue'\r\n\r\n# Get an access token for Azure resources\r\n$AccessToken = (Invoke-RestMethod `\r\n        -Headers @{Metadata = \"true\" } `\r\n        -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $KeyVaultServiceUri + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n# Set header for Azure Management API\r\n$Headers = @{\r\n    'Content-Type'  = 'application/json'\r\n    'Authorization' = 'Bearer ' + $AccessToken\r\n}\r\n\r\n$Body = [PSCustomObject]@{\r\n    kty            = 'RSA-HSM'\r\n    key_size       = 4096\r\n    attributes     = @{\r\n        enabled = $true\r\n    }\r\n    rotationPolicy = @{\r\n        attributes      = @{\r\n            expiryTime = $('P' + $KeyExpirationInDays + 'D')\r\n        }\r\n        lifetimeActions = @(\r\n            @{\r\n                action = @{\r\n                    type = 'Notify'\r\n                }\r\n                trigger = @{\r\n                    timeBeforeExpiry = 'P10D'\r\n                }\r\n            },\r\n            @{\r\n                action = @{\r\n                    type = 'Rotate'\r\n                }\r\n                trigger = @{\r\n                    timeAfterCreate = $('P' + ($KeyExpirationInDays - 7) + 'D')\r\n                }\r\n            }\r\n        )\r\n    }\r\n}\r\n\r\n# Create key vault key\r\n$KeyUriWithVersion = Invoke-RestMethod `\r\n    -Body ($Body | ConvertTo-Json -Depth 4) `\r\n    -Headers $Headers `\r\n    -Method 'POST' `\r\n    -Uri $($KeyVaultUri + 'keys/' + $KeyName + '/create?api-version=2025-07-01').key.kid\r\n\r\nWrite-Output $KeyUriWithVersion",
+                            "$fxv#0": "Param(\r\n    [int]$KeyExpirationInDays,\r\n    [string]$KeyName,\r\n    [string]$KeyVaultServiceUri,\r\n    [string]$KeyVaultUri,\r\n    [string]$UserAssignedIdentityClientId\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n$WarningPreference = 'SilentlyContinue'\r\n\r\n# Get an access token for Azure resources\r\n$AccessToken = (Invoke-RestMethod `\r\n        -Headers @{Metadata = \"true\" } `\r\n        -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $KeyVaultServiceUri + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n# Set header for Azure Management API\r\n$Headers = @{\r\n    'Content-Type'  = 'application/json'\r\n    'Authorization' = 'Bearer ' + $AccessToken\r\n}\r\n\r\n$Body = [PSCustomObject]@{\r\n    kty            = 'RSA-HSM'\r\n    key_size       = 4096\r\n    attributes     = @{\r\n        enabled = $true\r\n    }\r\n    rotationPolicy = @{\r\n        attributes      = @{\r\n            expiryTime = $('P' + $KeyExpirationInDays + 'D')\r\n        }\r\n        lifetimeActions = @(\r\n            @{\r\n                action = @{\r\n                    type = 'Notify'\r\n                }\r\n                trigger = @{\r\n                    timeBeforeExpiry = 'P10D'\r\n                }\r\n            },\r\n            @{\r\n                action = @{\r\n                    type = 'Rotate'\r\n                }\r\n                trigger = @{\r\n                    timeAfterCreate = $('P' + ($KeyExpirationInDays - 7) + 'D')\r\n                }\r\n            }\r\n        )\r\n    }\r\n}\r\n\r\n# Create key vault key\r\n$KeyUriWithVersion = (Invoke-RestMethod `\r\n    -Body ($Body | ConvertTo-Json -Depth 4) `\r\n    -Headers $Headers `\r\n    -Method 'POST' `\r\n    -Uri $($KeyVaultUri + 'keys/' + $KeyName + '/create?api-version=2025-07-01')).key.kid\r\n\r\nWrite-Output $KeyUriWithVersion",
                             "$fxv#1": "param(\r\n    [string]$ResourceGroupName,\r\n    [string]$ResourceManagerUri,\r\n    [string]$UserAssignedIdentityClientId,\r\n    [string]$VirtualMachineResourceId\r\n)\r\n\r\n# Fix the resource manager URI since only AzureCloud contains a trailing slash\r\n$ResourceManagerUriFixed = if($ResourceManagerUri[-1] -eq '/'){$ResourceManagerUri.Substring(0,$ResourceManagerUri.Length - 1)} else {$ResourceManagerUri}\r\n\r\n# Get an access token for Azure resources\r\n$AzureManagementAccessToken = (Invoke-RestMethod `\r\n    -Headers @{Metadata=\"true\"} `\r\n    -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n# Set header for Azure Management API\r\n$AzureManagementHeader = @{\r\n    'Content-Type'='application/json'\r\n    'Authorization'='Bearer ' + $AzureManagementAccessToken\r\n}\r\n\r\nStart-Sleep -Seconds 30\r\n\r\n# Use the access token to delete the virtual machine\r\nInvoke-RestMethod `\r\n    -Headers $AzureManagementHeader `\r\n    -Method 'Delete' `\r\n    -Uri $($ResourceManagerUriFixed + $VirtualMachineResourceId + '?forceDeletion=true&api-version=2024-07-01') | Out-Null",
                             "keyVaultPrivateEndpointName": "[replace(parameters('tier').namingConvention.keyVaultPrivateEndpoint, parameters('tokens').purpose, variables('workload'))]",
                             "resourceGroupName": "[resourceGroup().name]",
