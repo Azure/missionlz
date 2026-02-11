@@ -7,6 +7,7 @@ Param(
 )
 
 $ErrorActionPreference = 'Stop'
+$WarningPreference = 'SilentlyContinue'
 
 # Get an access token for Azure resources
 $AccessToken = (Invoke-RestMethod `
@@ -51,8 +52,10 @@ $Body = [PSCustomObject]@{
 }
 
 # Create key vault key
-Invoke-RestMethod `
+$KeyUriWithVersion = Invoke-RestMethod `
     -Body ($Body | ConvertTo-Json -Depth 4) `
     -Headers $Headers `
     -Method 'POST' `
-    -Uri $($KeyVaultUri + 'keys/' + $KeyName + '/create?api-version=2025-07-01') | Out-Null
+    -Uri $($KeyVaultUri + 'keys/' + $KeyName + '/create?api-version=2025-07-01').key.kid
+
+Write-Output $KeyUriWithVersion

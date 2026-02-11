@@ -275,14 +275,6 @@ resource key 'Microsoft.Compute/virtualMachines/runCommands@2023-09-01' = {
   ]
 }
 
-resource keyInfo 'Microsoft.KeyVault/vaults/keys@2022-07-01' existing = {
-  parent: vault
-  name: keyName
-  dependsOn: [
-    key
-  ]
-}
-
 resource diskEncryptionSet 'Microsoft.Compute/diskEncryptionSets@2023-04-02' = if (type == 'virtualMachine') {
   name: replace(tier.namingConvention.diskEncryptionSet, tokens.purpose, workload)
   location: location
@@ -295,7 +287,7 @@ resource diskEncryptionSet 'Microsoft.Compute/diskEncryptionSets@2023-04-02' = i
       sourceVault: {
         id: vault.id
       }
-      keyUrl: keyInfo.properties.keyUriWithVersion
+      keyUrl: key.properties.instanceView.output
     }
     encryptionType: 'EncryptionAtRestWithPlatformAndCustomerKeys'
     rotationToLatestKeyVersionEnabled: true
@@ -358,8 +350,8 @@ output keyVaultProperties object = {
   subscriptionId: tier.subscriptionId
   tierName: tier.name // This value is used to associate the key vault diagnostic setting with the appropriate storage account
 }
-output keyName string = keyInfo.name
-output keyUriWithVersion string = keyInfo.properties.keyUriWithVersion
+output keyName string = keyName
+output keyUriWithVersion string = key.properties.instanceView.output
 output keyVaultName string = vault.name
 output keyVaultUri string = vault.properties.vaultUri
 output keyVaultResourceId string = vault.id
