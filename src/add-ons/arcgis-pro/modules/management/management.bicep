@@ -59,10 +59,78 @@ module diskAccess 'disk-access.bicep' = {
 }
 
 // Sets an Azure policy to disable public network access to managed disks
-module policy 'policy.bicep' = {
-  name: 'deploy-policy-disks-${deploymentNameSuffix}'
-  params: {
-    diskAccessResourceId: diskAccess.outputs.resourceId
+// module policy 'policy.bicep' = {
+//   name: 'deploy-policy-disks-${deploymentNameSuffix}'
+//   params: {
+//     diskAccessResourceId: diskAccess.outputs.resourceId
+//   }
+// }
+
+var parameters = !empty(diskAccess.outputs.resourceId) ? {
+  diskAccessId: {
+    type: 'String'
+    metadata: {
+      displayName: 'Disk Access Resource Id'
+      description: 'The resource Id of the Disk Access to associate to the managed disks.'
+    }
+  }
+} : {}
+
+var operations = !empty(diskAccess.outputs.resourceId)
+  ? [
+      {
+        operation: 'addOrReplace'
+        field: 'Microsoft.Compute/disks/networkAccessPolicy'
+        value: 'AllowPrivate'
+      }
+      {
+        operation: 'addOrReplace'
+        field: 'Microsoft.Compute/disks/publicNetworkAccess'
+        value: 'Disabled'
+      }
+      {
+        operation: 'addOrReplace'
+        field: 'Microsoft.Compute/disks/diskAccessId'
+        value: '[parameters(\'diskAccessId\')]'
+      }
+    ]
+  : [
+      {
+        operation: 'addOrReplace'
+        field: 'Microsoft.Compute/disks/networkAccessPolicy'
+        value: 'DenyAll'
+      }
+      {
+        operation: 'addOrReplace'
+        field: 'Microsoft.Compute/disks/publicNetworkAccess'
+        value: 'Disabled'
+      }
+    ]
+
+
+resource policyDefinition 'Microsoft.Authorization/policyDefinitions@2021-06-01' = {
+  name: 'DiskNetworkAccess'
+  properties: {
+    description: 'Disable network access to managed disks.'
+    displayName: 'Disable Disk Access'
+    mode: 'All'
+    parameters: parameters
+    policyRule: {
+      if: {
+        field: 'type'
+        equals: 'Microsoft.Compute/disks'
+      }
+      then: {
+        effect: 'modify'
+        details: {
+          roleDefinitionIds: [
+            '/providers/Microsoft.Authorization/roleDefinitions/60fc6e62-5479-42d4-8bf4-67625fcc2840'
+          ]
+          operations: operations
+        }
+      }
+    }
+    policyType: 'Custom'
   }
 }
 
@@ -73,9 +141,9 @@ module policyAssignment 'policy-assignment.bicep' = {
   params: {
     diskAccessResourceId: diskAccess.outputs.resourceId
     location: location
-    policyDefinitionId: policy.outputs.policyDefinitionId
-    policyDisplayName: policy.outputs.policyDisplayName
-    policyName: policy.outputs.policyDisplayName
+    policyDefinitionId: policyDefinition.id
+    policyDisplayName: policyDefinition.properties.displayName
+    policyName: policyDefinition.properties.displayName
   }
 }
 
@@ -120,8 +188,8 @@ module monitoring 'monitoring.bicep' = if (enableAvdInsights) {
 }
 
 output dataCollectionRuleResourceId string = enableAvdInsights ? monitoring!.outputs.dataCollectionRuleResourceId : ''
-output diskAccessPolicyDefinitionId string = policy.outputs.policyDefinitionId
-output diskAccessPolicyDisplayName string = policy.outputs.policyDisplayName
+output diskAccessPolicyDefinitionId string = policyDefinition.id
+output diskAccessPolicyDisplayName string = policyDefinition.properties.displayName
 output diskAccessResourceId string = diskAccess.outputs.resourceId
 output diskEncryptionSetResourceId string = customerManagedKeys.outputs.diskEncryptionSetResourceId
 output logAnalyticsWorkspaceResourceId string = enableAvdInsights ? monitoring!.outputs.logAnalyticsWorkspaceResourceId : ''

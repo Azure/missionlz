@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.40.2.10011",
-      "templateHash": "13758149438810023152"
+      "templateHash": "17185101629098802412"
     }
   },
   "parameters": {
@@ -243,7 +243,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "13199347027223933724"
+              "templateHash": "5753484219122564508"
             }
           },
           "parameters": {
@@ -12337,21 +12337,9 @@
               "type": "string",
               "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.logAnalyticsWorkspaceResourceId.value]"
             },
-            "mlzTags": {
-              "type": "object",
-              "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.mlzTags.value]"
-            },
             "privateLinkScopeResourceId": {
               "type": "string",
               "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.privateLinkScopeResourceId.value]"
-            },
-            "sharedServicesSubnetResourceId": {
-              "type": "string",
-              "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.sharedServicesSubnetResourceId.value]"
-            },
-            "tiers": {
-              "type": "array",
-              "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tiers.value]"
             }
           }
         }
@@ -18589,7 +18577,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "9302800079878314695"
+              "templateHash": "13800513105505728471"
             }
           },
           "parameters": {
@@ -24379,7 +24367,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "15883172086657106439"
+                      "templateHash": "1885109383806960163"
                     }
                   },
                   "parameters": {
@@ -24450,6 +24438,36 @@
                         "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '40c5ff49-9181-41f8-ae61-143b0e78555e')]",
                         "principalId": "[parameters('avdObjectId')]"
                       }
+                    },
+                    {
+                      "type": "Microsoft.Authorization/policyDefinitions",
+                      "apiVersion": "2021-06-01",
+                      "name": "DiskNetworkAccess",
+                      "properties": {
+                        "description": "Disable network access to managed disks.",
+                        "displayName": "Disable Disk Access",
+                        "mode": "All",
+                        "parameters": "[if(not(empty(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-disk-access-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.resourceId.value)), createObject('diskAccessId', createObject('type', 'String', 'metadata', createObject('displayName', 'Disk Access Resource Id', 'description', 'The resource Id of the Disk Access to associate to the managed disks.'))), createObject())]",
+                        "policyRule": {
+                          "if": {
+                            "field": "type",
+                            "equals": "Microsoft.Compute/disks"
+                          },
+                          "then": {
+                            "effect": "modify",
+                            "details": {
+                              "roleDefinitionIds": [
+                                "/providers/Microsoft.Authorization/roleDefinitions/60fc6e62-5479-42d4-8bf4-67625fcc2840"
+                              ],
+                              "operations": "[if(not(empty(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-disk-access-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.resourceId.value)), createArray(createObject('operation', 'addOrReplace', 'field', 'Microsoft.Compute/disks/networkAccessPolicy', 'value', 'AllowPrivate'), createObject('operation', 'addOrReplace', 'field', 'Microsoft.Compute/disks/publicNetworkAccess', 'value', 'Disabled'), createObject('operation', 'addOrReplace', 'field', 'Microsoft.Compute/disks/diskAccessId', 'value', '[parameters(''diskAccessId'')]')), createArray(createObject('operation', 'addOrReplace', 'field', 'Microsoft.Compute/disks/networkAccessPolicy', 'value', 'DenyAll'), createObject('operation', 'addOrReplace', 'field', 'Microsoft.Compute/disks/publicNetworkAccess', 'value', 'Disabled')))]"
+                            }
+                          }
+                        },
+                        "policyType": "Custom"
+                      },
+                      "dependsOn": [
+                        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-disk-access-{0}', parameters('deploymentNameSuffix')))]"
+                      ]
                     },
                     {
                       "type": "Microsoft.Resources/deployments",
@@ -24667,86 +24685,6 @@
                     {
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2025-04-01",
-                      "name": "[format('deploy-policy-disks-{0}', parameters('deploymentNameSuffix'))]",
-                      "location": "[deployment().location]",
-                      "properties": {
-                        "expressionEvaluationOptions": {
-                          "scope": "inner"
-                        },
-                        "mode": "Incremental",
-                        "parameters": {
-                          "diskAccessResourceId": {
-                            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-disk-access-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.resourceId.value]"
-                          }
-                        },
-                        "template": {
-                          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
-                          "contentVersion": "1.0.0.0",
-                          "metadata": {
-                            "_generator": {
-                              "name": "bicep",
-                              "version": "0.40.2.10011",
-                              "templateHash": "11056515729160071682"
-                            }
-                          },
-                          "parameters": {
-                            "diskAccessResourceId": {
-                              "type": "string",
-                              "defaultValue": ""
-                            }
-                          },
-                          "variables": {
-                            "parameters": "[if(not(empty(parameters('diskAccessResourceId'))), createObject('diskAccessId', createObject('type', 'String', 'metadata', createObject('displayName', 'Disk Access Resource Id', 'description', 'The resource Id of the Disk Access to associate to the managed disks.'))), createObject())]",
-                            "operations": "[if(not(empty(parameters('diskAccessResourceId'))), createArray(createObject('operation', 'addOrReplace', 'field', 'Microsoft.Compute/disks/networkAccessPolicy', 'value', 'AllowPrivate'), createObject('operation', 'addOrReplace', 'field', 'Microsoft.Compute/disks/publicNetworkAccess', 'value', 'Disabled'), createObject('operation', 'addOrReplace', 'field', 'Microsoft.Compute/disks/diskAccessId', 'value', '[parameters(''diskAccessId'')]')), createArray(createObject('operation', 'addOrReplace', 'field', 'Microsoft.Compute/disks/networkAccessPolicy', 'value', 'DenyAll'), createObject('operation', 'addOrReplace', 'field', 'Microsoft.Compute/disks/publicNetworkAccess', 'value', 'Disabled')))]"
-                          },
-                          "resources": [
-                            {
-                              "type": "Microsoft.Authorization/policyDefinitions",
-                              "apiVersion": "2021-06-01",
-                              "name": "DiskNetworkAccess",
-                              "properties": {
-                                "description": "Disable network access to managed disks.",
-                                "displayName": "Disable Disk Access",
-                                "mode": "All",
-                                "parameters": "[variables('parameters')]",
-                                "policyRule": {
-                                  "if": {
-                                    "field": "type",
-                                    "equals": "Microsoft.Compute/disks"
-                                  },
-                                  "then": {
-                                    "effect": "modify",
-                                    "details": {
-                                      "roleDefinitionIds": [
-                                        "/providers/Microsoft.Authorization/roleDefinitions/60fc6e62-5479-42d4-8bf4-67625fcc2840"
-                                      ],
-                                      "operations": "[variables('operations')]"
-                                    }
-                                  }
-                                },
-                                "policyType": "Custom"
-                              }
-                            }
-                          ],
-                          "outputs": {
-                            "policyDefinitionId": {
-                              "type": "string",
-                              "value": "[subscriptionResourceId('Microsoft.Authorization/policyDefinitions', 'DiskNetworkAccess')]"
-                            },
-                            "policyDisplayName": {
-                              "type": "string",
-                              "value": "[reference(subscriptionResourceId('Microsoft.Authorization/policyDefinitions', 'DiskNetworkAccess'), '2021-06-01').displayName]"
-                            }
-                          }
-                        }
-                      },
-                      "dependsOn": [
-                        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-disk-access-{0}', parameters('deploymentNameSuffix')))]"
-                      ]
-                    },
-                    {
-                      "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2025-04-01",
                       "name": "[format('assign-policy-diskAccess-{0}', parameters('deploymentNameSuffix'))]",
                       "subscriptionId": "[parameters('subscriptionId')]",
                       "resourceGroup": "[parameters('resourceGroupName')]",
@@ -24763,13 +24701,13 @@
                             "value": "[parameters('location')]"
                           },
                           "policyDefinitionId": {
-                            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-policy-disks-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.policyDefinitionId.value]"
+                            "value": "[subscriptionResourceId('Microsoft.Authorization/policyDefinitions', 'DiskNetworkAccess')]"
                           },
                           "policyDisplayName": {
-                            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-policy-disks-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.policyDisplayName.value]"
+                            "value": "[reference(subscriptionResourceId('Microsoft.Authorization/policyDefinitions', 'DiskNetworkAccess'), '2021-06-01').displayName]"
                           },
                           "policyName": {
-                            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-policy-disks-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.policyDisplayName.value]"
+                            "value": "[reference(subscriptionResourceId('Microsoft.Authorization/policyDefinitions', 'DiskNetworkAccess'), '2021-06-01').displayName]"
                           }
                         },
                         "template": {
@@ -24819,7 +24757,7 @@
                       },
                       "dependsOn": [
                         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-disk-access-{0}', parameters('deploymentNameSuffix')))]",
-                        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-policy-disks-{0}', parameters('deploymentNameSuffix')))]"
+                        "[subscriptionResourceId('Microsoft.Authorization/policyDefinitions', 'DiskNetworkAccess')]"
                       ]
                     },
                     {
@@ -25821,11 +25759,11 @@
                     },
                     "diskAccessPolicyDefinitionId": {
                       "type": "string",
-                      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-policy-disks-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.policyDefinitionId.value]"
+                      "value": "[subscriptionResourceId('Microsoft.Authorization/policyDefinitions', 'DiskNetworkAccess')]"
                     },
                     "diskAccessPolicyDisplayName": {
                       "type": "string",
-                      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-policy-disks-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.policyDisplayName.value]"
+                      "value": "[reference(subscriptionResourceId('Microsoft.Authorization/policyDefinitions', 'DiskNetworkAccess'), '2021-06-01').displayName]"
                     },
                     "diskAccessResourceId": {
                       "type": "string",

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.40.2.10011",
-      "templateHash": "13199347027223933724"
+      "templateHash": "5753484219122564508"
     }
   },
   "parameters": {
@@ -12099,21 +12099,9 @@
       "type": "string",
       "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.logAnalyticsWorkspaceResourceId.value]"
     },
-    "mlzTags": {
-      "type": "object",
-      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.mlzTags.value]"
-    },
     "privateLinkScopeResourceId": {
       "type": "string",
       "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.privateLinkScopeResourceId.value]"
-    },
-    "sharedServicesSubnetResourceId": {
-      "type": "string",
-      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.sharedServicesSubnetResourceId.value]"
-    },
-    "tiers": {
-      "type": "array",
-      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tiers.value]"
     }
   }
 }

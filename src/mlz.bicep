@@ -1138,7 +1138,4 @@ output domainControllerResourceIds array = deployActiveDirectoryDomainServices &
 output hubStorageAccountResourceId string = storage.outputs.storageAccountResourceIds[0]
 output hubVirtualNetworkResourceId string = networking.outputs.hubVirtualNetworkResourceId
 output logAnalyticsWorkspaceResourceId string = monitoring.outputs.logAnalyticsWorkspaceResourceId
-output mlzTags object = networking.outputs.mlzTags
 output privateLinkScopeResourceId string = monitoring.outputs.privateLinkScopeResourceId
-output sharedServicesSubnetResourceId string = networking.outputs.sharedServicesSubnetResourceId
-output tiers array = networking.outputs.tiers
