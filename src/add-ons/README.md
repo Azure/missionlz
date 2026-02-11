@@ -2,12 +2,12 @@
 
 [**Home**](../../../README.md) | [**Design**](../../../docs/design.md) | [**Add-Ons**](./README.md) | [**Resources**](../../../docs/resources.md)
 
-This directory contains add-ons to extend the functionality of Mission Landing Zone. These add-ons are reference implementations aligned with industry proven practices, and automation packaged to deploy workload platforms on Azure at scale. Each add-on creates a tier3 spoke virtual network that is peered to the hub virtual network. These add-ons were developed to adhere to the SCCA and zero-trust guidelines.
+This directory contains add-ons to extend the functionality of Mission Landing Zone. These add-ons are reference implementations aligned with industry proven practices, and automation packaged to deploy workload platforms on Azure at scale. Each add-on creates a spoke virtual network that is peered to the hub virtual network. These add-ons were developed to adhere to the SCCA and zero-trust guidelines.
 
 ## Add-Ons
 
-Name   | Description
------- | -----------
+Name | Description
+---- | -----------
 [ArcGIS Pro](./arcgis-pro/README.md) | Deploys Mission Landing Zone, the Azure Virtual Desktop, and ArcGIS Enterprise in a single click deployment.
 [Azure NetApp Files](./azure-netapp-files/README.md) | Allows for the deployment of Azure NetApp Files with an SMB file share.
 [Azure Virtual Desktop](./azure-virtual-desktop/README.md) | Deploys Azure Virtual Desktop stamps in either generic or ArcGIS Pro configurations with FSLogix, AutoScale, AVD Insights, and more.
