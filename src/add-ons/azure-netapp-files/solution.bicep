@@ -247,3 +247,5 @@ module netAppFiles 'modules/azureNetAppFiles.bicep' = {
     tags: tags
   }
 }
+
+output fileShare string = netAppFiles.outputs.fileShare

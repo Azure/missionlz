@@ -196,34 +196,6 @@ module domainUserAccount 'modules/domain-user-account.bicep' = {
   }
 }
 
-module azureVirtualDesktop 'modules/azure-virtual-desktop.bicep' = {
-  name: 'deploy-azure-virtual-desktop-${deploymentNameSuffix}'
-  params: {
-    activeDirectorySolution: 'MicrosoftEntraId'
-    avdObjectId: avdObjectId
-    deployActivityLogDiagnosticSetting: true
-    deployDefender: true
-    deployPolicy: deployPolicy
-    enableAcceleratedNetworking: true
-    environmentAbbreviation: environmentAbbreviation
-    fslogixStorageService: 'None'
-    hubAzureFirewallResourceId: missionLandingZone.outputs.azureFirewallResourceId
-    hubStorageAccountResourceId: missionLandingZone.outputs.hubStorageAccountResourceId
-    hubVirtualNetworkResourceId: missionLandingZone.outputs.hubVirtualNetworkResourceId
-    identifier: identifier
-    location: location
-    operationsLogAnalyticsWorkspaceResourceId: missionLandingZone.outputs.logAnalyticsWorkspaceResourceId
-    policy: policy
-    privateLinkScopeResourceId: missionLandingZone.outputs.privateLinkScopeResourceId
-    securityPrincipals: securityPrincipals
-    usersPerCore: 1
-    virtualMachineAdminPassword: domainAdministratorPassword
-    virtualMachineAdminUsername: domainAdministratorUsername
-    virtualMachineSize: 'Standard_NV4ads_V710_v5'
-    virtualMachineVirtualCpuCount: 4
-  }
-}
-
 module azureNetAppFiles '../azure-netapp-files/solution.bicep' = {
   name: 'deploy-azure-netapp-files-${deploymentNameSuffix}'
   params: {
@@ -245,5 +217,34 @@ module azureNetAppFiles '../azure-netapp-files/solution.bicep' = {
     policy: policy
     sku: 'Standard'
     tags: tags
+  }
+}
+
+module azureVirtualDesktop 'modules/azure-virtual-desktop.bicep' = {
+  name: 'deploy-azure-virtual-desktop-${deploymentNameSuffix}'
+  params: {
+    activeDirectorySolution: 'MicrosoftEntraId'
+    avdObjectId: avdObjectId
+    deployActivityLogDiagnosticSetting: true
+    deployDefender: true
+    deployPolicy: deployPolicy
+    enableAcceleratedNetworking: true
+    environmentAbbreviation: environmentAbbreviation
+    fileShare: azureNetAppFiles.outputs.fileShare
+    fslogixStorageService: 'None'
+    hubAzureFirewallResourceId: missionLandingZone.outputs.azureFirewallResourceId
+    hubStorageAccountResourceId: missionLandingZone.outputs.hubStorageAccountResourceId
+    hubVirtualNetworkResourceId: missionLandingZone.outputs.hubVirtualNetworkResourceId
+    identifier: identifier
+    location: location
+    operationsLogAnalyticsWorkspaceResourceId: missionLandingZone.outputs.logAnalyticsWorkspaceResourceId
+    policy: policy
+    privateLinkScopeResourceId: missionLandingZone.outputs.privateLinkScopeResourceId
+    securityPrincipals: securityPrincipals
+    usersPerCore: 1
+    virtualMachineAdminPassword: domainAdministratorPassword
+    virtualMachineAdminUsername: domainAdministratorUsername
+    virtualMachineSize: 'Standard_NV4ads_V710_v5'
+    virtualMachineVirtualCpuCount: 4
   }
 }

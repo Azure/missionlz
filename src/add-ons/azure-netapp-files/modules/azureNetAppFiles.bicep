@@ -44,3 +44,5 @@ module netAppFiles '../../azure-virtual-desktop/modules/fslogix/azure-netapp-fil
     tags: tags
   }
 }
+
+output fileShare string = netAppFiles.outputs.fileShares[0]

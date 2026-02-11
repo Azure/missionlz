@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.40.2.10011",
-      "templateHash": "4172854133720025522"
+      "templateHash": "17163994307070604219"
     }
   },
   "parameters": {
@@ -5680,7 +5680,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "669845633405730508"
+              "templateHash": "15345292701637298948"
             }
           },
           "parameters": {
@@ -5962,7 +5962,13 @@
                 }
               }
             }
-          ]
+          ],
+          "outputs": {
+            "fileShare": {
+              "type": "string",
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-netapp-files-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.fileShares.value[0]]"
+            }
+          }
         }
       },
       "dependsOn": [
@@ -5970,5 +5976,11 @@
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix')))]"
       ]
     }
-  ]
+  ],
+  "outputs": {
+    "fileShare": {
+      "type": "string",
+      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-netapp-files-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.fileShare.value]"
+    }
+  }
 }

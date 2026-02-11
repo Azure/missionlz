@@ -1,4 +1,8 @@
-﻿$ErrorActionPreference = 'Stop'
+﻿param (
+    [string]$FileShare
+)
+
+$ErrorActionPreference = 'Stop'
 $Settings = @(
 
     # Disable Automatic Updates: https://learn.microsoft.com/azure/virtual-desktop/set-up-customize-master-image#disable-automatic-updates
@@ -58,3 +62,6 @@ foreach($Setting in $Settings)
     }
     Start-Sleep -Seconds 1 | Out-Null
 }
+
+# Mount file share for geospatial data
+New-PSDrive -Name 'Z' -PSProvider 'FileSystem' -Root $FileShare -Persist -Scope 'Global'

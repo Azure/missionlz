@@ -12,6 +12,7 @@ param diskEncryptionSetResourceId string
 param diskSku string
 param enableAcceleratedNetworking bool
 param enableAvdInsights bool
+param fileShare string
 param hostPoolResourceId string
 param imageOffer string
 param imagePublisher string
@@ -70,6 +71,7 @@ module virtualMachine 'virtual-machine.bicep' = {
     diskSku: diskSku
     enableAcceleratedNetworking: enableAcceleratedNetworking
     enableAvdInsights: enableAvdInsights
+    fileShare: fileShare
     hostPoolResourceId: hostPoolResourceId
     imageOffer: imageOffer
     imagePublisher: imagePublisher

@@ -8,6 +8,7 @@ param diskNamePrefix string
 param diskSku string
 param enableAcceleratedNetworking bool
 param enableAvdInsights bool
+param fileShare string
 param hostPoolResourceId string
 param imageOffer string
 param imagePublisher string
@@ -188,7 +189,12 @@ module setSessionHostConfiguration '../../../azure-virtual-desktop/modules/commo
   params: {
     location: location
     name: 'Set-SessionHostConfiguration'
-    parameters: []
+    parameters: [
+      {
+        name: 'FileShare'
+        value: fileShare
+      }
+    ]
     script: loadTextContent('../../artifacts/Set-SessionHostConfiguration.ps1')
     tags: tagsVirtualMachines
     virtualMachineName: virtualMachine.name

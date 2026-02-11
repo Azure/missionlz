@@ -64,6 +64,9 @@ param environmentAbbreviation string = 'dev'
 @description('The resource ID for the existing feed workspace within a business unit or project.')
 param existingFeedWorkspaceResourceId string = ''
 
+@description('The file share on Azure NetApp Files to store unstructured geospatial data.')
+param fileShare string
+
 @allowed([
   'AzureNetAppFiles Premium' // ANF with the Premium SKU, 450,000 IOPS
   'AzureNetAppFiles Standard' // ANF with the Standard SKU, 320,000 IOPS
@@ -442,6 +445,7 @@ module sessionHosts 'session-hosts/session-hosts.bicep' = {
     diskSku: diskSku
     enableAcceleratedNetworking: enableAcceleratedNetworking
     enableAvdInsights: enableAvdInsights
+    fileShare: fileShare
     hostPoolResourceId: controlPlane.outputs.hostPoolResourceId
     imageOffer: imageOffer
     imagePublisher: imagePublisher
