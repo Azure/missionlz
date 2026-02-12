@@ -22,13 +22,13 @@ This document is for ***reference purposes only***.  The costs for an MLZ deploy
 
 | Resource                             | Cost        |
 | :----------------------------------- | :-----------|
-| Azure Firewall (Standard)            | 912.00      |
-| Bastion                              | 138.70      |
-| Virtual Machine                      | 152.57      |
-| Disk                                 | 9.80        |
-| Storage Account x 3                  | 204.15      |
-| Virtual Network x 3                  | 42.00       |
-| Total                                | 1459.72 $   |
+| Azure Firewall (Standard)            | $912.00      |
+| Bastion                              | $138.70      |
+| Virtual Machine                      | $152.57      |
+| Disk                                 | $9.80        |
+| Storage Account x 3                  | $204.15      |
+| Virtual Network x 3                  | $42.00       |
+| Total                                | $1459.72     |
 
 ## Azure Pricing Calculator
 
