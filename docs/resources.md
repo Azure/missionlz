@@ -1,6 +1,6 @@
 # Mission Landing Zone - Resources
 
-[**Home**](../README.md) | [**Design**](./design.md) | [**Add-Ons**](../src/add-ons/README.md) | [**Resources**](./resources.md)
+[**Home**](../README.md) | [**Design**](./design.md) | [**Add-Ons**](../src/add-ons/README.md) | [**Resources**](./resources.md) | [**Costs**](./costs.md)
 
 ## What is a Landing Zone?
 

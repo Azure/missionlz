@@ -1,6 +1,6 @@
 # Missiong Landing Zone - Security & Compliance Settings
 
-[**Home**](../README.md) | [**Design**](./design.md) | [**Add-Ons**](../src/add-ons/README.md) | [**Resources**](./resources.md)
+[**Home**](../README.md) | [**Design**](./design.md) | [**Add-Ons**](../src/add-ons/README.md) | [**Resources**](./resources.md) | [**Costs**](./costs.md)
 
 **The following security settings and compliance features are available during the Mission Landing Zone deployment process:**
 
