@@ -3,7 +3,6 @@ targetScope = 'subscription'
 param activeDirectorySolution string
 param avdPrivateDnsZoneResourceId string
 param customRdpProperty string
-param delimiter string
 param deploymentNameSuffix string
 param diskSku string
 param domainName string
@@ -17,24 +16,26 @@ param imageSku string
 param location string
 param logAnalyticsWorkspaceResourceId string
 param maxSessionLimit int
-param mlzTags object
-param namingConvention object
 param resourceGroupName string
 param securityPrincipalObjectId string
-param subnetResourceId string
 param tags object
-param tokens object
+param tier3 object
 param validationEnvironment bool
 param virtualMachineSize string
 param workspaceFriendlyName string
 param workspaceGlobalPrivateDnsZoneResourceId string
 param workspacePublicNetworkAccess string
 
+var delimiter = tier3.delimiter
 var galleryImageOffer = '"${imageOffer}"'
 var galleryImagePublisher = '"${imagePublisher}"'
 var galleryImageSku = '"${imageSku}"'
 var galleryItemId = '"${imagePublisher}.${imageOffer}${imageSku}"'
 var imageType = '"Gallery"'
+var mlzTags = tier3.mlzTags
+var namingConvention = tier3.tier.namingConvention
+var subnetResourceId = tier3.tier.subnetResourceId
+var tokens = tier3.tokens
 
 module hostPool 'host-pool.bicep' = {
   name: 'deploy-vdpool-${deploymentNameSuffix}'

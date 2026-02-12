@@ -374,23 +374,18 @@ module management 'management/management.bicep' = {
   name: 'deploy-management-${deploymentNameSuffix}'
   params: {
     avdObjectId: avdObjectId
-    delimiter: tier3.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
     enableAvdInsights: enableAvdInsights
     environmentAbbreviation: environmentAbbreviation
     location: location
     logAnalyticsWorkspaceRetention: logAnalyticsWorkspaceRetention
     logAnalyticsWorkspaceSku: logAnalyticsWorkspaceSku
-    mlzTags: tier3.outputs.mlzTags
     privateDnsZoneResourceIdPrefix: privateDnsZoneResourceIdPrefix
-    privateDnsZones: tier3.outputs.privateDnsZones
     privateLinkScopeResourceId: privateLinkScopeResourceId
-    resourceAbbreviations: tier3.outputs.resourceAbbreviations
     resourceGroupName: rg.outputs.name
     subscriptionId: subscriptionId
     tags: tags
-    tier: tier3.outputs.tier
-    tokens: tier3.outputs.tokens
+    tier3: tier3.outputs
   }
 }
 
@@ -400,7 +395,6 @@ module controlPlane 'control-plane/control-plane.bicep' = {
     activeDirectorySolution: activeDirectorySolution
     avdPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3.outputs.privateDnsZones, name => startsWith(name, 'privatelink.wvd'))[0]}'
     customRdpProperty: customRdpProperty
-    delimiter: tier3.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
     diskSku: diskSku
     domainName: domainName
@@ -414,13 +408,10 @@ module controlPlane 'control-plane/control-plane.bicep' = {
     location: location
     logAnalyticsWorkspaceResourceId: management.outputs.logAnalyticsWorkspaceResourceId
     maxSessionLimit: usersPerCore * virtualMachineVirtualCpuCount
-    mlzTags: tier3.outputs.mlzTags
-    namingConvention: tier3.outputs.tier.namingConvention
-    resourceGroupName: resourceGroupName
+    resourceGroupName: rg.outputs.name
     securityPrincipalObjectId: map(securityPrincipals, item => item.objectId)[0]
-    subnetResourceId: tier3.outputs.tier.subnetResourceId
     tags: tags
-    tokens: tier3.outputs.tokens
+    tier3: tier3.outputs
     validationEnvironment: validationEnvironment
     virtualMachineSize: virtualMachineSize
     workspaceFriendlyName: workspaceFriendlyName
@@ -436,7 +427,6 @@ module sessionHosts 'session-hosts/session-hosts.bicep' = {
     activeDirectorySolution: activeDirectorySolution
     avdConfigurationZipFileUri: 'https://${avdStorageAccountEndpoint}/galleryartifacts/Configuration_1.0.03211.1002.zip'
     dataCollectionRuleResourceId: management.outputs.dataCollectionRuleResourceId
-    delimiter: tier3.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
     diskAccessPolicyDefinitionId: management.outputs.diskAccessPolicyDefinitionId
     diskAccessPolicyDisplayName: management.outputs.diskAccessPolicyDisplayName
@@ -451,12 +441,10 @@ module sessionHosts 'session-hosts/session-hosts.bicep' = {
     imagePublisher: imagePublisher
     imageSku: imageSku
     location: location
-    mlzTags: tier3.outputs.mlzTags
     resourceGroupName: resourceGroupName
     securityPrincipalObjectId: map(securityPrincipals, item => item.objectId)[0]
     tags: tags
-    tier: tier3.outputs.tier
-    tokens: tier3.outputs.tokens
+    tier3: tier3.outputs
     virtualMachineAdminPassword: virtualMachineAdminPassword
     virtualMachineAdminUsername: virtualMachineAdminUsername
     virtualMachineSize: virtualMachineSize

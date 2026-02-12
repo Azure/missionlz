@@ -1,32 +1,34 @@
 targetScope = 'subscription'
 
 param avdObjectId string
-param delimiter string
 param deploymentNameSuffix string
 param enableAvdInsights bool
 param environmentAbbreviation string
 param location string
 param logAnalyticsWorkspaceRetention int
 param logAnalyticsWorkspaceSku string
-param mlzTags object
 param privateDnsZoneResourceIdPrefix string
-param privateDnsZones array
 param privateLinkScopeResourceId string
-param resourceAbbreviations object
 param resourceGroupName string
 param subscriptionId string
 param tags object
-param tier object
-param tokens object
+param tier3 object
 
-var hostPoolResourceId = resourceId(subscription().subscriptionId, resourceGroupName, 'Microsoft.DesktopVirtualization/hostpools', replace(tier.namingConvention.hostPool, '${delimiter}${tokens.purpose}', ''))
+var delimiter = tier3.delimiter
+var hostPoolResourceId = resourceId(subscription().subscriptionId, resourceGroupName, 'Microsoft.DesktopVirtualization/hostpools', replace(namingConvention.hostPool, '${delimiter}${tokens.purpose}', ''))
+var mlzTags = tier3.mlzTags
+var namingConvention = tier3.tier.namingConvention
+var privateDnsZones = tier3.privateDnsZones
+var resourceAbbreviations = tier3.resourceAbbreviations
+var tier = tier3.tier
+var tokens = tier3.tokens
 
 module deploymentUserAssignedIdentity 'user-assigned-identity.bicep' = {
   name: 'deploy-id-deployment-${deploymentNameSuffix}'
   scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
     location: location
-    name: replace(tier.namingConvention.userAssignedIdentity, tokens.purpose, 'deployment')
+    name: replace(namingConvention.userAssignedIdentity, tokens.purpose, 'deployment')
     tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.ManagedIdentity/userAssignedIdentities'] ?? {}, mlzTags)
   }
 }
