@@ -378,6 +378,55 @@
               ]
             },
             {
+              "name": "workloadSection",
+              "type": "Microsoft.Common.Section",
+              "visible": true,
+              "label": "Workload Type",
+              "elements": [
+                {
+                  "name": "description",
+                  "type": "Microsoft.Common.TextBlock",
+                  "options": {
+                    "text": "The workload type determines the size of the session host virtual machines deployed in this AVD stamp. The sizes available for selection are based on the NVads V710 v5-series which are optimized for graphics workloads like ArcGIS Pro. Be sure to select the appropriate workload type based on the performance needs of your users. If you are unsure which workload type to select, start with Medium and adjust as needed based on user feedback and performance metrics.",
+                    "link": {
+                      "label": "Click here to learn more about the NVads V710 v5-series.",
+                      "uri": "https://learn.microsoft.com/azure/virtual-machines/sizes/gpu-accelerated/nvadsv710-v5-series?tabs=sizeaccelerators"
+                    }
+                  }
+                },
+                {
+                  "name": "workloadType",
+                  "type": "Microsoft.Common.DropDown",
+                  "label": "Workload Type",
+                  "visible": true,
+                  "filter": true,
+                  "defaultValue": "[if(equals(steps('basics').scenario.profile, 'arcGisPro'), 'Medium', 'Heavy (2 users per core)')]",
+                  "toolTip": "Select the type of image to deploy on the session hosts.",
+                  "multiLine": true,
+                  "constraints": {
+                    "required": true,
+                    "allowedValues": [
+                      {
+                        "label": "Light",
+                        "description": "Simple 2-D map visualizations, basic analyses, and reporting.",
+                        "value": "Standard_NV4ads_V710_v5"
+                      },
+                      {
+                        "label": "Medium",
+                        "description": "Advanced 2-D or 3-D map visualizations, multi-source data analyses leveraging geoprocessing tools, reporting, and editing.",
+                        "value": "Standard_NV8ads_V710_v5"
+                      },
+                      {
+                        "label": "Heavy",
+                        "description": "Complex 2-D or 3-D map visualizations including advanced symbology, analyses with visability and line of site, reporting, and editing.",
+                        "value": "Standard_NV12ads_V710_v5"
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            {
               "name": "virtualMachineQuotaSection",
               "type": "Microsoft.Common.Section",
               "visible": true,
@@ -387,7 +436,7 @@
                   "name": "description",
                   "type": "Microsoft.Common.TextBlock",
                   "options": {
-                    "text": "This section is used to check if the selected subscription and region have enough quota to support the deployment of the AVD session host. The AVD session host in this solution uses the 'Standard_NV4ads_V710_v5' SKU which has 4 vCPUs per VM. There are hidden ARM API controls below that will check for the quota for this SKU family and the current usage to determine if there is enough available quota to deploy the requested number of session hosts. If there is not enough quota, an error message will be displayed with the details of the quota limits, current usage, and requested vCPU count. Be sure to check that your subscription has enough available quota before deploying. If you need to request a quota increase, use the link below to follow the appropriate steps.",
+                    "text": "This section is used to check if the selected subscription and region have enough quota to support the deployment of the AVD session host using the virtual machine size selected in the workload type option. The AVD session host in this solution uses the 'NVads V710 v5-series'. There are hidden ARM API controls below that will check for the quota for this SKU family and the current usage to determine if there is enough available quota to deploy the requested number of session hosts. If you need to request a quota increase, use the link below to follow the appropriate steps.",
                     "link": {
                       "label": "Click here to learn more about increasing your quota.",
                       "uri": "https://learn.microsoft.com/azure/quotas/per-vm-quota-requests"
@@ -414,10 +463,10 @@
                 {
                   "name": "sizeError",
                   "type": "Microsoft.Common.InfoBox",
-                  "visible": "[less(coalesce(first(map(filter(steps('hosts').virtualMachines.usageApi.value, (item) => equals(item.name.value, first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, 'Standard_NV4ads_V710_v5')), (item) => item.family)))), (item) => item.limit)), 0), add(mul(coalesce(parse(first(map(filter(first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, 'Standard_NV4ads_V710_v5')), (item) => item.capabilities)), (item) => equals(item.name, 'vCPUs')), (item) => item.value))), 1), steps('hosts').virtualMachines.count), coalesce(first(map(filter(steps('hosts').virtualMachines.usageApi.value, (item) => equals(item.name.value, first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, 'Standard_NV4ads_V710_v5')), (item) => item.family)))), (item) => item.currentValue)), 0))))]",
+                  "visible": "[less(coalesce(first(map(filter(steps('hosts').virtualMachines.usageApi.value, (item) => equals(item.name.value, first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, steps('avd').workloadSection.workloadType)), (item) => item.family)))), (item) => item.limit)), 0), add(mul(coalesce(parse(first(map(filter(first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, steps('avd').workloadSection.workloadType)), (item) => item.capabilities)), (item) => equals(item.name, 'vCPUs')), (item) => item.value))), 1), steps('hosts').virtualMachines.count), coalesce(first(map(filter(steps('hosts').virtualMachines.usageApi.value, (item) => equals(item.name.value, first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, steps('avd').workloadSection.workloadType)), (item) => item.family)))), (item) => item.currentValue)), 0))))]",
                   "options": {
                     "style": "Error",
-                    "text": "[concat('ERROR! The selected subscription and region does not have enough quota for the requested vCPUs: <br><br><b>Family:</b> ', replace(replace(replace(first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, 'Standard_NV4ads_V710_v5')), (item) => item.family)), 'standard', 'Standard '), 'Family', ' Family vCPUs'), '  ', ' '), '<br><b>Current vCPU Quota:</b> ', string(coalesce(first(map(filter(steps('hosts').virtualMachines.usageApi.value, (item) => equals(item.name.value, first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, 'Standard_NV4ads_V710_v5')), (item) => item.family)))), (item) => item.limit)), 0)), '<br><b>Current vCPU Usage:</b> ', string(coalesce(first(map(filter(steps('hosts').virtualMachines.usageApi.value, (item) => equals(item.name.value, first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, 'Standard_NV4ads_V710_v5')), (item) => item.family)))), (item) => item.currentValue)), 0)), '<br><b>Requested vCPUs:</b> ', string(mul(parse(first(map(filter(first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, 'Standard_NV4ads_V710_v5')), (item) => item.capabilities)), (item) => equals(item.name, 'vCPUs')), (item) => item.value))), steps('hosts').virtualMachines.count)))]" 
+                    "text": "[concat('ERROR! The selected subscription and region does not have enough quota for the requested vCPUs: <br><br><b>Family:</b> ', replace(replace(replace(first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, steps('avd').workloadSection.workloadType)), (item) => item.family)), 'standard', 'Standard '), 'Family', ' Family vCPUs'), '  ', ' '), '<br><b>Current vCPU Quota:</b> ', string(coalesce(first(map(filter(steps('hosts').virtualMachines.usageApi.value, (item) => equals(item.name.value, first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, steps('avd').workloadSection.workloadType)), (item) => item.family)))), (item) => item.limit)), 0)), '<br><b>Current vCPU Usage:</b> ', string(coalesce(first(map(filter(steps('hosts').virtualMachines.usageApi.value, (item) => equals(item.name.value, first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, steps('avd').workloadSection.workloadType)), (item) => item.family)))), (item) => item.currentValue)), 0)), '<br><b>Requested vCPUs:</b> ', string(mul(parse(first(map(filter(first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, steps('avd').workloadSection.workloadType)), (item) => item.capabilities)), (item) => equals(item.name, 'vCPUs')), (item) => item.value))), steps('hosts').virtualMachines.count)))]"
                   }
                 }
               ]
@@ -559,7 +608,8 @@
         "identifier": "[steps('basics').naming.identifier]",
         "policy": "[steps('compliance').policySection.policy]",
         "securityPrincipals": "[steps('avd').assignment.groupPickerBlade.transformed.selection]",
-        "tags": "[steps('tags').tags]"
+        "tags": "[steps('tags').tags]",
+        "virtualMachineSize": "[steps('avd').workloadSection.workloadType]"
       },
       "kind": "Subscription",
       "location": "[steps('basics').scope.location.name]",
