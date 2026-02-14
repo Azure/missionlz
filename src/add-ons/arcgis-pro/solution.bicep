@@ -107,6 +107,9 @@ param tags object = {}
 // @description('The client ID for the user assigned managed identity assigned to the domain controllers. The identity is required to deploy and configure Entra Cloud Sync.')
 // param userAssignedManagedIdentityClientId string
 
+@description('The virtual machine size for the Azure Virtual Desktop session hosts.')
+param virtualMachineSize string = 'Standard_NV4ads_V710_v5'
+
 module missionLandingZone '../../mlz.bicep' = {
   name: 'deploy-mission-landing-zone-${deploymentNameSuffix}'
   params: {
@@ -228,10 +231,8 @@ module azureVirtualDesktop 'modules/azure-virtual-desktop.bicep' = {
     deployActivityLogDiagnosticSetting: true
     deployDefender: true
     deployPolicy: deployPolicy
-    enableAcceleratedNetworking: true
     environmentAbbreviation: environmentAbbreviation
     fileShare: azureNetAppFiles.outputs.fileShare
-    fslogixStorageService: 'None'
     hubAzureFirewallResourceId: missionLandingZone.outputs.azureFirewallResourceId
     hubStorageAccountResourceId: missionLandingZone.outputs.hubStorageAccountResourceId
     hubVirtualNetworkResourceId: missionLandingZone.outputs.hubVirtualNetworkResourceId
@@ -244,7 +245,7 @@ module azureVirtualDesktop 'modules/azure-virtual-desktop.bicep' = {
     usersPerCore: 1
     virtualMachineAdminPassword: domainAdministratorPassword
     virtualMachineAdminUsername: domainAdministratorUsername
-    virtualMachineSize: 'Standard_NV4ads_V710_v5'
+    virtualMachineSize: virtualMachineSize
     virtualMachineVirtualCpuCount: 4
   }
 }

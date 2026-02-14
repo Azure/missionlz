@@ -1,6 +1,5 @@
 param applicationGroupResourceId string
 param avdPrivateDnsZoneResourceId string
-param enableAvdInsights bool
 param existingFeedWorkspaceResourceId string
 param locationControlPlane string
 param logAnalyticsWorkspaceResourceId string
@@ -64,7 +63,7 @@ resource privateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneG
   }
 }
 
-resource diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (enableAvdInsights) {
+resource diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
   name: workspaceFeedDiagnoticSettingName
   scope: workspace
   properties: {

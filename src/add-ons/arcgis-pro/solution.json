@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.40.2.10011",
-      "templateHash": "16823383998315799539"
+      "templateHash": "13325521961960115867"
     }
   },
   "parameters": {
@@ -122,6 +122,13 @@
       "defaultValue": {},
       "metadata": {
         "description": "A string dictionary of tags to add to deployed resources. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-resource-manager/management/tag-resources?tabs=json#arm-templates."
+      }
+    },
+    "virtualMachineSize": {
+      "type": "string",
+      "defaultValue": "Standard_NV4ads_V710_v5",
+      "metadata": {
+        "description": "The virtual machine size for the Azure Virtual Desktop session hosts."
       }
     }
   },
@@ -18522,17 +18529,11 @@
           "deployPolicy": {
             "value": "[parameters('deployPolicy')]"
           },
-          "enableAcceleratedNetworking": {
-            "value": true
-          },
           "environmentAbbreviation": {
             "value": "[parameters('environmentAbbreviation')]"
           },
           "fileShare": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-azure-netapp-files-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.fileShare.value]"
-          },
-          "fslogixStorageService": {
-            "value": "None"
           },
           "hubAzureFirewallResourceId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-mission-landing-zone-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.azureFirewallResourceId.value]"
@@ -18571,7 +18572,7 @@
             "value": "[parameters('domainAdministratorUsername')]"
           },
           "virtualMachineSize": {
-            "value": "Standard_NV4ads_V710_v5"
+            "value": "[parameters('virtualMachineSize')]"
           },
           "virtualMachineVirtualCpuCount": {
             "value": 4
@@ -18584,7 +18585,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "10116407329237970396"
+              "templateHash": "14163688720232481722"
             }
           },
           "parameters": {
@@ -18604,13 +18605,6 @@
               "type": "string",
               "metadata": {
                 "description": "The object ID for the Azure Virtual Desktop enterprise application in Microsoft Entra ID.  The object ID can found by selecting Microsoft Applications using the Application type filter in the Enterprise Applications blade of Microsoft Entra ID."
-              }
-            },
-            "azureNetAppFilesSubnetAddressPrefix": {
-              "type": "string",
-              "defaultValue": "",
-              "metadata": {
-                "description": "The subnet address prefix for the Azure NetApp Files delegated subnet."
               }
             },
             "customRdpProperty": {
@@ -18678,19 +18672,6 @@
                 "description": "The email address to use for Defender for Cloud notifications."
               }
             },
-            "enableAcceleratedNetworking": {
-              "type": "bool",
-              "metadata": {
-                "description": "Determine whether to enable accelerated networking on the AVD session hosts. https://learn.microsoft.com/en-us/azure/virtual-network/accelerated-networking-overview"
-              }
-            },
-            "enableAvdInsights": {
-              "type": "bool",
-              "defaultValue": true,
-              "metadata": {
-                "description": "Deploys the required monitoring resources to enable AVD Insights."
-              }
-            },
             "environmentAbbreviation": {
               "type": "string",
               "defaultValue": "dev",
@@ -18714,27 +18695,6 @@
               "type": "string",
               "metadata": {
                 "description": "The file share on Azure NetApp Files to store unstructured geospatial data."
-              }
-            },
-            "fslogixStorageService": {
-              "type": "string",
-              "defaultValue": "AzureFiles Standard",
-              "allowedValues": [
-                "AzureNetAppFiles Premium",
-                "AzureNetAppFiles Standard",
-                "AzureFiles Premium",
-                "AzureFiles Standard",
-                "None"
-              ],
-              "metadata": {
-                "description": "Enable an Fslogix storage option to manage user profiles for the AVD session hosts. The selected service & SKU should provide sufficient IOPS for all of your users. https://docs.microsoft.com/en-us/azure/architecture/example-scenario/wvd/windows-virtual-desktop-fslogix#performance-requirements"
-              }
-            },
-            "functionAppSubnetAddressPrefix": {
-              "type": "string",
-              "defaultValue": "",
-              "metadata": {
-                "description": "The subnet address prefix for the delegated subnet for the Azure Function App. This subnet is required for the Auto Increase Premium File Share Quotas tool."
               }
             },
             "hostPoolPublicNetworkAccess": {
@@ -19057,18 +19017,6 @@
             "avdStorageAccountEndpoint": "[format('{0}.blob.{1}', variables('avdStorageAccountName'), environment().suffixes.storage)]",
             "avdStorageAccountName": "[if(startsWith(parameters('location'), 'usn'), 'wvdexportalcontainer', 'wvdportalstorageblob')]",
             "privateDnsZoneResourceIdPrefix": "[format('/subscriptions/{0}/resourceGroups/{1}/providers/Microsoft.Network/privateDnsZones/', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4])]",
-            "subnets": {
-              "avdManagement": [
-                {
-                  "name": "avd-management",
-                  "properties": {
-                    "addressPrefix": "[parameters('managementSubnetAddressPrefix')]"
-                  }
-                }
-              ],
-              "azureNetAppFiles": "[if(and(contains(parameters('fslogixStorageService'), 'AzureNetAppFiles'), not(empty(parameters('azureNetAppFilesSubnetAddressPrefix')))), createArray(createObject('name', 'azure-netapp-files', 'properties', createObject('addressPrefix', parameters('azureNetAppFilesSubnetAddressPrefix')))), createArray())]",
-              "functionApp": "[if(equals(parameters('fslogixStorageService'), 'AzureFiles Premium'), createArray(createObject('name', 'function-app-outbound', 'properties', createObject('addressPrefix', parameters('functionAppSubnetAddressPrefix')))), createArray())]"
-            },
             "subscriptionId": "[subscription().subscriptionId]"
           },
           "resources": [
@@ -19098,7 +19046,14 @@
                 "mode": "Incremental",
                 "parameters": {
                   "additionalSubnets": {
-                    "value": "[union(variables('subnets').avdManagement, variables('subnets').azureNetAppFiles, variables('subnets').functionApp)]"
+                    "value": [
+                      {
+                        "name": "avd-management",
+                        "properties": {
+                          "addressPrefix": "[parameters('managementSubnetAddressPrefix')]"
+                        }
+                      }
+                    ]
                   },
                   "customFirewallRuleCollectionGroups": {
                     "value": []
@@ -24318,9 +24273,6 @@
                   "deploymentNameSuffix": {
                     "value": "[parameters('deploymentNameSuffix')]"
                   },
-                  "enableAvdInsights": {
-                    "value": "[parameters('enableAvdInsights')]"
-                  },
                   "environmentAbbreviation": {
                     "value": "[parameters('environmentAbbreviation')]"
                   },
@@ -24359,7 +24311,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "13045337561193144686"
+                      "templateHash": "15426370168556253055"
                     }
                   },
                   "parameters": {
@@ -24368,9 +24320,6 @@
                     },
                     "deploymentNameSuffix": {
                       "type": "string"
-                    },
-                    "enableAvdInsights": {
-                      "type": "bool"
                     },
                     "environmentAbbreviation": {
                       "type": "string"
@@ -25338,7 +25287,6 @@
                       }
                     },
                     {
-                      "condition": "[parameters('enableAvdInsights')]",
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2025-04-01",
                       "name": "[format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))]",
@@ -25355,9 +25303,6 @@
                           },
                           "deploymentNameSuffix": {
                             "value": "[parameters('deploymentNameSuffix')]"
-                          },
-                          "enableAvdInsights": {
-                            "value": "[parameters('enableAvdInsights')]"
                           },
                           "hostPoolResourceId": {
                             "value": "[variables('hostPoolResourceId')]"
@@ -25394,7 +25339,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "1747195133216646513"
+                              "templateHash": "8398628192560052931"
                             }
                           },
                           "parameters": {
@@ -25403,9 +25348,6 @@
                             },
                             "deploymentNameSuffix": {
                               "type": "string"
-                            },
-                            "enableAvdInsights": {
-                              "type": "bool"
                             },
                             "hostPoolResourceId": {
                               "type": "string"
@@ -25455,7 +25397,6 @@
                               }
                             },
                             {
-                              "condition": "[parameters('enableAvdInsights')]",
                               "type": "Microsoft.Insights/dataCollectionRules",
                               "apiVersion": "2022-06-01",
                               "name": "[format('microsoft-avdi-{0}', replace(parameters('names').dataCollectionRule, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), ''))]",
@@ -25541,7 +25482,6 @@
                               ]
                             },
                             {
-                              "condition": "[parameters('enableAvdInsights')]",
                               "type": "Microsoft.Insights/dataCollectionEndpoints",
                               "apiVersion": "2021-04-01",
                               "name": "[replace(parameters('names').dataCollectionEndpoint, parameters('tokens').purpose, 'avdi')]",
@@ -25636,7 +25576,6 @@
                               ]
                             },
                             {
-                              "condition": "[parameters('enableAvdInsights')]",
                               "type": "Microsoft.Resources/deployments",
                               "apiVersion": "2025-04-01",
                               "name": "[format('deploy-private-link-scope-dce-{0}', parameters('deploymentNameSuffix'))]",
@@ -25729,7 +25668,7 @@
                             },
                             "dataCollectionRuleResourceId": {
                               "type": "string",
-                              "value": "[if(parameters('enableAvdInsights'), resourceId('Microsoft.Insights/dataCollectionRules', format('microsoft-avdi-{0}', replace(parameters('names').dataCollectionRule, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), ''))), '')]"
+                              "value": "[resourceId('Microsoft.Insights/dataCollectionRules', format('microsoft-avdi-{0}', replace(parameters('names').dataCollectionRule, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), '')))]"
                             }
                           }
                         }
@@ -25739,7 +25678,7 @@
                   "outputs": {
                     "dataCollectionRuleResourceId": {
                       "type": "string",
-                      "value": "[if(parameters('enableAvdInsights'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.dataCollectionRuleResourceId.value, '')]"
+                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.dataCollectionRuleResourceId.value]"
                     },
                     "diskAccessPolicyDefinitionId": {
                       "type": "string",
@@ -25759,7 +25698,7 @@
                     },
                     "logAnalyticsWorkspaceResourceId": {
                       "type": "string",
-                      "value": "[if(parameters('enableAvdInsights'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.logAnalyticsWorkspaceResourceId.value, '')]"
+                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.logAnalyticsWorkspaceResourceId.value]"
                     }
                   }
                 }
@@ -25797,9 +25736,6 @@
                   },
                   "domainName": {
                     "value": "[parameters('domainName')]"
-                  },
-                  "enableAvdInsights": {
-                    "value": "[parameters('enableAvdInsights')]"
                   },
                   "existingFeedWorkspaceResourceId": {
                     "value": "[parameters('existingFeedWorkspaceResourceId')]"
@@ -25863,7 +25799,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "7987271326402427364"
+                      "templateHash": "3913445273021553800"
                     }
                   },
                   "parameters": {
@@ -25884,9 +25820,6 @@
                     },
                     "domainName": {
                       "type": "string"
-                    },
-                    "enableAvdInsights": {
-                      "type": "bool"
                     },
                     "existingFeedWorkspaceResourceId": {
                       "type": "string"
@@ -25982,9 +25915,6 @@
                           "domainName": {
                             "value": "[parameters('domainName')]"
                           },
-                          "enableAvdInsights": {
-                            "value": "[parameters('enableAvdInsights')]"
-                          },
                           "galleryImageOffer": {
                             "value": "[variables('galleryImageOffer')]"
                           },
@@ -26053,7 +25983,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "6942195241701174281"
+                              "templateHash": "1377553293851880448"
                             }
                           },
                           "parameters": {
@@ -26071,9 +26001,6 @@
                             },
                             "domainName": {
                               "type": "string"
-                            },
-                            "enableAvdInsights": {
-                              "type": "bool"
                             },
                             "galleryImageOffer": {
                               "type": "string"
@@ -26213,7 +26140,6 @@
                               ]
                             },
                             {
-                              "condition": "[parameters('enableAvdInsights')]",
                               "type": "Microsoft.Insights/diagnosticSettings",
                               "apiVersion": "2021-05-01-preview",
                               "scope": "[resourceId('Microsoft.DesktopVirtualization/hostPools', parameters('hostPoolName'))]",
@@ -26360,9 +26286,6 @@
                           "avdPrivateDnsZoneResourceId": {
                             "value": "[parameters('avdPrivateDnsZoneResourceId')]"
                           },
-                          "enableAvdInsights": {
-                            "value": "[parameters('enableAvdInsights')]"
-                          },
                           "existingFeedWorkspaceResourceId": {
                             "value": "[parameters('existingFeedWorkspaceResourceId')]"
                           },
@@ -26402,7 +26325,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "14247531589782641592"
+                              "templateHash": "477657755036284418"
                             }
                           },
                           "parameters": {
@@ -26411,9 +26334,6 @@
                             },
                             "avdPrivateDnsZoneResourceId": {
                               "type": "string"
-                            },
-                            "enableAvdInsights": {
-                              "type": "bool"
                             },
                             "existingFeedWorkspaceResourceId": {
                               "type": "string"
@@ -26513,7 +26433,6 @@
                               ]
                             },
                             {
-                              "condition": "[parameters('enableAvdInsights')]",
                               "type": "Microsoft.Insights/diagnosticSettings",
                               "apiVersion": "2021-05-01-preview",
                               "scope": "[resourceId('Microsoft.DesktopVirtualization/workspaces', parameters('workspaceFeedName'))]",
@@ -26715,12 +26634,6 @@
                   "diskSku": {
                     "value": "[parameters('diskSku')]"
                   },
-                  "enableAcceleratedNetworking": {
-                    "value": "[parameters('enableAcceleratedNetworking')]"
-                  },
-                  "enableAvdInsights": {
-                    "value": "[parameters('enableAvdInsights')]"
-                  },
                   "fileShare": {
                     "value": "[parameters('fileShare')]"
                   },
@@ -26768,7 +26681,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "3849457162968364465"
+                      "templateHash": "3568194116990826694"
                     }
                   },
                   "parameters": {
@@ -26798,12 +26711,6 @@
                     },
                     "diskSku": {
                       "type": "string"
-                    },
-                    "enableAcceleratedNetworking": {
-                      "type": "bool"
-                    },
-                    "enableAvdInsights": {
-                      "type": "bool"
                     },
                     "fileShare": {
                       "type": "string"
@@ -27022,12 +26929,6 @@
                           "diskSku": {
                             "value": "[parameters('diskSku')]"
                           },
-                          "enableAcceleratedNetworking": {
-                            "value": "[parameters('enableAcceleratedNetworking')]"
-                          },
-                          "enableAvdInsights": {
-                            "value": "[parameters('enableAvdInsights')]"
-                          },
                           "fileShare": {
                             "value": "[parameters('fileShare')]"
                           },
@@ -27088,7 +26989,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "16019917046194418251"
+                              "templateHash": "9679457723280615316"
                             }
                           },
                           "parameters": {
@@ -27115,12 +27016,6 @@
                             },
                             "diskSku": {
                               "type": "string"
-                            },
-                            "enableAcceleratedNetworking": {
-                              "type": "bool"
-                            },
-                            "enableAvdInsights": {
-                              "type": "bool"
                             },
                             "fileShare": {
                               "type": "string"
@@ -27205,7 +27100,7 @@
                                 "networkSecurityGroup": {
                                   "id": "[parameters('networkSecurityGroupResourceId')]"
                                 },
-                                "enableAcceleratedNetworking": "[parameters('enableAcceleratedNetworking')]",
+                                "enableAcceleratedNetworking": true,
                                 "enableIPForwarding": false
                               }
                             },
@@ -27310,7 +27205,6 @@
                               ]
                             },
                             {
-                              "condition": "[parameters('enableAvdInsights')]",
                               "type": "Microsoft.Compute/virtualMachines/extensions",
                               "apiVersion": "2023-03-01",
                               "name": "[format('{0}/{1}', format('{0}-0', parameters('virtualMachineNamePrefix')), 'AzureMonitorWindowsAgent')]",
@@ -27328,7 +27222,6 @@
                               ]
                             },
                             {
-                              "condition": "[parameters('enableAvdInsights')]",
                               "type": "Microsoft.Insights/dataCollectionRuleAssociations",
                               "apiVersion": "2022-06-01",
                               "scope": "[resourceId('Microsoft.Compute/virtualMachines', format('{0}-0', parameters('virtualMachineNamePrefix')))]",

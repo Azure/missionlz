@@ -2,7 +2,6 @@ targetScope = 'subscription'
 
 param avdObjectId string
 param deploymentNameSuffix string
-param enableAvdInsights bool
 param environmentAbbreviation string
 param location string
 param logAnalyticsWorkspaceRetention int
@@ -170,13 +169,12 @@ module customerManagedKeys '../../../../modules/customer-managed-keys.bicep' = {
 
 // Monitoring Resources for AVD Insights
 // This module deploys a Log Analytics Workspace with a Data Collection Rule 
-module monitoring 'monitoring.bicep' = if (enableAvdInsights) {
+module monitoring 'monitoring.bicep' = {
   name: 'deploy-monitoring-${deploymentNameSuffix}'
   scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
     delimiter: delimiter
     deploymentNameSuffix: deploymentNameSuffix
-    enableAvdInsights: enableAvdInsights
     hostPoolResourceId: hostPoolResourceId
     location: location
     logAnalyticsWorkspaceRetention: logAnalyticsWorkspaceRetention
@@ -189,9 +187,9 @@ module monitoring 'monitoring.bicep' = if (enableAvdInsights) {
   }
 }
 
-output dataCollectionRuleResourceId string = enableAvdInsights ? monitoring!.outputs.dataCollectionRuleResourceId : ''
+output dataCollectionRuleResourceId string = monitoring.outputs.dataCollectionRuleResourceId
 output diskAccessPolicyDefinitionId string = policyDefinition.id
 output diskAccessPolicyDisplayName string = policyDefinition.properties.displayName
 output diskAccessResourceId string = diskAccess.outputs.resourceId
 output diskEncryptionSetResourceId string = customerManagedKeys.outputs.diskEncryptionSetResourceId
-output logAnalyticsWorkspaceResourceId string = enableAvdInsights ? monitoring!.outputs.logAnalyticsWorkspaceResourceId : ''
+output logAnalyticsWorkspaceResourceId string = monitoring.outputs.logAnalyticsWorkspaceResourceId

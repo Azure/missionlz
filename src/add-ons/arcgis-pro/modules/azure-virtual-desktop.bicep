@@ -12,9 +12,6 @@ param activeDirectorySolution string
 @description('The object ID for the Azure Virtual Desktop enterprise application in Microsoft Entra ID.  The object ID can found by selecting Microsoft Applications using the Application type filter in the Enterprise Applications blade of Microsoft Entra ID.')
 param avdObjectId string
 
-@description('The subnet address prefix for the Azure NetApp Files delegated subnet.')
-param azureNetAppFilesSubnetAddressPrefix string = ''
-
 @description('The RDP properties to add or remove RDP functionality on the AVD host pool. The string must end with a semi-colon. Settings reference: https://learn.microsoft.com/windows-server/remote/remote-desktop-services/clients/rdp-files')
 param customRdpProperty string = 'audiocapturemode:i:1;camerastoredirect:s:*;use multimon:i:0;drivestoredirect:s:;encode redirected video capture:i:1;redirected video capture encoding quality:i:1;audiomode:i:0;devicestoredirect:s:;redirectclipboard:i:0;redirectcomports:i:0;redirectlocation:i:1;redirectprinters:i:0;redirectsmartcards:i:1;redirectwebauthn:i:1;usbdevicestoredirect:s:;keyboardhook:i:2;'
 
@@ -47,12 +44,6 @@ param domainName string = ''
 @description('The email address to use for Defender for Cloud notifications.')
 param emailSecurityContact string = ''
 
-@description('Determine whether to enable accelerated networking on the AVD session hosts. https://learn.microsoft.com/en-us/azure/virtual-network/accelerated-networking-overview')
-param enableAcceleratedNetworking bool
-
-@description('Deploys the required monitoring resources to enable AVD Insights.')
-param enableAvdInsights bool = true
-
 @allowed([
   'dev' // Development
   'prod' // Production
@@ -66,19 +57,6 @@ param existingFeedWorkspaceResourceId string = ''
 
 @description('The file share on Azure NetApp Files to store unstructured geospatial data.')
 param fileShare string
-
-@allowed([
-  'AzureNetAppFiles Premium' // ANF with the Premium SKU, 450,000 IOPS
-  'AzureNetAppFiles Standard' // ANF with the Standard SKU, 320,000 IOPS
-  'AzureFiles Premium' // Azure Files Premium with a Private Endpoint, 100,000 IOPS
-  'AzureFiles Standard' // Azure Files Standard with the Large File Share option and a Private Endpoint, 20,000 IOPS
-  'None' // Local Profiles
-])
-@description('Enable an Fslogix storage option to manage user profiles for the AVD session hosts. The selected service & SKU should provide sufficient IOPS for all of your users. https://docs.microsoft.com/en-us/azure/architecture/example-scenario/wvd/windows-virtual-desktop-fslogix#performance-requirements')
-param fslogixStorageService string = 'AzureFiles Standard'
-
-@description('The subnet address prefix for the delegated subnet for the Azure Function App. This subnet is required for the Auto Increase Premium File Share Quotas tool.')
-param functionAppSubnetAddressPrefix string = ''
 
 @allowed([
   'Disabled'
@@ -257,36 +235,6 @@ param workspacePublicNetworkAccess string = 'Enabled'
 var avdStorageAccountEndpoint = '${avdStorageAccountName}.blob.${environment().suffixes.storage}'
 var avdStorageAccountName = startsWith(location, 'usn') ? 'wvdexportalcontainer' : 'wvdportalstorageblob'
 var privateDnsZoneResourceIdPrefix = '/subscriptions/${split(hubVirtualNetworkResourceId, '/')[2]}/resourceGroups/${split(hubVirtualNetworkResourceId, '/')[4]}/providers/Microsoft.Network/privateDnsZones/'
-var subnets = {
-  avdManagement: [
-    {
-      name: 'avd-management'
-      properties: {
-        addressPrefix: managementSubnetAddressPrefix
-      }
-    }
-  ]
-  azureNetAppFiles: contains(fslogixStorageService, 'AzureNetAppFiles') && !empty(azureNetAppFilesSubnetAddressPrefix)
-    ? [
-        {
-          name: 'azure-netapp-files'
-          properties: {
-            addressPrefix: azureNetAppFilesSubnetAddressPrefix
-          }
-        }
-      ]
-    : []
-  functionApp: fslogixStorageService == 'AzureFiles Premium'
-    ? [
-        {
-          name: 'function-app-outbound'
-          properties: {
-            addressPrefix: functionAppSubnetAddressPrefix
-          }
-        }
-      ]
-    : []
-}
 var subscriptionId = subscription().subscriptionId
 
 // Optionally deploys telemetry for ArcGIS Pro deployments
@@ -308,7 +256,14 @@ resource partnerTelemetry 'Microsoft.Resources/deployments@2021-04-01' = {
 module tier3 '../../tier3/solution.bicep' = {
   name: 'deploy-tier3-avd-stamp-${deploymentNameSuffix}'
   params: {
-    additionalSubnets: union(subnets.avdManagement, subnets.azureNetAppFiles, subnets.functionApp)
+    additionalSubnets: [
+      {
+        name: 'avd-management'
+        properties: {
+          addressPrefix: managementSubnetAddressPrefix
+        }
+      }
+    ]
     customFirewallRuleCollectionGroups: []
     deployActivityLogDiagnosticSetting: deployActivityLogDiagnosticSetting
     deployDefender: deployDefender
@@ -343,7 +298,11 @@ module tier3 '../../tier3/solution.bicep' = {
   }
 }
 
-var resourceGroupName = replace(tier3.outputs.tier.namingConvention.resourceGroup, tier3.outputs.tokens.purpose, 'stamp')
+var resourceGroupName = replace(
+  tier3.outputs.tier.namingConvention.resourceGroup,
+  tier3.outputs.tokens.purpose,
+  'stamp'
+)
 
 module rg '../../../modules/resource-group.bicep' = {
   name: 'deploy-rg-${deploymentNameSuffix}'
@@ -375,7 +334,6 @@ module management 'management/management.bicep' = {
   params: {
     avdObjectId: avdObjectId
     deploymentNameSuffix: deploymentNameSuffix
-    enableAvdInsights: enableAvdInsights
     environmentAbbreviation: environmentAbbreviation
     location: location
     logAnalyticsWorkspaceRetention: logAnalyticsWorkspaceRetention
@@ -398,7 +356,6 @@ module controlPlane 'control-plane/control-plane.bicep' = {
     deploymentNameSuffix: deploymentNameSuffix
     diskSku: diskSku
     domainName: domainName
-    enableAvdInsights: enableAvdInsights
     existingFeedWorkspaceResourceId: existingFeedWorkspaceResourceId
     hostPoolPublicNetworkAccess: hostPoolPublicNetworkAccess
     hostPoolType: hostPoolType
@@ -433,8 +390,6 @@ module sessionHosts 'session-hosts/session-hosts.bicep' = {
     diskAccessResourceId: management.outputs.diskAccessResourceId
     diskEncryptionSetResourceId: management.outputs.diskEncryptionSetResourceId
     diskSku: diskSku
-    enableAcceleratedNetworking: enableAcceleratedNetworking
-    enableAvdInsights: enableAvdInsights
     fileShare: fileShare
     hostPoolResourceId: controlPlane.outputs.hostPoolResourceId
     imageOffer: imageOffer

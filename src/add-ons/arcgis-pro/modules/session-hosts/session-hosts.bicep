@@ -9,8 +9,6 @@ param diskAccessPolicyDisplayName string
 param diskAccessResourceId string
 param diskEncryptionSetResourceId string
 param diskSku string
-param enableAcceleratedNetworking bool
-param enableAvdInsights bool
 param fileShare string
 param hostPoolResourceId string
 param imageOffer string
@@ -70,8 +68,6 @@ module virtualMachine 'virtual-machine.bicep' = {
     diskEncryptionSetResourceId: diskEncryptionSetResourceId
     diskNamePrefix: replace(tier.namingConvention.virtualMachineDisk, '${delimiter}${tokens.purpose}', '')
     diskSku: diskSku
-    enableAcceleratedNetworking: enableAcceleratedNetworking
-    enableAvdInsights: enableAvdInsights
     fileShare: fileShare
     hostPoolResourceId: hostPoolResourceId
     imageOffer: imageOffer

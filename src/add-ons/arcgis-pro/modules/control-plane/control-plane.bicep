@@ -6,7 +6,6 @@ param customRdpProperty string
 param deploymentNameSuffix string
 param diskSku string
 param domainName string
-param enableAvdInsights bool
 param existingFeedWorkspaceResourceId string
 param hostPoolPublicNetworkAccess string
 param hostPoolType string
@@ -46,7 +45,6 @@ module hostPool 'host-pool.bicep' = {
     customRdpProperty: customRdpProperty
     diskSku: diskSku
     domainName: domainName
-    enableAvdInsights: enableAvdInsights
     galleryImageOffer: galleryImageOffer
     galleryImagePublisher: galleryImagePublisher
     galleryImageSku: galleryImageSku
@@ -90,7 +88,6 @@ module workspace_feed 'workspace-feed.bicep' = {
   params: {
     applicationGroupResourceId: applicationGroup.outputs.resourceId
     avdPrivateDnsZoneResourceId: avdPrivateDnsZoneResourceId
-    enableAvdInsights: enableAvdInsights
     existingFeedWorkspaceResourceId: existingFeedWorkspaceResourceId
     locationControlPlane: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId

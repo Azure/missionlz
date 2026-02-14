@@ -3,7 +3,6 @@ param avdPrivateDnsZoneResourceId string
 param customRdpProperty string
 param diskSku string
 param domainName string
-param enableAvdInsights bool
 param galleryImageOffer string
 param galleryImagePublisher string
 param galleryImageSku string
@@ -88,7 +87,7 @@ resource privateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneG
   }
 }
 
-resource diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (enableAvdInsights) {
+resource diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
   name: hostPoolDiagnosticSettingName
   scope: hostPool
   properties: {

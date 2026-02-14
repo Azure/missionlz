@@ -6,8 +6,6 @@ param deploymentNameSuffix string
 param diskEncryptionSetResourceId string
 param diskNamePrefix string
 param diskSku string
-param enableAcceleratedNetworking bool
-param enableAvdInsights bool
 param fileShare string
 param hostPoolResourceId string
 param imageOffer string
@@ -60,7 +58,7 @@ resource networkInterface 'Microsoft.Network/networkInterfaces@2020-05-01' = {
     networkSecurityGroup: {
       id: networkSecurityGroupResourceId
     }
-    enableAcceleratedNetworking: enableAcceleratedNetworking
+    enableAcceleratedNetworking: true
     enableIPForwarding: false
   }
 }
@@ -158,7 +156,7 @@ resource extension_GuestAttestation 'Microsoft.Compute/virtualMachines/extension
   }
 }
 
-resource extension_AzureMonitorWindowsAgent 'Microsoft.Compute/virtualMachines/extensions@2023-03-01' = if (enableAvdInsights) {
+resource extension_AzureMonitorWindowsAgent 'Microsoft.Compute/virtualMachines/extensions@2023-03-01' = {
   parent: virtualMachine
   name: 'AzureMonitorWindowsAgent'
   location: location
@@ -172,7 +170,7 @@ resource extension_AzureMonitorWindowsAgent 'Microsoft.Compute/virtualMachines/e
   }
 }
 
-resource dataCollectionRuleAssociation 'Microsoft.Insights/dataCollectionRuleAssociations@2022-06-01' = if (enableAvdInsights) {
+resource dataCollectionRuleAssociation 'Microsoft.Insights/dataCollectionRuleAssociations@2022-06-01' = {
   scope: virtualMachine
   name: dataCollectionRuleAssociationName
   properties: {
