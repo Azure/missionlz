@@ -690,12 +690,6 @@ module networking 'modules/networking.bicep' = {
     deploymentNameSuffix: deploymentNameSuffix
     deployBastion: deployBastion
     deployAzureGatewaySubnet: deployAzureGatewaySubnet
-    // dnsServers: deployIdentity && deployActiveDirectoryDomainServices
-    //   ? [
-    //       cidrHost(identitySubnetAddressPrefix, 5)
-    //       cidrHost(identitySubnetAddressPrefix, 6)
-    //     ]
-    //   : dnsServers
     dnsServers: dnsServers
     enableProxy: enableProxy
     environmentAbbreviation: environmentAbbreviation
@@ -736,6 +730,62 @@ module networking 'modules/networking.bicep' = {
                         ]
                         destinationAddresses: [cidrHost(operationsVirtualNetworkAddressPrefix, 3)] // LAW private endpoint network
                         destinationPorts: ['443'] // HTTPS port for Azure Monitor
+                      }
+                      {
+                        name: 'Allow-AAD-TCP'
+                        ruleType: 'NetworkRule'
+                        ipProtocols: [
+                          'Tcp'
+                        ]
+                        sourceAddresses: [
+                          firewallSupernetIPAddress
+                        ]
+                        destinationAddresses: ['AzureActiveDirectory']
+                        destinationPorts: [
+                          '443'
+                        ]
+                      }
+                      {
+                        name: 'Allow-KV-TCP'
+                        ruleType: 'NetworkRule'
+                        ipProtocols: [
+                          'Tcp'
+                        ]
+                        sourceAddresses: [
+                          firewallSupernetIPAddress
+                        ]
+                        destinationAddresses: ['AzureKeyVault']
+                        destinationPorts: [
+                          '443'
+                        ]
+                      }
+                      {
+                        name: 'Allow-KV-TCP'
+                        ruleType: 'NetworkRule'
+                        ipProtocols: [
+                          'Tcp'
+                        ]
+                        sourceAddresses: [
+                          firewallSupernetIPAddress
+                        ]
+                        destinationAddresses: ['AzureKeyVault']
+                        destinationPorts: [
+                          '443'
+                        ]
+                      }
+                      {
+                        name: 'Allow-ARM-TCP'
+                        ruleType: 'NetworkRule'
+                        ipProtocols: [
+                          'Tcp'
+                        ]
+                        sourceAddresses: [
+                          firewallSupernetIPAddress
+                        ]
+                        destinationAddresses: ['AzureResourceManager']
+                        destinationPorts: [
+                          '443'
+                        ]
                       }
                     ],
                     deployActiveDirectoryDomainServices
@@ -1141,7 +1191,9 @@ module security 'modules/security.bicep' = {
 }
 
 output azureFirewallResourceId string = networking.outputs.azureFirewallResourceId
-output domainControllerResourceIds array = deployActiveDirectoryDomainServices && deployIdentity ? activeDirectoryDomainServices!.outputs.virtualMachineResourceIds : []
+output domainControllerResourceIds array = deployActiveDirectoryDomainServices && deployIdentity
+  ? activeDirectoryDomainServices!.outputs.virtualMachineResourceIds
+  : []
 output hubStorageAccountResourceId string = storage.outputs.storageAccountResourceIds[0]
 output hubVirtualNetworkResourceId string = networking.outputs.hubVirtualNetworkResourceId
 output logAnalyticsWorkspaceResourceId string = monitoring.outputs.logAnalyticsWorkspaceResourceId
