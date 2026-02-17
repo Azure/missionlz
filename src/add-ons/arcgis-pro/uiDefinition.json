@@ -409,17 +409,26 @@
                       {
                         "label": "Light",
                         "description": "Simple 2-D map visualizations, basic analyses, and reporting.",
-                        "value": "Standard_NV4ads_V710_v5"
+                        "value": {
+                          "size": "Standard_NV4ads_V710_v5",
+                          "count": 4
+                        }
                       },
                       {
                         "label": "Medium",
                         "description": "Advanced 2-D or 3-D map visualizations, multi-source data analyses leveraging geoprocessing tools, reporting, and editing.",
-                        "value": "Standard_NV8ads_V710_v5"
+                        "value": {
+                          "size": "Standard_NV8ads_V710_v5",
+                          "count": 8
+                        }
                       },
                       {
                         "label": "Heavy",
                         "description": "Complex 2-D or 3-D map visualizations including advanced symbology, analyses with visability and line of site, reporting, and editing.",
-                        "value": "Standard_NV12ads_V710_v5"
+                        "value": {
+                          "size": "Standard_NV12ads_V710_v5",
+                          "count": 12
+                        }
                       }
                     ]
                   }
@@ -444,10 +453,10 @@
                 {
                   "name": "sizeError",
                   "type": "Microsoft.Common.InfoBox",
-                  "visible": "[less(coalesce(first(map(filter(steps('avd').workloadSection.usageApi.value, (item) => equals(item.name.value, first(map(filter(steps('avd').workloadSection.resourceSkusApi.value, (item) => contains(item.name, steps('avd').workloadSection.workloadType)), (item) => item.family)))), (item) => item.limit)), 0), add(mul(coalesce(parse(first(map(filter(first(map(filter(steps('avd').workloadSection.resourceSkusApi.value, (item) => contains(item.name, steps('avd').workloadSection.workloadType)), (item) => item.capabilities)), (item) => equals(item.name, 'vCPUs')), (item) => item.value))), 1), steps('avd').workloadSection.count), coalesce(first(map(filter(steps('avd').workloadSection.usageApi.value, (item) => equals(item.name.value, first(map(filter(steps('avd').workloadSection.resourceSkusApi.value, (item) => contains(item.name, steps('avd').workloadSection.workloadType)), (item) => item.family)))), (item) => item.currentValue)), 0))))]",
+                  "visible": "[less(coalesce(first(map(filter(steps('avd').workloadSection.usageApi.value, (item) => equals(item.name.value, first(map(filter(steps('avd').workloadSection.resourceSkusApi.value, (item) => contains(item.name, steps('avd').workloadSection.workloadType.size)), (item) => item.family)))), (item) => item.limit)), 0), add(mul(coalesce(parse(first(map(filter(first(map(filter(steps('avd').workloadSection.resourceSkusApi.value, (item) => contains(item.name, steps('avd').workloadSection.workloadType.size)), (item) => item.capabilities)), (item) => equals(item.name, 'vCPUs')), (item) => item.value))), 1), 1), coalesce(first(map(filter(steps('avd').workloadSection.usageApi.value, (item) => equals(item.name.value, first(map(filter(steps('avd').workloadSection.resourceSkusApi.value, (item) => contains(item.name, steps('avd').workloadSection.workloadType.size)), (item) => item.family)))), (item) => item.currentValue)), 0))))]",
                   "options": {
                     "style": "Error",
-                    "text": "[concat('ERROR! The selected subscription and region does not have enough quota for the requested vCPUs: <br><br><b>Family:</b> ', replace(replace(replace(first(map(filter(steps('avd').workloadSection.resourceSkusApi.value, (item) => contains(item.name, steps('avd').workloadSection.workloadType)), (item) => item.family)), 'standard', 'Standard '), 'Family', ' Family vCPUs'), '  ', ' '), '<br><b>Current vCPU Quota:</b> ', string(coalesce(first(map(filter(steps('avd').workloadSection.usageApi.value, (item) => equals(item.name.value, first(map(filter(steps('avd').workloadSection.resourceSkusApi.value, (item) => contains(item.name, steps('avd').workloadSection.workloadType)), (item) => item.family)))), (item) => item.limit)), 0)), '<br><b>Current vCPU Usage:</b> ', string(coalesce(first(map(filter(steps('avd').workloadSection.usageApi.value, (item) => equals(item.name.value, first(map(filter(steps('avd').workloadSection.resourceSkusApi.value, (item) => contains(item.name, steps('avd').workloadSection.workloadType)), (item) => item.family)))), (item) => item.currentValue)), 0)), '<br><b>Requested vCPUs:</b> ', string(mul(parse(first(map(filter(first(map(filter(steps('avd').workloadSection.resourceSkusApi.value, (item) => contains(item.name, steps('avd').workloadSection.workloadType)), (item) => item.capabilities)), (item) => equals(item.name, 'vCPUs')), (item) => item.value))), steps('avd').workloadSection.count)))]"
+                    "text": "[concat('ERROR! The selected subscription and region does not have enough quota for the requested vCPUs: <br><br><b>Family:</b> ', replace(replace(replace(first(map(filter(steps('avd').workloadSection.resourceSkusApi.value, (item) => contains(item.name, steps('avd').workloadSection.workloadType.size)), (item) => item.family)), 'standard', 'Standard '), 'Family', ' Family vCPUs'), '  ', ' '), '<br><b>Current vCPU Quota:</b> ', string(coalesce(first(map(filter(steps('avd').workloadSection.usageApi.value, (item) => equals(item.name.value, first(map(filter(steps('avd').workloadSection.resourceSkusApi.value, (item) => contains(item.name, steps('avd').workloadSection.workloadType.size)), (item) => item.family)))), (item) => item.limit)), 0)), '<br><b>Current vCPU Usage:</b> ', string(coalesce(first(map(filter(steps('avd').workloadSection.usageApi.value, (item) => equals(item.name.value, first(map(filter(steps('avd').workloadSection.resourceSkusApi.value, (item) => contains(item.name, steps('avd').workloadSection.workloadType.size)), (item) => item.family)))), (item) => item.currentValue)), 0)), '<br><b>Requested vCPUs:</b> ', string(mul(parse(first(map(filter(first(map(filter(steps('avd').workloadSection.resourceSkusApi.value, (item) => contains(item.name, steps('avd').workloadSection.workloadType.size)), (item) => item.capabilities)), (item) => equals(item.name, 'vCPUs')), (item) => item.value))), steps('avd').workloadSection.workloadType.count)))]"
                   }
                 }
               ]
@@ -590,7 +599,7 @@
         "policy": "[steps('compliance').policySection.policy]",
         "securityPrincipals": "[steps('avd').assignment.groupPickerBlade.transformed.selection]",
         "tags": "[steps('tags').tags]",
-        "virtualMachineSize": "[steps('avd').workloadSection.workloadType]"
+        "virtualMachineSize": "[steps('avd').workloadSection.workloadType.size]"
       },
       "kind": "Subscription",
       "location": "[steps('basics').scope.location.name]",
