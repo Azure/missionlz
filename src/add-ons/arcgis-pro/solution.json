@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.40.2.10011",
-      "templateHash": "13283668196888904713"
+      "templateHash": "13325521961960115867"
     }
   },
   "parameters": {
@@ -122,6 +122,13 @@
       "defaultValue": {},
       "metadata": {
         "description": "A string dictionary of tags to add to deployed resources. See the following URL for valid settings: https://learn.microsoft.com/azure/azure-resource-manager/management/tag-resources?tabs=json#arm-templates."
+      }
+    },
+    "virtualMachineSize": {
+      "type": "string",
+      "defaultValue": "Standard_NV4ads_V710_v5",
+      "metadata": {
+        "description": "The virtual machine size for the Azure Virtual Desktop session hosts."
       }
     }
   },
@@ -243,7 +250,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "5753484219122564508"
+              "templateHash": "3248523168196670040"
             }
           },
           "parameters": {
@@ -1360,6 +1367,7 @@
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2025-04-01",
               "name": "[format('deploy-networking-{0}', parameters('deploymentNameSuffix'))]",
+              "subscriptionId": "[parameters('hubSubscriptionId')]",
               "location": "[deployment().location]",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -4861,6 +4869,7 @@
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2025-04-01",
               "name": "[format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))]",
+              "subscriptionId": "[parameters('operationsSubscriptionId')]",
               "location": "[deployment().location]",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -4869,7 +4878,7 @@
                 "mode": "Incremental",
                 "parameters": {
                   "delimiter": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.delimiter.value]"
+                    "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.delimiter.value]"
                   },
                   "deploymentNameSuffix": {
                     "value": "[parameters('deploymentNameSuffix')]"
@@ -4890,19 +4899,19 @@
                     "value": "[parameters('logAnalyticsWorkspaceSkuName')]"
                   },
                   "privateDnsZoneResourceIds": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.privateDnsZoneResourceIds.value]"
+                    "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.privateDnsZoneResourceIds.value]"
                   },
                   "mlzTags": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.mlzTags.value]"
+                    "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.mlzTags.value]"
                   },
                   "tags": {
                     "value": "[parameters('tags')]"
                   },
                   "tier": {
-                    "value": "[filter(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tiers.value, lambda('tier', equals(lambdaVariables('tier').name, 'operations')))[0]]"
+                    "value": "[filter(reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tiers.value, lambda('tier', equals(lambdaVariables('tier').name, 'operations')))[0]]"
                   },
                   "tokens": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value]"
+                    "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value]"
                   }
                 },
                 "template": {
@@ -5402,7 +5411,7 @@
                 }
               },
               "dependsOn": [
-                "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix')))]"
+                "[subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix')))]"
               ]
             },
             {
@@ -5410,6 +5419,7 @@
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2025-04-01",
               "name": "[format('deploy-adds-{0}', parameters('deploymentNameSuffix'))]",
+              "subscriptionId": "[parameters('identitySubscriptionId')]",
               "location": "[deployment().location]",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -5424,7 +5434,7 @@
                     "value": "[parameters('addsAdministratorUsername')]"
                   },
                   "delimiter": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.delimiter.value]"
+                    "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.delimiter.value]"
                   },
                   "deploymentNameSuffix": {
                     "value": "[parameters('deploymentNameSuffix')]"
@@ -5436,7 +5446,7 @@
                     "value": "[parameters('environmentAbbreviation')]"
                   },
                   "firewallPolicyResourceId": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.firewallPolicyResourceId.value]"
+                    "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.firewallPolicyResourceId.value]"
                   },
                   "hybridUseBenefit": {
                     "value": "[parameters('hybridUseBenefit')]"
@@ -5460,16 +5470,16 @@
                     ]
                   },
                   "keyVaultPrivateDnsZoneResourceId": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.privateDnsZoneResourceIds.value.keyVault]"
+                    "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.privateDnsZoneResourceIds.value.keyVault]"
                   },
                   "location": {
                     "value": "[parameters('location')]"
                   },
                   "mlzTags": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.mlzTags.value]"
+                    "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.mlzTags.value]"
                   },
                   "resourceAbbreviations": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.resourceAbbreviations.value]"
+                    "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.resourceAbbreviations.value]"
                   },
                   "safeModeAdminPassword": {
                     "value": "[parameters('addsSafeModeAdminPassword')]"
@@ -5478,10 +5488,10 @@
                     "value": "[parameters('tags')]"
                   },
                   "tiers": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tiers.value]"
+                    "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tiers.value]"
                   },
                   "tokens": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value]"
+                    "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value]"
                   },
                   "vmSize": {
                     "value": "[parameters('addsVmSize')]"
@@ -7221,7 +7231,7 @@
                 }
               },
               "dependsOn": [
-                "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix')))]"
+                "[subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix')))]"
               ]
             },
             {
@@ -7229,6 +7239,7 @@
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2025-04-01",
               "name": "[format('deploy-remote-access-{0}', parameters('deploymentNameSuffix'))]",
+              "subscriptionId": "[parameters('hubSubscriptionId')]",
               "location": "[deployment().location]",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -7246,10 +7257,10 @@
                     "value": "Standard"
                   },
                   "bastionHostSubnetResourceId": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.bastionHostSubnetResourceId.value]"
+                    "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.bastionHostSubnetResourceId.value]"
                   },
                   "delimiter": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.delimiter.value]"
+                    "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.delimiter.value]"
                   },
                   "deployBastion": {
                     "value": "[parameters('deployBastion')]"
@@ -7270,7 +7281,7 @@
                     "value": "[parameters('hybridUseBenefit')]"
                   },
                   "keyVaultPrivateDnsZoneResourceId": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.privateDnsZoneResourceIds.value.keyVault]"
+                    "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.privateDnsZoneResourceIds.value.keyVault]"
                   },
                   "linuxVmAdminPasswordOrKey": {
                     "value": "[parameters('linuxVmAdminPasswordOrKey')]"
@@ -7303,19 +7314,19 @@
                     "value": "[parameters('location')]"
                   },
                   "mlzTags": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.mlzTags.value]"
+                    "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.mlzTags.value]"
                   },
                   "resourceAbbreviations": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.resourceAbbreviations.value]"
+                    "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.resourceAbbreviations.value]"
                   },
                   "tags": {
                     "value": "[parameters('tags')]"
                   },
                   "tier": {
-                    "value": "[filter(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tiers.value, lambda('tier', equals(lambdaVariables('tier').name, 'hub')))[0]]"
+                    "value": "[filter(reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tiers.value, lambda('tier', equals(lambdaVariables('tier').name, 'hub')))[0]]"
                   },
                   "tokens": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value]"
+                    "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value]"
                   },
                   "windowsVmAdminPassword": {
                     "value": "[parameters('windowsVmAdminPassword')]"
@@ -9207,13 +9218,14 @@
                 }
               },
               "dependsOn": [
-                "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix')))]"
+                "[subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix')))]"
               ]
             },
             {
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2025-04-01",
               "name": "[format('deploy-diag-storage-{0}', parameters('deploymentNameSuffix'))]",
+              "subscriptionId": "[parameters('hubSubscriptionId')]",
               "location": "[deployment().location]",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -9222,7 +9234,7 @@
                 "mode": "Incremental",
                 "parameters": {
                   "delimiter": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.delimiter.value]"
+                    "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.delimiter.value]"
                   },
                   "deploymentNameSuffix": {
                     "value": "[parameters('deploymentNameSuffix')]"
@@ -9237,25 +9249,25 @@
                     "value": "[parameters('logStorageSkuName')]"
                   },
                   "mlzTags": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.mlzTags.value]"
+                    "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.mlzTags.value]"
                   },
                   "privateDnsZoneResourceIds": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.privateDnsZoneResourceIds.value]"
+                    "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.privateDnsZoneResourceIds.value]"
                   },
                   "purpose": {
                     "value": "diag"
                   },
                   "resourceAbbreviations": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.resourceAbbreviations.value]"
+                    "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.resourceAbbreviations.value]"
                   },
                   "tags": {
                     "value": "[parameters('tags')]"
                   },
                   "tiers": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tiers.value]"
+                    "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tiers.value]"
                   },
                   "tokens": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value]"
+                    "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value]"
                   }
                 },
                 "template": {
@@ -10218,15 +10230,16 @@
                 }
               },
               "dependsOn": [
-                "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-adds-{0}', parameters('deploymentNameSuffix')))]",
-                "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix')))]",
-                "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-remote-access-{0}', parameters('deploymentNameSuffix')))]"
+                "[subscriptionResourceId(parameters('identitySubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-adds-{0}', parameters('deploymentNameSuffix')))]",
+                "[subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix')))]",
+                "[subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-remote-access-{0}', parameters('deploymentNameSuffix')))]"
               ]
             },
             {
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2025-04-01",
               "name": "[format('deploy-diagnostic-settings-{0}', parameters('deploymentNameSuffix'))]",
+              "subscriptionId": "[parameters('hubSubscriptionId')]",
               "location": "[deployment().location]",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -10247,7 +10260,7 @@
                     "value": "[parameters('blobDiagnosticsMetrics')]"
                   },
                   "delimiter": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.delimiter.value]"
+                    "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.delimiter.value]"
                   },
                   "deployBastion": {
                     "value": "[parameters('deployBastion')]"
@@ -10271,7 +10284,7 @@
                     "value": "[parameters('firewallDiagnosticsMetrics')]"
                   },
                   "keyVaults": {
-                    "value": "[union(createArray(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-diag-storage-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.keyVaultProperties.value), if(parameters('deployActiveDirectoryDomainServices'), createArray(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-adds-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.keyVaultProperties.value), createArray()), if(or(parameters('deployLinuxVirtualMachine'), parameters('deployWindowsVirtualMachine')), createArray(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-remote-access-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.keyVaultProperties.value), createArray()))]"
+                    "value": "[union(createArray(reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-diag-storage-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.keyVaultProperties.value), if(parameters('deployActiveDirectoryDomainServices'), createArray(reference(subscriptionResourceId(parameters('identitySubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-adds-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.keyVaultProperties.value), createArray()), if(or(parameters('deployLinuxVirtualMachine'), parameters('deployWindowsVirtualMachine')), createArray(reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-remote-access-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.keyVaultProperties.value), createArray()))]"
                   },
                   "keyVaultDiagnosticLogs": {
                     "value": "[parameters('keyVaultDiagnosticsLogs')]"
@@ -10283,13 +10296,13 @@
                     "value": "[parameters('location')]"
                   },
                   "logAnalyticsWorkspaceResourceId": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.logAnalyticsWorkspaceResourceId.value]"
+                    "value": "[reference(subscriptionResourceId(parameters('operationsSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.logAnalyticsWorkspaceResourceId.value]"
                   },
                   "networkInterfaceDiagnosticsMetrics": {
                     "value": "[parameters('networkInterfaceDiagnosticsMetrics')]"
                   },
                   "networkInterfaceResourceIds": {
-                    "value": "[union(if(and(parameters('deployActiveDirectoryDomainServices'), parameters('deployIdentity')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-adds-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.networkInterfaceResourceIds.value, createArray()), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.networkInterfaceResourceIds.value, if(or(parameters('deployLinuxVirtualMachine'), parameters('deployWindowsVirtualMachine')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-remote-access-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.networkInterfaceResourceIds.value, createArray()), flatten(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-diag-storage-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.networkInterfaceResourceIds.value))]"
+                    "value": "[union(if(and(parameters('deployActiveDirectoryDomainServices'), parameters('deployIdentity')), reference(subscriptionResourceId(parameters('identitySubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-adds-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.networkInterfaceResourceIds.value, createArray()), reference(subscriptionResourceId(parameters('operationsSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.networkInterfaceResourceIds.value, if(or(parameters('deployLinuxVirtualMachine'), parameters('deployWindowsVirtualMachine')), reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-remote-access-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.networkInterfaceResourceIds.value, createArray()), flatten(reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-diag-storage-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.networkInterfaceResourceIds.value))]"
                   },
                   "networkWatcherFlowLogsRetentionDays": {
                     "value": "[parameters('networkWatcherFlowLogsRetentionDays')]"
@@ -10316,7 +10329,7 @@
                     "value": "[parameters('storageAccountDiagnosticsMetrics')]"
                   },
                   "storageAccountResourceIds": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-diag-storage-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.storageAccountResourceIds.value]"
+                    "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-diag-storage-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.storageAccountResourceIds.value]"
                   },
                   "supportedClouds": {
                     "value": "[parameters('supportedClouds')]"
@@ -10328,10 +10341,10 @@
                     "value": "[parameters('tableDiagnosticsMetrics')]"
                   },
                   "tiers": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tiers.value]"
+                    "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tiers.value]"
                   },
                   "tokens": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value]"
+                    "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value]"
                   }
                 },
                 "template": {
@@ -11724,17 +11737,18 @@
                 }
               },
               "dependsOn": [
-                "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-adds-{0}', parameters('deploymentNameSuffix')))]",
-                "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix')))]",
-                "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix')))]",
-                "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-remote-access-{0}', parameters('deploymentNameSuffix')))]",
-                "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-diag-storage-{0}', parameters('deploymentNameSuffix')))]"
+                "[subscriptionResourceId(parameters('identitySubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-adds-{0}', parameters('deploymentNameSuffix')))]",
+                "[subscriptionResourceId(parameters('operationsSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix')))]",
+                "[subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix')))]",
+                "[subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-remote-access-{0}', parameters('deploymentNameSuffix')))]",
+                "[subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-diag-storage-{0}', parameters('deploymentNameSuffix')))]"
               ]
             },
             {
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2025-04-01",
               "name": "[format('deploy-security-{0}', parameters('deploymentNameSuffix'))]",
+              "subscriptionId": "[parameters('hubSubscriptionId')]",
               "location": "[deployment().location]",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -11764,13 +11778,13 @@
                     "value": "[parameters('location')]"
                   },
                   "logAnalyticsWorkspaceResourceId": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.logAnalyticsWorkspaceResourceId.value]"
+                    "value": "[reference(subscriptionResourceId(parameters('operationsSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.logAnalyticsWorkspaceResourceId.value]"
                   },
                   "policy": {
                     "value": "[parameters('policy')]"
                   },
                   "tiers": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tiers.value]"
+                    "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tiers.value]"
                   },
                   "windowsAdministratorsGroupMembership": {
                     "value": "[parameters('windowsVmAdminUsername')]"
@@ -12311,35 +12325,35 @@
                 }
               },
               "dependsOn": [
-                "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix')))]",
-                "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix')))]"
+                "[subscriptionResourceId(parameters('operationsSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix')))]",
+                "[subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix')))]"
               ]
             }
           ],
           "outputs": {
             "azureFirewallResourceId": {
               "type": "string",
-              "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.azureFirewallResourceId.value]"
+              "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.azureFirewallResourceId.value]"
             },
             "domainControllerResourceIds": {
               "type": "array",
-              "value": "[if(and(parameters('deployActiveDirectoryDomainServices'), parameters('deployIdentity')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-adds-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.virtualMachineResourceIds.value, createArray())]"
+              "value": "[if(and(parameters('deployActiveDirectoryDomainServices'), parameters('deployIdentity')), reference(subscriptionResourceId(parameters('identitySubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-adds-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.virtualMachineResourceIds.value, createArray())]"
             },
             "hubStorageAccountResourceId": {
               "type": "string",
-              "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-diag-storage-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.storageAccountResourceIds.value[0]]"
+              "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-diag-storage-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.storageAccountResourceIds.value[0]]"
             },
             "hubVirtualNetworkResourceId": {
               "type": "string",
-              "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.hubVirtualNetworkResourceId.value]"
+              "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.hubVirtualNetworkResourceId.value]"
             },
             "logAnalyticsWorkspaceResourceId": {
               "type": "string",
-              "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.logAnalyticsWorkspaceResourceId.value]"
+              "value": "[reference(subscriptionResourceId(parameters('operationsSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.logAnalyticsWorkspaceResourceId.value]"
             },
             "privateLinkScopeResourceId": {
               "type": "string",
-              "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.privateLinkScopeResourceId.value]"
+              "value": "[reference(subscriptionResourceId(parameters('operationsSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.privateLinkScopeResourceId.value]"
             }
           }
         }
@@ -12382,7 +12396,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "1935175194343078005"
+              "templateHash": "3799117593269943758"
             }
           },
           "parameters": {
@@ -12406,7 +12420,7 @@
             }
           },
           "variables": {
-            "$fxv#0": "param (\r\n    [string]$DomainUserPassword,\r\n    [string]$DomainUserUsername\r\n)\r\n\r\n# Ensure the ActiveDirectory module is loaded\r\nImport-Module ActiveDirectory -ErrorAction Stop\r\n\r\n# Convert password to secure string\r\n$SecureDomainUserPassword = ConvertTo-SecureString -String $DomainUserPassword -AsPlainText -Force\r\n\r\n# Create the new AD user\r\nNew-ADUser `\r\n    -Name $DomainUserUsername `\r\n    -AccountPassword $SecureDomainUserPassword `\r\n    -Enabled $true `\r\n    -ChangePasswordAtLogon $false `\r\n    -PasswordNeverExpires $true\r\n        ",
+            "$fxv#0": "param (\r\n    [string]$DomainUserPassword,\r\n    [string]$DomainUserUsername\r\n)\r\nImport-Module ActiveDirectory -ErrorAction Stop\r\n$SecureDomainUserPassword = ConvertTo-SecureString -String $DomainUserPassword -AsPlainText -Force\r\nNew-ADUser `\r\n    -Name $DomainUserUsername `\r\n    -AccountPassword $SecureDomainUserPassword `\r\n    -Enabled $true `\r\n    -ChangePasswordAtLogon $false `\r\n    -PasswordNeverExpires $true",
             "resourceGroupName": "[split(parameters('virtualMachineResourceIds')[0], '/')[4]]",
             "subscriptionId": "[split(parameters('virtualMachineResourceIds')[0], '/')[2]]"
           },
@@ -18515,17 +18529,11 @@
           "deployPolicy": {
             "value": "[parameters('deployPolicy')]"
           },
-          "enableAcceleratedNetworking": {
-            "value": true
-          },
           "environmentAbbreviation": {
             "value": "[parameters('environmentAbbreviation')]"
           },
           "fileShare": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-azure-netapp-files-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.fileShare.value]"
-          },
-          "fslogixStorageService": {
-            "value": "None"
           },
           "hubAzureFirewallResourceId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-mission-landing-zone-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.azureFirewallResourceId.value]"
@@ -18564,7 +18572,7 @@
             "value": "[parameters('domainAdministratorUsername')]"
           },
           "virtualMachineSize": {
-            "value": "Standard_NV4ads_V710_v5"
+            "value": "[parameters('virtualMachineSize')]"
           },
           "virtualMachineVirtualCpuCount": {
             "value": 4
@@ -18577,7 +18585,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "3462533500210772476"
+              "templateHash": "14163688720232481722"
             }
           },
           "parameters": {
@@ -18597,13 +18605,6 @@
               "type": "string",
               "metadata": {
                 "description": "The object ID for the Azure Virtual Desktop enterprise application in Microsoft Entra ID.  The object ID can found by selecting Microsoft Applications using the Application type filter in the Enterprise Applications blade of Microsoft Entra ID."
-              }
-            },
-            "azureNetAppFilesSubnetAddressPrefix": {
-              "type": "string",
-              "defaultValue": "",
-              "metadata": {
-                "description": "The subnet address prefix for the Azure NetApp Files delegated subnet."
               }
             },
             "customRdpProperty": {
@@ -18671,19 +18672,6 @@
                 "description": "The email address to use for Defender for Cloud notifications."
               }
             },
-            "enableAcceleratedNetworking": {
-              "type": "bool",
-              "metadata": {
-                "description": "Determine whether to enable accelerated networking on the AVD session hosts. https://learn.microsoft.com/en-us/azure/virtual-network/accelerated-networking-overview"
-              }
-            },
-            "enableAvdInsights": {
-              "type": "bool",
-              "defaultValue": true,
-              "metadata": {
-                "description": "Deploys the required monitoring resources to enable AVD Insights."
-              }
-            },
             "environmentAbbreviation": {
               "type": "string",
               "defaultValue": "dev",
@@ -18707,27 +18695,6 @@
               "type": "string",
               "metadata": {
                 "description": "The file share on Azure NetApp Files to store unstructured geospatial data."
-              }
-            },
-            "fslogixStorageService": {
-              "type": "string",
-              "defaultValue": "AzureFiles Standard",
-              "allowedValues": [
-                "AzureNetAppFiles Premium",
-                "AzureNetAppFiles Standard",
-                "AzureFiles Premium",
-                "AzureFiles Standard",
-                "None"
-              ],
-              "metadata": {
-                "description": "Enable an Fslogix storage option to manage user profiles for the AVD session hosts. The selected service & SKU should provide sufficient IOPS for all of your users. https://docs.microsoft.com/en-us/azure/architecture/example-scenario/wvd/windows-virtual-desktop-fslogix#performance-requirements"
-              }
-            },
-            "functionAppSubnetAddressPrefix": {
-              "type": "string",
-              "defaultValue": "",
-              "metadata": {
-                "description": "The subnet address prefix for the delegated subnet for the Azure Function App. This subnet is required for the Auto Increase Premium File Share Quotas tool."
               }
             },
             "hostPoolPublicNetworkAccess": {
@@ -19050,18 +19017,6 @@
             "avdStorageAccountEndpoint": "[format('{0}.blob.{1}', variables('avdStorageAccountName'), environment().suffixes.storage)]",
             "avdStorageAccountName": "[if(startsWith(parameters('location'), 'usn'), 'wvdexportalcontainer', 'wvdportalstorageblob')]",
             "privateDnsZoneResourceIdPrefix": "[format('/subscriptions/{0}/resourceGroups/{1}/providers/Microsoft.Network/privateDnsZones/', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4])]",
-            "subnets": {
-              "avdManagement": [
-                {
-                  "name": "avd-management",
-                  "properties": {
-                    "addressPrefix": "[parameters('managementSubnetAddressPrefix')]"
-                  }
-                }
-              ],
-              "azureNetAppFiles": "[if(and(contains(parameters('fslogixStorageService'), 'AzureNetAppFiles'), not(empty(parameters('azureNetAppFilesSubnetAddressPrefix')))), createArray(createObject('name', 'azure-netapp-files', 'properties', createObject('addressPrefix', parameters('azureNetAppFilesSubnetAddressPrefix')))), createArray())]",
-              "functionApp": "[if(equals(parameters('fslogixStorageService'), 'AzureFiles Premium'), createArray(createObject('name', 'function-app-outbound', 'properties', createObject('addressPrefix', parameters('functionAppSubnetAddressPrefix')))), createArray())]"
-            },
             "subscriptionId": "[subscription().subscriptionId]"
           },
           "resources": [
@@ -19091,7 +19046,14 @@
                 "mode": "Incremental",
                 "parameters": {
                   "additionalSubnets": {
-                    "value": "[union(variables('subnets').avdManagement, variables('subnets').azureNetAppFiles, variables('subnets').functionApp)]"
+                    "value": [
+                      {
+                        "name": "avd-management",
+                        "properties": {
+                          "addressPrefix": "[parameters('managementSubnetAddressPrefix')]"
+                        }
+                      }
+                    ]
                   },
                   "customFirewallRuleCollectionGroups": {
                     "value": []
@@ -24308,14 +24270,8 @@
                   "avdObjectId": {
                     "value": "[parameters('avdObjectId')]"
                   },
-                  "delimiter": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.delimiter.value]"
-                  },
                   "deploymentNameSuffix": {
                     "value": "[parameters('deploymentNameSuffix')]"
-                  },
-                  "enableAvdInsights": {
-                    "value": "[parameters('enableAvdInsights')]"
                   },
                   "environmentAbbreviation": {
                     "value": "[parameters('environmentAbbreviation')]"
@@ -24329,20 +24285,11 @@
                   "logAnalyticsWorkspaceSku": {
                     "value": "[parameters('logAnalyticsWorkspaceSku')]"
                   },
-                  "mlzTags": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.mlzTags.value]"
-                  },
                   "privateDnsZoneResourceIdPrefix": {
                     "value": "[variables('privateDnsZoneResourceIdPrefix')]"
                   },
-                  "privateDnsZones": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.privateDnsZones.value]"
-                  },
                   "privateLinkScopeResourceId": {
                     "value": "[parameters('privateLinkScopeResourceId')]"
-                  },
-                  "resourceAbbreviations": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.resourceAbbreviations.value]"
                   },
                   "resourceGroupName": {
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.name.value]"
@@ -24353,11 +24300,8 @@
                   "tags": {
                     "value": "[parameters('tags')]"
                   },
-                  "tier": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tier.value]"
-                  },
-                  "tokens": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value]"
+                  "tier3": {
+                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs]"
                   }
                 },
                 "template": {
@@ -24367,21 +24311,15 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "1885109383806960163"
+                      "templateHash": "15426370168556253055"
                     }
                   },
                   "parameters": {
                     "avdObjectId": {
                       "type": "string"
                     },
-                    "delimiter": {
-                      "type": "string"
-                    },
                     "deploymentNameSuffix": {
                       "type": "string"
-                    },
-                    "enableAvdInsights": {
-                      "type": "bool"
                     },
                     "environmentAbbreviation": {
                       "type": "string"
@@ -24395,20 +24333,11 @@
                     "logAnalyticsWorkspaceSku": {
                       "type": "string"
                     },
-                    "mlzTags": {
-                      "type": "object"
-                    },
                     "privateDnsZoneResourceIdPrefix": {
                       "type": "string"
                     },
-                    "privateDnsZones": {
-                      "type": "array"
-                    },
                     "privateLinkScopeResourceId": {
                       "type": "string"
-                    },
-                    "resourceAbbreviations": {
-                      "type": "object"
                     },
                     "resourceGroupName": {
                       "type": "string"
@@ -24419,15 +24348,19 @@
                     "tags": {
                       "type": "object"
                     },
-                    "tier": {
-                      "type": "object"
-                    },
-                    "tokens": {
+                    "tier3": {
                       "type": "object"
                     }
                   },
                   "variables": {
-                    "hostPoolResourceId": "[resourceId(subscription().subscriptionId, parameters('resourceGroupName'), 'Microsoft.DesktopVirtualization/hostpools', replace(parameters('tier').namingConvention.hostPool, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), ''))]"
+                    "delimiter": "[parameters('tier3').delimiter]",
+                    "hostPoolResourceId": "[resourceId(subscription().subscriptionId, parameters('resourceGroupName'), 'Microsoft.DesktopVirtualization/hostpools', replace(variables('namingConvention').hostPool, format('{0}{1}', variables('delimiter'), variables('tokens').purpose), ''))]",
+                    "mlzTags": "[parameters('tier3').mlzTags]",
+                    "namingConvention": "[parameters('tier3').tier.namingConvention]",
+                    "privateDnsZones": "[parameters('tier3').privateDnsZones]",
+                    "resourceAbbreviations": "[parameters('tier3').resourceAbbreviations]",
+                    "tier": "[parameters('tier3').tier]",
+                    "tokens": "[parameters('tier3').tokens]"
                   },
                   "resources": [
                     {
@@ -24485,10 +24418,10 @@
                             "value": "[parameters('location')]"
                           },
                           "name": {
-                            "value": "[replace(parameters('tier').namingConvention.userAssignedIdentity, parameters('tokens').purpose, 'deployment')]"
+                            "value": "[replace(variables('namingConvention').userAssignedIdentity, variables('tokens').purpose, 'deployment')]"
                           },
                           "tags": {
-                            "value": "[union(createObject('cm-resource-parent', variables('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.ManagedIdentity/userAssignedIdentities'), createObject()), parameters('mlzTags'))]"
+                            "value": "[union(createObject('cm-resource-parent', variables('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.ManagedIdentity/userAssignedIdentities'), createObject()), variables('mlzTags'))]"
                           }
                         },
                         "template": {
@@ -24551,10 +24484,10 @@
                         "mode": "Incremental",
                         "parameters": {
                           "azureBlobsPrivateDnsZoneResourceId": {
-                            "value": "[format('{0}{1}', parameters('privateDnsZoneResourceIdPrefix'), filter(parameters('privateDnsZones'), lambda('name', contains(lambdaVariables('name'), 'blob')))[0])]"
+                            "value": "[format('{0}{1}', parameters('privateDnsZoneResourceIdPrefix'), filter(variables('privateDnsZones'), lambda('name', contains(lambdaVariables('name'), 'blob')))[0])]"
                           },
                           "delimiter": {
-                            "value": "[parameters('delimiter')]"
+                            "value": "[variables('delimiter')]"
                           },
                           "hostPoolResourceId": {
                             "value": "[variables('hostPoolResourceId')]"
@@ -24563,19 +24496,19 @@
                             "value": "[parameters('location')]"
                           },
                           "mlzTags": {
-                            "value": "[parameters('mlzTags')]"
+                            "value": "[variables('mlzTags')]"
                           },
                           "names": {
-                            "value": "[parameters('tier').namingConvention]"
+                            "value": "[variables('tier').namingConvention]"
                           },
                           "subnetResourceId": {
-                            "value": "[parameters('tier').subnets[0].id]"
+                            "value": "[variables('tier').subnets[0].id]"
                           },
                           "tags": {
                             "value": "[parameters('tags')]"
                           },
                           "tokens": {
-                            "value": "[parameters('tokens')]"
+                            "value": "[variables('tokens')]"
                           }
                         },
                         "template": {
@@ -24779,28 +24712,28 @@
                             "value": "[parameters('environmentAbbreviation')]"
                           },
                           "keyName": {
-                            "value": "[replace(parameters('tier').namingConvention.diskEncryptionSet, parameters('tokens').purpose, 'cmk')]"
+                            "value": "[replace(variables('tier').namingConvention.diskEncryptionSet, variables('tokens').purpose, 'cmk')]"
                           },
                           "keyVaultPrivateDnsZoneResourceId": {
-                            "value": "[format('{0}{1}', parameters('privateDnsZoneResourceIdPrefix'), filter(parameters('privateDnsZones'), lambda('name', contains(lambdaVariables('name'), 'vaultcore')))[0])]"
+                            "value": "[format('{0}{1}', parameters('privateDnsZoneResourceIdPrefix'), filter(variables('privateDnsZones'), lambda('name', contains(lambdaVariables('name'), 'vaultcore')))[0])]"
                           },
                           "location": {
                             "value": "[parameters('location')]"
                           },
                           "resourceAbbreviations": {
-                            "value": "[parameters('resourceAbbreviations')]"
+                            "value": "[variables('resourceAbbreviations')]"
                           },
                           "subnetResourceId": {
-                            "value": "[parameters('tier').subnets[0].id]"
+                            "value": "[variables('tier').subnets[0].id]"
                           },
                           "tags": {
-                            "value": "[union(createObject('cm-resource-parent', variables('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/virtualMachines'), createObject()), parameters('mlzTags'))]"
+                            "value": "[union(createObject('cm-resource-parent', variables('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/virtualMachines'), createObject()), variables('mlzTags'))]"
                           },
                           "tier": {
-                            "value": "[parameters('tier')]"
+                            "value": "[variables('tier')]"
                           },
                           "tokens": {
-                            "value": "[parameters('tokens')]"
+                            "value": "[variables('tokens')]"
                           },
                           "type": {
                             "value": "virtualMachine"
@@ -25354,7 +25287,6 @@
                       }
                     },
                     {
-                      "condition": "[parameters('enableAvdInsights')]",
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2025-04-01",
                       "name": "[format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))]",
@@ -25367,13 +25299,10 @@
                         "mode": "Incremental",
                         "parameters": {
                           "delimiter": {
-                            "value": "[parameters('delimiter')]"
+                            "value": "[variables('delimiter')]"
                           },
                           "deploymentNameSuffix": {
                             "value": "[parameters('deploymentNameSuffix')]"
-                          },
-                          "enableAvdInsights": {
-                            "value": "[parameters('enableAvdInsights')]"
                           },
                           "hostPoolResourceId": {
                             "value": "[variables('hostPoolResourceId')]"
@@ -25388,10 +25317,10 @@
                             "value": "[parameters('logAnalyticsWorkspaceSku')]"
                           },
                           "mlzTags": {
-                            "value": "[parameters('mlzTags')]"
+                            "value": "[variables('mlzTags')]"
                           },
                           "names": {
-                            "value": "[parameters('tier').namingConvention]"
+                            "value": "[variables('tier').namingConvention]"
                           },
                           "privateLinkScopeResourceId": {
                             "value": "[parameters('privateLinkScopeResourceId')]"
@@ -25400,7 +25329,7 @@
                             "value": "[parameters('tags')]"
                           },
                           "tokens": {
-                            "value": "[parameters('tokens')]"
+                            "value": "[variables('tokens')]"
                           }
                         },
                         "template": {
@@ -25410,7 +25339,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "1747195133216646513"
+                              "templateHash": "8398628192560052931"
                             }
                           },
                           "parameters": {
@@ -25419,9 +25348,6 @@
                             },
                             "deploymentNameSuffix": {
                               "type": "string"
-                            },
-                            "enableAvdInsights": {
-                              "type": "bool"
                             },
                             "hostPoolResourceId": {
                               "type": "string"
@@ -25471,7 +25397,6 @@
                               }
                             },
                             {
-                              "condition": "[parameters('enableAvdInsights')]",
                               "type": "Microsoft.Insights/dataCollectionRules",
                               "apiVersion": "2022-06-01",
                               "name": "[format('microsoft-avdi-{0}', replace(parameters('names').dataCollectionRule, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), ''))]",
@@ -25557,7 +25482,6 @@
                               ]
                             },
                             {
-                              "condition": "[parameters('enableAvdInsights')]",
                               "type": "Microsoft.Insights/dataCollectionEndpoints",
                               "apiVersion": "2021-04-01",
                               "name": "[replace(parameters('names').dataCollectionEndpoint, parameters('tokens').purpose, 'avdi')]",
@@ -25652,7 +25576,6 @@
                               ]
                             },
                             {
-                              "condition": "[parameters('enableAvdInsights')]",
                               "type": "Microsoft.Resources/deployments",
                               "apiVersion": "2025-04-01",
                               "name": "[format('deploy-private-link-scope-dce-{0}', parameters('deploymentNameSuffix'))]",
@@ -25745,7 +25668,7 @@
                             },
                             "dataCollectionRuleResourceId": {
                               "type": "string",
-                              "value": "[if(parameters('enableAvdInsights'), resourceId('Microsoft.Insights/dataCollectionRules', format('microsoft-avdi-{0}', replace(parameters('names').dataCollectionRule, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), ''))), '')]"
+                              "value": "[resourceId('Microsoft.Insights/dataCollectionRules', format('microsoft-avdi-{0}', replace(parameters('names').dataCollectionRule, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), '')))]"
                             }
                           }
                         }
@@ -25755,7 +25678,7 @@
                   "outputs": {
                     "dataCollectionRuleResourceId": {
                       "type": "string",
-                      "value": "[if(parameters('enableAvdInsights'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.dataCollectionRuleResourceId.value, '')]"
+                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.dataCollectionRuleResourceId.value]"
                     },
                     "diskAccessPolicyDefinitionId": {
                       "type": "string",
@@ -25775,7 +25698,7 @@
                     },
                     "logAnalyticsWorkspaceResourceId": {
                       "type": "string",
-                      "value": "[if(parameters('enableAvdInsights'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.logAnalyticsWorkspaceResourceId.value, '')]"
+                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('subscriptionId'), parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.logAnalyticsWorkspaceResourceId.value]"
                     }
                   }
                 }
@@ -25805,9 +25728,6 @@
                   "customRdpProperty": {
                     "value": "[parameters('customRdpProperty')]"
                   },
-                  "delimiter": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.delimiter.value]"
-                  },
                   "deploymentNameSuffix": {
                     "value": "[parameters('deploymentNameSuffix')]"
                   },
@@ -25816,9 +25736,6 @@
                   },
                   "domainName": {
                     "value": "[parameters('domainName')]"
-                  },
-                  "enableAvdInsights": {
-                    "value": "[parameters('enableAvdInsights')]"
                   },
                   "existingFeedWorkspaceResourceId": {
                     "value": "[parameters('existingFeedWorkspaceResourceId')]"
@@ -25847,26 +25764,17 @@
                   "maxSessionLimit": {
                     "value": "[mul(parameters('usersPerCore'), parameters('virtualMachineVirtualCpuCount'))]"
                   },
-                  "mlzTags": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.mlzTags.value]"
-                  },
-                  "namingConvention": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tier.value.namingConvention]"
-                  },
                   "resourceGroupName": {
-                    "value": "[replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tier.value.namingConvention.resourceGroup, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value.purpose, 'stamp')]"
+                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.name.value]"
                   },
                   "securityPrincipalObjectId": {
                     "value": "[map(parameters('securityPrincipals'), lambda('item', lambdaVariables('item').objectId))[0]]"
                   },
-                  "subnetResourceId": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tier.value.subnetResourceId]"
-                  },
                   "tags": {
                     "value": "[parameters('tags')]"
                   },
-                  "tokens": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value]"
+                  "tier3": {
+                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs]"
                   },
                   "validationEnvironment": {
                     "value": "[parameters('validationEnvironment')]"
@@ -25891,7 +25799,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "10823135863848608695"
+                      "templateHash": "3913445273021553800"
                     }
                   },
                   "parameters": {
@@ -25904,9 +25812,6 @@
                     "customRdpProperty": {
                       "type": "string"
                     },
-                    "delimiter": {
-                      "type": "string"
-                    },
                     "deploymentNameSuffix": {
                       "type": "string"
                     },
@@ -25915,9 +25820,6 @@
                     },
                     "domainName": {
                       "type": "string"
-                    },
-                    "enableAvdInsights": {
-                      "type": "bool"
                     },
                     "existingFeedWorkspaceResourceId": {
                       "type": "string"
@@ -25946,25 +25848,16 @@
                     "maxSessionLimit": {
                       "type": "int"
                     },
-                    "mlzTags": {
-                      "type": "object"
-                    },
-                    "namingConvention": {
-                      "type": "object"
-                    },
                     "resourceGroupName": {
                       "type": "string"
                     },
                     "securityPrincipalObjectId": {
                       "type": "string"
                     },
-                    "subnetResourceId": {
-                      "type": "string"
-                    },
                     "tags": {
                       "type": "object"
                     },
-                    "tokens": {
+                    "tier3": {
                       "type": "object"
                     },
                     "validationEnvironment": {
@@ -25984,11 +25877,16 @@
                     }
                   },
                   "variables": {
+                    "delimiter": "[parameters('tier3').delimiter]",
                     "galleryImageOffer": "[format('\"{0}\"', parameters('imageOffer'))]",
                     "galleryImagePublisher": "[format('\"{0}\"', parameters('imagePublisher'))]",
                     "galleryImageSku": "[format('\"{0}\"', parameters('imageSku'))]",
                     "galleryItemId": "[format('\"{0}.{1}{2}\"', parameters('imagePublisher'), parameters('imageOffer'), parameters('imageSku'))]",
-                    "imageType": "\"Gallery\""
+                    "imageType": "\"Gallery\"",
+                    "mlzTags": "[parameters('tier3').mlzTags]",
+                    "namingConvention": "[parameters('tier3').tier.namingConvention]",
+                    "subnetResourceId": "[parameters('tier3').tier.subnetResourceId]",
+                    "tokens": "[parameters('tier3').tokens]"
                   },
                   "resources": [
                     {
@@ -26017,9 +25915,6 @@
                           "domainName": {
                             "value": "[parameters('domainName')]"
                           },
-                          "enableAvdInsights": {
-                            "value": "[parameters('enableAvdInsights')]"
-                          },
                           "galleryImageOffer": {
                             "value": "[variables('galleryImageOffer')]"
                           },
@@ -26033,16 +25928,16 @@
                             "value": "[variables('galleryItemId')]"
                           },
                           "hostPoolDiagnosticSettingName": {
-                            "value": "[replace(parameters('namingConvention').hostPoolDiagnosticSetting, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), '')]"
+                            "value": "[replace(variables('namingConvention').hostPoolDiagnosticSetting, format('{0}{1}', variables('delimiter'), variables('tokens').purpose), '')]"
                           },
                           "hostPoolName": {
-                            "value": "[replace(parameters('namingConvention').hostPool, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), '')]"
+                            "value": "[replace(variables('namingConvention').hostPool, format('{0}{1}', variables('delimiter'), variables('tokens').purpose), '')]"
                           },
                           "hostPoolNetworkInterfaceName": {
-                            "value": "[replace(parameters('namingConvention').hostPoolNetworkInterface, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), '')]"
+                            "value": "[replace(variables('namingConvention').hostPoolNetworkInterface, format('{0}{1}', variables('delimiter'), variables('tokens').purpose), '')]"
                           },
                           "hostPoolPrivateEndpointName": {
-                            "value": "[replace(parameters('namingConvention').hostPoolPrivateEndpoint, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), '')]"
+                            "value": "[replace(variables('namingConvention').hostPoolPrivateEndpoint, format('{0}{1}', variables('delimiter'), variables('tokens').purpose), '')]"
                           },
                           "hostPoolPublicNetworkAccess": {
                             "value": "[parameters('hostPoolPublicNetworkAccess')]"
@@ -26063,13 +25958,13 @@
                             "value": "[parameters('maxSessionLimit')]"
                           },
                           "mlzTags": {
-                            "value": "[parameters('mlzTags')]"
+                            "value": "[variables('mlzTags')]"
                           },
                           "sessionHostNamePrefix": {
-                            "value": "[replace(parameters('namingConvention').virtualMachine, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), '')]"
+                            "value": "[replace(variables('namingConvention').virtualMachine, format('{0}{1}', variables('delimiter'), variables('tokens').purpose), '')]"
                           },
                           "subnetResourceId": {
-                            "value": "[parameters('subnetResourceId')]"
+                            "value": "[variables('subnetResourceId')]"
                           },
                           "tags": {
                             "value": "[parameters('tags')]"
@@ -26088,7 +25983,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "6942195241701174281"
+                              "templateHash": "1377553293851880448"
                             }
                           },
                           "parameters": {
@@ -26106,9 +26001,6 @@
                             },
                             "domainName": {
                               "type": "string"
-                            },
-                            "enableAvdInsights": {
-                              "type": "bool"
                             },
                             "galleryImageOffer": {
                               "type": "string"
@@ -26248,7 +26140,6 @@
                               ]
                             },
                             {
-                              "condition": "[parameters('enableAvdInsights')]",
                               "type": "Microsoft.Insights/diagnosticSettings",
                               "apiVersion": "2021-05-01-preview",
                               "scope": "[resourceId('Microsoft.DesktopVirtualization/hostPools', parameters('hostPoolName'))]",
@@ -26292,7 +26183,7 @@
                         "mode": "Incremental",
                         "parameters": {
                           "desktopApplicationGroupName": {
-                            "value": "[replace(parameters('namingConvention').applicationGroup, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), '')]"
+                            "value": "[replace(variables('namingConvention').applicationGroup, format('{0}{1}', variables('delimiter'), variables('tokens').purpose), '')]"
                           },
                           "hostPoolResourceId": {
                             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-vdpool-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.resourceId.value]"
@@ -26301,7 +26192,7 @@
                             "value": "[parameters('location')]"
                           },
                           "mlzTags": {
-                            "value": "[parameters('mlzTags')]"
+                            "value": "[variables('mlzTags')]"
                           },
                           "securityPrincipalObjectId": {
                             "value": "[parameters('securityPrincipalObjectId')]"
@@ -26395,9 +26286,6 @@
                           "avdPrivateDnsZoneResourceId": {
                             "value": "[parameters('avdPrivateDnsZoneResourceId')]"
                           },
-                          "enableAvdInsights": {
-                            "value": "[parameters('enableAvdInsights')]"
-                          },
                           "existingFeedWorkspaceResourceId": {
                             "value": "[parameters('existingFeedWorkspaceResourceId')]"
                           },
@@ -26408,24 +26296,24 @@
                             "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
                           },
                           "mlzTags": {
-                            "value": "[parameters('mlzTags')]"
+                            "value": "[variables('mlzTags')]"
                           },
                           "subnetResourceId": {
-                            "value": "[parameters('subnetResourceId')]"
+                            "value": "[variables('subnetResourceId')]"
                           },
                           "workspaceFeedDiagnoticSettingName": {
-                            "value": "[replace(parameters('namingConvention').workspaceDiagnosticSetting, parameters('tokens').purpose, 'feed')]"
+                            "value": "[replace(variables('namingConvention').workspaceDiagnosticSetting, variables('tokens').purpose, 'feed')]"
                           },
                           "workspaceFeedName": {
-                            "value": "[replace(parameters('namingConvention').workspace, parameters('tokens').purpose, 'feed')]"
+                            "value": "[replace(variables('namingConvention').workspace, variables('tokens').purpose, 'feed')]"
                           },
                           "workspaceFeedNetworkInterfaceName": {
-                            "value": "[replace(parameters('namingConvention').workspaceNetworkInterface, parameters('tokens').purpose, 'feed')]"
+                            "value": "[replace(variables('namingConvention').workspaceNetworkInterface, variables('tokens').purpose, 'feed')]"
                           },
                           "workspaceFeedPrivateEndpointName": {
-                            "value": "[replace(parameters('namingConvention').workspacePrivateEndpoint, parameters('tokens').purpose, 'feed')]"
+                            "value": "[replace(variables('namingConvention').workspacePrivateEndpoint, variables('tokens').purpose, 'feed')]"
                           },
-                          "workspaceFriendlyName": "[if(empty(parameters('workspaceFriendlyName')), createObject('value', replace(parameters('namingConvention').workspace, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), '')), createObject('value', format('{0} ({1})', parameters('workspaceFriendlyName'), parameters('location'))))]",
+                          "workspaceFriendlyName": "[if(empty(parameters('workspaceFriendlyName')), createObject('value', replace(variables('namingConvention').workspace, format('{0}{1}', variables('delimiter'), variables('tokens').purpose), '')), createObject('value', format('{0} ({1})', parameters('workspaceFriendlyName'), parameters('location'))))]",
                           "workspacePublicNetworkAccess": {
                             "value": "[parameters('workspacePublicNetworkAccess')]"
                           }
@@ -26437,7 +26325,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "14247531589782641592"
+                              "templateHash": "477657755036284418"
                             }
                           },
                           "parameters": {
@@ -26446,9 +26334,6 @@
                             },
                             "avdPrivateDnsZoneResourceId": {
                               "type": "string"
-                            },
-                            "enableAvdInsights": {
-                              "type": "bool"
                             },
                             "existingFeedWorkspaceResourceId": {
                               "type": "string"
@@ -26548,7 +26433,6 @@
                               ]
                             },
                             {
-                              "condition": "[parameters('enableAvdInsights')]",
                               "type": "Microsoft.Insights/diagnosticSettings",
                               "apiVersion": "2021-05-01-preview",
                               "scope": "[resourceId('Microsoft.DesktopVirtualization/workspaces', parameters('workspaceFeedName'))]",
@@ -26591,19 +26475,19 @@
                             "value": "[parameters('location')]"
                           },
                           "subnetResourceId": {
-                            "value": "[parameters('subnetResourceId')]"
+                            "value": "[variables('subnetResourceId')]"
                           },
                           "tags": {
-                            "value": "[parameters('mlzTags')]"
+                            "value": "[variables('mlzTags')]"
                           },
                           "workspaceGlobalName": {
-                            "value": "[replace(parameters('namingConvention').workspace, parameters('tokens').purpose, 'global')]"
+                            "value": "[replace(variables('namingConvention').workspace, variables('tokens').purpose, 'global')]"
                           },
                           "workspaceGlobalNetworkInterfaceName": {
-                            "value": "[replace(parameters('namingConvention').workspaceNetworkInterface, parameters('tokens').purpose, 'global')]"
+                            "value": "[replace(variables('namingConvention').workspaceNetworkInterface, variables('tokens').purpose, 'global')]"
                           },
                           "workspaceGlobalPrivateEndpointName": {
-                            "value": "[replace(parameters('namingConvention').workspacePrivateEndpoint, parameters('tokens').purpose, 'global')]"
+                            "value": "[replace(variables('namingConvention').workspacePrivateEndpoint, variables('tokens').purpose, 'global')]"
                           }
                         },
                         "template": {
@@ -26708,6 +26592,7 @@
               },
               "dependsOn": [
                 "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix')))]",
+                "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}', parameters('deploymentNameSuffix')))]",
                 "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix')))]"
               ]
             },
@@ -26731,9 +26616,6 @@
                   "dataCollectionRuleResourceId": {
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.dataCollectionRuleResourceId.value]"
                   },
-                  "delimiter": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.delimiter.value]"
-                  },
                   "deploymentNameSuffix": {
                     "value": "[parameters('deploymentNameSuffix')]"
                   },
@@ -26751,12 +26633,6 @@
                   },
                   "diskSku": {
                     "value": "[parameters('diskSku')]"
-                  },
-                  "enableAcceleratedNetworking": {
-                    "value": "[parameters('enableAcceleratedNetworking')]"
-                  },
-                  "enableAvdInsights": {
-                    "value": "[parameters('enableAvdInsights')]"
                   },
                   "fileShare": {
                     "value": "[parameters('fileShare')]"
@@ -26776,9 +26652,6 @@
                   "location": {
                     "value": "[parameters('location')]"
                   },
-                  "mlzTags": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.mlzTags.value]"
-                  },
                   "resourceGroupName": {
                     "value": "[replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tier.value.namingConvention.resourceGroup, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value.purpose, 'stamp')]"
                   },
@@ -26788,11 +26661,8 @@
                   "tags": {
                     "value": "[parameters('tags')]"
                   },
-                  "tier": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tier.value]"
-                  },
-                  "tokens": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value]"
+                  "tier3": {
+                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs]"
                   },
                   "virtualMachineAdminPassword": {
                     "value": "[parameters('virtualMachineAdminPassword')]"
@@ -26811,7 +26681,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "9940235202799492506"
+                      "templateHash": "3568194116990826694"
                     }
                   },
                   "parameters": {
@@ -26822,9 +26692,6 @@
                       "type": "string"
                     },
                     "dataCollectionRuleResourceId": {
-                      "type": "string"
-                    },
-                    "delimiter": {
                       "type": "string"
                     },
                     "deploymentNameSuffix": {
@@ -26845,12 +26712,6 @@
                     "diskSku": {
                       "type": "string"
                     },
-                    "enableAcceleratedNetworking": {
-                      "type": "bool"
-                    },
-                    "enableAvdInsights": {
-                      "type": "bool"
-                    },
                     "fileShare": {
                       "type": "string"
                     },
@@ -26869,9 +26730,6 @@
                     "location": {
                       "type": "string"
                     },
-                    "mlzTags": {
-                      "type": "object"
-                    },
                     "resourceGroupName": {
                       "type": "string"
                     },
@@ -26881,10 +26739,7 @@
                     "tags": {
                       "type": "object"
                     },
-                    "tier": {
-                      "type": "object"
-                    },
-                    "tokens": {
+                    "tier3": {
                       "type": "object"
                     },
                     "virtualMachineAdminPassword": {
@@ -26898,14 +26753,18 @@
                     }
                   },
                   "variables": {
-                    "tagsVirtualMachines": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/virtualMachines'), createObject()), parameters('mlzTags'))]"
+                    "delimiter": "[parameters('tier3').delimiter]",
+                    "mlzTags": "[parameters('tier3').mlzTags]",
+                    "tagsVirtualMachines": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/virtualMachines'), createObject()), variables('mlzTags'))]",
+                    "tier": "[parameters('tier3').tier]",
+                    "tokens": "[parameters('tier3').tokens]"
                   },
                   "resources": [
                     {
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2025-04-01",
                       "name": "[format('assign-policy-diskAccess-{0}', parameters('deploymentNameSuffix'))]",
-                      "subscriptionId": "[parameters('tier').subscriptionId]",
+                      "subscriptionId": "[variables('tier').subscriptionId]",
                       "resourceGroup": "[parameters('resourceGroupName')]",
                       "properties": {
                         "expressionEvaluationOptions": {
@@ -26980,7 +26839,7 @@
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2025-04-01",
                       "name": "[format('assign-role-{0}', parameters('deploymentNameSuffix'))]",
-                      "subscriptionId": "[parameters('tier').subscriptionId]",
+                      "subscriptionId": "[variables('tier').subscriptionId]",
                       "resourceGroup": "[parameters('resourceGroupName')]",
                       "properties": {
                         "expressionEvaluationOptions": {
@@ -27038,7 +26897,7 @@
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2025-04-01",
                       "name": "[format('deploy-vm-{0}', parameters('deploymentNameSuffix'))]",
-                      "subscriptionId": "[parameters('tier').subscriptionId]",
+                      "subscriptionId": "[variables('tier').subscriptionId]",
                       "resourceGroup": "[parameters('resourceGroupName')]",
                       "properties": {
                         "expressionEvaluationOptions": {
@@ -27053,7 +26912,7 @@
                             "value": "[parameters('avdConfigurationZipFileUri')]"
                           },
                           "dataCollectionRuleAssociationName": {
-                            "value": "[replace(parameters('tier').namingConvention.dataCollectionRuleAssociation, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), '')]"
+                            "value": "[replace(variables('tier').namingConvention.dataCollectionRuleAssociation, format('{0}{1}', variables('delimiter'), variables('tokens').purpose), '')]"
                           },
                           "dataCollectionRuleResourceId": {
                             "value": "[parameters('dataCollectionRuleResourceId')]"
@@ -27065,16 +26924,10 @@
                             "value": "[parameters('diskEncryptionSetResourceId')]"
                           },
                           "diskNamePrefix": {
-                            "value": "[replace(parameters('tier').namingConvention.virtualMachineDisk, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), '')]"
+                            "value": "[replace(variables('tier').namingConvention.virtualMachineDisk, format('{0}{1}', variables('delimiter'), variables('tokens').purpose), '')]"
                           },
                           "diskSku": {
                             "value": "[parameters('diskSku')]"
-                          },
-                          "enableAcceleratedNetworking": {
-                            "value": "[parameters('enableAcceleratedNetworking')]"
-                          },
-                          "enableAvdInsights": {
-                            "value": "[parameters('enableAvdInsights')]"
                           },
                           "fileShare": {
                             "value": "[parameters('fileShare')]"
@@ -27102,22 +26955,22 @@
                             "value": "[parameters('location')]"
                           },
                           "networkInterfaceNamePrefix": {
-                            "value": "[replace(parameters('tier').namingConvention.virtualMachineNetworkInterface, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), '')]"
+                            "value": "[replace(variables('tier').namingConvention.virtualMachineNetworkInterface, format('{0}{1}', variables('delimiter'), variables('tokens').purpose), '')]"
                           },
                           "networkSecurityGroupResourceId": {
-                            "value": "[parameters('tier').networkSecurityGroupResourceId]"
+                            "value": "[variables('tier').networkSecurityGroupResourceId]"
                           },
                           "subnetResourceId": {
-                            "value": "[parameters('tier').subnets[0].id]"
+                            "value": "[variables('tier').subnets[0].id]"
                           },
                           "tagsNetworkInterfaces": {
-                            "value": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Network/networkInterfaces'), createObject()), parameters('mlzTags'))]"
+                            "value": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Network/networkInterfaces'), createObject()), variables('mlzTags'))]"
                           },
                           "tagsVirtualMachines": {
                             "value": "[variables('tagsVirtualMachines')]"
                           },
                           "virtualMachineNamePrefix": {
-                            "value": "[replace(parameters('tier').namingConvention.virtualMachine, parameters('tokens').purpose, '')]"
+                            "value": "[replace(variables('tier').namingConvention.virtualMachine, variables('tokens').purpose, '')]"
                           },
                           "virtualMachineAdminPassword": {
                             "value": "[parameters('virtualMachineAdminPassword')]"
@@ -27136,7 +26989,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "17267114140830256348"
+                              "templateHash": "9679457723280615316"
                             }
                           },
                           "parameters": {
@@ -27163,12 +27016,6 @@
                             },
                             "diskSku": {
                               "type": "string"
-                            },
-                            "enableAcceleratedNetworking": {
-                              "type": "bool"
-                            },
-                            "enableAvdInsights": {
-                              "type": "bool"
                             },
                             "fileShare": {
                               "type": "string"
@@ -27220,7 +27067,7 @@
                             }
                           },
                           "variables": {
-                            "$fxv#0": "param (\r\n    [string]$FileShare\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n$Settings = @(\r\n\r\n    # Disable Automatic Updates: https://learn.microsoft.com/azure/virtual-desktop/set-up-customize-master-image#disable-automatic-updates\r\n    [PSCustomObject]@{\r\n        Name = 'NoAutoUpdate'\r\n        Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU'\r\n        PropertyType = 'DWord'\r\n        Value = 1\r\n    },\r\n\r\n    # Enable Time Zone Redirection: https://learn.microsoft.com/azure/virtual-desktop/set-up-customize-master-image#set-up-time-zone-redirection\r\n    [PSCustomObject]@{\r\n        Name = 'fEnableTimeZoneRedirection'\r\n        Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n        PropertyType = 'DWord'\r\n        Value = 1\r\n    },\r\n\r\n    # Configure GPU-accelerated app rendering: https://learn.microsoft.com/azure/virtual-desktop/configure-vm-gpu#configure-gpu-accelerated-app-rendering\r\n    [PSCustomObject]@{\r\n        Name = 'bEnumerateHWBeforeSW'\r\n        Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n        PropertyType = 'DWord'\r\n        Value = 1\r\n    },\r\n\r\n    # Configure fullscreen video encoding: https://learn.microsoft.com/azure/virtual-desktop/configure-vm-gpu#configure-fullscreen-video-encoding\r\n    [PSCustomObject]@{\r\n        Name = 'AVC444ModePreferred'\r\n        Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n        PropertyType = 'DWord'\r\n        Value = 1\r\n    }\r\n)\r\n\r\n# Set registry settings\r\nforeach($Setting in $Settings)\r\n{\r\n    # Create registry key(s) if necessary\r\n    if(!(Test-Path -Path $Setting.Path))\r\n    {\r\n        New-Item -Path $Setting.Path -Force | Out-Null\r\n    }\r\n\r\n    # Checks for existing registry setting\r\n    $Value = Get-ItemProperty -Path $Setting.Path -Name $Setting.Name -ErrorAction 'SilentlyContinue'\r\n    \r\n    # Creates the registry setting when it does not exist\r\n    if(!$Value)\r\n    {\r\n        New-ItemProperty -Path $Setting.Path -Name $Setting.Name -PropertyType $Setting.PropertyType -Value $Setting.Value -Force | Out-Null\r\n    }\r\n    # Updates the registry setting when it already exists\r\n    elseif($Value.$($Setting.Name) -ne $Setting.Value)\r\n    {\r\n        Set-ItemProperty -Path $Setting.Path -Name $Setting.Name -Value $Setting.Value -Force | Out-Null\r\n    }\r\n    Start-Sleep -Seconds 1 | Out-Null\r\n}",
+                            "$fxv#0": "$ErrorActionPreference = 'Stop'\r\n$Settings = @(\r\n\r\n    # Disable Automatic Updates: https://learn.microsoft.com/azure/virtual-desktop/set-up-customize-master-image#disable-automatic-updates\r\n    [PSCustomObject]@{\r\n        Name = 'NoAutoUpdate'\r\n        Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU'\r\n        PropertyType = 'DWord'\r\n        Value = 1\r\n    },\r\n\r\n    # Enable Time Zone Redirection: https://learn.microsoft.com/azure/virtual-desktop/set-up-customize-master-image#set-up-time-zone-redirection\r\n    [PSCustomObject]@{\r\n        Name = 'fEnableTimeZoneRedirection'\r\n        Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n        PropertyType = 'DWord'\r\n        Value = 1\r\n    },\r\n\r\n    # Configure GPU-accelerated app rendering: https://learn.microsoft.com/azure/virtual-desktop/configure-vm-gpu#configure-gpu-accelerated-app-rendering\r\n    [PSCustomObject]@{\r\n        Name = 'bEnumerateHWBeforeSW'\r\n        Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n        PropertyType = 'DWord'\r\n        Value = 1\r\n    },\r\n\r\n    # Configure fullscreen video encoding: https://learn.microsoft.com/azure/virtual-desktop/configure-vm-gpu#configure-fullscreen-video-encoding\r\n    [PSCustomObject]@{\r\n        Name = 'AVC444ModePreferred'\r\n        Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n        PropertyType = 'DWord'\r\n        Value = 1\r\n    }\r\n)\r\n\r\nforeach($Setting in $Settings)\r\n{\r\n    if(!(Test-Path -Path $Setting.Path))\r\n    {\r\n        New-Item -Path $Setting.Path -Force | Out-Null\r\n    }\r\n    $Value = Get-ItemProperty -Path $Setting.Path -Name $Setting.Name -ErrorAction 'SilentlyContinue'\r\n    if(!$Value)\r\n    {\r\n        New-ItemProperty -Path $Setting.Path -Name $Setting.Name -PropertyType $Setting.PropertyType -Value $Setting.Value -Force | Out-Null\r\n    }\r\n    elseif($Value.$($Setting.Name) -ne $Setting.Value)\r\n    {\r\n        Set-ItemProperty -Path $Setting.Path -Name $Setting.Name -Value $Setting.Value -Force | Out-Null\r\n    }\r\n    Start-Sleep -Seconds 1 | Out-Null\r\n}",
                             "imageReference": {
                               "publisher": "[parameters('imagePublisher')]",
                               "offer": "[parameters('imageOffer')]",
@@ -27253,7 +27100,7 @@
                                 "networkSecurityGroup": {
                                   "id": "[parameters('networkSecurityGroupResourceId')]"
                                 },
-                                "enableAcceleratedNetworking": "[parameters('enableAcceleratedNetworking')]",
+                                "enableAcceleratedNetworking": true,
                                 "enableIPForwarding": false
                               }
                             },
@@ -27358,7 +27205,6 @@
                               ]
                             },
                             {
-                              "condition": "[parameters('enableAvdInsights')]",
                               "type": "Microsoft.Compute/virtualMachines/extensions",
                               "apiVersion": "2023-03-01",
                               "name": "[format('{0}/{1}', format('{0}-0', parameters('virtualMachineNamePrefix')), 'AzureMonitorWindowsAgent')]",
@@ -27376,7 +27222,6 @@
                               ]
                             },
                             {
-                              "condition": "[parameters('enableAvdInsights')]",
                               "type": "Microsoft.Insights/dataCollectionRuleAssociations",
                               "apiVersion": "2022-06-01",
                               "scope": "[resourceId('Microsoft.Compute/virtualMachines', format('{0}-0', parameters('virtualMachineNamePrefix')))]",

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.39.26.7824",
-      "templateHash": "330206962481578159"
+      "templateHash": "13444364310522721537"
     }
   },
   "parameters": {
@@ -1122,6 +1122,7 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-04-01",
       "name": "[format('deploy-networking-{0}', parameters('deploymentNameSuffix'))]",
+      "subscriptionId": "[parameters('hubSubscriptionId')]",
       "location": "[deployment().location]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -1170,7 +1171,7 @@
               "threatIntelMode": "[parameters('firewallThreatIntelMode')]"
             }
           },
-          "firewallRuleCollectionGroups": "[if(empty(parameters('customFirewallRuleCollectionGroups')), createObject('value', createArray(createObject('name', 'MLZ-DefaultCollectionGroup', 'properties', createObject('priority', 100, 'ruleCollections', createArray(createObject('name', 'NetworkRules', 'priority', 100, 'ruleCollectionType', 'FirewallPolicyFilterRuleCollection', 'action', createObject('type', 'Allow'), 'rules', union(createArray(createObject('name', 'Allow-LAW-TCP', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Tcp'), 'sourceAddresses', createArray(parameters('firewallSupernetIPAddress')), 'destinationAddresses', createArray(cidrHost(parameters('operationsVirtualNetworkAddressPrefix'), 3)), 'destinationPorts', createArray('443'))), if(parameters('deployActiveDirectoryDomainServices'), createArray(createObject('name', 'Allow-ADDS-TCP', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('TCP'), 'sourceAddresses', createArray(parameters('firewallSupernetIPAddress')), 'destinationAddresses', createArray(cidrHost(parameters('identityVirtualNetworkAddressPrefix'), 5), cidrHost(parameters('identityVirtualNetworkAddressPrefix'), 6)), 'destinationPorts', createArray('53', '88', '135', '389', '445', '464', '636', '3268', '3269')), createObject('name', 'Allow-ADDS-UDP', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('UDP'), 'sourceAddresses', createArray(parameters('firewallSupernetIPAddress')), 'destinationAddresses', createArray(cidrHost(parameters('identitySubnetAddressPrefix'), 5), cidrHost(parameters('identitySubnetAddressPrefix'), 6)), 'destinationPorts', createArray('53', '88', '123', '389', '464'))), createArray()), if(or(parameters('deployLinuxVirtualMachine'), parameters('deployWindowsVirtualMachine')), createArray(createObject('name', 'Allow-KMS-TCP', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Tcp'), 'sourceAddresses', union(if(and(parameters('deployLinuxVirtualMachine'), parameters('deployWindowsVirtualMachine')), createArray(cidrHost(parameters('hubSubnetAddressPrefix'), 4), cidrHost(parameters('hubSubnetAddressPrefix'), 5)), createArray(cidrHost(parameters('hubSubnetAddressPrefix'), 4))), if(parameters('deployActiveDirectoryDomainServices'), createArray(cidrHost(parameters('identitySubnetAddressPrefix'), 5), cidrHost(parameters('identitySubnetAddressPrefix'), 6)), createArray())), 'destinationAddresses', createArray(), 'destinationFqdns', createArray(format('azkms.{0}', environment().suffixes.storage), format('kms.{0}', environment().suffixes.storage)), 'destinationPorts', createArray('1688'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray())), createArray()))), createObject('name', 'ApplicationRules', 'priority', 200, 'ruleCollectionType', 'FirewallPolicyFilterRuleCollection', 'action', createObject('type', 'Allow'), 'rules', if(or(parameters('deployLinuxVirtualMachine'), parameters('deployWindowsVirtualMachine')), createArray(createObject('name', 'Allow-WindowsUpdate', 'ruleType', 'ApplicationRule', 'protocols', createArray(createObject('protocolType', 'Https', 'port', 443)), 'fqdnTags', createArray('WindowsUpdate'), 'webCategories', createArray(), 'targetFqdns', createArray(), 'targetUrls', createArray(), 'terminateTLS', false(), 'sourceAddresses', union(if(and(parameters('deployLinuxVirtualMachine'), parameters('deployWindowsVirtualMachine')), createArray(cidrHost(parameters('hubSubnetAddressPrefix'), 4), cidrHost(parameters('hubSubnetAddressPrefix'), 5)), createArray(cidrHost(parameters('hubSubnetAddressPrefix'), 4))), if(parameters('deployActiveDirectoryDomainServices'), createArray(cidrHost(parameters('identitySubnetAddressPrefix'), 5), cidrHost(parameters('identitySubnetAddressPrefix'), 6)), createArray())), 'destinationAddresses', createArray(), 'sourceIpGroups', createArray())), createArray()))))))), createObject('value', parameters('customFirewallRuleCollectionGroups')))]",
+          "firewallRuleCollectionGroups": "[if(empty(parameters('customFirewallRuleCollectionGroups')), createObject('value', createArray(createObject('name', 'MLZ-DefaultCollectionGroup', 'properties', createObject('priority', 100, 'ruleCollections', createArray(createObject('name', 'NetworkRules', 'priority', 100, 'ruleCollectionType', 'FirewallPolicyFilterRuleCollection', 'action', createObject('type', 'Allow'), 'rules', union(createArray(createObject('name', 'Allow-LAW-TCP', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Tcp'), 'sourceAddresses', createArray(parameters('firewallSupernetIPAddress')), 'destinationAddresses', createArray(cidrHost(parameters('operationsVirtualNetworkAddressPrefix'), 3)), 'destinationPorts', createArray('443')), createObject('name', 'Allow-AAD-TCP', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Tcp'), 'sourceAddresses', createArray(parameters('firewallSupernetIPAddress')), 'destinationAddresses', createArray('AzureActiveDirectory'), 'destinationPorts', createArray('443')), createObject('name', 'Allow-KV-TCP', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Tcp'), 'sourceAddresses', createArray(parameters('firewallSupernetIPAddress')), 'destinationAddresses', createArray('AzureKeyVault'), 'destinationPorts', createArray('443')), createObject('name', 'Allow-KV-TCP', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Tcp'), 'sourceAddresses', createArray(parameters('firewallSupernetIPAddress')), 'destinationAddresses', createArray('AzureKeyVault'), 'destinationPorts', createArray('443')), createObject('name', 'Allow-ARM-TCP', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Tcp'), 'sourceAddresses', createArray(parameters('firewallSupernetIPAddress')), 'destinationAddresses', createArray('AzureResourceManager'), 'destinationPorts', createArray('443'))), if(parameters('deployActiveDirectoryDomainServices'), createArray(createObject('name', 'Allow-ADDS-TCP', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('TCP'), 'sourceAddresses', createArray(parameters('firewallSupernetIPAddress')), 'destinationAddresses', createArray(cidrHost(parameters('identityVirtualNetworkAddressPrefix'), 5), cidrHost(parameters('identityVirtualNetworkAddressPrefix'), 6)), 'destinationPorts', createArray('53', '88', '135', '389', '445', '464', '636', '3268', '3269')), createObject('name', 'Allow-ADDS-UDP', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('UDP'), 'sourceAddresses', createArray(parameters('firewallSupernetIPAddress')), 'destinationAddresses', createArray(cidrHost(parameters('identitySubnetAddressPrefix'), 5), cidrHost(parameters('identitySubnetAddressPrefix'), 6)), 'destinationPorts', createArray('53', '88', '123', '389', '464'))), createArray()), if(or(parameters('deployLinuxVirtualMachine'), parameters('deployWindowsVirtualMachine')), createArray(createObject('name', 'Allow-KMS-TCP', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Tcp'), 'sourceAddresses', union(if(and(parameters('deployLinuxVirtualMachine'), parameters('deployWindowsVirtualMachine')), createArray(cidrHost(parameters('hubSubnetAddressPrefix'), 4), cidrHost(parameters('hubSubnetAddressPrefix'), 5)), createArray(cidrHost(parameters('hubSubnetAddressPrefix'), 4))), if(parameters('deployActiveDirectoryDomainServices'), createArray(cidrHost(parameters('identitySubnetAddressPrefix'), 5), cidrHost(parameters('identitySubnetAddressPrefix'), 6)), createArray())), 'destinationAddresses', createArray(), 'destinationFqdns', createArray(format('azkms.{0}', environment().suffixes.storage), format('kms.{0}', environment().suffixes.storage)), 'destinationPorts', createArray('1688'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray())), createArray()))), createObject('name', 'ApplicationRules', 'priority', 200, 'ruleCollectionType', 'FirewallPolicyFilterRuleCollection', 'action', createObject('type', 'Allow'), 'rules', if(or(parameters('deployLinuxVirtualMachine'), parameters('deployWindowsVirtualMachine')), createArray(createObject('name', 'Allow-WindowsUpdate', 'ruleType', 'ApplicationRule', 'protocols', createArray(createObject('protocolType', 'Https', 'port', 443)), 'fqdnTags', createArray('WindowsUpdate'), 'webCategories', createArray(), 'targetFqdns', createArray(), 'targetUrls', createArray(), 'terminateTLS', false(), 'sourceAddresses', union(if(and(parameters('deployLinuxVirtualMachine'), parameters('deployWindowsVirtualMachine')), createArray(cidrHost(parameters('hubSubnetAddressPrefix'), 4), cidrHost(parameters('hubSubnetAddressPrefix'), 5)), createArray(cidrHost(parameters('hubSubnetAddressPrefix'), 4))), if(parameters('deployActiveDirectoryDomainServices'), createArray(cidrHost(parameters('identitySubnetAddressPrefix'), 5), cidrHost(parameters('identitySubnetAddressPrefix'), 6)), createArray())), 'destinationAddresses', createArray(), 'sourceIpGroups', createArray())), createArray()))))))), createObject('value', parameters('customFirewallRuleCollectionGroups')))]",
           "identifier": {
             "value": "[parameters('identifier')]"
           },
@@ -4623,6 +4624,7 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-04-01",
       "name": "[format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))]",
+      "subscriptionId": "[parameters('operationsSubscriptionId')]",
       "location": "[deployment().location]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -4631,7 +4633,7 @@
         "mode": "Incremental",
         "parameters": {
           "delimiter": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.delimiter.value]"
+            "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.delimiter.value]"
           },
           "deploymentNameSuffix": {
             "value": "[parameters('deploymentNameSuffix')]"
@@ -4652,19 +4654,19 @@
             "value": "[parameters('logAnalyticsWorkspaceSkuName')]"
           },
           "privateDnsZoneResourceIds": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.privateDnsZoneResourceIds.value]"
+            "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.privateDnsZoneResourceIds.value]"
           },
           "mlzTags": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.mlzTags.value]"
+            "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.mlzTags.value]"
           },
           "tags": {
             "value": "[parameters('tags')]"
           },
           "tier": {
-            "value": "[filter(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tiers.value, lambda('tier', equals(lambdaVariables('tier').name, 'operations')))[0]]"
+            "value": "[filter(reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tiers.value, lambda('tier', equals(lambdaVariables('tier').name, 'operations')))[0]]"
           },
           "tokens": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value]"
+            "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value]"
           }
         },
         "template": {
@@ -5164,7 +5166,7 @@
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix')))]"
+        "[subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
     {
@@ -5172,6 +5174,7 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-04-01",
       "name": "[format('deploy-adds-{0}', parameters('deploymentNameSuffix'))]",
+      "subscriptionId": "[parameters('identitySubscriptionId')]",
       "location": "[deployment().location]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -5186,7 +5189,7 @@
             "value": "[parameters('addsAdministratorUsername')]"
           },
           "delimiter": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.delimiter.value]"
+            "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.delimiter.value]"
           },
           "deploymentNameSuffix": {
             "value": "[parameters('deploymentNameSuffix')]"
@@ -5198,7 +5201,7 @@
             "value": "[parameters('environmentAbbreviation')]"
           },
           "firewallPolicyResourceId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.firewallPolicyResourceId.value]"
+            "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.firewallPolicyResourceId.value]"
           },
           "hybridUseBenefit": {
             "value": "[parameters('hybridUseBenefit')]"
@@ -5222,16 +5225,16 @@
             ]
           },
           "keyVaultPrivateDnsZoneResourceId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.privateDnsZoneResourceIds.value.keyVault]"
+            "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.privateDnsZoneResourceIds.value.keyVault]"
           },
           "location": {
             "value": "[parameters('location')]"
           },
           "mlzTags": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.mlzTags.value]"
+            "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.mlzTags.value]"
           },
           "resourceAbbreviations": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.resourceAbbreviations.value]"
+            "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.resourceAbbreviations.value]"
           },
           "safeModeAdminPassword": {
             "value": "[parameters('addsSafeModeAdminPassword')]"
@@ -5240,10 +5243,10 @@
             "value": "[parameters('tags')]"
           },
           "tiers": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tiers.value]"
+            "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tiers.value]"
           },
           "tokens": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value]"
+            "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value]"
           },
           "vmSize": {
             "value": "[parameters('addsVmSize')]"
@@ -6983,7 +6986,7 @@
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix')))]"
+        "[subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
     {
@@ -6991,6 +6994,7 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-04-01",
       "name": "[format('deploy-remote-access-{0}', parameters('deploymentNameSuffix'))]",
+      "subscriptionId": "[parameters('hubSubscriptionId')]",
       "location": "[deployment().location]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -7008,10 +7012,10 @@
             "value": "Standard"
           },
           "bastionHostSubnetResourceId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.bastionHostSubnetResourceId.value]"
+            "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.bastionHostSubnetResourceId.value]"
           },
           "delimiter": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.delimiter.value]"
+            "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.delimiter.value]"
           },
           "deployBastion": {
             "value": "[parameters('deployBastion')]"
@@ -7032,7 +7036,7 @@
             "value": "[parameters('hybridUseBenefit')]"
           },
           "keyVaultPrivateDnsZoneResourceId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.privateDnsZoneResourceIds.value.keyVault]"
+            "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.privateDnsZoneResourceIds.value.keyVault]"
           },
           "linuxVmAdminPasswordOrKey": {
             "value": "[parameters('linuxVmAdminPasswordOrKey')]"
@@ -7065,19 +7069,19 @@
             "value": "[parameters('location')]"
           },
           "mlzTags": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.mlzTags.value]"
+            "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.mlzTags.value]"
           },
           "resourceAbbreviations": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.resourceAbbreviations.value]"
+            "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.resourceAbbreviations.value]"
           },
           "tags": {
             "value": "[parameters('tags')]"
           },
           "tier": {
-            "value": "[filter(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tiers.value, lambda('tier', equals(lambdaVariables('tier').name, 'hub')))[0]]"
+            "value": "[filter(reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tiers.value, lambda('tier', equals(lambdaVariables('tier').name, 'hub')))[0]]"
           },
           "tokens": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value]"
+            "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value]"
           },
           "windowsVmAdminPassword": {
             "value": "[parameters('windowsVmAdminPassword')]"
@@ -8969,13 +8973,14 @@
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix')))]"
+        "[subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-04-01",
       "name": "[format('deploy-diag-storage-{0}', parameters('deploymentNameSuffix'))]",
+      "subscriptionId": "[parameters('hubSubscriptionId')]",
       "location": "[deployment().location]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -8984,7 +8989,7 @@
         "mode": "Incremental",
         "parameters": {
           "delimiter": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.delimiter.value]"
+            "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.delimiter.value]"
           },
           "deploymentNameSuffix": {
             "value": "[parameters('deploymentNameSuffix')]"
@@ -8999,25 +9004,25 @@
             "value": "[parameters('logStorageSkuName')]"
           },
           "mlzTags": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.mlzTags.value]"
+            "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.mlzTags.value]"
           },
           "privateDnsZoneResourceIds": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.privateDnsZoneResourceIds.value]"
+            "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.privateDnsZoneResourceIds.value]"
           },
           "purpose": {
             "value": "diag"
           },
           "resourceAbbreviations": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.resourceAbbreviations.value]"
+            "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.resourceAbbreviations.value]"
           },
           "tags": {
             "value": "[parameters('tags')]"
           },
           "tiers": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tiers.value]"
+            "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tiers.value]"
           },
           "tokens": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value]"
+            "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value]"
           }
         },
         "template": {
@@ -9980,15 +9985,16 @@
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-adds-{0}', parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-remote-access-{0}', parameters('deploymentNameSuffix')))]"
+        "[subscriptionResourceId(parameters('identitySubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-adds-{0}', parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-remote-access-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-04-01",
       "name": "[format('deploy-diagnostic-settings-{0}', parameters('deploymentNameSuffix'))]",
+      "subscriptionId": "[parameters('hubSubscriptionId')]",
       "location": "[deployment().location]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -10009,7 +10015,7 @@
             "value": "[parameters('blobDiagnosticsMetrics')]"
           },
           "delimiter": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.delimiter.value]"
+            "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.delimiter.value]"
           },
           "deployBastion": {
             "value": "[parameters('deployBastion')]"
@@ -10033,7 +10039,7 @@
             "value": "[parameters('firewallDiagnosticsMetrics')]"
           },
           "keyVaults": {
-            "value": "[union(createArray(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-diag-storage-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.keyVaultProperties.value), if(parameters('deployActiveDirectoryDomainServices'), createArray(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-adds-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.keyVaultProperties.value), createArray()), if(or(parameters('deployLinuxVirtualMachine'), parameters('deployWindowsVirtualMachine')), createArray(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-remote-access-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.keyVaultProperties.value), createArray()))]"
+            "value": "[union(createArray(reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-diag-storage-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.keyVaultProperties.value), if(parameters('deployActiveDirectoryDomainServices'), createArray(reference(subscriptionResourceId(parameters('identitySubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-adds-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.keyVaultProperties.value), createArray()), if(or(parameters('deployLinuxVirtualMachine'), parameters('deployWindowsVirtualMachine')), createArray(reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-remote-access-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.keyVaultProperties.value), createArray()))]"
           },
           "keyVaultDiagnosticLogs": {
             "value": "[parameters('keyVaultDiagnosticsLogs')]"
@@ -10045,13 +10051,13 @@
             "value": "[parameters('location')]"
           },
           "logAnalyticsWorkspaceResourceId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.logAnalyticsWorkspaceResourceId.value]"
+            "value": "[reference(subscriptionResourceId(parameters('operationsSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.logAnalyticsWorkspaceResourceId.value]"
           },
           "networkInterfaceDiagnosticsMetrics": {
             "value": "[parameters('networkInterfaceDiagnosticsMetrics')]"
           },
           "networkInterfaceResourceIds": {
-            "value": "[union(if(and(parameters('deployActiveDirectoryDomainServices'), parameters('deployIdentity')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-adds-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.networkInterfaceResourceIds.value, createArray()), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.networkInterfaceResourceIds.value, if(or(parameters('deployLinuxVirtualMachine'), parameters('deployWindowsVirtualMachine')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-remote-access-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.networkInterfaceResourceIds.value, createArray()), flatten(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-diag-storage-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.networkInterfaceResourceIds.value))]"
+            "value": "[union(if(and(parameters('deployActiveDirectoryDomainServices'), parameters('deployIdentity')), reference(subscriptionResourceId(parameters('identitySubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-adds-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.networkInterfaceResourceIds.value, createArray()), reference(subscriptionResourceId(parameters('operationsSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.networkInterfaceResourceIds.value, if(or(parameters('deployLinuxVirtualMachine'), parameters('deployWindowsVirtualMachine')), reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-remote-access-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.networkInterfaceResourceIds.value, createArray()), flatten(reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-diag-storage-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.networkInterfaceResourceIds.value))]"
           },
           "networkWatcherFlowLogsRetentionDays": {
             "value": "[parameters('networkWatcherFlowLogsRetentionDays')]"
@@ -10078,7 +10084,7 @@
             "value": "[parameters('storageAccountDiagnosticsMetrics')]"
           },
           "storageAccountResourceIds": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-diag-storage-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.storageAccountResourceIds.value]"
+            "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-diag-storage-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.storageAccountResourceIds.value]"
           },
           "supportedClouds": {
             "value": "[parameters('supportedClouds')]"
@@ -10090,10 +10096,10 @@
             "value": "[parameters('tableDiagnosticsMetrics')]"
           },
           "tiers": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tiers.value]"
+            "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tiers.value]"
           },
           "tokens": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value]"
+            "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value]"
           }
         },
         "template": {
@@ -10103,7 +10109,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.39.26.7824",
-              "templateHash": "12350407996496310121"
+              "templateHash": "17694955990504683037"
             }
           },
           "parameters": {
@@ -10823,241 +10829,6 @@
             },
             {
               "copy": {
-                "name": "virtualNetworkDiagnostics",
-                "count": "[length(parameters('tiers'))]",
-                "mode": "serial",
-                "batchSize": 1
-              },
-              "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2025-04-01",
-              "name": "[format('deploy-vnet-diag-{0}-{1}', parameters('tiers')[copyIndex()].name, parameters('deploymentNameSuffix'))]",
-              "subscriptionId": "[parameters('tiers')[copyIndex()].subscriptionId]",
-              "resourceGroup": "[parameters('tiers')[copyIndex()].resourceGroupName]",
-              "properties": {
-                "expressionEvaluationOptions": {
-                  "scope": "inner"
-                },
-                "mode": "Incremental",
-                "parameters": {
-                  "deploymentNameSuffix": {
-                    "value": "[parameters('deploymentNameSuffix')]"
-                  },
-                  "deployNetworkWatcherTrafficAnalytics": {
-                    "value": "[parameters('deployNetworkWatcherTrafficAnalytics')]"
-                  },
-                  "flowLogsName": {
-                    "value": "[replace(parameters('tiers')[copyIndex()].namingConvention.networkWatcherFlowLogsVirtualNetwork, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), '')]"
-                  },
-                  "location": {
-                    "value": "[parameters('location')]"
-                  },
-                  "logAnalyticsWorkspaceResourceId": {
-                    "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
-                  },
-                  "logs": {
-                    "value": "[parameters('tiers')[copyIndex()].vnetDiagLogs]"
-                  },
-                  "logStorageAccountResourceId": {
-                    "value": "[parameters('storageAccountResourceIds')[copyIndex()]]"
-                  },
-                  "metrics": {
-                    "value": "[parameters('tiers')[copyIndex()].vnetDiagMetrics]"
-                  },
-                  "networkWatcherFlowLogsRetentionDays": {
-                    "value": "[parameters('networkWatcherFlowLogsRetentionDays')]"
-                  },
-                  "networkWatcherFlowLogsType": {
-                    "value": "[parameters('networkWatcherFlowLogsType')]"
-                  },
-                  "tiername": {
-                    "value": "[parameters('tiers')[copyIndex()].name]"
-                  },
-                  "virtualNetworkDiagnosticSettingName": {
-                    "value": "[replace(parameters('tiers')[copyIndex()].namingConvention.virtualNetworkDiagnosticSetting, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), '')]"
-                  },
-                  "virtualNetworkName": {
-                    "value": "[replace(parameters('tiers')[copyIndex()].namingConvention.virtualNetwork, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), '')]"
-                  }
-                },
-                "template": {
-                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                  "contentVersion": "1.0.0.0",
-                  "metadata": {
-                    "_generator": {
-                      "name": "bicep",
-                      "version": "0.39.26.7824",
-                      "templateHash": "10948034446360727735"
-                    }
-                  },
-                  "parameters": {
-                    "deploymentNameSuffix": {
-                      "type": "string"
-                    },
-                    "deployNetworkWatcherTrafficAnalytics": {
-                      "type": "bool"
-                    },
-                    "flowLogsName": {
-                      "type": "string"
-                    },
-                    "location": {
-                      "type": "string"
-                    },
-                    "logAnalyticsWorkspaceResourceId": {
-                      "type": "string"
-                    },
-                    "logs": {
-                      "type": "array"
-                    },
-                    "logStorageAccountResourceId": {
-                      "type": "string"
-                    },
-                    "metrics": {
-                      "type": "array"
-                    },
-                    "networkWatcherFlowLogsRetentionDays": {
-                      "type": "int"
-                    },
-                    "networkWatcherFlowLogsType": {
-                      "type": "string"
-                    },
-                    "supportedClouds": {
-                      "type": "array",
-                      "defaultValue": [
-                        "AzureCloud"
-                      ]
-                    },
-                    "tiername": {
-                      "type": "string"
-                    },
-                    "virtualNetworkDiagnosticSettingName": {
-                      "type": "string"
-                    },
-                    "virtualNetworkName": {
-                      "type": "string"
-                    }
-                  },
-                  "resources": [
-                    {
-                      "type": "Microsoft.Insights/diagnosticSettings",
-                      "apiVersion": "2021-05-01-preview",
-                      "scope": "[format('Microsoft.Network/virtualNetworks/{0}', parameters('virtualNetworkName'))]",
-                      "name": "[parameters('virtualNetworkDiagnosticSettingName')]",
-                      "properties": {
-                        "logs": "[if(contains(parameters('supportedClouds'), environment().name), parameters('logs'), createArray())]",
-                        "metrics": "[parameters('metrics')]",
-                        "storageAccountId": "[parameters('logStorageAccountResourceId')]",
-                        "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]"
-                      }
-                    },
-                    {
-                      "condition": "[equals(parameters('networkWatcherFlowLogsType'), 'VirtualNetwork')]",
-                      "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2025-04-01",
-                      "name": "[format('deploy-{0}-flowLogs-{1}', parameters('tiername'), parameters('deploymentNameSuffix'))]",
-                      "resourceGroup": "NetworkWatcherRG",
-                      "properties": {
-                        "expressionEvaluationOptions": {
-                          "scope": "inner"
-                        },
-                        "mode": "Incremental",
-                        "parameters": {
-                          "deployNetworkWatcherTrafficAnalytics": {
-                            "value": "[parameters('deployNetworkWatcherTrafficAnalytics')]"
-                          },
-                          "flowLogsName": {
-                            "value": "[parameters('flowLogsName')]"
-                          },
-                          "flowLogsRetentionDays": {
-                            "value": "[parameters('networkWatcherFlowLogsRetentionDays')]"
-                          },
-                          "location": {
-                            "value": "[parameters('location')]"
-                          },
-                          "logAnalyticsWorkspaceResourceId": {
-                            "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
-                          },
-                          "networkWatcherName": {
-                            "value": "[format('NetworkWatcher_{0}', parameters('location'))]"
-                          },
-                          "storageAccountResourceId": {
-                            "value": "[parameters('logStorageAccountResourceId')]"
-                          },
-                          "targetResourceId": {
-                            "value": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
-                          }
-                        },
-                        "template": {
-                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                          "contentVersion": "1.0.0.0",
-                          "metadata": {
-                            "_generator": {
-                              "name": "bicep",
-                              "version": "0.39.26.7824",
-                              "templateHash": "8258229738636282635"
-                            }
-                          },
-                          "parameters": {
-                            "deployNetworkWatcherTrafficAnalytics": {
-                              "type": "bool"
-                            },
-                            "flowLogsName": {
-                              "type": "string"
-                            },
-                            "flowLogsRetentionDays": {
-                              "type": "int"
-                            },
-                            "location": {
-                              "type": "string"
-                            },
-                            "logAnalyticsWorkspaceResourceId": {
-                              "type": "string"
-                            },
-                            "networkWatcherName": {
-                              "type": "string"
-                            },
-                            "storageAccountResourceId": {
-                              "type": "string"
-                            },
-                            "targetResourceId": {
-                              "type": "string"
-                            }
-                          },
-                          "resources": [
-                            {
-                              "type": "Microsoft.Network/networkWatchers/flowLogs",
-                              "apiVersion": "2023-05-01",
-                              "name": "[format('{0}/{1}', parameters('networkWatcherName'), parameters('flowLogsName'))]",
-                              "location": "[parameters('location')]",
-                              "properties": {
-                                "targetResourceId": "[parameters('targetResourceId')]",
-                                "enabled": true,
-                                "storageId": "[parameters('storageAccountResourceId')]",
-                                "flowAnalyticsConfiguration": {
-                                  "networkWatcherFlowAnalyticsConfiguration": {
-                                    "enabled": "[if(parameters('deployNetworkWatcherTrafficAnalytics'), parameters('deployNetworkWatcherTrafficAnalytics'), null())]",
-                                    "workspaceResourceId": "[if(parameters('deployNetworkWatcherTrafficAnalytics'), parameters('logAnalyticsWorkspaceResourceId'), null())]"
-                                  }
-                                },
-                                "format": {
-                                  "type": "JSON",
-                                  "version": 2
-                                },
-                                "retentionPolicy": {
-                                  "days": "[parameters('flowLogsRetentionDays')]",
-                                  "enabled": true
-                                }
-                              }
-                            }
-                          ]
-                        }
-                      }
-                    }
-                  ]
-                }
-              }
-            },
-            {
-              "copy": {
                 "name": "publicIpAddressDiagnosticSettings",
                 "count": "[length(variables('publicIPAddresses'))]"
               },
@@ -11481,22 +11252,268 @@
                   ]
                 }
               }
+            },
+            {
+              "copy": {
+                "name": "virtualNetworkDiagnostics",
+                "count": "[length(parameters('tiers'))]",
+                "mode": "serial",
+                "batchSize": 1
+              },
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2025-04-01",
+              "name": "[format('deploy-vnet-diag-{0}-{1}', parameters('tiers')[copyIndex()].name, parameters('deploymentNameSuffix'))]",
+              "subscriptionId": "[parameters('tiers')[copyIndex()].subscriptionId]",
+              "resourceGroup": "[parameters('tiers')[copyIndex()].resourceGroupName]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "deploymentNameSuffix": {
+                    "value": "[parameters('deploymentNameSuffix')]"
+                  },
+                  "deployNetworkWatcherTrafficAnalytics": {
+                    "value": "[parameters('deployNetworkWatcherTrafficAnalytics')]"
+                  },
+                  "flowLogsName": {
+                    "value": "[replace(parameters('tiers')[copyIndex()].namingConvention.networkWatcherFlowLogsVirtualNetwork, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), '')]"
+                  },
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
+                  "logAnalyticsWorkspaceResourceId": {
+                    "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
+                  },
+                  "logs": {
+                    "value": "[parameters('tiers')[copyIndex()].vnetDiagLogs]"
+                  },
+                  "logStorageAccountResourceId": {
+                    "value": "[parameters('storageAccountResourceIds')[copyIndex()]]"
+                  },
+                  "metrics": {
+                    "value": "[parameters('tiers')[copyIndex()].vnetDiagMetrics]"
+                  },
+                  "networkWatcherFlowLogsRetentionDays": {
+                    "value": "[parameters('networkWatcherFlowLogsRetentionDays')]"
+                  },
+                  "networkWatcherFlowLogsType": {
+                    "value": "[parameters('networkWatcherFlowLogsType')]"
+                  },
+                  "tiername": {
+                    "value": "[parameters('tiers')[copyIndex()].name]"
+                  },
+                  "virtualNetworkDiagnosticSettingName": {
+                    "value": "[replace(parameters('tiers')[copyIndex()].namingConvention.virtualNetworkDiagnosticSetting, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), '')]"
+                  },
+                  "virtualNetworkName": {
+                    "value": "[replace(parameters('tiers')[copyIndex()].namingConvention.virtualNetwork, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), '')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.39.26.7824",
+                      "templateHash": "10948034446360727735"
+                    }
+                  },
+                  "parameters": {
+                    "deploymentNameSuffix": {
+                      "type": "string"
+                    },
+                    "deployNetworkWatcherTrafficAnalytics": {
+                      "type": "bool"
+                    },
+                    "flowLogsName": {
+                      "type": "string"
+                    },
+                    "location": {
+                      "type": "string"
+                    },
+                    "logAnalyticsWorkspaceResourceId": {
+                      "type": "string"
+                    },
+                    "logs": {
+                      "type": "array"
+                    },
+                    "logStorageAccountResourceId": {
+                      "type": "string"
+                    },
+                    "metrics": {
+                      "type": "array"
+                    },
+                    "networkWatcherFlowLogsRetentionDays": {
+                      "type": "int"
+                    },
+                    "networkWatcherFlowLogsType": {
+                      "type": "string"
+                    },
+                    "supportedClouds": {
+                      "type": "array",
+                      "defaultValue": [
+                        "AzureCloud"
+                      ]
+                    },
+                    "tiername": {
+                      "type": "string"
+                    },
+                    "virtualNetworkDiagnosticSettingName": {
+                      "type": "string"
+                    },
+                    "virtualNetworkName": {
+                      "type": "string"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Insights/diagnosticSettings",
+                      "apiVersion": "2021-05-01-preview",
+                      "scope": "[format('Microsoft.Network/virtualNetworks/{0}', parameters('virtualNetworkName'))]",
+                      "name": "[parameters('virtualNetworkDiagnosticSettingName')]",
+                      "properties": {
+                        "logs": "[if(contains(parameters('supportedClouds'), environment().name), parameters('logs'), createArray())]",
+                        "metrics": "[parameters('metrics')]",
+                        "storageAccountId": "[parameters('logStorageAccountResourceId')]",
+                        "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]"
+                      }
+                    },
+                    {
+                      "condition": "[equals(parameters('networkWatcherFlowLogsType'), 'VirtualNetwork')]",
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2025-04-01",
+                      "name": "[format('deploy-{0}-flowLogs-{1}', parameters('tiername'), parameters('deploymentNameSuffix'))]",
+                      "resourceGroup": "NetworkWatcherRG",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "parameters": {
+                          "deployNetworkWatcherTrafficAnalytics": {
+                            "value": "[parameters('deployNetworkWatcherTrafficAnalytics')]"
+                          },
+                          "flowLogsName": {
+                            "value": "[parameters('flowLogsName')]"
+                          },
+                          "flowLogsRetentionDays": {
+                            "value": "[parameters('networkWatcherFlowLogsRetentionDays')]"
+                          },
+                          "location": {
+                            "value": "[parameters('location')]"
+                          },
+                          "logAnalyticsWorkspaceResourceId": {
+                            "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
+                          },
+                          "networkWatcherName": {
+                            "value": "[format('NetworkWatcher_{0}', parameters('location'))]"
+                          },
+                          "storageAccountResourceId": {
+                            "value": "[parameters('logStorageAccountResourceId')]"
+                          },
+                          "targetResourceId": {
+                            "value": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
+                          }
+                        },
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "0.39.26.7824",
+                              "templateHash": "8258229738636282635"
+                            }
+                          },
+                          "parameters": {
+                            "deployNetworkWatcherTrafficAnalytics": {
+                              "type": "bool"
+                            },
+                            "flowLogsName": {
+                              "type": "string"
+                            },
+                            "flowLogsRetentionDays": {
+                              "type": "int"
+                            },
+                            "location": {
+                              "type": "string"
+                            },
+                            "logAnalyticsWorkspaceResourceId": {
+                              "type": "string"
+                            },
+                            "networkWatcherName": {
+                              "type": "string"
+                            },
+                            "storageAccountResourceId": {
+                              "type": "string"
+                            },
+                            "targetResourceId": {
+                              "type": "string"
+                            }
+                          },
+                          "resources": [
+                            {
+                              "type": "Microsoft.Network/networkWatchers/flowLogs",
+                              "apiVersion": "2023-05-01",
+                              "name": "[format('{0}/{1}', parameters('networkWatcherName'), parameters('flowLogsName'))]",
+                              "location": "[parameters('location')]",
+                              "properties": {
+                                "targetResourceId": "[parameters('targetResourceId')]",
+                                "enabled": true,
+                                "storageId": "[parameters('storageAccountResourceId')]",
+                                "flowAnalyticsConfiguration": {
+                                  "networkWatcherFlowAnalyticsConfiguration": {
+                                    "enabled": "[if(parameters('deployNetworkWatcherTrafficAnalytics'), parameters('deployNetworkWatcherTrafficAnalytics'), null())]",
+                                    "workspaceResourceId": "[if(parameters('deployNetworkWatcherTrafficAnalytics'), parameters('logAnalyticsWorkspaceResourceId'), null())]"
+                                  }
+                                },
+                                "format": {
+                                  "type": "JSON",
+                                  "version": 2
+                                },
+                                "retentionPolicy": {
+                                  "days": "[parameters('flowLogsRetentionDays')]",
+                                  "enabled": true
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "dependsOn": [
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('hub').subscriptionId, variables('hub').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-bastion-diag-{0}', parameters('deploymentNameSuffix')))]",
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('hub').subscriptionId, variables('hub').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-afw-diag-{0}', parameters('deploymentNameSuffix')))]",
+                "keyVaultDiagnosticSettings",
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('operations').subscriptionId, variables('operations').resourceGroupName), 'Microsoft.Resources/deployments', format('deploy-law-diag-{0}', parameters('deploymentNameSuffix')))]",
+                "networkInterfaceDiagnostics",
+                "networkSecurityGroupDiagnostics",
+                "publicIpAddressDiagnosticSettings",
+                "storageAccountDiagnosticSettings"
+              ]
             }
           ]
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-adds-{0}', parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-remote-access-{0}', parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-diag-storage-{0}', parameters('deploymentNameSuffix')))]"
+        "[subscriptionResourceId(parameters('identitySubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-adds-{0}', parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId(parameters('operationsSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-remote-access-{0}', parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-diag-storage-{0}', parameters('deploymentNameSuffix')))]"
       ]
     },
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-04-01",
       "name": "[format('deploy-security-{0}', parameters('deploymentNameSuffix'))]",
+      "subscriptionId": "[parameters('hubSubscriptionId')]",
       "location": "[deployment().location]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -11526,13 +11543,13 @@
             "value": "[parameters('location')]"
           },
           "logAnalyticsWorkspaceResourceId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.logAnalyticsWorkspaceResourceId.value]"
+            "value": "[reference(subscriptionResourceId(parameters('operationsSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.logAnalyticsWorkspaceResourceId.value]"
           },
           "policy": {
             "value": "[parameters('policy')]"
           },
           "tiers": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tiers.value]"
+            "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tiers.value]"
           },
           "windowsAdministratorsGroupMembership": {
             "value": "[parameters('windowsVmAdminUsername')]"
@@ -12073,35 +12090,35 @@
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix')))]"
+        "[subscriptionResourceId(parameters('operationsSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix')))]",
+        "[subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix')))]"
       ]
     }
   ],
   "outputs": {
     "azureFirewallResourceId": {
       "type": "string",
-      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.azureFirewallResourceId.value]"
+      "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.azureFirewallResourceId.value]"
     },
     "domainControllerResourceIds": {
       "type": "array",
-      "value": "[if(and(parameters('deployActiveDirectoryDomainServices'), parameters('deployIdentity')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-adds-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.virtualMachineResourceIds.value, createArray())]"
+      "value": "[if(and(parameters('deployActiveDirectoryDomainServices'), parameters('deployIdentity')), reference(subscriptionResourceId(parameters('identitySubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-adds-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.virtualMachineResourceIds.value, createArray())]"
     },
     "hubStorageAccountResourceId": {
       "type": "string",
-      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-diag-storage-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.storageAccountResourceIds.value[0]]"
+      "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-diag-storage-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.storageAccountResourceIds.value[0]]"
     },
     "hubVirtualNetworkResourceId": {
       "type": "string",
-      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.hubVirtualNetworkResourceId.value]"
+      "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.hubVirtualNetworkResourceId.value]"
     },
     "logAnalyticsWorkspaceResourceId": {
       "type": "string",
-      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.logAnalyticsWorkspaceResourceId.value]"
+      "value": "[reference(subscriptionResourceId(parameters('operationsSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.logAnalyticsWorkspaceResourceId.value]"
     },
     "privateLinkScopeResourceId": {
       "type": "string",
-      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.privateLinkScopeResourceId.value]"
+      "value": "[reference(subscriptionResourceId(parameters('operationsSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.privateLinkScopeResourceId.value]"
     }
   }
 }

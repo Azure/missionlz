@@ -1,8 +1,4 @@
-﻿param (
-    [string]$FileShare
-)
-
-$ErrorActionPreference = 'Stop'
+﻿$ErrorActionPreference = 'Stop'
 $Settings = @(
 
     # Disable Automatic Updates: https://learn.microsoft.com/azure/virtual-desktop/set-up-customize-master-image#disable-automatic-updates
@@ -38,24 +34,17 @@ $Settings = @(
     }
 )
 
-# Set registry settings
 foreach($Setting in $Settings)
 {
-    # Create registry key(s) if necessary
     if(!(Test-Path -Path $Setting.Path))
     {
         New-Item -Path $Setting.Path -Force | Out-Null
     }
-
-    # Checks for existing registry setting
     $Value = Get-ItemProperty -Path $Setting.Path -Name $Setting.Name -ErrorAction 'SilentlyContinue'
-    
-    # Creates the registry setting when it does not exist
     if(!$Value)
     {
         New-ItemProperty -Path $Setting.Path -Name $Setting.Name -PropertyType $Setting.PropertyType -Value $Setting.Value -Force | Out-Null
     }
-    # Updates the registry setting when it already exists
     elseif($Value.$($Setting.Name) -ne $Setting.Value)
     {
         Set-ItemProperty -Path $Setting.Path -Name $Setting.Name -Value $Setting.Value -Force | Out-Null

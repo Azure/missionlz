@@ -147,27 +147,6 @@ module networkSecurityGroupDiagnostics '../modules/network-security-group-diagno
   }
 }]
 
-@batchSize(1)
-module virtualNetworkDiagnostics '../modules/virtual-network-diagnostic-setting.bicep' = [for (tier, i) in tiers: {
-  name: 'deploy-vnet-diag-${tier.name}-${deploymentNameSuffix}'
-  scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
-  params: {
-    deploymentNameSuffix: deploymentNameSuffix
-    deployNetworkWatcherTrafficAnalytics: deployNetworkWatcherTrafficAnalytics
-    flowLogsName: replace(tier.namingConvention.networkWatcherFlowLogsVirtualNetwork, '${delimiter}${tokens.purpose}', '')
-    location: location
-    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
-    logs: tier.vnetDiagLogs
-    logStorageAccountResourceId: storageAccountResourceIds[i]
-    metrics: tier.vnetDiagMetrics
-    networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
-    networkWatcherFlowLogsType: networkWatcherFlowLogsType
-    tiername: tier.name
-    virtualNetworkDiagnosticSettingName: replace(tier.namingConvention.virtualNetworkDiagnosticSetting, '${delimiter}${tokens.purpose}', '')
-    virtualNetworkName: replace(tier.namingConvention.virtualNetwork, '${delimiter}${tokens.purpose}', '')
-  }
-}]
-
 module publicIpAddressDiagnosticSettings '../modules/public-ip-address-diagnostic-setting.bicep' = [for (publicIPAddress, i) in publicIPAddresses: {
   name: 'deploy-pip-diag-${i}-${deploymentNameSuffix}'
   scope: resourceGroup(hub.subscriptionId, hub.resourceGroupName)
@@ -233,4 +212,35 @@ module networkInterfaceDiagnostics '../modules/network-interface-diagnostic-sett
     tiers: tiers
     tokens: tokens
   }
+}]
+
+@batchSize(1)
+module virtualNetworkDiagnostics '../modules/virtual-network-diagnostic-setting.bicep' = [for (tier, i) in tiers: {
+  name: 'deploy-vnet-diag-${tier.name}-${deploymentNameSuffix}'
+  scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
+  params: {
+    deploymentNameSuffix: deploymentNameSuffix
+    deployNetworkWatcherTrafficAnalytics: deployNetworkWatcherTrafficAnalytics
+    flowLogsName: replace(tier.namingConvention.networkWatcherFlowLogsVirtualNetwork, '${delimiter}${tokens.purpose}', '')
+    location: location
+    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
+    logs: tier.vnetDiagLogs
+    logStorageAccountResourceId: storageAccountResourceIds[i]
+    metrics: tier.vnetDiagMetrics
+    networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
+    networkWatcherFlowLogsType: networkWatcherFlowLogsType
+    tiername: tier.name
+    virtualNetworkDiagnosticSettingName: replace(tier.namingConvention.virtualNetworkDiagnosticSetting, '${delimiter}${tokens.purpose}', '')
+    virtualNetworkName: replace(tier.namingConvention.virtualNetwork, '${delimiter}${tokens.purpose}', '')
+  }
+  dependsOn: [
+    bastionDiagnostics
+    firewallDiagnosticSetting
+    keyVaultDiagnosticSettings
+    logAnalyticsWorkspaceDiagnosticSetting
+    networkInterfaceDiagnostics
+    networkSecurityGroupDiagnostics
+    publicIpAddressDiagnosticSettings
+    storageAccountDiagnosticSettings
+  ]
 }]

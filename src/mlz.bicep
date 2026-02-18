@@ -682,6 +682,7 @@ var firewallClientUsableIpAddresses = [for i in range(0, 4): cidrHost(firewallCl
 
 module networking 'modules/networking.bicep' = {
   name: 'deploy-networking-${deploymentNameSuffix}'
+  scope: subscription(hubSubscriptionId)
   params: {
     bastionHostSubnetAddressPrefix: bastionHostSubnetAddressPrefix
     azureGatewaySubnetAddressPrefix: azureGatewaySubnetAddressPrefix
@@ -689,12 +690,6 @@ module networking 'modules/networking.bicep' = {
     deploymentNameSuffix: deploymentNameSuffix
     deployBastion: deployBastion
     deployAzureGatewaySubnet: deployAzureGatewaySubnet
-    // dnsServers: deployIdentity && deployActiveDirectoryDomainServices
-    //   ? [
-    //       cidrHost(identitySubnetAddressPrefix, 5)
-    //       cidrHost(identitySubnetAddressPrefix, 6)
-    //     ]
-    //   : dnsServers
     dnsServers: dnsServers
     enableProxy: enableProxy
     environmentAbbreviation: environmentAbbreviation
@@ -735,6 +730,62 @@ module networking 'modules/networking.bicep' = {
                         ]
                         destinationAddresses: [cidrHost(operationsVirtualNetworkAddressPrefix, 3)] // LAW private endpoint network
                         destinationPorts: ['443'] // HTTPS port for Azure Monitor
+                      }
+                      {
+                        name: 'Allow-AAD-TCP'
+                        ruleType: 'NetworkRule'
+                        ipProtocols: [
+                          'Tcp'
+                        ]
+                        sourceAddresses: [
+                          firewallSupernetIPAddress
+                        ]
+                        destinationAddresses: ['AzureActiveDirectory']
+                        destinationPorts: [
+                          '443'
+                        ]
+                      }
+                      {
+                        name: 'Allow-KV-TCP'
+                        ruleType: 'NetworkRule'
+                        ipProtocols: [
+                          'Tcp'
+                        ]
+                        sourceAddresses: [
+                          firewallSupernetIPAddress
+                        ]
+                        destinationAddresses: ['AzureKeyVault']
+                        destinationPorts: [
+                          '443'
+                        ]
+                      }
+                      {
+                        name: 'Allow-KV-TCP'
+                        ruleType: 'NetworkRule'
+                        ipProtocols: [
+                          'Tcp'
+                        ]
+                        sourceAddresses: [
+                          firewallSupernetIPAddress
+                        ]
+                        destinationAddresses: ['AzureKeyVault']
+                        destinationPorts: [
+                          '443'
+                        ]
+                      }
+                      {
+                        name: 'Allow-ARM-TCP'
+                        ruleType: 'NetworkRule'
+                        ipProtocols: [
+                          'Tcp'
+                        ]
+                        sourceAddresses: [
+                          firewallSupernetIPAddress
+                        ]
+                        destinationAddresses: ['AzureResourceManager']
+                        destinationPorts: [
+                          '443'
+                        ]
                       }
                     ],
                     deployActiveDirectoryDomainServices
@@ -934,6 +985,7 @@ module networking 'modules/networking.bicep' = {
 
 module monitoring 'modules/monitoring.bicep' = {
   name: 'deploy-monitoring-${deploymentNameSuffix}'
+  scope: subscription(operationsSubscriptionId)
   params: {
     delimiter: networking.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
@@ -954,6 +1006,7 @@ module monitoring 'modules/monitoring.bicep' = {
 
 module activeDirectoryDomainServices 'modules/active-directory-domain-services.bicep' = if (deployActiveDirectoryDomainServices && deployIdentity) {
   name: 'deploy-adds-${deploymentNameSuffix}'
+  scope: subscription(identitySubscriptionId)
   params: {
     adminPassword: addsAdministratorPassword
     adminUsername: addsAdministratorUsername
@@ -987,6 +1040,7 @@ module activeDirectoryDomainServices 'modules/active-directory-domain-services.b
 
 module remoteAccess 'modules/remote-access.bicep' = if (deployBastion || deployLinuxVirtualMachine || deployWindowsVirtualMachine) {
   name: 'deploy-remote-access-${deploymentNameSuffix}'
+  scope: subscription(hubSubscriptionId)
   params: {
     bastionHostPublicIPAddressAllocationMethod: 'Static'
     bastionHostPublicIPAddressAvailabilityZones: bastionHostPublicIPAddressAvailabilityZones
@@ -1030,6 +1084,7 @@ module remoteAccess 'modules/remote-access.bicep' = if (deployBastion || deployL
 
 module storage 'modules/storage.bicep' = {
   name: 'deploy-diag-storage-${deploymentNameSuffix}'
+  scope: subscription(hubSubscriptionId)
   params: {
     delimiter: networking.outputs.delimiter
     //deployIdentity: deployIdentity
@@ -1055,6 +1110,7 @@ module storage 'modules/storage.bicep' = {
 
 module diagnosticSettings 'modules/diagnostic-settings.bicep' = {
   name: 'deploy-diagnostic-settings-${deploymentNameSuffix}'
+  scope: subscription(hubSubscriptionId)
   params: {
     bastionDiagnosticsLogs: bastionDiagnosticsLogs
     bastionDiagnosticsMetrics: bastionDiagnosticsMetrics
@@ -1118,6 +1174,7 @@ module diagnosticSettings 'modules/diagnostic-settings.bicep' = {
 
 module security 'modules/security.bicep' = {
   name: 'deploy-security-${deploymentNameSuffix}'
+  scope: subscription(hubSubscriptionId)
   params: {
     defenderPlans: deployDefenderPlans
     defenderSkuTier: defenderSkuTier
@@ -1134,7 +1191,9 @@ module security 'modules/security.bicep' = {
 }
 
 output azureFirewallResourceId string = networking.outputs.azureFirewallResourceId
-output domainControllerResourceIds array = deployActiveDirectoryDomainServices && deployIdentity ? activeDirectoryDomainServices!.outputs.virtualMachineResourceIds : []
+output domainControllerResourceIds array = deployActiveDirectoryDomainServices && deployIdentity
+  ? activeDirectoryDomainServices!.outputs.virtualMachineResourceIds
+  : []
 output hubStorageAccountResourceId string = storage.outputs.storageAccountResourceIds[0]
 output hubVirtualNetworkResourceId string = networking.outputs.hubVirtualNetworkResourceId
 output logAnalyticsWorkspaceResourceId string = monitoring.outputs.logAnalyticsWorkspaceResourceId

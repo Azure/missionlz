@@ -1,6 +1,5 @@
 param delimiter string
 param deploymentNameSuffix string
-param enableAvdInsights bool
 param hostPoolResourceId string
 param location string
 param logAnalyticsWorkspaceRetention int
@@ -37,7 +36,7 @@ module privateLinkScope_logAnalyticsWorkspace '../../../azure-virtual-desktop/mo
   }
 }
 
-resource dataCollectionRule 'Microsoft.Insights/dataCollectionRules@2022-06-01' = if (enableAvdInsights) {
+resource dataCollectionRule 'Microsoft.Insights/dataCollectionRules@2022-06-01' = {
   name: 'microsoft-avdi-${replace(names.dataCollectionRule, '${delimiter}${tokens.purpose}', '')}' // The name must start with 'microsoft-avdi-' for proper integration with AVD Insights
   location: location
   tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Insights/dataCollectionRules'] ?? {}, mlzTags)
@@ -118,7 +117,7 @@ resource dataCollectionRule 'Microsoft.Insights/dataCollectionRules@2022-06-01' 
   }
 }
 
-resource dataCollectionEndpoint 'Microsoft.Insights/dataCollectionEndpoints@2021-04-01' = if (enableAvdInsights) {
+resource dataCollectionEndpoint 'Microsoft.Insights/dataCollectionEndpoints@2021-04-01' = {
   name: replace(names.dataCollectionEndpoint, tokens.purpose, 'avdi')
   location: location
   tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Insights/dataCollectionEndpoints'] ?? {}, mlzTags)
@@ -130,7 +129,7 @@ resource dataCollectionEndpoint 'Microsoft.Insights/dataCollectionEndpoints@2021
   }
 }
 
-module privateLinkScope_dataCollectionEndpoint '../../../azure-virtual-desktop/modules/common/private-link-scope.bicep' = if (enableAvdInsights) {
+module privateLinkScope_dataCollectionEndpoint '../../../azure-virtual-desktop/modules/common/private-link-scope.bicep' = {
   name: 'deploy-private-link-scope-dce-${deploymentNameSuffix}'
   scope: resourceGroup(split(privateLinkScopeResourceId, '/')[2], split(privateLinkScopeResourceId, '/')[4])
   params: {
@@ -141,4 +140,4 @@ module privateLinkScope_dataCollectionEndpoint '../../../azure-virtual-desktop/m
 
 output logAnalyticsWorkspaceName string = logAnalyticsWorkspace.name
 output logAnalyticsWorkspaceResourceId string = logAnalyticsWorkspace.id
-output dataCollectionRuleResourceId string = enableAvdInsights ? dataCollectionRule.id : ''
+output dataCollectionRuleResourceId string = dataCollectionRule.id
