@@ -1,26 +1,25 @@
 targetScope = 'subscription'
 
 param avdObjectId string
+param delimiter string
 param deploymentNameSuffix string
 param environmentAbbreviation string
 param location string
 param logAnalyticsWorkspaceRetention int
 param logAnalyticsWorkspaceSku string
+param mlzTags object
+param namingConvention object
 param privateDnsZoneResourceIdPrefix string
+param privateDnsZones array
 param privateLinkScopeResourceId string
+param resourceAbbreviations object
 param resourceGroupName string
 param subscriptionId string
 param tags object
-param tier3 object
+param tier object
+param tokens object
 
-var delimiter = tier3.delimiter
-var hostPoolResourceId = resourceId(subscription().subscriptionId, resourceGroupName, 'Microsoft.DesktopVirtualization/hostpools', replace(namingConvention.hostPool, '${delimiter}${tokens.purpose}', ''))
-var mlzTags = tier3.mlzTags
-var namingConvention = tier3.tier.namingConvention
-var privateDnsZones = tier3.privateDnsZones
-var resourceAbbreviations = tier3.resourceAbbreviations
-var tier = tier3.tier
-var tokens = tier3.tokens
+var hostPoolResourceId = resourceId(subscriptionId, resourceGroupName, 'Microsoft.DesktopVirtualization/hostPools', replace(namingConvention.hostPool, '${delimiter}${tokens.purpose}', ''))
 
 module deploymentUserAssignedIdentity 'user-assigned-identity.bicep' = {
   name: 'deploy-id-deployment-${deploymentNameSuffix}'

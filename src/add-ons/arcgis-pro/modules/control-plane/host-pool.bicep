@@ -1,38 +1,27 @@
-param activeDirectorySolution string
 param avdPrivateDnsZoneResourceId string
 param customRdpProperty string
-param diskSku string
-param domainName string
-param galleryImageOffer string
-param galleryImagePublisher string
-param galleryImageSku string
-param galleryItemId string
 param hostPoolDiagnosticSettingName string
 param hostPoolName string
 param hostPoolNetworkInterfaceName string
 param hostPoolPrivateEndpointName string
 param hostPoolPublicNetworkAccess string
 param hostPoolType string
-param imageType string
 param location string
 param logAnalyticsWorkspaceResourceId string
 param maxSessionLimit int
 param mlzTags object
-param sessionHostNamePrefix string
 param subnetResourceId string
 param tags object
 param time string = utcNow('u')
 param validationEnvironment bool
-param virtualMachineSize string
-
-var customRdpProperty_Complete = contains(activeDirectorySolution, 'MicrosoftEntraId') ? '${customRdpProperty}enablerdsaadauth:i:1;' : customRdpProperty
+param vmTemplate string
 
 resource hostPool 'Microsoft.DesktopVirtualization/hostPools@2023-09-05' = {
   name: hostPoolName
   location: location
   tags: union({'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroup().name}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'}, tags[?'Microsoft.DesktopVirtualization/hostPools'] ?? {}, mlzTags)
   properties: {
-    customRdpProperty: customRdpProperty_Complete
+    customRdpProperty: customRdpProperty
     hostPoolType: hostPoolType
     loadBalancerType: hostPoolType == 'Pooled' ? 'DepthFirst' : 'Persistent'
     maxSessionLimit: maxSessionLimit
@@ -45,7 +34,7 @@ resource hostPool 'Microsoft.DesktopVirtualization/hostPools@2023-09-05' = {
     }
     startVMOnConnect: true
     validationEnvironment: validationEnvironment
-    vmTemplate: '{"domain":"${domainName}","galleryImageOffer":${galleryImageOffer},"galleryImagePublisher":${galleryImagePublisher},"galleryImageSKU":${galleryImageSku},"imageType":${imageType},"customImageId":null,"namePrefix":"${sessionHostNamePrefix}","osDiskType":"${diskSku}","vmSize":{"id":"${virtualMachineSize}","cores":null,"ram":null,"rdmaEnabled": false,"supportsMemoryPreservingMaintenance": true},"galleryItemId":${galleryItemId},"hibernate":false,"diskSizeGB":0,"securityType":"TrustedLaunch","secureBoot":true,"vTPM":true,"vmInfrastructureType":"Cloud","virtualProcessorCount":null,"memoryGB":null,"maximumMemoryGB":null,"minimumMemoryGB":null,"dynamicMemoryConfig":false}'
+    vmTemplate: vmTemplate
   }
 }
 

@@ -3,6 +3,7 @@ targetScope = 'subscription'
 param activeDirectorySolution string
 param avdConfigurationZipFileUri string
 param dataCollectionRuleResourceId string
+param delimiter string
 param deploymentNameSuffix string
 param diskAccessPolicyDefinitionId string
 param diskAccessPolicyDisplayName string
@@ -15,20 +16,18 @@ param imageOffer string
 param imagePublisher string
 param imageSku string
 param location string
+param mlzTags object 
 param resourceGroupName string
 param securityPrincipalObjectId string
 param tags object
-param tier3 object
+param tier object
+param tokens object
 @secure()
 param virtualMachineAdminPassword string
 param virtualMachineAdminUsername string
 param virtualMachineSize string
 
-var delimiter = tier3.delimiter
-var mlzTags = tier3.mlzTags
 var tagsVirtualMachines = union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Compute/virtualMachines'] ?? {}, mlzTags)
-var tier = tier3.tier
-var tokens = tier3.tokens
 
 // Sets an Azure policy to disable public network access to managed disks
 module policyAssignment '../../../azure-virtual-desktop/modules/management/policy-assignment.bicep' = {
