@@ -1,70 +1,50 @@
 targetScope = 'subscription'
 
-param activeDirectorySolution string
 param avdPrivateDnsZoneResourceId string
 param customRdpProperty string
+param delimiter string
 param deploymentNameSuffix string
-param diskSku string
-param domainName string
 param existingFeedWorkspaceResourceId string
 param hostPoolPublicNetworkAccess string
 param hostPoolType string
-param imageOffer string
-param imagePublisher string
-param imageSku string
 param location string
 param logAnalyticsWorkspaceResourceId string
 param maxSessionLimit int
+param mlzTags object
 param resourceGroupName string
 param securityPrincipalObjectId string
 param tags object
-param tier3 object
+param tier object
+param tokens object
 param validationEnvironment bool
-param virtualMachineSize string
+param vmTemplate string
 param workspaceFriendlyName string
 param workspaceGlobalPrivateDnsZoneResourceId string
 param workspacePublicNetworkAccess string
 
-var delimiter = tier3.delimiter
-var galleryImageOffer = '"${imageOffer}"'
-var galleryImagePublisher = '"${imagePublisher}"'
-var galleryImageSku = '"${imageSku}"'
-var galleryItemId = '"${imagePublisher}.${imageOffer}${imageSku}"'
-var imageType = '"Gallery"'
-var mlzTags = tier3.mlzTags
-var namingConvention = tier3.tier.namingConvention
-var subnetResourceId = tier3.tier.subnetResourceId
-var tokens = tier3.tokens
+var namingConvention = tier.namingConvention
+var subnetResourceId = tier.subnetResourceId
 
 module hostPool 'host-pool.bicep' = {
   name: 'deploy-vdpool-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupName)
   params: {
-    activeDirectorySolution: activeDirectorySolution
     avdPrivateDnsZoneResourceId: avdPrivateDnsZoneResourceId
     customRdpProperty: customRdpProperty
-    diskSku: diskSku
-    domainName: domainName
-    galleryImageOffer: galleryImageOffer
-    galleryImagePublisher: galleryImagePublisher
-    galleryImageSku: galleryImageSku
-    galleryItemId: galleryItemId
     hostPoolDiagnosticSettingName: replace(namingConvention.hostPoolDiagnosticSetting, '${delimiter}${tokens.purpose}', '')
     hostPoolName: replace(namingConvention.hostPool, '${delimiter}${tokens.purpose}', '')
     hostPoolNetworkInterfaceName: replace(namingConvention.hostPoolNetworkInterface, '${delimiter}${tokens.purpose}', '')
     hostPoolPrivateEndpointName: replace(namingConvention.hostPoolPrivateEndpoint, '${delimiter}${tokens.purpose}', '')
     hostPoolPublicNetworkAccess: hostPoolPublicNetworkAccess
     hostPoolType: hostPoolType
-    imageType: imageType
     location: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     maxSessionLimit: maxSessionLimit
     mlzTags: mlzTags
-    sessionHostNamePrefix: replace(namingConvention.virtualMachine, '${delimiter}${tokens.purpose}', '')
     subnetResourceId: subnetResourceId
     tags: tags
     validationEnvironment: validationEnvironment
-    virtualMachineSize: virtualMachineSize
+    vmTemplate: vmTemplate
   }
 }
 

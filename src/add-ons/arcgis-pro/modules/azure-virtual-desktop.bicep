@@ -343,34 +343,37 @@ module management 'management/management.bicep' = {
     resourceGroupName: rg.outputs.name
     subscriptionId: subscriptionId
     tags: tags
-    tier3: tier3.outputs
+    tier: tier3.outputs.tier
+    delimiter: tier3.outputs.delimiter
+    tokens: tier3.outputs.tokens
+    mlzTags: tier3.outputs.mlzTags
+    namingConvention: tier3.outputs.tier.namingConvention
+    privateDnsZones: tier3.outputs.privateDnsZones
+    resourceAbbreviations: tier3.outputs.resourceAbbreviations
   }
 }
 
 module controlPlane 'control-plane/control-plane.bicep' = {
   name: 'deploy-control-plane-${deploymentNameSuffix}'
   params: {
-    activeDirectorySolution: activeDirectorySolution
     avdPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3.outputs.privateDnsZones, name => startsWith(name, 'privatelink.wvd'))[0]}'
-    customRdpProperty: customRdpProperty
+    customRdpProperty: contains(activeDirectorySolution, 'MicrosoftEntraId') ? '${customRdpProperty}enablerdsaadauth:i:1;' : customRdpProperty
+    delimiter: tier3.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
-    diskSku: diskSku
-    domainName: domainName
     existingFeedWorkspaceResourceId: existingFeedWorkspaceResourceId
     hostPoolPublicNetworkAccess: hostPoolPublicNetworkAccess
     hostPoolType: hostPoolType
-    imageOffer: imageOffer
-    imagePublisher: imagePublisher
-    imageSku: imageSku
     location: location
     logAnalyticsWorkspaceResourceId: management.outputs.logAnalyticsWorkspaceResourceId
     maxSessionLimit: usersPerCore * virtualMachineVirtualCpuCount
+    mlzTags: tier3.outputs.mlzTags
     resourceGroupName: rg.outputs.name
     securityPrincipalObjectId: map(securityPrincipals, item => item.objectId)[0]
     tags: tags
-    tier3: tier3.outputs
+    tier: tier3.outputs.tier
+    tokens: tier3.outputs.tokens
     validationEnvironment: validationEnvironment
-    virtualMachineSize: virtualMachineSize
+    vmTemplate: '{"domain":"${domainName}","galleryImageOffer":"${imageOffer}","galleryImagePublisher":"${imagePublisher}","galleryImageSKU":"${imageSku}","imageType":"Gallery","customImageId":null,"namePrefix":"${replace(tier3.outputs.tier.namingConvention.virtualMachine, '${tier3.outputs.delimiter}${tier3.outputs.tokens.purpose}', '')}","osDiskType":"${diskSku}","vmSize":{"id":"${virtualMachineSize}","cores":null,"ram":null,"rdmaEnabled": false,"supportsMemoryPreservingMaintenance": true},"galleryItemId":"${imagePublisher}.${imageOffer}${imageSku}","hibernate":false,"diskSizeGB":0,"securityType":"TrustedLaunch","secureBoot":true,"vTPM":true,"vmInfrastructureType":"Cloud","virtualProcessorCount":null,"memoryGB":null,"maximumMemoryGB":null,"minimumMemoryGB":null,"dynamicMemoryConfig":false}'
     workspaceFriendlyName: workspaceFriendlyName
     workspaceGlobalPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3.outputs.privateDnsZones, name => startsWith(name, 'privatelink-global.wvd'))[0]}'
     workspacePublicNetworkAccess: workspacePublicNetworkAccess
@@ -384,6 +387,7 @@ module sessionHosts 'session-hosts/session-hosts.bicep' = {
     activeDirectorySolution: activeDirectorySolution
     avdConfigurationZipFileUri: 'https://${avdStorageAccountEndpoint}/galleryartifacts/Configuration_1.0.03211.1002.zip'
     dataCollectionRuleResourceId: management.outputs.dataCollectionRuleResourceId
+    delimiter: tier3.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
     diskAccessPolicyDefinitionId: management.outputs.diskAccessPolicyDefinitionId
     diskAccessPolicyDisplayName: management.outputs.diskAccessPolicyDisplayName
@@ -396,10 +400,12 @@ module sessionHosts 'session-hosts/session-hosts.bicep' = {
     imagePublisher: imagePublisher
     imageSku: imageSku
     location: location
+    mlzTags: tier3.outputs.mlzTags
     resourceGroupName: resourceGroupName
     securityPrincipalObjectId: map(securityPrincipals, item => item.objectId)[0]
     tags: tags
-    tier3: tier3.outputs
+    tier: tier3.outputs.tier
+    tokens: tier3.outputs.tokens
     virtualMachineAdminPassword: virtualMachineAdminPassword
     virtualMachineAdminUsername: virtualMachineAdminUsername
     virtualMachineSize: virtualMachineSize
