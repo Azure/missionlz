@@ -19,7 +19,36 @@ Before deploying this accelerator, ensure you have the following:
 - **Azure Subscription:** An active Azure subscription with sufficient quota for the required resources (VMs, storage, networking).
 - **Permissions:** Owner or Contributor role on the target subscription, plus User Access Administrator for role assignments.
 - **Mission Landing Zone:** A deployed instance of [Mission Landing Zone](https://github.com/Azure/missionlz) — this accelerator builds on top of MLZ's foundational infrastructure.
-- **Supported Regions:** Ensure your target Azure region supports Azure Virtual Desktop and GPU-enabled VM SKUs (e.g., NVv3, NVv4, NCasT4_v3 series).
+- **Supported Regions:** Ensure your target Azure region supports Azure Virtual Desktop and GPU-enabled VM SKUs (e.g., NVads V710, NVadsA10_v5, NCasT4_v3 series).
+- **Resource Providers:** Register the required Azure resource providers and features before deployment.
+
+#### Enable Required Features and Resource Providers
+
+Run the following PowerShell commands to register the necessary features and providers:
+
+```powershell
+# Set your subscription context
+Set-AzContext -SubscriptionId "<yourSubIDHere>"
+
+# Enable Encryption At Host feature
+# Reference: https://learn.microsoft.com/azure/virtual-machines/disks-enable-host-based-encryption-portal?tabs=azure-powershell#prerequisites
+Register-AzProviderFeature -FeatureName "EncryptionAtHost" -ProviderNamespace "Microsoft.Compute"
+
+# Register Azure NetApp Files resource provider and feature
+Register-AzResourceProvider -ProviderNamespace "Microsoft.NetApp"
+Register-AzProviderFeature -FeatureName "ANFMultipleActiveDirectory" -ProviderNamespace "Microsoft.NetApp"
+
+# Register Desktop Virtualization resource provider
+Register-AzResourceProvider -ProviderNamespace "Microsoft.DesktopVirtualization"
+
+# Verify registration status (may take a few minutes)
+Get-AzProviderFeature -FeatureName "EncryptionAtHost" -ProviderNamespace "Microsoft.Compute"
+Get-AzProviderFeature -FeatureName "ANFMultipleActiveDirectory" -ProviderNamespace "Microsoft.NetApp"
+Get-AzResourceProvider -ProviderNamespace "Microsoft.DesktopVirtualization" | Select-Object ProviderNamespace, RegistrationState
+```
+
+> [!NOTE]
+> Feature registration can take several minutes to complete. Wait until the `RegistrationState` shows `Registered` before proceeding with deployment.
 
 ### ArcGIS Licensing
 
@@ -38,61 +67,6 @@ Before deploying this accelerator, ensure you have the following:
 - Familiarity with Azure Virtual Desktop concepts and management.
 - Basic understanding of ArcGIS Pro deployment and licensing models.
 - Experience with Azure Bicep or ARM templates (for customization).
-
-### Pre-Deployment Setup
-
-There are two required steps before the deployment of the ArcGIS Pro add-on. First, a managed identity must be set up in Azure with Microsoft Graph API permissions. Second, an access token to deploy the provisioning agent must be acquired and provided to the `accessToken` parameter before deployment.
-
-#### Step 1 - User Assigned Managed Identity with Microsoft Graph API Permissions
-
-The script below assumes you have the Azure and Microsoft Graph PowerShell modules installed. The variables at the top of the script must have values before executing the script.
-
-```powershell
-$SubscriptionId = ""
-$ResourceGroupName = ""
-$IdentityName = ""
-$Location = ""
-
-# Connect to Azure
-Connect-AzAccount
-Set-AzContext -SubscriptionId $SubscriptionId
-
-# Create resource group
-New-AzResourceGroup -Name $ResourceGroupName -Location $Location -Force
-
-# Create the User Assigned Managed Identity
-$Identity = New-AzUserAssignedIdentity -ResourceGroupName $ResourceGroupName -Name $IdentityName -Location $Location
-
-# Connect to Microsoft Graph
-Connect-MgGraph -Scopes "AppRoleAssignment.ReadWrite.All", "Application.Read.All"
-
-$ServicePrincipal = Get-MgServicePrincipal -Filter "AppId eq '$($Identity.ClientId)'"
-$GraphServicePrincipal = Get-MgServicePrincipal -Filter "AppId eq '00000003-0000-0000-c000-000000000000'"
-
-# List of required permissions
-$Permissions = @(
-    "Application.ReadWrite.All"
-    # "Directory.ReadWrite.All" # This permission is used for directory discovery which currently throws 500 errors
-    "Organization.ReadWrite.All"
-    "Synchronization.ReadWrite.All"
-)
-
-foreach ($Permission in $Permissions) {
-    $ApplicationRole = $GraphServicePrincipal.AppRoles | Where-Object { $_.Value -eq $Permission -and $_.AllowedMemberTypes -contains "Application" }
-    
-    New-MgServicePrincipalAppRoleAssignment -ServicePrincipalId $ServicePrincipal.Id -PrincipalId $ServicePrincipal.Id -ResourceId $GraphServicePrincipal.Id -AppRoleId $ApplicationRole.Id
-}
-```
-
-#### Step 2 - AAD Graph Access Token
-
-The script below requires Azure CLI. There is no PowerShell equivalent.
-
-```azurecli
-az login
-
-az account get-access-token --resource-type 'aad-graph' --scope 'https://proxy.cloudwebappproxy.net/registerapp/user_impersonation' --query accessToken -o tsv
-```
 
 ---
 
