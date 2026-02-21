@@ -5,7 +5,6 @@ param dataCollectionRuleResourceId string
 param deploymentNameSuffix string
 param diskEncryptionSetResourceId string
 param diskNamePrefix string
-param diskSku string
 param fileShare string
 param hostPoolResourceId string
 param location string
@@ -115,7 +114,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-03-01' = {
           diskEncryptionSet: {
             id: diskEncryptionSetResourceId
           }
-          storageAccountType: diskSku
+          storageAccountType: 'Premium_LRS'
         }
       }
       dataDisks: []

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.40.2.10011",
-      "templateHash": "3212783357907407173"
+      "templateHash": "16257103192218145246"
     }
   },
   "parameters": {
@@ -18595,7 +18595,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "8190503453508179589"
+              "templateHash": "5755229313301036028"
             }
           },
           "parameters": {
@@ -18656,18 +18656,6 @@
                 "description": "A suffix to use for naming deployments uniquely. It defaults to the Bicep resolution of the \"utcNow()\" function."
               }
             },
-            "diskSku": {
-              "type": "string",
-              "defaultValue": "Premium_LRS",
-              "allowedValues": [
-                "Standard_LRS",
-                "StandardSSD_LRS",
-                "Premium_LRS"
-              ],
-              "metadata": {
-                "description": "The storage SKU for the managed disks on the AVD session hosts. Production deployments should use Premium_LRS."
-              }
-            },
             "domainName": {
               "type": "string",
               "defaultValue": "",
@@ -18692,13 +18680,6 @@
               ],
               "metadata": {
                 "description": "The abbreviation for the target environment."
-              }
-            },
-            "existingFeedWorkspaceResourceId": {
-              "type": "string",
-              "defaultValue": "",
-              "metadata": {
-                "description": "The resource ID for the existing feed workspace within a business unit or project."
               }
             },
             "fileShare": {
@@ -25747,9 +25728,6 @@
                   "deploymentNameSuffix": {
                     "value": "[parameters('deploymentNameSuffix')]"
                   },
-                  "existingFeedWorkspaceResourceId": {
-                    "value": "[parameters('existingFeedWorkspaceResourceId')]"
-                  },
                   "hostPoolPublicNetworkAccess": {
                     "value": "[parameters('hostPoolPublicNetworkAccess')]"
                   },
@@ -25787,7 +25765,7 @@
                     "value": "[parameters('validationEnvironment')]"
                   },
                   "vmTemplate": {
-                    "value": "[format('{{\"domain\":\"{0}\",\"galleryImageOffer\":\"pro-byol\",\"galleryImagePublisher\":\"esri\",\"galleryImageSKU\":\"pro-byol-36\",\"imageType\":\"Gallery\",\"customImageId\":null,\"namePrefix\":\"{1}\",\"osDiskType\":\"{2}\",\"vmSize\":{{\"id\":\"{3}\",\"cores\":null,\"ram\":null,\"rdmaEnabled\": false,\"supportsMemoryPreservingMaintenance\": true}},\"galleryItemId\":\"esri.pro-byol.pro-byol-36\",\"hibernate\":false,\"diskSizeGB\":0,\"securityType\":\"TrustedLaunch\",\"secureBoot\":true,\"vTPM\":true,\"vmInfrastructureType\":\"Cloud\",\"virtualProcessorCount\":null,\"memoryGB\":null,\"maximumMemoryGB\":null,\"minimumMemoryGB\":null,\"dynamicMemoryConfig\":false}}', parameters('domainName'), replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tier.value.namingConvention.virtualMachine, format('{0}{1}', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.delimiter.value, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value.purpose), ''), parameters('diskSku'), parameters('virtualMachineSize'))]"
+                    "value": "[format('{{\"domain\":\"{0}\",\"galleryImageOffer\":\"pro-byol\",\"galleryImagePublisher\":\"esri\",\"galleryImageSKU\":\"pro-byol-36\",\"imageType\":\"Gallery\",\"customImageId\":null,\"namePrefix\":\"{1}\",\"osDiskType\":\"Premium_LRS\",\"vmSize\":{{\"id\":\"{2}\",\"cores\":null,\"ram\":null,\"rdmaEnabled\": false,\"supportsMemoryPreservingMaintenance\": true}},\"galleryItemId\":\"esri.pro-byol.pro-byol-36\",\"hibernate\":false,\"diskSizeGB\":0,\"securityType\":\"TrustedLaunch\",\"secureBoot\":true,\"vTPM\":true,\"vmInfrastructureType\":\"Cloud\",\"virtualProcessorCount\":null,\"memoryGB\":null,\"maximumMemoryGB\":null,\"minimumMemoryGB\":null,\"dynamicMemoryConfig\":false}}', parameters('domainName'), replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tier.value.namingConvention.virtualMachine, format('{0}{1}', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.delimiter.value, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value.purpose), ''), parameters('virtualMachineSize'))]"
                   },
                   "workspaceFriendlyName": {
                     "value": "[parameters('workspaceFriendlyName')]"
@@ -25806,7 +25784,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "2932393445980763504"
+                      "templateHash": "7426925276390572644"
                     }
                   },
                   "parameters": {
@@ -25820,9 +25798,6 @@
                       "type": "string"
                     },
                     "deploymentNameSuffix": {
-                      "type": "string"
-                    },
-                    "existingFeedWorkspaceResourceId": {
                       "type": "string"
                     },
                     "hostPoolPublicNetworkAccess": {
@@ -26219,9 +26194,6 @@
                           "avdPrivateDnsZoneResourceId": {
                             "value": "[parameters('avdPrivateDnsZoneResourceId')]"
                           },
-                          "existingFeedWorkspaceResourceId": {
-                            "value": "[parameters('existingFeedWorkspaceResourceId')]"
-                          },
                           "locationControlPlane": {
                             "value": "[parameters('location')]"
                           },
@@ -26258,7 +26230,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "477657755036284418"
+                              "templateHash": "17533512539153248740"
                             }
                           },
                           "parameters": {
@@ -26266,9 +26238,6 @@
                               "type": "string"
                             },
                             "avdPrivateDnsZoneResourceId": {
-                              "type": "string"
-                            },
-                            "existingFeedWorkspaceResourceId": {
                               "type": "string"
                             },
                             "locationControlPlane": {
@@ -26304,7 +26273,6 @@
                           },
                           "resources": [
                             {
-                              "condition": "[empty(parameters('existingFeedWorkspaceResourceId'))]",
                               "type": "Microsoft.DesktopVirtualization/workspaces",
                               "apiVersion": "2023-09-05",
                               "name": "[parameters('workspaceFeedName')]",
@@ -26319,7 +26287,6 @@
                               }
                             },
                             {
-                              "condition": "[empty(parameters('existingFeedWorkspaceResourceId'))]",
                               "type": "Microsoft.Network/privateEndpoints",
                               "apiVersion": "2023-04-01",
                               "name": "[parameters('workspaceFeedPrivateEndpointName')]",
@@ -26347,7 +26314,6 @@
                               ]
                             },
                             {
-                              "condition": "[empty(parameters('existingFeedWorkspaceResourceId'))]",
                               "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                               "apiVersion": "2023-05-01",
                               "name": "[format('{0}/{1}', parameters('workspaceFeedPrivateEndpointName'), 'default')]",
@@ -26567,9 +26533,6 @@
                   "diskEncryptionSetResourceId": {
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.diskEncryptionSetResourceId.value]"
                   },
-                  "diskSku": {
-                    "value": "[parameters('diskSku')]"
-                  },
                   "fileShare": {
                     "value": "[parameters('fileShare')]"
                   },
@@ -26614,7 +26577,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "9983913926788685940"
+                      "templateHash": "3081236154186319022"
                     }
                   },
                   "parameters": {
@@ -26643,9 +26606,6 @@
                       "type": "string"
                     },
                     "diskEncryptionSetResourceId": {
-                      "type": "string"
-                    },
-                    "diskSku": {
                       "type": "string"
                     },
                     "fileShare": {
@@ -26855,9 +26815,6 @@
                           "diskNamePrefix": {
                             "value": "[replace(parameters('tier').namingConvention.virtualMachineDisk, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), '')]"
                           },
-                          "diskSku": {
-                            "value": "[parameters('diskSku')]"
-                          },
                           "fileShare": {
                             "value": "[parameters('fileShare')]"
                           },
@@ -26902,7 +26859,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "2112918692273020478"
+                              "templateHash": "11694157803835734758"
                             }
                           },
                           "parameters": {
@@ -26925,9 +26882,6 @@
                               "type": "string"
                             },
                             "diskNamePrefix": {
-                              "type": "string"
-                            },
-                            "diskSku": {
                               "type": "string"
                             },
                             "fileShare": {
@@ -27063,7 +27017,7 @@
                                       "diskEncryptionSet": {
                                         "id": "[parameters('diskEncryptionSetResourceId')]"
                                       },
-                                      "storageAccountType": "[parameters('diskSku')]"
+                                      "storageAccountType": "Premium_LRS"
                                     }
                                   },
                                   "dataDisks": []

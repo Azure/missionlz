@@ -30,14 +30,6 @@ param deployPolicy bool
 @description('A suffix to use for naming deployments uniquely. It defaults to the Bicep resolution of the "utcNow()" function.')
 param deploymentNameSuffix string = utcNow()
 
-@allowed([
-  'Standard_LRS'
-  'StandardSSD_LRS'
-  'Premium_LRS'
-])
-@description('The storage SKU for the managed disks on the AVD session hosts. Production deployments should use Premium_LRS.')
-param diskSku string = 'Premium_LRS'
-
 @description('The name of the domain that provides ADDS to the AVD session hosts.')
 param domainName string = ''
 
@@ -51,9 +43,6 @@ param emailSecurityContact string = ''
 ])
 @description('The abbreviation for the target environment.')
 param environmentAbbreviation string = 'dev'
-
-@description('The resource ID for the existing feed workspace within a business unit or project.')
-param existingFeedWorkspaceResourceId string = ''
 
 @description('The file share on Azure NetApp Files to store unstructured geospatial data.')
 param fileShare string
@@ -351,7 +340,6 @@ module controlPlane 'control-plane/control-plane.bicep' = {
     customRdpProperty: contains(activeDirectorySolution, 'MicrosoftEntraId') ? '${customRdpProperty}enablerdsaadauth:i:1;' : customRdpProperty
     delimiter: tier3.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
-    existingFeedWorkspaceResourceId: existingFeedWorkspaceResourceId
     hostPoolPublicNetworkAccess: hostPoolPublicNetworkAccess
     hostPoolType: hostPoolType
     location: location
@@ -364,7 +352,7 @@ module controlPlane 'control-plane/control-plane.bicep' = {
     tier: tier3.outputs.tier
     tokens: tier3.outputs.tokens
     validationEnvironment: validationEnvironment
-    vmTemplate: '{"domain":"${domainName}","galleryImageOffer":"pro-byol","galleryImagePublisher":"esri","galleryImageSKU":"pro-byol-36","imageType":"Gallery","customImageId":null,"namePrefix":"${replace(tier3.outputs.tier.namingConvention.virtualMachine, '${tier3.outputs.delimiter}${tier3.outputs.tokens.purpose}', '')}","osDiskType":"${diskSku}","vmSize":{"id":"${virtualMachineSize}","cores":null,"ram":null,"rdmaEnabled": false,"supportsMemoryPreservingMaintenance": true},"galleryItemId":"esri.pro-byol.pro-byol-36","hibernate":false,"diskSizeGB":0,"securityType":"TrustedLaunch","secureBoot":true,"vTPM":true,"vmInfrastructureType":"Cloud","virtualProcessorCount":null,"memoryGB":null,"maximumMemoryGB":null,"minimumMemoryGB":null,"dynamicMemoryConfig":false}'
+    vmTemplate: '{"domain":"${domainName}","galleryImageOffer":"pro-byol","galleryImagePublisher":"esri","galleryImageSKU":"pro-byol-36","imageType":"Gallery","customImageId":null,"namePrefix":"${replace(tier3.outputs.tier.namingConvention.virtualMachine, '${tier3.outputs.delimiter}${tier3.outputs.tokens.purpose}', '')}","osDiskType":"Premium_LRS","vmSize":{"id":"${virtualMachineSize}","cores":null,"ram":null,"rdmaEnabled": false,"supportsMemoryPreservingMaintenance": true},"galleryItemId":"esri.pro-byol.pro-byol-36","hibernate":false,"diskSizeGB":0,"securityType":"TrustedLaunch","secureBoot":true,"vTPM":true,"vmInfrastructureType":"Cloud","virtualProcessorCount":null,"memoryGB":null,"maximumMemoryGB":null,"minimumMemoryGB":null,"dynamicMemoryConfig":false}'
     workspaceFriendlyName: workspaceFriendlyName
     workspaceGlobalPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3.outputs.privateDnsZones, name => startsWith(name, 'privatelink-global.wvd'))[0]}'
     workspacePublicNetworkAccess: workspacePublicNetworkAccess
@@ -384,7 +372,6 @@ module sessionHosts 'session-hosts/session-hosts.bicep' = {
     diskAccessPolicyDisplayName: management.outputs.diskAccessPolicyDisplayName
     diskAccessResourceId: management.outputs.diskAccessResourceId
     diskEncryptionSetResourceId: management.outputs.diskEncryptionSetResourceId
-    diskSku: diskSku
     fileShare: fileShare
     hostPoolResourceId: controlPlane.outputs.hostPoolResourceId
     location: location

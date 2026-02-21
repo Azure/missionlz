@@ -4,7 +4,6 @@ param avdPrivateDnsZoneResourceId string
 param customRdpProperty string
 param delimiter string
 param deploymentNameSuffix string
-param existingFeedWorkspaceResourceId string
 param hostPoolPublicNetworkAccess string
 param hostPoolType string
 param location string
@@ -68,7 +67,6 @@ module workspace_feed 'workspace-feed.bicep' = {
   params: {
     applicationGroupResourceId: applicationGroup.outputs.resourceId
     avdPrivateDnsZoneResourceId: avdPrivateDnsZoneResourceId
-    existingFeedWorkspaceResourceId: existingFeedWorkspaceResourceId
     locationControlPlane: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     mlzTags: mlzTags
