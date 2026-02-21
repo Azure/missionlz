@@ -15,7 +15,6 @@ param securityPrincipalObjectId string
 param tags object
 param tier object
 param tokens object
-param validationEnvironment bool
 param vmTemplate string
 param workspaceGlobalPrivateDnsZoneResourceId string
 param workspacePublicNetworkAccess string
@@ -41,7 +40,6 @@ module hostPool 'host-pool.bicep' = {
     mlzTags: mlzTags
     subnetResourceId: subnetResourceId
     tags: tags
-    validationEnvironment: validationEnvironment
     vmTemplate: vmTemplate
   }
 }

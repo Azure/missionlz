@@ -179,9 +179,6 @@ param tags object = {}
 @description('The number of users per core is used to determine the maximum number of users per session host.')
 param usersPerCore int = 1
 
-@description('The validation environment setting on the AVD host pool determines whether the hostpool should receive AVD preview features for testing.')
-param validationEnvironment bool = false
-
 @secure()
 @description('The local administrator password for the AVD session hosts')
 param virtualMachineAdminPassword string
@@ -348,7 +345,6 @@ module controlPlane 'control-plane/control-plane.bicep' = {
     tags: tags
     tier: tier3.outputs.tier
     tokens: tier3.outputs.tokens
-    validationEnvironment: validationEnvironment
     vmTemplate: '{"domain":"${domainName}","galleryImageOffer":"pro-byol","galleryImagePublisher":"esri","galleryImageSKU":"pro-byol-36","imageType":"Gallery","customImageId":null,"namePrefix":"${replace(tier3.outputs.tier.namingConvention.virtualMachine, '${tier3.outputs.delimiter}${tier3.outputs.tokens.purpose}', '')}","osDiskType":"Premium_LRS","vmSize":{"id":"${virtualMachineSize}","cores":null,"ram":null,"rdmaEnabled": false,"supportsMemoryPreservingMaintenance": true},"galleryItemId":"esri.pro-byol.pro-byol-36","hibernate":false,"diskSizeGB":0,"securityType":"TrustedLaunch","secureBoot":true,"vTPM":true,"vmInfrastructureType":"Cloud","virtualProcessorCount":null,"memoryGB":null,"maximumMemoryGB":null,"minimumMemoryGB":null,"dynamicMemoryConfig":false}'
     workspaceGlobalPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3.outputs.privateDnsZones, name => startsWith(name, 'privatelink-global.wvd'))[0]}'
     workspacePublicNetworkAccess: workspacePublicNetworkAccess

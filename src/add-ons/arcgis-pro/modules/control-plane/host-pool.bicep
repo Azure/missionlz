@@ -13,7 +13,6 @@ param mlzTags object
 param subnetResourceId string
 param tags object
 param time string = utcNow('u')
-param validationEnvironment bool
 param vmTemplate string
 
 resource hostPool 'Microsoft.DesktopVirtualization/hostPools@2023-09-05' = {
@@ -33,7 +32,7 @@ resource hostPool 'Microsoft.DesktopVirtualization/hostPools@2023-09-05' = {
       registrationTokenOperation: 'Update'
     }
     startVMOnConnect: true
-    validationEnvironment: validationEnvironment
+    validationEnvironment: false
     vmTemplate: vmTemplate
   }
 }

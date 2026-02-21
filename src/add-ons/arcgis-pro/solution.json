@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.40.2.10011",
-      "templateHash": "12962999655613301143"
+      "templateHash": "13471393291985759792"
     }
   },
   "parameters": {
@@ -18595,7 +18595,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "3818533862989712380"
+              "templateHash": "13679693236753772895"
             }
           },
           "parameters": {
@@ -18916,13 +18916,6 @@
               "defaultValue": 1,
               "metadata": {
                 "description": "The number of users per core is used to determine the maximum number of users per session host."
-              }
-            },
-            "validationEnvironment": {
-              "type": "bool",
-              "defaultValue": false,
-              "metadata": {
-                "description": "The validation environment setting on the AVD host pool determines whether the hostpool should receive AVD preview features for testing."
               }
             },
             "virtualMachineAdminPassword": {
@@ -25754,9 +25747,6 @@
                   "tokens": {
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value]"
                   },
-                  "validationEnvironment": {
-                    "value": "[parameters('validationEnvironment')]"
-                  },
                   "vmTemplate": {
                     "value": "[format('{{\"domain\":\"{0}\",\"galleryImageOffer\":\"pro-byol\",\"galleryImagePublisher\":\"esri\",\"galleryImageSKU\":\"pro-byol-36\",\"imageType\":\"Gallery\",\"customImageId\":null,\"namePrefix\":\"{1}\",\"osDiskType\":\"Premium_LRS\",\"vmSize\":{{\"id\":\"{2}\",\"cores\":null,\"ram\":null,\"rdmaEnabled\": false,\"supportsMemoryPreservingMaintenance\": true}},\"galleryItemId\":\"esri.pro-byol.pro-byol-36\",\"hibernate\":false,\"diskSizeGB\":0,\"securityType\":\"TrustedLaunch\",\"secureBoot\":true,\"vTPM\":true,\"vmInfrastructureType\":\"Cloud\",\"virtualProcessorCount\":null,\"memoryGB\":null,\"maximumMemoryGB\":null,\"minimumMemoryGB\":null,\"dynamicMemoryConfig\":false}}', parameters('domainName'), replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tier.value.namingConvention.virtualMachine, format('{0}{1}', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.delimiter.value, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value.purpose), ''), parameters('virtualMachineSize'))]"
                   },
@@ -25774,7 +25764,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "14455091854463796188"
+                      "templateHash": "9144271877919455709"
                     }
                   },
                   "parameters": {
@@ -25822,9 +25812,6 @@
                     },
                     "tokens": {
                       "type": "object"
-                    },
-                    "validationEnvironment": {
-                      "type": "bool"
                     },
                     "vmTemplate": {
                       "type": "string"
@@ -25894,9 +25881,6 @@
                           "tags": {
                             "value": "[parameters('tags')]"
                           },
-                          "validationEnvironment": {
-                            "value": "[parameters('validationEnvironment')]"
-                          },
                           "vmTemplate": {
                             "value": "[parameters('vmTemplate')]"
                           }
@@ -25908,7 +25892,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "16459318391767243354"
+                              "templateHash": "13422283394610847710"
                             }
                           },
                           "parameters": {
@@ -25958,9 +25942,6 @@
                               "type": "string",
                               "defaultValue": "[utcNow('u')]"
                             },
-                            "validationEnvironment": {
-                              "type": "bool"
-                            },
                             "vmTemplate": {
                               "type": "string"
                             }
@@ -25985,7 +25966,7 @@
                                   "registrationTokenOperation": "Update"
                                 },
                                 "startVMOnConnect": true,
-                                "validationEnvironment": "[parameters('validationEnvironment')]",
+                                "validationEnvironment": false,
                                 "vmTemplate": "[parameters('vmTemplate')]"
                               }
                             },
