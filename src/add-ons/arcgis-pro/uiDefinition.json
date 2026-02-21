@@ -393,7 +393,7 @@
                   "label": "Workload Type",
                   "visible": true,
                   "filter": true,
-                  "defaultValue": "[if(equals(steps('basics').scenario.profile, 'arcGisPro'), 'Medium', 'Heavy (2 users per core)')]",
+                  "defaultValue": "Medium",
                   "toolTip": "Select the type of image to deploy on the session hosts.",
                   "multiLine": true,
                   "constraints": {
