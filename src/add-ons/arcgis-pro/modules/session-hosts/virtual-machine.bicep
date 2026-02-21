@@ -8,10 +8,6 @@ param diskNamePrefix string
 param diskSku string
 param fileShare string
 param hostPoolResourceId string
-param imageOffer string
-param imagePublisher string
-param imagePurchasePlan object
-param imageSku string
 param location string
 param networkInterfaceNamePrefix string
 param networkSecurityGroupResourceId string
@@ -93,16 +89,20 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-03-01' = {
   identity: {
     type: 'SystemAssigned' // Required for Entra join
   }
-  plan: imagePurchasePlan
+  plan: {
+    name: 'pro-byol-36'
+    publisher: 'esri'
+    product: 'pro-byol'
+  }
   properties: {
     hardwareProfile: {
       vmSize: virtualMachineSize
     }
     storageProfile: {
       imageReference: {
-        publisher: imagePublisher
-        offer: imageOffer
-        sku: imageSku
+        publisher: 'esri'
+        offer: 'pro-byol'
+        sku: 'pro-byol-36'
         version: 'latest'
       }
       osDisk: {
@@ -154,7 +154,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-03-01' = {
         enabled: false
       }
     }
-    licenseType: ((imagePublisher == 'MicrosoftWindowsDesktop') ? 'Windows_Client' : 'Windows_Server')
+    licenseType: 'Windows_Client'
   }
 }
 
@@ -315,7 +315,10 @@ resource extension_AADLoginForWindows 'Microsoft.Compute/virtualMachines/extensi
   ]
 }
 
-resource extension_AmdGpuDriverWindows 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = if (contains(amdVmSizes, virtualMachineSize)) {
+resource extension_AmdGpuDriverWindows 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = if (contains(
+  amdVmSizes,
+  virtualMachineSize
+)) {
   parent: virtualMachine
   name: 'AmdGpuDriverWindows'
   location: location
@@ -333,7 +336,10 @@ resource extension_AmdGpuDriverWindows 'Microsoft.Compute/virtualMachines/extens
   ]
 }
 
-resource extension_NvidiaGpuDriverWindows 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = if (contains(nvidiaVmSizes, virtualMachineSize)) {
+resource extension_NvidiaGpuDriverWindows 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = if (contains(
+  nvidiaVmSizes,
+  virtualMachineSize
+)) {
   parent: virtualMachine
   name: 'NvidiaGpuDriverWindows'
   location: location

@@ -87,15 +87,6 @@ param hubVirtualNetworkResourceId string
 @description('The unique identifier between each business unit or project supporting AVD in your tenant. This is the unique naming component between each AVD stamp.')
 param identifier string = 'avd'
 
-@description('Offer for the virtual machine image')
-param imageOffer string = 'pro-byol'
-
-@description('Publisher for the virtual machine image')
-param imagePublisher string = 'esri'
-
-@description('SKU for the virtual machine image')
-param imageSku string = 'pro-byol-36'
-
 @description('An array of Key Vault Diagnostic Logs categories to collect. See "https://learn.microsoft.com/en-us/azure/key-vault/general/logging?tabs=Vault" for valid values.')
 param keyVaultDiagnosticsLogs array = [
   {
@@ -373,7 +364,7 @@ module controlPlane 'control-plane/control-plane.bicep' = {
     tier: tier3.outputs.tier
     tokens: tier3.outputs.tokens
     validationEnvironment: validationEnvironment
-    vmTemplate: '{"domain":"${domainName}","galleryImageOffer":"${imageOffer}","galleryImagePublisher":"${imagePublisher}","galleryImageSKU":"${imageSku}","imageType":"Gallery","customImageId":null,"namePrefix":"${replace(tier3.outputs.tier.namingConvention.virtualMachine, '${tier3.outputs.delimiter}${tier3.outputs.tokens.purpose}', '')}","osDiskType":"${diskSku}","vmSize":{"id":"${virtualMachineSize}","cores":null,"ram":null,"rdmaEnabled": false,"supportsMemoryPreservingMaintenance": true},"galleryItemId":"${imagePublisher}.${imageOffer}${imageSku}","hibernate":false,"diskSizeGB":0,"securityType":"TrustedLaunch","secureBoot":true,"vTPM":true,"vmInfrastructureType":"Cloud","virtualProcessorCount":null,"memoryGB":null,"maximumMemoryGB":null,"minimumMemoryGB":null,"dynamicMemoryConfig":false}'
+    vmTemplate: '{"domain":"${domainName}","galleryImageOffer":"pro-byol","galleryImagePublisher":"esri","galleryImageSKU":"pro-byol-36","imageType":"Gallery","customImageId":null,"namePrefix":"${replace(tier3.outputs.tier.namingConvention.virtualMachine, '${tier3.outputs.delimiter}${tier3.outputs.tokens.purpose}', '')}","osDiskType":"${diskSku}","vmSize":{"id":"${virtualMachineSize}","cores":null,"ram":null,"rdmaEnabled": false,"supportsMemoryPreservingMaintenance": true},"galleryItemId":"esri.pro-byol.pro-byol-36","hibernate":false,"diskSizeGB":0,"securityType":"TrustedLaunch","secureBoot":true,"vTPM":true,"vmInfrastructureType":"Cloud","virtualProcessorCount":null,"memoryGB":null,"maximumMemoryGB":null,"minimumMemoryGB":null,"dynamicMemoryConfig":false}'
     workspaceFriendlyName: workspaceFriendlyName
     workspaceGlobalPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3.outputs.privateDnsZones, name => startsWith(name, 'privatelink-global.wvd'))[0]}'
     workspacePublicNetworkAccess: workspacePublicNetworkAccess
@@ -396,9 +387,6 @@ module sessionHosts 'session-hosts/session-hosts.bicep' = {
     diskSku: diskSku
     fileShare: fileShare
     hostPoolResourceId: controlPlane.outputs.hostPoolResourceId
-    imageOffer: imageOffer
-    imagePublisher: imagePublisher
-    imageSku: imageSku
     location: location
     mlzTags: tier3.outputs.mlzTags
     resourceGroupName: resourceGroupName

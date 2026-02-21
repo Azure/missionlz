@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.40.2.10011",
-      "templateHash": "275384790819576278"
+      "templateHash": "3212783357907407173"
     }
   },
   "parameters": {
@@ -18595,7 +18595,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "13345087696008435881"
+              "templateHash": "8190503453508179589"
             }
           },
           "parameters": {
@@ -18755,27 +18755,6 @@
               "maxLength": 3,
               "metadata": {
                 "description": "The unique identifier between each business unit or project supporting AVD in your tenant. This is the unique naming component between each AVD stamp."
-              }
-            },
-            "imageOffer": {
-              "type": "string",
-              "defaultValue": "pro-byol",
-              "metadata": {
-                "description": "Offer for the virtual machine image"
-              }
-            },
-            "imagePublisher": {
-              "type": "string",
-              "defaultValue": "esri",
-              "metadata": {
-                "description": "Publisher for the virtual machine image"
-              }
-            },
-            "imageSku": {
-              "type": "string",
-              "defaultValue": "pro-byol-36",
-              "metadata": {
-                "description": "SKU for the virtual machine image"
               }
             },
             "keyVaultDiagnosticsLogs": {
@@ -25808,7 +25787,7 @@
                     "value": "[parameters('validationEnvironment')]"
                   },
                   "vmTemplate": {
-                    "value": "[format('{{\"domain\":\"{0}\",\"galleryImageOffer\":\"{1}\",\"galleryImagePublisher\":\"{2}\",\"galleryImageSKU\":\"{3}\",\"imageType\":\"Gallery\",\"customImageId\":null,\"namePrefix\":\"{4}\",\"osDiskType\":\"{5}\",\"vmSize\":{{\"id\":\"{6}\",\"cores\":null,\"ram\":null,\"rdmaEnabled\": false,\"supportsMemoryPreservingMaintenance\": true}},\"galleryItemId\":\"{7}.{8}{9}\",\"hibernate\":false,\"diskSizeGB\":0,\"securityType\":\"TrustedLaunch\",\"secureBoot\":true,\"vTPM\":true,\"vmInfrastructureType\":\"Cloud\",\"virtualProcessorCount\":null,\"memoryGB\":null,\"maximumMemoryGB\":null,\"minimumMemoryGB\":null,\"dynamicMemoryConfig\":false}}', parameters('domainName'), parameters('imageOffer'), parameters('imagePublisher'), parameters('imageSku'), replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tier.value.namingConvention.virtualMachine, format('{0}{1}', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.delimiter.value, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value.purpose), ''), parameters('diskSku'), parameters('virtualMachineSize'), parameters('imagePublisher'), parameters('imageOffer'), parameters('imageSku'))]"
+                    "value": "[format('{{\"domain\":\"{0}\",\"galleryImageOffer\":\"pro-byol\",\"galleryImagePublisher\":\"esri\",\"galleryImageSKU\":\"pro-byol-36\",\"imageType\":\"Gallery\",\"customImageId\":null,\"namePrefix\":\"{1}\",\"osDiskType\":\"{2}\",\"vmSize\":{{\"id\":\"{3}\",\"cores\":null,\"ram\":null,\"rdmaEnabled\": false,\"supportsMemoryPreservingMaintenance\": true}},\"galleryItemId\":\"esri.pro-byol.pro-byol-36\",\"hibernate\":false,\"diskSizeGB\":0,\"securityType\":\"TrustedLaunch\",\"secureBoot\":true,\"vTPM\":true,\"vmInfrastructureType\":\"Cloud\",\"virtualProcessorCount\":null,\"memoryGB\":null,\"maximumMemoryGB\":null,\"minimumMemoryGB\":null,\"dynamicMemoryConfig\":false}}', parameters('domainName'), replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tier.value.namingConvention.virtualMachine, format('{0}{1}', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.delimiter.value, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value.purpose), ''), parameters('diskSku'), parameters('virtualMachineSize'))]"
                   },
                   "workspaceFriendlyName": {
                     "value": "[parameters('workspaceFriendlyName')]"
@@ -26597,15 +26576,6 @@
                   "hostPoolResourceId": {
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-control-plane-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.hostPoolResourceId.value]"
                   },
-                  "imageOffer": {
-                    "value": "[parameters('imageOffer')]"
-                  },
-                  "imagePublisher": {
-                    "value": "[parameters('imagePublisher')]"
-                  },
-                  "imageSku": {
-                    "value": "[parameters('imageSku')]"
-                  },
                   "location": {
                     "value": "[parameters('location')]"
                   },
@@ -26644,7 +26614,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "13461436454977818655"
+                      "templateHash": "9983913926788685940"
                     }
                   },
                   "parameters": {
@@ -26682,15 +26652,6 @@
                       "type": "string"
                     },
                     "hostPoolResourceId": {
-                      "type": "string"
-                    },
-                    "imageOffer": {
-                      "type": "string"
-                    },
-                    "imagePublisher": {
-                      "type": "string"
-                    },
-                    "imageSku": {
                       "type": "string"
                     },
                     "location": {
@@ -26903,22 +26864,6 @@
                           "hostPoolResourceId": {
                             "value": "[parameters('hostPoolResourceId')]"
                           },
-                          "imageOffer": {
-                            "value": "[parameters('imageOffer')]"
-                          },
-                          "imagePublisher": {
-                            "value": "[parameters('imagePublisher')]"
-                          },
-                          "imagePurchasePlan": {
-                            "value": {
-                              "name": "[parameters('imageSku')]",
-                              "publisher": "[parameters('imagePublisher')]",
-                              "product": "[parameters('imageOffer')]"
-                            }
-                          },
-                          "imageSku": {
-                            "value": "[parameters('imageSku')]"
-                          },
                           "location": {
                             "value": "[parameters('location')]"
                           },
@@ -26957,7 +26902,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "5181985552574018909"
+                              "templateHash": "2112918692273020478"
                             }
                           },
                           "parameters": {
@@ -26989,18 +26934,6 @@
                               "type": "string"
                             },
                             "hostPoolResourceId": {
-                              "type": "string"
-                            },
-                            "imageOffer": {
-                              "type": "string"
-                            },
-                            "imagePublisher": {
-                              "type": "string"
-                            },
-                            "imagePurchasePlan": {
-                              "type": "object"
-                            },
-                            "imageSku": {
                               "type": "string"
                             },
                             "location": {
@@ -27104,16 +27037,20 @@
                               "identity": {
                                 "type": "SystemAssigned"
                               },
-                              "plan": "[parameters('imagePurchasePlan')]",
+                              "plan": {
+                                "name": "pro-byol-36",
+                                "publisher": "esri",
+                                "product": "pro-byol"
+                              },
                               "properties": {
                                 "hardwareProfile": {
                                   "vmSize": "[parameters('virtualMachineSize')]"
                                 },
                                 "storageProfile": {
                                   "imageReference": {
-                                    "publisher": "[parameters('imagePublisher')]",
-                                    "offer": "[parameters('imageOffer')]",
-                                    "sku": "[parameters('imageSku')]",
+                                    "publisher": "esri",
+                                    "offer": "pro-byol",
+                                    "sku": "pro-byol-36",
                                     "version": "latest"
                                   },
                                   "osDisk": {
@@ -27165,7 +27102,7 @@
                                     "enabled": false
                                   }
                                 },
-                                "licenseType": "[if(equals(parameters('imagePublisher'), 'MicrosoftWindowsDesktop'), 'Windows_Client', 'Windows_Server')]"
+                                "licenseType": "Windows_Client"
                               },
                               "dependsOn": [
                                 "[resourceId('Microsoft.Network/networkInterfaces', format('{0}-0', parameters('networkInterfaceNamePrefix')))]"
