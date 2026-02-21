@@ -409,26 +409,17 @@
                       {
                         "label": "Light",
                         "description": "Simple 2-D map visualizations, basic analyses, and reporting.",
-                        "value": {
-                          "size": "Standard_NV4ads_V710_v5",
-                          "count": 4
-                        }
+                        "value": "light"
                       },
                       {
                         "label": "Medium",
                         "description": "Advanced 2-D or 3-D map visualizations, multi-source data analyses leveraging geoprocessing tools, reporting, and editing.",
-                        "value": {
-                          "size": "Standard_NV8ads_V710_v5",
-                          "count": 8
-                        }
+                        "value": "medium"
                       },
                       {
                         "label": "Heavy",
                         "description": "Complex 2-D or 3-D map visualizations including advanced symbology, analyses with visability and line of site, reporting, and editing.",
-                        "value": {
-                          "size": "Standard_NV12ads_V710_v5",
-                          "count": 12
-                        }
+                        "value": "heavy"
                       }
                     ]
                   }
@@ -451,12 +442,115 @@
                   }
                 },
                 {
-                  "name": "sizeError",
+                  "name": "sizeArcGisProSingleLight",
+                  "type": "Microsoft.Compute.SizeSelector",
+                  "label": "Size",
+                  "toolTip": "Select the size of the virtual machines. Single session hosts should have 2 or more vCPUs.",
+                  "recommendedSizes": [
+                    "Standard_NV4ads_V710_v5",
+                    "Standard_NV4as_v4",
+                    "Standard_NV8ads_V710_v5",
+                    "Standard_NV8as_v4"
+                  ],
+                  "constraints": {
+                    "allowedSizes": [
+                      "Standard_NV4ads_V710_v5",
+                      "Standard_NV4as_v4",
+                      "Standard_NV8ads_V710_v5",
+                      "Standard_NV8as_v4"
+                    ],
+                    "numAvailabilityZonesRequired": 1
+                  },
+                  "options": {
+                    "hideDiskTypeFilter": true
+                  },
+                  "osPlatform": "Windows",
+                  "count": 1,
+                  "visible": "[equals(steps('avd').workloadSection.workloadType, 'light')]"
+                },
+                {
+                  "name": "sizeArcGisProSingleLightQuotaError",
                   "type": "Microsoft.Common.InfoBox",
-                  "visible": "[less(coalesce(first(map(filter(steps('avd').workloadSection.usageApi.value, (item) => equals(item.name.value, first(map(filter(steps('avd').workloadSection.resourceSkusApi.value, (item) => contains(item.name, steps('avd').workloadSection.workloadType.size)), (item) => item.family)))), (item) => item.limit)), 0), add(mul(coalesce(parse(first(map(filter(first(map(filter(steps('avd').workloadSection.resourceSkusApi.value, (item) => contains(item.name, steps('avd').workloadSection.workloadType.size)), (item) => item.capabilities)), (item) => equals(item.name, 'vCPUs')), (item) => item.value))), 1), 1), coalesce(first(map(filter(steps('avd').workloadSection.usageApi.value, (item) => equals(item.name.value, first(map(filter(steps('avd').workloadSection.resourceSkusApi.value, (item) => contains(item.name, steps('avd').workloadSection.workloadType.size)), (item) => item.family)))), (item) => item.currentValue)), 0))))]",
+                  "visible": "[and(equals(steps('avd').workloadSection.workloadType, 'light'), less(coalesce(first(map(filter(steps('avd').workloadSection.usageApi.value, (item) => equals(item.name.value, first(map(filter(steps('avd').workloadSection.resourceSkusApi.value, (item) => contains(item.name, steps('avd').workloadSection.sizeArcGisProSingleLight)), (item) => item.family)))), (item) => item.limit)), 0), add(mul(coalesce(parse(first(map(filter(first(map(filter(steps('avd').workloadSection.resourceSkusApi.value, (item) => contains(item.name, steps('avd').workloadSection.sizeArcGisProSingleLight)), (item) => item.capabilities)), (item) => equals(item.name, 'vCPUs')), (item) => item.value))), 1), 1), coalesce(first(map(filter(steps('avd').workloadSection.usageApi.value, (item) => equals(item.name.value, first(map(filter(steps('avd').workloadSection.resourceSkusApi.value, (item) => contains(item.name, steps('avd').workloadSection.sizeArcGisProSingleLight)), (item) => item.family)))), (item) => item.currentValue)), 0))))]",
                   "options": {
                     "style": "Error",
-                    "text": "[concat('ERROR! The selected subscription and region does not have enough quota for the requested vCPUs: <br><br><b>Family:</b> ', replace(replace(replace(first(map(filter(steps('avd').workloadSection.resourceSkusApi.value, (item) => contains(item.name, steps('avd').workloadSection.workloadType.size)), (item) => item.family)), 'standard', 'Standard '), 'Family', ' Family vCPUs'), '  ', ' '), '<br><b>Current vCPU Quota:</b> ', string(coalesce(first(map(filter(steps('avd').workloadSection.usageApi.value, (item) => equals(item.name.value, first(map(filter(steps('avd').workloadSection.resourceSkusApi.value, (item) => contains(item.name, steps('avd').workloadSection.workloadType.size)), (item) => item.family)))), (item) => item.limit)), 0)), '<br><b>Current vCPU Usage:</b> ', string(coalesce(first(map(filter(steps('avd').workloadSection.usageApi.value, (item) => equals(item.name.value, first(map(filter(steps('avd').workloadSection.resourceSkusApi.value, (item) => contains(item.name, steps('avd').workloadSection.workloadType.size)), (item) => item.family)))), (item) => item.currentValue)), 0)), '<br><b>Requested vCPUs:</b> ', string(mul(parse(first(map(filter(first(map(filter(steps('avd').workloadSection.resourceSkusApi.value, (item) => contains(item.name, steps('avd').workloadSection.workloadType.size)), (item) => item.capabilities)), (item) => equals(item.name, 'vCPUs')), (item) => item.value))), steps('avd').workloadSection.workloadType.count)))]"
+                    "text": "[concat('ERROR! The selected subscription does not have enough quota for the requested vCPUs: <br><br><b>Family:</b> ', replace(replace(replace(first(map(filter(steps('avd').workloadSection.resourceSkusApi.value, (item) => contains(item.name, steps('avd').workloadSection.sizeArcGisProSingleLight)), (item) => item.family)), 'standard', 'Standard '), 'Family', ' Family vCPUs'), '  ', ' '), '<br><b>Current vCPU Quota:</b> ', string(coalesce(first(map(filter(steps('avd').workloadSection.usageApi.value, (item) => equals(item.name.value, first(map(filter(steps('avd').workloadSection.resourceSkusApi.value, (item) => contains(item.name, steps('avd').workloadSection.sizeArcGisProSingleLight)), (item) => item.family)))), (item) => item.limit)), 0)), '<br><b>Current vCPU Usage:</b> ', string(coalesce(first(map(filter(steps('avd').workloadSection.usageApi.value, (item) => equals(item.name.value, first(map(filter(steps('avd').workloadSection.resourceSkusApi.value, (item) => contains(item.name, steps('avd').workloadSection.sizeArcGisProSingleLight)), (item) => item.family)))), (item) => item.currentValue)), 0)), '<br><b>Requested vCPUs:</b> ', string(mul(parse(first(map(filter(first(map(filter(steps('avd').workloadSection.resourceSkusApi.value, (item) => contains(item.name, steps('avd').workloadSection.sizeArcGisProSingleLight)), (item) => item.capabilities)), (item) => equals(item.name, 'vCPUs')), (item) => item.value))), 1)))]"
+                  }
+                },
+                {
+                  "name": "sizeArcGisProSingleMedium",
+                  "type": "Microsoft.Compute.SizeSelector",
+                  "label": "Size",
+                  "toolTip": "Select the size of the virtual machines. Single session hosts should have 2 or more vCPUs.",
+                  "recommendedSizes": [
+                    "Standard_NC4as_T4_v3",
+                    "Standard_NC8as_T4_v3",
+                    "Standard_NV6ads_A10_v5",
+                    "Standard_NV12ads_V710_v5",
+                    "Standard_NV16as_v4"
+                  ],
+                  "constraints": {
+                    "allowedSizes": [
+                      "Standard_NC4as_T4_v3",
+                      "Standard_NC8as_T4_v3",
+                      "Standard_NV6ads_A10_v5",
+                      "Standard_NV12ads_V710_v5",
+                      "Standard_NV16as_v4"
+                    ],
+                    "numAvailabilityZonesRequired": 1
+                  },
+                  "options": {
+                    "hideDiskTypeFilter": true
+                  },
+                  "osPlatform": "Windows",
+                  "count": 1,
+                  "visible": "[equals(steps('avd').workloadSection.workloadType, 'medium')]"
+                },
+                {
+                  "name": "sizeArcGisProSingleMediumQuotaError",
+                  "type": "Microsoft.Common.InfoBox",
+                  "visible": "[and(equals(steps('avd').workloadSection.workloadType, 'medium'), less(coalesce(first(map(filter(steps('avd').workloadSection.usageApi.value, (item) => equals(item.name.value, first(map(filter(steps('avd').workloadSection.resourceSkusApi.value, (item) => contains(item.name, steps('avd').workloadSection.sizeArcGisProSingleMedium)), (item) => item.family)))), (item) => item.limit)), 0), add(mul(coalesce(parse(first(map(filter(first(map(filter(steps('avd').workloadSection.resourceSkusApi.value, (item) => contains(item.name, steps('avd').workloadSection.sizeArcGisProSingleMedium)), (item) => item.capabilities)), (item) => equals(item.name, 'vCPUs')), (item) => item.value))), 1), steps('avd').workloadSection.count), coalesce(first(map(filter(steps('avd').workloadSection.usageApi.value, (item) => equals(item.name.value, first(map(filter(steps('avd').workloadSection.resourceSkusApi.value, (item) => contains(item.name, steps('avd').workloadSection.sizeArcGisProSingleMedium)), (item) => item.family)))), (item) => item.currentValue)), 0))))]",
+                  "options": {
+                    "style": "Error",
+                    "text": "[concat('ERROR! The selected subscription does not have enough quota for the requested vCPUs: <br><br><b>Family:</b> ', replace(replace(replace(first(map(filter(steps('avd').workloadSection.resourceSkusApi.value, (item) => contains(item.name, steps('avd').workloadSection.sizeArcGisProSingleMedium)), (item) => item.family)), 'standard', 'Standard '), 'Family', ' Family vCPUs'), '  ', ' '), '<br><b>Current vCPU Quota:</b> ', string(coalesce(first(map(filter(steps('avd').workloadSection.usageApi.value, (item) => equals(item.name.value, first(map(filter(steps('avd').workloadSection.resourceSkusApi.value, (item) => contains(item.name, steps('avd').workloadSection.sizeArcGisProSingleMedium)), (item) => item.family)))), (item) => item.limit)), 0)), '<br><b>Current vCPU Usage:</b> ', string(coalesce(first(map(filter(steps('avd').workloadSection.usageApi.value, (item) => equals(item.name.value, first(map(filter(steps('avd').workloadSection.resourceSkusApi.value, (item) => contains(item.name, steps('avd').workloadSection.sizeArcGisProSingleMedium)), (item) => item.family)))), (item) => item.currentValue)), 0)), '<br><b>Requested vCPUs:</b> ', string(mul(parse(first(map(filter(first(map(filter(steps('avd').workloadSection.resourceSkusApi.value, (item) => contains(item.name, steps('avd').workloadSection.sizeArcGisProSingleMedium)), (item) => item.capabilities)), (item) => equals(item.name, 'vCPUs')), (item) => item.value))), 1)))]"
+                  }
+                },
+                {
+                  "name": "sizeArcGisProSingleHeavy",
+                  "type": "Microsoft.Compute.SizeSelector",
+                  "label": "Size",
+                  "toolTip": "Select the size of the virtual machines. Single session hosts should have 2 or more vCPUs.",
+                  "recommendedSizes": [
+                    "Standard_NC16as_T4_v3",
+                    "Standard_NV12ads_A10_v5",
+                    "Standard_NV18ads_A10_v5",
+                    "Standard_NV24ads_V710_v5",
+                    "Standard_NV28adms_V710_v5"
+                  ],
+                  "constraints": {
+                    "allowedSizes": [
+                      "Standard_NC16as_T4_v3",
+                      "Standard_NV12ads_A10_v5",
+                      "Standard_NV18ads_A10_v5",
+                      "Standard_NV24ads_V710_v5",
+                      "Standard_NV28adms_V710_v5"
+                    ],
+                    "numAvailabilityZonesRequired": 1
+                  },
+                  "options": {
+                    "hideDiskTypeFilter": true
+                  },
+                  "osPlatform": "Windows",
+                  "count": 1,
+                  "visible": "[equals(steps('avd').workloadSection.workloadType, 'heavy')]"
+                },
+                {
+                  "name": "sizeArcGisProSingleHeavyQuotaError",
+                  "type": "Microsoft.Common.InfoBox",
+                  "visible": "[and(equals(steps('avd').workloadSection.workloadType, 'heavy'), less(coalesce(first(map(filter(steps('avd').workloadSection.usageApi.value, (item) => equals(item.name.value, first(map(filter(steps('avd').workloadSection.resourceSkusApi.value, (item) => contains(item.name, steps('avd').workloadSection.sizeArcGisProSingleHeavy)), (item) => item.family)))), (item) => item.limit)), 0), add(mul(coalesce(parse(first(map(filter(first(map(filter(steps('avd').workloadSection.resourceSkusApi.value, (item) => contains(item.name, steps('avd').workloadSection.sizeArcGisProSingleHeavy)), (item) => item.capabilities)), (item) => equals(item.name, 'vCPUs')), (item) => item.value))), 1), 1), coalesce(first(map(filter(steps('avd').workloadSection.usageApi.value, (item) => equals(item.name.value, first(map(filter(steps('avd').workloadSection.resourceSkusApi.value, (item) => contains(item.name, steps('avd').workloadSection.sizeArcGisProSingleHeavy)), (item) => item.family)))), (item) => item.currentValue)), 0))))]",
+                  "options": {
+                    "style": "Error",
+                    "text": "[concat('ERROR! The selected subscription does not have enough quota for the requested vCPUs: <br><br><b>Family:</b> ', replace(replace(replace(first(map(filter(steps('avd').workloadSection.resourceSkusApi.value, (item) => contains(item.name, steps('avd').workloadSection.sizeArcGisProSingleHeavy)), (item) => item.family)), 'standard', 'Standard '), 'Family', ' Family vCPUs'), '  ', ' '), '<br><b>Current vCPU Quota:</b> ', string(coalesce(first(map(filter(steps('avd').workloadSection.usageApi.value, (item) => equals(item.name.value, first(map(filter(steps('avd').workloadSection.resourceSkusApi.value, (item) => contains(item.name, steps('avd').workloadSection.sizeArcGisProSingleHeavy)), (item) => item.family)))), (item) => item.limit)), 0)), '<br><b>Current vCPU Usage:</b> ', string(coalesce(first(map(filter(steps('avd').workloadSection.usageApi.value, (item) => equals(item.name.value, first(map(filter(steps('avd').workloadSection.resourceSkusApi.value, (item) => contains(item.name, steps('avd').workloadSection.sizeArcGisProSingleHeavy)), (item) => item.family)))), (item) => item.currentValue)), 0)), '<br><b>Requested vCPUs:</b> ', string(mul(parse(first(map(filter(first(map(filter(steps('avd').workloadSection.resourceSkusApi.value, (item) => contains(item.name, steps('avd').workloadSection.sizeArcGisProSingleHeavy)), (item) => item.capabilities)), (item) => equals(item.name, 'vCPUs')), (item) => item.value))), 1)))]"
                   }
                 }
               ]
@@ -599,7 +693,7 @@
         "policy": "[steps('compliance').policySection.policy]",
         "securityPrincipals": "[steps('avd').assignment.groupPickerBlade.transformed.selection]",
         "tags": "[steps('tags').tags]",
-        "virtualMachineSize": "[steps('avd').workloadSection.workloadType.size]"
+        "virtualMachineSize": "[if(equals(steps('avd').workloadSection.workloadType, 'light'), steps('avd').workloadSection.sizeArcGisProSingleLight, if(equals(steps('avd').workloadSection.workloadType, 'medium'), steps('avd').workloadSection.sizeArcGisProSingleMedium, steps('avd').workloadSection.sizeArcGisProSingleHeavy))]"
       },
       "kind": "Subscription",
       "location": "[steps('basics').scope.location.name]",
