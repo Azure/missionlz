@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.40.2.10011",
-      "templateHash": "18362007497681968932"
+      "templateHash": "13476697744650027693"
     }
   },
   "parameters": {
@@ -11954,7 +11954,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "15912310718980973673"
+              "templateHash": "7261775210665795805"
             }
           },
           "parameters": {
@@ -12670,7 +12670,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "839725742352171931"
+                      "templateHash": "10163283227447602020"
                     }
                   },
                   "parameters": {
@@ -12843,7 +12843,12 @@
                       "Standard_NV4as_v4",
                       "Standard_NV8as_v4",
                       "Standard_NV16as_v4",
-                      "Standard_NV32as_v4"
+                      "Standard_NV32as_v4",
+                      "Standard_NV4ads_V710_v5",
+                      "Standard_NV8ads_V710_v5",
+                      "Standard_NV12ads_V710_v5",
+                      "Standard_NV24ads_V710_v5",
+                      "Standard_NV28adms_V710_v5"
                     ],
                     "fslogixExclusions": "[format('\"%TEMP%\\*\\*.VHDX\";\"%Windir%\\TEMP\\*\\*.VHDX\"{0}{1}{2}', variables('fslogixExclusionsCloudCache'), variables('fslogixExclusionsProfileContainers'), variables('fslogixExclusionsOfficeContainers'))]",
                     "fslogixExclusionsCloudCache": "[if(contains(parameters('fslogixContainerType'), 'CloudCache'), ';\"%ProgramData%\\fslogix\\Cache\\*\";\"%ProgramData%\\fslogix\\Proxy\\*\"', '')]",

@@ -60,6 +60,11 @@ var amdVmSizes = [
   'Standard_NV8as_v4'
   'Standard_NV16as_v4'
   'Standard_NV32as_v4'
+  'Standard_NV4ads_V710_v5'
+  'Standard_NV8ads_V710_v5'
+  'Standard_NV12ads_V710_v5'
+  'Standard_NV24ads_V710_v5'
+  'Standard_NV28adms_V710_v5'
 ]
 var fslogixExclusions = '"%TEMP%\\*\\*.VHDX";"%Windir%\\TEMP\\*\\*.VHDX"${fslogixExclusionsCloudCache}${fslogixExclusionsProfileContainers}${fslogixExclusionsOfficeContainers}'
 var fslogixExclusionsCloudCache = contains(fslogixContainerType, 'CloudCache') ? ';"%ProgramData%\\fslogix\\Cache\\*";"%ProgramData%\\fslogix\\Proxy\\*"' : ''
