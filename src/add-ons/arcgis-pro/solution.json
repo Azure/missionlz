@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.40.2.10011",
-      "templateHash": "13639428288651487135"
+      "templateHash": "7590631334218635911"
     }
   },
   "parameters": {
@@ -18572,9 +18572,6 @@
           "securityPrincipals": {
             "value": "[parameters('securityPrincipals')]"
           },
-          "usersPerCore": {
-            "value": 1
-          },
           "virtualMachineAdminPassword": {
             "value": "[parameters('domainAdministratorPassword')]"
           },
@@ -18583,9 +18580,6 @@
           },
           "virtualMachineSize": {
             "value": "[parameters('virtualMachineSize')]"
-          },
-          "virtualMachineVirtualCpuCount": {
-            "value": 4
           }
         },
         "template": {
@@ -18595,7 +18589,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "16021929655913705126"
+              "templateHash": "8234301269783085749"
             }
           },
           "parameters": {
@@ -18694,17 +18688,6 @@
                 "description": "The type of public network access for the host pool."
               }
             },
-            "hostPoolType": {
-              "type": "string",
-              "defaultValue": "Pooled",
-              "allowedValues": [
-                "Pooled",
-                "Personal"
-              ],
-              "metadata": {
-                "description": "The type of AVD host pool."
-              }
-            },
             "hubAzureFirewallResourceId": {
               "type": "string",
               "metadata": {
@@ -18729,34 +18712,6 @@
               "maxLength": 3,
               "metadata": {
                 "description": "The unique identifier between each business unit or project supporting AVD in your tenant. This is the unique naming component between each AVD stamp."
-              }
-            },
-            "keyVaultDiagnosticsLogs": {
-              "type": "array",
-              "defaultValue": [
-                {
-                  "category": "AuditEvent",
-                  "enabled": true
-                },
-                {
-                  "category": "AzurePolicyEvaluationDetails",
-                  "enabled": true
-                }
-              ],
-              "metadata": {
-                "description": "An array of Key Vault Diagnostic Logs categories to collect. See \"https://learn.microsoft.com/en-us/azure/key-vault/general/logging?tabs=Vault\" for valid values."
-              }
-            },
-            "keyVaultDiagnosticMetrics": {
-              "type": "array",
-              "defaultValue": [
-                {
-                  "category": "AllMetrics",
-                  "enabled": true
-                }
-              ],
-              "metadata": {
-                "description": "The Key Vault Diagnostic Metrics to collect. See the following URL for valid settings: \"https://learn.microsoft.com/azure/key-vault/general/logging?tabs=Vault\"."
               }
             },
             "location": {
@@ -18803,34 +18758,6 @@
               "defaultValue": "10.0.141.0/26",
               "metadata": {
                 "description": "The address prefix(es) for the new subnet(s) that will be created in the spoke virtual network(s). Specify only one address prefix in the array if the session hosts location and the control plan location are the same. If different locations are specified, add a second address prefix for the hosts virtual network."
-              }
-            },
-            "networkInterfaceDiagnosticsMetrics": {
-              "type": "array",
-              "defaultValue": [
-                {
-                  "category": "AllMetrics",
-                  "enabled": true
-                }
-              ],
-              "metadata": {
-                "description": "An array of metrics to enable on the diagnostic setting for network interfaces."
-              }
-            },
-            "networkSecurityGroupDiagnosticsLogs": {
-              "type": "array",
-              "defaultValue": [
-                {
-                  "category": "NetworkSecurityGroupEvent",
-                  "enabled": true
-                },
-                {
-                  "category": "NetworkSecurityGroupRuleCounter",
-                  "enabled": true
-                }
-              ],
-              "metadata": {
-                "description": "An array of Network Security Group diagnostic logs to apply to the workload Virtual Network. See https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-nsg-manage-log#log-categories for valid settings."
               }
             },
             "networkSecurityGroupRules": {
@@ -18904,13 +18831,6 @@
                 "description": "The Key / value pairs of metadata for the Azure resource groups and resources."
               }
             },
-            "usersPerCore": {
-              "type": "int",
-              "defaultValue": 1,
-              "metadata": {
-                "description": "The number of users per core is used to determine the maximum number of users per session host."
-              }
-            },
             "virtualMachineAdminPassword": {
               "type": "securestring",
               "metadata": {
@@ -18928,26 +18848,6 @@
               "defaultValue": "Standard_D4ads_v5",
               "metadata": {
                 "description": "The virtual machine SKU for the AVD session hosts."
-              }
-            },
-            "virtualMachineVirtualCpuCount": {
-              "type": "int",
-              "metadata": {
-                "description": "The number of virtual CPUs per virtual machine for the selected virtual machine size."
-              }
-            },
-            "virtualNetworkDiagnosticsLogs": {
-              "type": "array",
-              "defaultValue": [],
-              "metadata": {
-                "description": "The diagnostic logs to apply to the workload Virtual Network."
-              }
-            },
-            "virtualNetworkDiagnosticsMetrics": {
-              "type": "array",
-              "defaultValue": [],
-              "metadata": {
-                "description": "The metrics to monitor for the workload Virtual Network."
               }
             },
             "workspacePublicNetworkAccess": {
@@ -19037,12 +18937,6 @@
                   "identifier": {
                     "value": "[parameters('identifier')]"
                   },
-                  "keyVaultDiagnosticLogs": {
-                    "value": "[parameters('keyVaultDiagnosticsLogs')]"
-                  },
-                  "keyVaultDiagnosticMetrics": {
-                    "value": "[parameters('keyVaultDiagnosticMetrics')]"
-                  },
                   "location": {
                     "value": "[parameters('location')]"
                   },
@@ -19051,12 +18945,6 @@
                   },
                   "logStorageSkuName": {
                     "value": "[parameters('logStorageSkuName')]"
-                  },
-                  "networkInterfaceDiagnosticsMetrics": {
-                    "value": "[parameters('networkInterfaceDiagnosticsMetrics')]"
-                  },
-                  "networkSecurityGroupDiagnosticsLogs": {
-                    "value": "[parameters('networkSecurityGroupDiagnosticsLogs')]"
                   },
                   "networkSecurityGroupRules": {
                     "value": "[parameters('networkSecurityGroupRules')]"
@@ -19081,12 +18969,6 @@
                   },
                   "virtualNetworkAddressPrefix": {
                     "value": "[parameters('stampVirtualNetworkAddressPrefix')]"
-                  },
-                  "virtualNetworkDiagnosticsLogs": {
-                    "value": "[parameters('virtualNetworkDiagnosticsLogs')]"
-                  },
-                  "virtualNetworkDiagnosticsMetrics": {
-                    "value": "[parameters('virtualNetworkDiagnosticsMetrics')]"
                   },
                   "windowsAdministratorsGroupMembership": {
                     "value": "[parameters('virtualMachineAdminUsername')]"
@@ -25709,17 +25591,11 @@
                   "hostPoolPublicNetworkAccess": {
                     "value": "[parameters('hostPoolPublicNetworkAccess')]"
                   },
-                  "hostPoolType": {
-                    "value": "[parameters('hostPoolType')]"
-                  },
                   "location": {
                     "value": "[parameters('location')]"
                   },
                   "logAnalyticsWorkspaceResourceId": {
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.logAnalyticsWorkspaceResourceId.value]"
-                  },
-                  "maxSessionLimit": {
-                    "value": "[mul(parameters('usersPerCore'), parameters('virtualMachineVirtualCpuCount'))]"
                   },
                   "mlzTags": {
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.mlzTags.value]"
@@ -25756,7 +25632,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "11858080560018679390"
+                      "templateHash": "14594967896318086879"
                     }
                   },
                   "parameters": {
@@ -25772,17 +25648,11 @@
                     "hostPoolPublicNetworkAccess": {
                       "type": "string"
                     },
-                    "hostPoolType": {
-                      "type": "string"
-                    },
                     "location": {
                       "type": "string"
                     },
                     "logAnalyticsWorkspaceResourceId": {
                       "type": "string"
-                    },
-                    "maxSessionLimit": {
-                      "type": "int"
                     },
                     "mlzTags": {
                       "type": "object"
@@ -25846,17 +25716,11 @@
                           "hostPoolPublicNetworkAccess": {
                             "value": "[parameters('hostPoolPublicNetworkAccess')]"
                           },
-                          "hostPoolType": {
-                            "value": "[parameters('hostPoolType')]"
-                          },
                           "location": {
                             "value": "[parameters('location')]"
                           },
                           "logAnalyticsWorkspaceResourceId": {
                             "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
-                          },
-                          "maxSessionLimit": {
-                            "value": "[parameters('maxSessionLimit')]"
                           },
                           "mlzTags": {
                             "value": "[parameters('mlzTags')]"
@@ -25878,7 +25742,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "18299004596596464565"
+                              "templateHash": "4709703464520225453"
                             }
                           },
                           "parameters": {
@@ -25900,17 +25764,11 @@
                             "hostPoolPublicNetworkAccess": {
                               "type": "string"
                             },
-                            "hostPoolType": {
-                              "type": "string"
-                            },
                             "location": {
                               "type": "string"
                             },
                             "logAnalyticsWorkspaceResourceId": {
                               "type": "string"
-                            },
-                            "maxSessionLimit": {
-                              "type": "int"
                             },
                             "mlzTags": {
                               "type": "object"
@@ -25938,10 +25796,10 @@
                               "tags": "[union(createObject('cm-resource-parent', format('{0}}}/resourceGroups/{1}/providers/Microsoft.DesktopVirtualization/hostpools/{2}', subscription().id, resourceGroup().name, parameters('hostPoolName'))), coalesce(tryGet(parameters('tags'), 'Microsoft.DesktopVirtualization/hostPools'), createObject()), parameters('mlzTags'))]",
                               "properties": {
                                 "customRdpProperty": "audiocapturemode:i:1;camerastoredirect:s:*;use multimon:i:0;drivestoredirect:s:;encode redirected video capture:i:1;redirected video capture encoding quality:i:1;audiomode:i:0;devicestoredirect:s:;redirectclipboard:i:0;redirectcomports:i:0;redirectlocation:i:1;redirectprinters:i:0;redirectsmartcards:i:1;redirectwebauthn:i:1;usbdevicestoredirect:s:;keyboardhook:i:2;enablerdsaadauth:i:1;",
-                                "hostPoolType": "[parameters('hostPoolType')]",
-                                "loadBalancerType": "[if(equals(parameters('hostPoolType'), 'Pooled'), 'DepthFirst', 'Persistent')]",
-                                "maxSessionLimit": "[parameters('maxSessionLimit')]",
-                                "personalDesktopAssignmentType": "[if(equals(parameters('hostPoolType'), 'Personal'), 'Automatic', null())]",
+                                "hostPoolType": "Personal",
+                                "loadBalancerType": "Persistent",
+                                "maxSessionLimit": 1,
+                                "personalDesktopAssignmentType": "Automatic",
                                 "preferredAppGroupType": "Desktop",
                                 "publicNetworkAccess": "[parameters('hostPoolPublicNetworkAccess')]",
                                 "registrationInfo": {

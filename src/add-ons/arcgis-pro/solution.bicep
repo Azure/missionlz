@@ -242,10 +242,8 @@ module azureVirtualDesktop 'modules/azure-virtual-desktop.bicep' = {
     policy: policy
     privateLinkScopeResourceId: missionLandingZone.outputs.privateLinkScopeResourceId
     securityPrincipals: securityPrincipals
-    usersPerCore: 1
     virtualMachineAdminPassword: domainAdministratorPassword
     virtualMachineAdminUsername: domainAdministratorUsername
     virtualMachineSize: virtualMachineSize
-    virtualMachineVirtualCpuCount: 4
   }
 }

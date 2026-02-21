@@ -4,10 +4,8 @@ param avdPrivateDnsZoneResourceId string
 param delimiter string
 param deploymentNameSuffix string
 param hostPoolPublicNetworkAccess string
-param hostPoolType string
 param location string
 param logAnalyticsWorkspaceResourceId string
-param maxSessionLimit int
 param mlzTags object
 param resourceGroupName string
 param securityPrincipalObjectId string
@@ -31,10 +29,8 @@ module hostPool 'host-pool.bicep' = {
     hostPoolNetworkInterfaceName: replace(namingConvention.hostPoolNetworkInterface, '${delimiter}${tokens.purpose}', '')
     hostPoolPrivateEndpointName: replace(namingConvention.hostPoolPrivateEndpoint, '${delimiter}${tokens.purpose}', '')
     hostPoolPublicNetworkAccess: hostPoolPublicNetworkAccess
-    hostPoolType: hostPoolType
     location: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
-    maxSessionLimit: maxSessionLimit
     mlzTags: mlzTags
     subnetResourceId: subnetResourceId
     tags: tags

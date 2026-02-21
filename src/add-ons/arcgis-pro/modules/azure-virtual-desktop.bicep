@@ -53,13 +53,6 @@ param fileShare string
 @description('The type of public network access for the host pool.')
 param hostPoolPublicNetworkAccess string = 'Enabled'
 
-@allowed([
-  'Pooled'
-  'Personal'
-])
-@description('The type of AVD host pool.')
-param hostPoolType string = 'Pooled'
-
 @description('The resource ID for the Azure Firewall in the HUB subscription')
 param hubAzureFirewallResourceId string
 
@@ -72,26 +65,6 @@ param hubVirtualNetworkResourceId string
 @maxLength(3)
 @description('The unique identifier between each business unit or project supporting AVD in your tenant. This is the unique naming component between each AVD stamp.')
 param identifier string = 'avd'
-
-@description('An array of Key Vault Diagnostic Logs categories to collect. See "https://learn.microsoft.com/en-us/azure/key-vault/general/logging?tabs=Vault" for valid values.')
-param keyVaultDiagnosticsLogs array = [
-  {
-    category: 'AuditEvent'
-    enabled: true
-  }
-  {
-    category: 'AzurePolicyEvaluationDetails'
-    enabled: true
-  }
-]
-
-@description('The Key Vault Diagnostic Metrics to collect. See the following URL for valid settings: "https://learn.microsoft.com/azure/key-vault/general/logging?tabs=Vault".')
-param keyVaultDiagnosticMetrics array = [
-  {
-    category: 'AllMetrics'
-    enabled: true
-  }
-]
 
 @description('The deployment location for the AVD sessions hosts. This is necessary when the users are closer to a different location than the control plane location.')
 param location string = deployment().location
@@ -118,26 +91,6 @@ param logStorageSkuName string = 'Standard_GRS'
 
 @description('The address prefix(es) for the new subnet(s) that will be created in the spoke virtual network(s). Specify only one address prefix in the array if the session hosts location and the control plan location are the same. If different locations are specified, add a second address prefix for the hosts virtual network.')
 param managementSubnetAddressPrefix string = '10.0.141.0/26'
-
-@description('An array of metrics to enable on the diagnostic setting for network interfaces.')
-param networkInterfaceDiagnosticsMetrics array = [
-  {
-    category: 'AllMetrics'
-    enabled: true
-  }
-]
-
-@description('An array of Network Security Group diagnostic logs to apply to the workload Virtual Network. See https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-nsg-manage-log#log-categories for valid settings.')
-param networkSecurityGroupDiagnosticsLogs array = [
-  {
-    category: 'NetworkSecurityGroupEvent'
-    enabled: true
-  }
-  {
-    category: 'NetworkSecurityGroupRuleCounter'
-    enabled: true
-  }
-]
 
 @description('The rules to apply to the Network Security Group.')
 param networkSecurityGroupRules array = []
@@ -173,9 +126,6 @@ param stampVirtualNetworkAddressPrefix string = '10.0.140.0/23'
 @description('The Key / value pairs of metadata for the Azure resource groups and resources.')
 param tags object = {}
 
-@description('The number of users per core is used to determine the maximum number of users per session host.')
-param usersPerCore int = 1
-
 @secure()
 @description('The local administrator password for the AVD session hosts')
 param virtualMachineAdminPassword string
@@ -185,15 +135,6 @@ param virtualMachineAdminUsername string
 
 @description('The virtual machine SKU for the AVD session hosts.')
 param virtualMachineSize string = 'Standard_D4ads_v5'
-
-@description('The number of virtual CPUs per virtual machine for the selected virtual machine size.')
-param virtualMachineVirtualCpuCount int
-
-@description('The diagnostic logs to apply to the workload Virtual Network.')
-param virtualNetworkDiagnosticsLogs array = []
-
-@description('The metrics to monitor for the workload Virtual Network.')
-param virtualNetworkDiagnosticsMetrics array = []
 
 @allowed([
   'Disabled'
@@ -246,13 +187,9 @@ module tier3 '../../tier3/solution.bicep' = {
     hubStorageAccountResourceId: hubStorageAccountResourceId
     hubVirtualNetworkResourceId: hubVirtualNetworkResourceId
     identifier: identifier
-    keyVaultDiagnosticLogs: keyVaultDiagnosticsLogs
-    keyVaultDiagnosticMetrics: keyVaultDiagnosticMetrics
     location: location
     logAnalyticsWorkspaceResourceId: operationsLogAnalyticsWorkspaceResourceId
     logStorageSkuName: logStorageSkuName
-    networkInterfaceDiagnosticsMetrics: networkInterfaceDiagnosticsMetrics
-    networkSecurityGroupDiagnosticsLogs: networkSecurityGroupDiagnosticsLogs
     networkSecurityGroupRules: networkSecurityGroupRules
     networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
     networkWatcherFlowLogsType: networkWatcherFlowLogsType
@@ -261,8 +198,6 @@ module tier3 '../../tier3/solution.bicep' = {
     subnetName: 'avd-session-hosts'
     tags: tags
     virtualNetworkAddressPrefix: stampVirtualNetworkAddressPrefix
-    virtualNetworkDiagnosticsLogs: virtualNetworkDiagnosticsLogs
-    virtualNetworkDiagnosticsMetrics: virtualNetworkDiagnosticsMetrics
     windowsAdministratorsGroupMembership: virtualMachineAdminUsername
     workloadName: 'avd'
     workloadShortName: 'avd'
@@ -331,10 +266,8 @@ module controlPlane 'control-plane/control-plane.bicep' = {
     delimiter: tier3.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
     hostPoolPublicNetworkAccess: hostPoolPublicNetworkAccess
-    hostPoolType: hostPoolType
     location: location
     logAnalyticsWorkspaceResourceId: management.outputs.logAnalyticsWorkspaceResourceId
-    maxSessionLimit: usersPerCore * virtualMachineVirtualCpuCount
     mlzTags: tier3.outputs.mlzTags
     resourceGroupName: rg.outputs.name
     securityPrincipalObjectId: map(securityPrincipals, item => item.objectId)[0]
