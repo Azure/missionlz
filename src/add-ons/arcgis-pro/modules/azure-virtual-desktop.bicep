@@ -201,9 +201,6 @@ param virtualNetworkDiagnosticsLogs array = []
 @description('The metrics to monitor for the workload Virtual Network.')
 param virtualNetworkDiagnosticsMetrics array = []
 
-@description('The friendly name for the AVD workspace that is displayed in the end-user client.')
-param workspaceFriendlyName string = ''
-
 @allowed([
   'Disabled'
   'Enabled'
@@ -353,7 +350,6 @@ module controlPlane 'control-plane/control-plane.bicep' = {
     tokens: tier3.outputs.tokens
     validationEnvironment: validationEnvironment
     vmTemplate: '{"domain":"${domainName}","galleryImageOffer":"pro-byol","galleryImagePublisher":"esri","galleryImageSKU":"pro-byol-36","imageType":"Gallery","customImageId":null,"namePrefix":"${replace(tier3.outputs.tier.namingConvention.virtualMachine, '${tier3.outputs.delimiter}${tier3.outputs.tokens.purpose}', '')}","osDiskType":"Premium_LRS","vmSize":{"id":"${virtualMachineSize}","cores":null,"ram":null,"rdmaEnabled": false,"supportsMemoryPreservingMaintenance": true},"galleryItemId":"esri.pro-byol.pro-byol-36","hibernate":false,"diskSizeGB":0,"securityType":"TrustedLaunch","secureBoot":true,"vTPM":true,"vmInfrastructureType":"Cloud","virtualProcessorCount":null,"memoryGB":null,"maximumMemoryGB":null,"minimumMemoryGB":null,"dynamicMemoryConfig":false}'
-    workspaceFriendlyName: workspaceFriendlyName
     workspaceGlobalPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3.outputs.privateDnsZones, name => startsWith(name, 'privatelink-global.wvd'))[0]}'
     workspacePublicNetworkAccess: workspacePublicNetworkAccess
   }

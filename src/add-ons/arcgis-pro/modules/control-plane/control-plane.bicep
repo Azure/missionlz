@@ -17,7 +17,6 @@ param tier object
 param tokens object
 param validationEnvironment bool
 param vmTemplate string
-param workspaceFriendlyName string
 param workspaceGlobalPrivateDnsZoneResourceId string
 param workspacePublicNetworkAccess string
 
@@ -75,7 +74,7 @@ module workspace_feed 'workspace-feed.bicep' = {
     workspaceFeedName: replace(namingConvention.workspace, tokens.purpose, 'feed')
     workspaceFeedNetworkInterfaceName: replace(namingConvention.workspaceNetworkInterface, tokens.purpose, 'feed')
     workspaceFeedPrivateEndpointName: replace(namingConvention.workspacePrivateEndpoint, tokens.purpose, 'feed')
-    workspaceFriendlyName: empty(workspaceFriendlyName) ? replace(namingConvention.workspace, '${delimiter}${tokens.purpose}', '') : '${workspaceFriendlyName} (${location})'
+    workspaceFriendlyName: replace(namingConvention.workspace, '${delimiter}${tokens.purpose}', '')
     workspacePublicNetworkAccess: workspacePublicNetworkAccess
   }
 }

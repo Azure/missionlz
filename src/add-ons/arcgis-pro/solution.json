@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.40.2.10011",
-      "templateHash": "16257103192218145246"
+      "templateHash": "12962999655613301143"
     }
   },
   "parameters": {
@@ -18595,7 +18595,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "5755229313301036028"
+              "templateHash": "3818533862989712380"
             }
           },
           "parameters": {
@@ -18962,13 +18962,6 @@
               "defaultValue": [],
               "metadata": {
                 "description": "The metrics to monitor for the workload Virtual Network."
-              }
-            },
-            "workspaceFriendlyName": {
-              "type": "string",
-              "defaultValue": "",
-              "metadata": {
-                "description": "The friendly name for the AVD workspace that is displayed in the end-user client."
               }
             },
             "workspacePublicNetworkAccess": {
@@ -25767,9 +25760,6 @@
                   "vmTemplate": {
                     "value": "[format('{{\"domain\":\"{0}\",\"galleryImageOffer\":\"pro-byol\",\"galleryImagePublisher\":\"esri\",\"galleryImageSKU\":\"pro-byol-36\",\"imageType\":\"Gallery\",\"customImageId\":null,\"namePrefix\":\"{1}\",\"osDiskType\":\"Premium_LRS\",\"vmSize\":{{\"id\":\"{2}\",\"cores\":null,\"ram\":null,\"rdmaEnabled\": false,\"supportsMemoryPreservingMaintenance\": true}},\"galleryItemId\":\"esri.pro-byol.pro-byol-36\",\"hibernate\":false,\"diskSizeGB\":0,\"securityType\":\"TrustedLaunch\",\"secureBoot\":true,\"vTPM\":true,\"vmInfrastructureType\":\"Cloud\",\"virtualProcessorCount\":null,\"memoryGB\":null,\"maximumMemoryGB\":null,\"minimumMemoryGB\":null,\"dynamicMemoryConfig\":false}}', parameters('domainName'), replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tier.value.namingConvention.virtualMachine, format('{0}{1}', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.delimiter.value, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value.purpose), ''), parameters('virtualMachineSize'))]"
                   },
-                  "workspaceFriendlyName": {
-                    "value": "[parameters('workspaceFriendlyName')]"
-                  },
                   "workspaceGlobalPrivateDnsZoneResourceId": {
                     "value": "[format('{0}{1}', variables('privateDnsZoneResourceIdPrefix'), filter(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.privateDnsZones.value, lambda('name', startsWith(lambdaVariables('name'), 'privatelink-global.wvd')))[0])]"
                   },
@@ -25784,7 +25774,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "7426925276390572644"
+                      "templateHash": "14455091854463796188"
                     }
                   },
                   "parameters": {
@@ -25837,9 +25827,6 @@
                       "type": "bool"
                     },
                     "vmTemplate": {
-                      "type": "string"
-                    },
-                    "workspaceFriendlyName": {
                       "type": "string"
                     },
                     "workspaceGlobalPrivateDnsZoneResourceId": {
@@ -26218,7 +26205,9 @@
                           "workspaceFeedPrivateEndpointName": {
                             "value": "[replace(variables('namingConvention').workspacePrivateEndpoint, parameters('tokens').purpose, 'feed')]"
                           },
-                          "workspaceFriendlyName": "[if(empty(parameters('workspaceFriendlyName')), createObject('value', replace(variables('namingConvention').workspace, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), '')), createObject('value', format('{0} ({1})', parameters('workspaceFriendlyName'), parameters('location'))))]",
+                          "workspaceFriendlyName": {
+                            "value": "[replace(variables('namingConvention').workspace, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), '')]"
+                          },
                           "workspacePublicNetworkAccess": {
                             "value": "[parameters('workspacePublicNetworkAccess')]"
                           }
