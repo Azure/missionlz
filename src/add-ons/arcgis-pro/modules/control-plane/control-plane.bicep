@@ -1,7 +1,6 @@
 targetScope = 'subscription'
 
 param avdPrivateDnsZoneResourceId string
-param customRdpProperty string
 param delimiter string
 param deploymentNameSuffix string
 param hostPoolPublicNetworkAccess string
@@ -27,7 +26,6 @@ module hostPool 'host-pool.bicep' = {
   scope: resourceGroup(resourceGroupName)
   params: {
     avdPrivateDnsZoneResourceId: avdPrivateDnsZoneResourceId
-    customRdpProperty: customRdpProperty
     hostPoolDiagnosticSettingName: replace(namingConvention.hostPoolDiagnosticSetting, '${delimiter}${tokens.purpose}', '')
     hostPoolName: replace(namingConvention.hostPool, '${delimiter}${tokens.purpose}', '')
     hostPoolNetworkInterfaceName: replace(namingConvention.hostPoolNetworkInterface, '${delimiter}${tokens.purpose}', '')

@@ -1,5 +1,4 @@
 param avdPrivateDnsZoneResourceId string
-param customRdpProperty string
 param hostPoolDiagnosticSettingName string
 param hostPoolName string
 param hostPoolNetworkInterfaceName string
@@ -20,7 +19,7 @@ resource hostPool 'Microsoft.DesktopVirtualization/hostPools@2023-09-05' = {
   location: location
   tags: union({'cm-resource-parent': '${subscription().id}}/resourceGroups/${resourceGroup().name}/providers/Microsoft.DesktopVirtualization/hostpools/${hostPoolName}'}, tags[?'Microsoft.DesktopVirtualization/hostPools'] ?? {}, mlzTags)
   properties: {
-    customRdpProperty: customRdpProperty
+    customRdpProperty: 'audiocapturemode:i:1;camerastoredirect:s:*;use multimon:i:0;drivestoredirect:s:;encode redirected video capture:i:1;redirected video capture encoding quality:i:1;audiomode:i:0;devicestoredirect:s:;redirectclipboard:i:0;redirectcomports:i:0;redirectlocation:i:1;redirectprinters:i:0;redirectsmartcards:i:1;redirectwebauthn:i:1;usbdevicestoredirect:s:;keyboardhook:i:2;enablerdsaadauth:i:1;'
     hostPoolType: hostPoolType
     loadBalancerType: hostPoolType == 'Pooled' ? 'DepthFirst' : 'Persistent'
     maxSessionLimit: maxSessionLimit

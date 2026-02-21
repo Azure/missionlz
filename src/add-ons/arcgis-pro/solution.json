@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.40.2.10011",
-      "templateHash": "13471393291985759792"
+      "templateHash": "13639428288651487135"
     }
   },
   "parameters": {
@@ -18595,7 +18595,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "13679693236753772895"
+              "templateHash": "16021929655913705126"
             }
           },
           "parameters": {
@@ -18615,13 +18615,6 @@
               "type": "string",
               "metadata": {
                 "description": "The object ID for the Azure Virtual Desktop enterprise application in Microsoft Entra ID.  The object ID can found by selecting Microsoft Applications using the Application type filter in the Enterprise Applications blade of Microsoft Entra ID."
-              }
-            },
-            "customRdpProperty": {
-              "type": "string",
-              "defaultValue": "audiocapturemode:i:1;camerastoredirect:s:*;use multimon:i:0;drivestoredirect:s:;encode redirected video capture:i:1;redirected video capture encoding quality:i:1;audiomode:i:0;devicestoredirect:s:;redirectclipboard:i:0;redirectcomports:i:0;redirectlocation:i:1;redirectprinters:i:0;redirectsmartcards:i:1;redirectwebauthn:i:1;usbdevicestoredirect:s:;keyboardhook:i:2;",
-              "metadata": {
-                "description": "The RDP properties to add or remove RDP functionality on the AVD host pool. The string must end with a semi-colon. Settings reference: https://learn.microsoft.com/windows-server/remote/remote-desktop-services/clients/rdp-files"
               }
             },
             "deployActivityLogDiagnosticSetting": {
@@ -25707,7 +25700,6 @@
                   "avdPrivateDnsZoneResourceId": {
                     "value": "[format('{0}{1}', variables('privateDnsZoneResourceIdPrefix'), filter(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.privateDnsZones.value, lambda('name', startsWith(lambdaVariables('name'), 'privatelink.wvd')))[0])]"
                   },
-                  "customRdpProperty": "[if(contains(parameters('activeDirectorySolution'), 'MicrosoftEntraId'), createObject('value', format('{0}enablerdsaadauth:i:1;', parameters('customRdpProperty'))), createObject('value', parameters('customRdpProperty')))]",
                   "delimiter": {
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.delimiter.value]"
                   },
@@ -25764,14 +25756,11 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "9144271877919455709"
+                      "templateHash": "11858080560018679390"
                     }
                   },
                   "parameters": {
                     "avdPrivateDnsZoneResourceId": {
-                      "type": "string"
-                    },
-                    "customRdpProperty": {
                       "type": "string"
                     },
                     "delimiter": {
@@ -25842,9 +25831,6 @@
                           "avdPrivateDnsZoneResourceId": {
                             "value": "[parameters('avdPrivateDnsZoneResourceId')]"
                           },
-                          "customRdpProperty": {
-                            "value": "[parameters('customRdpProperty')]"
-                          },
                           "hostPoolDiagnosticSettingName": {
                             "value": "[replace(variables('namingConvention').hostPoolDiagnosticSetting, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), '')]"
                           },
@@ -25892,14 +25878,11 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "13422283394610847710"
+                              "templateHash": "18299004596596464565"
                             }
                           },
                           "parameters": {
                             "avdPrivateDnsZoneResourceId": {
-                              "type": "string"
-                            },
-                            "customRdpProperty": {
                               "type": "string"
                             },
                             "hostPoolDiagnosticSettingName": {
@@ -25954,7 +25937,7 @@
                               "location": "[parameters('location')]",
                               "tags": "[union(createObject('cm-resource-parent', format('{0}}}/resourceGroups/{1}/providers/Microsoft.DesktopVirtualization/hostpools/{2}', subscription().id, resourceGroup().name, parameters('hostPoolName'))), coalesce(tryGet(parameters('tags'), 'Microsoft.DesktopVirtualization/hostPools'), createObject()), parameters('mlzTags'))]",
                               "properties": {
-                                "customRdpProperty": "[parameters('customRdpProperty')]",
+                                "customRdpProperty": "audiocapturemode:i:1;camerastoredirect:s:*;use multimon:i:0;drivestoredirect:s:;encode redirected video capture:i:1;redirected video capture encoding quality:i:1;audiomode:i:0;devicestoredirect:s:;redirectclipboard:i:0;redirectcomports:i:0;redirectlocation:i:1;redirectprinters:i:0;redirectsmartcards:i:1;redirectwebauthn:i:1;usbdevicestoredirect:s:;keyboardhook:i:2;enablerdsaadauth:i:1;",
                                 "hostPoolType": "[parameters('hostPoolType')]",
                                 "loadBalancerType": "[if(equals(parameters('hostPoolType'), 'Pooled'), 'DepthFirst', 'Persistent')]",
                                 "maxSessionLimit": "[parameters('maxSessionLimit')]",

@@ -12,9 +12,6 @@ param activeDirectorySolution string
 @description('The object ID for the Azure Virtual Desktop enterprise application in Microsoft Entra ID.  The object ID can found by selecting Microsoft Applications using the Application type filter in the Enterprise Applications blade of Microsoft Entra ID.')
 param avdObjectId string
 
-@description('The RDP properties to add or remove RDP functionality on the AVD host pool. The string must end with a semi-colon. Settings reference: https://learn.microsoft.com/windows-server/remote/remote-desktop-services/clients/rdp-files')
-param customRdpProperty string = 'audiocapturemode:i:1;camerastoredirect:s:*;use multimon:i:0;drivestoredirect:s:;encode redirected video capture:i:1;redirected video capture encoding quality:i:1;audiomode:i:0;devicestoredirect:s:;redirectclipboard:i:0;redirectcomports:i:0;redirectlocation:i:1;redirectprinters:i:0;redirectsmartcards:i:1;redirectwebauthn:i:1;usbdevicestoredirect:s:;keyboardhook:i:2;'
-
 @description('Choose whether to deploy a diagnostic setting for the Activity Log.')
 param deployActivityLogDiagnosticSetting bool
 
@@ -331,7 +328,6 @@ module controlPlane 'control-plane/control-plane.bicep' = {
   name: 'deploy-control-plane-${deploymentNameSuffix}'
   params: {
     avdPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3.outputs.privateDnsZones, name => startsWith(name, 'privatelink.wvd'))[0]}'
-    customRdpProperty: contains(activeDirectorySolution, 'MicrosoftEntraId') ? '${customRdpProperty}enablerdsaadauth:i:1;' : customRdpProperty
     delimiter: tier3.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
     hostPoolPublicNetworkAccess: hostPoolPublicNetworkAccess
