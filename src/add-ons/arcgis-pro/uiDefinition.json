@@ -537,6 +537,16 @@
                     "style": "Error",
                     "text": "[concat('ERROR <br><br>The selected subscription does not have enough quota for the requested vCPUs: <br><br><b>Family:</b> ', replace(replace(replace(first(map(filter(steps('avd').workloadSection.resourceSkusApi.value, (item) => contains(item.name, steps('avd').workloadSection.sizeHeavy)), (item) => item.family)), 'standard', 'Standard '), 'Family', ' Family vCPUs'), '  ', ' '), '<br><b>Current vCPU Quota:</b> ', string(coalesce(first(map(filter(steps('avd').workloadSection.usageApi.value, (item) => equals(item.name.value, first(map(filter(steps('avd').workloadSection.resourceSkusApi.value, (item) => contains(item.name, steps('avd').workloadSection.sizeHeavy)), (item) => item.family)))), (item) => item.limit)), 0)), '<br><b>Current vCPU Usage:</b> ', string(coalesce(first(map(filter(steps('avd').workloadSection.usageApi.value, (item) => equals(item.name.value, first(map(filter(steps('avd').workloadSection.resourceSkusApi.value, (item) => contains(item.name, steps('avd').workloadSection.sizeHeavy)), (item) => item.family)))), (item) => item.currentValue)), 0)), '<br><b>Requested vCPUs:</b> ', string(mul(parse(first(map(filter(first(map(filter(steps('avd').workloadSection.resourceSkusApi.value, (item) => contains(item.name, steps('avd').workloadSection.sizeHeavy)), (item) => item.capabilities)), (item) => equals(item.name, 'vCPUs')), (item) => item.value))), 1)))]"
                   }
+                },
+                {
+                  "name": "ncast4v3Description",
+                  "type": "Microsoft.Common.InfoBox",
+                  "visible": "[endsWith(if(equals(steps('avd').workloadSection.workloadType, 'light'), steps('avd').workloadSection.sizeLight, if(equals(steps('avd').workloadSection.workloadType, 'medium'), steps('avd').workloadSection.sizeMedium, steps('avd').workloadSection.sizeHeavy)), 'as_T4_v3')]",
+                  "options": {
+                    "style": "Warning",
+                    "text": "The NCasT4_v3 VM series does not support the installation of the GRID driver using the VM extension. Please ensure to manually install the driver after the deployment. Click this box to open a link to the driver documentation.",
+                    "uri": "https://learn.microsoft.com/azure/virtual-machines/windows/n-series-driver-setup#nvidia-gridvgpu-drivers"
+                  }
                 }
               ]
             }
