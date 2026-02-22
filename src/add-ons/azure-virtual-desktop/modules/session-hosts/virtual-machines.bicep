@@ -10,6 +10,7 @@ param delimiter string
 param deployFslogix bool
 param deploymentNameSuffix string
 param deploymentUserAssignedidentityClientId string
+param deployWindowsAntimalware bool
 param diskEncryptionSetResourceId string
 param diskNamePrefix string
 param diskSku string
@@ -209,7 +210,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-03-01' = [for i 
   ]
 }]
 
-resource extension_IaasAntimalware 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [for i in range(0, sessionHostCount): {
+resource extension_IaasAntimalware 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [for i in range(0, sessionHostCount): if (deployWindowsAntimalware) {
   parent: virtualMachine[i]
   name: 'IaaSAntimalware'
   location: location

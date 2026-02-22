@@ -12,6 +12,7 @@ param deployFslogix bool
 param deploymentNameSuffix string
 param deploymentUserAssignedIdentityClientId string
 param deploymentUserAssignedIdentityPrincipalId string
+param deployWindowsAntimalware bool
 param diskAccessPolicyDefinitionId string
 param diskAccessPolicyDisplayName string
 param diskAccessResourceId string
@@ -191,6 +192,7 @@ module virtualMachines 'virtual-machines.bicep' = [for i in range(1, sessionHost
     deployFslogix: deployFslogix
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedidentityClientId: deploymentUserAssignedIdentityClientId
+    deployWindowsAntimalware: deployWindowsAntimalware
     diskEncryptionSetResourceId: diskEncryptionSetResourceId
     diskNamePrefix: replace(tier.namingConvention.virtualMachineDisk, '${delimiter}${tokens.purpose}', '')
     diskSku: diskSku

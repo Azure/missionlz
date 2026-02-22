@@ -971,6 +971,13 @@
                     "style": "Error",
                     "text": "[concat('ERROR! The selected subscription does not have enough quota for the requested vCPUs: <br><br><b>Family:</b> ', replace(replace(replace(first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, steps('hosts').virtualMachines.sizeArcGisProMulti)), (item) => item.family)), 'standard', 'Standard '), 'Family', ' Family vCPUs'), '  ', ' '), '<br><b>Current vCPU Quota:</b> ', string(coalesce(first(map(filter(steps('hosts').virtualMachines.usageApi.value, (item) => equals(item.name.value, first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, steps('hosts').virtualMachines.sizeArcGisProMulti)), (item) => item.family)))), (item) => item.limit)), 0)), '<br><b>Current vCPU Usage:</b> ', string(coalesce(first(map(filter(steps('hosts').virtualMachines.usageApi.value, (item) => equals(item.name.value, first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, steps('hosts').virtualMachines.sizeArcGisProMulti)), (item) => item.family)))), (item) => item.currentValue)), 0)), '<br><b>Requested vCPUs:</b> ', string(mul(parse(first(map(filter(first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, steps('hosts').virtualMachines.sizeArcGisProMulti)), (item) => item.capabilities)), (item) => equals(item.name, 'vCPUs')), (item) => item.value))), steps('hosts').virtualMachines.count)))]"
                   }
+                },
+                                {
+                  "name": "enableWindowsAntimalware",
+                  "type": "Microsoft.Common.CheckBox",
+                  "label": "Enable Windows Antimalware?",
+                  "defaultValue": true,
+                  "toolTip": "Enables the Windows Antimalware extension on the AVD session hosts."
                 }
               ]
             },
@@ -1857,6 +1864,7 @@
         "deployDefender": "[and(steps('compliance').defenderForCloud.deployDefender, empty(steps('compliance').defenderForCloud.workspaceSettingsApi.value))]",
         "deployNetworkWatcherTrafficAnalytics": "[steps('network').flowLogsSection.deployTrafficAnalytics]",
         "deployPolicy": "[steps('compliance').policySection.deployPolicy]",
+        "deployWindowsAntimalware": "[steps('hosts').virtualMachines.enableWindowsAntimalware]",
         "desktopFriendlyName": "[steps('controlPlane').friendlyNames.sessionDesktop]",
         "diskSku": "[if(equals(steps('basics').scenario.profile, 'arcGisPro'), 'Premium_LRS', steps('hosts').virtualMachines.diskSku)]",
         "domainJoinPassword": "[steps('hosts').domainJoinCredentials.domainPassword]",

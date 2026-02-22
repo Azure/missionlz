@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.40.2.10011",
-      "templateHash": "13476697744650027693"
+      "templateHash": "2714975243531566578"
     }
   },
   "parameters": {
@@ -94,6 +94,13 @@
       "defaultValue": "[utcNow()]",
       "metadata": {
         "description": "A suffix to use for naming deployments uniquely. It defaults to the Bicep resolution of the \"utcNow()\" function."
+      }
+    },
+    "deployWindowsAntimalware": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Choose whether to deploy the Windows Antimalware extension on the AVD session hosts. It defaults to \"true\" to follow security best practices, but can be set to \"false\" if another antimalware solution is being used that is not compatible with the Windows Antimalware extension."
       }
     },
     "desktopFriendlyName": {
@@ -11800,6 +11807,9 @@
           "deploymentUserAssignedIdentityPrincipalId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.deploymentUserAssignedIdentityPrincipalId.value]"
           },
+          "deployWindowsAntimalware": {
+            "value": "[parameters('deployWindowsAntimalware')]"
+          },
           "diskAccessPolicyDefinitionId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.diskAccessPolicyDefinitionId.value]"
           },
@@ -11954,7 +11964,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "7261775210665795805"
+              "templateHash": "7442142444773806364"
             }
           },
           "parameters": {
@@ -11993,6 +12003,9 @@
             },
             "deploymentUserAssignedIdentityPrincipalId": {
               "type": "string"
+            },
+            "deployWindowsAntimalware": {
+              "type": "bool"
             },
             "diskAccessPolicyDefinitionId": {
               "type": "string"
@@ -12554,6 +12567,9 @@
                   "deploymentUserAssignedidentityClientId": {
                     "value": "[parameters('deploymentUserAssignedIdentityClientId')]"
                   },
+                  "deployWindowsAntimalware": {
+                    "value": "[parameters('deployWindowsAntimalware')]"
+                  },
                   "diskEncryptionSetResourceId": {
                     "value": "[parameters('diskEncryptionSetResourceId')]"
                   },
@@ -12670,7 +12686,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "10163283227447602020"
+                      "templateHash": "9857457148635554215"
                     }
                   },
                   "parameters": {
@@ -12709,6 +12725,9 @@
                     },
                     "deploymentUserAssignedidentityClientId": {
                       "type": "string"
+                    },
+                    "deployWindowsAntimalware": {
+                      "type": "bool"
                     },
                     "diskEncryptionSetResourceId": {
                       "type": "string"
@@ -12993,6 +13012,7 @@
                         "name": "extension_IaasAntimalware",
                         "count": "[length(range(0, parameters('sessionHostCount')))]"
                       },
+                      "condition": "[parameters('deployWindowsAntimalware')]",
                       "type": "Microsoft.Compute/virtualMachines/extensions",
                       "apiVersion": "2021-03-01",
                       "name": "[format('{0}/{1}', format('{0}{1}', parameters('virtualMachineNamePrefix'), padLeft(add(range(0, parameters('sessionHostCount'))[range(0, parameters('sessionHostCount'))[copyIndex()]], parameters('sessionHostIndex')), 4, '0')), 'IaaSAntimalware')]",

@@ -44,6 +44,9 @@ param deployPolicy bool
 @description('A suffix to use for naming deployments uniquely. It defaults to the Bicep resolution of the "utcNow()" function.')
 param deploymentNameSuffix string = utcNow()
 
+@description('Choose whether to deploy the Windows Antimalware extension on the AVD session hosts. It defaults to "true" to follow security best practices, but can be set to "false" if another antimalware solution is being used that is not compatible with the Windows Antimalware extension.')
+param deployWindowsAntimalware bool = true
+
 @description('The friendly name for the SessionDesktop application in the desktop application group.')
 param desktopFriendlyName string = ''
 
@@ -863,6 +866,7 @@ module sessionHosts 'modules/session-hosts/session-hosts.bicep' = {
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedIdentityClientId: management.outputs.deploymentUserAssignedIdentityClientId
     deploymentUserAssignedIdentityPrincipalId: management.outputs.deploymentUserAssignedIdentityPrincipalId
+    deployWindowsAntimalware: deployWindowsAntimalware
     diskAccessPolicyDefinitionId: management.outputs.diskAccessPolicyDefinitionId
     diskAccessPolicyDisplayName: management.outputs.diskAccessPolicyDisplayName
     diskAccessResourceId: management.outputs.diskAccessResourceId
