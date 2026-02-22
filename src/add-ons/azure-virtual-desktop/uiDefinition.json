@@ -972,12 +972,22 @@
                     "text": "[concat('ERROR! The selected subscription does not have enough quota for the requested vCPUs: <br><br><b>Family:</b> ', replace(replace(replace(first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, steps('hosts').virtualMachines.sizeArcGisProMulti)), (item) => item.family)), 'standard', 'Standard '), 'Family', ' Family vCPUs'), '  ', ' '), '<br><b>Current vCPU Quota:</b> ', string(coalesce(first(map(filter(steps('hosts').virtualMachines.usageApi.value, (item) => equals(item.name.value, first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, steps('hosts').virtualMachines.sizeArcGisProMulti)), (item) => item.family)))), (item) => item.limit)), 0)), '<br><b>Current vCPU Usage:</b> ', string(coalesce(first(map(filter(steps('hosts').virtualMachines.usageApi.value, (item) => equals(item.name.value, first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, steps('hosts').virtualMachines.sizeArcGisProMulti)), (item) => item.family)))), (item) => item.currentValue)), 0)), '<br><b>Requested vCPUs:</b> ', string(mul(parse(first(map(filter(first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, steps('hosts').virtualMachines.sizeArcGisProMulti)), (item) => item.capabilities)), (item) => equals(item.name, 'vCPUs')), (item) => item.value))), steps('hosts').virtualMachines.count)))]"
                   }
                 },
-                                {
+                {
+                  "name": "ncast4v3Description",
+                  "type": "Microsoft.Common.InfoBox",
+                  "visible": "[endsWith(if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Pooled')), steps('hosts').virtualMachines.sizeArcGisProMulti, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 6)), steps('hosts').virtualMachines.sizeArcGisProSingleLight, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 4)), steps('hosts').virtualMachines.sizeArcGisProSingleMedium, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 3)), steps('hosts').virtualMachines.sizeArcGisProSingleHeavy, steps('hosts').virtualMachines.sizeGeneric)))), 'as_T4_v3')]",
+                  "options": {
+                    "style": "Warning",
+                    "text": "The NCasT4_v3 VM series does not support the installation of the GRID driver using the VM extension. Please ensure to manually install the driver after the deployment. Click this box to open a link to the driver documentation.",
+                    "uri": "https://learn.microsoft.com/azure/virtual-machines/windows/n-series-driver-setup#nvidia-gridvgpu-drivers"
+                  }
+                },
+                {
                   "name": "enableWindowsAntimalware",
                   "type": "Microsoft.Common.CheckBox",
                   "label": "Enable Windows Antimalware?",
                   "defaultValue": true,
-                  "toolTip": "Enables the Windows Antimalware extension on the AVD session hosts."
+                  "toolTip": "Enables the Windows Antimalware extension on the AVD session hosts. When FSLogix is selected, the approprate exlusions are added to the configuration."
                 }
               ]
             },
