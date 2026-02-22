@@ -38,10 +38,11 @@ var nvidiaVmSizes = [
   'Standard_NV12s_v3'
   'Standard_NV24s_v3'
   'Standard_NV48s_v3'
-  'Standard_NC4as_T4_v3'
-  'Standard_NC8as_T4_v3'
-  'Standard_NC16as_T4_v3'
-  'Standard_NC64as_T4_v3'
+  // The GRID driver is currently not supported with the NCasT4_v3 series and must be installed manaully
+  // 'Standard_NC4as_T4_v3'
+  // 'Standard_NC8as_T4_v3'
+  // 'Standard_NC16as_T4_v3'
+  // 'Standard_NC64as_T4_v3'
   'Standard_NV6ads_A10_v5'
   'Standard_NV12ads_A10_v5'
   'Standard_NV18ads_A10_v5'
@@ -349,10 +350,7 @@ resource extension_NvidiaGpuDriverWindows 'Microsoft.Compute/virtualMachines/ext
     typeHandlerVersion: '1.9'
     autoUpgradeMinorVersion: true
     // NVv3 VM sizes require a specific driver version: https://learn.microsoft.com/azure/virtual-machines/extensions/hpccompute-gpu-windows#known-issues
-    settings: startsWith(virtualMachineSize, 'Standard_NV') && (endsWith(virtualMachineSize, 's_v3') || endsWith(
-        virtualMachineSize,
-        's_A10_v5'
-      ))
+    settings: startsWith(virtualMachineSize, 'Standard_NV') && (endsWith(virtualMachineSize, 's_v3') || endsWith(virtualMachineSize,'s_A10_v5'))
       ? {
           driverVersion: '538.46'
         }
