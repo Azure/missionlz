@@ -47,6 +47,7 @@ module storageAccounts 'storage-account.bicep' = [for (tier, i) in tiers: {
   params: {
     blobsPrivateDnsZoneResourceId: privateDnsZoneResourceIds.blob
     delimiter: delimiter
+    environmentAbbreviation: environmentAbbreviation
     filesPrivateDnsZoneResourceId: privateDnsZoneResourceIds.file
     keyVaultUri: customerManagedKeys.outputs.keyVaultUri
     location: location

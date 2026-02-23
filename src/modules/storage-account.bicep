@@ -5,6 +5,7 @@ Licensed under the MIT License.
 
 param blobsPrivateDnsZoneResourceId string
 param delimiter string
+param environmentAbbreviation string
 param filesPrivateDnsZoneResourceId string
 param keyVaultUri string
 param location string
@@ -43,7 +44,7 @@ var  subResources = [
   }
 ]
 
-resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+resource storageAccount 'Microsoft.Storage/storageAccounts@2025-06-01' = {
   name: uniqueString(replace(tier.namingConvention.storageAccount, tokens.purpose, purpose), resourceGroup().id)
   location: location
   tags: union(tags[?'Microsoft.Storage/storageAccounts'] ?? {}, mlzTags)
@@ -58,7 +59,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
     name: skuName
   }
   properties: {
-    accessTier: 'Hot'
+    accessTier: environmentAbbreviation == 'prod' ? 'Cold' : 'Hot'
     allowBlobPublicAccess: false
     allowCrossTenantReplication: false
     allowedCopyScope: 'PrivateLink'

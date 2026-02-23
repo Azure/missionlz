@@ -55,6 +55,7 @@ module storageAccount '../../../modules/storage-account.bicep' = {
   params: {
     blobsPrivateDnsZoneResourceId: blobsPrivateDnsZoneResourceId
     delimiter: delimiter
+    environmentAbbreviation: environmentAbbreviation
     filesPrivateDnsZoneResourceId: filesPrivateDnsZoneResourceId
     keyVaultUri: customerManagedKeys.outputs.keyVaultUri
     location: location

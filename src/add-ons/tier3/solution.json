@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.40.2.10011",
-      "templateHash": "9289611236508112440"
+      "templateHash": "3070845804710576357"
     }
   },
   "parameters": {
@@ -2361,7 +2361,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "12262094167167387996"
+              "templateHash": "15531099084057012844"
             }
           },
           "parameters": {
@@ -3038,6 +3038,9 @@
                   "delimiter": {
                     "value": "[parameters('delimiter')]"
                   },
+                  "environmentAbbreviation": {
+                    "value": "[parameters('environmentAbbreviation')]"
+                  },
                   "filesPrivateDnsZoneResourceId": {
                     "value": "[parameters('filesPrivateDnsZoneResourceId')]"
                   },
@@ -3088,7 +3091,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "3770160123771615483"
+                      "templateHash": "16097351244775871281"
                     }
                   },
                   "parameters": {
@@ -3096,6 +3099,9 @@
                       "type": "string"
                     },
                     "delimiter": {
+                      "type": "string"
+                    },
+                    "environmentAbbreviation": {
                       "type": "string"
                     },
                     "filesPrivateDnsZoneResourceId": {
@@ -3168,7 +3174,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Storage/storageAccounts",
-                      "apiVersion": "2023-01-01",
+                      "apiVersion": "2025-06-01",
                       "name": "[uniqueString(replace(parameters('tier').namingConvention.storageAccount, parameters('tokens').purpose, parameters('purpose')), resourceGroup().id)]",
                       "location": "[parameters('location')]",
                       "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Storage/storageAccounts'), createObject()), parameters('mlzTags'))]",
@@ -3183,7 +3189,7 @@
                         "name": "[parameters('skuName')]"
                       },
                       "properties": {
-                        "accessTier": "Hot",
+                        "accessTier": "[if(equals(parameters('environmentAbbreviation'), 'prod'), 'Cold', 'Hot')]",
                         "allowBlobPublicAccess": false,
                         "allowCrossTenantReplication": false,
                         "allowedCopyScope": "PrivateLink",
