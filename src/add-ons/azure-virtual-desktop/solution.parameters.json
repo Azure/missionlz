@@ -93,6 +93,9 @@
       "fslogixContainerType": {
           "value": "ProfileContainer"
       },
+      "fslogixOrganizationalUnitPath": {
+          "value": ""
+      },
       "fslogixStorageService": {
           "value": "AzureFiles Standard"
       },
@@ -196,9 +199,6 @@
       "operationsLogAnalyticsWorkspaceResourceId": {
           "value": ""
       },
-      "organizationalUnitPath": {
-          "value": ""
-      },
       "policy": {
           "value": "NISTRev4"
       },
@@ -228,11 +228,14 @@
              
           ]
       },
-      "sessionHostCount": {
+      "sessionHostsCount": {
           "value": 1
       },
-      "sessionHostIndex": {
+      "sessionHostsIndex": {
           "value": 0
+      },
+      "sessionHostsOrganizationalUnitPath": {
+          "value": ""
       },
       "sharedServicesSubnetResourceId": {
           "value": ""

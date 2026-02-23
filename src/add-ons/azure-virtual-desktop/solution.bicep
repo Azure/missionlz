@@ -115,6 +115,9 @@ param fslogixShareSizeInGB int = 100
 @description('If deploying FSLogix, select the desired type of container for user profiles. https://learn.microsoft.com/en-us/fslogix/concepts-container-types')
 param fslogixContainerType string = 'ProfileContainer'
 
+@description('The distinguished name for the target Organizational Unit in Active Directory Domain Services for the storage account or netapp account.')
+param fslogixOrganizationalUnitPath string = ''
+
 @allowed([
   'AzureNetAppFiles Premium' // ANF with the Premium SKU, 450,000 IOPS
   'AzureNetAppFiles Standard' // ANF with the Standard SKU, 320,000 IOPS
@@ -254,9 +257,6 @@ param networkWatcherFlowLogsType string = 'VirtualNetwork'
 @description('The resource ID of the Log Analytics Workspace to use for log storage.')
 param operationsLogAnalyticsWorkspaceResourceId string
 
-@description('The distinguished name for the target Organization Unit in Active Directory Domain Services.')
-param organizationalUnitPath string = ''
-
 @description('The policy to assign to the workload.')
 param policy string = 'NISTRev4'
 
@@ -291,12 +291,15 @@ param securityPrincipals array
 @maxValue(5000)
 @minValue(0)
 @description('The number of session hosts to deploy in the host pool. Ensure you have the approved quota to deploy the desired count.')
-param sessionHostCount int = 1
+param sessionHostsCount int = 1
 
 @maxValue(4999)
 @minValue(0)
 @description('The starting number for the session hosts. This is important when adding virtual machines to ensure an update deployment is not performed on an existing, active session host.')
-param sessionHostIndex int = 0
+param sessionHostsIndex int = 0
+
+@description('The distinguished name for the target Organizational Unit in Active Directory Domain Services for the AVD session hosts.')
+param sessionHostsOrganizationalUnitPath string = ''
 
 @description('The address prefix(es) for the new subnet(s) that will be created in the spoke virtual network(s). Specify only one address prefix in the array if the session hosts location and the control plan location are the same. If different locations are specified, add a second address prefix for the hosts virtual network.')
 param sessionHostsSubnetAddressPrefix string = '10.0.1${40 + (2 * stampIndex)}.0/24'
@@ -363,15 +366,15 @@ param workspacePublicNetworkAccess string = 'Enabled'
 //  BATCH SESSION HOSTS
 // The following variables are used to determine the batches to deploy any number of AVD session hosts.
 var maxResourcesPerTemplateDeployment = 88 // This is the max number of session hosts that can be deployed from the sessionHosts.bicep file in each batch / for loop. Math: (800 - <Number of Static Resources>) / <Number of Looped Resources> 
-var divisionValue = sessionHostCount / maxResourcesPerTemplateDeployment // This determines if any full batches are required.
-var divisionRemainderValue = sessionHostCount % maxResourcesPerTemplateDeployment // This determines if any partial batches are required.
+var divisionValue = sessionHostsCount / maxResourcesPerTemplateDeployment // This determines if any full batches are required.
+var divisionRemainderValue = sessionHostsCount % maxResourcesPerTemplateDeployment // This determines if any partial batches are required.
 var sessionHostBatchCount = divisionRemainderValue > 0 ? divisionValue + 1 : divisionValue // This determines the total number of batches needed, whether full and / or partial.
 
 //  BATCH AVAILABILITY SETS
 // The following variables are used to determine the number of availability sets.
 var maxAvSetMembers = 200 // This is the max number of session hosts that can be deployed in an availability set.
-var beginAvSetRange = sessionHostIndex / maxAvSetMembers // This determines the availability set to start with.
-var endAvSetRange = (sessionHostCount + sessionHostIndex) / maxAvSetMembers // This determines the availability set to end with.
+var beginAvSetRange = sessionHostsIndex / maxAvSetMembers // This determines the availability set to start with.
+var endAvSetRange = (sessionHostsCount + sessionHostsIndex) / maxAvSetMembers // This determines the availability set to end with.
 var availabilitySetsCount = length(range(beginAvSetRange, (endAvSetRange - beginAvSetRange) + 1))
 
 // OTHER LOGIC & COMPUTED VALUES
@@ -709,7 +712,7 @@ module management 'modules/management/management.bicep' = {
     locationControlPlane: virtualNetwork_hub.location
     locationVirtualMachines: locationVirtualMachines
     mlzTags: tier3.outputs.mlzTags
-    organizationalUnitPath: organizationalUnitPath
+    organizationalUnitPath: sessionHostsOrganizationalUnitPath
     privateDnsZoneResourceIdPrefix: privateDnsZoneResourceIdPrefix
     privateDnsZones: tier3.outputs.privateDnsZones
     resourceAbbreviations: tier3.outputs.resourceAbbreviations
@@ -836,7 +839,7 @@ module fslogix 'modules/fslogix/fslogix.bicep' = if (deployFslogix) {
     managementVirtualMachineName: management.outputs.virtualMachineName
     mlzTags: tier3.outputs.mlzTags
     netbios: netbios
-    organizationalUnitPath: organizationalUnitPath
+    organizationalUnitPath: fslogixOrganizationalUnitPath
     resourceGroupManagement: management.outputs.resourceGroupName
     securityPrincipalNames: map(securityPrincipals, item => item.displayName)
     securityPrincipalObjectIds: map(securityPrincipals, item => item.objectId)
@@ -900,7 +903,7 @@ module sessionHosts 'modules/session-hosts/session-hosts.bicep' = {
       : [
           'None'
         ]
-    organizationalUnitPath: organizationalUnitPath
+    organizationalUnitPath: sessionHostsOrganizationalUnitPath
     profile: profile
     resourceGroupManagement: management.outputs.resourceGroupName
     scalingWeekdaysOffPeakStartTime: scalingWeekdaysOffPeakStartTime
@@ -909,7 +912,7 @@ module sessionHosts 'modules/session-hosts/session-hosts.bicep' = {
     scalingWeekendsPeakStartTime: scalingWeekendsPeakStartTime
     securityPrincipalObjectIds: map(securityPrincipals, item => item.objectId)
     sessionHostBatchCount: sessionHostBatchCount
-    sessionHostIndex: sessionHostIndex
+    sessionHostIndex: sessionHostsIndex
     storageAccountNamePrefix: deployFslogix ? fslogix!.outputs.storageAccountNamePrefix : ''
     storageCount: storageCount
     storageIndex: storageIndex

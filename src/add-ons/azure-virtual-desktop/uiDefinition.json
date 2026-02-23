@@ -1188,6 +1188,18 @@
                   }
                 },
                 {
+                  "name": "ouPath",
+                  "type": "Microsoft.Common.TextBox",
+                  "visible": true,
+                  "label": "OU Path",
+                  "toolTip": "Input the distinguished name of the desired organization unit for the AVD session hosts.",
+                  "defaultValue": "",
+                  "placeholder": "Example: OU=fslogix,OU=avd,DC=contoso,DC=com",
+                  "constraints": {
+                    "required": false
+                  }
+                },
+                {
                   "name": "fileShareSize",
                   "type": "Microsoft.Common.Slider",
                   "label": "File share size (GB)",
@@ -1890,6 +1902,7 @@
         "existingFeedWorkspaceResourceId": "[if(empty(steps('controlPlane').workspacesApi.value), '', first(map(filter(steps('controlPlane').workspacesApi.value, (item) => and(contains(item.name, steps('basics').naming.identifier), contains(item.name, 'feed'), contains(item.name, steps('basics').naming.environment), equals(item.location, steps('basics').hub.azureFirewallApi.location))), (item) => item.id)))]",
         "fslogixShareSizeInGB": "[if(equals(steps('profiles').profileSolution, 'local'), 100, steps('profiles').storage.fileShareSize)]",
         "fslogixContainerType": "[steps('profiles').storage.fslogixContainerType]",
+        "fslogixOrganizationalUnitPath": "[steps('profiles').storage.ouPath]",
         "fslogixStorageService": "[if(equals(steps('profiles').profileSolution, 'local'), 'None', steps('profiles').storage.service)]",
         "functionAppSubnetAddressPrefix": "[steps('network').stampVnet.functionAppSubnetAddressCidrRange]",
         "hostPoolPublicNetworkAccess": "[steps('controlPlane').hostPool.publicNetworkAccess]",
@@ -1910,7 +1923,6 @@
         "networkWatcherFlowLogsRetentionDays": "[steps('network').flowLogsSection.retentionDays]",
         "networkWatcherFlowLogsType": "[steps('network').flowLogsSection.flowLogsType]",
         "operationsLogAnalyticsWorkspaceResourceId": "[first(map(steps('basics').operationsLogAnalyticsWorkspaceApi.value, (item) => item.id))]",
-        "organizationalUnitPath": "[if(equals(steps('hosts').identity.solution, 'MicrosoftEntraId'), '', steps('hosts').identity.ouPath)]",
         "policy": "[steps('compliance').policySection.policy]",
         "privateLinkScopeResourceId": "[steps('basics').operations.privateLinkScope]",
         "profile": "[steps('basics').scenario.profile]",
@@ -1919,8 +1931,9 @@
         "scalingWeekendsOffPeakStartTime": "[steps('management').scalingPlan.weekendsOffPeakStartTime]",
         "scalingWeekendsPeakStartTime": "[steps('management').scalingPlan.weekendsPeakStartTime]",
         "securityPrincipals": "[steps('controlPlane').assignment.groupPickerBlade.transformed.selection]",
-        "sessionHostCount": "[steps('hosts').virtualMachines.count]",
-        "sessionHostIndex": 0,
+        "sessionHostsCount": "[steps('hosts').virtualMachines.count]",
+        "sessionHostsIndex": 0,
+        "sessionHostsOrganizationalUnitPath": "[if(equals(steps('hosts').identity.solution, 'MicrosoftEntraId'), '', steps('hosts').identity.ouPath)]",
         "sessionHostsSubnetAddressPrefix": "[steps('network').stampVnet.sessionHostsSubnetAddressCidrRange]",
         "sharedServicesSubnetResourceId": "[first(map(steps('basics').sharedServicesSubnetsApi.value, (item) => item.id))]",
         "sharedSubnetAddressPrefix": "[steps('network').sharedVnet.subnetAddressCidrRange]",

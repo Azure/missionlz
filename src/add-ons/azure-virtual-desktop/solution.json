@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.40.2.10011",
-      "templateHash": "12350818283070132718"
+      "templateHash": "13222018662466272037"
     }
   },
   "parameters": {
@@ -235,6 +235,13 @@
       ],
       "metadata": {
         "description": "If deploying FSLogix, select the desired type of container for user profiles. https://learn.microsoft.com/en-us/fslogix/concepts-container-types"
+      }
+    },
+    "fslogixOrganizationalUnitPath": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The distinguished name for the target Organizational Unit in Active Directory Domain Services for the storage account or netapp account."
       }
     },
     "fslogixStorageService": {
@@ -476,13 +483,6 @@
         "description": "The resource ID of the Log Analytics Workspace to use for log storage."
       }
     },
-    "organizationalUnitPath": {
-      "type": "string",
-      "defaultValue": "",
-      "metadata": {
-        "description": "The distinguished name for the target Organization Unit in Active Directory Domain Services."
-      }
-    },
     "policy": {
       "type": "string",
       "defaultValue": "NISTRev4",
@@ -541,7 +541,7 @@
         "description": "The array of Security Principals with their object IDs and display names to assign to the AVD Application Group and FSLogix Storage."
       }
     },
-    "sessionHostCount": {
+    "sessionHostsCount": {
       "type": "int",
       "defaultValue": 1,
       "minValue": 0,
@@ -550,13 +550,20 @@
         "description": "The number of session hosts to deploy in the host pool. Ensure you have the approved quota to deploy the desired count."
       }
     },
-    "sessionHostIndex": {
+    "sessionHostsIndex": {
       "type": "int",
       "defaultValue": 0,
       "minValue": 0,
       "maxValue": 4999,
       "metadata": {
         "description": "The starting number for the session hosts. This is important when adding virtual machines to ensure an update deployment is not performed on an existing, active session host."
+      }
+    },
+    "sessionHostsOrganizationalUnitPath": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The distinguished name for the target Organizational Unit in Active Directory Domain Services for the AVD session hosts."
       }
     },
     "sessionHostsSubnetAddressPrefix": {
@@ -687,12 +694,12 @@
   },
   "variables": {
     "maxResourcesPerTemplateDeployment": 88,
-    "divisionValue": "[div(parameters('sessionHostCount'), variables('maxResourcesPerTemplateDeployment'))]",
-    "divisionRemainderValue": "[mod(parameters('sessionHostCount'), variables('maxResourcesPerTemplateDeployment'))]",
+    "divisionValue": "[div(parameters('sessionHostsCount'), variables('maxResourcesPerTemplateDeployment'))]",
+    "divisionRemainderValue": "[mod(parameters('sessionHostsCount'), variables('maxResourcesPerTemplateDeployment'))]",
     "sessionHostBatchCount": "[if(greater(variables('divisionRemainderValue'), 0), add(variables('divisionValue'), 1), variables('divisionValue'))]",
     "maxAvSetMembers": 200,
-    "beginAvSetRange": "[div(parameters('sessionHostIndex'), variables('maxAvSetMembers'))]",
-    "endAvSetRange": "[div(add(parameters('sessionHostCount'), parameters('sessionHostIndex')), variables('maxAvSetMembers'))]",
+    "beginAvSetRange": "[div(parameters('sessionHostsIndex'), variables('maxAvSetMembers'))]",
+    "endAvSetRange": "[div(add(parameters('sessionHostsCount'), parameters('sessionHostsIndex')), variables('maxAvSetMembers'))]",
     "availabilitySetsCount": "[length(range(variables('beginAvSetRange'), add(sub(variables('endAvSetRange'), variables('beginAvSetRange')), 1)))]",
     "agentUpdatesUniqueString": "[if(equals(variables('cloud'), 'AzureCloud'), 'eus2prod', if(equals(variables('cloud'), 'AzureUSGovernment'), 'ugviffx', format('{0}{1}{2}{3}x', first(variables('cloud')), take(skip(variables('cloud'), 2), 1), first(parameters('locationVirtualMachines')), if(equals(substring(variables('cloud'), 2, 1), 'n'), first(variables('cloudSuffix')), substring(variables('cloudSuffix'), 3, 1)))))]",
     "avdStorageAccountEndpoint": "[format('{0}.blob.{1}', variables('avdStorageAccountName'), environment().suffixes.storage)]",
@@ -5941,7 +5948,7 @@
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.mlzTags.value]"
           },
           "organizationalUnitPath": {
-            "value": "[parameters('organizationalUnitPath')]"
+            "value": "[parameters('sessionHostsOrganizationalUnitPath')]"
           },
           "privateDnsZoneResourceIdPrefix": {
             "value": "[variables('privateDnsZoneResourceIdPrefix')]"
@@ -10533,7 +10540,7 @@
             "value": "[variables('netbios')]"
           },
           "organizationalUnitPath": {
-            "value": "[parameters('organizationalUnitPath')]"
+            "value": "[parameters('fslogixOrganizationalUnitPath')]"
           },
           "resourceGroupManagement": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.resourceGroupName.value]"
@@ -11896,7 +11903,7 @@
           },
           "netAppFileShares": "[if(variables('deployFslogix'), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-fslogix-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.netAppShares.value), createObject('value', createArray('None')))]",
           "organizationalUnitPath": {
-            "value": "[parameters('organizationalUnitPath')]"
+            "value": "[parameters('sessionHostsOrganizationalUnitPath')]"
           },
           "profile": {
             "value": "[parameters('profile')]"
@@ -11923,7 +11930,7 @@
             "value": "[variables('sessionHostBatchCount')]"
           },
           "sessionHostIndex": {
-            "value": "[parameters('sessionHostIndex')]"
+            "value": "[parameters('sessionHostsIndex')]"
           },
           "storageAccountNamePrefix": "[if(variables('deployFslogix'), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-fslogix-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.storageAccountNamePrefix.value), createObject('value', ''))]",
           "storageCount": {
