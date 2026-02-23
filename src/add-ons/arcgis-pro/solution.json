@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.40.2.10011",
-      "templateHash": "14550936907685139838"
+      "templateHash": "9705340950942318687"
     }
   },
   "parameters": {
@@ -18589,7 +18589,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.40.2.10011",
-              "templateHash": "8905346990918290297"
+              "templateHash": "9951585268864334271"
             }
           },
           "parameters": {
@@ -26388,7 +26388,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.40.2.10011",
-                      "templateHash": "11771208238076629420"
+                      "templateHash": "13293860751539459579"
                     }
                   },
                   "parameters": {
@@ -26670,7 +26670,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.40.2.10011",
-                              "templateHash": "6787317217064693349"
+                              "templateHash": "12050445418271286026"
                             }
                           },
                           "parameters": {
@@ -26733,7 +26733,7 @@
                             }
                           },
                           "variables": {
-                            "$fxv#0": "$ErrorActionPreference = 'Stop'\r\n$Settings = @(\r\n\r\n    # Disable Automatic Updates: https://learn.microsoft.com/azure/virtual-desktop/set-up-customize-master-image#disable-automatic-updates\r\n    [PSCustomObject]@{\r\n        Name = 'NoAutoUpdate'\r\n        Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU'\r\n        PropertyType = 'DWord'\r\n        Value = 1\r\n    },\r\n\r\n    # Enable Time Zone Redirection: https://learn.microsoft.com/azure/virtual-desktop/set-up-customize-master-image#set-up-time-zone-redirection\r\n    [PSCustomObject]@{\r\n        Name = 'fEnableTimeZoneRedirection'\r\n        Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n        PropertyType = 'DWord'\r\n        Value = 1\r\n    },\r\n\r\n    # Configure GPU-accelerated app rendering: https://learn.microsoft.com/azure/virtual-desktop/configure-vm-gpu#configure-gpu-accelerated-app-rendering\r\n    [PSCustomObject]@{\r\n        Name = 'bEnumerateHWBeforeSW'\r\n        Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n        PropertyType = 'DWord'\r\n        Value = 1\r\n    },\r\n\r\n    # Configure fullscreen video encoding: https://learn.microsoft.com/azure/virtual-desktop/configure-vm-gpu#configure-fullscreen-video-encoding\r\n    [PSCustomObject]@{\r\n        Name = 'AVC444ModePreferred'\r\n        Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n        PropertyType = 'DWord'\r\n        Value = 1\r\n    }\r\n)\r\n\r\nforeach($Setting in $Settings)\r\n{\r\n    if(!(Test-Path -Path $Setting.Path))\r\n    {\r\n        New-Item -Path $Setting.Path -Force | Out-Null\r\n    }\r\n    $Value = Get-ItemProperty -Path $Setting.Path -Name $Setting.Name -ErrorAction 'SilentlyContinue'\r\n    if(!$Value)\r\n    {\r\n        New-ItemProperty -Path $Setting.Path -Name $Setting.Name -PropertyType $Setting.PropertyType -Value $Setting.Value -Force | Out-Null\r\n    }\r\n    elseif($Value.$($Setting.Name) -ne $Setting.Value)\r\n    {\r\n        Set-ItemProperty -Path $Setting.Path -Name $Setting.Name -Value $Setting.Value -Force | Out-Null\r\n    }\r\n    Start-Sleep -Seconds 1 | Out-Null\r\n}",
+                            "$fxv#0": "$ErrorActionPreference = 'Stop'\r\n$Settings = @(\r\n\r\n    [PSCustomObject]@{\r\n        Name = 'NoAutoUpdate'\r\n        Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU'\r\n        PropertyType = 'DWord'\r\n        Value = 1\r\n    },\r\n\r\n    [PSCustomObject]@{\r\n        Name = 'fEnableTimeZoneRedirection'\r\n        Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n        PropertyType = 'DWord'\r\n        Value = 1\r\n    },\r\n\r\n    [PSCustomObject]@{\r\n        Name = 'AVC444ModePreferred'\r\n        Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n        PropertyType = 'DWord'\r\n        Value = 1\r\n    }\r\n\r\n    [PSCustomObject]@{\r\n        Name = 'AVCHardwareEncodePreferred'\r\n        Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n        PropertyType = 'DWord'\r\n        Value = 1\r\n    },\r\n\r\n    [PSCustomObject]@{\r\n        Name = 'bEnumerateHWBeforeSW'\r\n        Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n        PropertyType = 'DWord'\r\n        Value = 1\r\n    },\r\n\r\n    [PSCustomObject]@{\r\n        Name = 'DisplayRefreshRate'\r\n        Path = 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server\\WinStations'\r\n        PropertyType = 'DWord'\r\n        Value = 60\r\n    },\r\n\r\n    [PSCustomObject]@{\r\n        Name = 'DWMFRAMEINTERVAL'\r\n        Path = 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server\\WinStations'\r\n        PropertyType = 'DWord'\r\n        Value = 15\r\n    },\r\n\r\n    [PSCustomObject]@{\r\n        Name = 'fEnableConnectionIntervalGraphicsData'\r\n        Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n        PropertyType = 'DWord'\r\n        Value = 1\r\n    },\r\n\r\n    [PSCustomObject]@{\r\n        Name = 'HEVCHardwareEncodePreferred'\r\n        Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n        PropertyType = 'DWord'\r\n        Value = 1\r\n    },\r\n\r\n    [PSCustomObject]@{\r\n        Name = 'ImageQuality'\r\n        Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n        PropertyType = 'DWord'\r\n        Value = 2\r\n    }\r\n)\r\n\r\nforeach($Setting in $Settings)\r\n{\r\n    if(!(Test-Path -Path $Setting.Path))\r\n    {\r\n        New-Item -Path $Setting.Path -Force | Out-Null\r\n    }\r\n    $Value = Get-ItemProperty -Path $Setting.Path -Name $Setting.Name -ErrorAction 'SilentlyContinue'\r\n    if(!$Value)\r\n    {\r\n        New-ItemProperty -Path $Setting.Path -Name $Setting.Name -PropertyType $Setting.PropertyType -Value $Setting.Value -Force | Out-Null\r\n    }\r\n    elseif($Value.$($Setting.Name) -ne $Setting.Value)\r\n    {\r\n        Set-ItemProperty -Path $Setting.Path -Name $Setting.Name -Value $Setting.Value -Force | Out-Null\r\n    }\r\n    Start-Sleep -Seconds 1 | Out-Null\r\n}",
                             "amdVmSizes": [
                               "Standard_NV4as_v4",
                               "Standard_NV8as_v4",
