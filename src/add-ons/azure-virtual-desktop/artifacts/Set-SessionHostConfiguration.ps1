@@ -94,7 +94,7 @@ if ($AmdVmSize -eq 'true' -or $NvidiaVmSize -eq 'true')
             Value = 1
         },
 
-        # GPU-accelerated remote frame encoding using H.264/AVC: Configure H.265/HEVC hardware encoding for Remote Desktop Connections - https://learn.microsoft.com/azure/virtual-desktop/graphics-enable-gpu-acceleration?tabs=group-policy#enable-gpu-accelerated-application-rendering-and-remote-frame-encoding
+        # GPU-accelerated remote frame encoding using H.265/HEVC: Configure H.265/HEVC hardware encoding for Remote Desktop Connections - https://learn.microsoft.com/azure/virtual-desktop/graphics-enable-gpu-acceleration?tabs=group-policy#enable-gpu-accelerated-application-rendering-and-remote-frame-encoding
         [PSCustomObject]@{
             Name = 'HEVCHardwareEncodePreferred'
             Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services'
