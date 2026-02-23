@@ -23,31 +23,46 @@ $WarningPreference = 'SilentlyContinue'
 #  Add Recommended AVD Settings
 $Settings = @(
 
-    # Disable Automatic Updates: https://learn.microsoft.com/azure/virtual-desktop/set-up-customize-master-image#disable-automatic-updates
-    [PSCustomObject]@{
-        Name = 'NoAutoUpdate'
-        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU'
-        PropertyType = 'DWord'
-        Value = 1
-    },
-
     # Enable Time Zone Redirection: https://learn.microsoft.com/azure/virtual-desktop/set-up-customize-master-image#set-up-time-zone-redirection
     [PSCustomObject]@{
         Name = 'fEnableTimeZoneRedirection'
         Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services'
         PropertyType = 'DWord'
         Value = 1
+    },
+
+    # Disable Automatic Updates: https://learn.microsoft.com/azure/virtual-desktop/set-up-customize-master-image#disable-automatic-updates
+    [PSCustomObject]@{
+        Name = 'NoAutoUpdate'
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU'
+        PropertyType = 'DWord'
+        Value = 1
     }
 )
 
 
-#  Add GPU Settings
-# These settings apply to any VM sizes with a GPU
+# Add GPU Settings
 if ($AmdVmSize -eq 'true' -or $NvidiaVmSize -eq 'true') 
 {
     $Settings += @(
 
-        # Configure GPU-accelerated app rendering: https://learn.microsoft.com/azure/virtual-desktop/configure-vm-gpu#configure-gpu-accelerated-app-rendering
+        # GPU-accelerated remote frame encoding using H.264/AVC: Prioritize H.264/AVC 444 graphics mode for Remote Desktop Connections - https://learn.microsoft.com/azure/virtual-desktop/graphics-enable-gpu-acceleration?tabs=group-policy#enable-gpu-accelerated-application-rendering-and-remote-frame-encoding
+        [PSCustomObject]@{
+            Name = 'AVC444ModePreferred'
+            Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services'
+            PropertyType = 'DWord'
+            Value = 1
+        }
+
+        # GPU-accelerated remote frame encoding using H.264/AVC: Configure H.264/AVC hardware encoding for Remote Desktop Connections - https://learn.microsoft.com/azure/virtual-desktop/graphics-enable-gpu-acceleration?tabs=group-policy#enable-gpu-accelerated-application-rendering-and-remote-frame-encoding
+        [PSCustomObject]@{
+            Name = 'AVCHardwareEncodePreferred'
+            Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services'
+            PropertyType = 'DWord'
+            Value = 1
+        },
+
+        # GPU-accelerated application rendering: Use hardware graphics adapters for all RDS sessions - https://learn.microsoft.com/azure/virtual-desktop/graphics-enable-gpu-acceleration?tabs=group-policy#enable-gpu-accelerated-application-rendering-and-remote-frame-encoding
         [PSCustomObject]@{
             Name = 'bEnumerateHWBeforeSW'
             Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services'
@@ -55,27 +70,44 @@ if ($AmdVmSize -eq 'true' -or $NvidiaVmSize -eq 'true')
             Value = 1
         },
 
-        # Configure fullscreen video encoding: https://learn.microsoft.com/azure/virtual-desktop/configure-vm-gpu#configure-fullscreen-video-encoding
+        # Configure the refresh rate for the display
         [PSCustomObject]@{
-            Name = 'AVC444ModePreferred'
+            Name = 'DisplayRefreshRate'
+            Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations'
+            PropertyType = 'DWord'
+            Value = 60
+        },
+
+        # Configure DWM frame interval: https://learn.microsoft.com/troubleshoot/windows-server/remote/frame-rate-limited-to-30-fps
+        [PSCustomObject]@{
+            Name = 'DWMFRAMEINTERVAL'
+            Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations'
+            PropertyType = 'DWord'
+            Value = 15
+        },
+
+        # Graphics logging: Connection graphics data - https://learn.microsoft.com/azure/virtual-desktop/connection-latency#connection-graphics-data-preview
+        [PSCustomObject]@{
+            Name = 'fEnableConnectionIntervalGraphicsData'
             Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services'
             PropertyType = 'DWord'
             Value = 1
-        }
-    )
-}
+        },
 
-# This setting applies only to VM sizes with a NVIDIA GPU
-if($NvidiaVmSize -eq 'true')
-{
-    $Settings += @(
-
-        # Configure GPU-accelerated frame encoding: https://learn.microsoft.com/azure/virtual-desktop/configure-vm-gpu#configure-gpu-accelerated-frame-encoding
+        # GPU-accelerated remote frame encoding using H.264/AVC: Configure H.265/HEVC hardware encoding for Remote Desktop Connections - https://learn.microsoft.com/azure/virtual-desktop/graphics-enable-gpu-acceleration?tabs=group-policy#enable-gpu-accelerated-application-rendering-and-remote-frame-encoding
         [PSCustomObject]@{
-            Name = 'AVChardwareEncodePreferred'
+            Name = 'HEVCHardwareEncodePreferred'
             Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services'
             PropertyType = 'DWord'
             Value = 1
+        },
+
+        # Increase Chroma value to 4:4:4 for RDP sessions using AVC: Configure image quality for RemoteFX Adaptive Graphics - https://learn.microsoft.com/azure/virtual-desktop/graphics-chroma-value-increase-4-4-4?tabs=group-policy
+        [PSCustomObject]@{
+            Name = 'ImageQuality'
+            Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services'
+            PropertyType = 'DWord'
+            Value = 2
         }
     )
 }
