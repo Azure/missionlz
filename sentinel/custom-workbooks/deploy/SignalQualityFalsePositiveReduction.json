@@ -1,0 +1,565 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workbookDisplayName": {
+      "type": "string",
+      "defaultValue": "Signal Quality & False Positive Reduction"
+    },
+    "workbookName": {
+      "type": "string",
+      "defaultValue": "[newGuid()]"
+    },
+    "workspaceResourceId": {
+      "type": "string",
+      "metadata": {
+        "description": "Resource ID of the Log Analytics workspace (Microsoft.OperationalInsights/workspaces/...) associated with Microsoft Sentinel."
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    }
+  },
+  "variables": {
+    "workbookDefinition": {
+      "version": "Notebook/1.0",
+      "items": [
+        {
+          "type": 1,
+          "content": {
+            "json": "# Signal Quality & False Positive Reduction\n\nThis workbook tracks incident classification quality, alert-to-incident conversion, triage/resolution times, and optional Signal Quality Score (SQS) / suppression signals."
+          },
+          "name": "text - 0"
+        },
+        {
+          "type": 9,
+          "content": {
+            "version": "KqlParameterItem/1.0",
+            "query": "",
+            "crossComponentResources": [],
+            "parameters": [
+              {
+                "id": "52bfbd84-1639-480c-bda5-bfc87fd81832",
+                "version": "KqlParameterItem/1.0",
+                "name": "TimeRange",
+                "type": 4,
+                "isRequired": true,
+                "value": {
+                  "durationMs": 604800000
+                },
+                "typeSettings": {
+                  "selectableValues": [
+                    {
+                      "durationMs": 300000
+                    },
+                    {
+                      "durationMs": 900000
+                    },
+                    {
+                      "durationMs": 1800000
+                    },
+                    {
+                      "durationMs": 3600000
+                    },
+                    {
+                      "durationMs": 14400000
+                    },
+                    {
+                      "durationMs": 43200000
+                    },
+                    {
+                      "durationMs": 86400000
+                    },
+                    {
+                      "durationMs": 172800000
+                    },
+                    {
+                      "durationMs": 259200000
+                    },
+                    {
+                      "durationMs": 604800000
+                    },
+                    {
+                      "durationMs": 1209600000
+                    },
+                    {
+                      "durationMs": 2419200000
+                    },
+                    {
+                      "durationMs": 2592000000
+                    },
+                    {
+                      "durationMs": 5184000000
+                    },
+                    {
+                      "durationMs": 7776000000
+                    }
+                  ],
+                  "allowCustom": true
+                }
+              }
+            ],
+            "style": "pills",
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces"
+          },
+          "name": "parameters - 0"
+        },
+        {
+          "type": 1,
+          "content": {
+            "json": "## Overview (KPIs)\n\nKPI cards for false/true positive rates, alert-to-incident conversion, and mean triage/resolution times."
+          },
+          "name": "text - 1"
+        },
+        {
+          "type": 3,
+          "content": {
+            "version": "KqlItem/1.0",
+            "query": "let incidentsRaw = SecurityIncident\r\n| where TimeGenerated between ({TimeRange:start} .. {TimeRange:end})\r\n| extend Status = tostring(column_ifexists('Status',''))\r\n| extend Classification = tostring(column_ifexists('Classification',''))\r\n| extend CreatedTime = todatetime(column_ifexists('CreatedTime', TimeGenerated))\r\n| extend ClosedTime = todatetime(column_ifexists('ClosedTime', datetime(null)))\r\n| extend FirstModifiedTime = todatetime(column_ifexists('FirstModifiedTime', datetime(null)))\r\n| extend LastModifiedTime = todatetime(column_ifexists('LastModifiedTime', datetime(null)))\r\n| extend IsClosed = (Status =~ 'Closed') or isnotnull(ClosedTime)\r\n| extend TriageTimeMinutes = datetime_diff('minute', coalesce(FirstModifiedTime, LastModifiedTime, ClosedTime, now()), CreatedTime)\r\n| extend ResolutionTimeMinutes = datetime_diff('minute', coalesce(ClosedTime, now()), CreatedTime);\r\nlet closed = incidentsRaw | where IsClosed;\r\nlet totalClosed = toscalar(closed | count);\r\nlet fpClosed = toscalar(closed | where Classification =~ 'FalsePositive' | count);\r\nlet tpClosed = toscalar(closed | where Classification =~ 'TruePositive' | count);\r\nlet fpr = iff(totalClosed == 0, 0.0, todouble(fpClosed) / totalClosed);\r\nlet tpr = iff(totalClosed == 0, 0.0, todouble(tpClosed) / totalClosed);\r\nlet mttrMinutes = toscalar(closed | summarize avg(ResolutionTimeMinutes));\r\nlet mtttMinutes = toscalar(closed | summarize avg(TriageTimeMinutes));\r\nlet alerts = SecurityAlert\r\n| where TimeGenerated between ({TimeRange:start} .. {TimeRange:end})\r\n| extend AlertId = tostring(column_ifexists('SystemAlertId', column_ifexists('AlertId','')))\r\n| where isnotempty(AlertId);\r\nlet incidentAlertIds = incidentsRaw\r\n| extend AlertIds = todynamic(column_ifexists('AlertIds', dynamic([])))\r\n| mv-expand AlertId = AlertIds\r\n| project AlertId = tostring(AlertId)\r\n| where isnotempty(AlertId)\r\n| distinct AlertId;\r\nlet totalAlerts = toscalar(alerts | summarize dcount(AlertId));\r\nlet alertsInIncidents = toscalar(incidentAlertIds | summarize dcount(AlertId));\r\nlet conversion = iff(totalAlerts == 0, 0.0, todouble(alertsInIncidents) / totalAlerts);\r\nunion\r\n  (print Metric = 'False Positive Rate (FPR)', Value = fpr * 100.0, Unit = '%'),\r\n  (print Metric = 'True Positive Rate (TPR)', Value = tpr * 100.0, Unit = '%'),\r\n  (print Metric = 'Alert-to-Incident Conversion Rate', Value = conversion * 100.0, Unit = '%'),\r\n  (print Metric = 'Mean Time to Triage (MTTT)', Value = mtttMinutes, Unit = 'min'),\r\n  (print Metric = 'Mean Time to Resolution (MTTR)', Value = mttrMinutes, Unit = 'min')",
+            "size": 0,
+            "title": "KPI Summary",
+            "timeContext": {
+              "durationMs": 0
+            },
+            "timeContextFromParameter": "TimeRange",
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces",
+            "visualization": "tiles",
+            "tileSettings": {
+              "titleContent": {
+                "columnMatch": "Metric",
+                "formatter": 1,
+                "formatOptions": {
+                  "showIcon": true
+                }
+              },
+              "leftContent": {
+                "columnMatch": "Value",
+                "formatter": 12,
+                "formatOptions": {
+                  "palette": "greenRed",
+                  "showIcon": true
+                },
+                "numberFormat": {
+                  "unit": 0,
+                  "options": {
+                    "maximumFractionDigits": 2
+                  }
+                }
+              },
+              "secondaryContent": {
+                "columnMatch": "Unit",
+                "formatter": 1,
+                "formatOptions": {
+                  "showIcon": false
+                }
+              },
+              "showBorder": false
+            }
+          },
+          "name": "query - 0"
+        },
+        {
+          "type": 1,
+          "content": {
+            "json": "## Classification Breakdown\n\n- Pie chart: classification mix (closed incidents)\n- Trend: classification over time"
+          },
+          "name": "text - 2"
+        },
+        {
+          "type": 3,
+          "content": {
+            "version": "KqlItem/1.0",
+            "query": "SecurityIncident\r\n| where TimeGenerated between ({TimeRange:start} .. {TimeRange:end})\r\n| extend Status = tostring(column_ifexists('Status',''))\r\n| extend ClosedTime = todatetime(column_ifexists('ClosedTime', datetime(null)))\r\n| extend IsClosed = (Status =~ 'Closed') or isnotnull(ClosedTime)\r\n| where IsClosed\r\n| extend Classification = tostring(column_ifexists('Classification',''))\r\n| extend Classification = iff(isempty(Classification), 'Unclassified', Classification)\r\n| summarize Incidents = count() by Classification\r\n| order by Incidents desc",
+            "size": 0,
+            "title": "Closed incident classifications",
+            "timeContextFromParameter": "TimeRange",
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces",
+            "visualization": "piechart"
+          },
+          "customWidth": "35",
+          "name": "query - 1"
+        },
+        {
+          "type": 3,
+          "content": {
+            "version": "KqlItem/1.0",
+            "query": "SecurityIncident\r\n| where TimeGenerated between ({TimeRange:start} .. {TimeRange:end})\r\n| extend Status = tostring(column_ifexists('Status',''))\r\n| extend CreatedTime = todatetime(column_ifexists('CreatedTime', TimeGenerated))\r\n| extend ClosedTime = todatetime(column_ifexists('ClosedTime', datetime(null)))\r\n| extend IsClosed = (Status =~ 'Closed') or isnotnull(ClosedTime)\r\n| where IsClosed\r\n| extend Classification = tostring(column_ifexists('Classification',''))\r\n| extend Classification = iff(isempty(Classification), 'Unclassified', Classification)\r\n| summarize Incidents = count() by bin(CreatedTime, 1d), Classification\r\n| order by CreatedTime asc",
+            "size": 0,
+            "title": "Classification trend (daily)",
+            "timeContextFromParameter": "TimeRange",
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces",
+            "visualization": "timechart"
+          },
+          "customWidth": "65",
+          "name": "query - 2"
+        },
+        {
+          "type": 1,
+          "content": {
+            "json": "## Detection Rule Insights\n\n- Top 10 rules by false positives\n- Top 10 rules by true positives\n- Rules with highest alert-to-incident conversion rate"
+          },
+          "name": "text - 3"
+        },
+        {
+          "type": 3,
+          "content": {
+            "version": "KqlItem/1.0",
+            "query": "let incidents = SecurityIncident\r\n| where TimeGenerated between ({TimeRange:start} .. {TimeRange:end})\r\n| extend Status = tostring(column_ifexists('Status',''))\r\n| extend ClosedTime = todatetime(column_ifexists('ClosedTime', datetime(null)))\r\n| extend IsClosed = (Status =~ 'Closed') or isnotnull(ClosedTime)\r\n| where IsClosed\r\n| extend Classification = tostring(column_ifexists('Classification',''))\r\n| where Classification in~ ('FalsePositive','TruePositive','BenignPositive','Undetermined')\r\n| extend AlertIds = todynamic(column_ifexists('AlertIds', dynamic([])))\r\n| mv-expand AlertId = AlertIds\r\n| project Classification, AlertId = tostring(AlertId);\r\nlet alerts = SecurityAlert\r\n| where TimeGenerated between ({TimeRange:start} .. {TimeRange:end})\r\n| extend AlertId = tostring(column_ifexists('SystemAlertId', column_ifexists('AlertId','')))\r\n| extend RuleName = tostring(column_ifexists('AlertName', column_ifexists('AlertType','Unknown')))\r\n| project AlertId, RuleName;\r\nincidents\r\n| join kind=leftouter (alerts) on AlertId\r\n| extend RuleName = iff(isempty(RuleName), 'Unknown', RuleName)\r\n| summarize FalsePositives = countif(Classification =~ 'FalsePositive') by RuleName\r\n| order by FalsePositives desc\r\n| take 10\r\n| extend RulePortalSearchLink = strcat('https://portal.azure.com/#search/', url_encode(RuleName))",
+            "size": 0,
+            "title": "Top 10 rules by false positives",
+            "timeContextFromParameter": "TimeRange",
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces",
+            "gridSettings": {
+              "formatters": [
+                {
+                  "columnMatch": "RuleName",
+                  "formatter": 1,
+                  "formatOptions": {
+                    "linkColumn": "RulePortalSearchLink",
+                    "linkTarget": "Url"
+                  }
+                },
+                {
+                  "columnMatch": "RulePortalSearchLink",
+                  "formatter": 5
+                }
+              ],
+              "filter": true
+            }
+          },
+          "name": "query - 3"
+        },
+        {
+          "type": 3,
+          "content": {
+            "version": "KqlItem/1.0",
+            "query": "let incidents = SecurityIncident\r\n| where TimeGenerated between ({TimeRange:start} .. {TimeRange:end})\r\n| extend Status = tostring(column_ifexists('Status',''))\r\n| extend ClosedTime = todatetime(column_ifexists('ClosedTime', datetime(null)))\r\n| extend IsClosed = (Status =~ 'Closed') or isnotnull(ClosedTime)\r\n| where IsClosed\r\n| extend Classification = tostring(column_ifexists('Classification',''))\r\n| where Classification in~ ('FalsePositive','TruePositive','BenignPositive','Undetermined')\r\n| extend AlertIds = todynamic(column_ifexists('AlertIds', dynamic([])))\r\n| mv-expand AlertId = AlertIds\r\n| project Classification, AlertId = tostring(AlertId);\r\nlet alerts = SecurityAlert\r\n| where TimeGenerated between ({TimeRange:start} .. {TimeRange:end})\r\n| extend AlertId = tostring(column_ifexists('SystemAlertId', column_ifexists('AlertId','')))\r\n| extend RuleName = tostring(column_ifexists('AlertName', column_ifexists('AlertType','Unknown')))\r\n| project AlertId, RuleName;\r\nincidents\r\n| join kind=leftouter (alerts) on AlertId\r\n| extend RuleName = iff(isempty(RuleName), 'Unknown', RuleName)\r\n| summarize TruePositives = countif(Classification =~ 'TruePositive') by RuleName\r\n| order by TruePositives desc\r\n| take 10\r\n| extend RulePortalSearchLink = strcat('https://portal.azure.com/#search/', url_encode(RuleName))",
+            "size": 0,
+            "title": "Top 10 rules by true positives",
+            "timeContextFromParameter": "TimeRange",
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces",
+            "gridSettings": {
+              "formatters": [
+                {
+                  "columnMatch": "RuleName",
+                  "formatter": 1,
+                  "formatOptions": {
+                    "linkColumn": "RulePortalSearchLink",
+                    "linkTarget": "Url"
+                  }
+                },
+                {
+                  "columnMatch": "RulePortalSearchLink",
+                  "formatter": 5
+                }
+              ],
+              "filter": true
+            }
+          },
+          "name": "query - 4"
+        },
+        {
+          "type": 3,
+          "content": {
+            "version": "KqlItem/1.0",
+            "query": "let alerts = SecurityAlert\r\n| where TimeGenerated between ({TimeRange:start} .. {TimeRange:end})\r\n| extend AlertId = tostring(column_ifexists('SystemAlertId', column_ifexists('AlertId','')))\r\n| extend RuleName = tostring(column_ifexists('AlertName', column_ifexists('AlertType','Unknown')))\r\n| where isnotempty(AlertId)\r\n| summarize TotalAlerts = dcount(AlertId) by RuleName;\r\nlet alertsInIncidents = SecurityIncident\r\n| where TimeGenerated between ({TimeRange:start} .. {TimeRange:end})\r\n| extend AlertIds = todynamic(column_ifexists('AlertIds', dynamic([])))\r\n| mv-expand AlertId = AlertIds\r\n| project AlertId = tostring(AlertId)\r\n| where isnotempty(AlertId)\r\n| join kind=leftouter (SecurityAlert\r\n    | where TimeGenerated between ({TimeRange:start} .. {TimeRange:end})\r\n    | extend AlertId = tostring(column_ifexists('SystemAlertId', column_ifexists('AlertId','')))\r\n    | extend RuleName = tostring(column_ifexists('AlertName', column_ifexists('AlertType','Unknown')))\r\n    | project AlertId, RuleName) on AlertId\r\n| summarize AlertsInIncidents = dcount(AlertId) by RuleName;\r\nalerts\r\n| join kind=leftouter (alertsInIncidents) on RuleName\r\n| extend AlertsInIncidents = toint(coalesce(AlertsInIncidents, 0))\r\n| extend ConversionRatePct = iff(TotalAlerts == 0, 0.0, todouble(AlertsInIncidents) * 100.0 / TotalAlerts)\r\n| order by ConversionRatePct desc\r\n| take 15",
+            "size": 0,
+            "title": "Alert-to-incident conversion rate (top rules)",
+            "timeContextFromParameter": "TimeRange",
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces",
+            "visualization": "barchart"
+          },
+          "name": "query - 5"
+        },
+        {
+          "type": 1,
+          "content": {
+            "json": "## Signal Quality Score (SQS) Analysis\n\nThis section expects an SQS value on alerts (commonly as a numeric column like `SQS` / `SignalQualityScore`, or inside `ExtendedProperties`). If your environment uses a different schema, adjust the extraction logic in these queries."
+          },
+          "name": "text - 4"
+        },
+        {
+          "type": 3,
+          "content": {
+            "version": "KqlItem/1.0",
+            "query": "let sqsThreshold = 0.2;\r\nSecurityAlert\r\n| where TimeGenerated between ({TimeRange:start} .. {TimeRange:end})\r\n| extend ExtendedProperties = todynamic(column_ifexists('ExtendedProperties', dynamic({})))\r\n| extend SQS = todouble(coalesce(ExtendedProperties.SignalQualityScore, ExtendedProperties.SQS, column_ifexists('SignalQualityScore', real(null)), column_ifexists('SQS', real(null))))\r\n| where isnotnull(SQS)\r\n| summarize Alerts = count() by bin(SQS, 0.05)\r\n| order by SQS asc",
+            "size": 0,
+            "title": "Histogram: SQS distribution (bin=0.05)",
+            "timeContextFromParameter": "TimeRange",
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces",
+            "visualization": "barchart"
+          },
+          "name": "query - 6"
+        },
+        {
+          "type": 3,
+          "content": {
+            "version": "KqlItem/1.0",
+            "query": "let alerts = SecurityAlert\r\n| where TimeGenerated between ({TimeRange:start} .. {TimeRange:end})\r\n| extend AlertId = tostring(column_ifexists('SystemAlertId', column_ifexists('AlertId','')))\r\n| extend ExtendedProperties = todynamic(column_ifexists('ExtendedProperties', dynamic({})))\r\n| extend SQS = todouble(coalesce(ExtendedProperties.SignalQualityScore, ExtendedProperties.SQS, column_ifexists('SignalQualityScore', real(null)), column_ifexists('SQS', real(null))))\r\n| where isnotempty(AlertId) and isnotnull(SQS)\r\n| extend ScoreBucket = bin(SQS, 0.1)\r\n| project AlertId, ScoreBucket;\r\nlet labels = SecurityIncident\r\n| where TimeGenerated between ({TimeRange:start} .. {TimeRange:end})\r\n| extend Status = tostring(column_ifexists('Status',''))\r\n| extend ClosedTime = todatetime(column_ifexists('ClosedTime', datetime(null)))\r\n| extend IsClosed = (Status =~ 'Closed') or isnotnull(ClosedTime)\r\n| where IsClosed\r\n| extend Classification = tostring(column_ifexists('Classification',''))\r\n| where Classification in~ ('TruePositive','FalsePositive')\r\n| extend AlertIds = todynamic(column_ifexists('AlertIds', dynamic([])))\r\n| mv-expand AlertId = AlertIds\r\n| extend AlertId = tostring(AlertId)\r\n| extend IsTP = iif(Classification =~ 'TruePositive', 1, 0)\r\n| summarize IsTP = max(IsTP) by AlertId;\r\nalerts\r\n| join kind=inner (labels) on AlertId\r\n| summarize ActualTPRate = avg(todouble(IsTP)) * 100.0, Samples = count() by ScoreBucket\r\n| order by ScoreBucket asc",
+            "size": 0,
+            "title": "Calibration curve: predicted SQS bucket vs actual TP rate",
+            "timeContextFromParameter": "TimeRange",
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces",
+            "visualization": "linechart",
+            "graphSettings": {
+              "type": 0
+            }
+          },
+          "name": "query - 7"
+        },
+        {
+          "type": 3,
+          "content": {
+            "version": "KqlItem/1.0",
+            "query": "SecurityAlert\r\n| where TimeGenerated between ({TimeRange:start} .. {TimeRange:end})\r\n| extend ExtendedProperties = todynamic(column_ifexists('ExtendedProperties', dynamic({})))\r\n| extend SQS = todouble(coalesce(ExtendedProperties.SignalQualityScore, ExtendedProperties.SQS, column_ifexists('SignalQualityScore', real(null)), column_ifexists('SQS', real(null))))\r\n| where isnotnull(SQS)\r\n| summarize AvgSQS = avg(SQS) by bin(TimeGenerated, 1d)\r\n| order by TimeGenerated asc",
+            "size": 0,
+            "title": "Trend: average SQS over time",
+            "timeContextFromParameter": "TimeRange",
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces",
+            "visualization": "timechart"
+          },
+          "name": "query - 8"
+        },
+        {
+          "type": 1,
+          "content": {
+            "json": "## Model Feedback & Suppression Metrics\n\n- Text panel: model update info (fill in from your ML pipeline)\n- Alerts auto-suppressed by SQS (SQS < 0.2)\n- Suppressed vs total alerts trend"
+          },
+          "name": "text - 5"
+        },
+        {
+          "type": 1,
+          "content": {
+            "json": "**Model status**\n\n- Last model update: _wire this to your model pipeline output_\n- Accuracy: _wire this to your evaluation output_\n- Next recalibration: _wire this to your schedule_"
+          },
+          "name": "text - 6"
+        },
+        {
+          "type": 3,
+          "content": {
+            "version": "KqlItem/1.0",
+            "query": "let sqsThreshold = 0.2;\r\nSecurityAlert\r\n| where TimeGenerated between ({TimeRange:start} .. {TimeRange:end})\r\n| extend ExtendedProperties = todynamic(column_ifexists('ExtendedProperties', dynamic({})))\r\n| extend SQS = todouble(coalesce(ExtendedProperties.SignalQualityScore, ExtendedProperties.SQS, column_ifexists('SignalQualityScore', real(null)), column_ifexists('SQS', real(null))))\r\n| where isnotnull(SQS) and SQS < sqsThreshold\r\n| project TimeGenerated, AlertName = tostring(column_ifexists('AlertName', column_ifexists('AlertType','Unknown'))), Severity = tostring(column_ifexists('AlertSeverity','')), SQS\r\n| order by TimeGenerated desc\r\n| take 200",
+            "size": 0,
+            "title": "Alerts auto-suppressed by SQS (SQS < 0.2)",
+            "timeContextFromParameter": "TimeRange",
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces",
+            "gridSettings": {
+              "filter": true
+            }
+          },
+          "name": "query - 9"
+        },
+        {
+          "type": 3,
+          "content": {
+            "version": "KqlItem/1.0",
+            "query": "let sqsThreshold = 0.2;\r\nlet data = SecurityAlert\r\n| where TimeGenerated between ({TimeRange:start} .. {TimeRange:end})\r\n| extend ExtendedProperties = todynamic(column_ifexists('ExtendedProperties', dynamic({})))\r\n| extend SQS = todouble(coalesce(ExtendedProperties.SignalQualityScore, ExtendedProperties.SQS, column_ifexists('SignalQualityScore', real(null)), column_ifexists('SQS', real(null))))\r\n| project TimeGenerated, IsSuppressed = iif(isnotnull(SQS) and SQS < sqsThreshold, 1, 0);\r\ndata\r\n| summarize TotalAlerts = count(), SuppressedAlerts = sum(IsSuppressed) by bin(TimeGenerated, 1d)\r\n| order by TimeGenerated asc",
+            "size": 0,
+            "title": "Suppressed alerts vs total alerts (daily)",
+            "timeContextFromParameter": "TimeRange",
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces",
+            "visualization": "timechart"
+          },
+          "name": "query - 10"
+        },
+        {
+          "type": 1,
+          "content": {
+            "json": "## Time-Based Trends\n\n- False Positive Rate trend\n- MTTT and MTTR trends\n- Incident volume by classification"
+          },
+          "name": "text - 7"
+        },
+        {
+          "type": 3,
+          "content": {
+            "version": "KqlItem/1.0",
+            "query": "let closed = SecurityIncident\r\n| where TimeGenerated between ({TimeRange:start} .. {TimeRange:end})\r\n| extend Status = tostring(column_ifexists('Status',''))\r\n| extend CreatedTime = todatetime(column_ifexists('CreatedTime', TimeGenerated))\r\n| extend ClosedTime = todatetime(column_ifexists('ClosedTime', datetime(null)))\r\n| extend IsClosed = (Status =~ 'Closed') or isnotnull(ClosedTime)\r\n| where IsClosed\r\n| extend Classification = tostring(column_ifexists('Classification',''))\r\n| project CreatedTime, Classification;\r\nclosed\r\n| summarize ClosedIncidents = count(), FalsePositives = countif(Classification =~ 'FalsePositive') by bin(CreatedTime, 7d)\r\n| extend FPRPct = iff(ClosedIncidents == 0, 0.0, todouble(FalsePositives) * 100.0 / ClosedIncidents)\r\n| project CreatedTime, FPRPct\r\n| order by CreatedTime asc",
+            "size": 0,
+            "title": "False Positive Rate trend (weekly)",
+            "timeContextFromParameter": "TimeRange",
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces",
+            "visualization": "timechart"
+          },
+          "name": "query - 11"
+        },
+        {
+          "type": 3,
+          "content": {
+            "version": "KqlItem/1.0",
+            "query": "let closed = SecurityIncident\r\n| where TimeGenerated between ({TimeRange:start} .. {TimeRange:end})\r\n| extend Status = tostring(column_ifexists('Status',''))\r\n| extend CreatedTime = todatetime(column_ifexists('CreatedTime', TimeGenerated))\r\n| extend ClosedTime = todatetime(column_ifexists('ClosedTime', datetime(null)))\r\n| extend FirstModifiedTime = todatetime(column_ifexists('FirstModifiedTime', datetime(null)))\r\n| extend LastModifiedTime = todatetime(column_ifexists('LastModifiedTime', datetime(null)))\r\n| extend IsClosed = (Status =~ 'Closed') or isnotnull(ClosedTime)\r\n| where IsClosed\r\n| extend TriageTimeMinutes = datetime_diff('minute', coalesce(FirstModifiedTime, LastModifiedTime, ClosedTime, now()), CreatedTime)\r\n| extend ResolutionTimeMinutes = datetime_diff('minute', coalesce(ClosedTime, now()), CreatedTime)\r\n| project CreatedTime, TriageTimeMinutes, ResolutionTimeMinutes;\r\nclosed\r\n| summarize MTTT = avg(TriageTimeMinutes), MTTR = avg(ResolutionTimeMinutes) by bin(CreatedTime, 7d)\r\n| order by CreatedTime asc",
+            "size": 0,
+            "title": "MTTT and MTTR trends (weekly)",
+            "timeContextFromParameter": "TimeRange",
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces",
+            "visualization": "timechart"
+          },
+          "name": "query - 12"
+        },
+        {
+          "type": 3,
+          "content": {
+            "version": "KqlItem/1.0",
+            "query": "SecurityIncident\r\n| where TimeGenerated between ({TimeRange:start} .. {TimeRange:end})\r\n| extend Status = tostring(column_ifexists('Status',''))\r\n| extend CreatedTime = todatetime(column_ifexists('CreatedTime', TimeGenerated))\r\n| extend ClosedTime = todatetime(column_ifexists('ClosedTime', datetime(null)))\r\n| extend IsClosed = (Status =~ 'Closed') or isnotnull(ClosedTime)\r\n| where IsClosed\r\n| extend Classification = tostring(column_ifexists('Classification',''))\r\n| extend Classification = iff(isempty(Classification), 'Unclassified', Classification)\r\n| summarize Incidents = count() by bin(CreatedTime, 7d), Classification\r\n| order by CreatedTime asc",
+            "size": 0,
+            "title": "Incident volume by classification (weekly)",
+            "timeContextFromParameter": "TimeRange",
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces",
+            "visualization": "timechart"
+          },
+          "name": "query - 13"
+        },
+        {
+          "type": 1,
+          "content": {
+            "json": "## Analyst Feedback Loop\n\n- Incidents closed without classification\n- Classification reasons\n- False positives by classification reason"
+          },
+          "name": "text - 8"
+        },
+        {
+          "type": 3,
+          "content": {
+            "version": "KqlItem/1.0",
+            "query": "SecurityIncident\r\n| where TimeGenerated between ({TimeRange:start} .. {TimeRange:end})\r\n| extend Status = tostring(column_ifexists('Status',''))\r\n| extend CreatedTime = todatetime(column_ifexists('CreatedTime', TimeGenerated))\r\n| extend ClosedTime = todatetime(column_ifexists('ClosedTime', datetime(null)))\r\n| extend IsClosed = (Status =~ 'Closed') or isnotnull(ClosedTime)\r\n| where IsClosed\r\n| extend Title = tostring(column_ifexists('Title',''))\r\n| extend Classification = tostring(column_ifexists('Classification',''))\r\n| where isempty(Classification)\r\n| extend IncidentResourceId = tostring(column_ifexists('ResourceId',''))\r\n| extend IncidentPortalLink = iff(isempty(IncidentResourceId), '', strcat('https://portal.azure.com/#resource', IncidentResourceId))\r\n| project CreatedTime, ClosedTime, Title, IncidentPortalLink\r\n| order by ClosedTime desc\r\n| take 200",
+            "size": 0,
+            "title": "Closed incidents missing classification",
+            "timeContextFromParameter": "TimeRange",
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces",
+            "gridSettings": {
+              "formatters": [
+                {
+                  "columnMatch": "Title",
+                  "formatter": 1,
+                  "formatOptions": {
+                    "linkColumn": "IncidentPortalLink",
+                    "linkTarget": "Url"
+                  }
+                },
+                {
+                  "columnMatch": "IncidentPortalLink",
+                  "formatter": 5
+                }
+              ],
+              "filter": true
+            }
+          },
+          "name": "query - 14"
+        },
+        {
+          "type": 3,
+          "content": {
+            "version": "KqlItem/1.0",
+            "query": "SecurityIncident\r\n| where TimeGenerated between ({TimeRange:start} .. {TimeRange:end})\r\n| extend Status = tostring(column_ifexists('Status',''))\r\n| extend ClosedTime = todatetime(column_ifexists('ClosedTime', datetime(null)))\r\n| extend IsClosed = (Status =~ 'Closed') or isnotnull(ClosedTime)\r\n| where IsClosed\r\n| extend Reason = tostring(column_ifexists('ClassificationReason',''))\r\n| extend Reason = iff(isempty(Reason), 'Unspecified', Reason)\r\n| summarize Incidents = count() by Reason\r\n| order by Incidents desc",
+            "size": 0,
+            "title": "Classification reasons (closed incidents)",
+            "timeContextFromParameter": "TimeRange",
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces",
+            "gridSettings": {
+              "filter": true
+            }
+          },
+          "customWidth": "50",
+          "name": "query - 15"
+        },
+        {
+          "type": 3,
+          "content": {
+            "version": "KqlItem/1.0",
+            "query": "SecurityIncident\r\n| where TimeGenerated between ({TimeRange:start} .. {TimeRange:end})\r\n| extend Status = tostring(column_ifexists('Status',''))\r\n| extend ClosedTime = todatetime(column_ifexists('ClosedTime', datetime(null)))\r\n| extend IsClosed = (Status =~ 'Closed') or isnotnull(ClosedTime)\r\n| where IsClosed\r\n| extend Classification = tostring(column_ifexists('Classification',''))\r\n| where Classification =~ 'FalsePositive'\r\n| extend Reason = tostring(column_ifexists('ClassificationReason',''))\r\n| extend Reason = iff(isempty(Reason), 'Unspecified', Reason)\r\n| summarize FalsePositives = count() by Reason\r\n| order by FalsePositives desc",
+            "size": 0,
+            "title": "False positives by classification reason",
+            "timeContextFromParameter": "TimeRange",
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces",
+            "visualization": "barchart"
+          },
+          "customWidth": "50",
+          "name": "query - 16"
+        },
+        {
+          "type": 1,
+          "content": {
+            "json": "## Tuning Priorities\n\nAuto-flag rules with FP rate > 50% and FP count > 20."
+          },
+          "name": "text - 9"
+        },
+        {
+          "type": 3,
+          "content": {
+            "version": "KqlItem/1.0",
+            "query": "let incidents = SecurityIncident\r\n| where TimeGenerated between ({TimeRange:start} .. {TimeRange:end})\r\n| extend Status = tostring(column_ifexists('Status',''))\r\n| extend ClosedTime = todatetime(column_ifexists('ClosedTime', datetime(null)))\r\n| extend IsClosed = (Status =~ 'Closed') or isnotnull(ClosedTime)\r\n| where IsClosed\r\n| extend Classification = tostring(column_ifexists('Classification',''))\r\n| where Classification in~ ('FalsePositive','TruePositive')\r\n| extend AlertIds = todynamic(column_ifexists('AlertIds', dynamic([])))\r\n| mv-expand AlertId = AlertIds\r\n| project Classification, AlertId = tostring(AlertId);\r\nlet alerts = SecurityAlert\r\n| where TimeGenerated between ({TimeRange:start} .. {TimeRange:end})\r\n| extend AlertId = tostring(column_ifexists('SystemAlertId', column_ifexists('AlertId','')))\r\n| extend RuleName = tostring(column_ifexists('AlertName', column_ifexists('AlertType','Unknown')))\r\n| project AlertId, RuleName;\r\nincidents\r\n| join kind=leftouter (alerts) on AlertId\r\n| extend RuleName = iff(isempty(RuleName), 'Unknown', RuleName)\r\n| summarize FP = countif(Classification =~ 'FalsePositive'), TP = countif(Classification =~ 'TruePositive'), Total = count() by RuleName\r\n| extend FPRate = iff(Total == 0, 0.0, todouble(FP) / Total)\r\n| where FP > 20 and FPRate > 0.5\r\n| extend FPRatePct = FPRate * 100.0\r\n| extend RulePortalSearchLink = strcat('https://portal.azure.com/#search/', url_encode(RuleName))\r\n| project RuleName, FP, TP, Total, FPRatePct, RulePortalSearchLink\r\n| order by FPRatePct desc, FP desc",
+            "size": 0,
+            "title": "Rules flagged for tuning",
+            "timeContextFromParameter": "TimeRange",
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces",
+            "gridSettings": {
+              "formatters": [
+                {
+                  "columnMatch": "RuleName",
+                  "formatter": 1,
+                  "formatOptions": {
+                    "linkColumn": "RulePortalSearchLink",
+                    "linkTarget": "Url"
+                  }
+                },
+                {
+                  "columnMatch": "RulePortalSearchLink",
+                  "formatter": 5
+                }
+              ],
+              "filter": true
+            }
+          },
+          "name": "query - 17"
+        },
+        {
+          "type": 1,
+          "content": {
+            "json": "**Suggested actions**\n\n- Add entity allow-lists / known-good exclusions for top FP rules\n- Reduce noisy rule scopes (limit to high-confidence users/devices/hosts)\n- Add suppression or automation rules for low-SQS alerts (e.g., SQS < 0.2)\n- Track FP reasons and incorporate into rule logic and model recalibration"
+          },
+          "name": "text - 10"
+        }
+      ]
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "2022-04-01",
+      "properties": {
+        "displayName": "[parameters('workbookDisplayName')]",
+        "category": "Sentinel",
+        "serializedData": "[string(variables('workbookDefinition'))]",
+        "version": "Notebook/1.0",
+        "sourceId": "[parameters('workspaceResourceId')]"
+      },
+      "name": "[parameters('workbookName')]",
+      "kind": "shared",
+      "type": "Microsoft.Insights/workbooks",
+      "location": "[parameters('location')]"
+    }
+  ],
+  "outputs": {
+    "workbookResourceId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Insights/workbooks', parameters('workbookName'))]"
+    }
+  }
+}

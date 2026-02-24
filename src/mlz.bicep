@@ -140,6 +140,100 @@ param deployPolicy bool = false
 @description('When set to "true", enables Microsoft Sentinel within the Log Analytics Workspace created in this deployment. Default value = "false".')
 param deploySentinel bool = false
 
+@description('Toggle to deploy Content Hub analytic rules as active scheduled rules when Sentinel is enabled.')
+param deployAnalyticRules bool = true
+
+@description('URL to the analytic rules manifest JSON file containing the rules to deploy.')
+param analyticRulesManifestUrl string = 'https://raw.githubusercontent.com/Azure/missionlz/main/sentinel/analytic-rules-manifest.json'
+
+@description('Toggle to configure the Microsoft Sentinel Entity Behavior Analytics setting for Microsoft Entra ID signals.')
+param enableEntityBehavior bool = true
+
+@description('Skip provisioning the Entity Behavior Analytics setting when it already exists to avoid concurrency conflicts.')
+param deployEntityBehaviorSetting bool = true
+
+@description('Use the deployment script to upsert Entity Behavior settings. Set to false to use native Bicep resource (recommended for new deployments).')
+param useEntityBehaviorScript bool = false
+
+@description('Toggle to configure UEBA data sources so fusion models have full context.')
+param enableUeba bool = true
+
+@description('Skip provisioning the UEBA setting when it already exists to avoid concurrency conflicts.')
+param deployUebaSetting bool = true
+
+@description('Use the deployment script to upsert UEBA. Set to false to use native Bicep resource (recommended for new deployments).')
+param useUebaScript bool = false
+
+@description('Data sources that enrich UEBA insights.')
+param uebaDataSources array = [
+  'SigninLogs'
+  'AuditLogs'
+  'AzureActivity'
+]
+
+@description('Toggle to ensure Microsoft Sentinel anomaly detection remains enabled.')
+param enableAnomalies bool = true
+
+@description('Toggle to configure Azure Activity ingestion for Microsoft Sentinel by deploying Activity Log diagnostic settings to the Log Analytics workspace.')
+param enableAzureActivityDataConnector bool = true
+
+@description('Toggle to deploy and configure the Microsoft Entra ID data connector for Microsoft Sentinel.')
+param enableEntraIdDataConnector bool = true
+
+@description('Toggle to run the built-in script that discovers and assigns the Sentinel automation service principal. Disable when you will configure automation access separately.')
+param deploySentinelAutomationScript bool = true
+
+@description('Object ID of the Azure Security Insights service principal so Sentinel automation can run playbooks in the operations resource group.')
+param sentinelAutomationPrincipalId string = ''
+
+@description('Desired state for each Microsoft Entra ID log type exposed by the Microsoft Sentinel data connector.')
+param entraDataConnectorLogStates object = {
+  SignInLogs: 'Enabled'
+  AuditLogs: 'Enabled'
+  NonInteractiveUserSignInLogs: 'Enabled'
+  ServicePrincipalSignInLogs: 'Enabled'
+  ManagedIdentitySignInLogs: 'Enabled'
+  ProvisioningLogs: 'Enabled'
+  ADFSSignInLogs: 'Enabled'
+  UserRiskEvents: 'Enabled'
+  RiskyUsers: 'Enabled'
+  RiskyServicePrincipals: 'Enabled'
+  alerts: 'Enabled'
+}
+
+@description('Toggle to configure Microsoft Entra ID diagnostic settings.')
+param enableEntraDiagnostics bool = true
+
+@description('Name of the Microsoft Entra ID diagnostic setting.')
+param entraDiagnosticName string = 'diag-entra'
+
+@description('Log categories to enable for Microsoft Entra ID diagnostics.')
+param entraLogCategories array = [
+  'AuditLogs'
+  'SignInLogs'
+  'NonInteractiveUserSignInLogs'
+  'ServicePrincipalSignInLogs'
+  'ManagedIdentitySignInLogs'
+  'ProvisioningLogs'
+  'ADFSSignInLogs'
+  'RiskyUsers'
+  'RiskyServicePrincipals'
+  'UserRiskEvents'
+  'ServicePrincipalRiskEvents'
+]
+
+@description('Display name assigned to the Azure Activity workbook that deploys with the Microsoft Sentinel content package.')
+param azureActivityWorkbookName string = 'Azure Activity'
+
+@description('Display name assigned to the Azure Service Health workbook that deploys with the Microsoft Sentinel content package.')
+param azureServiceHealthWorkbookName string = 'Azure Service Health Workbook'
+
+@description('Display name assigned to the Microsoft Entra ID audit workbook that deploys with the Microsoft Sentinel content package.')
+param entraAuditWorkbookName string = 'Microsoft Entra ID Audit logs'
+
+@description('Display name assigned to the Microsoft Entra ID sign-in workbook that deploys with the Microsoft Sentinel content package.')
+param entraSigninWorkbookName string = 'Microsoft Entra ID Sign-in logs'
+
 @description('When set to "true", provisions Windows Virtual Machine Host only. Default value = "false".')
 param deployWindowsVirtualMachine bool = false
 
@@ -675,6 +769,7 @@ param windowsVmSize string = 'Standard_DS1_v2'
 @description('The storage account type of the Windows Virtual Machine for remote access. Default value = "StandardSSD_LRS".')
 param windowsVmStorageAccountType string = 'StandardSSD_LRS'
 
+var deploymentTenantId = tenant().tenantId
 var firewallClientPrivateIpAddress = firewallClientUsableIpAddresses[3]
 var firewallClientUsableIpAddresses = [for i in range(0, 4): cidrHost(firewallClientSubnetAddressPrefix, i)]
 
@@ -983,23 +1078,80 @@ module networking 'modules/networking.bicep' = {
 
 // MONITORING
 
+var operationsTier = filter(networking.outputs.tiers, tier => tier.name == 'operations')[0]
+
 module monitoring 'modules/monitoring.bicep' = {
   name: 'deploy-monitoring-${deploymentNameSuffix}'
   scope: subscription(operationsSubscriptionId)
   params: {
-    delimiter: networking.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
     deploySentinel: deploySentinel
+    deployAnalyticRules: deployAnalyticRules
+    analyticRulesManifestUrl: analyticRulesManifestUrl
+    enableEntityBehavior: enableEntityBehavior
+    deployEntityBehaviorSetting: deployEntityBehaviorSetting
+    useEntityBehaviorScript: useEntityBehaviorScript
+    enableUeba: enableUeba
+    deployUebaSetting: deployUebaSetting
+    useUebaScript: useUebaScript
+    uebaDataSources: uebaDataSources
+    enableAnomalies: enableAnomalies
+    deploySentinelAutomationScript: deploySentinelAutomationScript
+    enableEntraDiagnostics: enableEntraDiagnostics
+    entraDiagnosticName: entraDiagnosticName
+    entraLogCategories: entraLogCategories
+    enableEntraIdDataConnector: enableEntraIdDataConnector
+    enableAzureActivityDataConnector: enableAzureActivityDataConnector
+    entraConnectorDataTypeStates: entraDataConnectorLogStates
+    sentinelAutomationPrincipalId: sentinelAutomationPrincipalId
     location: location
     logAnalyticsWorkspaceCappingDailyQuotaGb: logAnalyticsWorkspaceCappingDailyQuotaGb
     logAnalyticsWorkspaceRetentionInDays: logAnalyticsWorkspaceRetentionInDays
     logAnalyticsWorkspaceSkuName: logAnalyticsWorkspaceSkuName
     privateDnsZoneResourceIds: networking.outputs.privateDnsZoneResourceIds
     mlzTags: networking.outputs.mlzTags
+    tenantId: deploymentTenantId
     tags: tags
-    tier: filter(networking.outputs.tiers, tier => tier.name == 'operations')[0]
-    tokens: networking.outputs.tokens
+    tier: operationsTier
   }
+}
+
+module sentinelContent 'modules/sentinel-content.bicep' = if (deploySentinel) {
+  name: 'deploy-sentinel-content-${deploymentNameSuffix}'
+  scope: subscription(operationsSubscriptionId)
+  params: {
+    deploymentNameSuffix: deploymentNameSuffix
+    workspaceName: operationsTier.namingConvention.logAnalyticsWorkspace
+    workspaceLocation: location
+    workspaceResourceGroupName: operationsTier.resourceGroupName
+    workspaceSubscriptionId: operationsSubscriptionId
+    azureActivityWorkbookName: azureActivityWorkbookName
+    azureServiceHealthWorkbookName: azureServiceHealthWorkbookName
+    entraAuditWorkbookName: entraAuditWorkbookName
+    entraSigninWorkbookName: entraSigninWorkbookName
+  }
+  dependsOn: [
+    monitoring
+  ]
+}
+
+module sentinelWorkbooks 'modules/sentinel-workbooks.bicep' = if (deploySentinel) {
+  name: 'deploy-sentinel-workbooks-${deploymentNameSuffix}'
+  scope: subscription(operationsSubscriptionId)
+  params: {
+    workspaceName: operationsTier.namingConvention.logAnalyticsWorkspace
+    location: location
+    workspaceResourceGroupName: operationsTier.resourceGroupName
+    workspaceSubscriptionId: operationsSubscriptionId
+    azureActivityWorkbookName: azureActivityWorkbookName
+    azureServiceHealthWorkbookName: azureServiceHealthWorkbookName
+    entraAuditWorkbookName: entraAuditWorkbookName
+    entraSigninWorkbookName: entraSigninWorkbookName
+  }
+  dependsOn: [
+    monitoring
+    sentinelContent
+  ]
 }
 
 // ACTIVE DIRECTORY DOMAIN SERVICES
