@@ -2,34 +2,6 @@
 $Settings = @(
 
     [PSCustomObject]@{
-        Name = 'NoAutoUpdate'
-        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU'
-        PropertyType = 'DWord'
-        Value = 1
-    },
-
-    [PSCustomObject]@{
-        Name = 'fEnableTimeZoneRedirection'
-        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services'
-        PropertyType = 'DWord'
-        Value = 1
-    },
-
-    [PSCustomObject]@{
-        Name = 'AVC444ModePreferred'
-        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services'
-        PropertyType = 'DWord'
-        Value = 1
-    }
-
-    [PSCustomObject]@{
-        Name = 'AVCHardwareEncodePreferred'
-        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services'
-        PropertyType = 'DWord'
-        Value = 1
-    },
-
-    [PSCustomObject]@{
         Name = 'bEnumerateHWBeforeSW'
         Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services'
         PropertyType = 'DWord'
@@ -51,14 +23,14 @@ $Settings = @(
     },
 
     [PSCustomObject]@{
-        Name = 'fEnableConnectionIntervalGraphicsData'
+        Name = 'fEnableTimeZoneRedirection'
         Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services'
         PropertyType = 'DWord'
         Value = 1
     },
 
     [PSCustomObject]@{
-        Name = 'HEVCHardwareEncodePreferred'
+        Name = 'fEnableConnectionIntervalGraphicsData'
         Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services'
         PropertyType = 'DWord'
         Value = 1
@@ -71,6 +43,34 @@ $Settings = @(
         Value = 2
     }
 )
+
+$GPU = Get-WmiObject Win32_VideoController | Where-Object {$_.Name -like "*AMD*" -or $_.Name -like "*NVIDIA*"}
+if ($GPU.Name -like "*NVIDIA*")
+{
+    $Settings += @(
+
+        [PSCustomObject]@{
+            Name = 'AVC444ModePreferred'
+            Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services'
+            PropertyType = 'DWord'
+            Value = 1
+        },
+
+        [PSCustomObject]@{
+            Name = 'AVCHardwareEncodePreferred'
+            Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services'
+            PropertyType = 'DWord'
+            Value = 1
+        },
+
+        [PSCustomObject]@{
+            Name = 'HEVCHardwareEncodePreferred'
+            Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services'
+            PropertyType = 'DWord'
+            Value = 1
+        }
+    )
+}
 
 foreach($Setting in $Settings)
 {

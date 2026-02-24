@@ -41,26 +41,10 @@ $Settings = @(
 )
 
 
-# Add GPU Settings
+# AMD & NVIDIA GPU settings
 if ($AmdVmSize -eq 'true' -or $NvidiaVmSize -eq 'true') 
 {
     $Settings += @(
-
-        # GPU-accelerated remote frame encoding using H.264/AVC: Prioritize H.264/AVC 444 graphics mode for Remote Desktop Connections - https://learn.microsoft.com/azure/virtual-desktop/graphics-enable-gpu-acceleration?tabs=group-policy#enable-gpu-accelerated-application-rendering-and-remote-frame-encoding
-        [PSCustomObject]@{
-            Name = 'AVC444ModePreferred'
-            Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services'
-            PropertyType = 'DWord'
-            Value = 1
-        }
-
-        # GPU-accelerated remote frame encoding using H.264/AVC: Configure H.264/AVC hardware encoding for Remote Desktop Connections - https://learn.microsoft.com/azure/virtual-desktop/graphics-enable-gpu-acceleration?tabs=group-policy#enable-gpu-accelerated-application-rendering-and-remote-frame-encoding
-        [PSCustomObject]@{
-            Name = 'AVCHardwareEncodePreferred'
-            Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services'
-            PropertyType = 'DWord'
-            Value = 1
-        },
 
         # GPU-accelerated application rendering: Use hardware graphics adapters for all RDS sessions - https://learn.microsoft.com/azure/virtual-desktop/graphics-enable-gpu-acceleration?tabs=group-policy#enable-gpu-accelerated-application-rendering-and-remote-frame-encoding
         [PSCustomObject]@{
@@ -94,20 +78,43 @@ if ($AmdVmSize -eq 'true' -or $NvidiaVmSize -eq 'true')
             Value = 1
         },
 
-        # GPU-accelerated remote frame encoding using H.265/HEVC: Configure H.265/HEVC hardware encoding for Remote Desktop Connections - https://learn.microsoft.com/azure/virtual-desktop/graphics-enable-gpu-acceleration?tabs=group-policy#enable-gpu-accelerated-application-rendering-and-remote-frame-encoding
-        [PSCustomObject]@{
-            Name = 'HEVCHardwareEncodePreferred'
-            Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services'
-            PropertyType = 'DWord'
-            Value = 1
-        },
-
         # Increase Chroma value to 4:4:4 for RDP sessions using AVC: Configure image quality for RemoteFX Adaptive Graphics - https://learn.microsoft.com/azure/virtual-desktop/graphics-chroma-value-increase-4-4-4?tabs=group-policy
         [PSCustomObject]@{
             Name = 'ImageQuality'
             Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services'
             PropertyType = 'DWord'
             Value = 2
+        }
+    )
+}
+
+# NVIDIA GPUs settings
+if ($NvidiaVmSize -eq 'true') 
+{
+    $Settings += @(
+
+        # GPU-accelerated remote frame encoding using H.264/AVC: Prioritize H.264/AVC 444 graphics mode for Remote Desktop Connections - https://learn.microsoft.com/azure/virtual-desktop/graphics-enable-gpu-acceleration?tabs=group-policy#enable-gpu-accelerated-application-rendering-and-remote-frame-encoding
+        [PSCustomObject]@{
+            Name = 'AVC444ModePreferred'
+            Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services'
+            PropertyType = 'DWord'
+            Value = 1
+        }
+
+        # GPU-accelerated remote frame encoding using H.264/AVC: Configure H.264/AVC hardware encoding for Remote Desktop Connections - https://learn.microsoft.com/azure/virtual-desktop/graphics-enable-gpu-acceleration?tabs=group-policy#enable-gpu-accelerated-application-rendering-and-remote-frame-encoding
+        [PSCustomObject]@{
+            Name = 'AVCHardwareEncodePreferred'
+            Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services'
+            PropertyType = 'DWord'
+            Value = 1
+        },
+
+        # GPU-accelerated remote frame encoding using H.265/HEVC: Configure H.265/HEVC hardware encoding for Remote Desktop Connections - https://learn.microsoft.com/azure/virtual-desktop/graphics-enable-gpu-acceleration?tabs=group-policy#enable-gpu-accelerated-application-rendering-and-remote-frame-encoding
+        [PSCustomObject]@{
+            Name = 'HEVCHardwareEncodePreferred'
+            Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services'
+            PropertyType = 'DWord'
+            Value = 1
         }
     )
 }
