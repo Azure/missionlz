@@ -840,11 +840,12 @@
                   "label": "Size",
                   "toolTip": "Select the size of the virtual machines. Single session hosts should have 2 or more vCPUs.",
                   "recommendedSizes": [
-                    "Standard_NV4as_v4",
-                    "Standard_NV8as_v4"
+                    "Standard_NV4ads_V710_v5"
                   ],
                   "constraints": {
                     "allowedSizes": [
+                      "Standard_NV4ads_V710_v5",
+                      "Standard_NV8ads_V710_v5",
                       "Standard_NV4as_v4",
                       "Standard_NV8as_v4"
                     ],
@@ -872,18 +873,16 @@
                   "label": "Size",
                   "toolTip": "Select the size of the virtual machines. Single session hosts should have 2 or more vCPUs.",
                   "recommendedSizes": [
-                    "Standard_NC4as_T4_v3",
-                    "Standard_NC8as_T4_v3",
-                    "Standard_NV6ads_A10_v5",
-                    "Standard_NV16as_v4"
+                    "Standard_NV12ads_V710_v5"
                   ],
                   "constraints": {
                     "allowedSizes": [
+                      "Standard_NV12ads_V710_v5",
+                      "Standard_NV6ads_A10_v5",
                       "Standard_NC4as_T4_v3",
                       "Standard_NC8as_T4_v3",
-                      "Standard_NV6ads_A10_v5",
-                      "Standard_NV12s_v3",
-                      "Standard_NV16as_v4"
+                      "Standard_NV16as_v4",
+                      "Standard_NV12s_v3"
                     ],
                     "numAvailabilityZonesRequired": "[if(equals(steps('hosts').virtualMachines.availability, 'AvailabilityZones'), 3, 1)]"
                   },
@@ -909,15 +908,15 @@
                   "label": "Size",
                   "toolTip": "Select the size of the virtual machines. Single session hosts should have 2 or more vCPUs.",
                   "recommendedSizes": [
-                    "Standard_NC16as_T4_v3",
-                    "Standard_NV12ads_A10_v5",
-                    "Standard_NV18ads_A10_v5"
+                    "Standard_NV24ads_V710_v5"
                   ],
                   "constraints": {
                     "allowedSizes": [
-                      "Standard_NC16as_T4_v3",
+                      "Standard_NV24ads_V710_v5",
+                      "Standard_NV28adms_V710_v5",
                       "Standard_NV12ads_A10_v5",
                       "Standard_NV18ads_A10_v5",
+                      "Standard_NC16as_T4_v3",
                       "Standard_NV24s_v3"
                     ],
                     "numAvailabilityZonesRequired": "[if(equals(steps('hosts').virtualMachines.availability, 'AvailabilityZones'), 3, 1)]"
