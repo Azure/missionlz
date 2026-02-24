@@ -59,7 +59,7 @@ if ($AmdVmSize -eq 'true' -or $NvidiaVmSize -eq 'true')
             Name = 'DisplayRefreshRate'
             Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations'
             PropertyType = 'DWord'
-            Value = 60
+            Value = '0x60'
         },
 
         # Configure DWM frame interval: https://learn.microsoft.com/troubleshoot/windows-server/remote/frame-rate-limited-to-30-fps

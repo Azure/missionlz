@@ -12,7 +12,7 @@ $Settings = @(
         Name = 'DisplayRefreshRate'
         Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations'
         PropertyType = 'DWord'
-        Value = 60
+        Value = '0x60'
     },
 
     [PSCustomObject]@{
