@@ -1,0 +1,98 @@
+id: 6b6e8b03-33c3-4c2a-b3a9-6f8e8b5c7c61
+name: NSG inbound allow from Internet to management ports
+kind: Scheduled
+description: |
+  'Detects creation or update of a Network Security Group (NSG) security rule that allows inbound access from the Internet (or any source) to common management ports. This is frequently a misconfiguration that enables initial access via exposed services.'
+severity: High
+status: Available
+requiredDataConnectors:
+  - connectorId: AzureActivity
+    dataTypes:
+      - AzureActivity
+queryFrequency: 15m
+queryPeriod: 15m
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - InitialAccess
+relevantTechniques:
+  - T1133
+query: |
+  let queryFrequency = 15m;
+  let mgmtPorts = dynamic(["22","3389","5985","5986","1433","3306","5432"]);
+  AzureActivity
+  | where ingestion_time() > ago(queryFrequency)
+  | where ActivityStatusValue =~ "Success"
+  | where tolower(OperationNameValue) has "microsoft.network/networksecuritygroups" and tolower(OperationNameValue) endswith "/securityrules/write"
+  | extend requestBody = tostring(parse_json(Properties).requestbody)
+  | extend request = parse_json(requestBody)
+  | extend ruleProps = coalesce(request.properties, request.Properties)
+  | extend Access = tostring(ruleProps.access), Direction = tostring(ruleProps.direction), Protocol = tostring(ruleProps.protocol)
+  | extend SourcePrefix = tostring(ruleProps.sourceAddressPrefix), SourcePrefixes = tostring(ruleProps.sourceAddressPrefixes)
+  | extend DestinationPrefix = tostring(ruleProps.destinationAddressPrefix), DestinationPrefixes = tostring(ruleProps.destinationAddressPrefixes)
+  | extend DestinationPort = tostring(ruleProps.destinationPortRange), DestinationPorts = tostring(ruleProps.destinationPortRanges)
+  | extend DestPortsCombined = iff(isnotempty(DestinationPorts), DestinationPorts, DestinationPort)
+  | extend SrcAny = (SourcePrefix in~ ("*", "Internet", "0.0.0.0/0", "::/0"))
+      or (SourcePrefixes has "0.0.0.0/0") or (SourcePrefixes has "\"Internet\"") or (SourcePrefixes has "*")
+  | extend IsWidePort = DestPortsCombined == "*" or DestPortsCombined has "1-65535" or DestPortsCombined has "0-65535"
+  | extend IsMgmtPort = DestPortsCombined has_any (mgmtPorts)
+  | where Direction =~ "Inbound" and Access =~ "Allow" and SrcAny and (IsWidePort or IsMgmtPort)
+  | extend Name = tostring(split(Caller,'@',0)[0]), UPNSuffix = tostring(split(Caller,'@',1)[0])
+  | project
+      TimeGenerated,
+      Caller,
+      Name,
+      UPNSuffix,
+      CallerIpAddress,
+      OperationNameValue,
+      ResourceGroup,
+      _ResourceId,
+      Resource,
+      CorrelationId,
+      Access,
+      Direction,
+      Protocol,
+      SourcePrefix,
+      DestinationPrefix,
+      DestPortsCombined
+entityMappings:
+  - entityType: AzureResource
+    fieldMappings:
+      - identifier: ResourceId
+        columnName: _ResourceId
+  - entityType: Account
+    fieldMappings:
+      - identifier: FullName
+        columnName: Caller
+      - identifier: Name
+        columnName: Name
+      - identifier: UPNSuffix
+        columnName: UPNSuffix
+  - entityType: IP
+    fieldMappings:
+      - identifier: Address
+        columnName: CallerIpAddress
+customDetails:
+  NSGResourceId: _ResourceId
+  RuleName: Resource
+  Direction: Direction
+  Access: Access
+  Protocol: Protocol
+  SourcePrefix: SourcePrefix
+  DestinationPrefix: DestinationPrefix
+  DestinationPorts: DestPortsCombined
+alertDetailsOverride:
+  alertDisplayNameFormat: |
+    NSG rule allows inbound Internet access to management ports
+  alertDescriptionFormat: |
+    A Network Security Group (NSG) security rule was created or updated to allow inbound access from the Internet (or any source) to management ports.
+
+    Actor: {{Caller}}
+    Source IP: {{CallerIpAddress}}
+    NSG: {{NSGResourceId}}
+    Rule: {{RuleName}}
+    Direction/Access: {{Direction}}/{{Access}}
+    Source: {{SourcePrefix}}
+    Destination: {{DestinationPrefix}}
+    Ports: {{DestinationPorts}}
+version: 1.0.0

@@ -1,0 +1,96 @@
+id: 3f3a2c47-1d4f-4b0a-8f43-7d9d5a3d2d71
+name: NSG outbound allow to Internet (risky egress)
+kind: Scheduled
+description: |
+  'Detects creation or update of a Network Security Group (NSG) security rule that allows broad outbound (egress) access to the Internet. Open egress can enable command-and-control and data exfiltration, and is often inconsistent with least-privilege network segmentation.'
+severity: Medium
+status: Available
+requiredDataConnectors:
+  - connectorId: AzureActivity
+    dataTypes:
+      - AzureActivity
+queryFrequency: 15m
+queryPeriod: 15m
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - CommandAndControl
+  - Exfiltration
+relevantTechniques:
+  - T1071
+  - T1041
+query: |
+  let queryFrequency = 15m;
+  let riskyEgressPorts = dynamic(["21","22","23","25","53","80","443","445","3389","4444","8080","8443"]);
+  AzureActivity
+  | where ingestion_time() > ago(queryFrequency)
+  | where ActivityStatusValue =~ "Success"
+  | where tolower(OperationNameValue) has "microsoft.network/networksecuritygroups" and tolower(OperationNameValue) endswith "/securityrules/write"
+  | extend requestBody = tostring(parse_json(Properties).requestbody)
+  | extend request = parse_json(requestBody)
+  | extend ruleProps = coalesce(request.properties, request.Properties)
+  | extend Access = tostring(ruleProps.access), Direction = tostring(ruleProps.direction), Protocol = tostring(ruleProps.protocol)
+  | extend DestinationPrefix = tostring(ruleProps.destinationAddressPrefix), DestinationPrefixes = tostring(ruleProps.destinationAddressPrefixes)
+  | extend DestinationPort = tostring(ruleProps.destinationPortRange), DestinationPorts = tostring(ruleProps.destinationPortRanges)
+  | extend DestPortsCombined = iff(isnotempty(DestinationPorts), DestinationPorts, DestinationPort)
+  | extend DestAny = (DestinationPrefix in~ ("*", "Internet", "0.0.0.0/0", "::/0"))
+      or (DestinationPrefixes has "0.0.0.0/0") or (DestinationPrefixes has "\"Internet\"") or (DestinationPrefixes has "*")
+  | extend IsWidePort = DestPortsCombined == "*" or DestPortsCombined has "1-65535" or DestPortsCombined has "0-65535"
+  | extend IsRiskyPort = DestPortsCombined has_any (riskyEgressPorts)
+  | where Direction =~ "Outbound" and Access =~ "Allow" and DestAny and (IsWidePort or IsRiskyPort)
+  | extend Name = tostring(split(Caller,'@',0)[0]), UPNSuffix = tostring(split(Caller,'@',1)[0])
+  | project
+      TimeGenerated,
+      Caller,
+      Name,
+      UPNSuffix,
+      CallerIpAddress,
+      OperationNameValue,
+      ResourceGroup,
+      _ResourceId,
+      Resource,
+      CorrelationId,
+      Access,
+      Direction,
+      Protocol,
+      DestinationPrefix,
+      DestPortsCombined
+entityMappings:
+  - entityType: AzureResource
+    fieldMappings:
+      - identifier: ResourceId
+        columnName: _ResourceId
+  - entityType: Account
+    fieldMappings:
+      - identifier: FullName
+        columnName: Caller
+      - identifier: Name
+        columnName: Name
+      - identifier: UPNSuffix
+        columnName: UPNSuffix
+  - entityType: IP
+    fieldMappings:
+      - identifier: Address
+        columnName: CallerIpAddress
+customDetails:
+  NSGResourceId: _ResourceId
+  RuleName: Resource
+  Direction: Direction
+  Access: Access
+  Protocol: Protocol
+  DestinationPrefix: DestinationPrefix
+  DestinationPorts: DestPortsCombined
+alertDetailsOverride:
+  alertDisplayNameFormat: |
+    NSG rule allows broad outbound access to Internet
+  alertDescriptionFormat: |
+    A Network Security Group (NSG) security rule was created or updated to allow outbound access to the Internet (or any destination).
+
+    Actor: {{Caller}}
+    Source IP: {{CallerIpAddress}}
+    NSG: {{NSGResourceId}}
+    Rule: {{RuleName}}
+    Direction/Access: {{Direction}}/{{Access}}
+    Destination: {{DestinationPrefix}}
+    Ports: {{DestinationPorts}}
+version: 1.0.0

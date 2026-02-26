@@ -1,0 +1,84 @@
+id: 5c4f7a1a-7b0e-4d4e-9b41-6f5a6c21e1a7
+name: Default route (0.0.0.0/0) to Internet or virtual appliance added
+kind: Scheduled
+description: |
+  'Detects creation or update of a route table route that sends default traffic (0.0.0.0/0 or ::/0) to the Internet or a virtual appliance. This can enable unexpected outbound paths, traffic interception, or data exfiltration via an attacker-controlled next hop.'
+severity: High
+status: Available
+requiredDataConnectors:
+  - connectorId: AzureActivity
+    dataTypes:
+      - AzureActivity
+queryFrequency: 15m
+queryPeriod: 15m
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+  - Exfiltration
+  - Impact
+relevantTechniques:
+  - T1567
+query: |
+  let queryFrequency = 15m;
+  AzureActivity
+  | where ingestion_time() > ago(queryFrequency)
+  | where ActivityStatusValue =~ "Success"
+  | where tolower(OperationNameValue) has "microsoft.network/routetables" and tolower(OperationNameValue) endswith "/routes/write"
+  | extend requestBody = tostring(parse_json(Properties).requestbody)
+  | extend request = parse_json(requestBody)
+  | extend routeProps = coalesce(request.properties, request.Properties)
+  | extend AddressPrefix = tostring(routeProps.addressPrefix)
+  | extend NextHopType = tostring(routeProps.nextHopType)
+  | extend NextHopIpAddress = tostring(routeProps.nextHopIpAddress)
+  | where AddressPrefix in~ ("0.0.0.0/0", "::/0")
+  | where NextHopType in~ ("Internet", "VirtualAppliance")
+  | extend Name = tostring(split(Caller,'@',0)[0]), UPNSuffix = tostring(split(Caller,'@',1)[0])
+  | project
+      TimeGenerated,
+      Caller,
+      Name,
+      UPNSuffix,
+      CallerIpAddress,
+      OperationNameValue,
+      ResourceGroup,
+      _ResourceId,
+      Resource,
+      CorrelationId,
+      AddressPrefix,
+      NextHopType,
+      NextHopIpAddress
+entityMappings:
+  - entityType: AzureResource
+    fieldMappings:
+      - identifier: ResourceId
+        columnName: _ResourceId
+  - entityType: Account
+    fieldMappings:
+      - identifier: FullName
+        columnName: Caller
+      - identifier: Name
+        columnName: Name
+      - identifier: UPNSuffix
+        columnName: UPNSuffix
+  - entityType: IP
+    fieldMappings:
+      - identifier: Address
+        columnName: CallerIpAddress
+customDetails:
+  RouteResourceId: _ResourceId
+  RouteName: Resource
+  AddressPrefix: AddressPrefix
+  NextHopType: NextHopType
+  NextHopIpAddress: NextHopIpAddress
+alertDetailsOverride:
+  alertDisplayNameFormat: |
+    Default route changed to {{NextHopType}}
+  alertDescriptionFormat: |
+    A route was created or updated that sends default traffic ({{AddressPrefix}}) to {{NextHopType}}.
+
+    Actor: {{Caller}}
+    Source IP: {{CallerIpAddress}}
+    Route Resource: {{RouteResourceId}}
+    Route Name: {{RouteName}}
+    Next Hop: {{NextHopIpAddress}}
+version: 1.0.0
