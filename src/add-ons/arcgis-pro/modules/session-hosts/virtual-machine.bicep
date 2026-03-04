@@ -37,11 +37,10 @@ var nvidiaVmSizes = [
   'Standard_NV12s_v3'
   'Standard_NV24s_v3'
   'Standard_NV48s_v3'
-  // The GRID driver is currently not supported with the NCasT4_v3 series and must be installed manaully
-  // 'Standard_NC4as_T4_v3'
-  // 'Standard_NC8as_T4_v3'
-  // 'Standard_NC16as_T4_v3'
-  // 'Standard_NC64as_T4_v3'
+  'Standard_NC4as_T4_v3'
+  'Standard_NC8as_T4_v3'
+  'Standard_NC16as_T4_v3'
+  'Standard_NC64as_T4_v3'
   'Standard_NV6ads_A10_v5'
   'Standard_NV12ads_A10_v5'
   'Standard_NV18ads_A10_v5'
@@ -214,7 +213,12 @@ module setSessionHostConfiguration '../../../azure-virtual-desktop/modules/commo
   params: {
     location: location
     name: 'Set-SessionHostConfiguration'
-    parameters: []
+    parameters: [
+      {
+        name: 'NvidiaGpu'
+        value: contains(nvidiaVmSizes, virtualMachineSize) ? 'true' : 'false'
+      }
+    ]
     script: loadTextContent('../../artifacts/Set-SessionHostConfiguration.ps1')
     tags: tagsVirtualMachines
     virtualMachineName: virtualMachine.name
@@ -330,10 +334,8 @@ resource extension_AmdGpuDriverWindows 'Microsoft.Compute/virtualMachines/extens
   ]
 }
 
-resource extension_NvidiaGpuDriverWindows 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = if (contains(
-  nvidiaVmSizes,
-  virtualMachineSize
-)) {
+// The GRID driver is currently not supported with the NCasT4_v3 series and must be installed manaully
+resource extension_NvidiaGpuDriverWindows 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = if (contains(nvidiaVmSizes,virtualMachineSize) && !endsWith(virtualMachineSize, 'as_T4_v3')) {
   parent: virtualMachine
   name: 'NvidiaGpuDriverWindows'
   location: location

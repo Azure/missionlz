@@ -1,4 +1,6 @@
-﻿$ErrorActionPreference = 'Stop'
+﻿param([string]$NvidiaGpu)
+
+$ErrorActionPreference = 'Stop'
 $Settings = @(
 
     [PSCustomObject]@{
@@ -44,8 +46,7 @@ $Settings = @(
     }
 )
 
-$GPU = Get-WmiObject Win32_VideoController | Where-Object {$_.Name -like "*AMD*" -or $_.Name -like "*NVIDIA*"}
-if ($GPU.Name -like "*NVIDIA*")
+if ($NvidiaGpu -eq 'true')
 {
     $Settings += @(
 
