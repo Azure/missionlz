@@ -5,7 +5,6 @@ param dataCollectionRuleResourceId string
 param deploymentNameSuffix string
 param diskEncryptionSetResourceId string
 param diskNamePrefix string
-param fileShare string
 param hostPoolResourceId string
 param location string
 param networkInterfaceNamePrefix string
@@ -215,12 +214,7 @@ module setSessionHostConfiguration '../../../azure-virtual-desktop/modules/commo
   params: {
     location: location
     name: 'Set-SessionHostConfiguration'
-    parameters: [
-      {
-        name: 'FileShare'
-        value: fileShare
-      }
-    ]
+    parameters: []
     script: loadTextContent('../../artifacts/Set-SessionHostConfiguration.ps1')
     tags: tagsVirtualMachines
     virtualMachineName: virtualMachine.name

@@ -232,7 +232,7 @@ module azureVirtualDesktop 'modules/azure-virtual-desktop.bicep' = {
     deployDefender: true
     deployPolicy: deployPolicy
     environmentAbbreviation: environmentAbbreviation
-    fileShare: azureNetAppFiles.outputs.fileShare
+    //fileShare: azureNetAppFiles.outputs.fileShare
     hubAzureFirewallResourceId: missionLandingZone.outputs.azureFirewallResourceId
     hubStorageAccountResourceId: missionLandingZone.outputs.hubStorageAccountResourceId
     hubVirtualNetworkResourceId: missionLandingZone.outputs.hubVirtualNetworkResourceId

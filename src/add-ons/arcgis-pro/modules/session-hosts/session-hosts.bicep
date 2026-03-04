@@ -9,7 +9,6 @@ param diskAccessPolicyDefinitionId string
 param diskAccessPolicyDisplayName string
 param diskAccessResourceId string
 param diskEncryptionSetResourceId string
-param fileShare string
 param hostPoolResourceId string
 param location string
 param mlzTags object 
@@ -62,7 +61,6 @@ module virtualMachine 'virtual-machine.bicep' = {
     deploymentNameSuffix: deploymentNameSuffix
     diskEncryptionSetResourceId: diskEncryptionSetResourceId
     diskNamePrefix: replace(tier.namingConvention.virtualMachineDisk, '${delimiter}${tokens.purpose}', '')
-    fileShare: fileShare
     hostPoolResourceId: hostPoolResourceId
     location: location
     networkInterfaceNamePrefix: replace(tier.namingConvention.virtualMachineNetworkInterface, '${delimiter}${tokens.purpose}', '')

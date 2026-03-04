@@ -41,9 +41,6 @@ param emailSecurityContact string = ''
 @description('The abbreviation for the target environment.')
 param environmentAbbreviation string = 'dev'
 
-@description('The file share on Azure NetApp Files to store unstructured geospatial data.')
-param fileShare string
-
 @allowed([
   'Disabled'
   'Enabled'
@@ -293,7 +290,6 @@ module sessionHosts 'session-hosts/session-hosts.bicep' = {
     diskAccessPolicyDisplayName: management.outputs.diskAccessPolicyDisplayName
     diskAccessResourceId: management.outputs.diskAccessResourceId
     diskEncryptionSetResourceId: management.outputs.diskEncryptionSetResourceId
-    fileShare: fileShare
     hostPoolResourceId: controlPlane.outputs.hostPoolResourceId
     location: location
     mlzTags: tier3.outputs.mlzTags
