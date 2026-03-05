@@ -7,7 +7,7 @@ param diskSku string
 param domainJoinPassword string
 param domainJoinUserPrincipalName string
 param domainName string
-param hostPoolResourceId string
+param hostPoolResourceId string = ''
 param location string
 param mlzTags object
 param networkInterfaceName string
@@ -21,12 +21,12 @@ param virtualMachineAdminPassword string
 param virtualMachineAdminUsername string
 param virtualMachineSize string
 
-var tagsVirtualMachines = union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Compute/virtualMachines'] ?? {}, mlzTags)
+var tagsVirtualMachines = union(empty(hostPoolResourceId) ? {} : {'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Compute/virtualMachines'] ?? {}, mlzTags)
 
 resource networkInterface 'Microsoft.Network/networkInterfaces@2020-05-01' = {
   name: networkInterfaceName
   location: location
-  tags: union({
+  tags: union(empty(hostPoolResourceId) ? {} : {
     'cm-resource-parent': hostPoolResourceId
   }, tags[?'Microsoft.Network/networkInterfaces'] ?? {}, mlzTags)
   properties: {
