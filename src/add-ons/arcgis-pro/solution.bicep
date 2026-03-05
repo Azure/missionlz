@@ -110,16 +110,58 @@ param tags object = {}
 @description('The virtual machine size for the Azure Virtual Desktop session hosts.')
 param virtualMachineSize string = 'Standard_NV4ads_V710_v5'
 
-module missionLandingZone '../../mlz.bicep' = {
-  name: 'deploy-mission-landing-zone-${deploymentNameSuffix}'
+var firewallClientSubnetAddressPrefix = '10.0.128.0/26'
+var firewallClientPrivateIpAddress = firewallClientUsableIpAddresses[3]
+var firewallClientUsableIpAddresses = [for i in range(0, 4): cidrHost(firewallClientSubnetAddressPrefix, i)]
+var networkSecurityGroupDiagnosticsLogs = [
+  {
+    category: 'NetworkSecurityGroupEvent'
+    enabled: true
+  }
+  {
+    category: 'NetworkSecurityGroupRuleCounter'
+    enabled: true
+  }
+]
+var subscriptionId = subscription().subscriptionId
+var virtualNetworkDiagnosticsLogs = [
+  {
+    category: 'VMProtectionAlerts'
+    enabled: true
+  }
+]
+var virtualNetworkDiagnosticsMetrics = [
+  {
+    category: 'AllMetrics'
+    enabled: true
+  }
+]
+
+module networking '../../modules/networking.bicep' = {
+  name: 'deploy-mlz-networking-${deploymentNameSuffix}'
   params: {
-    addsDomainName: addsDomainName
-    addsSafeModeAdminPassword: domainAdministratorPassword
-    addsAdministratorPassword: domainAdministratorPassword
-    addsAdministratorUsername: domainAdministratorUsername
-    addsVmImageSku: '2022-datacenter-g2'
-    addsVmSize: addsVmSize
-    customFirewallRuleCollectionGroups: [
+    bastionHostSubnetAddressPrefix: '10.0.128.192/26'
+    azureGatewaySubnetAddressPrefix: '10.0.129.192/26'
+    deployIdentity: true
+    deploymentNameSuffix: deploymentNameSuffix
+    deployBastion: true
+    deployAzureGatewaySubnet: false
+    dnsServers: ['168.63.129.16']
+    enableProxy: true
+    environmentAbbreviation: environmentAbbreviation
+    firewallSettings: {
+      clientPrivateIpAddress: firewallClientPrivateIpAddress
+      clientPublicIPAddressAvailabilityZones: []
+      clientSubnetAddressPrefix: firewallClientSubnetAddressPrefix
+      customPipCount: 0
+      intrusionDetectionMode: 'Alert'
+      managementPublicIPAddressAvailabilityZones: []
+      managementSubnetAddressPrefix: '10.0.128.64/26'
+      skuTier: 'Standard'
+      supernetIPAddress: '10.0.128.0/18'
+      threatIntelMode: 'Alert'
+    }
+    firewallRuleCollectionGroups: [
       {
         name: 'MLZ-DefaultCollectionGroup'
         properties: {
@@ -156,17 +198,367 @@ module missionLandingZone '../../mlz.bicep' = {
         }
       }
     ]
-    deployActiveDirectoryDomainServices: true
-    deployBastion: true
-    deployIdentity: true
-    deployNetworkWatcherTrafficAnalytics: true
-    environmentAbbreviation: environmentAbbreviation
-    firewallSkuTier: 'Standard'
-    hybridUseBenefit: hybridUseBenefit
     identifier: identifier
     location: location
-    policy: policy
+    networks: [
+      {
+        name: 'hub'
+        shortName: 'hub'
+        subscriptionId: subscriptionId
+        nsgDiagLogs: networkSecurityGroupDiagnosticsLogs
+        nsgRules: []
+        vnetAddressPrefix: '10.0.128.0/23'
+        vnetDiagLogs: virtualNetworkDiagnosticsLogs
+        vnetDiagMetrics: virtualNetworkDiagnosticsMetrics
+        subnetAddressPrefix: '10.0.128.128/26'
+      }
+      {
+        name: 'operations'
+        shortName: 'ops'
+        subscriptionId: subscriptionId
+        nsgDiagLogs: networkSecurityGroupDiagnosticsLogs
+        nsgRules: []
+        vnetAddressPrefix: '10.0.131.0/24'
+        vnetDiagLogs: virtualNetworkDiagnosticsLogs
+        vnetDiagMetrics: virtualNetworkDiagnosticsMetrics
+        subnetAddressPrefix: '10.0.131.0/24'
+      }
+      {
+        name: 'sharedServices'
+        shortName: 'svcs'
+        subscriptionId: subscriptionId
+        nsgDiagLogs: networkSecurityGroupDiagnosticsLogs
+        nsgRules: []
+        vnetAddressPrefix: '10.0.132.0/24'
+        vnetDiagLogs: virtualNetworkDiagnosticsLogs
+        vnetDiagMetrics: virtualNetworkDiagnosticsMetrics
+        subnetAddressPrefix: '10.0.132.0/24'
+      }
+      {
+        name: 'identity'
+        shortName: 'id'
+        subscriptionId: subscriptionId
+        nsgDiagLogs: networkSecurityGroupDiagnosticsLogs
+        nsgRules: []
+        vnetAddressPrefix: '10.0.130.0/24'
+        vnetDiagLogs: virtualNetworkDiagnosticsLogs
+        vnetDiagMetrics: virtualNetworkDiagnosticsMetrics
+        subnetAddressPrefix: '10.0.130.0/24'
+      }
+    ]
     tags: tags
+  }
+}
+
+module monitoring '../../modules/monitoring.bicep' = {
+  name: 'deploy-mlz-monitoring-${deploymentNameSuffix}'
+  params: {
+    delimiter: networking.outputs.delimiter
+    deploymentNameSuffix: deploymentNameSuffix
+    deploySentinel: false
+    location: location
+    logAnalyticsWorkspaceCappingDailyQuotaGb: -1
+    logAnalyticsWorkspaceRetentionInDays: 30
+    logAnalyticsWorkspaceSkuName: 'PerGB2018'
+    privateDnsZoneResourceIds: networking.outputs.privateDnsZoneResourceIds
+    mlzTags: networking.outputs.mlzTags
+    tags: tags
+    tier: filter(networking.outputs.tiers, tier => tier.name == 'operations')[0]
+    tokens: networking.outputs.tokens
+  }
+}
+
+module activeDirectoryDomainServices '../../modules/active-directory-domain-services.bicep' = {
+  name: 'deploy-mlz-adds-${deploymentNameSuffix}'
+  params: {
+    adminPassword: domainAdministratorPassword
+    adminUsername: domainAdministratorUsername
+    delimiter: networking.outputs.delimiter
+    deploymentNameSuffix: deploymentNameSuffix
+    domainName: addsDomainName
+    environmentAbbreviation: environmentAbbreviation
+    firewallPolicyResourceId: networking.outputs.firewallPolicyResourceId
+    hybridUseBenefit: hybridUseBenefit
+    imageOffer: 'WindowsServer'
+    imagePublisher: 'MicrosoftWindowsServer'
+    imageSku: '2022-datacenter-g2'
+    imageVersion: 'latest'
+    ipAddresses: [
+      cidrHost('10.0.130.0/24', 5)
+      cidrHost('10.0.130.0/24', 6)
+    ]
+    keyVaultPrivateDnsZoneResourceId: networking.outputs.privateDnsZoneResourceIds.keyVault
+    location: location
+    mlzTags: networking.outputs.mlzTags
+    resourceAbbreviations: networking.outputs.resourceAbbreviations
+    safeModeAdminPassword: domainAdministratorPassword
+    tags: tags
+    tiers: networking.outputs.tiers
+    tokens: networking.outputs.tokens
+    vmSize: addsVmSize
+  }
+}
+
+module remoteAccess 'modules/remote-access.bicep' = {
+  name: 'deploy-mlz-remote-access-${deploymentNameSuffix}'
+  params: {
+    bastionHostPublicIPAddressAllocationMethod: 'Static'
+    bastionHostPublicIPAddressAvailabilityZones: []
+    bastionHostPublicIPAddressSkuName: 'Standard'
+    bastionHostSubnetResourceId: networking.outputs.bastionHostSubnetResourceId
+    delimiter: networking.outputs.delimiter
+    deploymentNameSuffix: deploymentNameSuffix
+    location: location
+    mlzTags: networking.outputs.mlzTags
+    tags: tags
+    tier: filter(networking.outputs.tiers, tier => tier.name == 'hub')[0]
+    tokens: networking.outputs.tokens
+  }
+}
+
+module storage '../../modules/storage.bicep' = {
+  name: 'deploy-diag-storage-${deploymentNameSuffix}'
+  params: {
+    delimiter: networking.outputs.delimiter
+    //deployIdentity: deployIdentity
+    deploymentNameSuffix: deploymentNameSuffix
+    environmentAbbreviation: environmentAbbreviation
+    location: location
+    logStorageSkuName: 'Standard_GRS'
+    mlzTags: networking.outputs.mlzTags
+    privateDnsZoneResourceIds: networking.outputs.privateDnsZoneResourceIds
+    purpose: 'diag'
+    resourceAbbreviations: networking.outputs.resourceAbbreviations
+    tags: tags
+    tiers: networking.outputs.tiers
+    tokens: networking.outputs.tokens
+  }
+  dependsOn: [
+    activeDirectoryDomainServices // This is needed to ensure the first two IPs in the identity subnet are availabile for the domain controllers
+    remoteAccess
+  ]
+}
+
+module diagnosticSettings '../../modules/diagnostic-settings.bicep' = {
+  name: 'deploy-diagnostic-settings-${deploymentNameSuffix}'
+  params: {
+    bastionDiagnosticsLogs: [
+      {
+        category: 'BastionAuditLogs'
+        enabled: true
+      }
+    ]
+    bastionDiagnosticsMetrics: [
+      {
+        category: 'AllMetrics'
+        enabled: true
+      }
+    ]
+    blobDiagnosticsLogs: [
+      {
+        categoryGroup: 'allLogs'
+        enabled: true
+      }
+    ]
+    blobDiagnosticsMetrics: [
+      {
+        category: 'Transaction'
+        enabled: true
+      }
+    ]
+    delimiter: networking.outputs.delimiter
+    deployBastion: true
+    deployNetworkWatcherTrafficAnalytics: true
+    deploymentNameSuffix: deploymentNameSuffix
+    fileDiagnosticsLogs: [
+      {
+        categoryGroup: 'allLogs'
+        enabled: true
+      }
+    ]
+    fileDiagnosticsMetrics: [
+      {
+        category: 'Transaction'
+        enabled: true
+      }
+    ]
+    firewallDiagnosticsLogs: [
+      {
+        category: 'AzureFirewallApplicationRule'
+        enabled: true
+      }
+      {
+        category: 'AzureFirewallNetworkRule'
+        enabled: true
+      }
+      {
+        category: 'AzureFirewallDnsProxy'
+        enabled: true
+      }
+      {
+        category: 'AZFWNetworkRule'
+        enabled: true
+      }
+      {
+        category: 'AZFWApplicationRule'
+        enabled: true
+      }
+      {
+        category: 'AZFWNatRule'
+        enabled: true
+      }
+      {
+        category: 'AZFWThreatIntel'
+        enabled: true
+      }
+      {
+        category: 'AZFWIdpsSignature'
+        enabled: true
+      }
+      {
+        category: 'AZFWDnsQuery'
+        enabled: true
+      }
+      {
+        category: 'AZFWFqdnResolveFailure'
+        enabled: true
+      }
+      {
+        category: 'AZFWFatFlow'
+        enabled: true
+      }
+      {
+        category: 'AZFWFlowTrace'
+        enabled: true
+      }
+      {
+        category: 'AZFWApplicationRuleAggregation'
+        enabled: true
+      }
+      {
+        category: 'AZFWNetworkRuleAggregation'
+        enabled: true
+      }
+      {
+        category: 'AZFWNatRuleAggregation'
+        enabled: true
+      }
+    ]
+    firewallDiagnosticsMetrics: [
+      {
+        category: 'AllMetrics'
+        enabled: true
+      }
+    ]
+    keyVaults: [
+      storage.outputs.keyVaultProperties
+      activeDirectoryDomainServices.outputs.keyVaultProperties
+    ]
+    keyVaultDiagnosticLogs: [
+      {
+        category: 'AuditEvent'
+        enabled: true
+      }
+      {
+        category: 'AzurePolicyEvaluationDetails'
+        enabled: true
+      }
+    ]
+    keyVaultDiagnosticMetrics: [
+      {
+        category: 'AllMetrics'
+        enabled: true
+      }
+    ]
+    location: location
+    logAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
+    networkInterfaceDiagnosticsMetrics: [
+      {
+        category: 'AllMetrics'
+        enabled: true
+      }
+    ]
+    networkInterfaceResourceIds: union(
+      activeDirectoryDomainServices.outputs.networkInterfaceResourceIds,
+      monitoring.outputs.networkInterfaceResourceIds
+    )
+    networkWatcherFlowLogsRetentionDays: 30
+    networkWatcherFlowLogsType: 'VirtualNetwork'
+    publicIPAddressDiagnosticsLogs: [
+      {
+        category: 'DDoSProtectionNotifications'
+        enabled: true
+      }
+      {
+        category: 'DDoSMitigationFlowLogs'
+        enabled: true
+      }
+      {
+        category: 'DDoSMitigationReports'
+        enabled: true
+      }
+    ]
+    publicIPAddressDiagnosticsMetrics: [
+      {
+        category: 'AllMetrics'
+        enabled: true
+      }
+    ]
+    queueDiagnosticsLogs: [
+      {
+        categoryGroup: 'allLogs'
+        enabled: true
+      }
+    ]
+    queueDiagnosticsMetrics: [
+      {
+        category: 'Transaction'
+        enabled: true
+      }
+    ]
+    storageAccountDiagnosticsLogs: []
+    storageAccountDiagnosticsMetrics: [
+      {
+        category: 'Transaction'
+        enabled: true
+      }
+    ]
+    storageAccountResourceIds: storage.outputs.storageAccountResourceIds
+    supportedClouds: [
+      'AzureCloud'
+      'AzureUSGovernment'
+    ]
+    tableDiagnosticsLogs: [
+      {
+        categoryGroup: 'allLogs'
+        enabled: true
+      }
+    ]
+    tableDiagnosticsMetrics: [
+      {
+        category: 'Transaction'
+        enabled: true
+      }
+    ]
+    tiers: networking.outputs.tiers
+    tokens: networking.outputs.tokens
+  }
+}
+
+module security '../../modules/security.bicep' = {
+  name: 'deploy-security-${deploymentNameSuffix}'
+  params: {
+    defenderPlans: ['VirtualMachines']
+    defenderSkuTier: 'Free'
+    deployDefender: false
+    deployPolicy: deployPolicy
+    deploymentNameSuffix: deploymentNameSuffix
+    emailSecurityContact: ''
+    location: location
+    logAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
+    policy: policy
+    tiers: networking.outputs.tiers
+    windowsAdministratorsGroupMembership: domainAdministratorUsername
   }
 }
 
@@ -195,31 +587,34 @@ module domainUserAccount 'modules/domain-user-account.bicep' = {
     domainUserUsername: domainUserUsername
     location: location
     tags: tags
-    virtualMachineResourceIds: missionLandingZone.outputs.domainControllerResourceIds
+    virtualMachineResourceIds: activeDirectoryDomainServices.outputs.virtualMachineResourceIds
   }
 }
 
 module azureNetAppFiles '../azure-netapp-files/solution.bicep' = {
   name: 'deploy-azure-netapp-files-${deploymentNameSuffix}'
   params: {
-    azureFirewallResourceId: missionLandingZone.outputs.azureFirewallResourceId
+    azureFirewallResourceId: networking.outputs.azureFirewallResourceId
     deployActivityLogDiagnosticSetting: true
     deployDefender: true
     deploymentNameSuffix: deploymentNameSuffix
     deployPolicy: deployPolicy
-    domainJoinPassword: domainAdministratorPassword
-    domainJoinUserPrincipalName: '${domainAdministratorUsername}@${addsDomainName}'
+    domainAdminPassword: domainAdministratorPassword
+    domainAdminUserPrincipalName: '${domainAdministratorUsername}@${addsDomainName}'
     domainName: addsDomainName
     environmentAbbreviation: environmentAbbreviation
     fileShareName: 'arcgispro'
-    hubStorageAccountResourceId: missionLandingZone.outputs.hubStorageAccountResourceId
-    hubVirtualNetworkResourceId: missionLandingZone.outputs.hubVirtualNetworkResourceId
+    hubStorageAccountResourceId: storage.outputs.storageAccountResourceIds[0]
+    hubVirtualNetworkResourceId: networking.outputs.hubVirtualNetworkResourceId
     identifier: identifier
     location: location
-    logAnalyticsWorkspaceResourceId: missionLandingZone.outputs.logAnalyticsWorkspaceResourceId
+    logAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
     policy: policy
     sku: 'Standard'
     tags: tags
+    virtualMachineAdminPassword: domainAdministratorPassword
+    virtualMachineAdminUsername: domainAdministratorUsername
+    virtualMachineSize: virtualMachineSize
   }
 }
 
@@ -233,14 +628,14 @@ module azureVirtualDesktop 'modules/azure-virtual-desktop.bicep' = {
     deployPolicy: deployPolicy
     environmentAbbreviation: environmentAbbreviation
     //fileShare: azureNetAppFiles.outputs.fileShare
-    hubAzureFirewallResourceId: missionLandingZone.outputs.azureFirewallResourceId
-    hubStorageAccountResourceId: missionLandingZone.outputs.hubStorageAccountResourceId
-    hubVirtualNetworkResourceId: missionLandingZone.outputs.hubVirtualNetworkResourceId
+    hubAzureFirewallResourceId: networking.outputs.azureFirewallResourceId
+    hubStorageAccountResourceId: storage.outputs.storageAccountResourceIds[0]
+    hubVirtualNetworkResourceId: networking.outputs.hubVirtualNetworkResourceId
     identifier: identifier
     location: location
-    operationsLogAnalyticsWorkspaceResourceId: missionLandingZone.outputs.logAnalyticsWorkspaceResourceId
+    operationsLogAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
     policy: policy
-    privateLinkScopeResourceId: missionLandingZone.outputs.privateLinkScopeResourceId
+    privateLinkScopeResourceId: monitoring.outputs.privateLinkScopeResourceId
     securityPrincipals: securityPrincipals
     virtualMachineAdminPassword: domainAdministratorPassword
     virtualMachineAdminUsername: domainAdministratorUsername
