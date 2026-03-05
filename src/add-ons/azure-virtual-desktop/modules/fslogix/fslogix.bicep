@@ -8,9 +8,9 @@ param deploymentNameSuffix string
 param deploymentUserAssignedIdentityClientId string
 param deploymentUserAssignedIdentityPrincipalId string
 @secure()
-param domainJoinPassword string
+param domainAdminPassword string
 @secure()
-param domainJoinUserPrincipalName string
+param domainAdminUserPrincipalName string
 param domainName string
 param encryptionUserAssignedIdentityResourceId string
 param fileShares array
@@ -76,8 +76,8 @@ module azureNetAppFiles 'azure-netapp-files.bicep' = if (storageService == 'Azur
     delegatedSubnetResourceId: filter(tier.subnets, subnet => contains(subnet.name, 'azure-netapp-files'))[0].id
     delimiter: delimiter
     dnsServers: join(tier.dnsServers, ',')
-    domainJoinPassword: domainJoinPassword
-    domainJoinUserPrincipalName: domainJoinUserPrincipalName
+    domainAdminPassword: domainAdminPassword
+    domainAdminUserPrincipalName: domainAdminUserPrincipalName
     domainName: domainName
     fileShares: fileShares
     hostPoolResourceId: hostPoolResourceId
@@ -125,11 +125,10 @@ module azureFiles 'azure-files/azure-files.bicep' = if (storageService == 'Azure
 
 module ntfsPermissions 'ntfs-permissions.bicep' = {
   name: 'deploy-ntfspermissions-${deploymentNameSuffix}'
-  scope: resourceGroup
   params: {
     deploymentNameSuffix: deploymentNameSuffix
-    domainJoinPassword: domainJoinPassword
-    domainJoinUserPrincipalName: domainJoinUserPrincipalName
+    domainAdminPassword: domainAdminPassword
+    domainAdminUserPrincipalName: domainAdminUserPrincipalName
     location: location
     parameters: storageService == 'AzureNetAppFiles' ? [
       {

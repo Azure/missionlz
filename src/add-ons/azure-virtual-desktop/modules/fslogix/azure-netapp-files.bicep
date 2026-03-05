@@ -2,9 +2,9 @@ param delegatedSubnetResourceId string
 param delimiter string
 param dnsServers string
 @secure()
-param domainJoinPassword string
+param domainAdminPassword string
 @secure()
-param domainJoinUserPrincipalName string
+param domainAdminUserPrincipalName string
 param domainName string
 param hostPoolResourceId string = ''
 param fileShares array
@@ -32,9 +32,9 @@ resource netAppAccount 'Microsoft.NetApp/netAppAccounts@2025-01-01' = {
         domain: domainName
         dns: dnsServers
         organizationalUnit: empty(organizationalUnitPath) ? 'CN=Computers' : organizationalUnitPath
-        password: domainJoinPassword
+        password: domainAdminPassword
         smbServerName: smbServerName
-        username: split(domainJoinUserPrincipalName, '@')[0]
+        username: split(domainAdminUserPrincipalName, '@')[0]
       }
     ]
     encryption: {

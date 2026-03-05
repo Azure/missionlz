@@ -59,11 +59,11 @@ param desktopFriendlyName string = ''
 param diskSku string = 'Premium_LRS'
 
 @secure()
-@description('The password for the account to domain join the AVD session hosts.')
-param domainJoinPassword string = ''
+@description('The password for the account to domain join the AVD session hosts and to manage permissions on FSLogix file shares.')
+param domainAdminPassword string = ''
 
-@description('The user principal name for the account to domain join the AVD session hosts.')
-param domainJoinUserPrincipalName string = ''
+@description('The user principal name for the account to domain join the AVD session hosts and to manage permissions on the FSLogix file shares.')
+param domainAdminUserPrincipalName string = ''
 
 @description('The name of the domain that provides ADDS to the AVD session hosts.')
 param domainName string = ''
@@ -705,8 +705,8 @@ module management 'modules/management/management.bicep' = {
     delimiter: tier3.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
     diskSku: diskSku
-    domainJoinPassword: domainJoinPassword
-    domainJoinUserPrincipalName: domainJoinUserPrincipalName
+    domainJoinPassword: domainAdminPassword
+    domainJoinUserPrincipalName: domainAdminUserPrincipalName
     domainName: domainName
     environmentAbbreviation: environmentAbbreviation
     locationControlPlane: virtualNetwork_hub.location
@@ -823,8 +823,8 @@ module fslogix 'modules/fslogix/fslogix.bicep' = if (deployFslogix) {
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedIdentityClientId: management.outputs.deploymentUserAssignedIdentityClientId
     deploymentUserAssignedIdentityPrincipalId: management.outputs.deploymentUserAssignedIdentityPrincipalId
-    domainJoinPassword: domainJoinPassword
-    domainJoinUserPrincipalName: domainJoinUserPrincipalName
+    domainAdminPassword: domainAdminPassword
+    domainAdminUserPrincipalName: domainAdminUserPrincipalName
     domainName: domainName
     encryptionUserAssignedIdentityResourceId: management.outputs.encryptionUserAssignedIdentityResourceId
     fileShares: fileShares
@@ -876,8 +876,8 @@ module sessionHosts 'modules/session-hosts/session-hosts.bicep' = {
     diskEncryptionSetResourceId: management.outputs.diskEncryptionSetResourceId
     diskSku: diskSku
     divisionRemainderValue: divisionRemainderValue
-    domainJoinPassword: domainJoinPassword
-    domainJoinUserPrincipalName: domainJoinUserPrincipalName
+    domainJoinPassword: domainAdminPassword
+    domainJoinUserPrincipalName: domainAdminUserPrincipalName
     domainName: domainName
     drainMode: drainMode
     enableAcceleratedNetworking: enableAcceleratedNetworking

@@ -1,7 +1,7 @@
 @secure()
-param domainJoinPassword string
+param domainAdminPassword string
 @secure()
-param domainJoinUserPrincipalName string
+param domainAdminUserPrincipalName string
 param location string
 param name string
 param parameters array = []
@@ -23,12 +23,12 @@ resource runCommand 'Microsoft.Compute/virtualMachines/runCommands@2023-09-01' =
     parameters: parameters
     protectedParameters: [
       {
-        name: 'DomainJoinPassword'
-        value: domainJoinPassword
+        name: 'DomainAdminPassword'
+        value: domainAdminPassword
       }
       {
-        name: 'DomainJoinUserPrincipalName'
-        value: domainJoinUserPrincipalName
+        name: 'DomainAdminUserPrincipalName'
+        value: domainAdminUserPrincipalName
       }
     ]
     source: {
