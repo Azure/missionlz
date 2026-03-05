@@ -13,7 +13,6 @@ param adminUsername string
 param deploymentNameSuffix string
 param domainName string
 param location string
-param mlzTags object
 param tags object
 param userAssignedManagedIdentityClientId string
 param virtualMachineResourceIds array
@@ -27,7 +26,6 @@ module installEntraCloudSyncAgents '../../../modules/run-command.bicep' = {
   scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
     location: location
-    mlzTags: mlzTags
     name: 'Install-EntraCloudSyncAgent'
     parameters: [
       {
@@ -72,7 +70,6 @@ module provisionEntraCloudSyncConfiguration '../../../modules/run-command.bicep'
   scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
     location: location
-    mlzTags: mlzTags
     name: 'New-EntraCloudSyncConfiguration'
     parameters: [
       {
@@ -92,6 +89,7 @@ module provisionEntraCloudSyncConfiguration '../../../modules/run-command.bicep'
         value: userAssignedManagedIdentityClientId
       }
     ]
+    protectedParameters: '[]'
     script: loadTextContent('../artifacts/New-EntraCloudSyncConfiguration.ps1')
     tags: tags
     virtualMachineName: split(virtualMachineResourceIds[0], '/')[8]
