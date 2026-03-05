@@ -152,7 +152,7 @@ param virtualMachineAdminPassword string
 param virtualMachineAdminUsername string
 
 @description('The size of the virtual machine that will be deployed to set the NTFS permissons on the ANF file share.')
-param virtualMachineSize string
+param virtualMachineSize string = 'Standard_D2ds_v4'
 
 @description('The address prefix for the workload Virtual Network.')
 param virtualNetworkAddressPrefix string = '10.0.160.0/23'

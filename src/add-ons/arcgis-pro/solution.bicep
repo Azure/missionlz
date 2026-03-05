@@ -614,7 +614,6 @@ module azureNetAppFiles '../azure-netapp-files/solution.bicep' = {
     tags: tags
     virtualMachineAdminPassword: domainAdministratorPassword
     virtualMachineAdminUsername: domainAdministratorUsername
-    virtualMachineSize: virtualMachineSize
   }
 }
 
