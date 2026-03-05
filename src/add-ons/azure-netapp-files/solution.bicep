@@ -267,7 +267,7 @@ module netAppFiles 'modules/azureNetAppFiles.bicep' = {
     subnetResourceId: tier3.outputs.tier.subnets[0].id
     tags: tags
     tier: tier3.outputs.tier
-    tokens: tier3.outputs.tokens.purpose
+    tokens: tier3.outputs.tokens
     virtualMachineAdminPassword: virtualMachineAdminPassword
     virtualMachineAdminUsername: virtualMachineAdminUsername
     virtualMachineSize: virtualMachineSize

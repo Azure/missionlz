@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.41.2.15936",
-      "templateHash": "11985219501467867663"
+      "templateHash": "12782260304234549940"
     }
   },
   "parameters": {
@@ -9891,7 +9891,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.41.2.15936",
-              "templateHash": "13640937577308779470"
+              "templateHash": "10223720364489462071"
             }
           },
           "parameters": {
@@ -15523,7 +15523,7 @@
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tier.value]"
                   },
                   "tokens": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value.purpose]"
+                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value]"
                   },
                   "virtualMachineAdminPassword": {
                     "value": "[parameters('virtualMachineAdminPassword')]"
