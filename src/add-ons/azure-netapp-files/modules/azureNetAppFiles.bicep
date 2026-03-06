@@ -91,6 +91,7 @@ module netAppFiles '../../azure-virtual-desktop/modules/fslogix/azure-netapp-fil
   params: {
     delegatedSubnetResourceId: delegatedSubnetResourceId
     delimiter: delimiter
+    deploymentNameSuffix: deploymentNameSuffix
     dnsServers: dnsServers
     domainAdminPassword: domainAdminPassword
     domainAdminUserPrincipalName: domainAdminUserPrincipalName
@@ -99,19 +100,18 @@ module netAppFiles '../../azure-virtual-desktop/modules/fslogix/azure-netapp-fil
       fileShareName
     ]
     location: location
+    managementVirtualMachineName: virtualMachine.outputs.name
     mlzTags: mlzTags
     netAppAccountNamePrefix: replace(namingConvention.netAppAccount, '${delimiter}${tokens.purpose}', '')
     netAppCapacityPoolNamePrefix: replace(namingConvention.netAppAccountCapacityPool, '${delimiter}${tokens.purpose}', '')
     organizationalUnitPath: organizationalUnitPath
-    smbServerName: smbServerName
-    storageSku: sku
-    tags: tags
-    deploymentNameSuffix: deploymentNameSuffix
-    managementVirtualMachineName: virtualMachine.outputs.name
     resourceGroupManagement: resourceGroupName
     securityPrincipalNames: [
       securityPrincipalName
     ]
+    smbServerName: smbServerName
+    storageSku: sku
+    tags: tags
   }
 }
 
