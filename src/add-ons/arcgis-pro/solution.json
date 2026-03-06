@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.41.2.15936",
-      "templateHash": "17450223594707607932"
+      "templateHash": "10415802804094646623"
     }
   },
   "parameters": {
@@ -9868,6 +9868,9 @@
           "policy": {
             "value": "[parameters('policy')]"
           },
+          "securityPrincipalName": {
+            "value": "[parameters('domainUserUsername')]"
+          },
           "sku": {
             "value": "Standard"
           },
@@ -9888,7 +9891,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.41.2.15936",
-              "templateHash": "6161901687337166239"
+              "templateHash": "8095558002061080731"
             }
           },
           "parameters": {
@@ -10114,11 +10117,10 @@
                 "description": "The policy to assign to the workload."
               }
             },
-            "securityPrincipalNames": {
-              "type": "array",
-              "defaultValue": [],
+            "securityPrincipalName": {
+              "type": "string",
               "metadata": {
-                "description": "The array of one or more security principals to assign NTFS permissions to access the file share."
+                "description": "The name of the security principal to assign NTFS permissions to access the file share."
               }
             },
             "sku": {
@@ -15502,8 +15504,8 @@
                   "resourceGroupName": {
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.name.value]"
                   },
-                  "securityPrincipalNames": {
-                    "value": "[parameters('securityPrincipalNames')]"
+                  "securityPrincipalName": {
+                    "value": "[parameters('securityPrincipalName')]"
                   },
                   "sku": {
                     "value": "[parameters('sku')]"
@@ -15540,7 +15542,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.41.2.15936",
-                      "templateHash": "2961142598610859257"
+                      "templateHash": "14415161817214262521"
                     }
                   },
                   "parameters": {
@@ -15595,8 +15597,8 @@
                     "resourceGroupName": {
                       "type": "string"
                     },
-                    "securityPrincipalNames": {
-                      "type": "array"
+                    "securityPrincipalName": {
+                      "type": "string"
                     },
                     "sku": {
                       "type": "string"
@@ -15627,231 +15629,6 @@
                     }
                   },
                   "resources": [
-                    {
-                      "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2025-04-01",
-                      "name": "[format('deploy-netapp-files-{0}', parameters('deploymentNameSuffix'))]",
-                      "resourceGroup": "[parameters('resourceGroupName')]",
-                      "properties": {
-                        "expressionEvaluationOptions": {
-                          "scope": "inner"
-                        },
-                        "mode": "Incremental",
-                        "parameters": {
-                          "delegatedSubnetResourceId": {
-                            "value": "[parameters('delegatedSubnetResourceId')]"
-                          },
-                          "delimiter": {
-                            "value": "[parameters('delimiter')]"
-                          },
-                          "dnsServers": {
-                            "value": "[parameters('dnsServers')]"
-                          },
-                          "domainAdminPassword": {
-                            "value": "[parameters('domainAdminPassword')]"
-                          },
-                          "domainAdminUserPrincipalName": {
-                            "value": "[parameters('domainAdminUserPrincipalName')]"
-                          },
-                          "domainName": {
-                            "value": "[parameters('domainName')]"
-                          },
-                          "fileShares": {
-                            "value": [
-                              "[parameters('fileShareName')]"
-                            ]
-                          },
-                          "location": {
-                            "value": "[parameters('location')]"
-                          },
-                          "mlzTags": {
-                            "value": "[parameters('mlzTags')]"
-                          },
-                          "netAppAccountNamePrefix": {
-                            "value": "[replace(parameters('namingConvention').netAppAccount, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), '')]"
-                          },
-                          "netAppCapacityPoolNamePrefix": {
-                            "value": "[replace(parameters('namingConvention').netAppAccountCapacityPool, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), '')]"
-                          },
-                          "organizationalUnitPath": {
-                            "value": "[parameters('organizationalUnitPath')]"
-                          },
-                          "smbServerName": {
-                            "value": "[parameters('smbServerName')]"
-                          },
-                          "storageSku": {
-                            "value": "[parameters('sku')]"
-                          },
-                          "tags": {
-                            "value": "[parameters('tags')]"
-                          }
-                        },
-                        "template": {
-                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                          "contentVersion": "1.0.0.0",
-                          "metadata": {
-                            "_generator": {
-                              "name": "bicep",
-                              "version": "0.41.2.15936",
-                              "templateHash": "17981732733585962343"
-                            }
-                          },
-                          "parameters": {
-                            "delegatedSubnetResourceId": {
-                              "type": "string"
-                            },
-                            "delimiter": {
-                              "type": "string"
-                            },
-                            "dnsServers": {
-                              "type": "string"
-                            },
-                            "domainAdminPassword": {
-                              "type": "securestring"
-                            },
-                            "domainAdminUserPrincipalName": {
-                              "type": "securestring"
-                            },
-                            "domainName": {
-                              "type": "string"
-                            },
-                            "hostPoolResourceId": {
-                              "type": "string",
-                              "defaultValue": ""
-                            },
-                            "fileShares": {
-                              "type": "array"
-                            },
-                            "location": {
-                              "type": "string"
-                            },
-                            "mlzTags": {
-                              "type": "object"
-                            },
-                            "netAppAccountNamePrefix": {
-                              "type": "string"
-                            },
-                            "netAppCapacityPoolNamePrefix": {
-                              "type": "string"
-                            },
-                            "organizationalUnitPath": {
-                              "type": "string"
-                            },
-                            "smbServerName": {
-                              "type": "string"
-                            },
-                            "storageSku": {
-                              "type": "string"
-                            },
-                            "suffix": {
-                              "type": "string",
-                              "defaultValue": ""
-                            },
-                            "tags": {
-                              "type": "object"
-                            }
-                          },
-                          "variables": {
-                            "nameSuffix": "[if(empty(parameters('suffix')), '', format('{0}{1}', parameters('delimiter'), parameters('suffix')))]",
-                            "tagsNetAppAccount": "[union(if(empty(parameters('hostPoolResourceId')), createObject(), createObject('cm-resource-parent', parameters('hostPoolResourceId'))), coalesce(tryGet(parameters('tags'), 'Microsoft.NetApp/netAppAccounts'), createObject()), parameters('mlzTags'))]"
-                          },
-                          "resources": [
-                            {
-                              "type": "Microsoft.NetApp/netAppAccounts",
-                              "apiVersion": "2025-01-01",
-                              "name": "[format('{0}{1}', parameters('netAppAccountNamePrefix'), variables('nameSuffix'))]",
-                              "location": "[parameters('location')]",
-                              "tags": "[variables('tagsNetAppAccount')]",
-                              "properties": {
-                                "activeDirectories": [
-                                  {
-                                    "aesEncryption": true,
-                                    "domain": "[parameters('domainName')]",
-                                    "dns": "[parameters('dnsServers')]",
-                                    "organizationalUnit": "[if(empty(parameters('organizationalUnitPath')), 'CN=Computers', parameters('organizationalUnitPath'))]",
-                                    "password": "[parameters('domainAdminPassword')]",
-                                    "smbServerName": "[parameters('smbServerName')]",
-                                    "username": "[split(parameters('domainAdminUserPrincipalName'), '@')[0]]"
-                                  }
-                                ],
-                                "encryption": {
-                                  "keySource": "Microsoft.NetApp"
-                                }
-                              }
-                            },
-                            {
-                              "type": "Microsoft.NetApp/netAppAccounts/capacityPools",
-                              "apiVersion": "2025-01-01",
-                              "name": "[format('{0}/{1}', format('{0}{1}', parameters('netAppAccountNamePrefix'), variables('nameSuffix')), format('{0}{1}', parameters('netAppCapacityPoolNamePrefix'), variables('nameSuffix')))]",
-                              "location": "[parameters('location')]",
-                              "tags": "[variables('tagsNetAppAccount')]",
-                              "properties": {
-                                "coolAccess": false,
-                                "encryptionType": "Single",
-                                "qosType": "Auto",
-                                "serviceLevel": "[parameters('storageSku')]",
-                                "size": 4398046511104
-                              },
-                              "dependsOn": [
-                                "[resourceId('Microsoft.NetApp/netAppAccounts', format('{0}{1}', parameters('netAppAccountNamePrefix'), variables('nameSuffix')))]"
-                              ]
-                            },
-                            {
-                              "copy": {
-                                "name": "volumes",
-                                "count": "[length(range(0, length(parameters('fileShares'))))]"
-                              },
-                              "type": "Microsoft.NetApp/netAppAccounts/capacityPools/volumes",
-                              "apiVersion": "2025-01-01",
-                              "name": "[format('{0}/{1}/{2}', format('{0}{1}', parameters('netAppAccountNamePrefix'), variables('nameSuffix')), format('{0}{1}', parameters('netAppCapacityPoolNamePrefix'), variables('nameSuffix')), parameters('fileShares')[range(0, length(parameters('fileShares')))[copyIndex()]])]",
-                              "location": "[parameters('location')]",
-                              "tags": "[variables('tagsNetAppAccount')]",
-                              "properties": {
-                                "avsDataStore": "Disabled",
-                                "coolAccess": false,
-                                "creationToken": "[parameters('fileShares')[range(0, length(parameters('fileShares')))[copyIndex()]]]",
-                                "defaultGroupQuotaInKiBs": 0,
-                                "defaultUserQuotaInKiBs": 0,
-                                "encryptionKeySource": "Microsoft.NetApp",
-                                "isDefaultQuotaEnabled": false,
-                                "isLargeVolume": false,
-                                "kerberosEnabled": false,
-                                "ldapEnabled": false,
-                                "networkFeatures": "Standard",
-                                "protocolTypes": [
-                                  "CIFS"
-                                ],
-                                "securityStyle": "ntfs",
-                                "serviceLevel": "[parameters('storageSku')]",
-                                "smbAccessBasedEnumeration": "Enabled",
-                                "smbContinuouslyAvailable": true,
-                                "smbEncryption": true,
-                                "smbNonBrowsable": "Disabled",
-                                "snapshotDirectoryVisible": true,
-                                "subnetId": "[parameters('delegatedSubnetResourceId')]",
-                                "usageThreshold": 107374182400
-                              },
-                              "dependsOn": [
-                                "[resourceId('Microsoft.NetApp/netAppAccounts/capacityPools', format('{0}{1}', parameters('netAppAccountNamePrefix'), variables('nameSuffix')), format('{0}{1}', parameters('netAppCapacityPoolNamePrefix'), variables('nameSuffix')))]"
-                              ]
-                            }
-                          ],
-                          "outputs": {
-                            "fileShares": {
-                              "type": "array",
-                              "copy": {
-                                "count": "[length(parameters('fileShares'))]",
-                                "input": "[reference(resourceId('Microsoft.NetApp/netAppAccounts/capacityPools/volumes', format('{0}{1}', parameters('netAppAccountNamePrefix'), variables('nameSuffix')), format('{0}{1}', parameters('netAppCapacityPoolNamePrefix'), variables('nameSuffix')), parameters('fileShares')[range(0, length(parameters('fileShares')))[copyIndex()]]), '2025-01-01').mountTargets[0].smbServerFqdn]"
-                              }
-                            },
-                            "smbServerNamePrefix": {
-                              "type": "string",
-                              "value": "[parameters('smbServerName')]"
-                            }
-                          }
-                        }
-                      }
-                    },
                     {
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2025-04-01",
@@ -16877,16 +16654,25 @@
                     {
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2025-04-01",
-                      "name": "[format('deploy-ntfspermissions-{0}', parameters('deploymentNameSuffix'))]",
-                      "location": "[deployment().location]",
+                      "name": "[format('deploy-netapp-files-{0}', parameters('deploymentNameSuffix'))]",
+                      "resourceGroup": "[parameters('resourceGroupName')]",
                       "properties": {
                         "expressionEvaluationOptions": {
                           "scope": "inner"
                         },
                         "mode": "Incremental",
                         "parameters": {
+                          "delegatedSubnetResourceId": {
+                            "value": "[parameters('delegatedSubnetResourceId')]"
+                          },
+                          "delimiter": {
+                            "value": "[parameters('delimiter')]"
+                          },
                           "deploymentNameSuffix": {
                             "value": "[parameters('deploymentNameSuffix')]"
+                          },
+                          "dnsServers": {
+                            "value": "[parameters('dnsServers')]"
                           },
                           "domainAdminPassword": {
                             "value": "[parameters('domainAdminPassword')]"
@@ -16894,88 +16680,217 @@
                           "domainAdminUserPrincipalName": {
                             "value": "[parameters('domainAdminUserPrincipalName')]"
                           },
+                          "domainName": {
+                            "value": "[parameters('domainName')]"
+                          },
+                          "fileShares": {
+                            "value": [
+                              "[parameters('fileShareName')]"
+                            ]
+                          },
                           "location": {
                             "value": "[parameters('location')]"
                           },
-                          "parameters": {
+                          "managementVirtualMachineName": {
+                            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-mgmt-vm-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.name.value]"
+                          },
+                          "mlzTags": {
+                            "value": "[parameters('mlzTags')]"
+                          },
+                          "netAppAccountNamePrefix": {
+                            "value": "[replace(parameters('namingConvention').netAppAccount, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), '')]"
+                          },
+                          "netAppCapacityPoolNamePrefix": {
+                            "value": "[replace(parameters('namingConvention').netAppAccountCapacityPool, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), '')]"
+                          },
+                          "organizationalUnitPath": {
+                            "value": "[parameters('organizationalUnitPath')]"
+                          },
+                          "resourceGroupManagement": {
+                            "value": "[parameters('resourceGroupName')]"
+                          },
+                          "securityPrincipalNames": {
                             "value": [
-                              {
-                                "name": "FileShares",
-                                "value": "[string(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-netapp-files-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.fileShares.value[0])]"
-                              },
-                              {
-                                "name": "ResourceManagerUri",
-                                "value": "[environment().resourceManager]"
-                              },
-                              {
-                                "name": "SecurityPrincipalNames",
-                                "value": "[string(parameters('securityPrincipalNames'))]"
-                              },
-                              {
-                                "name": "SmbServerNamePrefix",
-                                "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-netapp-files-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.smbServerNamePrefix.value]"
-                              },
-                              {
-                                "name": "StorageService",
-                                "value": "AzureNetAppFiles"
-                              }
+                              "[parameters('securityPrincipalName')]"
                             ]
                           },
-                          "resourceGroupName": {
-                            "value": "[parameters('resourceGroupName')]"
+                          "smbServerName": {
+                            "value": "[parameters('smbServerName')]"
+                          },
+                          "storageSku": {
+                            "value": "[parameters('sku')]"
                           },
                           "tags": {
                             "value": "[parameters('tags')]"
-                          },
-                          "virtualMachineName": {
-                            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-mgmt-vm-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.name.value]"
                           }
                         },
                         "template": {
-                          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
                           "contentVersion": "1.0.0.0",
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
                               "version": "0.41.2.15936",
-                              "templateHash": "16358986932072517217"
+                              "templateHash": "17267280601553101705"
                             }
                           },
                           "parameters": {
+                            "delegatedSubnetResourceId": {
+                              "type": "string"
+                            },
+                            "delimiter": {
+                              "type": "string"
+                            },
                             "deploymentNameSuffix": {
+                              "type": "string"
+                            },
+                            "dnsServers": {
                               "type": "string"
                             },
                             "domainAdminPassword": {
                               "type": "securestring"
                             },
                             "domainAdminUserPrincipalName": {
+                              "type": "securestring"
+                            },
+                            "domainName": {
                               "type": "string"
+                            },
+                            "hostPoolResourceId": {
+                              "type": "string",
+                              "defaultValue": ""
+                            },
+                            "fileShares": {
+                              "type": "array"
                             },
                             "location": {
                               "type": "string"
                             },
-                            "parameters": {
+                            "managementVirtualMachineName": {
+                              "type": "string"
+                            },
+                            "mlzTags": {
+                              "type": "object"
+                            },
+                            "netAppAccountNamePrefix": {
+                              "type": "string"
+                            },
+                            "netAppCapacityPoolNamePrefix": {
+                              "type": "string"
+                            },
+                            "organizationalUnitPath": {
+                              "type": "string"
+                            },
+                            "resourceGroupManagement": {
+                              "type": "string"
+                            },
+                            "securityPrincipalNames": {
                               "type": "array"
                             },
-                            "resourceGroupName": {
+                            "smbServerName": {
                               "type": "string"
+                            },
+                            "storageSku": {
+                              "type": "string"
+                            },
+                            "suffix": {
+                              "type": "string",
+                              "defaultValue": ""
                             },
                             "tags": {
                               "type": "object"
-                            },
-                            "virtualMachineName": {
-                              "type": "string"
                             }
                           },
                           "variables": {
-                            "$fxv#0": "param \r\n(\r\n    [String]$DomainAdminUserPrincipalName,\r\n    [String]$DomainAdminPassword,\r\n    [String]$FileShare,\r\n    [String]$ResourceManagerUri,\r\n    [String]$SecurityPrincipalNames,\r\n    [String]$SmbServerNamePrefix,\r\n    [String]$StorageService\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n$WarningPreference = 'SilentlyContinue'\r\n\r\n# Convert parameters values from JSON array to a PowerShell array\r\n[array]$SecurityPrincipalNames = $SecurityPrincipalNames.Replace('\\','') | ConvertFrom-Json\r\n\r\n# Create Domain credential\r\n$DomainUsername = $DomainAdminUserPrincipalName\r\n$DomainPassword = ConvertTo-SecureString -String $DomainAdminPassword -AsPlainText -Force\r\n[pscredential]$DomainCredential = New-Object System.Management.Automation.PSCredential ($DomainUsername, $DomainPassword)\r\n\r\nforeach ($SecurityPrincipalName in $SecurityPrincipalNames)\r\n{\r\n    $Group = $Netbios + '\\' + $SecurityPrincipalName\r\n    \r\n    # Mount file share\r\n    New-PSDrive -Name 'Z' -PSProvider 'FileSystem' -Root $FileShare -Credential $DomainCredential | Out-Null\r\n\r\n    # Set recommended NTFS permissions on the file share\r\n    $ACL = Get-Acl -Path 'Z:'\r\n    $CreatorOwner = New-Object System.Security.Principal.Ntaccount (\"Creator Owner\")\r\n    $ACL.PurgeAccessRules($CreatorOwner)\r\n    $AuthenticatedUsers = New-Object System.Security.Principal.Ntaccount (\"Authenticated Users\")\r\n    $ACL.PurgeAccessRules($AuthenticatedUsers)\r\n    $Users = New-Object System.Security.Principal.Ntaccount (\"Users\")\r\n    $ACL.PurgeAccessRules($Users)\r\n    $DomainUsers = New-Object System.Security.AccessControl.FileSystemAccessRule(\"$Group\",\"Modify\",\"None\",\"None\",\"Allow\")\r\n    $ACL.SetAccessRule($DomainUsers)\r\n    $CreatorOwner = New-Object System.Security.AccessControl.FileSystemAccessRule(\"Creator Owner\",\"Modify\",\"ContainerInherit,ObjectInherit\",\"InheritOnly\",\"Allow\")\r\n    $ACL.AddAccessRule($CreatorOwner)\r\n    $ACL | Set-Acl -Path 'Z:' | Out-Null\r\n\r\n    # Unmount file share\r\n    Remove-PSDrive -Name 'Z' -PSProvider 'FileSystem' -Force | Out-Null\r\n    Start-Sleep -Seconds 5 | Out-Null\r\n}"
+                            "$fxv#0": "param (\r\n    [String]$DomainAdminPassword,\r\n    [String]$DomainAdminUserPrincipalName,\r\n    [String]$FileServer,\r\n    [String]$SecurityPrincipalNames,\r\n    [String]$ShareNames\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n$WarningPreference = 'SilentlyContinue'\r\n\r\n# Variables\r\n# Convert parameters values from JSON array to a PowerShell array\r\n[array]$SecurityPrincipalNames = $SecurityPrincipalNames.Replace('\\','') | ConvertFrom-Json\r\n[array]$Shares = $ShareNames.Replace('\\','') | ConvertFrom-Json\r\n\r\n# Create Domain credential\r\n$DomainUsername = $DomainAdminUserPrincipalName\r\n$DomainPassword = ConvertTo-SecureString -String $DomainAdminPassword -AsPlainText -Force\r\n[pscredential]$DomainCredential = New-Object System.Management.Automation.PSCredential ($DomainUsername, $DomainPassword)\r\n\r\n# Set NTFS permissions of file shares\r\nforeach($Share in $Shares)\r\n{\r\n    # Mount file share\r\n    $FileShare = $FileServer + '\\' + $Share\r\n    New-PSDrive -Name 'Z' -PSProvider 'FileSystem' -Root $FileShare -Credential $DomainCredential | Out-Null\r\n\r\n    # Set recommended NTFS permissions on the file share\r\n    $ACL = Get-Acl -Path 'Z:'\r\n    $CreatorOwner = New-Object System.Security.Principal.Ntaccount (\"Creator Owner\")\r\n    $ACL.PurgeAccessRules($CreatorOwner)\r\n    $AuthenticatedUsers = New-Object System.Security.Principal.Ntaccount (\"Authenticated Users\")\r\n    $ACL.PurgeAccessRules($AuthenticatedUsers)\r\n    $Users = New-Object System.Security.Principal.Ntaccount (\"Users\")\r\n    $ACL.PurgeAccessRules($Users)\r\n    $DomainUsers = New-Object System.Security.AccessControl.FileSystemAccessRule(\"$Group\",\"Modify\",\"None\",\"None\",\"Allow\")\r\n    $ACL.SetAccessRule($DomainUsers)\r\n    $CreatorOwner = New-Object System.Security.AccessControl.FileSystemAccessRule(\"Creator Owner\",\"Modify\",\"ContainerInherit,ObjectInherit\",\"InheritOnly\",\"Allow\")\r\n    $ACL.AddAccessRule($CreatorOwner)\r\n    $ACL | Set-Acl -Path 'Z:' | Out-Null\r\n\r\n    # Unmount file share\r\n    Remove-PSDrive -Name 'Z' -PSProvider 'FileSystem' -Force | Out-Null\r\n    Start-Sleep -Seconds 5 | Out-Null\r\n}\r\n",
+                            "nameSuffix": "[if(empty(parameters('suffix')), '', format('{0}{1}', parameters('delimiter'), parameters('suffix')))]",
+                            "tagsNetAppAccount": "[union(if(empty(parameters('hostPoolResourceId')), createObject(), createObject('cm-resource-parent', parameters('hostPoolResourceId'))), coalesce(tryGet(parameters('tags'), 'Microsoft.NetApp/netAppAccounts'), createObject()), parameters('mlzTags'))]"
                           },
                           "resources": [
+                            {
+                              "type": "Microsoft.NetApp/netAppAccounts",
+                              "apiVersion": "2025-01-01",
+                              "name": "[format('{0}{1}', parameters('netAppAccountNamePrefix'), variables('nameSuffix'))]",
+                              "location": "[parameters('location')]",
+                              "tags": "[variables('tagsNetAppAccount')]",
+                              "properties": {
+                                "activeDirectories": [
+                                  {
+                                    "aesEncryption": true,
+                                    "domain": "[parameters('domainName')]",
+                                    "dns": "[parameters('dnsServers')]",
+                                    "organizationalUnit": "[if(empty(parameters('organizationalUnitPath')), 'CN=Computers', parameters('organizationalUnitPath'))]",
+                                    "password": "[parameters('domainAdminPassword')]",
+                                    "smbServerName": "[parameters('smbServerName')]",
+                                    "username": "[split(parameters('domainAdminUserPrincipalName'), '@')[0]]"
+                                  }
+                                ],
+                                "encryption": {
+                                  "keySource": "Microsoft.NetApp"
+                                }
+                              }
+                            },
+                            {
+                              "type": "Microsoft.NetApp/netAppAccounts/capacityPools",
+                              "apiVersion": "2025-01-01",
+                              "name": "[format('{0}/{1}', format('{0}{1}', parameters('netAppAccountNamePrefix'), variables('nameSuffix')), format('{0}{1}', parameters('netAppCapacityPoolNamePrefix'), variables('nameSuffix')))]",
+                              "location": "[parameters('location')]",
+                              "tags": "[variables('tagsNetAppAccount')]",
+                              "properties": {
+                                "coolAccess": false,
+                                "encryptionType": "Single",
+                                "qosType": "Auto",
+                                "serviceLevel": "[parameters('storageSku')]",
+                                "size": 4398046511104
+                              },
+                              "dependsOn": [
+                                "[resourceId('Microsoft.NetApp/netAppAccounts', format('{0}{1}', parameters('netAppAccountNamePrefix'), variables('nameSuffix')))]"
+                              ]
+                            },
+                            {
+                              "copy": {
+                                "name": "volumes",
+                                "count": "[length(range(0, length(parameters('fileShares'))))]"
+                              },
+                              "type": "Microsoft.NetApp/netAppAccounts/capacityPools/volumes",
+                              "apiVersion": "2025-01-01",
+                              "name": "[format('{0}/{1}/{2}', format('{0}{1}', parameters('netAppAccountNamePrefix'), variables('nameSuffix')), format('{0}{1}', parameters('netAppCapacityPoolNamePrefix'), variables('nameSuffix')), parameters('fileShares')[range(0, length(parameters('fileShares')))[copyIndex()]])]",
+                              "location": "[parameters('location')]",
+                              "tags": "[variables('tagsNetAppAccount')]",
+                              "properties": {
+                                "avsDataStore": "Disabled",
+                                "coolAccess": false,
+                                "creationToken": "[parameters('fileShares')[range(0, length(parameters('fileShares')))[copyIndex()]]]",
+                                "defaultGroupQuotaInKiBs": 0,
+                                "defaultUserQuotaInKiBs": 0,
+                                "encryptionKeySource": "Microsoft.NetApp",
+                                "isDefaultQuotaEnabled": false,
+                                "isLargeVolume": false,
+                                "kerberosEnabled": false,
+                                "ldapEnabled": false,
+                                "networkFeatures": "Standard",
+                                "protocolTypes": [
+                                  "CIFS"
+                                ],
+                                "securityStyle": "ntfs",
+                                "serviceLevel": "[parameters('storageSku')]",
+                                "smbAccessBasedEnumeration": "Enabled",
+                                "smbContinuouslyAvailable": true,
+                                "smbEncryption": true,
+                                "smbNonBrowsable": "Disabled",
+                                "snapshotDirectoryVisible": true,
+                                "subnetId": "[parameters('delegatedSubnetResourceId')]",
+                                "usageThreshold": 107374182400
+                              },
+                              "dependsOn": [
+                                "[resourceId('Microsoft.NetApp/netAppAccounts/capacityPools', format('{0}{1}', parameters('netAppAccountNamePrefix'), variables('nameSuffix')), format('{0}{1}', parameters('netAppCapacityPoolNamePrefix'), variables('nameSuffix')))]"
+                              ]
+                            },
                             {
                               "type": "Microsoft.Resources/deployments",
                               "apiVersion": "2025-04-01",
                               "name": "[format('deploy-fslogix-ntfs-permissions-{0}', parameters('deploymentNameSuffix'))]",
-                              "resourceGroup": "[parameters('resourceGroupName')]",
+                              "resourceGroup": "[parameters('resourceGroupManagement')]",
                               "properties": {
                                 "expressionEvaluationOptions": {
                                   "scope": "inner"
@@ -16992,10 +16907,23 @@
                                     "value": "[parameters('location')]"
                                   },
                                   "name": {
-                                    "value": "Set-NtfsPermissions.ps1"
+                                    "value": "Set-AzureNetAppFilesNtfsPermissions.ps1"
                                   },
                                   "parameters": {
-                                    "value": "[parameters('parameters')]"
+                                    "value": [
+                                      {
+                                        "name": "FileServer",
+                                        "value": "[reference(resourceId('Microsoft.NetApp/netAppAccounts/capacityPools/volumes', format('{0}{1}', parameters('netAppAccountNamePrefix'), variables('nameSuffix')), format('{0}{1}', parameters('netAppCapacityPoolNamePrefix'), variables('nameSuffix')), parameters('fileShares')[range(0, length(parameters('fileShares')))[0]]), '2025-01-01').mountTargets[0].smbServerFqdn]"
+                                      },
+                                      {
+                                        "name": "SecurityPrincipalNames",
+                                        "value": "[string(parameters('securityPrincipalNames'))]"
+                                      },
+                                      {
+                                        "name": "ShareNames",
+                                        "value": "[string(parameters('fileShares'))]"
+                                      }
+                                    ]
                                   },
                                   "script": {
                                     "value": "[variables('$fxv#0')]"
@@ -17004,7 +16932,7 @@
                                     "value": "[parameters('tags')]"
                                   },
                                   "virtualMachineName": {
-                                    "value": "[parameters('virtualMachineName')]"
+                                    "value": "[parameters('managementVirtualMachineName')]"
                                   }
                                 },
                                 "template": {
@@ -17072,25 +17000,29 @@
                                     }
                                   ]
                                 }
-                              }
+                              },
+                              "dependsOn": [
+                                "[resourceId('Microsoft.NetApp/netAppAccounts/capacityPools/volumes', format('{0}{1}', parameters('netAppAccountNamePrefix'), variables('nameSuffix')), format('{0}{1}', parameters('netAppCapacityPoolNamePrefix'), variables('nameSuffix')), parameters('fileShares')[range(0, length(parameters('fileShares')))[0]])]"
+                              ]
                             }
-                          ]
+                          ],
+                          "outputs": {
+                            "netAppFileServer": {
+                              "type": "string",
+                              "value": "[reference(resourceId('Microsoft.NetApp/netAppAccounts/capacityPools/volumes', format('{0}{1}', parameters('netAppAccountNamePrefix'), variables('nameSuffix')), format('{0}{1}', parameters('netAppCapacityPoolNamePrefix'), variables('nameSuffix')), parameters('fileShares')[range(0, length(parameters('fileShares')))[0]]), '2025-01-01').mountTargets[0].smbServerFqdn]"
+                            }
+                          }
                         }
                       },
                       "dependsOn": [
-                        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-netapp-files-{0}', parameters('deploymentNameSuffix')))]",
                         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-mgmt-vm-{0}', parameters('deploymentNameSuffix')))]"
                       ]
                     }
                   ],
                   "outputs": {
-                    "fileShare": {
+                    "fileServer": {
                       "type": "string",
-                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-netapp-files-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.fileShares.value[0]]"
-                    },
-                    "smbServerNamePrefix": {
-                      "type": "string",
-                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-netapp-files-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.smbServerNamePrefix.value]"
+                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-netapp-files-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.netAppFileServer.value]"
                     }
                   }
                 }
@@ -17102,9 +17034,9 @@
             }
           ],
           "outputs": {
-            "fileShare": {
+            "fileShareUncPath": {
               "type": "string",
-              "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-netapp-files-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.fileShare.value]"
+              "value": "[format('\\\\{0}\\{1}', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-netapp-files-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.fileServer.value, parameters('fileShareName'))]"
             }
           }
         }

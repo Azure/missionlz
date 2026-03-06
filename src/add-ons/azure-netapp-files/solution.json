@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.41.2.15936",
-      "templateHash": "15219941434806551216"
+      "templateHash": "8095558002061080731"
     }
   },
   "parameters": {
@@ -5656,7 +5656,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.41.2.15936",
-              "templateHash": "13956242547635541814"
+              "templateHash": "14415161817214262521"
             }
           },
           "parameters": {
@@ -6782,6 +6782,9 @@
                   "delimiter": {
                     "value": "[parameters('delimiter')]"
                   },
+                  "deploymentNameSuffix": {
+                    "value": "[parameters('deploymentNameSuffix')]"
+                  },
                   "dnsServers": {
                     "value": "[parameters('dnsServers')]"
                   },
@@ -6802,6 +6805,9 @@
                   "location": {
                     "value": "[parameters('location')]"
                   },
+                  "managementVirtualMachineName": {
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-mgmt-vm-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.name.value]"
+                  },
                   "mlzTags": {
                     "value": "[parameters('mlzTags')]"
                   },
@@ -6814,6 +6820,14 @@
                   "organizationalUnitPath": {
                     "value": "[parameters('organizationalUnitPath')]"
                   },
+                  "resourceGroupManagement": {
+                    "value": "[parameters('resourceGroupName')]"
+                  },
+                  "securityPrincipalNames": {
+                    "value": [
+                      "[parameters('securityPrincipalName')]"
+                    ]
+                  },
                   "smbServerName": {
                     "value": "[parameters('smbServerName')]"
                   },
@@ -6822,20 +6836,6 @@
                   },
                   "tags": {
                     "value": "[parameters('tags')]"
-                  },
-                  "deploymentNameSuffix": {
-                    "value": "[parameters('deploymentNameSuffix')]"
-                  },
-                  "managementVirtualMachineName": {
-                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-mgmt-vm-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.name.value]"
-                  },
-                  "resourceGroupManagement": {
-                    "value": "[parameters('resourceGroupName')]"
-                  },
-                  "securityPrincipalNames": {
-                    "value": [
-                      "[parameters('securityPrincipalName')]"
-                    ]
                   }
                 },
                 "template": {
