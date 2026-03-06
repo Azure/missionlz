@@ -128,8 +128,8 @@ param organizationalUnitPath string = ''
 @description('The policy to assign to the workload.')
 param policy string = 'NISTRev4'
 
-@description('The array of one or more security principals to assign NTFS permissions to access the file share.')
-param securityPrincipalNames array = []
+@description('The name of the security principal to assign NTFS permissions to access the file share.')
+param securityPrincipalName string
 
 @allowed([
   'Premium'
@@ -261,7 +261,7 @@ module netAppFiles 'modules/azureNetAppFiles.bicep' = {
     privateDnsZones: tier3.outputs.privateDnsZones
     resourceAbbreviations: tier3.outputs.resourceAbbreviations
     resourceGroupName: rg.outputs.name
-    securityPrincipalNames: securityPrincipalNames
+    securityPrincipalName: securityPrincipalName
     sku: sku
     smbServerName: replace(tier3.outputs.tier.namingConvention.netAppAccountSmbServer, tier3.outputs.tokens.purpose, '')
     subnetResourceId: tier3.outputs.tier.subnets[0].id
@@ -274,4 +274,4 @@ module netAppFiles 'modules/azureNetAppFiles.bicep' = {
   }
 }
 
-output fileShare string = netAppFiles.outputs.fileShare
+output fileShareUncPath string = '\\\\${netAppFiles.outputs.fileServer}\\${fileShareName}'
