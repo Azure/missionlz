@@ -407,7 +407,6 @@ var fileShareNames = {
     'profile-containers'
   ]
 }
-var fileShares = fileShareNames[fslogixContainerType]
 var netbios = split(domainName, '.')[0]
 var privateDnsZoneResourceIdPrefix = '/subscriptions/${split(hubVirtualNetworkResourceId, '/')[2]}/resourceGroups/${split(hubVirtualNetworkResourceId, '/')[4]}/providers/Microsoft.Network/privateDnsZones/'
 var privateDnsZoneSuffixes_AzureVirtualDesktop = {
@@ -827,7 +826,7 @@ module fslogix 'modules/fslogix/fslogix.bicep' = if (deployFslogix) {
     domainAdminUserPrincipalName: domainAdminUserPrincipalName
     domainName: domainName
     encryptionUserAssignedIdentityResourceId: management.outputs.encryptionUserAssignedIdentityResourceId
-    fileShares: fileShares
+    fileShareNames: fileShareNames[fslogixContainerType]
     fslogixShareSizeInGB: fslogixShareSizeInGB
     fslogixStorageService: fslogixStorageService
     functionAppPrincipalId: shared.outputs.functionAppPrincipalId
