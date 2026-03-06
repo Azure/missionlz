@@ -1,5 +1,6 @@
 param delegatedSubnetResourceId string
 param delimiter string
+param deploymentNameSuffix string
 param dnsServers string
 @secure()
 param domainAdminPassword string
@@ -9,10 +10,13 @@ param domainName string
 param hostPoolResourceId string = ''
 param fileShares array
 param location string
+param managementVirtualMachineName string
 param mlzTags object
 param netAppAccountNamePrefix string
 param netAppCapacityPoolNamePrefix string
 param organizationalUnitPath string
+param resourceGroupManagement string
+param securityPrincipalNames array
 param smbServerName string
 param storageSku string
 param suffix string =  ''
@@ -112,5 +116,32 @@ resource volumes 'Microsoft.NetApp/netAppAccounts/capacityPools/volumes@2025-01-
   }
 }]
 
-output fileShares array = [for (fileshare, i) in fileShares: volumes[i].properties.mountTargets[0].smbServerFqdn]
-output smbServerNamePrefix string = smbServerName
+module ntfsPermissions 'run-command.bicep' = {
+  name: 'deploy-fslogix-ntfs-permissions-${deploymentNameSuffix}'
+  scope: resourceGroup(resourceGroupManagement)
+  params: {
+    domainAdminPassword: domainAdminPassword
+    domainAdminUserPrincipalName: domainAdminUserPrincipalName
+    location: location
+    name: 'Set-AzureNetAppFilesNtfsPermissions.ps1'
+    parameters: [
+      {
+        name: 'FileServer'
+        value: volumes[0].properties.mountTargets[0].smbServerFqdn
+      }
+      {
+        name: 'SecurityPrincipalNames'
+        value: string(securityPrincipalNames)
+      }
+      {
+        name: 'ShareNames'
+        value: string(fileShares)
+      }
+    ]
+    script: loadTextContent('../../artifacts/Set-AzureNetAppFilesNtfsPermissions.ps1')
+    tags: tags
+    virtualMachineName: managementVirtualMachineName
+  }
+}
+
+output netAppFileServer string = volumes[0].properties.mountTargets[0].smbServerFqdn

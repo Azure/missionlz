@@ -14,7 +14,6 @@ param domainAdminUserPrincipalName string
 param domainName string
 param encryptionUserAssignedIdentityResourceId string
 param fileShares array
-param fslogixContainerType string
 param fslogixShareSizeInGB int
 param fslogixStorageService string
 param functionAppPrincipalId string
@@ -75,6 +74,7 @@ module azureNetAppFiles 'azure-netapp-files.bicep' = if (storageService == 'Azur
   params: {
     delegatedSubnetResourceId: filter(tier.subnets, subnet => contains(subnet.name, 'azure-netapp-files'))[0].id
     delimiter: delimiter
+    deploymentNameSuffix: deploymentNameSuffix
     dnsServers: join(tier.dnsServers, ',')
     domainAdminPassword: domainAdminPassword
     domainAdminUserPrincipalName: domainAdminUserPrincipalName
@@ -82,10 +82,13 @@ module azureNetAppFiles 'azure-netapp-files.bicep' = if (storageService == 'Azur
     fileShares: fileShares
     hostPoolResourceId: hostPoolResourceId
     location: location
+    managementVirtualMachineName: managementVirtualMachineName
     mlzTags: mlzTags
     netAppAccountNamePrefix: replace(tier.namingConvention.netAppAccount, '${delimiter}${tokens.purpose}', '')
     netAppCapacityPoolNamePrefix: replace(tier.namingConvention.netAppAccountCapacityPool, '${delimiter}${tokens.purpose}', '')
     organizationalUnitPath: organizationalUnitPath
+    resourceGroupManagement: resourceGroupManagement
+    securityPrincipalNames: securityPrincipalNames
     smbServerName: replace(tier.namingConvention.netAppAccountSmbServer, '${delimiter}${tokens.purpose}', '')
     storageSku: storageSku
     suffix: 'fslogix'
@@ -103,6 +106,9 @@ module azureFiles 'azure-files/azure-files.bicep' = if (storageService == 'Azure
     azureFilesPrivateDnsZoneResourceId: azureFilesPrivateDnsZoneResourceId
     delimiter: delimiter
     deploymentNameSuffix: deploymentNameSuffix
+    deploymentUserAssignedIdentityClientId: deploymentUserAssignedIdentityClientId
+    domainAdminPassword: domainAdminPassword
+    domainAdminUserPrincipalName: domainAdminUserPrincipalName
     encryptionUserAssignedIdentityResourceId: encryptionUserAssignedIdentityResourceId
     fileShares: fileShares
     fslogixShareSizeInGB: fslogixShareSizeInGB
@@ -110,9 +116,13 @@ module azureFiles 'azure-files/azure-files.bicep' = if (storageService == 'Azure
     keyVaultName: keyVaultName
     keyVaultUri: keyVaultUri
     location: location
+    managementVirtualMachineName: managementVirtualMachineName
     mlzTags: mlzTags
     names: tier.namingConvention
+    netbios: netbios
+    organizationalUnitPath: organizationalUnitPath
     resourceGroupManagement: resourceGroupManagement
+    securityPrincipalNames: securityPrincipalNames
     securityPrincipalObjectIds: securityPrincipalObjectIds
     storageCount: storageCount
     storageIndex: storageIndex
@@ -123,99 +133,5 @@ module azureFiles 'azure-files/azure-files.bicep' = if (storageService == 'Azure
   }
 }
 
-module ntfsPermissions 'ntfs-permissions.bicep' = {
-  name: 'deploy-ntfspermissions-${deploymentNameSuffix}'
-  params: {
-    deploymentNameSuffix: deploymentNameSuffix
-    domainAdminPassword: domainAdminPassword
-    domainAdminUserPrincipalName: domainAdminUserPrincipalName
-    location: location
-    parameters: storageService == 'AzureNetAppFiles' ? [
-      {
-        name: 'FileShares'
-        value: string(fileShares)
-      }
-      {
-        name: 'ResourceManagerUri'
-        value: environment().resourceManager
-      }
-      {
-        name: 'SecurityPrincipalNames'
-        value: string(securityPrincipalNames)
-      }
-      {
-        name: 'SmbServerNamePrefix'
-        value: azureNetAppFiles!.outputs.smbServerNamePrefix
-      }
-      {
-        name: 'StorageService'
-        value: storageService
-      }
-    ] : [
-      {
-        name: 'ActiveDirectorySolution'
-        value: activeDirectorySolution
-      }
-      {
-        name: 'FslogixContainerType'
-        value: fslogixContainerType
-      }
-      {
-        name: 'Netbios'
-        value: netbios
-      }
-      {
-        name: 'OrganizationalUnitPath'
-        value: organizationalUnitPath
-      }
-      {
-        name: 'ResourceManagerUri'
-        value: environment().resourceManager
-      }
-      {
-        name: 'SecurityPrincipalNames'
-        value: string(securityPrincipalNames)
-      }
-      {
-        name: 'StorageAccountPrefix'
-        value: azureFiles!.outputs.storageAccountNamePrefix
-      }
-      {
-        name: 'StorageAccountResourceGroupName'
-        value: resourceGroup.name
-      }
-      {
-        name: 'StorageCount'
-        value: storageCount
-      }
-      {
-        name: 'StorageIndex'
-        value: storageIndex
-      }
-      {
-        name: 'StorageService'
-        value: storageService
-      }
-      {
-        name: 'StorageSuffix'
-        value: environment().suffixes.storage
-      }
-      {
-        name: 'SubscriptionId'
-        value: subscription().subscriptionId
-      }
-      {
-        name: 'UserAssignedIdentityClientId'
-        value: deploymentUserAssignedIdentityClientId
-      }
-    ]
-    resourceGroupName: resourceGroupManagement
-    tags: tags
-    virtualMachineName: managementVirtualMachineName
-  }
-}
-
-output netAppShares array = storageService == 'AzureNetAppFiles' ? azureNetAppFiles!.outputs.fileShares : [
-  'None'
-]
+output netAppFileServer string = storageService == 'AzureNetAppFiles' ? azureNetAppFiles!.outputs.netAppFileServer : ''
 output storageAccountNamePrefix string = storageService == 'AzureFiles' ? azureFiles!.outputs.storageAccountNamePrefix : ''
