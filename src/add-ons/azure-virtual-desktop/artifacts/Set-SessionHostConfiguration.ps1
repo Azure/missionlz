@@ -3,7 +3,7 @@
     [string]$AmdVmSize,
     [string]$Fslogix,
     [string]$FslogixContainerType,
-    [string]$NetAppFileShares,
+    [string]$NetAppFileServer,
     [string]$NvidiaVmSize,
     [string]$StorageAccountPrefix,
     [int]$StorageCount,
@@ -15,10 +15,6 @@
 
 $ErrorActionPreference = 'Stop'
 $WarningPreference = 'SilentlyContinue'
-
-
-# Convert NetAppFiles share names from a JSON array to a PowerShell array
-[array]$NetAppFileShares = $NetAppFileShares.Replace("'",'"') | ConvertFrom-Json
 
 #  Add Recommended AVD Settings
 $Settings = @(
@@ -139,10 +135,10 @@ if($Fslogix -eq 'true')
             }
         }
         'AzureNetAppFiles' {
-            $CloudCacheOfficeContainers += 'type=smb,connectionString=\\' + $NetAppFileShares[0] + '\office-containers;'
-            $CloudCacheProfileContainers += 'type=smb,connectionString=\\' + $(if($NetAppFileShares.Length -gt 1){$NetAppFileShares[1]}else{$NetAppFileShares[0]}) + '\profile-containers;'
-            $OfficeContainers += '\\' + $NetAppFileShares[0] + '\office-containers'
-            $ProfileContainers += '\\' + $(if($NetAppFileShares.Length -gt 1){$NetAppFileShares[1]}else{$NetAppFileShares[0]}) + '\profile-containers'
+            $CloudCacheOfficeContainers += 'type=smb,connectionString=\\' + $NetAppFileServer + '\office-containers;'
+            $CloudCacheProfileContainers += 'type=smb,connectionString=\\' + $NetAppFileServer + '\profile-containers;'
+            $OfficeContainers += '\\' + $NetAppFileServer + '\office-containers'
+            $ProfileContainers += '\\' + $NetAppFileServer + '\profile-containers'
         }
     }
     
