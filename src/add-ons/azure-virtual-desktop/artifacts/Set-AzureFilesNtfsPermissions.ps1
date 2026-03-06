@@ -62,13 +62,12 @@ if ($ActiveDirectorySolution -eq 'ActiveDirectoryDomainServices')
 
 for($i = 0; $i -lt $StorageCount; $i++)
 {
-    # Determine Principal for assignment
+    # Determine principal for assignment
     $SecurityPrincipalName = $SecurityPrincipalNames[$i]
     $Group = $Netbios + '\' + $SecurityPrincipalName
 
-    # Determine file server
+    # Determine storage account name
     $StorageAccountName = $($StorageAccountPrefix + ($i + $StorageIndex).ToString().PadLeft(2,'0')).Substring(0,15)
-    $FileServer = '\\' + $StorageAccountName + $FilesSuffix
 
     # Get the storage account key
     $StorageKey = (Invoke-RestMethod `
@@ -176,7 +175,7 @@ for($i = 0; $i -lt $StorageCount; $i++)
 foreach($Share in $Shares)
 {
     # Mount file share
-    $FileShare = $FileServer + '\' + $Share
+    $FileShare = '\\' + $StorageAccountName + $FilesSuffix + '\' + $Share
     New-PSDrive -Name 'Z' -PSProvider 'FileSystem' -Root $FileShare -Credential $Credential | Out-Null
 
     # Set recommended NTFS permissions on the file share

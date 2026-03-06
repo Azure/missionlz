@@ -23,7 +23,7 @@ $DomainPassword = ConvertTo-SecureString -String $DomainAdminPassword -AsPlainTe
 foreach($Share in $Shares)
 {
     # Mount file share
-    $FileShare = $FileServer + '\' + $Share
+    $FileShare = '\\' + $FileServer + '\' + $Share
     New-PSDrive -Name 'Z' -PSProvider 'FileSystem' -Root $FileShare -Credential $DomainCredential | Out-Null
 
     # Set recommended NTFS permissions on the file share
