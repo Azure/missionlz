@@ -183,8 +183,8 @@ param workloadName string = 'netAppFile'
 @description('The short name for the workload.')
 param workloadShortName string = 'anf'
 
+var netbios = split(domainName, '.')[0]
 var privateDnsZoneResourceIdPrefix = '/subscriptions/${split(hubVirtualNetworkResourceId, '/')[2]}/resourceGroups/${split(hubVirtualNetworkResourceId, '/')[4]}/providers/Microsoft.Network/privateDnsZones/'
-
 
 // Spoke network
 module tier3 '../tier3/solution.bicep' = {
@@ -256,6 +256,7 @@ module netAppFiles 'modules/azureNetAppFiles.bicep' = {
     location: location
     mlzTags: tier3.outputs.mlzTags
     namingConvention: tier3.outputs.tier.namingConvention
+    netbios: netbios
     organizationalUnitPath: organizationalUnitPath
     privateDnsZoneResourceIdPrefix: privateDnsZoneResourceIdPrefix
     privateDnsZones: tier3.outputs.privateDnsZones

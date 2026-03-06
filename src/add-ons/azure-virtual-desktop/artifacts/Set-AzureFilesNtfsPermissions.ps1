@@ -22,7 +22,7 @@ $WarningPreference = 'SilentlyContinue'
 
 # Variables
 # Convert parameters values from JSON array to a PowerShell array
-[array]$SecurityPrincipalNames = $SecurityPrincipalNames.Replace('\','') | ConvertFrom-Json
+[array]$SecurityPrincipals = $SecurityPrincipalNames.Replace('\','') | ConvertFrom-Json
 [array]$Shares = $ShareNames.Replace('\','') | ConvertFrom-Json
 
 if ($ActiveDirectorySolution -eq 'ActiveDirectoryDomainServices')
@@ -63,8 +63,8 @@ if ($ActiveDirectorySolution -eq 'ActiveDirectoryDomainServices')
 for($i = 0; $i -lt $StorageCount; $i++)
 {
     # Determine principal for assignment
-    $SecurityPrincipalName = $SecurityPrincipalNames[$i]
-    $Group = $Netbios + '\' + $SecurityPrincipalName
+    $SecurityPrincipal = $SecurityPrincipals[$i]
+    $DomainSecurityPrincipal = $Netbios + '\' + $SecurityPrincipal
 
     # Determine storage account name
     $StorageAccountName = $($StorageAccountPrefix + ($i + $StorageIndex).ToString().PadLeft(2,'0')).Substring(0,15)
@@ -168,31 +168,32 @@ for($i = 0; $i -lt $StorageCount; $i++)
         # Update the password on the computer object with the new Kerberos key on the Storage Account
         $NewPassword = ConvertTo-SecureString -String $Key -AsPlainText -Force
         Set-ADAccountPassword -Credential $DomainCredential -Identity $DistinguishedName -Reset -NewPassword $NewPassword | Out-Null
+
+        # Set NTFS permissions of file shares
+        foreach($Share in $Shares)
+        {
+            # Mount file share
+            $FileShare = '\\' + $StorageAccountName + $FilesSuffix + '\' + $Share
+            New-PSDrive -Name 'Z' -PSProvider 'FileSystem' -Root $FileShare -Credential $Credential | Out-Null
+
+            # Set recommended NTFS permissions on the file share
+            $ACL = Get-Acl -Path 'Z:'
+            $CreatorOwner = New-Object System.Security.Principal.Ntaccount ("Creator Owner")
+            $ACL.PurgeAccessRules($CreatorOwner)
+            $AuthenticatedUsers = New-Object System.Security.Principal.Ntaccount ("Authenticated Users")
+            $ACL.PurgeAccessRules($AuthenticatedUsers)
+            $Users = New-Object System.Security.Principal.Ntaccount ("Users")
+            $ACL.PurgeAccessRules($Users)
+            $DomainUsers = New-Object System.Security.AccessControl.FileSystemAccessRule("$DomainSecurityPrincipal","Modify","None","None","Allow")
+            $ACL.SetAccessRule($DomainUsers)
+            $CreatorOwner = New-Object System.Security.AccessControl.FileSystemAccessRule("Creator Owner","Modify","ContainerInherit,ObjectInherit","InheritOnly","Allow")
+            $ACL.AddAccessRule($CreatorOwner)
+            $ACL | Set-Acl -Path 'Z:' | Out-Null
+
+            # Unmount file share
+            Remove-PSDrive -Name 'Z' -PSProvider 'FileSystem' -Force | Out-Null
+            Start-Sleep -Seconds 5 | Out-Null
+        }
     }
 }
 
-# Set NTFS permissions of file shares
-foreach($Share in $Shares)
-{
-    # Mount file share
-    $FileShare = '\\' + $StorageAccountName + $FilesSuffix + '\' + $Share
-    New-PSDrive -Name 'Z' -PSProvider 'FileSystem' -Root $FileShare -Credential $Credential | Out-Null
-
-    # Set recommended NTFS permissions on the file share
-    $ACL = Get-Acl -Path 'Z:'
-    $CreatorOwner = New-Object System.Security.Principal.Ntaccount ("Creator Owner")
-    $ACL.PurgeAccessRules($CreatorOwner)
-    $AuthenticatedUsers = New-Object System.Security.Principal.Ntaccount ("Authenticated Users")
-    $ACL.PurgeAccessRules($AuthenticatedUsers)
-    $Users = New-Object System.Security.Principal.Ntaccount ("Users")
-    $ACL.PurgeAccessRules($Users)
-    $DomainUsers = New-Object System.Security.AccessControl.FileSystemAccessRule("$Group","Modify","None","None","Allow")
-    $ACL.SetAccessRule($DomainUsers)
-    $CreatorOwner = New-Object System.Security.AccessControl.FileSystemAccessRule("Creator Owner","Modify","ContainerInherit,ObjectInherit","InheritOnly","Allow")
-    $ACL.AddAccessRule($CreatorOwner)
-    $ACL | Set-Acl -Path 'Z:' | Out-Null
-
-    # Unmount file share
-    Remove-PSDrive -Name 'Z' -PSProvider 'FileSystem' -Force | Out-Null
-    Start-Sleep -Seconds 5 | Out-Null
-}

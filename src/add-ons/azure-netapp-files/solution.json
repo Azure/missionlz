@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.41.2.15936",
-      "templateHash": "671189979433658651"
+      "templateHash": "3521152660322712699"
     }
   },
   "parameters": {
@@ -331,6 +331,7 @@
     }
   },
   "variables": {
+    "netbios": "[split(parameters('domainName'), '.')[0]]",
     "privateDnsZoneResourceIdPrefix": "[format('/subscriptions/{0}/resourceGroups/{1}/providers/Microsoft.Network/privateDnsZones/', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4])]"
   },
   "resources": [
@@ -5603,6 +5604,9 @@
           "namingConvention": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tier.value.namingConvention]"
           },
+          "netbios": {
+            "value": "[variables('netbios')]"
+          },
           "organizationalUnitPath": {
             "value": "[parameters('organizationalUnitPath')]"
           },
@@ -5656,7 +5660,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.41.2.15936",
-              "templateHash": "759787773739923370"
+              "templateHash": "12509914167183048944"
             }
           },
           "parameters": {
@@ -5695,6 +5699,9 @@
             },
             "namingConvention": {
               "type": "object"
+            },
+            "netbios": {
+              "type": "string"
             },
             "organizationalUnitPath": {
               "type": "string"
@@ -6817,6 +6824,9 @@
                   "netAppCapacityPoolNamePrefix": {
                     "value": "[replace(parameters('namingConvention').netAppAccountCapacityPool, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), '')]"
                   },
+                  "netbios": {
+                    "value": "[parameters('netbios')]"
+                  },
                   "organizationalUnitPath": {
                     "value": "[parameters('organizationalUnitPath')]"
                   },
@@ -6845,7 +6855,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.41.2.15936",
-                      "templateHash": "9896714206921909889"
+                      "templateHash": "1109369902297804319"
                     }
                   },
                   "parameters": {
@@ -6892,6 +6902,9 @@
                     "netAppCapacityPoolNamePrefix": {
                       "type": "string"
                     },
+                    "netbios": {
+                      "type": "string"
+                    },
                     "organizationalUnitPath": {
                       "type": "string"
                     },
@@ -6916,7 +6929,7 @@
                     }
                   },
                   "variables": {
-                    "$fxv#0": "param (\r\n    [String]$DomainAdminPassword,\r\n    [String]$DomainAdminUserPrincipalName,\r\n    [String]$FileServer,\r\n    [String]$SecurityPrincipalNames,\r\n    [String]$ShareNames\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n$WarningPreference = 'SilentlyContinue'\r\n\r\n# Variables\r\n# Convert parameters values from JSON array to a PowerShell array\r\n[array]$SecurityPrincipalNames = $SecurityPrincipalNames.Replace('\\','') | ConvertFrom-Json\r\n[array]$Shares = $ShareNames.Replace('\\','') | ConvertFrom-Json\r\n\r\n# Create Domain credential\r\n$DomainUsername = $DomainAdminUserPrincipalName\r\n$DomainPassword = ConvertTo-SecureString -String $DomainAdminPassword -AsPlainText -Force\r\n[pscredential]$DomainCredential = New-Object System.Management.Automation.PSCredential ($DomainUsername, $DomainPassword)\r\n\r\n# Set NTFS permissions of file shares\r\nforeach($Share in $Shares)\r\n{\r\n    # Mount file share\r\n    $FileShare = '\\\\' + $FileServer + '\\' + $Share\r\n    New-PSDrive -Name 'Z' -PSProvider 'FileSystem' -Root $FileShare -Credential $DomainCredential | Out-Null\r\n\r\n    # Set recommended NTFS permissions on the file share\r\n    $ACL = Get-Acl -Path 'Z:'\r\n    $CreatorOwner = New-Object System.Security.Principal.Ntaccount (\"Creator Owner\")\r\n    $ACL.PurgeAccessRules($CreatorOwner)\r\n    $AuthenticatedUsers = New-Object System.Security.Principal.Ntaccount (\"Authenticated Users\")\r\n    $ACL.PurgeAccessRules($AuthenticatedUsers)\r\n    $Users = New-Object System.Security.Principal.Ntaccount (\"Users\")\r\n    $ACL.PurgeAccessRules($Users)\r\n    $DomainUsers = New-Object System.Security.AccessControl.FileSystemAccessRule(\"$Group\",\"Modify\",\"None\",\"None\",\"Allow\")\r\n    $ACL.SetAccessRule($DomainUsers)\r\n    $CreatorOwner = New-Object System.Security.AccessControl.FileSystemAccessRule(\"Creator Owner\",\"Modify\",\"ContainerInherit,ObjectInherit\",\"InheritOnly\",\"Allow\")\r\n    $ACL.AddAccessRule($CreatorOwner)\r\n    $ACL | Set-Acl -Path 'Z:' | Out-Null\r\n\r\n    # Unmount file share\r\n    Remove-PSDrive -Name 'Z' -PSProvider 'FileSystem' -Force | Out-Null\r\n    Start-Sleep -Seconds 5 | Out-Null\r\n}\r\n",
+                    "$fxv#0": "param (\r\n    [String]$DomainAdminPassword,\r\n    [String]$DomainAdminUserPrincipalName,\r\n    [String]$FileServer,\r\n    [String]$Netbios,\r\n    [String]$SecurityPrincipalNames,\r\n    [String]$ShareNames\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n$WarningPreference = 'SilentlyContinue'\r\n\r\n# Variables\r\n# Convert parameters values from JSON array to a PowerShell array\r\n[array]$SecurityPrincipals = $SecurityPrincipalNames.Replace('\\','') | ConvertFrom-Json\r\n[array]$Shares = $ShareNames.Replace('\\','') | ConvertFrom-Json\r\n\r\n# Create Domain credential\r\n$DomainUsername = $DomainAdminUserPrincipalName\r\n$DomainPassword = ConvertTo-SecureString -String $DomainAdminPassword -AsPlainText -Force\r\n[pscredential]$DomainCredential = New-Object System.Management.Automation.PSCredential ($DomainUsername, $DomainPassword)\r\n\r\n# Set NTFS permissions of file shares\r\nforeach($Share in $Shares)\r\n{\r\n    foreach($SecurityPrincipal in $SecurityPrincipals)\r\n    {\r\n        $DomainSecurityPrincipal = $Netbios + '\\' + $SecurityPrincipal\r\n    \r\n        # Mount file share\r\n        $FileShare = '\\\\' + $FileServer + '\\' + $Share\r\n        New-PSDrive -Name 'Z' -PSProvider 'FileSystem' -Root $FileShare -Credential $DomainCredential | Out-Null\r\n\r\n        # Set recommended NTFS permissions on the file share\r\n        $ACL = Get-Acl -Path 'Z:'\r\n        $CreatorOwner = New-Object System.Security.Principal.Ntaccount (\"Creator Owner\")\r\n        $ACL.PurgeAccessRules($CreatorOwner)\r\n        $AuthenticatedUsers = New-Object System.Security.Principal.Ntaccount (\"Authenticated Users\")\r\n        $ACL.PurgeAccessRules($AuthenticatedUsers)\r\n        $Users = New-Object System.Security.Principal.Ntaccount (\"Users\")\r\n        $ACL.PurgeAccessRules($Users)\r\n        $DomainUsers = New-Object System.Security.AccessControl.FileSystemAccessRule(\"$DomainSecurityPrincipal\",\"Modify\",\"None\",\"None\",\"Allow\")\r\n        $ACL.SetAccessRule($DomainUsers)\r\n        $CreatorOwner = New-Object System.Security.AccessControl.FileSystemAccessRule(\"Creator Owner\",\"Modify\",\"ContainerInherit,ObjectInherit\",\"InheritOnly\",\"Allow\")\r\n        $ACL.AddAccessRule($CreatorOwner)\r\n        $ACL | Set-Acl -Path 'Z:' | Out-Null\r\n\r\n        # Unmount file share\r\n        Remove-PSDrive -Name 'Z' -PSProvider 'FileSystem' -Force | Out-Null\r\n        Start-Sleep -Seconds 5 | Out-Null\r\n    }\r\n}\r\n",
                     "nameSuffix": "[if(empty(parameters('suffix')), '', format('{0}{1}', parameters('delimiter'), parameters('suffix')))]",
                     "tagsNetAppAccount": "[union(if(empty(parameters('hostPoolResourceId')), createObject(), createObject('cm-resource-parent', parameters('hostPoolResourceId'))), coalesce(tryGet(parameters('tags'), 'Microsoft.NetApp/netAppAccounts'), createObject()), parameters('mlzTags'))]"
                   },
@@ -7028,6 +7041,10 @@
                               {
                                 "name": "FileServer",
                                 "value": "[reference(resourceId('Microsoft.NetApp/netAppAccounts/capacityPools/volumes', format('{0}{1}', parameters('netAppAccountNamePrefix'), variables('nameSuffix')), format('{0}{1}', parameters('netAppCapacityPoolNamePrefix'), variables('nameSuffix')), parameters('fileShareNames')[range(0, length(parameters('fileShareNames')))[0]]), '2025-01-01').mountTargets[0].smbServerFqdn]"
+                              },
+                              {
+                                "name": "Netbios",
+                                "value": "[parameters('netbios')]"
                               },
                               {
                                 "name": "SecurityPrincipalNames",

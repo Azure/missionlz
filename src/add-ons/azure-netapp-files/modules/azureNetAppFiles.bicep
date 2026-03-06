@@ -14,6 +14,7 @@ param fileShareName string
 param location string
 param mlzTags object
 param namingConvention object
+param netbios string
 param organizationalUnitPath string
 param privateDnsZoneResourceIdPrefix string
 param privateDnsZones array
@@ -104,6 +105,7 @@ module netAppFiles '../../azure-virtual-desktop/modules/fslogix/azure-netapp-fil
     mlzTags: mlzTags
     netAppAccountNamePrefix: replace(namingConvention.netAppAccount, '${delimiter}${tokens.purpose}', '')
     netAppCapacityPoolNamePrefix: replace(namingConvention.netAppAccountCapacityPool, '${delimiter}${tokens.purpose}', '')
+    netbios: netbios
     organizationalUnitPath: organizationalUnitPath
     resourceGroupManagement: resourceGroupName
     securityPrincipalNames: [

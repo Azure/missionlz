@@ -14,6 +14,7 @@ param managementVirtualMachineName string
 param mlzTags object
 param netAppAccountNamePrefix string
 param netAppCapacityPoolNamePrefix string
+param netbios string
 param organizationalUnitPath string
 param resourceGroupManagement string
 param securityPrincipalNames array
@@ -128,6 +129,10 @@ module ntfsPermissions 'run-command.bicep' = {
       {
         name: 'FileServer'
         value: volumes[0].properties.mountTargets[0].smbServerFqdn
+      }
+      {
+        name: 'Netbios'
+        value: netbios
       }
       {
         name: 'SecurityPrincipalNames'

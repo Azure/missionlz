@@ -86,6 +86,7 @@ module azureNetAppFiles 'azure-netapp-files.bicep' = if (storageService == 'Azur
     mlzTags: mlzTags
     netAppAccountNamePrefix: replace(tier.namingConvention.netAppAccount, '${delimiter}${tokens.purpose}', '')
     netAppCapacityPoolNamePrefix: replace(tier.namingConvention.netAppAccountCapacityPool, '${delimiter}${tokens.purpose}', '')
+    netbios: netbios
     organizationalUnitPath: organizationalUnitPath
     resourceGroupManagement: resourceGroupManagement
     securityPrincipalNames: securityPrincipalNames
