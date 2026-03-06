@@ -31,7 +31,7 @@ param imageSku string
 param imageVersionResourceId string
 param location string
 param managementVirtualMachineName string
-param netAppFileShares array
+param netAppFileServer string
 param networkInterfaceNamePrefix string
 param networkSecurityGroupResourceId string
 param organizationalUnitPath string
@@ -314,8 +314,8 @@ module setSessionHostConfiguration '../common/run-command.bicep' = [
           value: fslogixContainerType
         }
         {
-          name: 'NetAppFileShares'
-          value: string(netAppFileShares)
+          name: 'NetAppFileServer'
+          value: netAppFileServer
         }
         {
           name: 'NvidiaVmSize'

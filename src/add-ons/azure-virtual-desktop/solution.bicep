@@ -828,7 +828,6 @@ module fslogix 'modules/fslogix/fslogix.bicep' = if (deployFslogix) {
     domainName: domainName
     encryptionUserAssignedIdentityResourceId: management.outputs.encryptionUserAssignedIdentityResourceId
     fileShares: fileShares
-    fslogixContainerType: fslogixContainerType
     fslogixShareSizeInGB: fslogixShareSizeInGB
     fslogixStorageService: fslogixStorageService
     functionAppPrincipalId: shared.outputs.functionAppPrincipalId
@@ -898,11 +897,9 @@ module sessionHosts 'modules/session-hosts/session-hosts.bicep' = {
     managementVirtualMachineName: management.outputs.virtualMachineName
     maxResourcesPerTemplateDeployment: maxResourcesPerTemplateDeployment
     mlzTags: tier3.outputs.mlzTags
-    netAppFileShares: deployFslogix
-      ? fslogix!.outputs.netAppShares
-      : [
-          'None'
-        ]
+    netAppFileServer: deployFslogix
+      ? fslogix!.outputs.netAppFileServer
+      : ''
     organizationalUnitPath: sessionHostsOrganizationalUnitPath
     profile: profile
     resourceGroupManagement: management.outputs.resourceGroupName

@@ -42,7 +42,7 @@ param logAnalyticsWorkspaceResourceId string
 param managementVirtualMachineName string
 param maxResourcesPerTemplateDeployment int
 param mlzTags object
-param netAppFileShares array
+param netAppFileServer string
 param organizationalUnitPath string
 param profile string
 param resourceGroupManagement string
@@ -216,7 +216,7 @@ module virtualMachines 'virtual-machines.bicep' = [for i in range(1, sessionHost
     imageSku: empty(imageVersionResourceId) ? imageSku : image!.properties.identifier.sku
     location: location
     managementVirtualMachineName: managementVirtualMachineName
-    netAppFileShares: netAppFileShares
+    netAppFileServer: netAppFileServer
     networkInterfaceNamePrefix: replace(tier.namingConvention.virtualMachineNetworkInterface, '${delimiter}${tokens.purpose}', '')
     networkSecurityGroupResourceId: tier.networkSecurityGroupResourceId
     organizationalUnitPath: organizationalUnitPath
