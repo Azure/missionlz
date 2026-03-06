@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.41.2.15936",
-      "templateHash": "2189424554982695444"
+      "templateHash": "2570002302468757690"
     }
   },
   "parameters": {
@@ -10513,9 +10513,6 @@
           "fileShares": {
             "value": "[variables('fileShares')]"
           },
-          "fslogixContainerType": {
-            "value": "[parameters('fslogixContainerType')]"
-          },
           "fslogixShareSizeInGB": {
             "value": "[parameters('fslogixShareSizeInGB')]"
           },
@@ -10587,7 +10584,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.41.2.15936",
-              "templateHash": "10332347266859848683"
+              "templateHash": "17900702030582845706"
             }
           },
           "parameters": {
@@ -10626,9 +10623,6 @@
             },
             "fileShares": {
               "type": "array"
-            },
-            "fslogixContainerType": {
-              "type": "string"
             },
             "fslogixShareSizeInGB": {
               "type": "int"
@@ -10841,6 +10835,9 @@
                   "delimiter": {
                     "value": "[parameters('delimiter')]"
                   },
+                  "deploymentNameSuffix": {
+                    "value": "[parameters('deploymentNameSuffix')]"
+                  },
                   "dnsServers": {
                     "value": "[join(parameters('tier').dnsServers, ',')]"
                   },
@@ -10862,6 +10859,9 @@
                   "location": {
                     "value": "[parameters('location')]"
                   },
+                  "managementVirtualMachineName": {
+                    "value": "[parameters('managementVirtualMachineName')]"
+                  },
                   "mlzTags": {
                     "value": "[parameters('mlzTags')]"
                   },
@@ -10873,6 +10873,12 @@
                   },
                   "organizationalUnitPath": {
                     "value": "[parameters('organizationalUnitPath')]"
+                  },
+                  "resourceGroupManagement": {
+                    "value": "[parameters('resourceGroupManagement')]"
+                  },
+                  "securityPrincipalNames": {
+                    "value": "[parameters('securityPrincipalNames')]"
                   },
                   "smbServerName": {
                     "value": "[replace(parameters('tier').namingConvention.netAppAccountSmbServer, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), '')]"
@@ -10894,7 +10900,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.41.2.15936",
-                      "templateHash": "17981732733585962343"
+                      "templateHash": "17267280601553101705"
                     }
                   },
                   "parameters": {
@@ -10902,6 +10908,9 @@
                       "type": "string"
                     },
                     "delimiter": {
+                      "type": "string"
+                    },
+                    "deploymentNameSuffix": {
                       "type": "string"
                     },
                     "dnsServers": {
@@ -10926,6 +10935,9 @@
                     "location": {
                       "type": "string"
                     },
+                    "managementVirtualMachineName": {
+                      "type": "string"
+                    },
                     "mlzTags": {
                       "type": "object"
                     },
@@ -10937,6 +10949,12 @@
                     },
                     "organizationalUnitPath": {
                       "type": "string"
+                    },
+                    "resourceGroupManagement": {
+                      "type": "string"
+                    },
+                    "securityPrincipalNames": {
+                      "type": "array"
                     },
                     "smbServerName": {
                       "type": "string"
@@ -10953,6 +10971,7 @@
                     }
                   },
                   "variables": {
+                    "$fxv#0": "param (\r\n    [String]$DomainAdminPassword,\r\n    [String]$DomainAdminUserPrincipalName,\r\n    [String]$FileServer,\r\n    [String]$SecurityPrincipalNames,\r\n    [String]$ShareNames\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n$WarningPreference = 'SilentlyContinue'\r\n\r\n# Variables\r\n# Convert parameters values from JSON array to a PowerShell array\r\n[array]$SecurityPrincipalNames = $SecurityPrincipalNames.Replace('\\','') | ConvertFrom-Json\r\n[array]$Shares = $ShareNames.Replace('\\','') | ConvertFrom-Json\r\n\r\n# Create Domain credential\r\n$DomainUsername = $DomainAdminUserPrincipalName\r\n$DomainPassword = ConvertTo-SecureString -String $DomainAdminPassword -AsPlainText -Force\r\n[pscredential]$DomainCredential = New-Object System.Management.Automation.PSCredential ($DomainUsername, $DomainPassword)\r\n\r\n# Set NTFS permissions of file shares\r\nforeach($Share in $Shares)\r\n{\r\n    # Mount file share\r\n    $FileShare = $FileServer + '\\' + $Share\r\n    New-PSDrive -Name 'Z' -PSProvider 'FileSystem' -Root $FileShare -Credential $DomainCredential | Out-Null\r\n\r\n    # Set recommended NTFS permissions on the file share\r\n    $ACL = Get-Acl -Path 'Z:'\r\n    $CreatorOwner = New-Object System.Security.Principal.Ntaccount (\"Creator Owner\")\r\n    $ACL.PurgeAccessRules($CreatorOwner)\r\n    $AuthenticatedUsers = New-Object System.Security.Principal.Ntaccount (\"Authenticated Users\")\r\n    $ACL.PurgeAccessRules($AuthenticatedUsers)\r\n    $Users = New-Object System.Security.Principal.Ntaccount (\"Users\")\r\n    $ACL.PurgeAccessRules($Users)\r\n    $DomainUsers = New-Object System.Security.AccessControl.FileSystemAccessRule(\"$Group\",\"Modify\",\"None\",\"None\",\"Allow\")\r\n    $ACL.SetAccessRule($DomainUsers)\r\n    $CreatorOwner = New-Object System.Security.AccessControl.FileSystemAccessRule(\"Creator Owner\",\"Modify\",\"ContainerInherit,ObjectInherit\",\"InheritOnly\",\"Allow\")\r\n    $ACL.AddAccessRule($CreatorOwner)\r\n    $ACL | Set-Acl -Path 'Z:' | Out-Null\r\n\r\n    # Unmount file share\r\n    Remove-PSDrive -Name 'Z' -PSProvider 'FileSystem' -Force | Out-Null\r\n    Start-Sleep -Seconds 5 | Out-Null\r\n}\r\n",
                     "nameSuffix": "[if(empty(parameters('suffix')), '', format('{0}{1}', parameters('delimiter'), parameters('suffix')))]",
                     "tagsNetAppAccount": "[union(if(empty(parameters('hostPoolResourceId')), createObject(), createObject('cm-resource-parent', parameters('hostPoolResourceId'))), coalesce(tryGet(parameters('tags'), 'Microsoft.NetApp/netAppAccounts'), createObject()), parameters('mlzTags'))]"
                   },
@@ -11035,19 +11054,131 @@
                       "dependsOn": [
                         "[resourceId('Microsoft.NetApp/netAppAccounts/capacityPools', format('{0}{1}', parameters('netAppAccountNamePrefix'), variables('nameSuffix')), format('{0}{1}', parameters('netAppCapacityPoolNamePrefix'), variables('nameSuffix')))]"
                       ]
+                    },
+                    {
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2025-04-01",
+                      "name": "[format('deploy-fslogix-ntfs-permissions-{0}', parameters('deploymentNameSuffix'))]",
+                      "resourceGroup": "[parameters('resourceGroupManagement')]",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "parameters": {
+                          "domainAdminPassword": {
+                            "value": "[parameters('domainAdminPassword')]"
+                          },
+                          "domainAdminUserPrincipalName": {
+                            "value": "[parameters('domainAdminUserPrincipalName')]"
+                          },
+                          "location": {
+                            "value": "[parameters('location')]"
+                          },
+                          "name": {
+                            "value": "Set-AzureNetAppFilesNtfsPermissions.ps1"
+                          },
+                          "parameters": {
+                            "value": [
+                              {
+                                "name": "FileServer",
+                                "value": "[reference(resourceId('Microsoft.NetApp/netAppAccounts/capacityPools/volumes', format('{0}{1}', parameters('netAppAccountNamePrefix'), variables('nameSuffix')), format('{0}{1}', parameters('netAppCapacityPoolNamePrefix'), variables('nameSuffix')), parameters('fileShares')[range(0, length(parameters('fileShares')))[0]]), '2025-01-01').mountTargets[0].smbServerFqdn]"
+                              },
+                              {
+                                "name": "SecurityPrincipalNames",
+                                "value": "[string(parameters('securityPrincipalNames'))]"
+                              },
+                              {
+                                "name": "ShareNames",
+                                "value": "[string(parameters('fileShares'))]"
+                              }
+                            ]
+                          },
+                          "script": {
+                            "value": "[variables('$fxv#0')]"
+                          },
+                          "tags": {
+                            "value": "[parameters('tags')]"
+                          },
+                          "virtualMachineName": {
+                            "value": "[parameters('managementVirtualMachineName')]"
+                          }
+                        },
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "0.41.2.15936",
+                              "templateHash": "3732491547213615126"
+                            }
+                          },
+                          "parameters": {
+                            "domainAdminPassword": {
+                              "type": "securestring"
+                            },
+                            "domainAdminUserPrincipalName": {
+                              "type": "securestring"
+                            },
+                            "location": {
+                              "type": "string"
+                            },
+                            "name": {
+                              "type": "string"
+                            },
+                            "parameters": {
+                              "type": "array",
+                              "defaultValue": []
+                            },
+                            "script": {
+                              "type": "string"
+                            },
+                            "tags": {
+                              "type": "object"
+                            },
+                            "virtualMachineName": {
+                              "type": "string"
+                            }
+                          },
+                          "resources": [
+                            {
+                              "type": "Microsoft.Compute/virtualMachines/runCommands",
+                              "apiVersion": "2023-09-01",
+                              "name": "[format('{0}/{1}', parameters('virtualMachineName'), parameters('name'))]",
+                              "location": "[parameters('location')]",
+                              "tags": "[parameters('tags')]",
+                              "properties": {
+                                "asyncExecution": false,
+                                "parameters": "[parameters('parameters')]",
+                                "protectedParameters": [
+                                  {
+                                    "name": "DomainAdminPassword",
+                                    "value": "[parameters('domainAdminPassword')]"
+                                  },
+                                  {
+                                    "name": "DomainAdminUserPrincipalName",
+                                    "value": "[parameters('domainAdminUserPrincipalName')]"
+                                  }
+                                ],
+                                "source": {
+                                  "script": "[parameters('script')]"
+                                },
+                                "treatFailureAsDeploymentFailure": true
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.NetApp/netAppAccounts/capacityPools/volumes', format('{0}{1}', parameters('netAppAccountNamePrefix'), variables('nameSuffix')), format('{0}{1}', parameters('netAppCapacityPoolNamePrefix'), variables('nameSuffix')), parameters('fileShares')[range(0, length(parameters('fileShares')))[0]])]"
+                      ]
                     }
                   ],
                   "outputs": {
-                    "fileShares": {
-                      "type": "array",
-                      "copy": {
-                        "count": "[length(parameters('fileShares'))]",
-                        "input": "[reference(resourceId('Microsoft.NetApp/netAppAccounts/capacityPools/volumes', format('{0}{1}', parameters('netAppAccountNamePrefix'), variables('nameSuffix')), format('{0}{1}', parameters('netAppCapacityPoolNamePrefix'), variables('nameSuffix')), parameters('fileShares')[range(0, length(parameters('fileShares')))[copyIndex()]]), '2025-01-01').mountTargets[0].smbServerFqdn]"
-                      }
-                    },
-                    "smbServerNamePrefix": {
+                    "netAppFileServer": {
                       "type": "string",
-                      "value": "[parameters('smbServerName')]"
+                      "value": "[reference(resourceId('Microsoft.NetApp/netAppAccounts/capacityPools/volumes', format('{0}{1}', parameters('netAppAccountNamePrefix'), variables('nameSuffix')), format('{0}{1}', parameters('netAppCapacityPoolNamePrefix'), variables('nameSuffix')), parameters('fileShares')[range(0, length(parameters('fileShares')))[0]]), '2025-01-01').mountTargets[0].smbServerFqdn]"
                     }
                   }
                 }
@@ -11083,6 +11214,15 @@
                   "deploymentNameSuffix": {
                     "value": "[parameters('deploymentNameSuffix')]"
                   },
+                  "deploymentUserAssignedIdentityClientId": {
+                    "value": "[parameters('deploymentUserAssignedIdentityClientId')]"
+                  },
+                  "domainAdminPassword": {
+                    "value": "[parameters('domainAdminPassword')]"
+                  },
+                  "domainAdminUserPrincipalName": {
+                    "value": "[parameters('domainAdminUserPrincipalName')]"
+                  },
                   "encryptionUserAssignedIdentityResourceId": {
                     "value": "[parameters('encryptionUserAssignedIdentityResourceId')]"
                   },
@@ -11104,14 +11244,26 @@
                   "location": {
                     "value": "[parameters('location')]"
                   },
+                  "managementVirtualMachineName": {
+                    "value": "[parameters('managementVirtualMachineName')]"
+                  },
                   "mlzTags": {
                     "value": "[parameters('mlzTags')]"
                   },
                   "names": {
                     "value": "[parameters('tier').namingConvention]"
                   },
+                  "netbios": {
+                    "value": "[parameters('netbios')]"
+                  },
+                  "organizationalUnitPath": {
+                    "value": "[parameters('organizationalUnitPath')]"
+                  },
                   "resourceGroupManagement": {
                     "value": "[parameters('resourceGroupManagement')]"
+                  },
+                  "securityPrincipalNames": {
+                    "value": "[parameters('securityPrincipalNames')]"
                   },
                   "securityPrincipalObjectIds": {
                     "value": "[parameters('securityPrincipalObjectIds')]"
@@ -11142,7 +11294,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.41.2.15936",
-                      "templateHash": "1207378448771620492"
+                      "templateHash": "17312805510345983962"
                     }
                   },
                   "parameters": {
@@ -11160,6 +11312,15 @@
                     },
                     "deploymentNameSuffix": {
                       "type": "string"
+                    },
+                    "deploymentUserAssignedIdentityClientId": {
+                      "type": "string"
+                    },
+                    "domainAdminPassword": {
+                      "type": "securestring"
+                    },
+                    "domainAdminUserPrincipalName": {
+                      "type": "securestring"
                     },
                     "encryptionUserAssignedIdentityResourceId": {
                       "type": "string"
@@ -11182,14 +11343,26 @@
                     "location": {
                       "type": "string"
                     },
+                    "managementVirtualMachineName": {
+                      "type": "string"
+                    },
                     "mlzTags": {
                       "type": "object"
                     },
                     "names": {
                       "type": "object"
                     },
+                    "netbios": {
+                      "type": "string"
+                    },
+                    "organizationalUnitPath": {
+                      "type": "string"
+                    },
                     "resourceGroupManagement": {
                       "type": "string"
+                    },
+                    "securityPrincipalNames": {
+                      "type": "array"
                     },
                     "securityPrincipalObjectIds": {
                       "type": "array"
@@ -11214,6 +11387,7 @@
                     }
                   },
                   "variables": {
+                    "$fxv#0": "param \r\n(\r\n    [String]$ActiveDirectorySolution,\r\n    [String]$DomainAdminPassword,\r\n    [String]$DomainAdminUserPrincipalName,\r\n    [String]$Netbios,\r\n    [String]$OrganizationalUnitPath,\r\n    [string]$ResourceManagerUri,\r\n    [String]$SecurityPrincipalNames,\r\n    [String]$ShareNames,\r\n    [String]$StorageAccountPrefix,\r\n    [String]$StorageAccountResourceGroupName,\r\n    [Int]$StorageCount,\r\n    [Int]$StorageIndex,\r\n    [String]$StorageSuffix,\r\n    [String]$SubscriptionId,\r\n    [String]$UserAssignedIdentityClientId\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n$WarningPreference = 'SilentlyContinue'\r\n\r\n# Variables\r\n# Convert parameters values from JSON array to a PowerShell array\r\n[array]$SecurityPrincipalNames = $SecurityPrincipalNames.Replace('\\','') | ConvertFrom-Json\r\n[array]$Shares = $ShareNames.Replace('\\','') | ConvertFrom-Json\r\n\r\nif ($ActiveDirectorySolution -eq 'ActiveDirectoryDomainServices')\r\n{\r\n    # Install Active Directory PowerShell module\r\n    $RsatInstalled = (Get-WindowsFeature -Name 'RSAT-AD-PowerShell').Installed\r\n    if(!$RsatInstalled)\r\n    {\r\n        Install-WindowsFeature -Name 'RSAT-AD-PowerShell' | Out-Null\r\n    }\r\n\r\n    # Create Domain credential\r\n    $DomainUsername = $DomainAdminUserPrincipalName\r\n    $DomainPassword = ConvertTo-SecureString -String $DomainAdminPassword -AsPlainText -Force\r\n    [pscredential]$DomainCredential = New-Object System.Management.Automation.PSCredential ($DomainUsername, $DomainPassword)\r\n\r\n    # Get Domain information\r\n    $Domain = Get-ADDomain -Credential $DomainCredential -Current 'LocalComputer'\r\n\r\n    # Set suffix for Azure Files\r\n    $FilesSuffix = '.file.' + $StorageSuffix\r\n\r\n    # Fix the resource manager URI since only AzureCloud contains a trailing slash\r\n    $ResourceManagerUriFixed = if ($ResourceManagerUri[-1] -eq '/') { $ResourceManagerUri.Substring(0, $ResourceManagerUri.Length - 1) } else { $ResourceManagerUri }\r\n\r\n    # Get an access token for Azure resources\r\n    $AzureManagementAccessToken = (Invoke-RestMethod `\r\n        -Headers @{Metadata = \"true\" } `\r\n        -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n    # Set header for Azure Management API\r\n    $AzureManagementHeader = @{\r\n        'Content-Type'  = 'application/json'\r\n        'Authorization' = 'Bearer ' + $AzureManagementAccessToken\r\n    }\r\n}\r\n\r\nfor($i = 0; $i -lt $StorageCount; $i++)\r\n{\r\n    # Determine Principal for assignment\r\n    $SecurityPrincipalName = $SecurityPrincipalNames[$i]\r\n    $Group = $Netbios + '\\' + $SecurityPrincipalName\r\n\r\n    # Determine file server\r\n    $StorageAccountName = $($StorageAccountPrefix + ($i + $StorageIndex).ToString().PadLeft(2,'0')).Substring(0,15)\r\n    $FileServer = '\\\\' + $StorageAccountName + $FilesSuffix\r\n\r\n    # Get the storage account key\r\n    $StorageKey = (Invoke-RestMethod `\r\n        -Headers $AzureManagementHeader `\r\n        -Method 'POST' `\r\n        -Uri $($ResourceManagerUriFixed + '/subscriptions/' + $SubscriptionId + '/resourceGroups/' + $StorageAccountResourceGroupName + '/providers/Microsoft.Storage/storageAccounts/' + $StorageAccountName + '/listKeys?api-version=2023-05-01')).keys[0].value\r\n\r\n    # Create credential for accessing the storage account\r\n    $StorageUsername = 'Azure\\' + $StorageAccountName\r\n    $StoragePassword = ConvertTo-SecureString -String \"$($StorageKey)\" -AsPlainText -Force\r\n    [pscredential]$StorageKeyCredential = New-Object System.Management.Automation.PSCredential ($StorageUsername, $StoragePassword)\r\n    $Credential = $StorageKeyCredential\r\n\r\n    # Domain join Azure Files to ADDS\r\n    if($ActiveDirectorySolution -eq 'ActiveDirectoryDomainServices')\r\n    {\r\n        # Get / create kerberos key for Azure Storage Account\r\n        $KerberosKey = ((Invoke-RestMethod `\r\n            -Headers $AzureManagementHeader `\r\n            -Method 'POST' `\r\n            -Uri $($ResourceManagerUriFixed + '/subscriptions/' + $SubscriptionId + '/resourceGroups/' + $StorageAccountResourceGroupName + '/providers/Microsoft.Storage/storageAccounts/' + $StorageAccountName + '/listKeys?api-version=2023-05-01&$expand=kerb')).keys | Where-Object { $_.Keyname -contains 'kerb1' }).Value\r\n        \r\n        if (!$KerberosKey) \r\n        {\r\n            Invoke-RestMethod `\r\n                -Body (@{keyName = 'kerb1' } | ConvertTo-Json) `\r\n                -Headers $AzureManagementHeader `\r\n                -Method 'POST' `\r\n                -Uri $($ResourceManagerUriFixed + '/subscriptions/' + $SubscriptionId + '/resourceGroups/' + $StorageAccountResourceGroupName + '/providers/Microsoft.Storage/storageAccounts/' + $StorageAccountName + '/regenerateKey?api-version=2023-05-01')\r\n            \r\n            $Key = ((Invoke-RestMethod `\r\n                -Headers $AzureManagementHeader `\r\n                -Method 'POST' `\r\n                -Uri $($ResourceManagerUriFixed + '/subscriptions/' + $SubscriptionId + '/resourceGroups/' + $StorageAccountResourceGroupName + '/providers/Microsoft.Storage/storageAccounts/' + $StorageAccountName + '/listKeys?api-version=2023-05-01&$expand=kerb')).keys | Where-Object { $_.Keyname -contains 'kerb1' }).Value\r\n        } \r\n        else \r\n        {\r\n            $Key = $KerberosKey\r\n        }\r\n\r\n        # Creates a password for the Azure Storage Account in AD using the Kerberos key\r\n        $ComputerPassword = ConvertTo-SecureString -String $Key.Replace(\"'\",\"\") -AsPlainText -Force\r\n\r\n        # Create the SPN value for the Azure Storage Account; attribute for computer object in AD \r\n        $SPN = 'cifs/' + $StorageAccountName + $FilesSuffix\r\n\r\n        # Create the Description value for the Azure Storage Account; attribute for computer object in AD \r\n        $Description = \"Computer account object for Azure storage account $($StorageAccountName).\"\r\n\r\n        # Create the AD computer object for the Azure Storage Account\r\n        $Computer = Get-ADComputer -Credential $DomainCredential -Filter {Name -eq $StorageAccountName}\r\n        if($Computer)\r\n        {\r\n            Remove-ADComputer -Credential $DomainCredential -Identity $StorageAccountName -Confirm:$false\r\n        }\r\n        $ComputerObject = New-ADComputer -Credential $DomainCredential -Name $StorageAccountName -Path $OrganizationalUnitPath -ServicePrincipalNames $SPN -AccountPassword $ComputerPassword -Description $Description -PassThru\r\n\r\n        $Body = (@{\r\n            properties = @{\r\n                azureFilesIdentityBasedAuthentication = @{\r\n                    activeDirectoryProperties = @{\r\n                        accountType = 'Computer'\r\n                        azureStorageSid = $ComputerObject.SID.Value\r\n                        domainGuid = $Domain.ObjectGUID.Guid\r\n                        domainName = $Domain.DNSRoot\r\n                        domainSid = $Domain.DomainSID.Value\r\n                        forestName = $Domain.Forest\r\n                        netBiosDomainName = $Domain.NetBIOSName\r\n                        samAccountName = $StorageAccountName\r\n                    }\r\n                    directoryServiceOptions = 'AD'\r\n                }\r\n            }\r\n        } | ConvertTo-Json -Depth 6 -Compress)\r\n\r\n        Invoke-RestMethod `\r\n            -Body $Body `\r\n            -Headers $AzureManagementHeader `\r\n            -Method 'PATCH' `\r\n            -Uri $($ResourceManagerUriFixed + '/subscriptions/' + $SubscriptionId + '/resourceGroups/' + $StorageAccountResourceGroupName + '/providers/Microsoft.Storage/storageAccounts/' + $StorageAccountName + '?api-version=2023-05-01')\r\n\r\n        # Set the Kerberos encryption on the computer object\r\n        $DistinguishedName = 'CN=' + $StorageAccountName + ',' + $OrganizationalUnitPath\r\n        Set-ADComputer -Credential $DomainCredential -Identity $DistinguishedName -KerberosEncryptionType 'AES256' | Out-Null\r\n        \r\n        # Reset the Kerberos key on the Storage Account\r\n        Invoke-RestMethod `\r\n            -Body (@{keyName = 'kerb1' } | ConvertTo-Json) `\r\n            -Headers $AzureManagementHeader `\r\n            -Method 'POST' `\r\n            -Uri $($ResourceManagerUriFixed + '/subscriptions/' + $SubscriptionId + '/resourceGroups/' + $StorageAccountResourceGroupName + '/providers/Microsoft.Storage/storageAccounts/' + $StorageAccountName + '/regenerateKey?api-version=2023-05-01')\r\n        \r\n        $Key = ((Invoke-RestMethod `\r\n            -Headers $AzureManagementHeader `\r\n            -Method 'POST' `\r\n            -Uri $($ResourceManagerUriFixed + '/subscriptions/' + $SubscriptionId + '/resourceGroups/' + $StorageAccountResourceGroupName + '/providers/Microsoft.Storage/storageAccounts/' + $StorageAccountName + '/listKeys?api-version=2023-05-01&$expand=kerb')).keys | Where-Object { $_.Keyname -contains 'kerb1' }).Value\r\n\r\n        # Update the password on the computer object with the new Kerberos key on the Storage Account\r\n        $NewPassword = ConvertTo-SecureString -String $Key -AsPlainText -Force\r\n        Set-ADAccountPassword -Credential $DomainCredential -Identity $DistinguishedName -Reset -NewPassword $NewPassword | Out-Null\r\n    }\r\n}\r\n\r\n# Set NTFS permissions of file shares\r\nforeach($Share in $Shares)\r\n{\r\n    # Mount file share\r\n    $FileShare = $FileServer + '\\' + $Share\r\n    New-PSDrive -Name 'Z' -PSProvider 'FileSystem' -Root $FileShare -Credential $Credential | Out-Null\r\n\r\n    # Set recommended NTFS permissions on the file share\r\n    $ACL = Get-Acl -Path 'Z:'\r\n    $CreatorOwner = New-Object System.Security.Principal.Ntaccount (\"Creator Owner\")\r\n    $ACL.PurgeAccessRules($CreatorOwner)\r\n    $AuthenticatedUsers = New-Object System.Security.Principal.Ntaccount (\"Authenticated Users\")\r\n    $ACL.PurgeAccessRules($AuthenticatedUsers)\r\n    $Users = New-Object System.Security.Principal.Ntaccount (\"Users\")\r\n    $ACL.PurgeAccessRules($Users)\r\n    $DomainUsers = New-Object System.Security.AccessControl.FileSystemAccessRule(\"$Group\",\"Modify\",\"None\",\"None\",\"Allow\")\r\n    $ACL.SetAccessRule($DomainUsers)\r\n    $CreatorOwner = New-Object System.Security.AccessControl.FileSystemAccessRule(\"Creator Owner\",\"Modify\",\"ContainerInherit,ObjectInherit\",\"InheritOnly\",\"Allow\")\r\n    $ACL.AddAccessRule($CreatorOwner)\r\n    $ACL | Set-Acl -Path 'Z:' | Out-Null\r\n\r\n    # Unmount file share\r\n    Remove-PSDrive -Name 'Z' -PSProvider 'FileSystem' -Force | Out-Null\r\n    Start-Sleep -Seconds 5 | Out-Null\r\n}\r\n",
                     "roleDefinitionId": "0c867c2a-1d8c-454a-a3db-ab2ea1bdc8bb",
                     "smbMultiChannel": {
                       "multichannel": {
@@ -11554,99 +11728,12 @@
                         "roleAssignment",
                         "[resourceId('Microsoft.Storage/storageAccounts', take(format('{0}{1}', variables('storageAccountNamePrefix'), padLeft(add(range(0, parameters('storageCount'))[range(0, parameters('storageCount'))[copyIndex()]], parameters('storageIndex')), 2, '0')), 15))]"
                       ]
-                    }
-                  ],
-                  "outputs": {
-                    "storageAccountNamePrefix": {
-                      "type": "string",
-                      "value": "[variables('storageAccountNamePrefix')]"
-                    }
-                  }
-                }
-              },
-              "dependsOn": [
-                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', replace(parameters('tier').namingConvention.resourceGroup, parameters('tokens').purpose, 'fslogix'))]"
-              ]
-            },
-            {
-              "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2025-04-01",
-              "name": "[format('deploy-ntfspermissions-{0}', parameters('deploymentNameSuffix'))]",
-              "location": "[deployment().location]",
-              "properties": {
-                "expressionEvaluationOptions": {
-                  "scope": "inner"
-                },
-                "mode": "Incremental",
-                "parameters": {
-                  "deploymentNameSuffix": {
-                    "value": "[parameters('deploymentNameSuffix')]"
-                  },
-                  "domainAdminPassword": {
-                    "value": "[parameters('domainAdminPassword')]"
-                  },
-                  "domainAdminUserPrincipalName": {
-                    "value": "[parameters('domainAdminUserPrincipalName')]"
-                  },
-                  "location": {
-                    "value": "[parameters('location')]"
-                  },
-                  "parameters": "[if(equals(parameters('storageService'), 'AzureNetAppFiles'), createObject('value', createArray(createObject('name', 'FileShares', 'value', string(parameters('fileShares'))), createObject('name', 'ResourceManagerUri', 'value', environment().resourceManager), createObject('name', 'SecurityPrincipalNames', 'value', string(parameters('securityPrincipalNames'))), createObject('name', 'SmbServerNamePrefix', 'value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, replace(parameters('tier').namingConvention.resourceGroup, parameters('tokens').purpose, 'fslogix')), 'Microsoft.Resources/deployments', format('deploy-anf-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.smbServerNamePrefix.value), createObject('name', 'StorageService', 'value', parameters('storageService')))), createObject('value', createArray(createObject('name', 'ActiveDirectorySolution', 'value', parameters('activeDirectorySolution')), createObject('name', 'FslogixContainerType', 'value', parameters('fslogixContainerType')), createObject('name', 'Netbios', 'value', parameters('netbios')), createObject('name', 'OrganizationalUnitPath', 'value', parameters('organizationalUnitPath')), createObject('name', 'ResourceManagerUri', 'value', environment().resourceManager), createObject('name', 'SecurityPrincipalNames', 'value', string(parameters('securityPrincipalNames'))), createObject('name', 'StorageAccountPrefix', 'value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, replace(parameters('tier').namingConvention.resourceGroup, parameters('tokens').purpose, 'fslogix')), 'Microsoft.Resources/deployments', format('deploy-azure-files-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.storageAccountNamePrefix.value), createObject('name', 'StorageAccountResourceGroupName', 'value', replace(parameters('tier').namingConvention.resourceGroup, parameters('tokens').purpose, 'fslogix')), createObject('name', 'StorageCount', 'value', parameters('storageCount')), createObject('name', 'StorageIndex', 'value', parameters('storageIndex')), createObject('name', 'StorageService', 'value', parameters('storageService')), createObject('name', 'StorageSuffix', 'value', environment().suffixes.storage), createObject('name', 'SubscriptionId', 'value', subscription().subscriptionId), createObject('name', 'UserAssignedIdentityClientId', 'value', parameters('deploymentUserAssignedIdentityClientId')))))]",
-                  "resourceGroupName": {
-                    "value": "[parameters('resourceGroupManagement')]"
-                  },
-                  "tags": {
-                    "value": "[parameters('tags')]"
-                  },
-                  "virtualMachineName": {
-                    "value": "[parameters('managementVirtualMachineName')]"
-                  }
-                },
-                "template": {
-                  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
-                  "contentVersion": "1.0.0.0",
-                  "metadata": {
-                    "_generator": {
-                      "name": "bicep",
-                      "version": "0.41.2.15936",
-                      "templateHash": "18404199462710861330"
-                    }
-                  },
-                  "parameters": {
-                    "deploymentNameSuffix": {
-                      "type": "string"
                     },
-                    "domainAdminPassword": {
-                      "type": "securestring"
-                    },
-                    "domainAdminUserPrincipalName": {
-                      "type": "string"
-                    },
-                    "location": {
-                      "type": "string"
-                    },
-                    "parameters": {
-                      "type": "array"
-                    },
-                    "resourceGroupName": {
-                      "type": "string"
-                    },
-                    "tags": {
-                      "type": "object"
-                    },
-                    "virtualMachineName": {
-                      "type": "string"
-                    }
-                  },
-                  "variables": {
-                    "$fxv#0": "param \r\n(\r\n    [String]$ActiveDirectorySolution,\r\n    [String]$DomainJoinPassword,\r\n    [String]$DomainJoinUserPrincipalName,\r\n    [String]$FileShares,\r\n    [String]$Netbios,\r\n    [String]$OrganizationalUnitPath,\r\n    [string]$ResourceManagerUri,\r\n    [String]$SecurityPrincipalNames,\r\n    [String]$SmbServerNamePrefix,\r\n    [String]$StorageAccountPrefix,\r\n    [String]$StorageAccountResourceGroupName,\r\n    [Int]$StorageCount,\r\n    [Int]$StorageIndex,\r\n    [String]$StorageService,\r\n    [String]$StorageSuffix,\r\n    [String]$SubscriptionId,\r\n    [String]$UserAssignedIdentityClientId\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n$WarningPreference = 'SilentlyContinue'\r\n\r\n##############################################################\r\n#  Install Active Directory PowerShell module\r\n##############################################################\r\nif($StorageService -eq 'AzureNetAppFiles' -or ($StorageService -eq 'AzureFiles' -and $ActiveDirectorySolution -eq 'ActiveDirectoryDomainServices'))\r\n{\r\n    $RsatInstalled = (Get-WindowsFeature -Name 'RSAT-AD-PowerShell').Installed\r\n    if(!$RsatInstalled)\r\n    {\r\n        Install-WindowsFeature -Name 'RSAT-AD-PowerShell' | Out-Null\r\n    }\r\n}\r\n\r\n\r\n##############################################################\r\n#  Variables\r\n##############################################################\r\n# Convert parameters values from JSON array to a PowerShell array\r\n[array]$SecurityPrincipalNames = $SecurityPrincipalNames.Replace('\\','') | ConvertFrom-Json\r\n[array]$Shares = $FileShares.Replace('\\','') | ConvertFrom-Json\r\n\r\nif($StorageService -eq 'AzureNetAppFiles' -or ($StorageService -eq 'AzureFiles' -and $ActiveDirectorySolution -eq 'ActiveDirectoryDomainServices'))\r\n{\r\n    # Create Domain credential\r\n    $DomainUsername = $DomainJoinUserPrincipalName\r\n    $DomainPassword = ConvertTo-SecureString -String $DomainJoinPassword -AsPlainText -Force\r\n    [pscredential]$DomainCredential = New-Object System.Management.Automation.PSCredential ($DomainUsername, $DomainPassword)\r\n\r\n    # Get Domain information\r\n    $Domain = Get-ADDomain -Credential $DomainCredential -Current 'LocalComputer'\r\n}\r\n\r\nif($StorageService -eq 'AzureFiles')\r\n{\r\n    $FilesSuffix = '.file.' + $StorageSuffix\r\n\r\n    # Fix the resource manager URI since only AzureCloud contains a trailing slash\r\n    $ResourceManagerUriFixed = if ($ResourceManagerUri[-1] -eq '/') { $ResourceManagerUri.Substring(0, $ResourceManagerUri.Length - 1) } else { $ResourceManagerUri }\r\n\r\n    # Get an access token for Azure resources\r\n    $AzureManagementAccessToken = (Invoke-RestMethod `\r\n        -Headers @{Metadata = \"true\" } `\r\n        -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n    # Set header for Azure Management API\r\n    $AzureManagementHeader = @{\r\n        'Content-Type'  = 'application/json'\r\n        'Authorization' = 'Bearer ' + $AzureManagementAccessToken\r\n    }\r\n}\r\n\r\n\r\n##############################################################\r\n#  Process Storage Resources\r\n##############################################################\r\nfor($i = 0; $i -lt $StorageCount; $i++)\r\n{\r\n    # Determine Principal for assignment\r\n    $SecurityPrincipalName = $SecurityPrincipalNames[$i]\r\n    $Group = $Netbios + '\\' + $SecurityPrincipalName\r\n\r\n    # Get storage resource details\r\n    switch($StorageService)\r\n    {\r\n        'AzureNetAppFiles' {\r\n            $Credential = $DomainCredential\r\n            $SmbServerName = (Get-ADComputer -Filter \"Name -like '$SmbServerNamePrefix*'\" -Credential $DomainCredential).Name\r\n            $FileServer = '\\\\' + $SmbServerName + '.' + $Domain.DNSRoot\r\n        }\r\n        'AzureFiles' {\r\n            $StorageAccountName = $($StorageAccountPrefix + ($i + $StorageIndex).ToString().PadLeft(2,'0')).Substring(0,15)\r\n            $FileServer = '\\\\' + $StorageAccountName + $FilesSuffix\r\n\r\n            # Get the storage account key\r\n            $StorageKey = (Invoke-RestMethod `\r\n                -Headers $AzureManagementHeader `\r\n                -Method 'POST' `\r\n                -Uri $($ResourceManagerUriFixed + '/subscriptions/' + $SubscriptionId + '/resourceGroups/' + $StorageAccountResourceGroupName + '/providers/Microsoft.Storage/storageAccounts/' + $StorageAccountName + '/listKeys?api-version=2023-05-01')).keys[0].value\r\n\r\n            # Create credential for accessing the storage account\r\n            $StorageUsername = 'Azure\\' + $StorageAccountName\r\n            $StoragePassword = ConvertTo-SecureString -String \"$($StorageKey)\" -AsPlainText -Force\r\n            [pscredential]$StorageKeyCredential = New-Object System.Management.Automation.PSCredential ($StorageUsername, $StoragePassword)\r\n            $Credential = $StorageKeyCredential\r\n\r\n            if($ActiveDirectorySolution -eq 'ActiveDirectoryDomainServices')\r\n            {\r\n                # Get / create kerberos key for Azure Storage Account\r\n                $KerberosKey = ((Invoke-RestMethod `\r\n                    -Headers $AzureManagementHeader `\r\n                    -Method 'POST' `\r\n                    -Uri $($ResourceManagerUriFixed + '/subscriptions/' + $SubscriptionId + '/resourceGroups/' + $StorageAccountResourceGroupName + '/providers/Microsoft.Storage/storageAccounts/' + $StorageAccountName + '/listKeys?api-version=2023-05-01&$expand=kerb')).keys | Where-Object { $_.Keyname -contains 'kerb1' }).Value\r\n                \r\n                if (!$KerberosKey) \r\n                {\r\n                    Invoke-RestMethod `\r\n                        -Body (@{keyName = 'kerb1' } | ConvertTo-Json) `\r\n                        -Headers $AzureManagementHeader `\r\n                        -Method 'POST' `\r\n                        -Uri $($ResourceManagerUriFixed + '/subscriptions/' + $SubscriptionId + '/resourceGroups/' + $StorageAccountResourceGroupName + '/providers/Microsoft.Storage/storageAccounts/' + $StorageAccountName + '/regenerateKey?api-version=2023-05-01')\r\n                    \r\n                    $Key = ((Invoke-RestMethod `\r\n                        -Headers $AzureManagementHeader `\r\n                        -Method 'POST' `\r\n                        -Uri $($ResourceManagerUriFixed + '/subscriptions/' + $SubscriptionId + '/resourceGroups/' + $StorageAccountResourceGroupName + '/providers/Microsoft.Storage/storageAccounts/' + $StorageAccountName + '/listKeys?api-version=2023-05-01&$expand=kerb')).keys | Where-Object { $_.Keyname -contains 'kerb1' }).Value\r\n                } \r\n                else \r\n                {\r\n                    $Key = $KerberosKey\r\n                }\r\n\r\n                # Creates a password for the Azure Storage Account in AD using the Kerberos key\r\n                $ComputerPassword = ConvertTo-SecureString -String $Key.Replace(\"'\",\"\") -AsPlainText -Force\r\n\r\n                # Create the SPN value for the Azure Storage Account; attribute for computer object in AD \r\n                $SPN = 'cifs/' + $StorageAccountName + $FilesSuffix\r\n\r\n                # Create the Description value for the Azure Storage Account; attribute for computer object in AD \r\n                $Description = \"Computer account object for Azure storage account $($StorageAccountName).\"\r\n\r\n                # Create the AD computer object for the Azure Storage Account\r\n                $Computer = Get-ADComputer -Credential $DomainCredential -Filter {Name -eq $StorageAccountName}\r\n                if($Computer)\r\n                {\r\n                    Remove-ADComputer -Credential $DomainCredential -Identity $StorageAccountName -Confirm:$false\r\n                }\r\n                $ComputerObject = New-ADComputer -Credential $DomainCredential -Name $StorageAccountName -Path $OrganizationalUnitPath -ServicePrincipalNames $SPN -AccountPassword $ComputerPassword -Description $Description -PassThru\r\n\r\n                $Body = (@{\r\n                    properties = @{\r\n                        azureFilesIdentityBasedAuthentication = @{\r\n                            activeDirectoryProperties = @{\r\n                                accountType = 'Computer'\r\n                                azureStorageSid = $ComputerObject.SID.Value\r\n                                domainGuid = $Domain.ObjectGUID.Guid\r\n                                domainName = $Domain.DNSRoot\r\n                                domainSid = $Domain.DomainSID.Value\r\n                                forestName = $Domain.Forest\r\n                                netBiosDomainName = $Domain.NetBIOSName\r\n                                samAccountName = $StorageAccountName\r\n                            }\r\n                            directoryServiceOptions = 'AD'\r\n                        }\r\n                    }\r\n                } | ConvertTo-Json -Depth 6 -Compress)\r\n\r\n                Invoke-RestMethod `\r\n                    -Body $Body `\r\n                    -Headers $AzureManagementHeader `\r\n                    -Method 'PATCH' `\r\n                    -Uri $($ResourceManagerUriFixed + '/subscriptions/' + $SubscriptionId + '/resourceGroups/' + $StorageAccountResourceGroupName + '/providers/Microsoft.Storage/storageAccounts/' + $StorageAccountName + '?api-version=2023-05-01')\r\n        \r\n                # Set the Kerberos encryption on the computer object\r\n                $DistinguishedName = 'CN=' + $StorageAccountName + ',' + $OrganizationalUnitPath\r\n                Set-ADComputer -Credential $DomainCredential -Identity $DistinguishedName -KerberosEncryptionType 'AES256' | Out-Null\r\n                \r\n                # Reset the Kerberos key on the Storage Account\r\n                Invoke-RestMethod `\r\n                    -Body (@{keyName = 'kerb1' } | ConvertTo-Json) `\r\n                    -Headers $AzureManagementHeader `\r\n                    -Method 'POST' `\r\n                    -Uri $($ResourceManagerUriFixed + '/subscriptions/' + $SubscriptionId + '/resourceGroups/' + $StorageAccountResourceGroupName + '/providers/Microsoft.Storage/storageAccounts/' + $StorageAccountName + '/regenerateKey?api-version=2023-05-01')\r\n                \r\n                $Key = ((Invoke-RestMethod `\r\n                    -Headers $AzureManagementHeader `\r\n                    -Method 'POST' `\r\n                    -Uri $($ResourceManagerUriFixed + '/subscriptions/' + $SubscriptionId + '/resourceGroups/' + $StorageAccountResourceGroupName + '/providers/Microsoft.Storage/storageAccounts/' + $StorageAccountName + '/listKeys?api-version=2023-05-01&$expand=kerb')).keys | Where-Object { $_.Keyname -contains 'kerb1' }).Value\r\n        \r\n                # Update the password on the computer object with the new Kerberos key on the Storage Account\r\n                $NewPassword = ConvertTo-SecureString -String $Key -AsPlainText -Force\r\n                Set-ADAccountPassword -Credential $DomainCredential -Identity $DistinguishedName -Reset -NewPassword $NewPassword | Out-Null\r\n            }\r\n        }\r\n    }\r\n    \r\n    foreach($Share in $Shares)\r\n    {\r\n        # Mount file share\r\n        $FileShare = $FileServer + '\\' + $Share\r\n        New-PSDrive -Name 'Z' -PSProvider 'FileSystem' -Root $FileShare -Credential $Credential | Out-Null\r\n\r\n        # Set recommended NTFS permissions on the file share\r\n        $ACL = Get-Acl -Path 'Z:'\r\n        $CreatorOwner = New-Object System.Security.Principal.Ntaccount (\"Creator Owner\")\r\n        $ACL.PurgeAccessRules($CreatorOwner)\r\n        $AuthenticatedUsers = New-Object System.Security.Principal.Ntaccount (\"Authenticated Users\")\r\n        $ACL.PurgeAccessRules($AuthenticatedUsers)\r\n        $Users = New-Object System.Security.Principal.Ntaccount (\"Users\")\r\n        $ACL.PurgeAccessRules($Users)\r\n        $DomainUsers = New-Object System.Security.AccessControl.FileSystemAccessRule(\"$Group\",\"Modify\",\"None\",\"None\",\"Allow\")\r\n        $ACL.SetAccessRule($DomainUsers)\r\n        $CreatorOwner = New-Object System.Security.AccessControl.FileSystemAccessRule(\"Creator Owner\",\"Modify\",\"ContainerInherit,ObjectInherit\",\"InheritOnly\",\"Allow\")\r\n        $ACL.AddAccessRule($CreatorOwner)\r\n        $ACL | Set-Acl -Path 'Z:' | Out-Null\r\n\r\n        # Unmount file share\r\n        Remove-PSDrive -Name 'Z' -PSProvider 'FileSystem' -Force | Out-Null\r\n        Start-Sleep -Seconds 5 | Out-Null\r\n    }\r\n}"
-                  },
-                  "resources": [
                     {
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2025-04-01",
                       "name": "[format('deploy-fslogix-ntfs-permissions-{0}', parameters('deploymentNameSuffix'))]",
-                      "resourceGroup": "[parameters('resourceGroupName')]",
+                      "resourceGroup": "[parameters('resourceGroupManagement')]",
                       "properties": {
                         "expressionEvaluationOptions": {
                           "scope": "inner"
@@ -11666,7 +11753,60 @@
                             "value": "Set-NtfsPermissions.ps1"
                           },
                           "parameters": {
-                            "value": "[parameters('parameters')]"
+                            "value": [
+                              {
+                                "name": "ActiveDirectorySolution",
+                                "value": "[parameters('activeDirectorySolution')]"
+                              },
+                              {
+                                "name": "Netbios",
+                                "value": "[parameters('netbios')]"
+                              },
+                              {
+                                "name": "OrganizationalUnitPath",
+                                "value": "[parameters('organizationalUnitPath')]"
+                              },
+                              {
+                                "name": "ResourceManagerUri",
+                                "value": "[environment().resourceManager]"
+                              },
+                              {
+                                "name": "SecurityPrincipalNames",
+                                "value": "[string(parameters('securityPrincipalNames'))]"
+                              },
+                              {
+                                "name": "ShareNames",
+                                "value": "[string(parameters('fileShares'))]"
+                              },
+                              {
+                                "name": "StorageAccountPrefix",
+                                "value": "[variables('storageAccountNamePrefix')]"
+                              },
+                              {
+                                "name": "StorageAccountResourceGroupName",
+                                "value": "[resourceGroup().name]"
+                              },
+                              {
+                                "name": "StorageCount",
+                                "value": "[parameters('storageCount')]"
+                              },
+                              {
+                                "name": "StorageIndex",
+                                "value": "[parameters('storageIndex')]"
+                              },
+                              {
+                                "name": "StorageSuffix",
+                                "value": "[environment().suffixes.storage]"
+                              },
+                              {
+                                "name": "SubscriptionId",
+                                "value": "[subscription().subscriptionId]"
+                              },
+                              {
+                                "name": "UserAssignedIdentityClientId",
+                                "value": "[parameters('deploymentUserAssignedIdentityClientId')]"
+                              }
+                            ]
                           },
                           "script": {
                             "value": "[variables('$fxv#0')]"
@@ -11675,7 +11815,7 @@
                             "value": "[parameters('tags')]"
                           },
                           "virtualMachineName": {
-                            "value": "[parameters('virtualMachineName')]"
+                            "value": "[parameters('managementVirtualMachineName')]"
                           }
                         },
                         "template": {
@@ -11745,20 +11885,24 @@
                         }
                       }
                     }
-                  ]
+                  ],
+                  "outputs": {
+                    "storageAccountNamePrefix": {
+                      "type": "string",
+                      "value": "[variables('storageAccountNamePrefix')]"
+                    }
+                  }
                 }
               },
               "dependsOn": [
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, replace(parameters('tier').namingConvention.resourceGroup, parameters('tokens').purpose, 'fslogix')), 'Microsoft.Resources/deployments', format('deploy-azure-files-{0}', parameters('deploymentNameSuffix')))]",
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, replace(parameters('tier').namingConvention.resourceGroup, parameters('tokens').purpose, 'fslogix')), 'Microsoft.Resources/deployments', format('deploy-anf-{0}', parameters('deploymentNameSuffix')))]",
                 "[subscriptionResourceId('Microsoft.Resources/resourceGroups', replace(parameters('tier').namingConvention.resourceGroup, parameters('tokens').purpose, 'fslogix'))]"
               ]
             }
           ],
           "outputs": {
-            "netAppShares": {
-              "type": "array",
-              "value": "[if(equals(parameters('storageService'), 'AzureNetAppFiles'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, replace(parameters('tier').namingConvention.resourceGroup, parameters('tokens').purpose, 'fslogix')), 'Microsoft.Resources/deployments', format('deploy-anf-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.fileShares.value, createArray('None'))]"
+            "netAppFileServer": {
+              "type": "string",
+              "value": "[if(equals(parameters('storageService'), 'AzureNetAppFiles'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, replace(parameters('tier').namingConvention.resourceGroup, parameters('tokens').purpose, 'fslogix')), 'Microsoft.Resources/deployments', format('deploy-anf-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.netAppFileServer.value, '')]"
             },
             "storageAccountNamePrefix": {
               "type": "string",
@@ -11908,7 +12052,7 @@
           "mlzTags": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.mlzTags.value]"
           },
-          "netAppFileShares": "[if(variables('deployFslogix'), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-fslogix-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.netAppShares.value), createObject('value', createArray('None')))]",
+          "netAppFileServer": "[if(variables('deployFslogix'), createObject('value', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-fslogix-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.netAppFileServer.value), createObject('value', ''))]",
           "organizationalUnitPath": {
             "value": "[parameters('sessionHostsOrganizationalUnitPath')]"
           },
@@ -11978,7 +12122,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.41.2.15936",
-              "templateHash": "9647503640075472098"
+              "templateHash": "12313718925718044641"
             }
           },
           "parameters": {
@@ -12105,8 +12249,8 @@
             "mlzTags": {
               "type": "object"
             },
-            "netAppFileShares": {
-              "type": "array"
+            "netAppFileServer": {
+              "type": "string"
             },
             "organizationalUnitPath": {
               "type": "string"
@@ -12633,8 +12777,8 @@
                   "managementVirtualMachineName": {
                     "value": "[parameters('managementVirtualMachineName')]"
                   },
-                  "netAppFileShares": {
-                    "value": "[parameters('netAppFileShares')]"
+                  "netAppFileServer": {
+                    "value": "[parameters('netAppFileServer')]"
                   },
                   "networkInterfaceNamePrefix": {
                     "value": "[replace(parameters('tier').namingConvention.virtualMachineNetworkInterface, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), '')]"
@@ -12700,7 +12844,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.41.2.15936",
-                      "templateHash": "15625178573884489636"
+                      "templateHash": "5139484683710531068"
                     }
                   },
                   "parameters": {
@@ -12800,8 +12944,8 @@
                     "managementVirtualMachineName": {
                       "type": "string"
                     },
-                    "netAppFileShares": {
-                      "type": "array"
+                    "netAppFileServer": {
+                      "type": "string"
                     },
                     "networkInterfaceNamePrefix": {
                       "type": "string"
@@ -12869,7 +13013,7 @@
                     }
                   },
                   "variables": {
-                    "$fxv#0": "Param(\r\n    [string]$ActiveDirectorySolution,\r\n    [string]$AmdVmSize,\r\n    [string]$Fslogix,\r\n    [string]$FslogixContainerType,\r\n    [string]$NetAppFileShares,\r\n    [string]$NvidiaVmSize,\r\n    [string]$StorageAccountPrefix,\r\n    [int]$StorageCount,\r\n    [int]$StorageIndex,\r\n    [string]$StorageService,\r\n    [string]$StorageSuffix,\r\n    [string]$UniqueToken\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n$WarningPreference = 'SilentlyContinue'\r\n\r\n\r\n# Convert NetAppFiles share names from a JSON array to a PowerShell array\r\n[array]$NetAppFileShares = $NetAppFileShares.Replace(\"'\",'\"') | ConvertFrom-Json\r\n\r\n#  Add Recommended AVD Settings\r\n$Settings = @(\r\n\r\n    # Enable Time Zone Redirection: https://learn.microsoft.com/azure/virtual-desktop/set-up-customize-master-image#set-up-time-zone-redirection\r\n    [PSCustomObject]@{\r\n        Name = 'fEnableTimeZoneRedirection'\r\n        Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n        PropertyType = 'DWord'\r\n        Value = 1\r\n    },\r\n\r\n    # Disable Automatic Updates: https://learn.microsoft.com/azure/virtual-desktop/set-up-customize-master-image#disable-automatic-updates\r\n    [PSCustomObject]@{\r\n        Name = 'NoAutoUpdate'\r\n        Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU'\r\n        PropertyType = 'DWord'\r\n        Value = 1\r\n    }\r\n)\r\n\r\n\r\n# AMD & NVIDIA GPU settings\r\nif ($AmdVmSize -eq 'true' -or $NvidiaVmSize -eq 'true') \r\n{\r\n    $Settings += @(\r\n\r\n        # GPU-accelerated application rendering: Use hardware graphics adapters for all RDS sessions - https://learn.microsoft.com/azure/virtual-desktop/graphics-enable-gpu-acceleration?tabs=group-policy#enable-gpu-accelerated-application-rendering-and-remote-frame-encoding\r\n        [PSCustomObject]@{\r\n            Name = 'bEnumerateHWBeforeSW'\r\n            Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n            PropertyType = 'DWord'\r\n            Value = 1\r\n        },\r\n\r\n        # Configure the refresh rate for the display\r\n        [PSCustomObject]@{\r\n            Name = 'DisplayRefreshRate'\r\n            Path = 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server\\WinStations'\r\n            PropertyType = 'DWord'\r\n            Value = '0x60'\r\n        },\r\n\r\n        # Configure DWM frame interval: https://learn.microsoft.com/troubleshoot/windows-server/remote/frame-rate-limited-to-30-fps\r\n        [PSCustomObject]@{\r\n            Name = 'DWMFRAMEINTERVAL'\r\n            Path = 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server\\WinStations'\r\n            PropertyType = 'DWord'\r\n            Value = 15\r\n        },\r\n\r\n        # Graphics logging: Connection graphics data - https://learn.microsoft.com/azure/virtual-desktop/connection-latency#connection-graphics-data-preview\r\n        [PSCustomObject]@{\r\n            Name = 'fEnableConnectionIntervalGraphicsData'\r\n            Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n            PropertyType = 'DWord'\r\n            Value = 1\r\n        },\r\n\r\n        # Increase Chroma value to 4:4:4 for RDP sessions using AVC: Configure image quality for RemoteFX Adaptive Graphics - https://learn.microsoft.com/azure/virtual-desktop/graphics-chroma-value-increase-4-4-4?tabs=group-policy\r\n        [PSCustomObject]@{\r\n            Name = 'ImageQuality'\r\n            Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n            PropertyType = 'DWord'\r\n            Value = 2\r\n        }\r\n    )\r\n}\r\n\r\n# NVIDIA GPUs settings\r\nif ($NvidiaVmSize -eq 'true') \r\n{\r\n    $Settings += @(\r\n\r\n        # GPU-accelerated remote frame encoding using H.264/AVC: Prioritize H.264/AVC 444 graphics mode for Remote Desktop Connections - https://learn.microsoft.com/azure/virtual-desktop/graphics-enable-gpu-acceleration?tabs=group-policy#enable-gpu-accelerated-application-rendering-and-remote-frame-encoding\r\n        [PSCustomObject]@{\r\n            Name = 'AVC444ModePreferred'\r\n            Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n            PropertyType = 'DWord'\r\n            Value = 1\r\n        }\r\n\r\n        # GPU-accelerated remote frame encoding using H.264/AVC: Configure H.264/AVC hardware encoding for Remote Desktop Connections - https://learn.microsoft.com/azure/virtual-desktop/graphics-enable-gpu-acceleration?tabs=group-policy#enable-gpu-accelerated-application-rendering-and-remote-frame-encoding\r\n        [PSCustomObject]@{\r\n            Name = 'AVCHardwareEncodePreferred'\r\n            Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n            PropertyType = 'DWord'\r\n            Value = 1\r\n        },\r\n\r\n        # GPU-accelerated remote frame encoding using H.265/HEVC: Configure H.265/HEVC hardware encoding for Remote Desktop Connections - https://learn.microsoft.com/azure/virtual-desktop/graphics-enable-gpu-acceleration?tabs=group-policy#enable-gpu-accelerated-application-rendering-and-remote-frame-encoding\r\n        [PSCustomObject]@{\r\n            Name = 'HEVCHardwareEncodePreferred'\r\n            Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n            PropertyType = 'DWord'\r\n            Value = 1\r\n        }\r\n    )\r\n}\r\n\r\n#  Add Fslogix Settings\r\nif($Fslogix -eq 'true')\r\n{\r\n    $FilesSuffix = '.file.' + $StorageSuffix\r\n    $CloudCacheOfficeContainers = @()\r\n    $CloudCacheProfileContainers = @()\r\n    $OfficeContainers = @()\r\n    $ProfileContainers = @()\r\n    switch($StorageService)\r\n    {\r\n        'AzureFiles' {\r\n            for($i = $StorageIndex; $i -lt $($StorageIndex + $StorageCount); $i++)\r\n            {\r\n                $CloudCacheOfficeContainers += 'type=smb,connectionString=\\\\' + $($StorageAccountPrefix + $i.ToString().PadLeft(2,'0') + $UniqueToken).Substring(0,15) + $FilesSuffix + '\\office-containers;'\r\n                $CloudCacheProfileContainers += 'type=smb,connectionString=\\\\' + $($StorageAccountPrefix + $i.ToString().PadLeft(2,'0') + $UniqueToken).Substring(0,15) + $FilesSuffix + '\\profile-containers;'\r\n                $OfficeContainers += '\\\\' + $($StorageAccountPrefix + $i.ToString().PadLeft(2,'0') + $UniqueToken).Substring(0,15) + $FilesSuffix + '\\office-containers'\r\n                $ProfileContainers += '\\\\' + $($StorageAccountPrefix + $i.ToString().PadLeft(2,'0') + $UniqueToken).Substring(0,15) + $FilesSuffix + '\\profile-containers'\r\n            }\r\n        }\r\n        'AzureNetAppFiles' {\r\n            $CloudCacheOfficeContainers += 'type=smb,connectionString=\\\\' + $NetAppFileShares[0] + '\\office-containers;'\r\n            $CloudCacheProfileContainers += 'type=smb,connectionString=\\\\' + $(if($NetAppFileShares.Length -gt 1){$NetAppFileShares[1]}else{$NetAppFileShares[0]}) + '\\profile-containers;'\r\n            $OfficeContainers += '\\\\' + $NetAppFileShares[0] + '\\office-containers'\r\n            $ProfileContainers += '\\\\' + $(if($NetAppFileShares.Length -gt 1){$NetAppFileShares[1]}else{$NetAppFileShares[0]}) + '\\profile-containers'\r\n        }\r\n    }\r\n    \r\n    $Shares = @()\r\n    $Shares += $OfficeContainers\r\n    $Shares += $ProfileContainers\r\n\r\n    $Settings += @(\r\n\r\n        # Enables Fslogix profile containers: https://learn.microsoft.com/fslogix/profile-container-configuration-reference#enabled\r\n        [PSCustomObject]@{\r\n            Name = 'Enabled'\r\n            Path = 'HKLM:\\SOFTWARE\\Fslogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 1\r\n        },\r\n\r\n        # Deletes a local profile if it exists and matches the profile being loaded from VHD: https://learn.microsoft.com/fslogix/profile-container-configuration-reference#deletelocalprofilewhenvhdshouldapply\r\n        [PSCustomObject]@{\r\n            Name = 'DeleteLocalProfileWhenVHDShouldApply'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 1\r\n        },\r\n\r\n        # The folder created in the Fslogix fileshare will begin with the username instead of the SID: https://learn.microsoft.com/fslogix/profile-container-configuration-reference#flipflopprofiledirectoryname\r\n        [PSCustomObject]@{\r\n            Name = 'FlipFlopProfileDirectoryName'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 1\r\n        },\r\n\r\n        # Specifies the number of retries attempted when a VHD(x) file is locked: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#lockedretrycount\r\n        [PSCustomObject]@{\r\n            Name = 'LockedRetryCount'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 3\r\n        },\r\n\r\n        # Specifies the number of seconds to wait between retries: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#lockedretryinterval\r\n        [PSCustomObject]@{\r\n            Name = 'LockedRetryInterval'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 15\r\n        },\r\n\r\n        # Specifies if the profile container can be accessed concurrently: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#profiletype\r\n        [PSCustomObject]@{\r\n            Name = 'ProfileType'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 0\r\n        },\r\n\r\n        # Specifies the number of seconds to wait between retries when attempting to reattach the VHD(x) container if it's disconnected unexpectedly: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#reattachintervalseconds\r\n        [PSCustomObject]@{\r\n            Name = 'ReAttachIntervalSeconds'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 15\r\n        },\r\n\r\n        # Specifies the number of times the system should attempt to reattach the VHD(x) container if it's disconnected unexpectedly: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#reattachretrycount\r\n        [PSCustomObject]@{\r\n            Name = 'ReAttachRetryCount'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 3\r\n        },\r\n\r\n        # Specifies the maximum size of the user's container in megabytes. Newly created VHD(x) containers are of this size: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#sizeinmbs\r\n        [PSCustomObject]@{\r\n            Name = 'SizeInMBs'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 30000\r\n        },\r\n\r\n        # Specifies the file extension for the profile containers: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#volumetype\r\n        [PSCustomObject]@{\r\n            Name = 'VolumeType'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'String'\r\n            Value = 'VHDX'\r\n        }\r\n    )\r\n\r\n    if($FslogixContainerType -like \"CloudCache*\")\r\n    {\r\n        $Settings += @(\r\n            # List of file system locations to search for the user's profile VHD(X) file: https://learn.microsoft.com/fslogix/profile-container-configuration-reference#vhdlocations\r\n            [PSCustomObject]@{\r\n                Name = 'CCDLocations'\r\n                Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n                PropertyType = 'MultiString'\r\n                Value = $CloudCacheProfileContainers\r\n            }\r\n        )           \r\n    }\r\n    else\r\n    {\r\n        $Settings += @(\r\n            # List of file system locations to search for the user's profile VHD(X) file: https://learn.microsoft.com/fslogix/profile-container-configuration-reference#vhdlocations\r\n            [PSCustomObject]@{\r\n                Name = 'VHDLocations'\r\n                Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n                PropertyType = 'MultiString'\r\n                Value = $ProfileContainers\r\n            }\r\n        )\r\n    }\r\n\r\n    if($FslogixContainerType -like \"*OfficeContainer\")\r\n    {\r\n        $Settings += @(\r\n\r\n            # Enables Fslogix office containers: https://learn.microsoft.com/fslogix/office-container-configuration-reference#enabled\r\n            [PSCustomObject]@{\r\n                Name = 'Enabled'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 1\r\n            },\r\n\r\n            # The folder created in the Fslogix fileshare will begin with the username instead of the SID: https://learn.microsoft.com/fslogix/office-container-configuration-reference#flipflopprofiledirectoryname\r\n            [PSCustomObject]@{\r\n                Name = 'FlipFlopProfileDirectoryName'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 1\r\n            },         \r\n            \r\n            # Teams data is redirected to the container: https://learn.microsoft.com/fslogix/office-container-configuration-reference#includeteams\r\n            [PSCustomObject]@{\r\n                Name = 'IncludeTeams'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 1\r\n            },                  \r\n\r\n            # Specifies the number of retries attempted when a VHD(x) file is locked: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=odfc#lockedretrycount\r\n            [PSCustomObject]@{\r\n                Name = 'LockedRetryCount'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 3\r\n            },\r\n\r\n            # Specifies the number of seconds to wait between retries: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=odfc#lockedretryinterval\r\n            [PSCustomObject]@{\r\n                Name = 'LockedRetryInterval'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 15\r\n            },\r\n\r\n            # Specifies the number of seconds to wait between retries when attempting to reattach the VHD(x) container if it's disconnected unexpectedly: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=odfc#reattachintervalseconds\r\n            [PSCustomObject]@{\r\n                Name = 'ReAttachIntervalSeconds'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 15\r\n            },\r\n\r\n            # Specifies the number of times the system should attempt to reattach the VHD(x) container if it's disconnected unexpectedly: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=odfc#reattachretrycount\r\n            [PSCustomObject]@{\r\n                Name = 'ReAttachRetryCount'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 3\r\n            },\r\n\r\n            # Specifies the maximum size of the user's container in megabytes: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=odfc#sizeinmbs\r\n            [PSCustomObject]@{\r\n                Name = 'SizeInMBs'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 30000\r\n            },\r\n\r\n            # Specifies the type of container: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=odfc#volumetype\r\n            [PSCustomObject]@{\r\n                Name = 'VolumeType'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'String'\r\n                Value = 'VHDX'\r\n            }\r\n        )\r\n\r\n        if($FslogixContainerType -like \"CloudCache*\")\r\n        {\r\n            $Settings += @(\r\n                # List of file system locations to search for the user's profile VHD(X) file: https://learn.microsoft.com/fslogix/profile-container-configuration-reference#vhdlocations\r\n                [PSCustomObject]@{\r\n                    Name = 'CCDLocations'\r\n                    Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                    PropertyType = 'MultiString'\r\n                    Value = $CloudCacheOfficeContainers\r\n                }\r\n            )           \r\n        }\r\n        else\r\n        {\r\n            $Settings += @(\r\n                # List of file system locations to search for the user's profile VHD(X) file: https://learn.microsoft.com/fslogix/office-container-configuration-reference#vhdlocations\r\n                [PSCustomObject]@{\r\n                    Name = 'VHDLocations'\r\n                    Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                    PropertyType = 'MultiString'\r\n                    Value = $OfficeContainers\r\n                }\r\n            )\r\n        }\r\n    }\r\n}\r\n\r\n\r\n# Set registry settings\r\nforeach($Setting in $Settings)\r\n{\r\n    # Create registry key(s) if necessary\r\n    if(!(Test-Path -Path $Setting.Path))\r\n    {\r\n        New-Item -Path $Setting.Path -Force | Out-Null\r\n    }\r\n\r\n    # Checks for existing registry setting\r\n    $Value = Get-ItemProperty -Path $Setting.Path -Name $Setting.Name -ErrorAction 'SilentlyContinue'\r\n    \r\n    # Creates the registry setting when it does not exist\r\n    if(!$Value)\r\n    {\r\n        New-ItemProperty -Path $Setting.Path -Name $Setting.Name -PropertyType $Setting.PropertyType -Value $Setting.Value -Force | Out-Null\r\n    }\r\n    # Updates the registry setting when it already exists\r\n    elseif($Value.$($Setting.Name) -ne $Setting.Value)\r\n    {\r\n        Set-ItemProperty -Path $Setting.Path -Name $Setting.Name -Value $Setting.Value -Force | Out-Null\r\n    }\r\n    Start-Sleep -Seconds 1 | Out-Null\r\n}\r\n",
+                    "$fxv#0": "Param(\r\n    [string]$ActiveDirectorySolution,\r\n    [string]$AmdVmSize,\r\n    [string]$Fslogix,\r\n    [string]$FslogixContainerType,\r\n    [string]$NetAppFileServer,\r\n    [string]$NvidiaVmSize,\r\n    [string]$StorageAccountPrefix,\r\n    [int]$StorageCount,\r\n    [int]$StorageIndex,\r\n    [string]$StorageService,\r\n    [string]$StorageSuffix,\r\n    [string]$UniqueToken\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n$WarningPreference = 'SilentlyContinue'\r\n\r\n#  Add Recommended AVD Settings\r\n$Settings = @(\r\n\r\n    # Enable Time Zone Redirection: https://learn.microsoft.com/azure/virtual-desktop/set-up-customize-master-image#set-up-time-zone-redirection\r\n    [PSCustomObject]@{\r\n        Name = 'fEnableTimeZoneRedirection'\r\n        Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n        PropertyType = 'DWord'\r\n        Value = 1\r\n    },\r\n\r\n    # Disable Automatic Updates: https://learn.microsoft.com/azure/virtual-desktop/set-up-customize-master-image#disable-automatic-updates\r\n    [PSCustomObject]@{\r\n        Name = 'NoAutoUpdate'\r\n        Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU'\r\n        PropertyType = 'DWord'\r\n        Value = 1\r\n    }\r\n)\r\n\r\n\r\n# AMD & NVIDIA GPU settings\r\nif ($AmdVmSize -eq 'true' -or $NvidiaVmSize -eq 'true') \r\n{\r\n    $Settings += @(\r\n\r\n        # GPU-accelerated application rendering: Use hardware graphics adapters for all RDS sessions - https://learn.microsoft.com/azure/virtual-desktop/graphics-enable-gpu-acceleration?tabs=group-policy#enable-gpu-accelerated-application-rendering-and-remote-frame-encoding\r\n        [PSCustomObject]@{\r\n            Name = 'bEnumerateHWBeforeSW'\r\n            Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n            PropertyType = 'DWord'\r\n            Value = 1\r\n        },\r\n\r\n        # Configure the refresh rate for the display\r\n        [PSCustomObject]@{\r\n            Name = 'DisplayRefreshRate'\r\n            Path = 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server\\WinStations'\r\n            PropertyType = 'DWord'\r\n            Value = '0x60'\r\n        },\r\n\r\n        # Configure DWM frame interval: https://learn.microsoft.com/troubleshoot/windows-server/remote/frame-rate-limited-to-30-fps\r\n        [PSCustomObject]@{\r\n            Name = 'DWMFRAMEINTERVAL'\r\n            Path = 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server\\WinStations'\r\n            PropertyType = 'DWord'\r\n            Value = 15\r\n        },\r\n\r\n        # Graphics logging: Connection graphics data - https://learn.microsoft.com/azure/virtual-desktop/connection-latency#connection-graphics-data-preview\r\n        [PSCustomObject]@{\r\n            Name = 'fEnableConnectionIntervalGraphicsData'\r\n            Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n            PropertyType = 'DWord'\r\n            Value = 1\r\n        },\r\n\r\n        # Increase Chroma value to 4:4:4 for RDP sessions using AVC: Configure image quality for RemoteFX Adaptive Graphics - https://learn.microsoft.com/azure/virtual-desktop/graphics-chroma-value-increase-4-4-4?tabs=group-policy\r\n        [PSCustomObject]@{\r\n            Name = 'ImageQuality'\r\n            Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n            PropertyType = 'DWord'\r\n            Value = 2\r\n        }\r\n    )\r\n}\r\n\r\n# NVIDIA GPUs settings\r\nif ($NvidiaVmSize -eq 'true') \r\n{\r\n    $Settings += @(\r\n\r\n        # GPU-accelerated remote frame encoding using H.264/AVC: Prioritize H.264/AVC 444 graphics mode for Remote Desktop Connections - https://learn.microsoft.com/azure/virtual-desktop/graphics-enable-gpu-acceleration?tabs=group-policy#enable-gpu-accelerated-application-rendering-and-remote-frame-encoding\r\n        [PSCustomObject]@{\r\n            Name = 'AVC444ModePreferred'\r\n            Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n            PropertyType = 'DWord'\r\n            Value = 1\r\n        }\r\n\r\n        # GPU-accelerated remote frame encoding using H.264/AVC: Configure H.264/AVC hardware encoding for Remote Desktop Connections - https://learn.microsoft.com/azure/virtual-desktop/graphics-enable-gpu-acceleration?tabs=group-policy#enable-gpu-accelerated-application-rendering-and-remote-frame-encoding\r\n        [PSCustomObject]@{\r\n            Name = 'AVCHardwareEncodePreferred'\r\n            Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n            PropertyType = 'DWord'\r\n            Value = 1\r\n        },\r\n\r\n        # GPU-accelerated remote frame encoding using H.265/HEVC: Configure H.265/HEVC hardware encoding for Remote Desktop Connections - https://learn.microsoft.com/azure/virtual-desktop/graphics-enable-gpu-acceleration?tabs=group-policy#enable-gpu-accelerated-application-rendering-and-remote-frame-encoding\r\n        [PSCustomObject]@{\r\n            Name = 'HEVCHardwareEncodePreferred'\r\n            Path = 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services'\r\n            PropertyType = 'DWord'\r\n            Value = 1\r\n        }\r\n    )\r\n}\r\n\r\n#  Add Fslogix Settings\r\nif($Fslogix -eq 'true')\r\n{\r\n    $FilesSuffix = '.file.' + $StorageSuffix\r\n    $CloudCacheOfficeContainers = @()\r\n    $CloudCacheProfileContainers = @()\r\n    $OfficeContainers = @()\r\n    $ProfileContainers = @()\r\n    switch($StorageService)\r\n    {\r\n        'AzureFiles' {\r\n            for($i = $StorageIndex; $i -lt $($StorageIndex + $StorageCount); $i++)\r\n            {\r\n                $CloudCacheOfficeContainers += 'type=smb,connectionString=\\\\' + $($StorageAccountPrefix + $i.ToString().PadLeft(2,'0') + $UniqueToken).Substring(0,15) + $FilesSuffix + '\\office-containers;'\r\n                $CloudCacheProfileContainers += 'type=smb,connectionString=\\\\' + $($StorageAccountPrefix + $i.ToString().PadLeft(2,'0') + $UniqueToken).Substring(0,15) + $FilesSuffix + '\\profile-containers;'\r\n                $OfficeContainers += '\\\\' + $($StorageAccountPrefix + $i.ToString().PadLeft(2,'0') + $UniqueToken).Substring(0,15) + $FilesSuffix + '\\office-containers'\r\n                $ProfileContainers += '\\\\' + $($StorageAccountPrefix + $i.ToString().PadLeft(2,'0') + $UniqueToken).Substring(0,15) + $FilesSuffix + '\\profile-containers'\r\n            }\r\n        }\r\n        'AzureNetAppFiles' {\r\n            $CloudCacheOfficeContainers += 'type=smb,connectionString=\\\\' + $NetAppFileServer + '\\office-containers;'\r\n            $CloudCacheProfileContainers += 'type=smb,connectionString=\\\\' + $NetAppFileServer + '\\profile-containers;'\r\n            $OfficeContainers += '\\\\' + $NetAppFileServer + '\\office-containers'\r\n            $ProfileContainers += '\\\\' + $NetAppFileServer + '\\profile-containers'\r\n        }\r\n    }\r\n    \r\n    $Shares = @()\r\n    $Shares += $OfficeContainers\r\n    $Shares += $ProfileContainers\r\n\r\n    $Settings += @(\r\n\r\n        # Enables Fslogix profile containers: https://learn.microsoft.com/fslogix/profile-container-configuration-reference#enabled\r\n        [PSCustomObject]@{\r\n            Name = 'Enabled'\r\n            Path = 'HKLM:\\SOFTWARE\\Fslogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 1\r\n        },\r\n\r\n        # Deletes a local profile if it exists and matches the profile being loaded from VHD: https://learn.microsoft.com/fslogix/profile-container-configuration-reference#deletelocalprofilewhenvhdshouldapply\r\n        [PSCustomObject]@{\r\n            Name = 'DeleteLocalProfileWhenVHDShouldApply'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 1\r\n        },\r\n\r\n        # The folder created in the Fslogix fileshare will begin with the username instead of the SID: https://learn.microsoft.com/fslogix/profile-container-configuration-reference#flipflopprofiledirectoryname\r\n        [PSCustomObject]@{\r\n            Name = 'FlipFlopProfileDirectoryName'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 1\r\n        },\r\n\r\n        # Specifies the number of retries attempted when a VHD(x) file is locked: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#lockedretrycount\r\n        [PSCustomObject]@{\r\n            Name = 'LockedRetryCount'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 3\r\n        },\r\n\r\n        # Specifies the number of seconds to wait between retries: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#lockedretryinterval\r\n        [PSCustomObject]@{\r\n            Name = 'LockedRetryInterval'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 15\r\n        },\r\n\r\n        # Specifies if the profile container can be accessed concurrently: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#profiletype\r\n        [PSCustomObject]@{\r\n            Name = 'ProfileType'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 0\r\n        },\r\n\r\n        # Specifies the number of seconds to wait between retries when attempting to reattach the VHD(x) container if it's disconnected unexpectedly: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#reattachintervalseconds\r\n        [PSCustomObject]@{\r\n            Name = 'ReAttachIntervalSeconds'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 15\r\n        },\r\n\r\n        # Specifies the number of times the system should attempt to reattach the VHD(x) container if it's disconnected unexpectedly: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#reattachretrycount\r\n        [PSCustomObject]@{\r\n            Name = 'ReAttachRetryCount'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 3\r\n        },\r\n\r\n        # Specifies the maximum size of the user's container in megabytes. Newly created VHD(x) containers are of this size: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#sizeinmbs\r\n        [PSCustomObject]@{\r\n            Name = 'SizeInMBs'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'DWord'\r\n            Value = 30000\r\n        },\r\n\r\n        # Specifies the file extension for the profile containers: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=profiles#volumetype\r\n        [PSCustomObject]@{\r\n            Name = 'VolumeType'\r\n            Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n            PropertyType = 'String'\r\n            Value = 'VHDX'\r\n        }\r\n    )\r\n\r\n    if($FslogixContainerType -like \"CloudCache*\")\r\n    {\r\n        $Settings += @(\r\n            # List of file system locations to search for the user's profile VHD(X) file: https://learn.microsoft.com/fslogix/profile-container-configuration-reference#vhdlocations\r\n            [PSCustomObject]@{\r\n                Name = 'CCDLocations'\r\n                Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n                PropertyType = 'MultiString'\r\n                Value = $CloudCacheProfileContainers\r\n            }\r\n        )           \r\n    }\r\n    else\r\n    {\r\n        $Settings += @(\r\n            # List of file system locations to search for the user's profile VHD(X) file: https://learn.microsoft.com/fslogix/profile-container-configuration-reference#vhdlocations\r\n            [PSCustomObject]@{\r\n                Name = 'VHDLocations'\r\n                Path = 'HKLM:\\SOFTWARE\\FSLogix\\Profiles'\r\n                PropertyType = 'MultiString'\r\n                Value = $ProfileContainers\r\n            }\r\n        )\r\n    }\r\n\r\n    if($FslogixContainerType -like \"*OfficeContainer\")\r\n    {\r\n        $Settings += @(\r\n\r\n            # Enables Fslogix office containers: https://learn.microsoft.com/fslogix/office-container-configuration-reference#enabled\r\n            [PSCustomObject]@{\r\n                Name = 'Enabled'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 1\r\n            },\r\n\r\n            # The folder created in the Fslogix fileshare will begin with the username instead of the SID: https://learn.microsoft.com/fslogix/office-container-configuration-reference#flipflopprofiledirectoryname\r\n            [PSCustomObject]@{\r\n                Name = 'FlipFlopProfileDirectoryName'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 1\r\n            },         \r\n            \r\n            # Teams data is redirected to the container: https://learn.microsoft.com/fslogix/office-container-configuration-reference#includeteams\r\n            [PSCustomObject]@{\r\n                Name = 'IncludeTeams'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 1\r\n            },                  \r\n\r\n            # Specifies the number of retries attempted when a VHD(x) file is locked: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=odfc#lockedretrycount\r\n            [PSCustomObject]@{\r\n                Name = 'LockedRetryCount'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 3\r\n            },\r\n\r\n            # Specifies the number of seconds to wait between retries: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=odfc#lockedretryinterval\r\n            [PSCustomObject]@{\r\n                Name = 'LockedRetryInterval'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 15\r\n            },\r\n\r\n            # Specifies the number of seconds to wait between retries when attempting to reattach the VHD(x) container if it's disconnected unexpectedly: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=odfc#reattachintervalseconds\r\n            [PSCustomObject]@{\r\n                Name = 'ReAttachIntervalSeconds'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 15\r\n            },\r\n\r\n            # Specifies the number of times the system should attempt to reattach the VHD(x) container if it's disconnected unexpectedly: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=odfc#reattachretrycount\r\n            [PSCustomObject]@{\r\n                Name = 'ReAttachRetryCount'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 3\r\n            },\r\n\r\n            # Specifies the maximum size of the user's container in megabytes: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=odfc#sizeinmbs\r\n            [PSCustomObject]@{\r\n                Name = 'SizeInMBs'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'DWord'\r\n                Value = 30000\r\n            },\r\n\r\n            # Specifies the type of container: https://learn.microsoft.com/fslogix/reference-configuration-settings?tabs=odfc#volumetype\r\n            [PSCustomObject]@{\r\n                Name = 'VolumeType'\r\n                Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                PropertyType = 'String'\r\n                Value = 'VHDX'\r\n            }\r\n        )\r\n\r\n        if($FslogixContainerType -like \"CloudCache*\")\r\n        {\r\n            $Settings += @(\r\n                # List of file system locations to search for the user's profile VHD(X) file: https://learn.microsoft.com/fslogix/profile-container-configuration-reference#vhdlocations\r\n                [PSCustomObject]@{\r\n                    Name = 'CCDLocations'\r\n                    Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                    PropertyType = 'MultiString'\r\n                    Value = $CloudCacheOfficeContainers\r\n                }\r\n            )           \r\n        }\r\n        else\r\n        {\r\n            $Settings += @(\r\n                # List of file system locations to search for the user's profile VHD(X) file: https://learn.microsoft.com/fslogix/office-container-configuration-reference#vhdlocations\r\n                [PSCustomObject]@{\r\n                    Name = 'VHDLocations'\r\n                    Path = 'HKLM:\\SOFTWARE\\Policies\\FSLogix\\ODFC'\r\n                    PropertyType = 'MultiString'\r\n                    Value = $OfficeContainers\r\n                }\r\n            )\r\n        }\r\n    }\r\n}\r\n\r\n\r\n# Set registry settings\r\nforeach($Setting in $Settings)\r\n{\r\n    # Create registry key(s) if necessary\r\n    if(!(Test-Path -Path $Setting.Path))\r\n    {\r\n        New-Item -Path $Setting.Path -Force | Out-Null\r\n    }\r\n\r\n    # Checks for existing registry setting\r\n    $Value = Get-ItemProperty -Path $Setting.Path -Name $Setting.Name -ErrorAction 'SilentlyContinue'\r\n    \r\n    # Creates the registry setting when it does not exist\r\n    if(!$Value)\r\n    {\r\n        New-ItemProperty -Path $Setting.Path -Name $Setting.Name -PropertyType $Setting.PropertyType -Value $Setting.Value -Force | Out-Null\r\n    }\r\n    # Updates the registry setting when it already exists\r\n    elseif($Value.$($Setting.Name) -ne $Setting.Value)\r\n    {\r\n        Set-ItemProperty -Path $Setting.Path -Name $Setting.Name -Value $Setting.Value -Force | Out-Null\r\n    }\r\n    Start-Sleep -Seconds 1 | Out-Null\r\n}\r\n",
                     "$fxv#1": "Param(\r\n    [string]$Environment,\r\n    [string]$HostPoolName,\r\n    [string]$HostPoolResourceGroupName,\r\n    [string]$ResourceManagerUri,\r\n    [int]$SessionHostCount,\r\n    [int]$SessionHostIndex,\r\n    [string]$SubscriptionId,\r\n    [string]$TenantId,\r\n    [string]$UserAssignedIdentityClientId,\r\n    [string]$VirtualMachineNamePrefix\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n$WarningPreference = 'SilentlyContinue'\r\n\r\n# Fix the resource manager URI since only AzureCloud contains a trailing slash\r\n$ResourceManagerUriFixed = if($ResourceManagerUri[-1] -eq '/'){$ResourceManagerUri} else {$ResourceManagerUri + '/'}\r\n\r\n# Get an access token for Azure resources\r\n$AzureManagementAccessToken = (Invoke-RestMethod `\r\n    -Headers @{Metadata=\"true\"} `\r\n    -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n# Set header for Azure Management API\r\n$AzureManagementHeader = @{\r\n    'Content-Type'='application/json'\r\n    'Authorization'='Bearer ' + $AzureManagementAccessToken\r\n}\r\n\r\n# Get the AVD session hosts\r\n$SessionHosts = (Invoke-RestMethod `\r\n    -Headers $AzureManagementHeader `\r\n    -Method 'GET' `\r\n    -Uri $($ResourceManagerUriFixed + 'subscriptions/' + $SubscriptionId + '/resourceGroups/' + $HostPoolResourceGroupName + '/providers/Microsoft.DesktopVirtualization/hostPools/' + $HostPoolName + '/sessionHosts?api-version=2023-09-05')).value.name\r\n\r\n# Enable drain mode for the AVD session hosts\r\nfor($i = $SessionHostIndex; $i -lt $($SessionHostIndex + $SessionHostCount); $i++)\r\n{\r\n    $VmNameFull = $VirtualMachineNamePrefix + $i.ToString().PadLeft(4,'0')\r\n    $SessionHostName = ($SessionHosts | Where-Object {$_ -like \"*$VmNameFull*\"}).Replace(\"$HostPoolName/\", '')\r\n    Invoke-RestMethod `\r\n        -Body (@{properties = @{allowNewSession = $false}} | ConvertTo-Json) `\r\n        -Headers $AzureManagementHeader `\r\n        -Method 'PATCH' `\r\n        -Uri $($ResourceManagerUriFixed + 'subscriptions/' + $SubscriptionId + '/resourceGroups/' + $HostPoolResourceGroupName + '/providers/Microsoft.DesktopVirtualization/hostPools/' + $HostPoolName + '/sessionHosts/' + $SessionHostName + '?api-version=2023-09-05') | Out-Null\r\n}\r\n",
                     "amdVmSize": "[contains(variables('amdVmSizes'), parameters('virtualMachineSize'))]",
                     "amdVmSizes": [
@@ -13306,8 +13450,8 @@
                                 "value": "[parameters('fslogixContainerType')]"
                               },
                               {
-                                "name": "NetAppFileShares",
-                                "value": "[string(parameters('netAppFileShares'))]"
+                                "name": "NetAppFileServer",
+                                "value": "[parameters('netAppFileServer')]"
                               },
                               {
                                 "name": "NvidiaVmSize",
