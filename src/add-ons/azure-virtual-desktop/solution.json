@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.41.2.15936",
-      "templateHash": "2570002302468757690"
+      "templateHash": "6779941029711745381"
     }
   },
   "parameters": {
@@ -724,7 +724,6 @@
         "profile-containers"
       ]
     },
-    "fileShares": "[variables('fileShareNames')[parameters('fslogixContainerType')]]",
     "netbios": "[split(parameters('domainName'), '.')[0]]",
     "privateDnsZoneResourceIdPrefix": "[format('/subscriptions/{0}/resourceGroups/{1}/providers/Microsoft.Network/privateDnsZones/', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4])]",
     "privateDnsZoneSuffixes_AzureVirtualDesktop": {
@@ -10510,8 +10509,8 @@
           "encryptionUserAssignedIdentityResourceId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.encryptionUserAssignedIdentityResourceId.value]"
           },
-          "fileShares": {
-            "value": "[variables('fileShares')]"
+          "fileShareNames": {
+            "value": "[variables('fileShareNames')[parameters('fslogixContainerType')]]"
           },
           "fslogixShareSizeInGB": {
             "value": "[parameters('fslogixShareSizeInGB')]"
@@ -10584,7 +10583,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.41.2.15936",
-              "templateHash": "17900702030582845706"
+              "templateHash": "13306940532411191302"
             }
           },
           "parameters": {
@@ -10621,7 +10620,7 @@
             "encryptionUserAssignedIdentityResourceId": {
               "type": "string"
             },
-            "fileShares": {
+            "fileShareNames": {
               "type": "array"
             },
             "fslogixShareSizeInGB": {
@@ -10850,8 +10849,8 @@
                   "domainName": {
                     "value": "[parameters('domainName')]"
                   },
-                  "fileShares": {
-                    "value": "[parameters('fileShares')]"
+                  "fileShareNames": {
+                    "value": "[parameters('fileShareNames')]"
                   },
                   "hostPoolResourceId": {
                     "value": "[parameters('hostPoolResourceId')]"
@@ -10900,7 +10899,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.41.2.15936",
-                      "templateHash": "17267280601553101705"
+                      "templateHash": "14839336147892871305"
                     }
                   },
                   "parameters": {
@@ -10929,7 +10928,7 @@
                       "type": "string",
                       "defaultValue": ""
                     },
-                    "fileShares": {
+                    "fileShareNames": {
                       "type": "array"
                     },
                     "location": {
@@ -11019,17 +11018,17 @@
                     {
                       "copy": {
                         "name": "volumes",
-                        "count": "[length(range(0, length(parameters('fileShares'))))]"
+                        "count": "[length(range(0, length(parameters('fileShareNames'))))]"
                       },
                       "type": "Microsoft.NetApp/netAppAccounts/capacityPools/volumes",
                       "apiVersion": "2025-01-01",
-                      "name": "[format('{0}/{1}/{2}', format('{0}{1}', parameters('netAppAccountNamePrefix'), variables('nameSuffix')), format('{0}{1}', parameters('netAppCapacityPoolNamePrefix'), variables('nameSuffix')), parameters('fileShares')[range(0, length(parameters('fileShares')))[copyIndex()]])]",
+                      "name": "[format('{0}/{1}/{2}', format('{0}{1}', parameters('netAppAccountNamePrefix'), variables('nameSuffix')), format('{0}{1}', parameters('netAppCapacityPoolNamePrefix'), variables('nameSuffix')), parameters('fileShareNames')[range(0, length(parameters('fileShareNames')))[copyIndex()]])]",
                       "location": "[parameters('location')]",
                       "tags": "[variables('tagsNetAppAccount')]",
                       "properties": {
                         "avsDataStore": "Disabled",
                         "coolAccess": false,
-                        "creationToken": "[parameters('fileShares')[range(0, length(parameters('fileShares')))[copyIndex()]]]",
+                        "creationToken": "[parameters('fileShareNames')[range(0, length(parameters('fileShareNames')))[copyIndex()]]]",
                         "defaultGroupQuotaInKiBs": 0,
                         "defaultUserQuotaInKiBs": 0,
                         "encryptionKeySource": "Microsoft.NetApp",
@@ -11082,7 +11081,7 @@
                             "value": [
                               {
                                 "name": "FileServer",
-                                "value": "[reference(resourceId('Microsoft.NetApp/netAppAccounts/capacityPools/volumes', format('{0}{1}', parameters('netAppAccountNamePrefix'), variables('nameSuffix')), format('{0}{1}', parameters('netAppCapacityPoolNamePrefix'), variables('nameSuffix')), parameters('fileShares')[range(0, length(parameters('fileShares')))[0]]), '2025-01-01').mountTargets[0].smbServerFqdn]"
+                                "value": "[reference(resourceId('Microsoft.NetApp/netAppAccounts/capacityPools/volumes', format('{0}{1}', parameters('netAppAccountNamePrefix'), variables('nameSuffix')), format('{0}{1}', parameters('netAppCapacityPoolNamePrefix'), variables('nameSuffix')), parameters('fileShareNames')[range(0, length(parameters('fileShareNames')))[0]]), '2025-01-01').mountTargets[0].smbServerFqdn]"
                               },
                               {
                                 "name": "SecurityPrincipalNames",
@@ -11090,7 +11089,7 @@
                               },
                               {
                                 "name": "ShareNames",
-                                "value": "[string(parameters('fileShares'))]"
+                                "value": "[string(parameters('fileShareNames'))]"
                               }
                             ]
                           },
@@ -11171,14 +11170,14 @@
                         }
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.NetApp/netAppAccounts/capacityPools/volumes', format('{0}{1}', parameters('netAppAccountNamePrefix'), variables('nameSuffix')), format('{0}{1}', parameters('netAppCapacityPoolNamePrefix'), variables('nameSuffix')), parameters('fileShares')[range(0, length(parameters('fileShares')))[0]])]"
+                        "[resourceId('Microsoft.NetApp/netAppAccounts/capacityPools/volumes', format('{0}{1}', parameters('netAppAccountNamePrefix'), variables('nameSuffix')), format('{0}{1}', parameters('netAppCapacityPoolNamePrefix'), variables('nameSuffix')), parameters('fileShareNames')[range(0, length(parameters('fileShareNames')))[0]])]"
                       ]
                     }
                   ],
                   "outputs": {
                     "netAppFileServer": {
                       "type": "string",
-                      "value": "[reference(resourceId('Microsoft.NetApp/netAppAccounts/capacityPools/volumes', format('{0}{1}', parameters('netAppAccountNamePrefix'), variables('nameSuffix')), format('{0}{1}', parameters('netAppCapacityPoolNamePrefix'), variables('nameSuffix')), parameters('fileShares')[range(0, length(parameters('fileShares')))[0]]), '2025-01-01').mountTargets[0].smbServerFqdn]"
+                      "value": "[reference(resourceId('Microsoft.NetApp/netAppAccounts/capacityPools/volumes', format('{0}{1}', parameters('netAppAccountNamePrefix'), variables('nameSuffix')), format('{0}{1}', parameters('netAppCapacityPoolNamePrefix'), variables('nameSuffix')), parameters('fileShareNames')[range(0, length(parameters('fileShareNames')))[0]]), '2025-01-01').mountTargets[0].smbServerFqdn]"
                     }
                   }
                 }
@@ -11226,8 +11225,8 @@
                   "encryptionUserAssignedIdentityResourceId": {
                     "value": "[parameters('encryptionUserAssignedIdentityResourceId')]"
                   },
-                  "fileShares": {
-                    "value": "[parameters('fileShares')]"
+                  "fileShareNames": {
+                    "value": "[parameters('fileShareNames')]"
                   },
                   "fslogixShareSizeInGB": {
                     "value": "[parameters('fslogixShareSizeInGB')]"
@@ -11294,7 +11293,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.41.2.15936",
-                      "templateHash": "17312805510345983962"
+                      "templateHash": "13020831931319524991"
                     }
                   },
                   "parameters": {
@@ -11325,7 +11324,7 @@
                     "encryptionUserAssignedIdentityResourceId": {
                       "type": "string"
                     },
-                    "fileShares": {
+                    "fileShareNames": {
                       "type": "array"
                     },
                     "fslogixShareSizeInGB": {
@@ -11669,7 +11668,7 @@
                         "mode": "Incremental",
                         "parameters": {
                           "fileShares": {
-                            "value": "[parameters('fileShares')]"
+                            "value": "[parameters('fileShareNames')]"
                           },
                           "fslogixShareSizeInGB": {
                             "value": "[parameters('fslogixShareSizeInGB')]"
@@ -11776,7 +11775,7 @@
                               },
                               {
                                 "name": "ShareNames",
-                                "value": "[string(parameters('fileShares'))]"
+                                "value": "[string(parameters('fileShareNames'))]"
                               },
                               {
                                 "name": "StorageAccountPrefix",

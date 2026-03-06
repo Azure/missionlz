@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.41.2.15936",
-      "templateHash": "10415802804094646623"
+      "templateHash": "18386948172051977101"
     }
   },
   "parameters": {
@@ -9891,7 +9891,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.41.2.15936",
-              "templateHash": "8095558002061080731"
+              "templateHash": "8341633364465361488"
             }
           },
           "parameters": {
@@ -15542,7 +15542,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.41.2.15936",
-                      "templateHash": "14415161817214262521"
+                      "templateHash": "10924829811741822456"
                     }
                   },
                   "parameters": {
@@ -16683,7 +16683,7 @@
                           "domainName": {
                             "value": "[parameters('domainName')]"
                           },
-                          "fileShares": {
+                          "fileShareNames": {
                             "value": [
                               "[parameters('fileShareName')]"
                             ]
@@ -16731,7 +16731,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.41.2.15936",
-                              "templateHash": "17267280601553101705"
+                              "templateHash": "14839336147892871305"
                             }
                           },
                           "parameters": {
@@ -16760,7 +16760,7 @@
                               "type": "string",
                               "defaultValue": ""
                             },
-                            "fileShares": {
+                            "fileShareNames": {
                               "type": "array"
                             },
                             "location": {
@@ -16850,17 +16850,17 @@
                             {
                               "copy": {
                                 "name": "volumes",
-                                "count": "[length(range(0, length(parameters('fileShares'))))]"
+                                "count": "[length(range(0, length(parameters('fileShareNames'))))]"
                               },
                               "type": "Microsoft.NetApp/netAppAccounts/capacityPools/volumes",
                               "apiVersion": "2025-01-01",
-                              "name": "[format('{0}/{1}/{2}', format('{0}{1}', parameters('netAppAccountNamePrefix'), variables('nameSuffix')), format('{0}{1}', parameters('netAppCapacityPoolNamePrefix'), variables('nameSuffix')), parameters('fileShares')[range(0, length(parameters('fileShares')))[copyIndex()]])]",
+                              "name": "[format('{0}/{1}/{2}', format('{0}{1}', parameters('netAppAccountNamePrefix'), variables('nameSuffix')), format('{0}{1}', parameters('netAppCapacityPoolNamePrefix'), variables('nameSuffix')), parameters('fileShareNames')[range(0, length(parameters('fileShareNames')))[copyIndex()]])]",
                               "location": "[parameters('location')]",
                               "tags": "[variables('tagsNetAppAccount')]",
                               "properties": {
                                 "avsDataStore": "Disabled",
                                 "coolAccess": false,
-                                "creationToken": "[parameters('fileShares')[range(0, length(parameters('fileShares')))[copyIndex()]]]",
+                                "creationToken": "[parameters('fileShareNames')[range(0, length(parameters('fileShareNames')))[copyIndex()]]]",
                                 "defaultGroupQuotaInKiBs": 0,
                                 "defaultUserQuotaInKiBs": 0,
                                 "encryptionKeySource": "Microsoft.NetApp",
@@ -16913,7 +16913,7 @@
                                     "value": [
                                       {
                                         "name": "FileServer",
-                                        "value": "[reference(resourceId('Microsoft.NetApp/netAppAccounts/capacityPools/volumes', format('{0}{1}', parameters('netAppAccountNamePrefix'), variables('nameSuffix')), format('{0}{1}', parameters('netAppCapacityPoolNamePrefix'), variables('nameSuffix')), parameters('fileShares')[range(0, length(parameters('fileShares')))[0]]), '2025-01-01').mountTargets[0].smbServerFqdn]"
+                                        "value": "[reference(resourceId('Microsoft.NetApp/netAppAccounts/capacityPools/volumes', format('{0}{1}', parameters('netAppAccountNamePrefix'), variables('nameSuffix')), format('{0}{1}', parameters('netAppCapacityPoolNamePrefix'), variables('nameSuffix')), parameters('fileShareNames')[range(0, length(parameters('fileShareNames')))[0]]), '2025-01-01').mountTargets[0].smbServerFqdn]"
                                       },
                                       {
                                         "name": "SecurityPrincipalNames",
@@ -16921,7 +16921,7 @@
                                       },
                                       {
                                         "name": "ShareNames",
-                                        "value": "[string(parameters('fileShares'))]"
+                                        "value": "[string(parameters('fileShareNames'))]"
                                       }
                                     ]
                                   },
@@ -17002,14 +17002,14 @@
                                 }
                               },
                               "dependsOn": [
-                                "[resourceId('Microsoft.NetApp/netAppAccounts/capacityPools/volumes', format('{0}{1}', parameters('netAppAccountNamePrefix'), variables('nameSuffix')), format('{0}{1}', parameters('netAppCapacityPoolNamePrefix'), variables('nameSuffix')), parameters('fileShares')[range(0, length(parameters('fileShares')))[0]])]"
+                                "[resourceId('Microsoft.NetApp/netAppAccounts/capacityPools/volumes', format('{0}{1}', parameters('netAppAccountNamePrefix'), variables('nameSuffix')), format('{0}{1}', parameters('netAppCapacityPoolNamePrefix'), variables('nameSuffix')), parameters('fileShareNames')[range(0, length(parameters('fileShareNames')))[0]])]"
                               ]
                             }
                           ],
                           "outputs": {
                             "netAppFileServer": {
                               "type": "string",
-                              "value": "[reference(resourceId('Microsoft.NetApp/netAppAccounts/capacityPools/volumes', format('{0}{1}', parameters('netAppAccountNamePrefix'), variables('nameSuffix')), format('{0}{1}', parameters('netAppCapacityPoolNamePrefix'), variables('nameSuffix')), parameters('fileShares')[range(0, length(parameters('fileShares')))[0]]), '2025-01-01').mountTargets[0].smbServerFqdn]"
+                              "value": "[reference(resourceId('Microsoft.NetApp/netAppAccounts/capacityPools/volumes', format('{0}{1}', parameters('netAppAccountNamePrefix'), variables('nameSuffix')), format('{0}{1}', parameters('netAppCapacityPoolNamePrefix'), variables('nameSuffix')), parameters('fileShareNames')[range(0, length(parameters('fileShareNames')))[0]]), '2025-01-01').mountTargets[0].smbServerFqdn]"
                             }
                           }
                         }
@@ -17023,6 +17023,14 @@
                     "fileServer": {
                       "type": "string",
                       "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-netapp-files-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.netAppFileServer.value]"
+                    },
+                    "userAssignedIdentityClientId": {
+                      "type": "string",
+                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-id-deployment-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.clientId.value]"
+                    },
+                    "virtualMachineResourceId": {
+                      "type": "string",
+                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-mgmt-vm-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.resourceId.value]"
                     }
                   }
                 }
@@ -17030,6 +17038,184 @@
               "dependsOn": [
                 "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}', parameters('deploymentNameSuffix')))]",
                 "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix')))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2025-04-01",
+              "name": "[format('deploy-clean-up-{0}', parameters('deploymentNameSuffix'))]",
+              "location": "[deployment().location]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "deploymentNameSuffix": {
+                    "value": "[parameters('deploymentNameSuffix')]"
+                  },
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
+                  "resourceGroupManagement": {
+                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.name.value]"
+                  },
+                  "userAssignedIdentityClientId": {
+                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-netapp-files-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.userAssignedIdentityClientId.value]"
+                  },
+                  "virtualMachineResourceId": {
+                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-netapp-files-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.virtualMachineResourceId.value]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.41.2.15936",
+                      "templateHash": "17234740649987461513"
+                    }
+                  },
+                  "parameters": {
+                    "deploymentNameSuffix": {
+                      "type": "string"
+                    },
+                    "location": {
+                      "type": "string"
+                    },
+                    "resourceGroupManagement": {
+                      "type": "string"
+                    },
+                    "userAssignedIdentityClientId": {
+                      "type": "string"
+                    },
+                    "virtualMachineResourceId": {
+                      "type": "string"
+                    }
+                  },
+                  "variables": {
+                    "$fxv#0": "param(\r\n    [string]$ResourceGroupName,\r\n    [string]$ResourceManagerUri,\r\n    [string]$UserAssignedIdentityClientId,\r\n    [string]$VirtualMachineResourceId\r\n)\r\n\r\n# Fix the resource manager URI since only AzureCloud contains a trailing slash\r\n$ResourceManagerUriFixed = if($ResourceManagerUri[-1] -eq '/'){$ResourceManagerUri.Substring(0,$ResourceManagerUri.Length - 1)} else {$ResourceManagerUri}\r\n\r\n# Get an access token for Azure resources\r\n$AzureManagementAccessToken = (Invoke-RestMethod `\r\n    -Headers @{Metadata=\"true\"} `\r\n    -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n# Set header for Azure Management API\r\n$AzureManagementHeader = @{\r\n    'Content-Type'='application/json'\r\n    'Authorization'='Bearer ' + $AzureManagementAccessToken\r\n}\r\n\r\nStart-Sleep -Seconds 30\r\n\r\n# Use the access token to delete the virtual machine\r\nInvoke-RestMethod `\r\n    -Headers $AzureManagementHeader `\r\n    -Method 'Delete' `\r\n    -Uri $($ResourceManagerUriFixed + $VirtualMachineResourceId + '?forceDeletion=true&api-version=2024-07-01') | Out-Null"
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2025-04-01",
+                      "name": "[format('clean-up-{0}', parameters('deploymentNameSuffix'))]",
+                      "resourceGroup": "[parameters('resourceGroupManagement')]",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "parameters": {
+                          "asyncExecution": {
+                            "value": true
+                          },
+                          "location": {
+                            "value": "[parameters('location')]"
+                          },
+                          "name": {
+                            "value": "Remove-VirtualMachine"
+                          },
+                          "parameters": {
+                            "value": [
+                              {
+                                "name": "ResourceGroupName",
+                                "value": "[parameters('resourceGroupManagement')]"
+                              },
+                              {
+                                "name": "ResourceManagerUri",
+                                "value": "[environment().resourceManager]"
+                              },
+                              {
+                                "name": "UserAssignedIdentityClientId",
+                                "value": "[parameters('userAssignedIdentityClientId')]"
+                              },
+                              {
+                                "name": "VirtualMachineResourceId",
+                                "value": "[parameters('virtualMachineResourceId')]"
+                              }
+                            ]
+                          },
+                          "script": {
+                            "value": "[variables('$fxv#0')]"
+                          },
+                          "tags": {
+                            "value": {}
+                          },
+                          "treatFailureAsDeploymentFailure": {
+                            "value": true
+                          },
+                          "virtualMachineName": {
+                            "value": "[split(parameters('virtualMachineResourceId'), '/')[8]]"
+                          }
+                        },
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "0.41.2.15936",
+                              "templateHash": "11413959044932611514"
+                            }
+                          },
+                          "parameters": {
+                            "asyncExecution": {
+                              "type": "bool",
+                              "defaultValue": false
+                            },
+                            "location": {
+                              "type": "string"
+                            },
+                            "name": {
+                              "type": "string"
+                            },
+                            "parameters": {
+                              "type": "array",
+                              "defaultValue": []
+                            },
+                            "script": {
+                              "type": "string"
+                            },
+                            "tags": {
+                              "type": "object"
+                            },
+                            "treatFailureAsDeploymentFailure": {
+                              "type": "bool",
+                              "defaultValue": true
+                            },
+                            "virtualMachineName": {
+                              "type": "string"
+                            }
+                          },
+                          "resources": [
+                            {
+                              "type": "Microsoft.Compute/virtualMachines/runCommands",
+                              "apiVersion": "2023-09-01",
+                              "name": "[format('{0}/{1}', parameters('virtualMachineName'), parameters('name'))]",
+                              "location": "[parameters('location')]",
+                              "tags": "[parameters('tags')]",
+                              "properties": {
+                                "asyncExecution": "[parameters('asyncExecution')]",
+                                "parameters": "[parameters('parameters')]",
+                                "source": {
+                                  "script": "[parameters('script')]"
+                                },
+                                "treatFailureAsDeploymentFailure": "[parameters('treatFailureAsDeploymentFailure')]"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "dependsOn": [
+                "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-netapp-files-{0}', parameters('deploymentNameSuffix')))]",
+                "[subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}', parameters('deploymentNameSuffix')))]"
               ]
             }
           ],
