@@ -274,4 +274,16 @@ module netAppFiles 'modules/azureNetAppFiles.bicep' = {
   }
 }
 
+// Deploys a run command to delete the management virtual machine
+module cleanUp '../azure-virtual-desktop/modules/clean-up/clean-up.bicep' = {
+  name: 'deploy-clean-up-${deploymentNameSuffix}'
+  params: {
+    deploymentNameSuffix: deploymentNameSuffix
+    location: location
+    resourceGroupManagement: rg.outputs.name
+    userAssignedIdentityClientId: netAppFiles.outputs.userAssignedIdentityClientId
+    virtualMachineResourceId: netAppFiles.outputs.virtualMachineResourceId
+  }
+}
+
 output fileShareUncPath string = '\\\\${netAppFiles.outputs.fileServer}\\${fileShareName}'
