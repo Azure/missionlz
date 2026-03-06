@@ -10,7 +10,7 @@ param domainAdminPassword string
 param domainAdminUserPrincipalName string
 // param enableRecoveryServices bool
 param encryptionUserAssignedIdentityResourceId string
-param fileShares array
+param fileShareNames array
 param fslogixShareSizeInGB int
 param hostPoolResourceId string
 param keyVaultName string
@@ -157,7 +157,7 @@ resource fileServices 'Microsoft.Storage/storageAccounts/fileServices@2022-09-01
 module shares 'shares.bicep' = [for i in range(0, storageCount): {
   name: 'deploy-file-shares-${i}-${deploymentNameSuffix}'
   params: {
-    fileShares: fileShares
+    fileShares: fileShareNames
     fslogixShareSizeInGB: fslogixShareSizeInGB
     storageAccountName: storageAccounts[i].name
     storageSku: storageSku
@@ -241,7 +241,7 @@ module ntfsPermissions '../run-command.bicep' = {
       }
       {
         name: 'ShareNames'
-        value: string(fileShares)
+        value: string(fileShareNames)
       }
       {
         name: 'StorageAccountPrefix'

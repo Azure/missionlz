@@ -13,7 +13,7 @@ param domainAdminPassword string
 param domainAdminUserPrincipalName string
 param domainName string
 param encryptionUserAssignedIdentityResourceId string
-param fileShares array
+param fileShareNames array
 param fslogixShareSizeInGB int
 param fslogixStorageService string
 param functionAppPrincipalId string
@@ -79,7 +79,7 @@ module azureNetAppFiles 'azure-netapp-files.bicep' = if (storageService == 'Azur
     domainAdminPassword: domainAdminPassword
     domainAdminUserPrincipalName: domainAdminUserPrincipalName
     domainName: domainName
-    fileShares: fileShares
+    fileShareNames: fileShareNames
     hostPoolResourceId: hostPoolResourceId
     location: location
     managementVirtualMachineName: managementVirtualMachineName
@@ -110,7 +110,7 @@ module azureFiles 'azure-files/azure-files.bicep' = if (storageService == 'Azure
     domainAdminPassword: domainAdminPassword
     domainAdminUserPrincipalName: domainAdminUserPrincipalName
     encryptionUserAssignedIdentityResourceId: encryptionUserAssignedIdentityResourceId
-    fileShares: fileShares
+    fileShareNames: fileShareNames
     fslogixShareSizeInGB: fslogixShareSizeInGB
     hostPoolResourceId: hostPoolResourceId
     keyVaultName: keyVaultName

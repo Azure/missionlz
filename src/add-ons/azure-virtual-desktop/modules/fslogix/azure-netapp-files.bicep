@@ -8,7 +8,7 @@ param domainAdminPassword string
 param domainAdminUserPrincipalName string
 param domainName string
 param hostPoolResourceId string = ''
-param fileShares array
+param fileShareNames array
 param location string
 param managementVirtualMachineName string
 param mlzTags object
@@ -61,16 +61,16 @@ resource capacityPool 'Microsoft.NetApp/netAppAccounts/capacityPools@2025-01-01'
   }
 }
 
-resource volumes 'Microsoft.NetApp/netAppAccounts/capacityPools/volumes@2025-01-01' = [for i in range(0, length(fileShares)): {
+resource volumes 'Microsoft.NetApp/netAppAccounts/capacityPools/volumes@2025-01-01' = [for i in range(0, length(fileShareNames)): {
   parent: capacityPool
-  name: fileShares[i]
+  name: fileShareNames[i]
   location: location
   tags: tagsNetAppAccount
   properties: {
     avsDataStore: 'Disabled'
     // backupId: 'string'
     coolAccess: false
-    creationToken: fileShares[i]
+    creationToken: fileShareNames[i]
     // dataProtection: {
     //   backup: {
     //     backupEnabled: bool
@@ -135,7 +135,7 @@ module ntfsPermissions 'run-command.bicep' = {
       }
       {
         name: 'ShareNames'
-        value: string(fileShares)
+        value: string(fileShareNames)
       }
     ]
     script: loadTextContent('../../artifacts/Set-AzureNetAppFilesNtfsPermissions.ps1')
