@@ -19,7 +19,7 @@ param privateDnsZoneResourceIdPrefix string
 param privateDnsZones array
 param resourceAbbreviations object
 param resourceGroupName string
-param securityPrincipalNames array
+param securityPrincipalName string
 param sku string
 param smbServerName string
 param subnetResourceId string
@@ -30,32 +30,6 @@ param tokens object
 param virtualMachineAdminPassword string
 param virtualMachineAdminUsername string
 param virtualMachineSize string
-
-
-// Azure NetApp Files
-module netAppFiles '../../azure-virtual-desktop/modules/fslogix/azure-netapp-files.bicep' = {
-  name: 'deploy-netapp-files-${deploymentNameSuffix}'
-  scope: resourceGroup(resourceGroupName)
-  params: {
-    delegatedSubnetResourceId: delegatedSubnetResourceId
-    delimiter: delimiter
-    dnsServers: dnsServers
-    domainAdminPassword: domainAdminPassword
-    domainAdminUserPrincipalName: domainAdminUserPrincipalName
-    domainName: domainName
-    fileShares: [
-      fileShareName
-    ]
-    location: location
-    mlzTags: mlzTags
-    netAppAccountNamePrefix: replace(namingConvention.netAppAccount, '${delimiter}${tokens.purpose}', '')
-    netAppCapacityPoolNamePrefix: replace(namingConvention.netAppAccountCapacityPool, '${delimiter}${tokens.purpose}', '')
-    organizationalUnitPath: organizationalUnitPath
-    smbServerName: smbServerName
-    storageSku: sku
-    tags: tags
-  }
-}
 
 module deploymentUserAssignedIdentity '../../azure-virtual-desktop/modules/management/user-assigned-identity.bicep' = {
   scope: resourceGroup(resourceGroupName)
@@ -110,40 +84,35 @@ module virtualMachine '../../azure-virtual-desktop/modules/management/virtual-ma
   }
 }
 
-module ntfsPermissions 'ntfs-permissions.bicep' = {
-  name: 'deploy-ntfspermissions-${deploymentNameSuffix}'
+// Azure NetApp Files
+module netAppFiles '../../azure-virtual-desktop/modules/fslogix/azure-netapp-files.bicep' = {
+  name: 'deploy-netapp-files-${deploymentNameSuffix}'
+  scope: resourceGroup(resourceGroupName)
   params: {
-    deploymentNameSuffix: deploymentNameSuffix
+    delegatedSubnetResourceId: delegatedSubnetResourceId
+    delimiter: delimiter
+    dnsServers: dnsServers
     domainAdminPassword: domainAdminPassword
     domainAdminUserPrincipalName: domainAdminUserPrincipalName
-    location: location
-    parameters: [
-      {
-        name: 'FileShares'
-        value: string(netAppFiles.outputs.fileShares[0])
-      }
-      {
-        name: 'ResourceManagerUri'
-        value: environment().resourceManager
-      }
-      {
-        name: 'SecurityPrincipalNames'
-        value: string(securityPrincipalNames)
-      }
-      {
-        name: 'SmbServerNamePrefix'
-        value: netAppFiles.outputs.smbServerNamePrefix
-      }
-      {
-        name: 'StorageService'
-        value: 'AzureNetAppFiles'
-      }
+    domainName: domainName
+    fileShares: [
+      fileShareName
     ]
-    resourceGroupName: resourceGroupName
+    location: location
+    mlzTags: mlzTags
+    netAppAccountNamePrefix: replace(namingConvention.netAppAccount, '${delimiter}${tokens.purpose}', '')
+    netAppCapacityPoolNamePrefix: replace(namingConvention.netAppAccountCapacityPool, '${delimiter}${tokens.purpose}', '')
+    organizationalUnitPath: organizationalUnitPath
+    smbServerName: smbServerName
+    storageSku: sku
     tags: tags
-    virtualMachineName: virtualMachine.outputs.name
+    deploymentNameSuffix: deploymentNameSuffix
+    managementVirtualMachineName: virtualMachine.outputs.name
+    resourceGroupManagement: resourceGroupName
+    securityPrincipalNames: [
+      securityPrincipalName
+    ]
   }
 }
 
-output fileShare string = netAppFiles.outputs.fileShares[0]
-output smbServerNamePrefix string = netAppFiles.outputs.smbServerNamePrefix
+output fileServer string = netAppFiles.outputs.netAppFileServer
