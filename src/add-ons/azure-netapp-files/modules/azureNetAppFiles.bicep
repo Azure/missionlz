@@ -31,7 +31,7 @@ param virtualMachineAdminPassword string
 param virtualMachineAdminUsername string
 param virtualMachineSize string
 
-module deploymentUserAssignedIdentity '../../azure-virtual-desktop/modules/management/user-assigned-identity.bicep' = {
+module userAssignedIdentity '../../azure-virtual-desktop/modules/management/user-assigned-identity.bicep' = {
   scope: resourceGroup(resourceGroupName)
   name: 'deploy-id-deployment-${deploymentNameSuffix}'
   params: {
@@ -63,8 +63,8 @@ module virtualMachine '../../azure-virtual-desktop/modules/management/virtual-ma
   name: 'deploy-mgmt-vm-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupName)
   params: {
-    deploymentUserAssignedIdentityPrincipalId: deploymentUserAssignedIdentity.outputs.principalId
-    deploymentUserAssignedIdentityResourceId: deploymentUserAssignedIdentity.outputs.resourceId
+    deploymentUserAssignedIdentityPrincipalId: userAssignedIdentity.outputs.principalId
+    deploymentUserAssignedIdentityResourceId: userAssignedIdentity.outputs.resourceId
     diskEncryptionSetResourceId: customerManagedKeys.outputs.diskEncryptionSetResourceId
     diskName: replace(namingConvention.virtualMachineDisk, tokens.purpose, 'mgt')
     diskSku: 'Premium_LRS'
@@ -96,7 +96,7 @@ module netAppFiles '../../azure-virtual-desktop/modules/fslogix/azure-netapp-fil
     domainAdminPassword: domainAdminPassword
     domainAdminUserPrincipalName: domainAdminUserPrincipalName
     domainName: domainName
-    fileShares: [
+    fileShareNames: [
       fileShareName
     ]
     location: location
@@ -116,3 +116,5 @@ module netAppFiles '../../azure-virtual-desktop/modules/fslogix/azure-netapp-fil
 }
 
 output fileServer string = netAppFiles.outputs.netAppFileServer
+output userAssignedIdentityClientId string = userAssignedIdentity.outputs.clientId
+output virtualMachineResourceId string = virtualMachine.outputs.resourceId
