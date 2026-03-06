@@ -610,6 +610,7 @@ module azureNetAppFiles '../azure-netapp-files/solution.bicep' = {
     location: location
     logAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
     policy: policy
+    securityPrincipalName: domainUserUsername
     sku: 'Standard'
     tags: tags
     virtualMachineAdminPassword: domainAdministratorPassword
