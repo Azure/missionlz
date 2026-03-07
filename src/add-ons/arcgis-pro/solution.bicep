@@ -591,6 +591,31 @@ module domainUserAccount 'modules/domain-user-account.bicep' = {
   }
 }
 
+module azureVirtualDesktop 'modules/azure-virtual-desktop.bicep' = {
+  name: 'deploy-azure-virtual-desktop-${deploymentNameSuffix}'
+  params: {
+    activeDirectorySolution: 'MicrosoftEntraId'
+    avdObjectId: avdObjectId
+    deployActivityLogDiagnosticSetting: true
+    deployDefender: true
+    deployPolicy: deployPolicy
+    environmentAbbreviation: environmentAbbreviation
+    //fileShare: azureNetAppFiles.outputs.fileShare
+    hubAzureFirewallResourceId: networking.outputs.azureFirewallResourceId
+    hubStorageAccountResourceId: storage.outputs.storageAccountResourceIds[0]
+    hubVirtualNetworkResourceId: networking.outputs.hubVirtualNetworkResourceId
+    identifier: identifier
+    location: location
+    operationsLogAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
+    policy: policy
+    privateLinkScopeResourceId: monitoring.outputs.privateLinkScopeResourceId
+    securityPrincipals: securityPrincipals
+    virtualMachineAdminPassword: domainAdministratorPassword
+    virtualMachineAdminUsername: domainAdministratorUsername
+    virtualMachineSize: virtualMachineSize
+  }
+}
+
 module azureNetAppFiles '../azure-netapp-files/solution.bicep' = {
   name: 'deploy-azure-netapp-files-${deploymentNameSuffix}'
   params: {
@@ -616,29 +641,7 @@ module azureNetAppFiles '../azure-netapp-files/solution.bicep' = {
     virtualMachineAdminPassword: domainAdministratorPassword
     virtualMachineAdminUsername: domainAdministratorUsername
   }
-}
-
-module azureVirtualDesktop 'modules/azure-virtual-desktop.bicep' = {
-  name: 'deploy-azure-virtual-desktop-${deploymentNameSuffix}'
-  params: {
-    activeDirectorySolution: 'MicrosoftEntraId'
-    avdObjectId: avdObjectId
-    deployActivityLogDiagnosticSetting: true
-    deployDefender: true
-    deployPolicy: deployPolicy
-    environmentAbbreviation: environmentAbbreviation
-    //fileShare: azureNetAppFiles.outputs.fileShare
-    hubAzureFirewallResourceId: networking.outputs.azureFirewallResourceId
-    hubStorageAccountResourceId: storage.outputs.storageAccountResourceIds[0]
-    hubVirtualNetworkResourceId: networking.outputs.hubVirtualNetworkResourceId
-    identifier: identifier
-    location: location
-    operationsLogAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
-    policy: policy
-    privateLinkScopeResourceId: monitoring.outputs.privateLinkScopeResourceId
-    securityPrincipals: securityPrincipals
-    virtualMachineAdminPassword: domainAdministratorPassword
-    virtualMachineAdminUsername: domainAdministratorUsername
-    virtualMachineSize: virtualMachineSize
-  }
+  dependsOn: [
+    azureVirtualDesktop
+  ]
 }
