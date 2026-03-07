@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.41.2.15936",
-      "templateHash": "16724343419075277607"
+      "templateHash": "17766121762360042316"
     }
   },
   "parameters": {
@@ -6394,6 +6394,9 @@
           },
           "tokens": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-mlz-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value]"
+          },
+          "virtualMachineSize": {
+            "value": "[parameters('addsVmSize')]"
           }
         },
         "template": {
@@ -6403,7 +6406,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.41.2.15936",
-              "templateHash": "16351569887980928099"
+              "templateHash": "12028464138356434185"
             }
           },
           "parameters": {
@@ -6442,6 +6445,9 @@
             },
             "tokens": {
               "type": "object"
+            },
+            "virtualMachineSize": {
+              "type": "string"
             }
           },
           "variables": {
@@ -6493,6 +6499,9 @@
                   },
                   "type": {
                     "value": "storageAccount"
+                  },
+                  "virtualMachineSize": {
+                    "value": "[parameters('virtualMachineSize')]"
                   }
                 },
                 "template": {
@@ -9853,6 +9862,9 @@
           "location": {
             "value": "[parameters('location')]"
           },
+          "managementVirtualMachineSize": {
+            "value": "[parameters('addsVmSize')]"
+          },
           "operationsLogAnalyticsWorkspaceResourceId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-mlz-monitoring-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.logAnalyticsWorkspaceResourceId.value]"
           },
@@ -9882,7 +9894,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.41.2.15936",
-              "templateHash": "17628533309070056530"
+              "templateHash": "6796117222200631708"
             }
           },
           "parameters": {
@@ -10045,6 +10057,13 @@
               "defaultValue": "10.0.141.0/26",
               "metadata": {
                 "description": "The address prefix(es) for the new subnet(s) that will be created in the spoke virtual network(s). Specify only one address prefix in the array if the session hosts location and the control plan location are the same. If different locations are specified, add a second address prefix for the hosts virtual network."
+              }
+            },
+            "managementVirtualMachineSize": {
+              "type": "string",
+              "defaultValue": "Standard_D2ds_v4",
+              "metadata": {
+                "description": "The virtual machine size for the management virtual machine."
               }
             },
             "networkSecurityGroupRules": {
@@ -15394,6 +15413,9 @@
                   "avdObjectId": {
                     "value": "[parameters('avdObjectId')]"
                   },
+                  "delimiter": {
+                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.delimiter.value]"
+                  },
                   "deploymentNameSuffix": {
                     "value": "[parameters('deploymentNameSuffix')]"
                   },
@@ -15409,11 +15431,23 @@
                   "logAnalyticsWorkspaceSku": {
                     "value": "[parameters('logAnalyticsWorkspaceSku')]"
                   },
+                  "mlzTags": {
+                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.mlzTags.value]"
+                  },
+                  "namingConvention": {
+                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tier.value.namingConvention]"
+                  },
                   "privateDnsZoneResourceIdPrefix": {
                     "value": "[variables('privateDnsZoneResourceIdPrefix')]"
                   },
+                  "privateDnsZones": {
+                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.privateDnsZones.value]"
+                  },
                   "privateLinkScopeResourceId": {
                     "value": "[parameters('privateLinkScopeResourceId')]"
+                  },
+                  "resourceAbbreviations": {
+                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.resourceAbbreviations.value]"
                   },
                   "resourceGroupName": {
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-rg-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.name.value]"
@@ -15427,23 +15461,11 @@
                   "tier": {
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tier.value]"
                   },
-                  "delimiter": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.delimiter.value]"
-                  },
                   "tokens": {
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value]"
                   },
-                  "mlzTags": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.mlzTags.value]"
-                  },
-                  "namingConvention": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tier.value.namingConvention]"
-                  },
-                  "privateDnsZones": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.privateDnsZones.value]"
-                  },
-                  "resourceAbbreviations": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.resourceAbbreviations.value]"
+                  "virtualMachineSize": {
+                    "value": "[parameters('managementVirtualMachineSize')]"
                   }
                 },
                 "template": {
@@ -15453,7 +15475,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.41.2.15936",
-                      "templateHash": "6353639380992956033"
+                      "templateHash": "11465923656473845871"
                     }
                   },
                   "parameters": {
@@ -15510,6 +15532,9 @@
                     },
                     "tokens": {
                       "type": "object"
+                    },
+                    "virtualMachineSize": {
+                      "type": "string"
                     }
                   },
                   "variables": {
@@ -15890,6 +15915,9 @@
                           },
                           "type": {
                             "value": "virtualMachine"
+                          },
+                          "virtualMachineSize": {
+                            "value": "[parameters('virtualMachineSize')]"
                           }
                         },
                         "template": {
@@ -18498,6 +18526,9 @@
           },
           "virtualMachineAdminUsername": {
             "value": "[parameters('domainAdministratorUsername')]"
+          },
+          "virtualMachineSize": {
+            "value": "[parameters('addsVmSize')]"
           }
         },
         "template": {

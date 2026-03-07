@@ -332,6 +332,7 @@ module storage '../../modules/storage.bicep' = {
     tags: tags
     tiers: networking.outputs.tiers
     tokens: networking.outputs.tokens
+    virtualMachineSize: addsVmSize
   }
   dependsOn: [
     activeDirectoryDomainServices // This is needed to ensure the first two IPs in the identity subnet are availabile for the domain controllers
@@ -606,6 +607,7 @@ module azureVirtualDesktop 'modules/azure-virtual-desktop.bicep' = {
     hubVirtualNetworkResourceId: networking.outputs.hubVirtualNetworkResourceId
     identifier: identifier
     location: location
+    managementVirtualMachineSize: addsVmSize
     operationsLogAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
     policy: policy
     privateLinkScopeResourceId: monitoring.outputs.privateLinkScopeResourceId
@@ -640,6 +642,7 @@ module azureNetAppFiles '../azure-netapp-files/solution.bicep' = {
     tags: tags
     virtualMachineAdminPassword: domainAdministratorPassword
     virtualMachineAdminUsername: domainAdministratorUsername
+    virtualMachineSize: addsVmSize
   }
   dependsOn: [
     azureVirtualDesktop

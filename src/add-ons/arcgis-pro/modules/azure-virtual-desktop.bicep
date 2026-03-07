@@ -89,6 +89,9 @@ param logStorageSkuName string = 'Standard_GRS'
 @description('The address prefix(es) for the new subnet(s) that will be created in the spoke virtual network(s). Specify only one address prefix in the array if the session hosts location and the control plan location are the same. If different locations are specified, add a second address prefix for the hosts virtual network.')
 param managementSubnetAddressPrefix string = '10.0.141.0/26'
 
+@description('The virtual machine size for the management virtual machine.')
+param managementVirtualMachineSize string = 'Standard_D2ds_v4'
+
 @description('The rules to apply to the Network Security Group.')
 param networkSecurityGroupRules array = []
 
@@ -236,23 +239,24 @@ module management 'management/management.bicep' = {
   name: 'deploy-management-${deploymentNameSuffix}'
   params: {
     avdObjectId: avdObjectId
+    delimiter: tier3.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
     environmentAbbreviation: environmentAbbreviation
     location: location
     logAnalyticsWorkspaceRetention: logAnalyticsWorkspaceRetention
     logAnalyticsWorkspaceSku: logAnalyticsWorkspaceSku
+    mlzTags: tier3.outputs.mlzTags
+    namingConvention: tier3.outputs.tier.namingConvention
     privateDnsZoneResourceIdPrefix: privateDnsZoneResourceIdPrefix
+    privateDnsZones: tier3.outputs.privateDnsZones
     privateLinkScopeResourceId: privateLinkScopeResourceId
+    resourceAbbreviations: tier3.outputs.resourceAbbreviations
     resourceGroupName: rg.outputs.name
     subscriptionId: subscriptionId
     tags: tags
     tier: tier3.outputs.tier
-    delimiter: tier3.outputs.delimiter
     tokens: tier3.outputs.tokens
-    mlzTags: tier3.outputs.mlzTags
-    namingConvention: tier3.outputs.tier.namingConvention
-    privateDnsZones: tier3.outputs.privateDnsZones
-    resourceAbbreviations: tier3.outputs.resourceAbbreviations
+    virtualMachineSize: managementVirtualMachineSize
   }
 }
 

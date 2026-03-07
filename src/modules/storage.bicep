@@ -18,6 +18,7 @@ param resourceAbbreviations object
 param tags object
 param tiers array
 param tokens object
+param virtualMachineSize string
 
 var resourceGroupName = filter(tiers, tier => tier.name == 'hub')[0].resourceGroupName
 var subscriptionId = filter(tiers, tier => tier.name == 'hub')[0].subscriptionId
@@ -37,6 +38,7 @@ module customerManagedKeys 'customer-managed-keys.bicep' = {
     tier: filter(tiers, tier => tier.name == 'hub')[0]
     tokens: tokens
     type: 'storageAccount'
+    virtualMachineSize: virtualMachineSize
   }
 }
 

@@ -462,6 +462,9 @@ param logAnalyticsWorkspaceSkuName string = 'PerGB2018'
 @description('The Storage Account SKU to use for log storage. Default value = "Standard_GRS". See the following URL for valid settings: https://learn.microsoft.com/rest/api/storagerp/srp_sku_types.')
 param logStorageSkuName string = 'Standard_GRS'
 
+@description('The virtual machine size for the management virtual machine.')
+param managementVirtualMachineSize string = 'Standard_D2ds_v4'
+
 @description('An array of metrics to enable on the diagnostic setting for network interfaces.')
 param networkInterfaceDiagnosticsMetrics array = [
   {
@@ -1099,6 +1102,7 @@ module storage 'modules/storage.bicep' = {
     tags: tags
     tiers: networking.outputs.tiers
     tokens: networking.outputs.tokens
+    virtualMachineSize: managementVirtualMachineSize
   }
   dependsOn: [
     activeDirectoryDomainServices // This is needed to ensure the first two IPs in the identity subnet are availabile for the domain controllers

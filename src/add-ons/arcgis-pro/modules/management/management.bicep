@@ -18,6 +18,7 @@ param subscriptionId string
 param tags object
 param tier object
 param tokens object
+param virtualMachineSize string
 
 var hostPoolResourceId = resourceId(subscriptionId, resourceGroupName, 'Microsoft.DesktopVirtualization/hostPools', replace(namingConvention.hostPool, '${delimiter}${tokens.purpose}', ''))
 
@@ -163,6 +164,7 @@ module customerManagedKeys '../../../../modules/customer-managed-keys.bicep' = {
     tier: tier
     tokens: tokens
     type: 'virtualMachine'
+    virtualMachineSize: virtualMachineSize
   }
 }
 
