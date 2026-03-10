@@ -79,7 +79,6 @@ for($i = 0; $i -lt $StorageCount; $i++)
     $StorageUsername = 'Azure\' + $StorageAccountName
     $StoragePassword = ConvertTo-SecureString -String "$($StorageKey)" -AsPlainText -Force
     [pscredential]$StorageKeyCredential = New-Object System.Management.Automation.PSCredential ($StorageUsername, $StoragePassword)
-    $Credential = $StorageKeyCredential
 
     # Domain join Azure Files to ADDS
     if($ActiveDirectorySolution -eq 'ActiveDirectoryDomainServices')
@@ -118,19 +117,25 @@ for($i = 0; $i -lt $StorageCount; $i++)
         $Description = "Computer account object for Azure storage account $($StorageAccountName)."
 
         # Create the AD computer object for the Azure Storage Account
-        $Computer = Get-ADComputer -Credential $DomainCredential -Filter {Name -eq $StorageAccountName}
-        if($Computer)
+        $OldComputerObject = Get-ADComputer -Credential $DomainCredential -Filter {Name -eq $StorageAccountName}
+        if ($OldComputerObject)
         {
             Remove-ADComputer -Credential $DomainCredential -Identity $StorageAccountName -Confirm:$false
         }
-        $ComputerObject = New-ADComputer -Credential $DomainCredential -Name $StorageAccountName -Path $OrganizationalUnitPath -ServicePrincipalNames $SPN -AccountPassword $ComputerPassword -Description $Description -PassThru
+
+        if ($OrganizationalUnitPath) {
+            $NewComputerObject = New-ADComputer -Credential $DomainCredential -Name $StorageAccountName -Path $OrganizationalUnitPath -ServicePrincipalNames $SPN -AccountPassword $ComputerPassword -Description $Description -PassThru
+        } else {
+            $NewComputerObject = New-ADComputer -Credential $DomainCredential -Name $StorageAccountName -ServicePrincipalNames $SPN -AccountPassword $ComputerPassword -Description $Description -PassThru
+        }
+        
 
         $Body = (@{
             properties = @{
                 azureFilesIdentityBasedAuthentication = @{
                     activeDirectoryProperties = @{
                         accountType = 'Computer'
-                        azureStorageSid = $ComputerObject.SID.Value
+                        azureStorageSid = $NewComputerObject.SID.Value
                         domainGuid = $Domain.ObjectGUID.Guid
                         domainName = $Domain.DNSRoot
                         domainSid = $Domain.DomainSID.Value
@@ -150,9 +155,8 @@ for($i = 0; $i -lt $StorageCount; $i++)
             -Uri $($ResourceManagerUriFixed + '/subscriptions/' + $SubscriptionId + '/resourceGroups/' + $StorageAccountResourceGroupName + '/providers/Microsoft.Storage/storageAccounts/' + $StorageAccountName + '?api-version=2023-05-01')
 
         # Set the Kerberos encryption on the computer object
-        $DistinguishedName = 'CN=' + $StorageAccountName + ',' + $OrganizationalUnitPath
-        Set-ADComputer -Credential $DomainCredential -Identity $DistinguishedName -KerberosEncryptionType 'AES256' | Out-Null
-        
+        Set-ADComputer -Credential $DomainCredential -Identity $StorageAccountName -KerberosEncryptionType 'AES256' | Out-Null
+
         # Reset the Kerberos key on the Storage Account
         Invoke-RestMethod `
             -Body (@{keyName = 'kerb1' } | ConvertTo-Json) `
@@ -167,14 +171,14 @@ for($i = 0; $i -lt $StorageCount; $i++)
 
         # Update the password on the computer object with the new Kerberos key on the Storage Account
         $NewPassword = ConvertTo-SecureString -String $Key -AsPlainText -Force
-        Set-ADAccountPassword -Credential $DomainCredential -Identity $DistinguishedName -Reset -NewPassword $NewPassword | Out-Null
+        Set-ADAccountPassword -Credential $DomainCredential -Identity $($StorageAccountName + '$') -Reset -NewPassword $NewPassword | Out-Null
 
         # Set NTFS permissions of file shares
         foreach($Share in $Shares)
         {
             # Mount file share
             $FileShare = '\\' + $StorageAccountName + $FilesSuffix + '\' + $Share
-            New-PSDrive -Name 'Z' -PSProvider 'FileSystem' -Root $FileShare -Credential $Credential | Out-Null
+            New-PSDrive -Name 'Z' -PSProvider 'FileSystem' -Root $FileShare -Credential $StorageKeyCredential | Out-Null
 
             # Set recommended NTFS permissions on the file share
             $ACL = Get-Acl -Path 'Z:'
