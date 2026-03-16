@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.41.2.15936",
-      "templateHash": "3521152660322712699"
+      "templateHash": "5200754650614764461"
     }
   },
   "parameters": {
@@ -5628,9 +5628,6 @@
           "sku": {
             "value": "[parameters('sku')]"
           },
-          "smbServerName": {
-            "value": "[replace(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tier.value.namingConvention.netAppAccountSmbServer, reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value.purpose, '')]"
-          },
           "subnetResourceId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tier.value.subnets[0].id]"
           },
@@ -5660,7 +5657,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.41.2.15936",
-              "templateHash": "12509914167183048944"
+              "templateHash": "5226666440484294215"
             }
           },
           "parameters": {
@@ -5722,9 +5719,6 @@
               "type": "string"
             },
             "sku": {
-              "type": "string"
-            },
-            "smbServerName": {
               "type": "string"
             },
             "subnetResourceId": {
@@ -6839,7 +6833,7 @@
                     ]
                   },
                   "smbServerName": {
-                    "value": "[parameters('smbServerName')]"
+                    "value": "[replace(parameters('namingConvention').netAppAccountSmbServer, parameters('tokens').purpose, '')]"
                   },
                   "storageSku": {
                     "value": "[parameters('sku')]"
@@ -6855,7 +6849,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.41.2.15936",
-                      "templateHash": "1109369902297804319"
+                      "templateHash": "1297975786544598994"
                     }
                   },
                   "parameters": {
@@ -7133,7 +7127,7 @@
                         }
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.NetApp/netAppAccounts/capacityPools/volumes', format('{0}{1}', parameters('netAppAccountNamePrefix'), variables('nameSuffix')), format('{0}{1}', parameters('netAppCapacityPoolNamePrefix'), variables('nameSuffix')), parameters('fileShareNames')[range(0, length(parameters('fileShareNames')))[0]])]"
+                        "volumes"
                       ]
                     }
                   ],

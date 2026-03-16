@@ -147,6 +147,9 @@ module ntfsPermissions 'run-command.bicep' = {
     tags: tags
     virtualMachineName: managementVirtualMachineName
   }
+  dependsOn: [
+    volumes
+  ]
 }
 
 output netAppFileServer string = volumes[0].properties.mountTargets[0].smbServerFqdn

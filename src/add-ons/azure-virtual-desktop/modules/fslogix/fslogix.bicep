@@ -90,7 +90,7 @@ module azureNetAppFiles 'azure-netapp-files.bicep' = if (storageService == 'Azur
     organizationalUnitPath: organizationalUnitPath
     resourceGroupManagement: resourceGroupManagement
     securityPrincipalNames: securityPrincipalNames
-    smbServerName: replace(tier.namingConvention.netAppAccountSmbServer, '${delimiter}${tokens.purpose}', '')
+    smbServerName: replace(tier.namingConvention.netAppAccountSmbServer, tokens.purpose, '')
     storageSku: storageSku
     suffix: 'fslogix'
     tags: tags

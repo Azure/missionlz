@@ -22,7 +22,6 @@ param resourceAbbreviations object
 param resourceGroupName string
 param securityPrincipalName string
 param sku string
-param smbServerName string
 param subnetResourceId string
 param tags object
 param tier object
@@ -111,7 +110,7 @@ module netAppFiles '../../azure-virtual-desktop/modules/fslogix/azure-netapp-fil
     securityPrincipalNames: [
       securityPrincipalName
     ]
-    smbServerName: smbServerName
+    smbServerName: replace(namingConvention.netAppAccountSmbServer, tokens.purpose, '')
     storageSku: sku
     tags: tags
   }

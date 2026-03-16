@@ -707,49 +707,27 @@ module management 'modules/management/management.bicep' = {
     domainJoinPassword: domainAdminPassword
     domainJoinUserPrincipalName: domainAdminUserPrincipalName
     domainName: domainName
-    environmentAbbreviation: environmentAbbreviation
-    locationControlPlane: virtualNetwork_hub.location
-    locationVirtualMachines: locationVirtualMachines
-    mlzTags: tier3.outputs.mlzTags
-    organizationalUnitPath: sessionHostsOrganizationalUnitPath
-    privateDnsZoneResourceIdPrefix: privateDnsZoneResourceIdPrefix
-    privateDnsZones: tier3.outputs.privateDnsZones
-    resourceAbbreviations: tier3.outputs.resourceAbbreviations
-    tags: tags
-    tier: tier3.outputs.tier
-    tokens: tier3.outputs.tokens
-    virtualMachineAdminPassword: virtualMachineAdminPassword
-    virtualMachineAdminUsername: virtualMachineAdminUsername
-    virtualMachineSize: managementVirtualMachineSize
-  }
-}
-
-// Deploys the resource group and resources for the AVD shared resources
-module shared 'modules/shared/shared.bicep' = {
-  name: 'deploy-shared-${deploymentNameSuffix}'
-  params: {
-    delimiter: tier3.outputs.delimiter
-    deploymentNameSuffix: deploymentNameSuffix
-    deploymentUserAssignedIdentityPrincipalId: management.outputs.deploymentUserAssignedIdentityPrincipalId
     enableApplicationInsights: enableApplicationInsights
     enableAvdInsights: enableAvdInsights
     environmentAbbreviation: environmentAbbreviation
-    existingApplicationGroupReferences: empty(existingFeedWorkspaceResourceId)
-      ? []
-      : workspace!.properties.applicationGroupReferences
-    existingFeedWorkspaceResourceId: existingFeedWorkspaceResourceId
     fslogixStorageService: fslogixStorageService
     locationControlPlane: virtualNetwork_hub.location
     locationVirtualMachines: locationVirtualMachines
     logAnalyticsWorkspaceRetention: logAnalyticsWorkspaceRetention
     logAnalyticsWorkspaceSku: logAnalyticsWorkspaceSku
     mlzTags: tier3.outputs.mlzTags
+    organizationalUnitPath: sessionHostsOrganizationalUnitPath
     privateDnsZoneResourceIdPrefix: privateDnsZoneResourceIdPrefix
     privateDnsZones: tier3.outputs.privateDnsZones
     privateLinkScopeResourceId: privateLinkScopeResourceId
+    resourceAbbreviations: tier3.outputs.resourceAbbreviations
+    stampIndex: stampIndex
     tags: tags
     tier: tier3.outputs.tier
     tokens: tier3.outputs.tokens
+    virtualMachineAdminPassword: virtualMachineAdminPassword
+    virtualMachineAdminUsername: virtualMachineAdminUsername
+    virtualMachineSize: managementVirtualMachineSize
   }
 }
 
@@ -763,10 +741,14 @@ module controlPlane 'modules/control-plane/control-plane.bicep' = {
     delimiter: tier3.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
     deploymentUserAssignedIdentityClientId: management.outputs.deploymentUserAssignedIdentityClientId
+    deploymentUserAssignedIdentityPrincipalId: management.outputs.deploymentUserAssignedIdentityPrincipalId
     desktopFriendlyName: desktopFriendlyName
     diskSku: diskSku
     domainName: domainName
     enableAvdInsights: enableAvdInsights
+    existingApplicationGroupReferences: empty(existingFeedWorkspaceResourceId)
+      ? []
+      : workspace!.properties.applicationGroupReferences
     existingFeedWorkspaceResourceId: existingFeedWorkspaceResourceId
     hostPoolPublicNetworkAccess: hostPoolPublicNetworkAccess
     hostPoolType: hostPoolType
@@ -776,14 +758,14 @@ module controlPlane 'modules/control-plane/control-plane.bicep' = {
     imageVersionResourceId: imageVersionResourceId
     locationControlPlane: virtualNetwork_hub.location
     locationVirtualMachines: locationVirtualMachines
-    logAnalyticsWorkspaceResourceId: shared.outputs.logAnalyticsWorkspaceResourceId
+    logAnalyticsWorkspaceResourceId: management.outputs.logAnalyticsWorkspaceResourceId
     managementVirtualMachineName: management.outputs.virtualMachineName
     maxSessionLimit: usersPerCore * virtualMachineVirtualCpuCount
     mlzTags: tier3.outputs.mlzTags
     namingConvention: tier3.outputs.tier.namingConvention
     resourceGroupManagement: management.outputs.resourceGroupName
-    resourceGroupShared: shared.outputs.resourceGroupName
     securityPrincipalObjectIds: map(securityPrincipals, item => item.objectId)
+    stampIndex: stampIndex
     subnetResourceId: tier3.outputs.tier.subnetResourceId
     tags: tags
     tokens: tier3.outputs.tokens
@@ -829,7 +811,7 @@ module fslogix 'modules/fslogix/fslogix.bicep' = if (deployFslogix) {
     fileShareNames: fileShareNames[fslogixContainerType]
     fslogixShareSizeInGB: fslogixShareSizeInGB
     fslogixStorageService: fslogixStorageService
-    functionAppPrincipalId: shared.outputs.functionAppPrincipalId
+    functionAppPrincipalId: management.outputs.functionAppPrincipalId
     hostPoolResourceId: controlPlane.outputs.hostPoolResourceId
     keyVaultName: management.outputs.keyVaultName
     keyVaultUri: management.outputs.keyVaultUri
@@ -861,7 +843,7 @@ module sessionHosts 'modules/session-hosts/session-hosts.bicep' = {
     availabilitySetsIndex: beginAvSetRange
     availabilityZones: availabilityZones
     avdConfigurationZipFileUri: 'https://${avdStorageAccountEndpoint}/galleryartifacts/Configuration_1.0.03211.1002.zip'
-    dataCollectionRuleResourceId: shared.outputs.dataCollectionRuleResourceId
+    dataCollectionRuleResourceId: management.outputs.dataCollectionRuleResourceId
     delimiter: tier3.outputs.delimiter
     deployFslogix: deployFslogix
     deploymentNameSuffix: deploymentNameSuffix
@@ -892,7 +874,7 @@ module sessionHosts 'modules/session-hosts/session-hosts.bicep' = {
     imageVersionResourceId: imageVersionResourceId
     location: locationVirtualMachines
     locationProperties: tier3.outputs.locationProperties
-    logAnalyticsWorkspaceResourceId: shared.outputs.logAnalyticsWorkspaceResourceId
+    logAnalyticsWorkspaceResourceId: management.outputs.logAnalyticsWorkspaceResourceId
     managementVirtualMachineName: management.outputs.virtualMachineName
     maxResourcesPerTemplateDeployment: maxResourcesPerTemplateDeployment
     mlzTags: tier3.outputs.mlzTags

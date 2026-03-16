@@ -7,10 +7,12 @@ param customRdpProperty string
 param delimiter string
 param deploymentNameSuffix string
 param deploymentUserAssignedIdentityClientId string
+param deploymentUserAssignedIdentityPrincipalId string
 param desktopFriendlyName string
 param diskSku string
 param domainName string
 param enableAvdInsights bool
+param existingApplicationGroupReferences array
 param existingFeedWorkspaceResourceId string
 param hostPoolPublicNetworkAccess string
 param hostPoolType string
@@ -26,8 +28,8 @@ param maxSessionLimit int
 param mlzTags object
 param namingConvention object
 param resourceGroupManagement string
-param resourceGroupShared string
 param securityPrincipalObjectIds array
+param stampIndex int
 param subnetResourceId string
 param tags object
 param tokens object
@@ -95,9 +97,9 @@ module applicationGroup 'application-group.bicep' = {
 }
 
 // Deploys the resources to create and configure the feed workspace
-module workspace_feed '../shared/workspace-feed.bicep' = {
+module workspace_feed 'workspace-feed.bicep' = {
   name: 'deploy-vdws-feed-${deploymentNameSuffix}'
-  scope: resourceGroup(resourceGroupShared)
+  scope: resourceGroup(resourceGroupManagement)
   params: {
     applicationGroupResourceId: applicationGroup.outputs.resourceId
     avdPrivateDnsZoneResourceId: avdPrivateDnsZoneResourceId
@@ -114,12 +116,33 @@ module workspace_feed '../shared/workspace-feed.bicep' = {
     subnetResourceId: subnetResourceId
     tags: tags
     virtualMachineName: managementVirtualMachineName
-    workspaceFeedDiagnoticSettingName: replace(namingConvention.workspaceDiagnosticSetting, tokens.purpose, 'feed')
-    workspaceFeedName: replace(namingConvention.workspace, tokens.purpose, 'feed')
-    workspaceFeedNetworkInterfaceName: replace(namingConvention.workspaceNetworkInterface, tokens.purpose, 'feed')
-    workspaceFeedPrivateEndpointName: replace(namingConvention.workspacePrivateEndpoint, tokens.purpose, 'feed')
-    workspaceFriendlyName: empty(workspaceFriendlyName) ? replace(namingConvention.workspace, '${delimiter}${tokens.purpose}', '') : '${workspaceFriendlyName} (${locationControlPlane})'
+    workspaceFeedDiagnoticSettingName: replace(replace(namingConvention.workspaceDiagnosticSetting, tokens.purpose, 'feed'), '${delimiter}${stampIndex}', '')
+    workspaceFeedName: replace(replace(namingConvention.workspace, tokens.purpose, 'feed'), '${delimiter}${stampIndex}', '')
+    workspaceFeedNetworkInterfaceName: replace(replace(namingConvention.workspaceNetworkInterface, tokens.purpose, 'feed'), '${delimiter}${stampIndex}', '')
+    workspaceFeedPrivateEndpointName: replace(replace(namingConvention.workspacePrivateEndpoint, tokens.purpose, 'feed'), '${delimiter}${stampIndex}', '')
+    workspaceFriendlyName: empty(workspaceFriendlyName) ? replace(replace(namingConvention.workspace, '${delimiter}${tokens.purpose}', ''), '${delimiter}${stampIndex}', '') : '${workspaceFriendlyName} (${locationControlPlane})'
     workspacePublicNetworkAccess: workspacePublicNetworkAccess
+  }
+}
+
+// Role assignments needed to update the application groups on the existing feed workspace
+module roleAssignments_appGroupReferences '../common/role-assignments/resource-group.bicep' = [for (appGroup, i) in existingApplicationGroupReferences: if (!empty(existingFeedWorkspaceResourceId)) {
+  name: 'assign-role-vdws-feed-${i}-${deploymentNameSuffix}'
+  scope: resourceGroup(split(appGroup, '/')[2], split(appGroup, '/')[4])
+  params: {
+    principalId: deploymentUserAssignedIdentityPrincipalId
+    principalType: 'ServicePrincipal'
+    roleDefinitionId: '86240b0e-9422-4c43-887b-b61143f32ba8' // Desktop Virtualization Application Group Contributor (Purpose: update the app group references on an existing feed workspace)
+  }
+}]
+
+module roleAssignment '../common/role-assignments/resource-group.bicep' = if (!empty(existingFeedWorkspaceResourceId)) {
+  name: 'assign-role-vdws-feed-${deploymentNameSuffix}'
+  scope: resourceGroup(resourceGroupManagement)
+  params: {
+    principalId: deploymentUserAssignedIdentityPrincipalId
+    principalType: 'ServicePrincipal'
+    roleDefinitionId: '21efdde3-836f-432b-bf3d-3e8e734d4b2b' // Desktop Virtualization Workspace Contributor (Purpose: update the app group references on an existing feed workspace)
   }
 }
 

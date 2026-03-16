@@ -8,14 +8,21 @@ param diskSku string
 param domainJoinPassword string
 param domainJoinUserPrincipalName string
 param domainName string
+param enableApplicationInsights bool
+param enableAvdInsights bool
 param environmentAbbreviation string
+param fslogixStorageService string
 param locationControlPlane string
 param locationVirtualMachines string
+param logAnalyticsWorkspaceRetention int
+param logAnalyticsWorkspaceSku string
 param mlzTags object
 param organizationalUnitPath string
 param privateDnsZoneResourceIdPrefix string
 param privateDnsZones array
+param privateLinkScopeResourceId string
 param resourceAbbreviations object
+param stampIndex int
 param tags object
 param tier object
 param tokens object
@@ -26,12 +33,56 @@ param virtualMachineSize string
 
 var hostPoolResourceId = resourceId(subscription().subscriptionId, resourceGroupManagement, 'Microsoft.DesktopVirtualization/hostpools', replace(tier.namingConvention.hostPool, '${delimiter}${tokens.purpose}', ''))
 var resourceGroupManagement = replace(tier.namingConvention.resourceGroup, tokens.purpose, 'management')
+var resourceGroupFslogix = replace(tier.namingConvention.resourceGroup, tokens.purpose, 'fslogix')
 
 resource resourceGroup 'Microsoft.Resources/resourceGroups@2023-07-01' = {
   name: resourceGroupManagement
   location: locationControlPlane
   tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Resources/resourceGroups'] ?? {}, mlzTags)
 }
+
+// Monitoring Resources for AVD Insights
+// This module deploys a Log Analytics Workspace with a Data Collection Rule 
+module monitoring 'monitoring.bicep' = if (enableApplicationInsights || enableAvdInsights) {
+  name: 'deploy-monitoring-${deploymentNameSuffix}'
+  scope: resourceGroup
+  params: {
+    delimiter: delimiter
+    deploymentNameSuffix: deploymentNameSuffix
+    enableAvdInsights: enableAvdInsights
+    hostPoolResourceId: hostPoolResourceId
+    location: locationVirtualMachines
+    logAnalyticsWorkspaceRetention: logAnalyticsWorkspaceRetention
+    logAnalyticsWorkspaceSku: logAnalyticsWorkspaceSku
+    mlzTags: mlzTags
+    names: tier.namingConvention
+    privateLinkScopeResourceId: privateLinkScopeResourceId
+    stampIndex: stampIndex
+    tags: tags
+    tokens: tokens
+  }
+}
+
+/* module recoveryServicesVault 'recoveryServicesVault.bicep' = if (recoveryServices) {
+  name: 'deploy-rsv-${deploymentNameSuffix}'
+  scope: resourceGroup
+  params: {
+    azureBlobsPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(privateDnsZones, name => contains(name, 'blob'))[0]}'
+    azureQueueStoragePrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(privateDnsZones, name => contains(name, 'queue'))[0]}'
+    deployFslogix: deployFslogix
+    hostPoolResourceId: hostPool.outputs.resourceId
+    location: locationVirtualMachines
+    mlzTags: mlzTags
+    recoveryServicesPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(privateDnsZones, name => startsWith(name, 'privatelink.${recoveryServicesGeo}.backup.windowsazure'))[0]}'
+    recoveryServicesVaultName: replace(tier.namingConvention.recoveryServicesVault, '${delimiter}${tokens.purpose}', '')
+    recoveryServicesVaultNetworkInterfaceName: replace(tier.namingConvention.recoveryServicesVaultNetworkInterface, '${delimiter}${tokens.purpose}', '')
+    recoveryServicesVaultPrivateEndpointName: replace(tier.namingConvention.recoveryServicesVaultPrivateEndpoint, '${delimiter}${tokens.purpose}', '')
+    storageService: storageService
+    subnetId: subnetResourceId
+    tags: tags
+    timeZone: timeZone
+  }
+} */
 
 module deploymentUserAssignedIdentity 'user-assigned-identity.bicep' = {
   scope: resourceGroup
@@ -66,7 +117,6 @@ module roleAssignment_Management '../common/role-assignments/resource-group.bice
     roleDefinitionId: '082f0a83-3be5-4ba1-904c-961cca79b387'
   }
 }
-
 
 module diskAccess 'disk-access.bicep' = {
   scope: resourceGroup
@@ -151,6 +201,32 @@ module virtualMachine 'virtual-machine.bicep' = {
   }
 }
 
+// Deploys the Auto Increase Premium File Share Quota solution on an Azure Function App
+module functionApp 'function-app.bicep' = if (fslogixStorageService == 'AzureFiles Premium') {
+  name: 'deploy-function-app-${deploymentNameSuffix}'
+  scope: resourceGroup
+  params: {
+    delegatedSubnetResourceId: filter(tier.subnets, subnet => contains(subnet.name, 'function-app-outbound'))[0].id
+    delimiter: delimiter
+    deploymentNameSuffix: deploymentNameSuffix
+    enableApplicationInsights: enableApplicationInsights
+    environmentAbbreviation: environmentAbbreviation
+    hostPoolResourceId: hostPoolResourceId
+    logAnalyticsWorkspaceResourceId: enableApplicationInsights || enableAvdInsights ? monitoring!.outputs.logAnalyticsWorkspaceResourceId : ''
+    mlzTags: mlzTags
+    names: tier.namingConvention
+    privateDnsZoneResourceIdPrefix: privateDnsZoneResourceIdPrefix
+    privateDnsZones: privateDnsZones
+    privateLinkScopeResourceId: privateLinkScopeResourceId
+    resourceGroupFslogix: resourceGroupFslogix
+    stampIndex: stampIndex
+    subnetResourceId: tier.subnets[0].id
+    tags: tags
+    tokens: tokens
+  }
+}
+
+output dataCollectionRuleResourceId string = enableAvdInsights ? monitoring!.outputs.dataCollectionRuleResourceId : ''
 output deploymentUserAssignedIdentityClientId string = deploymentUserAssignedIdentity.outputs.clientId
 output deploymentUserAssignedIdentityPrincipalId string = deploymentUserAssignedIdentity.outputs.principalId
 output deploymentUserAssignedIdentityResourceId string = deploymentUserAssignedIdentity.outputs.resourceId
@@ -159,8 +235,11 @@ output diskAccessPolicyDisplayName string = policy.outputs.policyDisplayName
 output diskAccessResourceId string = diskAccess.outputs.resourceId
 output diskEncryptionSetResourceId string = customerManagedKeys.outputs.diskEncryptionSetResourceId
 output encryptionUserAssignedIdentityResourceId string = customerManagedKeys.outputs.userAssignedIdentityResourceId
+output functionAppPrincipalId string = fslogixStorageService == 'AzureFiles Premium' ? functionApp!.outputs.functionAppPrincipalId : ''
 output keyVaultName string = customerManagedKeys.outputs.keyVaultName
 output keyVaultUri string = customerManagedKeys.outputs.keyVaultUri
+output logAnalyticsWorkspaceName string = enableApplicationInsights || enableAvdInsights ? monitoring!.outputs.logAnalyticsWorkspaceName : ''
+output logAnalyticsWorkspaceResourceId string = enableApplicationInsights || enableAvdInsights ? monitoring!.outputs.logAnalyticsWorkspaceResourceId : ''
 output resourceGroupName string = resourceGroup.name
 output virtualMachineName string = virtualMachine.outputs.name
 output virtualMachineResourceId string = virtualMachine.outputs.resourceId

@@ -276,6 +276,9 @@ module ntfsPermissions '../run-command.bicep' = {
     tags: tags
     virtualMachineName: managementVirtualMachineName
   }
+  dependsOn: [
+    privateDnsZoneGroups
+  ]
 }
 
 // Deploys backup items for Azure Files

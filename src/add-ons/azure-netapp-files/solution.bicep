@@ -264,7 +264,6 @@ module netAppFiles 'modules/azureNetAppFiles.bicep' = {
     resourceGroupName: rg.outputs.name
     securityPrincipalName: securityPrincipalName
     sku: sku
-    smbServerName: replace(tier3.outputs.tier.namingConvention.netAppAccountSmbServer, tier3.outputs.tokens.purpose, '')
     subnetResourceId: tier3.outputs.tier.subnets[0].id
     tags: tags
     tier: tier3.outputs.tier

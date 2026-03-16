@@ -1,4 +1,5 @@
 param delegatedSubnetResourceId string
+param delimiter string
 param deploymentNameSuffix string
 param enableApplicationInsights bool
 param environmentAbbreviation string
@@ -12,49 +13,50 @@ param privateDnsZoneResourceIdPrefix string
 param privateDnsZones array
 param privateLinkScopeResourceId string
 param resourceGroupFslogix string
+param stampIndex int
 param subnetResourceId string
 param tags object
 param tokens object
 
 var cloudSuffix = replace(replace(environment().resourceManager, 'https://management.', ''), '/', '')
 var functionAppKeyword = environment().name == 'AzureCloud' || environment().name == 'AzureUSGovernment' ? 'azurewebsites' : 'appservice'
-var functionAppScmPrivateDnsZoneResourceId = '${privateDnsZoneResourceIdPrefix}scm.${filter(privateDnsZones, name => contains(name, functionAppKeyword))[0]}'
+//var functionAppScmPrivateDnsZoneResourceId = '${privateDnsZoneResourceIdPrefix}scm.${filter(privateDnsZones, name => contains(name, functionAppKeyword))[0]}'
 var purpose = 'aipfsq' // Auto Increase Premium File Share Quota
 var storageSubResources = [
   {
     name: 'blob'
     id: '${privateDnsZoneResourceIdPrefix}${filter(privateDnsZones, name => contains(name, 'blob'))[0]}'
-    nic: replace(names.storageAccountBlobNetworkInterface, tokens.purpose, purpose)
-    pe: replace(names.storageAccountBlobPrivateEndpoint, tokens.purpose, purpose)
+    nic: replace(replace(names.storageAccountBlobNetworkInterface, tokens.purpose, purpose), '${delimiter}${stampIndex}', '')
+    pe: replace(replace(names.storageAccountBlobPrivateEndpoint, tokens.purpose, purpose), '${delimiter}${stampIndex}', '')
   }
   {
     name: 'file'
     id: '${privateDnsZoneResourceIdPrefix}${filter(privateDnsZones, name => contains(name, 'file'))[0]}'
-    nic: replace(names.storageAccountFileNetworkInterface, tokens.purpose, purpose)
-    pe: replace(names.storageAccountFilePrivateEndpoint, tokens.purpose, purpose)
+    nic: replace(replace(names.storageAccountFileNetworkInterface, tokens.purpose, purpose), '${delimiter}${stampIndex}', '')
+    pe: replace(replace(names.storageAccountFilePrivateEndpoint, tokens.purpose, purpose), '${delimiter}${stampIndex}', '')
   }
   {
     name: 'queue'
     id: '${privateDnsZoneResourceIdPrefix}${filter(privateDnsZones, name => contains(name, 'queue'))[0]}'
-    nic: replace(names.storageAccountQueueNetworkInterface, tokens.purpose, purpose)
-    pe: replace(names.storageAccountQueuePrivateEndpoint, tokens.purpose, purpose)
+    nic: replace(replace(names.storageAccountQueueNetworkInterface, tokens.purpose, purpose), '${delimiter}${stampIndex}', '')
+    pe: replace(replace(names.storageAccountQueuePrivateEndpoint, tokens.purpose, purpose), '${delimiter}${stampIndex}', '')
   }
   {
     name: 'table'
     id: '${privateDnsZoneResourceIdPrefix}${filter(privateDnsZones, name => contains(name, 'table'))[0]}'
-    nic: replace(names.storageAccountTableNetworkInterface, tokens.purpose, purpose)
-    pe: replace(names.storageAccountTablePrivateEndpoint, tokens.purpose, purpose)
+    nic: replace(replace(names.storageAccountTableNetworkInterface, tokens.purpose, purpose), '${delimiter}${stampIndex}', '')
+    pe: replace(replace(names.storageAccountTablePrivateEndpoint, tokens.purpose, purpose), '${delimiter}${stampIndex}', '')
   }
 ]
 
 resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
-  name: replace(names.userAssignedIdentity, tokens.purpose, purpose)
+  name: replace(replace(names.userAssignedIdentity, tokens.purpose, purpose), '${delimiter}${stampIndex}', '')
   location: location
   tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.ManagedIdentity/userAssignedIdentities'] ?? {}, mlzTags)
 }
 
 resource vault 'Microsoft.KeyVault/vaults@2022-07-01' = {
-  name: uniqueString(replace(names.keyVault, tokens.purpose, purpose), resourceGroup().id)
+  name: uniqueString(replace(replace(names.keyVault, tokens.purpose, purpose), '${delimiter}${stampIndex}', ''), resourceGroup().id)
   location: location
   tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.KeyVault/vaults'] ?? {}, mlzTags)
   properties: {
@@ -91,14 +93,14 @@ resource roleAssignment_Encryption 'Microsoft.Authorization/roleAssignments@2020
 }
 
 resource privateEndpoint_vault 'Microsoft.Network/privateEndpoints@2023-04-01' = {
-  name: replace(names.keyVaultPrivateEndpoint, tokens.purpose, purpose)
+  name: replace(replace(names.keyVaultPrivateEndpoint, tokens.purpose, purpose), '${delimiter}${stampIndex}', '')
   location: location
   tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Network/privateEndpoints'] ?? {}, mlzTags)
   properties: {
-    customNetworkInterfaceName: replace(names.keyVaultNetworkInterface, tokens.purpose, purpose)
+    customNetworkInterfaceName: replace(replace(names.keyVaultNetworkInterface, tokens.purpose, purpose), '${delimiter}${stampIndex}', '')
     privateLinkServiceConnections: [
       {
-        name: replace(names.keyVaultPrivateEndpoint, tokens.purpose, purpose)
+        name: replace(replace(names.keyVaultPrivateEndpoint, tokens.purpose, purpose), '${delimiter}${stampIndex}', '')
         properties: {
           privateLinkServiceId: vault.id
           groupIds: [
@@ -165,7 +167,7 @@ resource key_storageAccount 'Microsoft.KeyVault/vaults/keys@2022-07-01' = {
 }
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
-  name: uniqueString(replace(names.storageAccount, tokens.purpose, purpose), resourceGroup().id)
+  name: uniqueString(replace(replace(names.storageAccount, tokens.purpose, purpose), '${delimiter}${stampIndex}', ''), resourceGroup().id)
   location: location
   tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Storage/storageAccounts'] ?? {}, mlzTags)
   sku: {
@@ -286,7 +288,7 @@ resource privateDnsZoneGroups_storage 'Microsoft.Network/privateEndpoints/privat
 
 resource diagnosticSetting_storage_blob 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (enableApplicationInsights) {
   scope: blobService
-  name: replace(names.storageAccountBlobDiagnosticSetting, tokens.purpose, purpose)
+  name: replace(replace(names.storageAccountBlobDiagnosticSetting, tokens.purpose, purpose), '${delimiter}${stampIndex}', '')
   properties: {
     logs: [
       {
@@ -305,13 +307,14 @@ resource diagnosticSetting_storage_blob 'Microsoft.Insights/diagnosticSettings@2
 }
 
 resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = if (enableApplicationInsights) {
-  name: replace(names.applicationInsights, tokens.purpose, purpose)
+  name: replace(replace(names.applicationInsights, tokens.purpose, purpose), '${delimiter}${stampIndex}', '')
   location: location
   tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Insights/components'] ?? {}, mlzTags)
   properties: {
     Application_Type: 'web'
     publicNetworkAccessForIngestion: 'Disabled'
     publicNetworkAccessForQuery: 'Disabled'
+    WorkspaceResourceId: logAnalyticsWorkspaceResourceId
   }
   kind: 'web'
 }
@@ -326,7 +329,7 @@ module privateLinkScope '../common/private-link-scope.bicep' = if (enableApplica
 }
 
 resource appServicePlan 'Microsoft.Web/serverfarms@2023-01-01' = {
-  name: replace(names.appServicePlan, tokens.purpose, purpose)
+  name: replace(replace(names.appServicePlan, tokens.purpose, purpose), '${delimiter}${stampIndex}', '')
   location: location
   tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Web/serverfarms'] ?? {}, mlzTags)
   sku: {
@@ -340,7 +343,7 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2023-01-01' = {
 }
 
 resource functionApp 'Microsoft.Web/sites@2023-01-01' = {
-  name: uniqueString(replace(names.functionApp, tokens.purpose, purpose), resourceGroup().id)
+  name: uniqueString(replace(replace(names.functionApp, tokens.purpose, purpose), '${delimiter}${stampIndex}', ''), resourceGroup().id)
   location: location
   tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Web/sites'] ?? {}, mlzTags)
   kind: 'functionapp'
@@ -433,14 +436,14 @@ resource functionApp 'Microsoft.Web/sites@2023-01-01' = {
 }
 
 resource privateEndpoint_functionApp 'Microsoft.Network/privateEndpoints@2023-04-01' = {
-  name: replace(names.functionAppPrivateEndpoint, tokens.purpose, purpose)
+  name: replace(replace(names.functionAppPrivateEndpoint, tokens.purpose, purpose), '${delimiter}${stampIndex}', '')
   location: location
   tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Network/privateEndpoints'] ?? {}, mlzTags)
   properties: {
-    customNetworkInterfaceName: replace(names.functionAppNetworkInterface, tokens.purpose, purpose)
+    customNetworkInterfaceName: replace(replace(names.functionAppNetworkInterface, tokens.purpose, purpose), '${delimiter}${stampIndex}', '')
     privateLinkServiceConnections: [
       {
-        name: replace(names.functionAppPrivateEndpoint, tokens.purpose, purpose)
+        name: replace(replace(names.functionAppPrivateEndpoint, tokens.purpose, purpose), '${delimiter}${stampIndex}', '')
         properties: {
           privateLinkServiceId: functionApp.id
           groupIds: [
@@ -483,15 +486,15 @@ module roleAssignment_storageAccount '../common/role-assignments/storage-account
 }
 
 // This module is used to deploy the A record for the SCM site which does not use a dedicated private endpoint
-module scmARecord 'a-record.bicep' = {
-  name: 'deploy-scm-a-record-${deploymentNameSuffix}'
-  scope: resourceGroup(split(functionAppScmPrivateDnsZoneResourceId, '/')[2], split(functionAppScmPrivateDnsZoneResourceId, '/')[4])
-  params: {
-    functionAppName: functionApp.name
-    ipv4Address: filter(privateDnsZoneGroup_functionApp.properties.privateDnsZoneConfigs[0].properties.recordSets, record => record.recordSetName == functionApp.name)[0].ipAddresses[0]
-    privateDnsZoneName: split(functionAppScmPrivateDnsZoneResourceId, '/')[8]
-  }
-}
+// module scmARecord 'a-record.bicep' = {
+//   name: 'deploy-scm-a-record-${deploymentNameSuffix}'
+//   scope: resourceGroup(split(functionAppScmPrivateDnsZoneResourceId, '/')[2], split(functionAppScmPrivateDnsZoneResourceId, '/')[4])
+//   params: {
+//     functionAppName: functionApp.name
+//     ipv4Address: filter(privateDnsZoneGroup_functionApp.properties.privateDnsZoneConfigs[0].properties.recordSets, record => record.recordSetName == functionApp.name)[0].ipAddresses[0]
+//     privateDnsZoneName: split(functionAppScmPrivateDnsZoneResourceId, '/')[8]
+//   }
+// }
 
 resource function 'Microsoft.Web/sites/functions@2020-12-01' = {
   parent: functionApp
