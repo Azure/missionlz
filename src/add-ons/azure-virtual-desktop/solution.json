@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.41.2.15936",
-      "templateHash": "13922530183024659046"
+      "templateHash": "15523920221771790958"
     }
   },
   "parameters": {
@@ -6055,7 +6055,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.41.2.15936",
-              "templateHash": "15909867047763408881"
+              "templateHash": "4922281226419353121"
             }
           },
           "parameters": {
@@ -8094,7 +8094,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.41.2.15936",
-                      "templateHash": "992905003881160663"
+                      "templateHash": "16798600396572759484"
                     }
                   },
                   "parameters": {
@@ -8164,6 +8164,7 @@
                     "$fxv#2": "# Authentication is provided in the script",
                     "cloudSuffix": "[replace(replace(environment().resourceManager, 'https://management.', ''), '/', '')]",
                     "functionAppKeyword": "[if(or(equals(environment().name, 'AzureCloud'), equals(environment().name, 'AzureUSGovernment')), 'azurewebsites', 'appservice')]",
+                    "functionAppScmPrivateDnsZoneResourceId": "[format('{0}scm.{1}', parameters('privateDnsZoneResourceIdPrefix'), filter(parameters('privateDnsZones'), lambda('name', contains(lambdaVariables('name'), variables('functionAppKeyword'))))[0])]",
                     "purpose": "aipfsq",
                     "storageSubResources": [
                       {
@@ -8780,6 +8781,71 @@
                       "dependsOn": [
                         "[resourceId('Microsoft.Web/sites', uniqueString(replace(replace(parameters('names').functionApp, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''), resourceGroup().id))]",
                         "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(replace(replace(parameters('names').storageAccount, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''), resourceGroup().id))]"
+                      ]
+                    },
+                    {
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2025-04-01",
+                      "name": "[format('deploy-scm-a-record-{0}', parameters('deploymentNameSuffix'))]",
+                      "subscriptionId": "[split(variables('functionAppScmPrivateDnsZoneResourceId'), '/')[2]]",
+                      "resourceGroup": "[split(variables('functionAppScmPrivateDnsZoneResourceId'), '/')[4]]",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "parameters": {
+                          "functionAppName": {
+                            "value": "[uniqueString(replace(replace(parameters('names').functionApp, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''), resourceGroup().id)]"
+                          },
+                          "ipv4Address": {
+                            "value": "[filter(reference(resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups', replace(replace(parameters('names').functionAppPrivateEndpoint, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''), 'default'), '2021-08-01').privateDnsZoneConfigs[0].properties.recordSets, lambda('record', equals(lambdaVariables('record').recordSetName, uniqueString(replace(replace(parameters('names').functionApp, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''), resourceGroup().id))))[0].ipAddresses[0]]"
+                          },
+                          "privateDnsZoneName": {
+                            "value": "[split(variables('functionAppScmPrivateDnsZoneResourceId'), '/')[8]]"
+                          }
+                        },
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "0.41.2.15936",
+                              "templateHash": "875580339059887096"
+                            }
+                          },
+                          "parameters": {
+                            "functionAppName": {
+                              "type": "string"
+                            },
+                            "ipv4Address": {
+                              "type": "string"
+                            },
+                            "privateDnsZoneName": {
+                              "type": "string"
+                            }
+                          },
+                          "resources": [
+                            {
+                              "type": "Microsoft.Network/privateDnsZones/A",
+                              "apiVersion": "2020-06-01",
+                              "name": "[format('{0}/{1}', parameters('privateDnsZoneName'), parameters('functionAppName'))]",
+                              "properties": {
+                                "aRecords": [
+                                  {
+                                    "ipv4Address": "[parameters('ipv4Address')]"
+                                  }
+                                ],
+                                "ttl": 3600
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Web/sites', uniqueString(replace(replace(parameters('names').functionApp, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''), resourceGroup().id))]",
+                        "[resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups', replace(replace(parameters('names').functionAppPrivateEndpoint, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''), 'default')]"
                       ]
                     }
                   ],

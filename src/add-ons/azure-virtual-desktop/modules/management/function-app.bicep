@@ -20,7 +20,7 @@ param tokens object
 
 var cloudSuffix = replace(replace(environment().resourceManager, 'https://management.', ''), '/', '')
 var functionAppKeyword = environment().name == 'AzureCloud' || environment().name == 'AzureUSGovernment' ? 'azurewebsites' : 'appservice'
-//var functionAppScmPrivateDnsZoneResourceId = '${privateDnsZoneResourceIdPrefix}scm.${filter(privateDnsZones, name => contains(name, functionAppKeyword))[0]}'
+var functionAppScmPrivateDnsZoneResourceId = '${privateDnsZoneResourceIdPrefix}scm.${filter(privateDnsZones, name => contains(name, functionAppKeyword))[0]}'
 var purpose = 'aipfsq' // Auto Increase Premium File Share Quota
 var storageSubResources = [
   {
@@ -486,15 +486,15 @@ module roleAssignment_storageAccount '../common/role-assignments/storage-account
 }
 
 // This module is used to deploy the A record for the SCM site which does not use a dedicated private endpoint
-// module scmARecord 'a-record.bicep' = {
-//   name: 'deploy-scm-a-record-${deploymentNameSuffix}'
-//   scope: resourceGroup(split(functionAppScmPrivateDnsZoneResourceId, '/')[2], split(functionAppScmPrivateDnsZoneResourceId, '/')[4])
-//   params: {
-//     functionAppName: functionApp.name
-//     ipv4Address: filter(privateDnsZoneGroup_functionApp.properties.privateDnsZoneConfigs[0].properties.recordSets, record => record.recordSetName == functionApp.name)[0].ipAddresses[0]
-//     privateDnsZoneName: split(functionAppScmPrivateDnsZoneResourceId, '/')[8]
-//   }
-// }
+module scmARecord 'a-record.bicep' = {
+  name: 'deploy-scm-a-record-${deploymentNameSuffix}'
+  scope: resourceGroup(split(functionAppScmPrivateDnsZoneResourceId, '/')[2], split(functionAppScmPrivateDnsZoneResourceId, '/')[4])
+  params: {
+    functionAppName: functionApp.name
+    ipv4Address: filter(privateDnsZoneGroup_functionApp.properties.privateDnsZoneConfigs[0].properties.recordSets, record => record.recordSetName == functionApp.name)[0].ipAddresses[0]
+    privateDnsZoneName: split(functionAppScmPrivateDnsZoneResourceId, '/')[8]
+  }
+}
 
 resource function 'Microsoft.Web/sites/functions@2020-12-01' = {
   parent: functionApp
