@@ -779,12 +779,14 @@ module sharedServices 'modules/shared-services/shared-services.bicep' = {
   name: 'deploy-avd-shared-services-${deploymentNameSuffix}'
   scope: subscription(split(sharedServicesSubnetResourceId, '/')[2])
   params: {
+    delimiter: virtualNetwork.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
     identifier: identifier
     identifierHub: virtualNetwork_hub.tags.identifier
     locationControlPlane: virtualNetwork_hub.location
     mlzTags: virtualNetwork.outputs.mlzTags
     sharedServicesSubnetResourceId: sharedServicesSubnetResourceId
+    stampIndex: stampIndex
     tier: virtualNetwork.outputs.tier
     tokens: virtualNetwork.outputs.tokens
     workspaceGlobalPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(virtualNetwork.outputs.privateDnsZones, name => startsWith(name, 'privatelink-global.wvd'))[0]}'

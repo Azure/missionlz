@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.41.2.15936",
-      "templateHash": "8012494379407311693"
+      "templateHash": "6987565921255034598"
     }
   },
   "parameters": {
@@ -10055,6 +10055,9 @@
         },
         "mode": "Incremental",
         "parameters": {
+          "delimiter": {
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-avd-vnet-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.delimiter.value]"
+          },
           "deploymentNameSuffix": {
             "value": "[parameters('deploymentNameSuffix')]"
           },
@@ -10073,6 +10076,9 @@
           "sharedServicesSubnetResourceId": {
             "value": "[parameters('sharedServicesSubnetResourceId')]"
           },
+          "stampIndex": {
+            "value": "[parameters('stampIndex')]"
+          },
           "tier": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-avd-vnet-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tier.value]"
           },
@@ -10090,10 +10096,13 @@
             "_generator": {
               "name": "bicep",
               "version": "0.41.2.15936",
-              "templateHash": "7966657037982914089"
+              "templateHash": "14553685703021494441"
             }
           },
           "parameters": {
+            "delimiter": {
+              "type": "string"
+            },
             "deploymentNameSuffix": {
               "type": "string"
             },
@@ -10112,6 +10121,9 @@
             "sharedServicesSubnetResourceId": {
               "type": "string"
             },
+            "stampIndex": {
+              "type": "int"
+            },
             "tier": {
               "type": "object"
             },
@@ -10123,7 +10135,7 @@
             }
           },
           "variables": {
-            "resourceGroupWorkspaceGlobal": "[replace(replace(replace(parameters('tier').namingConvention.resourceGroup, parameters('identifier'), parameters('identifierHub')), parameters('tier').name, 'sharedServices'), parameters('tokens').purpose, 'avdGlobalWorkspace')]"
+            "resourceGroupWorkspaceGlobal": "[replace(replace(replace(replace(parameters('tier').namingConvention.resourceGroup, parameters('identifier'), parameters('identifierHub')), parameters('tier').name, 'sharedServices'), parameters('tokens').purpose, 'avdGlobalWorkspace'), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), '')]"
           },
           "resources": [
             {
@@ -10157,13 +10169,13 @@
                     "value": "[parameters('mlzTags')]"
                   },
                   "workspaceGlobalName": {
-                    "value": "[replace(replace(replace(parameters('tier').namingConvention.workspace, parameters('identifier'), parameters('identifierHub')), parameters('tier').name, 'sharedServices'), parameters('tokens').purpose, 'global')]"
+                    "value": "[replace(replace(replace(replace(parameters('tier').namingConvention.workspace, parameters('identifier'), parameters('identifierHub')), parameters('tier').name, 'sharedServices'), parameters('tokens').purpose, 'global'), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), '')]"
                   },
                   "workspaceGlobalNetworkInterfaceName": {
-                    "value": "[replace(replace(replace(parameters('tier').namingConvention.workspaceNetworkInterface, parameters('identifier'), parameters('identifierHub')), parameters('tier').name, 'sharedServices'), parameters('tokens').purpose, 'global')]"
+                    "value": "[replace(replace(replace(replace(parameters('tier').namingConvention.workspaceNetworkInterface, parameters('identifier'), parameters('identifierHub')), parameters('tier').name, 'sharedServices'), parameters('tokens').purpose, 'global'), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), '')]"
                   },
                   "workspaceGlobalPrivateEndpointName": {
-                    "value": "[replace(replace(replace(parameters('tier').namingConvention.workspacePrivateEndpoint, parameters('identifier'), parameters('identifierHub')), parameters('tier').name, 'sharedServices'), parameters('tokens').purpose, 'global')]"
+                    "value": "[replace(replace(replace(replace(parameters('tier').namingConvention.workspacePrivateEndpoint, parameters('identifier'), parameters('identifierHub')), parameters('tier').name, 'sharedServices'), parameters('tokens').purpose, 'global'), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), '')]"
                   }
                 },
                 "template": {
