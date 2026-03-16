@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.41.2.15936",
-      "templateHash": "11696752240162197139"
+      "templateHash": "14717456486415474281"
     }
   },
   "parameters": {
@@ -55,6 +55,13 @@
       "defaultValue": "",
       "metadata": {
         "description": "The subnet address prefix for the Azure NetApp Files delegated subnet."
+      }
+    },
+    "customFirewallRuleCollectionGroups": {
+      "type": "array",
+      "defaultValue": [],
+      "metadata": {
+        "description": "The custom firewall rule collection groups that override the default firewall rule collection groups."
       }
     },
     "customRdpProperty": {
@@ -208,13 +215,6 @@
       "defaultValue": "",
       "metadata": {
         "description": "The resource ID for the existing feed workspace within a business unit or project."
-      }
-    },
-    "customFirewallRuleCollectionGroups": {
-      "type": "array",
-      "defaultValue": [],
-      "metadata": {
-        "description": "The custom firewall rule collection groups that override the default firewall rule collection groups."
       }
     },
     "fslogixShareSizeInGB": {
@@ -371,7 +371,7 @@
         "description": "The Key Vault Diagnostic Metrics to collect. See the following URL for valid settings: \"https://learn.microsoft.com/azure/key-vault/general/logging?tabs=Vault\"."
       }
     },
-    "locationVirtualMachines": {
+    "location": {
       "type": "string",
       "defaultValue": "[deployment().location]",
       "metadata": {
@@ -701,9 +701,9 @@
     "beginAvSetRange": "[div(parameters('sessionHostsIndex'), variables('maxAvSetMembers'))]",
     "endAvSetRange": "[div(add(parameters('sessionHostsCount'), parameters('sessionHostsIndex')), variables('maxAvSetMembers'))]",
     "availabilitySetsCount": "[length(range(variables('beginAvSetRange'), add(sub(variables('endAvSetRange'), variables('beginAvSetRange')), 1)))]",
-    "agentUpdatesUniqueString": "[if(equals(variables('cloud'), 'AzureCloud'), 'eus2prod', if(equals(variables('cloud'), 'AzureUSGovernment'), 'ugviffx', format('{0}{1}{2}{3}x', first(variables('cloud')), take(skip(variables('cloud'), 2), 1), first(parameters('locationVirtualMachines')), if(equals(substring(variables('cloud'), 2, 1), 'n'), first(variables('cloudSuffix')), substring(variables('cloudSuffix'), 3, 1)))))]",
+    "agentUpdatesUniqueString": "[if(equals(variables('cloud'), 'AzureCloud'), 'eus2prod', if(equals(variables('cloud'), 'AzureUSGovernment'), 'ugviffx', format('{0}{1}{2}{3}x', first(variables('cloud')), take(skip(variables('cloud'), 2), 1), first(parameters('location')), if(equals(substring(variables('cloud'), 2, 1), 'n'), first(variables('cloudSuffix')), substring(variables('cloudSuffix'), 3, 1)))))]",
     "avdStorageAccountEndpoint": "[format('{0}.blob.{1}', variables('avdStorageAccountName'), environment().suffixes.storage)]",
-    "avdStorageAccountName": "[if(startsWith(parameters('locationVirtualMachines'), 'usn'), 'wvdexportalcontainer', 'wvdportalstorageblob')]",
+    "avdStorageAccountName": "[if(startsWith(parameters('location'), 'usn'), 'wvdexportalcontainer', 'wvdportalstorageblob')]",
     "cloud": "[environment().name]",
     "cloudSuffix": "[replace(replace(environment().resourceManager, 'https://management.', ''), '/', '')]",
     "customImageId": "[if(empty(parameters('imageVersionResourceId')), 'null', format('\"{0}\"', parameters('imageVersionResourceId')))]",
@@ -752,7 +752,7 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2021-04-01",
       "name": "pid-4e82be1d-7fcb-4913-a90c-aa84d7ea3a1c",
-      "location": "[parameters('locationVirtualMachines')]",
+      "location": "[parameters('location')]",
       "properties": {
         "mode": "Incremental",
         "template": {
@@ -776,7 +776,7 @@
           "additionalSubnets": {
             "value": "[union(variables('subnets').avdManagement, variables('subnets').azureNetAppFiles, variables('subnets').functionApp)]"
           },
-          "customFirewallRuleCollectionGroups": "[if(empty(parameters('customFirewallRuleCollectionGroups')), createObject('value', createArray(createObject('name', format('AVD-CollapsedCollectionGroup-{0}-{1}-{2}-{3}', toUpper(parameters('identifier')), toUpper(parameters('environmentAbbreviation')), toUpper(parameters('locationVirtualMachines')), string(parameters('stampIndex'))), 'properties', createObject('priority', 200, 'ruleCollections', createArray(createObject('name', 'NetworkRules', 'priority', 100, 'ruleCollectionType', 'FirewallPolicyFilterRuleCollection', 'action', createObject('type', 'Allow'), 'rules', concat(createArray(createObject('name', 'KMS-Endpoint', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Tcp'), 'sourceAddresses', createArray(parameters('stampVirtualNetworkAddressPrefix')), 'destinationAddresses', createArray(), 'destinationFqdns', createArray(format('azkms.{0}', environment().suffixes.storage), format('kms.{0}', environment().suffixes.storage)), 'destinationPorts', createArray('1688'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray())), createArray(createObject('name', 'AzureCloudforLogin', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Tcp'), 'sourceAddresses', createArray(parameters('stampVirtualNetworkAddressPrefix')), 'destinationAddresses', createArray('AzureActiveDirectory'), 'destinationFqdns', createArray(), 'destinationPorts', createArray('443'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray())))), createObject('name', 'ApplicationRules', 'priority', 200, 'ruleCollectionType', 'FirewallPolicyFilterRuleCollection', 'action', createObject('type', 'Allow'), 'rules', concat(createArray(createObject('name', 'AVD-RequiredDeploymentEndpoints', 'ruleType', 'ApplicationRule', 'protocols', createArray(createObject('protocolType', 'Https', 'port', 443)), 'fqdnTags', createArray(), 'webCategories', createArray(), 'targetFqdns', createArray(split(environment().resourceManager, '/')[2], format('mrsglobalst{0}.blob.{1}', variables('agentUpdatesUniqueString'), environment().suffixes.storage), variables('avdStorageAccountEndpoint'), format('gcs{0}.monitoring.{1}', if(equals(variables('cloud'), 'AzureCloud'), '.prod', ''), environment().suffixes.storage), format('*.prod.warm.ingest.monitor.{0}', environment().suffixes.storage), format('*.guestconfiguration.{0}', coalesce(tryGet(variables('privateDnsZoneSuffixes_AzureVirtualDesktop'), environment().name), variables('cloudSuffix'))), format('*.wvd.{0}', coalesce(tryGet(variables('privateDnsZoneSuffixes_AzureVirtualDesktop'), environment().name), variables('cloudSuffix')))), 'targetUrls', createArray(), 'terminateTLS', false(), 'sourceAddresses', createArray(parameters('stampVirtualNetworkAddressPrefix')), 'destinationAddresses', createArray(), 'sourceIpGroups', createArray())), if(contains(parameters('activeDirectorySolution'), 'MicrosoftEntraId'), createArray(createObject('name', 'AVD-EntraAuthEndpoints', 'ruleType', 'ApplicationRule', 'protocols', createArray(createObject('protocolType', 'Https', 'port', 443)), 'fqdnTags', createArray(), 'webCategories', createArray(), 'targetFqdns', createArray(split(environment().authentication.loginEndpoint, '/')[2], split(environment().graph, '/')[2], 'enterpriseregistration.windows.net'), 'targetUrls', createArray(), 'terminateTLS', false(), 'sourceAddresses', createArray(parameters('stampVirtualNetworkAddressPrefix')), 'destinationAddresses', createArray(), 'sourceIpGroups', createArray())), createArray()), if(parameters('enableWindowsUpdateFwRules'), createArray(createObject('name', 'WindowsUpdateEndpoints', 'ruleType', 'ApplicationRule', 'protocols', createArray(createObject('protocolType', 'Https', 'port', 443)), 'fqdnTags', createArray('WindowsUpdate'), 'webCategories', createArray(), 'targetFqdns', createArray(), 'targetUrls', createArray(), 'terminateTLS', false(), 'sourceAddresses', createArray(parameters('stampVirtualNetworkAddressPrefix')), 'destinationAddresses', createArray(), 'sourceIpGroups', createArray())), createArray()), if(contains(parameters('hostPoolPublicNetworkAccess'), 'Enabled'), createArray(), createArray(createObject('name', 'AzureVirtualDesktop', 'ruleType', 'ApplicationRule', 'protocols', createArray(createObject('protocolType', 'Https', 'port', 443)), 'fqdnTags', createArray('WindowsVirtualDesktop'), 'webCategories', createArray(), 'targetFqdns', createArray(), 'targetUrls', createArray(), 'terminateTLS', false(), 'sourceAddresses', createArray(parameters('stampVirtualNetworkAddressPrefix')), 'destinationAddresses', createArray(), 'sourceIpGroups', createArray())))))))))), createObject('value', parameters('customFirewallRuleCollectionGroups')))]",
+          "customFirewallRuleCollectionGroups": "[if(empty(parameters('customFirewallRuleCollectionGroups')), createObject('value', createArray(createObject('name', format('AVD-CollapsedCollectionGroup-{0}-{1}-{2}-{3}', toUpper(parameters('identifier')), toUpper(parameters('environmentAbbreviation')), toUpper(parameters('location')), string(parameters('stampIndex'))), 'properties', createObject('priority', 200, 'ruleCollections', createArray(createObject('name', 'NetworkRules', 'priority', 100, 'ruleCollectionType', 'FirewallPolicyFilterRuleCollection', 'action', createObject('type', 'Allow'), 'rules', concat(createArray(createObject('name', 'KMS-Endpoint', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Tcp'), 'sourceAddresses', createArray(parameters('stampVirtualNetworkAddressPrefix')), 'destinationAddresses', createArray(), 'destinationFqdns', createArray(format('azkms.{0}', environment().suffixes.storage), format('kms.{0}', environment().suffixes.storage)), 'destinationPorts', createArray('1688'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray())), createArray(createObject('name', 'AzureCloudforLogin', 'ruleType', 'NetworkRule', 'ipProtocols', createArray('Tcp'), 'sourceAddresses', createArray(parameters('stampVirtualNetworkAddressPrefix')), 'destinationAddresses', createArray('AzureActiveDirectory'), 'destinationFqdns', createArray(), 'destinationPorts', createArray('443'), 'sourceIpGroups', createArray(), 'destinationIpGroups', createArray())))), createObject('name', 'ApplicationRules', 'priority', 200, 'ruleCollectionType', 'FirewallPolicyFilterRuleCollection', 'action', createObject('type', 'Allow'), 'rules', concat(createArray(createObject('name', 'AVD-RequiredDeploymentEndpoints', 'ruleType', 'ApplicationRule', 'protocols', createArray(createObject('protocolType', 'Https', 'port', 443)), 'fqdnTags', createArray(), 'webCategories', createArray(), 'targetFqdns', createArray(split(environment().resourceManager, '/')[2], format('mrsglobalst{0}.blob.{1}', variables('agentUpdatesUniqueString'), environment().suffixes.storage), variables('avdStorageAccountEndpoint'), format('gcs{0}.monitoring.{1}', if(equals(variables('cloud'), 'AzureCloud'), '.prod', ''), environment().suffixes.storage), format('*.prod.warm.ingest.monitor.{0}', environment().suffixes.storage), format('*.guestconfiguration.{0}', coalesce(tryGet(variables('privateDnsZoneSuffixes_AzureVirtualDesktop'), environment().name), variables('cloudSuffix'))), format('*.wvd.{0}', coalesce(tryGet(variables('privateDnsZoneSuffixes_AzureVirtualDesktop'), environment().name), variables('cloudSuffix')))), 'targetUrls', createArray(), 'terminateTLS', false(), 'sourceAddresses', createArray(parameters('stampVirtualNetworkAddressPrefix')), 'destinationAddresses', createArray(), 'sourceIpGroups', createArray())), if(contains(parameters('activeDirectorySolution'), 'MicrosoftEntraId'), createArray(createObject('name', 'AVD-EntraAuthEndpoints', 'ruleType', 'ApplicationRule', 'protocols', createArray(createObject('protocolType', 'Https', 'port', 443)), 'fqdnTags', createArray(), 'webCategories', createArray(), 'targetFqdns', createArray(split(environment().authentication.loginEndpoint, '/')[2], split(environment().graph, '/')[2], 'enterpriseregistration.windows.net'), 'targetUrls', createArray(), 'terminateTLS', false(), 'sourceAddresses', createArray(parameters('stampVirtualNetworkAddressPrefix')), 'destinationAddresses', createArray(), 'sourceIpGroups', createArray())), createArray()), if(parameters('enableWindowsUpdateFwRules'), createArray(createObject('name', 'WindowsUpdateEndpoints', 'ruleType', 'ApplicationRule', 'protocols', createArray(createObject('protocolType', 'Https', 'port', 443)), 'fqdnTags', createArray('WindowsUpdate'), 'webCategories', createArray(), 'targetFqdns', createArray(), 'targetUrls', createArray(), 'terminateTLS', false(), 'sourceAddresses', createArray(parameters('stampVirtualNetworkAddressPrefix')), 'destinationAddresses', createArray(), 'sourceIpGroups', createArray())), createArray()), if(contains(parameters('hostPoolPublicNetworkAccess'), 'Enabled'), createArray(), createArray(createObject('name', 'AzureVirtualDesktop', 'ruleType', 'ApplicationRule', 'protocols', createArray(createObject('protocolType', 'Https', 'port', 443)), 'fqdnTags', createArray('WindowsVirtualDesktop'), 'webCategories', createArray(), 'targetFqdns', createArray(), 'targetUrls', createArray(), 'terminateTLS', false(), 'sourceAddresses', createArray(parameters('stampVirtualNetworkAddressPrefix')), 'destinationAddresses', createArray(), 'sourceIpGroups', createArray())))))))))), createObject('value', parameters('customFirewallRuleCollectionGroups')))]",
           "deployActivityLogDiagnosticSetting": {
             "value": "[parameters('deployActivityLogDiagnosticSetting')]"
           },
@@ -814,7 +814,7 @@
             "value": "[parameters('keyVaultDiagnosticMetrics')]"
           },
           "location": {
-            "value": "[parameters('locationVirtualMachines')]"
+            "value": "[parameters('location')]"
           },
           "logAnalyticsWorkspaceResourceId": {
             "value": "[parameters('operationsLogAnalyticsWorkspaceResourceId')]"
@@ -5956,7 +5956,7 @@
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01', 'full').location]"
           },
           "locationVirtualMachines": {
-            "value": "[parameters('locationVirtualMachines')]"
+            "value": "[parameters('location')]"
           },
           "logAnalyticsWorkspaceRetention": {
             "value": "[parameters('logAnalyticsWorkspaceRetention')]"
@@ -8846,11 +8846,8 @@
           "imageVersionResourceId": {
             "value": "[parameters('imageVersionResourceId')]"
           },
-          "locationControlPlane": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01', 'full').location]"
-          },
-          "locationVirtualMachines": {
-            "value": "[parameters('locationVirtualMachines')]"
+          "location": {
+            "value": "[parameters('location')]"
           },
           "logAnalyticsWorkspaceResourceId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.logAnalyticsWorkspaceResourceId.value]"
@@ -8905,7 +8902,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.41.2.15936",
-              "templateHash": "14240370750367658613"
+              "templateHash": "6036406459442003657"
             }
           },
           "parameters": {
@@ -8969,10 +8966,7 @@
             "imageVersionResourceId": {
               "type": "string"
             },
-            "locationControlPlane": {
-              "type": "string"
-            },
-            "locationVirtualMachines": {
+            "location": {
               "type": "string"
             },
             "logAnalyticsWorkspaceResourceId": {
@@ -9095,7 +9089,7 @@
                     "value": "[variables('imageType')]"
                   },
                   "location": {
-                    "value": "[parameters('locationControlPlane')]"
+                    "value": "[parameters('location')]"
                   },
                   "logAnalyticsWorkspaceResourceId": {
                     "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
@@ -9347,11 +9341,8 @@
                   "hostPoolResourceId": {
                     "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-vdpool-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.resourceId.value]"
                   },
-                  "locationControlPlane": {
-                    "value": "[parameters('locationControlPlane')]"
-                  },
-                  "locationVirtualMachines": {
-                    "value": "[parameters('locationVirtualMachines')]"
+                  "location": {
+                    "value": "[parameters('location')]"
                   },
                   "mlzTags": {
                     "value": "[parameters('mlzTags')]"
@@ -9376,7 +9367,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.41.2.15936",
-                      "templateHash": "6395283706953728276"
+                      "templateHash": "17243805435288178305"
                     }
                   },
                   "parameters": {
@@ -9395,10 +9386,7 @@
                     "hostPoolResourceId": {
                       "type": "string"
                     },
-                    "locationControlPlane": {
-                      "type": "string"
-                    },
-                    "locationVirtualMachines": {
+                    "location": {
                       "type": "string"
                     },
                     "mlzTags": {
@@ -9422,7 +9410,7 @@
                       "type": "Microsoft.DesktopVirtualization/applicationGroups",
                       "apiVersion": "2023-09-05",
                       "name": "[parameters('desktopApplicationGroupName')]",
-                      "location": "[parameters('locationControlPlane')]",
+                      "location": "[parameters('location')]",
                       "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.DesktopVirtualization/applicationGroups'), createObject()), parameters('mlzTags'))]",
                       "properties": {
                         "hostPoolArmPath": "[parameters('hostPoolResourceId')]",
@@ -9458,7 +9446,7 @@
                         "mode": "Incremental",
                         "parameters": {
                           "location": {
-                            "value": "[parameters('locationVirtualMachines')]"
+                            "value": "[parameters('location')]"
                           },
                           "name": {
                             "value": "Update-AvdDesktop"
@@ -9608,11 +9596,8 @@
                   "hostPoolResourceId": {
                     "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-vdpool-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.resourceId.value]"
                   },
-                  "locationControlPlane": {
-                    "value": "[parameters('locationControlPlane')]"
-                  },
-                  "locationVirtualMachines": {
-                    "value": "[parameters('locationVirtualMachines')]"
+                  "location": {
+                    "value": "[parameters('location')]"
                   },
                   "logAnalyticsWorkspaceResourceId": {
                     "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
@@ -9644,7 +9629,7 @@
                   "workspaceFeedPrivateEndpointName": {
                     "value": "[replace(replace(parameters('namingConvention').workspacePrivateEndpoint, parameters('tokens').purpose, 'feed'), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), '')]"
                   },
-                  "workspaceFriendlyName": "[if(empty(parameters('workspaceFriendlyName')), createObject('value', replace(replace(parameters('namingConvention').workspace, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), ''), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), '')), createObject('value', format('{0} ({1})', parameters('workspaceFriendlyName'), parameters('locationControlPlane'))))]",
+                  "workspaceFriendlyName": "[if(empty(parameters('workspaceFriendlyName')), createObject('value', replace(replace(parameters('namingConvention').workspace, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), ''), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), '')), createObject('value', format('{0} ({1})', parameters('workspaceFriendlyName'), parameters('location'))))]",
                   "workspacePublicNetworkAccess": {
                     "value": "[parameters('workspacePublicNetworkAccess')]"
                   }
@@ -9656,7 +9641,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.41.2.15936",
-                      "templateHash": "16760583562290003257"
+                      "templateHash": "4965741818079134124"
                     }
                   },
                   "parameters": {
@@ -9681,10 +9666,7 @@
                     "hostPoolResourceId": {
                       "type": "string"
                     },
-                    "locationControlPlane": {
-                      "type": "string"
-                    },
-                    "locationVirtualMachines": {
+                    "location": {
                       "type": "string"
                     },
                     "logAnalyticsWorkspaceResourceId": {
@@ -9733,7 +9715,7 @@
                       "type": "Microsoft.DesktopVirtualization/workspaces",
                       "apiVersion": "2023-09-05",
                       "name": "[parameters('workspaceFeedName')]",
-                      "location": "[parameters('locationControlPlane')]",
+                      "location": "[parameters('location')]",
                       "tags": "[parameters('mlzTags')]",
                       "properties": {
                         "applicationGroupReferences": [
@@ -9748,7 +9730,7 @@
                       "type": "Microsoft.Network/privateEndpoints",
                       "apiVersion": "2023-04-01",
                       "name": "[parameters('workspaceFeedPrivateEndpointName')]",
-                      "location": "[parameters('locationControlPlane')]",
+                      "location": "[parameters('location')]",
                       "tags": "[parameters('mlzTags')]",
                       "properties": {
                         "customNetworkInterfaceName": "[parameters('workspaceFeedNetworkInterfaceName')]",
@@ -9822,7 +9804,7 @@
                         "mode": "Incremental",
                         "parameters": {
                           "location": {
-                            "value": "[parameters('locationVirtualMachines')]"
+                            "value": "[parameters('location')]"
                           },
                           "name": {
                             "value": "Update-AvdWorkspace"
@@ -10358,7 +10340,7 @@
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.keyVaultUri.value]"
           },
           "location": {
-            "value": "[parameters('locationVirtualMachines')]"
+            "value": "[parameters('location')]"
           },
           "managementVirtualMachineName": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.virtualMachineName.value]"
@@ -11873,7 +11855,7 @@
             "value": "[parameters('imageVersionResourceId')]"
           },
           "location": {
-            "value": "[parameters('locationVirtualMachines')]"
+            "value": "[parameters('location')]"
           },
           "locationProperties": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-tier3-avd-stamp-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.locationProperties.value]"
@@ -13824,7 +13806,7 @@
             "value": "[parameters('deploymentNameSuffix')]"
           },
           "location": {
-            "value": "[parameters('locationVirtualMachines')]"
+            "value": "[parameters('location')]"
           },
           "resourceGroupManagement": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-management-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.resourceGroupName.value]"

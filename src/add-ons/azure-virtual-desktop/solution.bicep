@@ -26,6 +26,9 @@ param avdObjectId string
 @description('The subnet address prefix for the Azure NetApp Files delegated subnet.')
 param azureNetAppFilesSubnetAddressPrefix string = ''
 
+@description('The custom firewall rule collection groups that override the default firewall rule collection groups.')
+param customFirewallRuleCollectionGroups array = []
+
 @description('The RDP properties to add or remove RDP functionality on the AVD host pool. The string must end with a semi-colon. Settings reference: https://learn.microsoft.com/windows-server/remote/remote-desktop-services/clients/rdp-files')
 param customRdpProperty string = 'audiocapturemode:i:1;camerastoredirect:s:*;use multimon:i:0;drivestoredirect:s:;encode redirected video capture:i:1;redirected video capture encoding quality:i:1;audiomode:i:0;devicestoredirect:s:;redirectclipboard:i:0;redirectcomports:i:0;redirectlocation:i:1;redirectprinters:i:0;redirectsmartcards:i:1;redirectwebauthn:i:1;usbdevicestoredirect:s:;keyboardhook:i:2;'
 
@@ -99,9 +102,6 @@ param environmentAbbreviation string = 'dev'
 
 @description('The resource ID for the existing feed workspace within a business unit or project.')
 param existingFeedWorkspaceResourceId string = ''
-
-@description('The custom firewall rule collection groups that override the default firewall rule collection groups.')
-param customFirewallRuleCollectionGroups array = []
 
 @description('The file share size(s) in GB for the Fslogix storage solution.')
 param fslogixShareSizeInGB int = 100
@@ -193,7 +193,7 @@ param keyVaultDiagnosticMetrics array = [
 ]
 
 @description('The deployment location for the AVD sessions hosts. This is necessary when the users are closer to a different location than the control plane location.')
-param locationVirtualMachines string = deployment().location
+param location string = deployment().location
 
 @maxValue(730)
 @minValue(30)
@@ -382,9 +382,9 @@ var agentUpdatesUniqueString = cloud == 'AzureCloud'
   ? 'eus2prod'
   : cloud == 'AzureUSGovernment'
       ? 'ugviffx'
-      : '${first(cloud)}${take(skip(cloud, 2), 1)}${first(locationVirtualMachines)}${substring(cloud, 2, 1) == 'n' ? first(cloudSuffix) : substring(cloudSuffix, 3, 1)}x'
+      : '${first(cloud)}${take(skip(cloud, 2), 1)}${first(location)}${substring(cloud, 2, 1) == 'n' ? first(cloudSuffix) : substring(cloudSuffix, 3, 1)}x'
 var avdStorageAccountEndpoint = '${avdStorageAccountName}.blob.${environment().suffixes.storage}'
-var avdStorageAccountName = startsWith(locationVirtualMachines, 'usn') ? 'wvdexportalcontainer' : 'wvdportalstorageblob'
+var avdStorageAccountName = startsWith(location, 'usn') ? 'wvdexportalcontainer' : 'wvdportalstorageblob'
 var cloud = environment().name
 var cloudSuffix = replace(replace(environment().resourceManager, 'https://management.', ''), '/', '')
 var customImageId = empty(imageVersionResourceId) ? 'null' : '"${imageVersionResourceId}"'
@@ -463,7 +463,7 @@ resource workspace 'Microsoft.DesktopVirtualization/workspaces@2023-09-05' exist
 #disable-next-line no-deployments-resources
 resource partnerTelemetry 'Microsoft.Resources/deployments@2021-04-01' = if (enableTelemetry && profile == 'ArcGISPro') {
   name: 'pid-4e82be1d-7fcb-4913-a90c-aa84d7ea3a1c'
-  location: locationVirtualMachines
+  location: location
   properties: {
     mode: 'Incremental'
     template: {
@@ -482,7 +482,7 @@ module tier3 '../tier3/solution.bicep' = {
     customFirewallRuleCollectionGroups: empty(customFirewallRuleCollectionGroups)
       ? [
           {
-            name: 'AVD-CollapsedCollectionGroup-${toUpper(identifier)}-${toUpper(environmentAbbreviation)}-${toUpper(locationVirtualMachines)}-${string(stampIndex)}'
+            name: 'AVD-CollapsedCollectionGroup-${toUpper(identifier)}-${toUpper(environmentAbbreviation)}-${toUpper(location)}-${string(stampIndex)}'
             properties: {
               priority: 200
               ruleCollections: [
@@ -674,7 +674,7 @@ module tier3 '../tier3/solution.bicep' = {
     identifier: identifier
     keyVaultDiagnosticLogs: keyVaultDiagnosticsLogs
     keyVaultDiagnosticMetrics: keyVaultDiagnosticMetrics
-    location: locationVirtualMachines
+    location: location
     logAnalyticsWorkspaceResourceId: operationsLogAnalyticsWorkspaceResourceId
     logStorageSkuName: logStorageSkuName
     networkInterfaceDiagnosticsMetrics: networkInterfaceDiagnosticsMetrics
@@ -712,7 +712,7 @@ module management 'modules/management/management.bicep' = {
     environmentAbbreviation: environmentAbbreviation
     fslogixStorageService: fslogixStorageService
     locationControlPlane: virtualNetwork_hub.location
-    locationVirtualMachines: locationVirtualMachines
+    locationVirtualMachines: location
     logAnalyticsWorkspaceRetention: logAnalyticsWorkspaceRetention
     logAnalyticsWorkspaceSku: logAnalyticsWorkspaceSku
     mlzTags: tier3.outputs.mlzTags
@@ -756,8 +756,7 @@ module controlPlane 'modules/control-plane/control-plane.bicep' = {
     imagePublisher: imagePublisher
     imageSku: imageSku
     imageVersionResourceId: imageVersionResourceId
-    locationControlPlane: virtualNetwork_hub.location
-    locationVirtualMachines: locationVirtualMachines
+    location: location
     logAnalyticsWorkspaceResourceId: management.outputs.logAnalyticsWorkspaceResourceId
     managementVirtualMachineName: management.outputs.virtualMachineName
     maxSessionLimit: usersPerCore * virtualMachineVirtualCpuCount
@@ -815,7 +814,7 @@ module fslogix 'modules/fslogix/fslogix.bicep' = if (deployFslogix) {
     hostPoolResourceId: controlPlane.outputs.hostPoolResourceId
     keyVaultName: management.outputs.keyVaultName
     keyVaultUri: management.outputs.keyVaultUri
-    location: locationVirtualMachines
+    location: location
     managementVirtualMachineName: management.outputs.virtualMachineName
     mlzTags: tier3.outputs.mlzTags
     netbios: netbios
@@ -872,7 +871,7 @@ module sessionHosts 'modules/session-hosts/session-hosts.bicep' = {
     imagePublisher: imagePublisher
     imageSku: imageSku
     imageVersionResourceId: imageVersionResourceId
-    location: locationVirtualMachines
+    location: location
     locationProperties: tier3.outputs.locationProperties
     logAnalyticsWorkspaceResourceId: management.outputs.logAnalyticsWorkspaceResourceId
     managementVirtualMachineName: management.outputs.virtualMachineName
@@ -910,7 +909,7 @@ module cleanUp 'modules/clean-up/clean-up.bicep' = {
   name: 'deploy-clean-up-${deploymentNameSuffix}'
   params: {
     deploymentNameSuffix: deploymentNameSuffix
-    location: locationVirtualMachines
+    location: location
     resourceGroupManagement: management.outputs.resourceGroupName
     userAssignedIdentityClientId: management.outputs.deploymentUserAssignedIdentityClientId
     virtualMachineResourceId: management.outputs.virtualMachineResourceId
