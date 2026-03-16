@@ -266,7 +266,7 @@ module virtualMachines 'virtual-machines.bicep' = [for i in range(1, sessionHost
   ]
 } */
 
-module scalingPlan '../control-plane/scaling-plan.bicep' = {
+module scalingPlan '../management/scaling-plan.bicep' = {
   name: 'deploy-scalingPlan-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupManagement)
   params: {

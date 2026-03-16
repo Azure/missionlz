@@ -100,9 +100,6 @@ param enableWindowsUpdateFwRules bool = false
 @description('The abbreviation for the target environment.')
 param environmentAbbreviation string = 'dev'
 
-@description('The resource ID for the existing feed workspace within a business unit or project.')
-param existingFeedWorkspaceResourceId string = ''
-
 @description('The file share size(s) in GB for the Fslogix storage solution.')
 param fslogixShareSizeInGB int = 100
 
@@ -453,12 +450,6 @@ resource virtualNetwork_hub 'Microsoft.Network/virtualNetworks@2023-11-01' exist
   scope: resourceGroup(split(hubVirtualNetworkResourceId, '/')[2], split(hubVirtualNetworkResourceId, '/')[4])
 }
 
-// Gets the application group references if the AVD feed workspace already exists
-resource workspace 'Microsoft.DesktopVirtualization/workspaces@2023-09-05' existing = if (!empty(existingFeedWorkspaceResourceId)) {
-  scope: resourceGroup(split(existingFeedWorkspaceResourceId, '/')[2], split(existingFeedWorkspaceResourceId, '/')[4])
-  name: split(existingFeedWorkspaceResourceId, '/')[8]
-}
-
 // Optionally deploys telemetry for ArcGIS Pro deployments
 #disable-next-line no-deployments-resources
 resource partnerTelemetry 'Microsoft.Resources/deployments@2021-04-01' = if (enableTelemetry && profile == 'ArcGISPro') {
@@ -700,9 +691,14 @@ module virtualNetwork '../tier3/solution.bicep' = {
 module management 'modules/management/management.bicep' = {
   name: 'deploy-avd-management-${deploymentNameSuffix}'
   params: {
+    activeDirectorySolution: activeDirectorySolution
     avdObjectId: avdObjectId
+    avdPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(virtualNetwork.outputs.privateDnsZones, name => startsWith(name, 'privatelink.wvd'))[0]}'
+    customImageId: customImageId
+    customRdpProperty: customRdpProperty
     delimiter: virtualNetwork.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
+    desktopFriendlyName: desktopFriendlyName
     diskSku: diskSku
     domainJoinPassword: domainAdminPassword
     domainJoinUserPrincipalName: domainAdminUserPrincipalName
@@ -711,44 +707,6 @@ module management 'modules/management/management.bicep' = {
     enableAvdInsights: enableAvdInsights
     environmentAbbreviation: environmentAbbreviation
     fslogixStorageService: fslogixStorageService
-    location: location
-    logAnalyticsWorkspaceRetention: logAnalyticsWorkspaceRetention
-    logAnalyticsWorkspaceSku: logAnalyticsWorkspaceSku
-    mlzTags: virtualNetwork.outputs.mlzTags
-    organizationalUnitPath: sessionHostsOrganizationalUnitPath
-    privateDnsZoneResourceIdPrefix: privateDnsZoneResourceIdPrefix
-    privateDnsZones: virtualNetwork.outputs.privateDnsZones
-    privateLinkScopeResourceId: privateLinkScopeResourceId
-    resourceAbbreviations: virtualNetwork.outputs.resourceAbbreviations
-    stampIndex: stampIndex
-    tags: tags
-    tier: virtualNetwork.outputs.tier
-    tokens: virtualNetwork.outputs.tokens
-    virtualMachineAdminPassword: virtualMachineAdminPassword
-    virtualMachineAdminUsername: virtualMachineAdminUsername
-    virtualMachineSize: managementVirtualMachineSize
-  }
-}
-
-module controlPlane 'modules/control-plane/control-plane.bicep' = {
-  name: 'deploy-avd-control-plane-${deploymentNameSuffix}'
-  params: {
-    activeDirectorySolution: activeDirectorySolution
-    avdPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(virtualNetwork.outputs.privateDnsZones, name => startsWith(name, 'privatelink.wvd'))[0]}'
-    customImageId: customImageId
-    customRdpProperty: customRdpProperty
-    delimiter: virtualNetwork.outputs.delimiter
-    deploymentNameSuffix: deploymentNameSuffix
-    deploymentUserAssignedIdentityClientId: management.outputs.deploymentUserAssignedIdentityClientId
-    deploymentUserAssignedIdentityPrincipalId: management.outputs.deploymentUserAssignedIdentityPrincipalId
-    desktopFriendlyName: desktopFriendlyName
-    diskSku: diskSku
-    domainName: domainName
-    enableAvdInsights: enableAvdInsights
-    existingApplicationGroupReferences: empty(existingFeedWorkspaceResourceId)
-      ? []
-      : workspace!.properties.applicationGroupReferences
-    existingFeedWorkspaceResourceId: existingFeedWorkspaceResourceId
     hostPoolPublicNetworkAccess: hostPoolPublicNetworkAccess
     hostPoolType: hostPoolType
     imageOffer: imageOffer
@@ -756,19 +714,26 @@ module controlPlane 'modules/control-plane/control-plane.bicep' = {
     imageSku: imageSku
     imageVersionResourceId: imageVersionResourceId
     location: location
-    logAnalyticsWorkspaceResourceId: management.outputs.logAnalyticsWorkspaceResourceId
-    managementVirtualMachineName: management.outputs.virtualMachineName
+    logAnalyticsWorkspaceRetention: logAnalyticsWorkspaceRetention
+    logAnalyticsWorkspaceSku: logAnalyticsWorkspaceSku
     maxSessionLimit: usersPerCore * virtualMachineVirtualCpuCount
     mlzTags: virtualNetwork.outputs.mlzTags
     namingConvention: virtualNetwork.outputs.tier.namingConvention
-    resourceGroupManagement: management.outputs.resourceGroupName
+    organizationalUnitPath: sessionHostsOrganizationalUnitPath
+    privateDnsZoneResourceIdPrefix: privateDnsZoneResourceIdPrefix
+    privateDnsZones: virtualNetwork.outputs.privateDnsZones
+    privateLinkScopeResourceId: privateLinkScopeResourceId
+    resourceAbbreviations: virtualNetwork.outputs.resourceAbbreviations
     securityPrincipalObjectIds: map(securityPrincipals, item => item.objectId)
     stampIndex: stampIndex
     subnetResourceId: virtualNetwork.outputs.tier.subnetResourceId
     tags: tags
+    tier: virtualNetwork.outputs.tier
     tokens: virtualNetwork.outputs.tokens
     validationEnvironment: validationEnvironment
-    virtualMachineSize: virtualMachineSize
+    virtualMachineAdminPassword: virtualMachineAdminPassword
+    virtualMachineAdminUsername: virtualMachineAdminUsername
+    virtualMachineSize: managementVirtualMachineSize
     workspaceFriendlyName: workspaceFriendlyName
     workspacePublicNetworkAccess: workspacePublicNetworkAccess
   }
@@ -812,7 +777,7 @@ module fslogix 'modules/fslogix/fslogix.bicep' = if (deployFslogix) {
     fslogixShareSizeInGB: fslogixShareSizeInGB
     fslogixStorageService: fslogixStorageService
     functionAppPrincipalId: management.outputs.functionAppPrincipalId
-    hostPoolResourceId: controlPlane.outputs.hostPoolResourceId
+    hostPoolResourceId: management.outputs.hostPoolResourceId
     keyVaultName: management.outputs.keyVaultName
     keyVaultUri: management.outputs.keyVaultUri
     location: location
@@ -865,7 +830,7 @@ module sessionHosts 'modules/session-hosts/session-hosts.bicep' = {
     enableWindowsUpdate: enableWindowsUpdateFwRules
     environmentAbbreviation: environmentAbbreviation
     fslogixContainerType: fslogixContainerType
-    hostPoolResourceId: controlPlane.outputs.hostPoolResourceId
+    hostPoolResourceId: management.outputs.hostPoolResourceId
     hostPoolType: hostPoolType
     identifier: identifier
     imageOffer: imageOffer

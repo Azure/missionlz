@@ -1,8 +1,13 @@
 targetScope = 'subscription'
 
+param activeDirectorySolution string
 param avdObjectId string
+param avdPrivateDnsZoneResourceId string
+param customImageId string
+param customRdpProperty string
 param delimiter string
 param deploymentNameSuffix string
+param desktopFriendlyName string
 param diskSku string
 @secure()
 param domainJoinPassword string
@@ -12,27 +17,45 @@ param enableApplicationInsights bool
 param enableAvdInsights bool
 param environmentAbbreviation string
 param fslogixStorageService string
+param hostPoolPublicNetworkAccess string
+param hostPoolType string
+param imageOffer string
+param imagePublisher string
+param imageSku string
+param imageVersionResourceId string
 param location string
 param logAnalyticsWorkspaceRetention int
 param logAnalyticsWorkspaceSku string
+param maxSessionLimit int
 param mlzTags object
+param namingConvention object
 param organizationalUnitPath string
 param privateDnsZoneResourceIdPrefix string
 param privateDnsZones array
 param privateLinkScopeResourceId string
 param resourceAbbreviations object
+param securityPrincipalObjectIds array
 param stampIndex int
+param subnetResourceId string
 param tags object
 param tier object
 param tokens object
+param validationEnvironment bool
 @secure()
 param virtualMachineAdminPassword string
 param virtualMachineAdminUsername string
 param virtualMachineSize string
+param workspaceFriendlyName string
+param workspacePublicNetworkAccess string
 
+var galleryImageOffer = empty(imageVersionResourceId) ? '"${imageOffer}"' : 'null'
+var galleryImagePublisher = empty(imageVersionResourceId) ? '"${imagePublisher}"' : 'null'
+var galleryImageSku = empty(imageVersionResourceId) ? '"${imageSku}"' : 'null'
+var galleryItemId = empty(imageVersionResourceId) ? '"${imagePublisher}.${imageOffer}${imageSku}"' : 'null'
 var hostPoolResourceId = resourceId(subscription().subscriptionId, resourceGroupManagement, 'Microsoft.DesktopVirtualization/hostpools', replace(tier.namingConvention.hostPool, '${delimiter}${tokens.purpose}', ''))
-var resourceGroupManagement = replace(tier.namingConvention.resourceGroup, tokens.purpose, 'management')
+var imageType = empty(imageVersionResourceId) ? '"Gallery"' : '"CustomImage"'
 var resourceGroupFslogix = replace(tier.namingConvention.resourceGroup, tokens.purpose, 'fslogix')
+var resourceGroupManagement = replace(tier.namingConvention.resourceGroup, tokens.purpose, 'management')
 
 resource resourceGroup 'Microsoft.Resources/resourceGroups@2023-07-01' = {
   name: resourceGroupManagement
@@ -96,7 +119,7 @@ module deploymentUserAssignedIdentity 'user-assigned-identity.bicep' = {
 // Role Assignment for Autoscale
 // Purpose: assigns the Desktop Virtualization Power On Off Contributor role to the 
 // Azure Virtual Desktop service to scale the host pool
-resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+resource roleAssignment_Autoscale 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid(avdObjectId, '40c5ff49-9181-41f8-ae61-143b0e78555e', subscription().id)
   properties: {
     roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', '40c5ff49-9181-41f8-ae61-143b0e78555e')
@@ -225,6 +248,81 @@ module functionApp 'function-app.bicep' = if (fslogixStorageService == 'AzureFil
   }
 }
 
+module hostPool 'host-pool.bicep' = {
+  name: 'deploy-vdpool-${deploymentNameSuffix}'
+  scope: resourceGroup
+  params: {
+    activeDirectorySolution: activeDirectorySolution
+    avdPrivateDnsZoneResourceId: avdPrivateDnsZoneResourceId
+    customImageId: customImageId
+    customRdpProperty: customRdpProperty
+    diskSku: diskSku
+    domainName: domainName
+    enableAvdInsights: enableAvdInsights
+    galleryImageOffer: galleryImageOffer
+    galleryImagePublisher: galleryImagePublisher
+    galleryImageSku: galleryImageSku
+    galleryItemId: galleryItemId
+    hostPoolDiagnosticSettingName: replace(namingConvention.hostPoolDiagnosticSetting, '${delimiter}${tokens.purpose}', '')
+    hostPoolName: replace(namingConvention.hostPool, '${delimiter}${tokens.purpose}', '')
+    hostPoolNetworkInterfaceName: replace(namingConvention.hostPoolNetworkInterface, '${delimiter}${tokens.purpose}', '')
+    hostPoolPrivateEndpointName: replace(namingConvention.hostPoolPrivateEndpoint, '${delimiter}${tokens.purpose}', '')
+    hostPoolPublicNetworkAccess: hostPoolPublicNetworkAccess
+    hostPoolType: hostPoolType
+    imageType: imageType
+    location: location
+    logAnalyticsWorkspaceResourceId: enableApplicationInsights || enableAvdInsights ? monitoring!.outputs.logAnalyticsWorkspaceResourceId : ''
+    maxSessionLimit: maxSessionLimit
+    mlzTags: mlzTags
+    sessionHostNamePrefix: replace(namingConvention.virtualMachine, '${delimiter}${tokens.purpose}', '')
+    subnetResourceId: subnetResourceId
+    tags: tags
+    validationEnvironment: validationEnvironment
+    virtualMachineSize: virtualMachineSize
+  }
+}
+
+module applicationGroup 'application-group.bicep' = {
+  name: 'deploy-vdag-${deploymentNameSuffix}'
+  scope: resourceGroup
+  params: {
+    deploymentNameSuffix: deploymentNameSuffix
+    deploymentUserAssignedIdentityClientId: deploymentUserAssignedIdentity.outputs.clientId
+    desktopApplicationGroupName: replace(namingConvention.applicationGroup, '${delimiter}${tokens.purpose}', '')
+    hostPoolResourceId: hostPool.outputs.resourceId
+    location: location
+    mlzTags: mlzTags
+    securityPrincipalObjectIds: securityPrincipalObjectIds
+    desktopFriendlyName: desktopFriendlyName
+    tags: tags
+    virtualMachineName: virtualMachine.outputs.name
+  }
+}
+
+// Deploys the resources to create and configure the feed workspace
+module workspace_feed 'workspace-feed.bicep' = {
+  name: 'deploy-vdws-feed-${deploymentNameSuffix}'
+  scope: resourceGroup
+  params: {
+    applicationGroupResourceId: applicationGroup.outputs.resourceId
+    avdPrivateDnsZoneResourceId: avdPrivateDnsZoneResourceId
+    enableAvdInsights: enableAvdInsights
+    hostPoolResourceId: hostPool.outputs.resourceId
+    location: location
+    logAnalyticsWorkspaceResourceId: enableApplicationInsights || enableAvdInsights ? monitoring!.outputs.logAnalyticsWorkspaceResourceId : ''
+    mlzTags: mlzTags
+    subnetResourceId: subnetResourceId
+    tags: tags
+    workspaceFeedDiagnoticSettingName: replace(replace(namingConvention.workspaceDiagnosticSetting, tokens.purpose, 'feed'), '${delimiter}${stampIndex}', '')
+    workspaceFeedName: replace(replace(namingConvention.workspace, tokens.purpose, 'feed'), '${delimiter}${stampIndex}', '')
+    workspaceFeedNetworkInterfaceName: replace(replace(namingConvention.workspaceNetworkInterface, tokens.purpose, 'feed'), '${delimiter}${stampIndex}', '')
+    workspaceFeedPrivateEndpointName: replace(replace(namingConvention.workspacePrivateEndpoint, tokens.purpose, 'feed'), '${delimiter}${stampIndex}', '')
+    workspaceFriendlyName: empty(workspaceFriendlyName) ? replace(replace(namingConvention.workspace, '${delimiter}${tokens.purpose}', ''), '${delimiter}${stampIndex}', '') : '${workspaceFriendlyName} (${location})'
+    workspacePublicNetworkAccess: workspacePublicNetworkAccess
+  }
+}
+
+output applicationGroupResourceId string = applicationGroup.outputs.resourceId
 output dataCollectionRuleResourceId string = enableAvdInsights ? monitoring!.outputs.dataCollectionRuleResourceId : ''
 output deploymentUserAssignedIdentityClientId string = deploymentUserAssignedIdentity.outputs.clientId
 output deploymentUserAssignedIdentityPrincipalId string = deploymentUserAssignedIdentity.outputs.principalId
@@ -235,6 +333,8 @@ output diskAccessResourceId string = diskAccess.outputs.resourceId
 output diskEncryptionSetResourceId string = customerManagedKeys.outputs.diskEncryptionSetResourceId
 output encryptionUserAssignedIdentityResourceId string = customerManagedKeys.outputs.userAssignedIdentityResourceId
 output functionAppPrincipalId string = fslogixStorageService == 'AzureFiles Premium' ? functionApp!.outputs.functionAppPrincipalId : ''
+output hostPoolName string = hostPool.outputs.name
+output hostPoolResourceId string = hostPool.outputs.resourceId
 output keyVaultName string = customerManagedKeys.outputs.keyVaultName
 output keyVaultUri string = customerManagedKeys.outputs.keyVaultUri
 output logAnalyticsWorkspaceName string = enableApplicationInsights || enableAvdInsights ? monitoring!.outputs.logAnalyticsWorkspaceName : ''
