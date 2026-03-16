@@ -239,42 +239,26 @@ module management 'management/management.bicep' = {
   name: 'deploy-management-${deploymentNameSuffix}'
   params: {
     avdObjectId: avdObjectId
+    avdPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3.outputs.privateDnsZones, name => startsWith(name, 'privatelink.wvd'))[0]}'
     delimiter: tier3.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
     environmentAbbreviation: environmentAbbreviation
+    hostPoolPublicNetworkAccess: hostPoolPublicNetworkAccess
     location: location
     logAnalyticsWorkspaceRetention: logAnalyticsWorkspaceRetention
     logAnalyticsWorkspaceSku: logAnalyticsWorkspaceSku
     mlzTags: tier3.outputs.mlzTags
-    namingConvention: tier3.outputs.tier.namingConvention
     privateDnsZoneResourceIdPrefix: privateDnsZoneResourceIdPrefix
     privateDnsZones: tier3.outputs.privateDnsZones
     privateLinkScopeResourceId: privateLinkScopeResourceId
     resourceAbbreviations: tier3.outputs.resourceAbbreviations
     resourceGroupName: rg.outputs.name
+    securityPrincipalObjectId: map(securityPrincipals, item => item.objectId)[0]
     subscriptionId: subscriptionId
     tags: tags
     tier: tier3.outputs.tier
     tokens: tier3.outputs.tokens
     virtualMachineSize: managementVirtualMachineSize
-  }
-}
-
-module controlPlane 'control-plane/control-plane.bicep' = {
-  name: 'deploy-control-plane-${deploymentNameSuffix}'
-  params: {
-    avdPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3.outputs.privateDnsZones, name => startsWith(name, 'privatelink.wvd'))[0]}'
-    delimiter: tier3.outputs.delimiter
-    deploymentNameSuffix: deploymentNameSuffix
-    hostPoolPublicNetworkAccess: hostPoolPublicNetworkAccess
-    location: location
-    logAnalyticsWorkspaceResourceId: management.outputs.logAnalyticsWorkspaceResourceId
-    mlzTags: tier3.outputs.mlzTags
-    resourceGroupName: rg.outputs.name
-    securityPrincipalObjectId: map(securityPrincipals, item => item.objectId)[0]
-    tags: tags
-    tier: tier3.outputs.tier
-    tokens: tier3.outputs.tokens
     vmTemplate: '{"domain":"${domainName}","galleryImageOffer":"pro-byol","galleryImagePublisher":"esri","galleryImageSKU":"pro-byol-36","imageType":"Gallery","customImageId":null,"namePrefix":"${replace(tier3.outputs.tier.namingConvention.virtualMachine, '${tier3.outputs.delimiter}${tier3.outputs.tokens.purpose}', '')}","osDiskType":"Premium_LRS","vmSize":{"id":"${virtualMachineSize}","cores":null,"ram":null,"rdmaEnabled": false,"supportsMemoryPreservingMaintenance": true},"galleryItemId":"esri.pro-byol.pro-byol-36","hibernate":false,"diskSizeGB":0,"securityType":"TrustedLaunch","secureBoot":true,"vTPM":true,"vmInfrastructureType":"Cloud","virtualProcessorCount":null,"memoryGB":null,"maximumMemoryGB":null,"minimumMemoryGB":null,"dynamicMemoryConfig":false}'
     workspaceGlobalPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3.outputs.privateDnsZones, name => startsWith(name, 'privatelink-global.wvd'))[0]}'
     workspacePublicNetworkAccess: workspacePublicNetworkAccess
@@ -294,7 +278,7 @@ module sessionHosts 'session-hosts/session-hosts.bicep' = {
     diskAccessPolicyDisplayName: management.outputs.diskAccessPolicyDisplayName
     diskAccessResourceId: management.outputs.diskAccessResourceId
     diskEncryptionSetResourceId: management.outputs.diskEncryptionSetResourceId
-    hostPoolResourceId: controlPlane.outputs.hostPoolResourceId
+    hostPoolResourceId: management.outputs.hostPoolResourceId
     location: location
     mlzTags: tier3.outputs.mlzTags
     resourceGroupName: resourceGroupName
