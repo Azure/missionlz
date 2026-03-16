@@ -48,5 +48,6 @@ param additionalFwPipCount int = 2
 This will provision two additional static PIPs for the Azure Firewall, in addition to the default one.
 
 ### Notes
+
 - Deleting and recreating a static PIP will not retain the same IP address (Azure behavior).
 - All custom and original firewall PIPs are static, use the same naming logic, and receive identical diagnostic logging.
