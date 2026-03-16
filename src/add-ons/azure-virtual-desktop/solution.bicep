@@ -711,8 +711,7 @@ module management 'modules/management/management.bicep' = {
     enableAvdInsights: enableAvdInsights
     environmentAbbreviation: environmentAbbreviation
     fslogixStorageService: fslogixStorageService
-    locationControlPlane: virtualNetwork_hub.location
-    locationVirtualMachines: location
+    location: location
     logAnalyticsWorkspaceRetention: logAnalyticsWorkspaceRetention
     logAnalyticsWorkspaceSku: logAnalyticsWorkspaceSku
     mlzTags: tier3.outputs.mlzTags

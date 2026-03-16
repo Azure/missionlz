@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.41.2.15936",
-      "templateHash": "14717456486415474281"
+      "templateHash": "9531807669046179845"
     }
   },
   "parameters": {
@@ -5952,10 +5952,7 @@
           "fslogixStorageService": {
             "value": "[parameters('fslogixStorageService')]"
           },
-          "locationControlPlane": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('hubVirtualNetworkResourceId'), '/')[2], split(parameters('hubVirtualNetworkResourceId'), '/')[4]), 'Microsoft.Network/virtualNetworks', split(parameters('hubVirtualNetworkResourceId'), '/')[8]), '2023-11-01', 'full').location]"
-          },
-          "locationVirtualMachines": {
+          "location": {
             "value": "[parameters('location')]"
           },
           "logAnalyticsWorkspaceRetention": {
@@ -6011,7 +6008,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.41.2.15936",
-              "templateHash": "13916959611250928659"
+              "templateHash": "4620011141314631182"
             }
           },
           "parameters": {
@@ -6048,10 +6045,7 @@
             "fslogixStorageService": {
               "type": "string"
             },
-            "locationControlPlane": {
-              "type": "string"
-            },
-            "locationVirtualMachines": {
+            "location": {
               "type": "string"
             },
             "logAnalyticsWorkspaceRetention": {
@@ -6110,7 +6104,7 @@
               "type": "Microsoft.Resources/resourceGroups",
               "apiVersion": "2023-07-01",
               "name": "[variables('resourceGroupManagement')]",
-              "location": "[parameters('locationControlPlane')]",
+              "location": "[parameters('location')]",
               "tags": "[union(createObject('cm-resource-parent', variables('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Resources/resourceGroups'), createObject()), parameters('mlzTags'))]"
             },
             {
@@ -6147,7 +6141,7 @@
                     "value": "[variables('hostPoolResourceId')]"
                   },
                   "location": {
-                    "value": "[parameters('locationVirtualMachines')]"
+                    "value": "[parameters('location')]"
                   },
                   "logAnalyticsWorkspaceRetention": {
                     "value": "[parameters('logAnalyticsWorkspaceRetention')]"
@@ -6540,7 +6534,7 @@
                 "mode": "Incremental",
                 "parameters": {
                   "location": {
-                    "value": "[parameters('locationVirtualMachines')]"
+                    "value": "[parameters('location')]"
                   },
                   "name": {
                     "value": "[replace(parameters('tier').namingConvention.userAssignedIdentity, parameters('tokens').purpose, 'deployment')]"
@@ -6681,7 +6675,7 @@
                     "value": "[variables('hostPoolResourceId')]"
                   },
                   "location": {
-                    "value": "[parameters('locationVirtualMachines')]"
+                    "value": "[parameters('location')]"
                   },
                   "mlzTags": {
                     "value": "[parameters('mlzTags')]"
@@ -6988,7 +6982,7 @@
                     "value": "[format('{0}{1}', parameters('privateDnsZoneResourceIdPrefix'), filter(parameters('privateDnsZones'), lambda('name', contains(lambdaVariables('name'), 'vaultcore')))[0])]"
                   },
                   "location": {
-                    "value": "[parameters('locationVirtualMachines')]"
+                    "value": "[parameters('location')]"
                   },
                   "resourceAbbreviations": {
                     "value": "[parameters('resourceAbbreviations')]"
@@ -7598,7 +7592,7 @@
                     "value": "[variables('hostPoolResourceId')]"
                   },
                   "location": {
-                    "value": "[parameters('locationVirtualMachines')]"
+                    "value": "[parameters('location')]"
                   },
                   "mlzTags": {
                     "value": "[parameters('mlzTags')]"

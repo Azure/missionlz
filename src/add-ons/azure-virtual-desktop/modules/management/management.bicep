@@ -12,8 +12,7 @@ param enableApplicationInsights bool
 param enableAvdInsights bool
 param environmentAbbreviation string
 param fslogixStorageService string
-param locationControlPlane string
-param locationVirtualMachines string
+param location string
 param logAnalyticsWorkspaceRetention int
 param logAnalyticsWorkspaceSku string
 param mlzTags object
@@ -37,7 +36,7 @@ var resourceGroupFslogix = replace(tier.namingConvention.resourceGroup, tokens.p
 
 resource resourceGroup 'Microsoft.Resources/resourceGroups@2023-07-01' = {
   name: resourceGroupManagement
-  location: locationControlPlane
+  location: location
   tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Resources/resourceGroups'] ?? {}, mlzTags)
 }
 
@@ -51,7 +50,7 @@ module monitoring 'monitoring.bicep' = if (enableApplicationInsights || enableAv
     deploymentNameSuffix: deploymentNameSuffix
     enableAvdInsights: enableAvdInsights
     hostPoolResourceId: hostPoolResourceId
-    location: locationVirtualMachines
+    location: location
     logAnalyticsWorkspaceRetention: logAnalyticsWorkspaceRetention
     logAnalyticsWorkspaceSku: logAnalyticsWorkspaceSku
     mlzTags: mlzTags
@@ -88,7 +87,7 @@ module deploymentUserAssignedIdentity 'user-assigned-identity.bicep' = {
   scope: resourceGroup
   name: 'deploy-id-deployment-${deploymentNameSuffix}'
   params: {
-    location: locationVirtualMachines
+    location: location
     name: replace(tier.namingConvention.userAssignedIdentity, tokens.purpose, 'deployment')
     tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.ManagedIdentity/userAssignedIdentities'] ?? {}, mlzTags)
   }
@@ -125,7 +124,7 @@ module diskAccess 'disk-access.bicep' = {
     azureBlobsPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(privateDnsZones, name => contains(name, 'blob'))[0]}'
     delimiter: delimiter
     hostPoolResourceId: hostPoolResourceId
-    location: locationVirtualMachines
+    location: location
     mlzTags: mlzTags
     names: tier.namingConvention
     subnetResourceId: tier.subnets[0].id
@@ -163,7 +162,7 @@ module customerManagedKeys '../../../../modules/customer-managed-keys.bicep' = {
     environmentAbbreviation: environmentAbbreviation
     keyName: replace(tier.namingConvention.diskEncryptionSet, tokens.purpose, 'cmk')
     keyVaultPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(privateDnsZones, name => contains(name, 'vaultcore'))[0]}'
-    location: locationVirtualMachines
+    location: location
     resourceAbbreviations: resourceAbbreviations
     subnetResourceId: tier.subnets[0].id
     tags: tags
@@ -188,7 +187,7 @@ module virtualMachine 'virtual-machine.bicep' = {
     domainJoinUserPrincipalName: domainJoinUserPrincipalName
     domainName: domainName
     hostPoolResourceId: hostPoolResourceId
-    location: locationVirtualMachines
+    location: location
     mlzTags: mlzTags
     networkInterfaceName: replace(tier.namingConvention.virtualMachineNetworkInterface, tokens.purpose, 'mgt')
     organizationalUnitPath: organizationalUnitPath
