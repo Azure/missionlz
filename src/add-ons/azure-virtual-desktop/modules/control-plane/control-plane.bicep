@@ -20,8 +20,7 @@ param imageOffer string
 param imagePublisher string
 param imageSku string
 param imageVersionResourceId string
-param locationControlPlane string
-param locationVirtualMachines string
+param location string
 param logAnalyticsWorkspaceResourceId string
 param managementVirtualMachineName string
 param maxSessionLimit int
@@ -66,7 +65,7 @@ module hostPool 'host-pool.bicep' = {
     hostPoolPublicNetworkAccess: hostPoolPublicNetworkAccess
     hostPoolType: hostPoolType
     imageType: imageType
-    location: locationControlPlane
+    location: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     maxSessionLimit: maxSessionLimit
     mlzTags: mlzTags
@@ -86,8 +85,7 @@ module applicationGroup 'application-group.bicep' = {
     deploymentUserAssignedIdentityClientId: deploymentUserAssignedIdentityClientId
     desktopApplicationGroupName: replace(namingConvention.applicationGroup, '${delimiter}${tokens.purpose}', '')
     hostPoolResourceId: hostPool.outputs.resourceId
-    locationControlPlane: locationControlPlane
-    locationVirtualMachines: locationVirtualMachines
+    location: location
     mlzTags: mlzTags
     securityPrincipalObjectIds: securityPrincipalObjectIds
     desktopFriendlyName: desktopFriendlyName
@@ -108,8 +106,7 @@ module workspace_feed 'workspace-feed.bicep' = {
     enableAvdInsights: enableAvdInsights
     existingFeedWorkspaceResourceId: existingFeedWorkspaceResourceId
     hostPoolResourceId: hostPool.outputs.resourceId
-    locationControlPlane: locationControlPlane
-    locationVirtualMachines: locationVirtualMachines
+    location: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     mlzTags: mlzTags
     resourceGroupManagement: resourceGroupManagement
@@ -120,7 +117,7 @@ module workspace_feed 'workspace-feed.bicep' = {
     workspaceFeedName: replace(replace(namingConvention.workspace, tokens.purpose, 'feed'), '${delimiter}${stampIndex}', '')
     workspaceFeedNetworkInterfaceName: replace(replace(namingConvention.workspaceNetworkInterface, tokens.purpose, 'feed'), '${delimiter}${stampIndex}', '')
     workspaceFeedPrivateEndpointName: replace(replace(namingConvention.workspacePrivateEndpoint, tokens.purpose, 'feed'), '${delimiter}${stampIndex}', '')
-    workspaceFriendlyName: empty(workspaceFriendlyName) ? replace(replace(namingConvention.workspace, '${delimiter}${tokens.purpose}', ''), '${delimiter}${stampIndex}', '') : '${workspaceFriendlyName} (${locationControlPlane})'
+    workspaceFriendlyName: empty(workspaceFriendlyName) ? replace(replace(namingConvention.workspace, '${delimiter}${tokens.purpose}', ''), '${delimiter}${stampIndex}', '') : '${workspaceFriendlyName} (${location})'
     workspacePublicNetworkAccess: workspacePublicNetworkAccess
   }
 }

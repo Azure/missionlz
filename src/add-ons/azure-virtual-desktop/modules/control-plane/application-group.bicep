@@ -3,8 +3,7 @@ param deploymentUserAssignedIdentityClientId string
 param desktopApplicationGroupName string
 param desktopFriendlyName string
 param hostPoolResourceId string
-param locationControlPlane string
-param locationVirtualMachines string
+param location string
 param mlzTags object
 param securityPrincipalObjectIds array
 param tags object
@@ -12,7 +11,7 @@ param virtualMachineName string
 
 resource applicationGroup 'Microsoft.DesktopVirtualization/applicationGroups@2023-09-05' = {
   name: desktopApplicationGroupName
-  location: locationControlPlane
+  location: location
   tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.DesktopVirtualization/applicationGroups'] ?? {}, mlzTags)
   properties: {
     hostPoolArmPath: hostPoolResourceId
@@ -25,7 +24,7 @@ resource applicationGroup 'Microsoft.DesktopVirtualization/applicationGroups@202
 module applicationFriendlyName '../common/run-command.bicep' = if (!empty(desktopFriendlyName)) {
   name: 'deploy-vdapp-friendly-name-${deploymentNameSuffix}'
   params: {
-    location: locationVirtualMachines
+    location: location
     name: 'Update-AvdDesktop'
     parameters: [
       {
