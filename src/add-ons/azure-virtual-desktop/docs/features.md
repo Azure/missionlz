@@ -16,3 +16,11 @@
 - [**SMB Multichannel**](./features/smb-multi-channel.md#smb-multichannel)
 - [**Start VM On Connect**](./features/start-vm-on-connect.md#start-vm-on-connect)
 - [**Trusted Launch**](./features/trusted-launch.md#trusted-launch)
+
+<!--
+Features to add:
+- Accelerated networking
+- Azure Files
+- Azure NetApp Files
+- Private Link
+-->
