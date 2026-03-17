@@ -1,22 +1,21 @@
-# Azure Virtual Desktop Solution
+# Azure Virtual Desktop Add-on
 
 [**Home**](../../README.md) | [**Features**](../features.md) | [**Design**](../design.md) | [**Prerequisites**](../prerequisites.md) | [**Troubleshooting**](../troubleshooting.md)
 
 ## Features
 
-- [**Auto Increase Premium File Share Quota**](./autoIncreasePremiumFileShareQuota.md#auto-increase-premium-file-share-quota)
+- [**ArcGIS Pro**](./arcgis-pro.md#arcgis-pro)
+- [**Auto Increase Premium File Share Quota**](./auto-increase-premium-file-share-quota.md#auto-increase-premium-file-share-quota)
 - [**Autoscale**](./autoscale.md#autoscale)
-- [**Backups**](./backups.md#backups)
-- [**Drain Mode**](./drainMode.md#drain-mode)
+- [**Drain Mode**](./drain-mode.md#drain-mode)
 - [**FSLogix**](./fslogix.md#fslogix)
 - [**GPU Drivers & Settings**](./gpu.md#gpu-drivers--settings)
-- [**High Availability**](./highAvailability.md#high-availability)
+- [**High Availability**](./high-availability.md#high-availability)
 - [**Monitoring**](./monitoring.md#monitoring)
-- [**Server-Side Encryption with Customer Managed Keys**](./serverSideEncryption.md#server-side-encryption)
-- [**SMB Multichannel**](./smbMultiChannel.md#smb-multichannel)
-- [**Start VM On Connect**](./startVmOnConnect.md#start-vm-on-connect)
-- [**Trusted Launch**](./trustedLaunch.md#trusted-launch)
-- [**Validation**](./validation.md#validation)
+- [**Server-Side Encryption with Customer Managed Keys**](./server-side-encryption.md#server-side-encryption-with-customer-managed-keys)
+- [**SMB Multichannel**](./smb-multi-channel.md#smb-multichannel)
+- [**Start VM On Connect**](./start-vm-on-connect.md#start-vm-on-connect)
+- [**Trusted Launch**](./trusted-launch.md#trusted-launch)
 
 ### Auto Increase Premium File Share Quota
 

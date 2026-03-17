@@ -1,4 +1,4 @@
-# Azure Virtual Desktop Solution
+# Azure Virtual Desktop Add-on
 
 [**Home**](../README.md) | [**Features**](./features.md) | [**Design**](./design.md) | [**Prerequisites**](./prerequisites.md) | [**Troubleshooting**](./troubleshooting.md)
 
@@ -6,7 +6,7 @@
 
 This Azure Virtual Desktop (AVD) solution will deploy a fully operational AVD [stamp](https://learn.microsoft.com/azure/architecture/patterns/deployment-stamp) in an Azure subscription. The "StampIndex" parameter in this solution allows each stamp to be identified and scale to the capacity of a single subscription. Either several small stamps or one large stamp could be deployed in one subscription.
 
-To uniquely name multiple, unrelated stamps within a subscription, input a unique value for the "Identifier" parameter in each deployment.  To name multiple related stamps, use the same value for the "Identifier" but increment the "StampIndex" across your subscriptions.
+To uniquely name multiple, unrelated stamps within a subscription, input a unique value for the "Identifier" parameter in each deployment. To name multiple related stamps, use the same value for the "Identifier" but increment the "StampIndex" across your deployments.
 
 ![Identifiers](../images/identifiers.png)
 
@@ -18,7 +18,7 @@ The code is idempotent, allowing you to scale storage and sessions hosts, but th
 
 Both a personal or pooled host pool can be deployed with this solution. Either option will deploy a desktop application group with a role assignment. Selecting a pooled host pool will deploy the required resources and configurations to fully enable FSLogix. This solution also automates many of the [features](./features.md) that are usually enabled manually after deploying an AVD host pool.
 
-With this solution you can scale up to Azure's subscription limitations. This solution has been updated to allow sharding. A shard provides additional capacity to an AVD stamp. See the details below for increasing storage capacity.
+With this solution you can scale up to Azure's subscription limitations. This solution has been updated to allow batching and sharding. Deployed resources are batched to adhere to the 800 rule per deployment. A shard provides additional capacity to an AVD stamp. See the details below for increasing storage capacity.
 
 ## Sharding to Increase Storage Capacity
 
@@ -228,4 +228,4 @@ var defaultFirewallRuleCollectionGroups = [
 ]
 var effectiveFirewallRuleCollectionGroups = empty(customFirewallRuleCollectionGroups) ? defaultFirewallRuleCollectionGroups : customFirewallRuleCollectionGroups
 
-
+```
