@@ -458,15 +458,33 @@
               ]
             },
             {
-              "name": "workspace",
+              "name": "workspaceSection",
               "type": "Microsoft.Common.Section",
               "visible": true,
               "label": "Workspace",
               "elements": [
                 {
+                  "name": "existingWorkspace",
+                  "type": "Microsoft.Common.CheckBox",
+                  "visible": true,
+                  "label": "Use existing feed workspace?",
+                  "defaultValue": false,
+                  "toolTip": "Choose whether to share an existing feed workspace. This allows for enhanced grouping of AVD resources in the Windows App or MSRDC client."
+                },
+                {
+                  "name": "workspace",
+                  "type": "Microsoft.Solutions.ResourceSelector",
+                  "visible": "[steps('controlPlane').workspaceSection.existingWorkspace]",
+                  "label": "Existing feed workspace",
+                  "resourceType": "Microsoft.DesktopVirtualization/workspaces",
+                  "constraints": {
+                    "required": true
+                  }
+                },
+                {
                   "name": "publicNetworkAccess",
                   "type": "Microsoft.Common.DropDown",
-                  "visible": true,
+                  "visible": "[not(steps('controlPlane').workspaceSection.existingWorkspace)]",
                   "label": "Public network access (feed)",
                   "defaultValue": "Enabled",
                   "multiLine": true,
@@ -588,7 +606,7 @@
                   "defaultValue": "",
                   "placeholder": "Example: Information Technology",
                   "toolTip": "Input the friendly name for the AVD workspace that will be displayed in the end user's client. This value should apply to all the stamp indexes within the same identifier and would mostly likely represent your business unit or project.",
-                  "visible": "[steps('controlPlane').friendlyNames.custom]",
+                  "visible": "[and(steps('controlPlane').friendlyNames.custom, not(steps('controlPlane').workspaceSection.existingWorkspace))]",
                   "constraints": {
                     "required": false,
                     "regex": "^.{1,64}$",
@@ -1841,6 +1859,7 @@
         "enableAvdInsights": "[steps('management').monitoring.enableAvdInsights]",
         "enableTelemetry": "[steps('basics').scenario.enablePartnerTelemetry]",
         "environmentAbbreviation": "[steps('basics').naming.environment]",
+        "existingFeedWorkspaceResourceId": "[if(steps('controlPlane').workspaceSection.existingWorkspace, steps('controlPlane').workspaceSection.workspace.id, '')]",
         "fslogixShareSizeInGB": "[if(equals(steps('profiles').profileSolution, 'local'), 100, steps('profiles').storage.fileShareSize)]",
         "fslogixContainerType": "[steps('profiles').storage.fslogixContainerType]",
         "fslogixOrganizationalUnitPath": "[steps('profiles').storage.ouPath]",
@@ -1887,9 +1906,9 @@
         "virtualMachineAdminPassword": "[steps('hosts').localAdminCredentials.localAdminPassword]",
         "virtualMachineAdminUsername": "[steps('hosts').localAdminCredentials.localAdminUsername]",
         "virtualMachineSize": "[if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Pooled')), steps('hosts').virtualMachines.sizeArcGisProMulti, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 6)), steps('hosts').virtualMachines.sizeArcGisProSingleLight, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 4)), steps('hosts').virtualMachines.sizeArcGisProSingleMedium, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 3)), steps('hosts').virtualMachines.sizeArcGisProSingleHeavy, steps('hosts').virtualMachines.sizeGeneric))))]",
-        "virtualMachineVirtualCpuCount": "[first(map(filter(first(map(filter(steps('basics').scenario.virtualMachineSkusApi.value, (item) => equals(item.name, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Pooled')), steps('hosts').virtualMachines.sizeArcGisProMulti, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 6)), steps('hosts').virtualMachines.sizeArcGisProSingleLight, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 4)), steps('hosts').virtualMachines.sizeArcGisProSingleMedium, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 3)), steps('hosts').virtualMachines.sizeArcGisProSingleHeavy, steps('hosts').virtualMachines.sizeGeneric)))))), (item) => item.capabilities)), (item) => equals(item.name, 'vCPUs')), (item) => item.value))]",
+        "virtualMachineVirtualCpuCount": "[parse(first(map(filter(first(map(filter(steps('basics').scenario.virtualMachineSkusApi.value, (item) => equals(item.name, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Pooled')), steps('hosts').virtualMachines.sizeArcGisProMulti, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 6)), steps('hosts').virtualMachines.sizeArcGisProSingleLight, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 4)), steps('hosts').virtualMachines.sizeArcGisProSingleMedium, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 3)), steps('hosts').virtualMachines.sizeArcGisProSingleHeavy, steps('hosts').virtualMachines.sizeGeneric)))))), (item) => item.capabilities)), (item) => equals(item.name, 'vCPUs')), (item) => item.value)))]",
         "workspaceFriendlyName": "[steps('controlPlane').friendlyNames.feedWorkspace]",
-        "workspacePublicNetworkAccess": "[steps('controlPlane').workspace.publicNetworkAccess]"
+        "workspacePublicNetworkAccess": "[steps('controlPlane').workspaceSection.publicNetworkAccess]"
       },
       "kind": "Subscription",
       "location": "[steps('basics').scope.location.name]",
