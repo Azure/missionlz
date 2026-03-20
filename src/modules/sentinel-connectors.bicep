@@ -1,18 +1,8 @@
 targetScope = 'resourceGroup'
 
-@description('Name of the Log Analytics workspace that hosts Microsoft Sentinel.')
-param workspaceName string
-
-@description('Tenant ID associated with the Microsoft Sentinel workspace.')
-param tenantId string
-
-@description('Toggle to deploy the Azure Activity data connector.')
+param connectorApiVersion string = '2022-11-01-preview'
 param enableAzureActivityConnector bool = true
-
-@description('Toggle to deploy the Microsoft Entra ID data connector.')
 param enableEntraIdConnector bool = true
-
-@description('Desired state (Enabled/Disabled) for each Microsoft Entra ID log type exposed by the data connector.')
 param entraDataTypeStates object = {
   SignInLogs: 'Enabled'
   AuditLogs: 'Enabled'
@@ -26,6 +16,7 @@ param entraDataTypeStates object = {
   RiskyServicePrincipals: 'Enabled'
   alerts: 'Enabled'
 }
+param workspaceName string
 
 var normalizedEntraDataTypes = {
   SignInLogs: {
@@ -63,9 +54,6 @@ var normalizedEntraDataTypes = {
   }
 }
 
-@description('API version to use when configuring the Microsoft Sentinel data connector.')
-param connectorApiVersion string = '2022-11-01-preview'
-
 resource workspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' existing = {
   name: workspaceName
 }
@@ -82,6 +70,7 @@ var entraConnectorPayload = string({
     dataTypes: normalizedEntraDataTypes
   }
 })
+var tenantId = tenant().tenantId
 
 // Created by sentinel-settings.bicep in the same resource group.
 resource sentinelScriptIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = {

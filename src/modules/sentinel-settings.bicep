@@ -41,7 +41,7 @@ param enableEntraDiagnostics bool = true
 param entraDiagnosticName string = 'diag-entra'
 
 @description('Resource ID of the Log Analytics workspace for Entra diagnostics.')
-param entraWorkspaceResourceId string = ''
+param logWorkspaceResourceId string = ''
 
 @description('Log categories to enable for Microsoft Entra ID diagnostics.')
 param entraLogCategories array = [
@@ -75,7 +75,7 @@ var shouldConfigureAnomaliesSetting = enableAnomalies
 // Keep backward compat variables for role assignments
 var shouldConfigureEntitySetting = enableEntityBehavior && deployEntityBehaviorSetting
 var shouldConfigureUebaSetting = enableUeba && deployUebaSetting
-var shouldConfigureEntraDiagnostics = enableEntraDiagnostics && !empty(entraWorkspaceResourceId)
+var shouldConfigureEntraDiagnostics = enableEntraDiagnostics && !empty(logWorkspaceResourceId)
 
 // Entra diagnostic settings payload
 var entraLogsConfig = [for category in entraLogCategories: {
@@ -88,7 +88,7 @@ var entraLogsConfig = [for category in entraLogCategories: {
 }]
 var entraDiagnosticPayload = string({
   properties: {
-    workspaceId: entraWorkspaceResourceId
+    workspaceId: logWorkspaceResourceId
     logs: entraLogsConfig
   }
 })

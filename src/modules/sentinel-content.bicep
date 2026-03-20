@@ -1,5 +1,3 @@
-targetScope = 'subscription'
-
 @description('Suffix appended to the deployment name so module executions remain unique per run.')
 param deploymentNameSuffix string
 
@@ -40,7 +38,6 @@ var workspaceResourceId = resourceId(workspaceSubscriptionId, workspaceResourceG
 
 module azureActivitySolution '../../sentinel/packages/azure-activity/mainTemplate.json' = if (deployAzureActivitySolution) {
   name: 'deploy-azure-activity-${deploymentNameSuffix}'
-  scope: resourceGroup(workspaceSubscriptionId, workspaceResourceGroupName)
   params: {
     location: workspaceLocation
     'workspace-location': workspaceLocation
@@ -52,7 +49,6 @@ module azureActivitySolution '../../sentinel/packages/azure-activity/mainTemplat
 
 module azureActivityWorkbook '../../sentinel/custom-workbooks/deploy/AzureActivity.workbook.template.json' = if (deployAzureActivitySolution && deployCustomWorkbooks) {
   name: 'deploy-workbook-azure-activity-${deploymentNameSuffix}'
-  scope: resourceGroup(workspaceSubscriptionId, workspaceResourceGroupName)
   params: {
     workspaceResourceId: workspaceResourceId
     location: workspaceLocation
@@ -62,7 +58,6 @@ module azureActivityWorkbook '../../sentinel/custom-workbooks/deploy/AzureActivi
 
 module azureServiceHealthWorkbook '../../sentinel/custom-workbooks/deploy/AzureServiceHealthWorkbook.workbook.template.json' = if (deployAzureActivitySolution && deployCustomWorkbooks) {
   name: 'deploy-workbook-azure-service-health-${deploymentNameSuffix}'
-  scope: resourceGroup(workspaceSubscriptionId, workspaceResourceGroupName)
   params: {
     workspaceResourceId: workspaceResourceId
     location: workspaceLocation
@@ -72,7 +67,6 @@ module azureServiceHealthWorkbook '../../sentinel/custom-workbooks/deploy/AzureS
 
 module microsoftEntraSolution '../../sentinel/packages/microsoft-entra-id/mainTemplate.json' = if (deployMicrosoftEntraSolution) {
   name: 'deploy-entra-solution-${deploymentNameSuffix}'
-  scope: resourceGroup(workspaceSubscriptionId, workspaceResourceGroupName)
   params: {
     location: workspaceLocation
     'workspace-location': workspaceLocation
@@ -84,7 +78,6 @@ module microsoftEntraSolution '../../sentinel/packages/microsoft-entra-id/mainTe
 
 module microsoftEntraAuditWorkbook '../../sentinel/custom-workbooks/deploy/AzureActiveDirectoryAuditLogs.workbook.template.json' = if (deployMicrosoftEntraSolution && deployCustomWorkbooks) {
   name: 'deploy-workbook-entra-audit-${deploymentNameSuffix}'
-  scope: resourceGroup(workspaceSubscriptionId, workspaceResourceGroupName)
   params: {
     workspaceResourceId: workspaceResourceId
     location: workspaceLocation
@@ -94,7 +87,6 @@ module microsoftEntraAuditWorkbook '../../sentinel/custom-workbooks/deploy/Azure
 
 module microsoftEntraSigninWorkbook '../../sentinel/custom-workbooks/deploy/AzureActiveDirectorySignins.workbook.template.json' = if (deployMicrosoftEntraSolution && deployCustomWorkbooks) {
   name: 'deploy-workbook-entra-signin-${deploymentNameSuffix}'
-  scope: resourceGroup(workspaceSubscriptionId, workspaceResourceGroupName)
   params: {
     workspaceResourceId: workspaceResourceId
     location: workspaceLocation

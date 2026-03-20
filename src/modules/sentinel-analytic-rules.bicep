@@ -1,48 +1,32 @@
 targetScope = 'resourceGroup'
 
-@description('Name of the Log Analytics workspace where Microsoft Sentinel is enabled.')
-param workspaceName string
-
-@description('Azure region used for deployment scripts.')
 param location string
-
-@description('Toggle to deploy Content Hub analytic rules as active scheduled rules.')
-param deployAnalyticRules bool = true
-
-@description('URL to the analytic rules manifest JSON file.')
-param analyticRulesManifestUrl string = 'https://raw.githubusercontent.com/sedmonds22/sedmonds-azsecurity-templates/main/content/analytic-rules-manifest.json'
-
-// Reference existing workspace
-resource workspace 'Microsoft.OperationalInsights/workspaces@2023-09-01' existing = {
-  name: workspaceName
-}
+param logAnalyticsWorkspaceResourceId string
 
 // Managed identity for the deployment script
-resource analyticRulesIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = if (deployAnalyticRules) {
+resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
   name: 'id-analytic-rules-${uniqueString(resourceGroup().id)}'
   location: location
 }
 
-// Role assignment: Microsoft Sentinel Contributor on workspace
-resource analyticRulesSentinelRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (deployAnalyticRules) {
-  name: guid(workspace.id, analyticRulesIdentity.id, 'ab8e14d6-4a74-4a29-9ba8-549422addade')
-  scope: workspace
-  properties: {
-    principalId: analyticRulesIdentity.properties.principalId
-    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'ab8e14d6-4a74-4a29-9ba8-549422addade') // Microsoft Sentinel Contributor
-    principalType: 'ServicePrincipal'
+module roleAssignment 'sentinel-analytic-rules-role-assignment.bicep' = {
+  name: 'sentinel-analytic-rules-role-assignment'
+  params: {
+    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
+    userAssignedIdentityPrincipalId: userAssignedIdentity.properties.principalId
+    userAssignedIdentityResourceId: userAssignedIdentity.id
   }
 }
 
 // Deployment script to deploy Content Hub analytic rules as active scheduled rules
-resource analyticRulesScript 'Microsoft.Resources/deploymentScripts@2020-10-01' = if (deployAnalyticRules) {
+resource analyticRulesScript 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   name: 'deploy-analytic-rules-${uniqueString(resourceGroup().id)}'
   location: location
   kind: 'AzureCLI'
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
-      '${analyticRulesIdentity.id}': {}
+      '${userAssignedIdentity.id}': {}
     }
   }
   properties: {
@@ -52,8 +36,8 @@ resource analyticRulesScript 'Microsoft.Resources/deploymentScripts@2020-10-01' 
     timeout: 'PT30M'
     environmentVariables: [
       {
-        name: 'WORKSPACE_NAME'
-        value: workspaceName
+        name: 'RULES_MANIFEST'
+        value: string(loadJsonContent('../data/sentinel-analytic-rules-manifest.json'))
       }
       {
         name: 'RESOURCE_GROUP'
@@ -64,24 +48,18 @@ resource analyticRulesScript 'Microsoft.Resources/deploymentScripts@2020-10-01' 
         value: subscription().subscriptionId
       }
       {
-        name: 'MANIFEST_URL'
-        value: analyticRulesManifestUrl
+        name: 'WORKSPACE_NAME'
+        value: split(logAnalyticsWorkspaceResourceId, '/')[8]
       }
     ]
     scriptContent: '''
       set -uo pipefail
 
+      manifest="$RULES_MANIFEST"
       workspaceName="$WORKSPACE_NAME"
       resourceGroup="$RESOURCE_GROUP"
       subscriptionId="$SUBSCRIPTION_ID"
-      manifestUrl="$MANIFEST_URL"
       apiVersion="2024-01-01-preview"
-
-      echo "INFO: Fetching analytic rules manifest from $manifestUrl"
-      manifest=$(wget -qO- "$manifestUrl") || {
-        echo "ERROR: Failed to fetch manifest from $manifestUrl" >&2
-        exit 1
-      }
 
       ruleCount=$(echo "$manifest" | jq -r '.ruleCount // 0')
       echo "INFO: Found $ruleCount rules to deploy"
@@ -192,8 +170,6 @@ resource analyticRulesScript 'Microsoft.Resources/deploymentScripts@2020-10-01' 
     '''
   }
   dependsOn: [
-    analyticRulesSentinelRole
+    roleAssignment
   ]
 }
-
-output analyticRulesDeployed bool = deployAnalyticRules

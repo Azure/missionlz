@@ -1,4 +1,4 @@
-targetScope = 'subscription'
+targetScope = 'resourceGroup'
 
 @description('Name of the Log Analytics workspace where Microsoft Sentinel is enabled.')
 param workspaceName string
@@ -6,23 +6,17 @@ param workspaceName string
 @description('Azure region for the workbook resources.')
 param location string
 
-@description('Resource group that contains the Microsoft Sentinel workspace.')
-param workspaceResourceGroupName string
-
-@description('Subscription identifier that contains the Microsoft Sentinel workspace.')
-param workspaceSubscriptionId string
-
 @description('Display name for the Azure Activity workbook.')
-param azureActivityWorkbookName string = 'Azure Activity'
+param azureActivityWorkbookName string
 
 @description('Display name for the Azure Service Health workbook.')
-param azureServiceHealthWorkbookName string = 'Azure Service Health Workbook'
+param azureServiceHealthWorkbookName string
 
 @description('Display name for the Microsoft Entra ID Audit logs workbook.')
-param entraAuditWorkbookName string = 'Microsoft Entra ID Audit logs'
+param entraAuditWorkbookName string
 
 @description('Display name for the Microsoft Entra ID Sign-in logs workbook.')
-param entraSigninWorkbookName string = 'Microsoft Entra ID Sign-in logs'
+param entraSigninWorkbookName string
 
 @description('Toggle to deploy the Azure Activity workbook.')
 param deployAzureActivityWorkbook bool = true
@@ -36,34 +30,88 @@ param deployEntraAuditWorkbook bool = true
 @description('Toggle to deploy the Entra Sign-in workbook.')
 param deployEntraSigninWorkbook bool = true
 
+resource workspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' existing = {
+  name: workspaceName
+}
+
+// Generate deterministic GUIDs based on workspace ID and workbook name
+// This ensures idempotent deployments - same input = same GUID
+var azureActivityGuid = guid(workspace.id, azureActivityWorkbookName)
+var serviceHealthGuid = guid(workspace.id, azureServiceHealthWorkbookName)
+var entraAuditGuid = guid(workspace.id, entraAuditWorkbookName)
+var entraSigninGuid = guid(workspace.id, entraSigninWorkbookName)
+
 // Load workbook content from JSON files
 var azureActivityContent = loadTextContent('../../sentinel/workbooks/AzureActivity.json')
 var serviceHealthContent = loadTextContent('../../sentinel/workbooks/AzureServiceHealthWorkbook.json')
 var entraAuditContent = loadTextContent('../../sentinel/workbooks/AzureActiveDirectoryAuditLogs.json')
 var entraSigninContent = loadTextContent('../../sentinel/workbooks/AzureActiveDirectorySignins.json')
 
-module workbooksDeployment 'sentinel-workbooks-rg.bicep' = {
-  name: 'deploy-workbooks-resources'
-  scope: resourceGroup(workspaceSubscriptionId, workspaceResourceGroupName)
-  params: {
-    workspaceName: workspaceName
-    location: location
-    azureActivityWorkbookName: azureActivityWorkbookName
-    azureServiceHealthWorkbookName: azureServiceHealthWorkbookName
-    entraAuditWorkbookName: entraAuditWorkbookName
-    entraSigninWorkbookName: entraSigninWorkbookName
-    deployAzureActivityWorkbook: deployAzureActivityWorkbook
-    deployServiceHealthWorkbook: deployServiceHealthWorkbook
-    deployEntraAuditWorkbook: deployEntraAuditWorkbook
-    deployEntraSigninWorkbook: deployEntraSigninWorkbook
-    azureActivityContent: azureActivityContent
-    serviceHealthContent: serviceHealthContent
-    entraAuditContent: entraAuditContent
-    entraSigninContent: entraSigninContent
+resource azureActivityWorkbook 'Microsoft.Insights/workbooks@2022-04-01' = if (deployAzureActivityWorkbook) {
+  name: azureActivityGuid
+  location: location
+  kind: 'shared'
+  tags: {
+    'hidden-title': azureActivityWorkbookName
+  }
+  properties: {
+    displayName: azureActivityWorkbookName
+    serializedData: azureActivityContent
+    version: '1.0'
+    sourceId: workspace.id
+    category: 'sentinel'
   }
 }
 
-output azureActivityWorkbookId string = workbooksDeployment.outputs.azureActivityWorkbookId
-output serviceHealthWorkbookId string = workbooksDeployment.outputs.serviceHealthWorkbookId
-output entraAuditWorkbookId string = workbooksDeployment.outputs.entraAuditWorkbookId
-output entraSigninWorkbookId string = workbooksDeployment.outputs.entraSigninWorkbookId
+resource serviceHealthWorkbook 'Microsoft.Insights/workbooks@2022-04-01' = if (deployServiceHealthWorkbook) {
+  name: serviceHealthGuid
+  location: location
+  kind: 'shared'
+  tags: {
+    'hidden-title': azureServiceHealthWorkbookName
+  }
+  properties: {
+    displayName: azureServiceHealthWorkbookName
+    serializedData: serviceHealthContent
+    version: '1.0'
+    sourceId: workspace.id
+    category: 'sentinel'
+  }
+}
+
+resource entraAuditWorkbook 'Microsoft.Insights/workbooks@2022-04-01' = if (deployEntraAuditWorkbook) {
+  name: entraAuditGuid
+  location: location
+  kind: 'shared'
+  tags: {
+    'hidden-title': entraAuditWorkbookName
+  }
+  properties: {
+    displayName: entraAuditWorkbookName
+    serializedData: entraAuditContent
+    version: '1.0'
+    sourceId: workspace.id
+    category: 'sentinel'
+  }
+}
+
+resource entraSigninWorkbook 'Microsoft.Insights/workbooks@2022-04-01' = if (deployEntraSigninWorkbook) {
+  name: entraSigninGuid
+  location: location
+  kind: 'shared'
+  tags: {
+    'hidden-title': entraSigninWorkbookName
+  }
+  properties: {
+    displayName: entraSigninWorkbookName
+    serializedData: entraSigninContent
+    version: '1.0'
+    sourceId: workspace.id
+    category: 'sentinel'
+  }
+}
+
+output azureActivityWorkbookId string = deployAzureActivityWorkbook ? azureActivityWorkbook.id : ''
+output serviceHealthWorkbookId string = deployServiceHealthWorkbook ? serviceHealthWorkbook.id : ''
+output entraAuditWorkbookId string = deployEntraAuditWorkbook ? entraAuditWorkbook.id : ''
+output entraSigninWorkbookId string = deployEntraSigninWorkbook ? entraSigninWorkbook.id : ''

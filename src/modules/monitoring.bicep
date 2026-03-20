@@ -7,23 +7,6 @@ targetScope = 'subscription'
 
 param deploymentNameSuffix string
 param deploySentinel bool
-param enableEntityBehavior bool
-param deployEntityBehaviorSetting bool
-param useEntityBehaviorScript bool = false
-param enableUeba bool
-param deployUebaSetting bool = true
-param useUebaScript bool = false
-param uebaDataSources array
-param enableAnomalies bool
-param deploySentinelAutomationScript bool = true
-param enableEntraDiagnostics bool = true
-param entraDiagnosticName string = 'diag-entra'
-param entraLogCategories array = []
-param enableEntraIdDataConnector bool = true
-param enableAzureActivityDataConnector bool = true
-param entraConnectorDataTypeStates object
-param tenantId string
-param sentinelAutomationPrincipalId string = ''
 param location string
 param logAnalyticsWorkspaceCappingDailyQuotaGb int
 param logAnalyticsWorkspaceRetentionInDays int
@@ -32,27 +15,24 @@ param mlzTags object
 param privateDnsZoneResourceIds object
 param tags object
 param tier object
-param securityResourceGroupName string = ''
-param securityNamingConvention object = {}
+param tokens object
 
-@description('Toggle to deploy Content Hub analytic rules as active scheduled rules.')
-param deployAnalyticRules bool = true
+var purpose = 'monitoring'
 
-@description('URL to the analytic rules manifest JSON file.')
-param analyticRulesManifestUrl string = 'https://raw.githubusercontent.com/Azure/missionlz/main/sentinel/analytic-rules-manifest.json'
-
-var targetResourceGroupName = !empty(securityResourceGroupName) ? securityResourceGroupName : tier.resourceGroupName
-var targetWorkspaceName = !empty(securityNamingConvention) ? securityNamingConvention.logAnalyticsWorkspace : tier.namingConvention.logAnalyticsWorkspace
-var targetPrivateLinkScopeName = !empty(securityNamingConvention) ? securityNamingConvention.privateLinkScope : tier.namingConvention.privateLinkScope
+resource resourceGroup 'Microsoft.Resources/resourceGroups@2019-05-01' = {
+  name: replace(tier.namingConvention.resourceGroup, tokens.purpose, purpose)
+  location: location
+  tags: union(tags[?'Microsoft.Resources/resourceGroups'] ?? {}, mlzTags)
+}
 
 module logAnalyticsWorkspace 'log-analytics-workspace.bicep' = {
   name: 'deploy-law-${deploymentNameSuffix}'
-  scope: resourceGroup(tier.subscriptionId, targetResourceGroupName)
+  scope: resourceGroup
   params: {
     deploySentinel: deploySentinel
     location: location
     mlzTags: mlzTags
-    name: targetWorkspaceName
+    name: replace(tier.namingConvention.logAnalyticsWorkspace, tokens.purpose, purpose)
     retentionInDays: logAnalyticsWorkspaceRetentionInDays
     skuName: logAnalyticsWorkspaceSkuName
     tags: tags
@@ -60,27 +40,26 @@ module logAnalyticsWorkspace 'log-analytics-workspace.bicep' = {
   }
 }
 
-
 module privateLinkScope 'private-link-scope.bicep' = {
   name: 'deploy-private-link-scope-${deploymentNameSuffix}'
-  scope: resourceGroup(tier.subscriptionId, targetResourceGroupName)
+  scope: resourceGroup
   params: {
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspace.outputs.resourceId
-    name: targetPrivateLinkScopeName
+    name: replace(tier.namingConvention.privateLinkScope, tokens.purpose, purpose)
   }
 }
 
 module privateEndpoint 'private-endpoint.bicep' = {
   name: 'deploy-private-endpoint-${deploymentNameSuffix}'
-  scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
+  scope: resourceGroup
   params: {
     groupIds: [
       'azuremonitor'
     ]
     location: location
     mlzTags: mlzTags
-    name: tier.namingConvention.privateLinkScopePrivateEndpoint
-    networkInterfaceName: tier.namingConvention.privateLinkScopeNetworkInterface
+    name: replace(tier.namingConvention.privateLinkScopePrivateEndpoint, tokens.purpose, purpose)
+    networkInterfaceName: replace(tier.namingConvention.privateLinkScopeNetworkInterface, tokens.purpose, purpose)
     privateDnsZoneConfigs: [
       {
         name: 'monitor'
@@ -117,61 +96,6 @@ module privateEndpoint 'private-endpoint.bicep' = {
     subnetResourceId: tier.subnetResourceId
     tags: tags
   }
-}
-
-module sentinelSettings 'sentinel-settings.bicep' = if (deploySentinel) {
-  name: 'configure-sentinel-settings-${deploymentNameSuffix}'
-  scope: resourceGroup(tier.subscriptionId, targetResourceGroupName)
-  params: {
-    workspaceName: targetWorkspaceName
-    location: location
-    enableEntityBehavior: enableEntityBehavior
-    deployEntityBehaviorSetting: deployEntityBehaviorSetting
-    useEntityBehaviorScript: useEntityBehaviorScript
-    enableUeba: enableUeba
-    deployUebaSetting: deployUebaSetting
-    useUebaScript: useUebaScript
-    uebaDataSources: uebaDataSources
-    enableAnomalies: enableAnomalies
-    deploySentinelAutomationScript: deploySentinelAutomationScript
-    sentinelAutomationPrincipalId: sentinelAutomationPrincipalId
-    enableEntraDiagnostics: enableEntraDiagnostics
-    entraDiagnosticName: entraDiagnosticName
-    entraWorkspaceResourceId: logAnalyticsWorkspace.outputs.resourceId
-    entraLogCategories: entraLogCategories
-  }
-  dependsOn: [
-    logAnalyticsWorkspace
-  ]
-}
-
-module sentinelConnectors 'sentinel-connectors.bicep' = if (deploySentinel && (enableEntraIdDataConnector || enableAzureActivityDataConnector)) {
-  name: 'configure-sentinel-connectors-${deploymentNameSuffix}'
-  scope: resourceGroup(tier.subscriptionId, targetResourceGroupName)
-  params: {
-    workspaceName: targetWorkspaceName
-    tenantId: tenantId
-    enableAzureActivityConnector: enableAzureActivityDataConnector
-    enableEntraIdConnector: enableEntraIdDataConnector
-    entraDataTypeStates: entraConnectorDataTypeStates
-  }
-  dependsOn: [
-    sentinelSettings
-  ]
-}
-
-module sentinelAnalyticRules 'sentinel-analytic-rules.bicep' = if (deploySentinel && deployAnalyticRules) {
-  name: 'deploy-sentinel-analytic-rules-${deploymentNameSuffix}'
-  scope: resourceGroup(tier.subscriptionId, targetResourceGroupName)
-  params: {
-    workspaceName: targetWorkspaceName
-    location: location
-    deployAnalyticRules: deployAnalyticRules
-    analyticRulesManifestUrl: analyticRulesManifestUrl
-  }
-  dependsOn: [
-    sentinelSettings
-  ]
 }
 
 output logAnalyticsWorkspaceResourceId string = logAnalyticsWorkspace.outputs.resourceId
