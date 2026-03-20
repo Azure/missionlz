@@ -140,44 +140,6 @@ param deployPolicy bool = false
 @description('When set to "true", enables Microsoft Sentinel within the Log Analytics Workspace created in this deployment. Default value = "false".')
 param deploySentinel bool = false
 
-// @description('Data sources that enrich UEBA insights.')
-// param uebaDataSources array = [
-//   'SigninLogs'
-//   'AuditLogs'
-//   'AzureActivity'
-// ]
-
-// @description('Desired state for each Microsoft Entra ID log type exposed by the Microsoft Sentinel data connector.')
-// param entraDataConnectorLogStates object = {
-//   SignInLogs: 'Enabled'
-//   AuditLogs: 'Enabled'
-//   NonInteractiveUserSignInLogs: 'Enabled'
-//   ServicePrincipalSignInLogs: 'Enabled'
-//   ManagedIdentitySignInLogs: 'Enabled'
-//   ProvisioningLogs: 'Enabled'
-//   ADFSSignInLogs: 'Enabled'
-//   UserRiskEvents: 'Enabled'
-//   RiskyUsers: 'Enabled'
-//   RiskyServicePrincipals: 'Enabled'
-//   alerts: 'Enabled'
-// }
-
-
-// @description('Log categories to enable for Microsoft Entra ID diagnostics.')
-// param entraLogCategories array = [
-//   'AuditLogs'
-//   'SignInLogs'
-//   'NonInteractiveUserSignInLogs'
-//   'ServicePrincipalSignInLogs'
-//   'ManagedIdentitySignInLogs'
-//   'ProvisioningLogs'
-//   'ADFSSignInLogs'
-//   'RiskyUsers'
-//   'RiskyServicePrincipals'
-//   'UserRiskEvents'
-//   'ServicePrincipalRiskEvents'
-// ]
-
 @description('When set to "true", provisions Windows Virtual Machine Host only. Default value = "false".')
 param deployWindowsVirtualMachine bool = false
 
