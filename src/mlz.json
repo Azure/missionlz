@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.41.2.15936",
-      "templateHash": "7796170655005132911"
+      "templateHash": "14377667038432935760"
     }
   },
   "parameters": {
@@ -5217,7 +5217,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.41.2.15936",
-              "templateHash": "7661028758676380535"
+              "templateHash": "7496913508694479441"
             }
           },
           "parameters": {
@@ -5288,7 +5288,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.41.2.15936",
-                      "templateHash": "16327822015380001473"
+                      "templateHash": "6499606235871376431"
                     }
                   },
                   "parameters": {
@@ -5306,45 +5306,27 @@
                     },
                     "enableEntityBehavior": {
                       "type": "bool",
-                      "defaultValue": true,
-                      "metadata": {
-                        "description": "Toggle to configure the Entity Behavior Analytics setting."
-                      }
+                      "defaultValue": true
                     },
                     "deployEntityBehaviorSetting": {
                       "type": "bool",
-                      "defaultValue": true,
-                      "metadata": {
-                        "description": "Skip provisioning the Entity Behavior Analytics setting when it already exists to avoid concurrency conflicts."
-                      }
+                      "defaultValue": true
                     },
                     "useEntityBehaviorScript": {
                       "type": "bool",
-                      "defaultValue": true,
-                      "metadata": {
-                        "description": "Use the deployment script to upsert Entity Behavior. Set to true for idempotent updates (recommended). Set to false for native Bicep (new deployments only)."
-                      }
+                      "defaultValue": true
                     },
                     "enableUeba": {
                       "type": "bool",
-                      "defaultValue": true,
-                      "metadata": {
-                        "description": "Toggle to configure UEBA data sources and ensure they participate in the ML fusion models."
-                      }
+                      "defaultValue": true
                     },
                     "deployUebaSetting": {
                       "type": "bool",
-                      "defaultValue": true,
-                      "metadata": {
-                        "description": "Skip provisioning the UEBA setting when it already exists to avoid concurrency conflicts."
-                      }
+                      "defaultValue": true
                     },
                     "useUebaScript": {
                       "type": "bool",
-                      "defaultValue": true,
-                      "metadata": {
-                        "description": "Use the deployment script to upsert UEBA. Set to true for idempotent updates (recommended). Set to false for native Bicep (new deployments only)."
-                      }
+                      "defaultValue": true
                     },
                     "uebaDataSources": {
                       "type": "array",
@@ -5352,38 +5334,22 @@
                         "SigninLogs",
                         "AuditLogs",
                         "AzureActivity"
-                      ],
-                      "metadata": {
-                        "description": "Data sources that enrich UEBA insights."
-                      }
+                      ]
                     },
                     "enableAnomalies": {
                       "type": "bool",
-                      "defaultValue": true,
-                      "metadata": {
-                        "description": "Toggle to ensure Microsoft Sentinel anomaly detection remains enabled."
-                      }
+                      "defaultValue": true
                     },
                     "enableEntraDiagnostics": {
                       "type": "bool",
-                      "defaultValue": true,
-                      "metadata": {
-                        "description": "Toggle to configure Microsoft Entra ID diagnostic settings."
-                      }
+                      "defaultValue": true
                     },
                     "entraDiagnosticName": {
                       "type": "string",
-                      "defaultValue": "diag-entra",
-                      "metadata": {
-                        "description": "Name of the Microsoft Entra ID diagnostic setting."
-                      }
+                      "defaultValue": "diag-entra"
                     },
                     "logWorkspaceResourceId": {
-                      "type": "string",
-                      "defaultValue": "",
-                      "metadata": {
-                        "description": "Resource ID of the Log Analytics workspace for Entra diagnostics."
-                      }
+                      "type": "string"
                     },
                     "entraLogCategories": {
                       "type": "array",
@@ -5399,24 +5365,15 @@
                         "RiskyServicePrincipals",
                         "UserRiskEvents",
                         "ServicePrincipalRiskEvents"
-                      ],
-                      "metadata": {
-                        "description": "Log categories to enable for Microsoft Entra ID diagnostics."
-                      }
+                      ]
                     },
                     "sentinelAutomationPrincipalId": {
                       "type": "string",
-                      "defaultValue": "",
-                      "metadata": {
-                        "description": "Optional override for the Azure Security Insights service principal object ID if discovery via Microsoft Graph is restricted."
-                      }
+                      "defaultValue": ""
                     },
                     "deploySentinelAutomationScript": {
                       "type": "bool",
-                      "defaultValue": true,
-                      "metadata": {
-                        "description": "Toggle to run the deployment script that discovers and assigns the Sentinel automation service principal. Disable when you plan to handle the automation role manually later."
-                      }
+                      "defaultValue": true
                     }
                   },
                   "variables": {
@@ -11562,88 +11519,52 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.41.2.15936",
-                      "templateHash": "14572083779753731619"
+                      "templateHash": "6946567327431447144"
                     }
                   },
                   "parameters": {
-                    "deploymentNameSuffix": {
-                      "type": "string",
-                      "metadata": {
-                        "description": "Suffix appended to the deployment name so module executions remain unique per run."
-                      }
-                    },
-                    "workspaceName": {
-                      "type": "string",
-                      "metadata": {
-                        "description": "Name of the Log Analytics workspace where Microsoft Sentinel is enabled."
-                      }
-                    },
-                    "workspaceLocation": {
-                      "type": "string",
-                      "metadata": {
-                        "description": "Azure region that hosts the Log Analytics workspace."
-                      }
-                    },
-                    "workspaceResourceGroupName": {
-                      "type": "string",
-                      "metadata": {
-                        "description": "Resource group that contains the Microsoft Sentinel workspace."
-                      }
-                    },
-                    "workspaceSubscriptionId": {
-                      "type": "string",
-                      "metadata": {
-                        "description": "Subscription identifier that contains the Microsoft Sentinel workspace."
-                      }
-                    },
                     "azureActivityWorkbookName": {
                       "type": "string",
-                      "defaultValue": "Azure Activity",
-                      "metadata": {
-                        "description": "Display name assigned to the Azure Activity workbook that ships with the solution package."
-                      }
+                      "defaultValue": "Azure Activity"
                     },
                     "azureServiceHealthWorkbookName": {
                       "type": "string",
-                      "defaultValue": "Azure Service Health Workbook",
-                      "metadata": {
-                        "description": "Display name assigned to the Azure Service Health workbook included in the Azure Activity solution package."
-                      }
-                    },
-                    "entraAuditWorkbookName": {
-                      "type": "string",
-                      "defaultValue": "Microsoft Entra ID Audit logs",
-                      "metadata": {
-                        "description": "Display name assigned to the Microsoft Entra ID audit workbook that ships with the solution package."
-                      }
-                    },
-                    "entraSigninWorkbookName": {
-                      "type": "string",
-                      "defaultValue": "Microsoft Entra ID Sign-in logs",
-                      "metadata": {
-                        "description": "Display name assigned to the Microsoft Entra ID sign-in workbook that ships with the solution package."
-                      }
+                      "defaultValue": "Azure Service Health Workbook"
                     },
                     "deployAzureActivitySolution": {
                       "type": "bool",
-                      "defaultValue": true,
-                      "metadata": {
-                        "description": "Toggle to install the Azure Activity Microsoft Sentinel solution when Microsoft Sentinel is enabled."
-                      }
-                    },
-                    "deployMicrosoftEntraSolution": {
-                      "type": "bool",
-                      "defaultValue": true,
-                      "metadata": {
-                        "description": "Toggle to install the Microsoft Entra ID Microsoft Sentinel solution when Microsoft Sentinel is enabled."
-                      }
+                      "defaultValue": true
                     },
                     "deployCustomWorkbooks": {
                       "type": "bool",
-                      "defaultValue": false,
-                      "metadata": {
-                        "description": "Deploy custom workbooks in addition to Content Hub solutions. Set to false to avoid duplicate workbooks."
-                      }
+                      "defaultValue": false
+                    },
+                    "deploymentNameSuffix": {
+                      "type": "string"
+                    },
+                    "deployMicrosoftEntraSolution": {
+                      "type": "bool",
+                      "defaultValue": true
+                    },
+                    "entraAuditWorkbookName": {
+                      "type": "string",
+                      "defaultValue": "Microsoft Entra ID Audit logs"
+                    },
+                    "entraSigninWorkbookName": {
+                      "type": "string",
+                      "defaultValue": "Microsoft Entra ID Sign-in logs"
+                    },
+                    "workspaceLocation": {
+                      "type": "string"
+                    },
+                    "workspaceName": {
+                      "type": "string"
+                    },
+                    "workspaceResourceGroupName": {
+                      "type": "string"
+                    },
+                    "workspaceSubscriptionId": {
+                      "type": "string"
                     }
                   },
                   "variables": {
@@ -35283,73 +35204,43 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.41.2.15936",
-                      "templateHash": "10715262349815195246"
+                      "templateHash": "4513236022786414751"
                     }
                   },
                   "parameters": {
-                    "workspaceName": {
-                      "type": "string",
-                      "metadata": {
-                        "description": "Name of the Log Analytics workspace where Microsoft Sentinel is enabled."
-                      }
-                    },
-                    "location": {
-                      "type": "string",
-                      "metadata": {
-                        "description": "Azure region for the workbook resources."
-                      }
-                    },
                     "azureActivityWorkbookName": {
-                      "type": "string",
-                      "metadata": {
-                        "description": "Display name for the Azure Activity workbook."
-                      }
+                      "type": "string"
                     },
                     "azureServiceHealthWorkbookName": {
-                      "type": "string",
-                      "metadata": {
-                        "description": "Display name for the Azure Service Health workbook."
-                      }
-                    },
-                    "entraAuditWorkbookName": {
-                      "type": "string",
-                      "metadata": {
-                        "description": "Display name for the Microsoft Entra ID Audit logs workbook."
-                      }
-                    },
-                    "entraSigninWorkbookName": {
-                      "type": "string",
-                      "metadata": {
-                        "description": "Display name for the Microsoft Entra ID Sign-in logs workbook."
-                      }
+                      "type": "string"
                     },
                     "deployAzureActivityWorkbook": {
                       "type": "bool",
-                      "defaultValue": true,
-                      "metadata": {
-                        "description": "Toggle to deploy the Azure Activity workbook."
-                      }
-                    },
-                    "deployServiceHealthWorkbook": {
-                      "type": "bool",
-                      "defaultValue": true,
-                      "metadata": {
-                        "description": "Toggle to deploy the Azure Service Health workbook."
-                      }
+                      "defaultValue": true
                     },
                     "deployEntraAuditWorkbook": {
                       "type": "bool",
-                      "defaultValue": true,
-                      "metadata": {
-                        "description": "Toggle to deploy the Entra Audit workbook."
-                      }
+                      "defaultValue": true
                     },
                     "deployEntraSigninWorkbook": {
                       "type": "bool",
-                      "defaultValue": true,
-                      "metadata": {
-                        "description": "Toggle to deploy the Entra Sign-in workbook."
-                      }
+                      "defaultValue": true
+                    },
+                    "deployServiceHealthWorkbook": {
+                      "type": "bool",
+                      "defaultValue": true
+                    },
+                    "entraAuditWorkbookName": {
+                      "type": "string"
+                    },
+                    "entraSigninWorkbookName": {
+                      "type": "string"
+                    },
+                    "location": {
+                      "type": "string"
+                    },
+                    "workspaceName": {
+                      "type": "string"
                     }
                   },
                   "variables": {

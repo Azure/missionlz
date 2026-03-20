@@ -37,7 +37,7 @@ resource analyticRulesScript 'Microsoft.Resources/deploymentScripts@2020-10-01' 
     environmentVariables: [
       {
         name: 'RULES_MANIFEST'
-        value: string(loadJsonContent('../data/sentinel-analytic-rules-manifest.json'))
+        value: string(loadJsonContent('../data/sentinel/analytic-rules-manifest.json'))
       }
       {
         name: 'RESOURCE_GROUP'

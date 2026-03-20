@@ -5,45 +5,21 @@ param workspaceName string
 
 @description('Azure region used for ancillary operations such as deployment scripts.')
 param location string
-
-@description('Toggle to configure the Entity Behavior Analytics setting.')
 param enableEntityBehavior bool = true
-
-@description('Skip provisioning the Entity Behavior Analytics setting when it already exists to avoid concurrency conflicts.')
 param deployEntityBehaviorSetting bool = true
-
-@description('Use the deployment script to upsert Entity Behavior. Set to true for idempotent updates (recommended). Set to false for native Bicep (new deployments only).')
 param useEntityBehaviorScript bool = true
-
-@description('Toggle to configure UEBA data sources and ensure they participate in the ML fusion models.')
 param enableUeba bool = true
-
-@description('Skip provisioning the UEBA setting when it already exists to avoid concurrency conflicts.')
 param deployUebaSetting bool = true
-
-@description('Use the deployment script to upsert UEBA. Set to true for idempotent updates (recommended). Set to false for native Bicep (new deployments only).')
 param useUebaScript bool = true
-
-@description('Data sources that enrich UEBA insights.')
 param uebaDataSources array = [
   'SigninLogs'
   'AuditLogs'
   'AzureActivity'
 ]
-
-@description('Toggle to ensure Microsoft Sentinel anomaly detection remains enabled.')
 param enableAnomalies bool = true
-
-@description('Toggle to configure Microsoft Entra ID diagnostic settings.')
 param enableEntraDiagnostics bool = true
-
-@description('Name of the Microsoft Entra ID diagnostic setting.')
 param entraDiagnosticName string = 'diag-entra'
-
-@description('Resource ID of the Log Analytics workspace for Entra diagnostics.')
-param logWorkspaceResourceId string = ''
-
-@description('Log categories to enable for Microsoft Entra ID diagnostics.')
+param logWorkspaceResourceId string
 param entraLogCategories array = [
   'AuditLogs'
   'SignInLogs'
@@ -57,11 +33,7 @@ param entraLogCategories array = [
   'UserRiskEvents'
   'ServicePrincipalRiskEvents'
 ]
-
-@description('Optional override for the Azure Security Insights service principal object ID if discovery via Microsoft Graph is restricted.')
 param sentinelAutomationPrincipalId string = ''
-
-@description('Toggle to run the deployment script that discovers and assigns the Sentinel automation service principal. Disable when you plan to handle the automation role manually later.')
 param deploySentinelAutomationScript bool = true
 
 var sentinelAutomationContributorRoleDefinitionGuid = 'f4c81013-99ee-4d62-a7ee-b3f1f648599a'

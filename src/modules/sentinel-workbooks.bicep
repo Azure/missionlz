@@ -1,34 +1,13 @@
-targetScope = 'resourceGroup'
-
-@description('Name of the Log Analytics workspace where Microsoft Sentinel is enabled.')
-param workspaceName string
-
-@description('Azure region for the workbook resources.')
-param location string
-
-@description('Display name for the Azure Activity workbook.')
 param azureActivityWorkbookName string
-
-@description('Display name for the Azure Service Health workbook.')
 param azureServiceHealthWorkbookName string
-
-@description('Display name for the Microsoft Entra ID Audit logs workbook.')
-param entraAuditWorkbookName string
-
-@description('Display name for the Microsoft Entra ID Sign-in logs workbook.')
-param entraSigninWorkbookName string
-
-@description('Toggle to deploy the Azure Activity workbook.')
 param deployAzureActivityWorkbook bool = true
-
-@description('Toggle to deploy the Azure Service Health workbook.')
-param deployServiceHealthWorkbook bool = true
-
-@description('Toggle to deploy the Entra Audit workbook.')
 param deployEntraAuditWorkbook bool = true
-
-@description('Toggle to deploy the Entra Sign-in workbook.')
 param deployEntraSigninWorkbook bool = true
+param deployServiceHealthWorkbook bool = true
+param entraAuditWorkbookName string
+param entraSigninWorkbookName string
+param location string
+param workspaceName string
 
 resource workspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' existing = {
   name: workspaceName
@@ -42,10 +21,10 @@ var entraAuditGuid = guid(workspace.id, entraAuditWorkbookName)
 var entraSigninGuid = guid(workspace.id, entraSigninWorkbookName)
 
 // Load workbook content from JSON files
-var azureActivityContent = loadTextContent('../../sentinel/workbooks/AzureActivity.json')
-var serviceHealthContent = loadTextContent('../../sentinel/workbooks/AzureServiceHealthWorkbook.json')
-var entraAuditContent = loadTextContent('../../sentinel/workbooks/AzureActiveDirectoryAuditLogs.json')
-var entraSigninContent = loadTextContent('../../sentinel/workbooks/AzureActiveDirectorySignins.json')
+var azureActivityContent = loadTextContent('../data/sentinel/workbooks/AzureActivity.json')
+var serviceHealthContent = loadTextContent('../data/sentinel/workbooks/AzureServiceHealthWorkbook.json')
+var entraAuditContent = loadTextContent('../data/sentinel/workbooks/AzureActiveDirectoryAuditLogs.json')
+var entraSigninContent = loadTextContent('../data/sentinel/workbooks/AzureActiveDirectorySignins.json')
 
 resource azureActivityWorkbook 'Microsoft.Insights/workbooks@2022-04-01' = if (deployAzureActivityWorkbook) {
   name: azureActivityGuid
