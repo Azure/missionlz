@@ -1,12 +1,16 @@
 param applicationGroupResourceId string
 param avdPrivateDnsZoneResourceId string
+param deploymentNameSuffix string
+param deploymentUserAssignedIdentityClientId string
 param enableAvdInsights bool
+param existingFeedWorkspaceResourceId string
 param hostPoolResourceId string
 param location string
 param logAnalyticsWorkspaceResourceId string
 param mlzTags object
 param subnetResourceId string
 param tags object
+param virtualMachineName string
 param workspaceFeedDiagnoticSettingName string
 param workspaceFeedName string
 param workspaceFeedNetworkInterfaceName string
@@ -14,7 +18,36 @@ param workspaceFeedPrivateEndpointName string
 param workspaceFriendlyName string
 param workspacePublicNetworkAccess string
 
-resource workspace 'Microsoft.DesktopVirtualization/workspaces@2023-09-05' = {
+module addApplicationGroups '../common/run-command.bicep' = if (!empty(existingFeedWorkspaceResourceId)) {
+  name: 'add-vdag-references-${deploymentNameSuffix}'
+  params: {
+    location: location
+    name: 'Update-AvdWorkspace'
+    parameters: [
+      {
+        name: 'ApplicationGroupResourceId'
+        value: applicationGroupResourceId
+      }
+      {
+        name: 'ResourceManagerUri'
+        value: environment().resourceManager
+      }
+      {
+        name: 'UserAssignedIdentityClientId'
+        value: deploymentUserAssignedIdentityClientId
+      }
+      {
+        name: 'WorkspaceResourceId'
+        value: existingFeedWorkspaceResourceId
+      }
+    ]
+    script: loadTextContent('../../artifacts/Update-AvdWorkspace.ps1')
+    tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Compute/virtualMachines'] ?? {}, mlzTags)
+    virtualMachineName: virtualMachineName
+  }
+}
+
+resource workspace 'Microsoft.DesktopVirtualization/workspaces@2023-09-05' = if (empty(existingFeedWorkspaceResourceId)) {
   name: workspaceFeedName
   location: location
   tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.DesktopVirtualization/workspaces'] ?? {}, mlzTags)
@@ -27,7 +60,7 @@ resource workspace 'Microsoft.DesktopVirtualization/workspaces@2023-09-05' = {
   }
 }
 
-resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = {
+resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = if (empty(existingFeedWorkspaceResourceId)) {
   name: workspaceFeedPrivateEndpointName
   location: location
   tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Network/privateEndpoints'] ?? {}, mlzTags)
@@ -50,7 +83,7 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = {
   }
 }
 
-resource privateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-05-01' = {
+resource privateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-05-01' = if (empty(existingFeedWorkspaceResourceId)) {
   parent: privateEndpoint
   name: 'default'
   properties: {
@@ -65,7 +98,7 @@ resource privateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneG
   }
 }
 
-resource diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (enableAvdInsights) {
+resource diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (enableAvdInsights && empty(existingFeedWorkspaceResourceId)) {
   name: workspaceFeedDiagnoticSettingName
   scope: workspace
   properties: {

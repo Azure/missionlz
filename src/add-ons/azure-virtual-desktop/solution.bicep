@@ -100,6 +100,9 @@ param enableWindowsUpdateFwRules bool = false
 @description('The abbreviation for the target environment.')
 param environmentAbbreviation string = 'dev'
 
+@description('The resource ID for the existing feed workspace within a business unit or project.')
+param existingFeedWorkspaceResourceId string = ''
+
 @description('The file share size(s) in GB for the Fslogix storage solution.')
 param fslogixShareSizeInGB int = 100
 
@@ -706,6 +709,7 @@ module management 'modules/management/management.bicep' = {
     enableApplicationInsights: enableApplicationInsights
     enableAvdInsights: enableAvdInsights
     environmentAbbreviation: environmentAbbreviation
+    existingFeedWorkspaceResourceId: existingFeedWorkspaceResourceId
     fslogixStorageService: fslogixStorageService
     hostPoolPublicNetworkAccess: hostPoolPublicNetworkAccess
     hostPoolType: hostPoolType
@@ -725,7 +729,6 @@ module management 'modules/management/management.bicep' = {
     privateLinkScopeResourceId: privateLinkScopeResourceId
     resourceAbbreviations: virtualNetwork.outputs.resourceAbbreviations
     securityPrincipalObjectIds: map(securityPrincipals, item => item.objectId)
-    stampIndex: stampIndex
     subnetResourceId: virtualNetwork.outputs.tier.subnetResourceId
     tags: tags
     tier: virtualNetwork.outputs.tier

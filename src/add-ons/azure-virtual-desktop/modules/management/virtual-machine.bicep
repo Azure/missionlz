@@ -1,3 +1,4 @@
+param activeDirectorySolution string
 param deploymentUserAssignedIdentityPrincipalId string
 param deploymentUserAssignedIdentityResourceId string
 param diskEncryptionSetResourceId string
@@ -173,7 +174,7 @@ resource extension_GuestAttestation 'Microsoft.Compute/virtualMachines/extension
   }
 }
 
-resource extension_JsonADDomainExtension 'Microsoft.Compute/virtualMachines/extensions@2019-07-01' = {
+resource extension_JsonADDomainExtension 'Microsoft.Compute/virtualMachines/extensions@2019-07-01' = if (contains(activeDirectorySolution, 'DomainServices')) {
   parent: virtualMachine
   name: 'JsonADDomainExtension'
   location: location

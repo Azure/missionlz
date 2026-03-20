@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.41.2.15936",
-      "templateHash": "15523920221771790958"
+      "templateHash": "2926603352254137478"
     }
   },
   "parameters": {
@@ -208,6 +208,13 @@
       ],
       "metadata": {
         "description": "The abbreviation for the target environment."
+      }
+    },
+    "existingFeedWorkspaceResourceId": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The resource ID for the existing feed workspace within a business unit or project."
       }
     },
     "fslogixShareSizeInGB": {
@@ -5957,6 +5964,9 @@
           "environmentAbbreviation": {
             "value": "[parameters('environmentAbbreviation')]"
           },
+          "existingFeedWorkspaceResourceId": {
+            "value": "[parameters('existingFeedWorkspaceResourceId')]"
+          },
           "fslogixStorageService": {
             "value": "[parameters('fslogixStorageService')]"
           },
@@ -6014,9 +6024,6 @@
           "securityPrincipalObjectIds": {
             "value": "[map(parameters('securityPrincipals'), lambda('item', lambdaVariables('item').objectId))]"
           },
-          "stampIndex": {
-            "value": "[parameters('stampIndex')]"
-          },
           "subnetResourceId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-avd-vnet-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tier.value.subnetResourceId]"
           },
@@ -6055,7 +6062,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.41.2.15936",
-              "templateHash": "4922281226419353121"
+              "templateHash": "439858000988884976"
             }
           },
           "parameters": {
@@ -6102,6 +6109,9 @@
               "type": "bool"
             },
             "environmentAbbreviation": {
+              "type": "string"
+            },
+            "existingFeedWorkspaceResourceId": {
               "type": "string"
             },
             "fslogixStorageService": {
@@ -6160,9 +6170,6 @@
             },
             "securityPrincipalObjectIds": {
               "type": "array"
-            },
-            "stampIndex": {
-              "type": "int"
             },
             "subnetResourceId": {
               "type": "string"
@@ -6264,9 +6271,6 @@
                   "privateLinkScopeResourceId": {
                     "value": "[parameters('privateLinkScopeResourceId')]"
                   },
-                  "stampIndex": {
-                    "value": "[parameters('stampIndex')]"
-                  },
                   "tags": {
                     "value": "[parameters('tags')]"
                   },
@@ -6281,7 +6285,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.41.2.15936",
-                      "templateHash": "453318080624641170"
+                      "templateHash": "14822008110526451293"
                     }
                   },
                   "parameters": {
@@ -6315,9 +6319,6 @@
                     "privateLinkScopeResourceId": {
                       "type": "string"
                     },
-                    "stampIndex": {
-                      "type": "int"
-                    },
                     "tags": {
                       "type": "object"
                     },
@@ -6329,7 +6330,7 @@
                     {
                       "type": "Microsoft.OperationalInsights/workspaces",
                       "apiVersion": "2021-06-01",
-                      "name": "[replace(replace(parameters('names').logAnalyticsWorkspace, parameters('tokens').purpose, 'avdi'), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), '')]",
+                      "name": "[replace(parameters('names').logAnalyticsWorkspace, parameters('tokens').purpose, 'avdi')]",
                       "location": "[parameters('location')]",
                       "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.OperationalInsights/workspaces'), createObject()), parameters('mlzTags'))]",
                       "properties": {
@@ -6348,7 +6349,7 @@
                       "condition": "[parameters('enableAvdInsights')]",
                       "type": "Microsoft.Insights/dataCollectionRules",
                       "apiVersion": "2022-06-01",
-                      "name": "[format('microsoft-avdi-{0}', replace(replace(parameters('names').dataCollectionRule, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), ''), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''))]",
+                      "name": "[format('microsoft-avdi-{0}', replace(parameters('names').dataCollectionRule, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), ''))]",
                       "location": "[parameters('location')]",
                       "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Insights/dataCollectionRules'), createObject()), parameters('mlzTags'))]",
                       "kind": "Windows",
@@ -6409,7 +6410,7 @@
                         "destinations": {
                           "logAnalytics": [
                             {
-                              "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', replace(replace(parameters('names').logAnalyticsWorkspace, parameters('tokens').purpose, 'avdi'), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''))]",
+                              "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', replace(parameters('names').logAnalyticsWorkspace, parameters('tokens').purpose, 'avdi'))]",
                               "name": "la-workspace"
                             }
                           ]
@@ -6427,14 +6428,14 @@
                         ]
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.OperationalInsights/workspaces', replace(replace(parameters('names').logAnalyticsWorkspace, parameters('tokens').purpose, 'avdi'), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''))]"
+                        "[resourceId('Microsoft.OperationalInsights/workspaces', replace(parameters('names').logAnalyticsWorkspace, parameters('tokens').purpose, 'avdi'))]"
                       ]
                     },
                     {
                       "condition": "[parameters('enableAvdInsights')]",
                       "type": "Microsoft.Insights/dataCollectionEndpoints",
                       "apiVersion": "2021-04-01",
-                      "name": "[replace(replace(parameters('names').dataCollectionEndpoint, parameters('tokens').purpose, 'avdi'), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), '')]",
+                      "name": "[replace(parameters('names').dataCollectionEndpoint, parameters('tokens').purpose, 'avdi')]",
                       "location": "[parameters('location')]",
                       "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Insights/dataCollectionEndpoints'), createObject()), parameters('mlzTags'))]",
                       "kind": "Windows",
@@ -6457,7 +6458,7 @@
                         "mode": "Incremental",
                         "parameters": {
                           "logAnalyticsWorkspaceResourceId": {
-                            "value": "[resourceId('Microsoft.OperationalInsights/workspaces', replace(replace(parameters('names').logAnalyticsWorkspace, parameters('tokens').purpose, 'avdi'), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''))]"
+                            "value": "[resourceId('Microsoft.OperationalInsights/workspaces', replace(parameters('names').logAnalyticsWorkspace, parameters('tokens').purpose, 'avdi'))]"
                           },
                           "privateLinkScopeResourceId": {
                             "value": "[parameters('privateLinkScopeResourceId')]"
@@ -6522,7 +6523,7 @@
                         }
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.OperationalInsights/workspaces', replace(replace(parameters('names').logAnalyticsWorkspace, parameters('tokens').purpose, 'avdi'), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''))]"
+                        "[resourceId('Microsoft.OperationalInsights/workspaces', replace(parameters('names').logAnalyticsWorkspace, parameters('tokens').purpose, 'avdi'))]"
                       ]
                     },
                     {
@@ -6539,7 +6540,7 @@
                         "mode": "Incremental",
                         "parameters": {
                           "dataCollectionEndpointResourceId": {
-                            "value": "[resourceId('Microsoft.Insights/dataCollectionEndpoints', replace(replace(parameters('names').dataCollectionEndpoint, parameters('tokens').purpose, 'avdi'), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''))]"
+                            "value": "[resourceId('Microsoft.Insights/dataCollectionEndpoints', replace(parameters('names').dataCollectionEndpoint, parameters('tokens').purpose, 'avdi'))]"
                           },
                           "privateLinkScopeResourceId": {
                             "value": "[parameters('privateLinkScopeResourceId')]"
@@ -6604,22 +6605,22 @@
                         }
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Insights/dataCollectionEndpoints', replace(replace(parameters('names').dataCollectionEndpoint, parameters('tokens').purpose, 'avdi'), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''))]"
+                        "[resourceId('Microsoft.Insights/dataCollectionEndpoints', replace(parameters('names').dataCollectionEndpoint, parameters('tokens').purpose, 'avdi'))]"
                       ]
                     }
                   ],
                   "outputs": {
                     "logAnalyticsWorkspaceName": {
                       "type": "string",
-                      "value": "[replace(replace(parameters('names').logAnalyticsWorkspace, parameters('tokens').purpose, 'avdi'), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), '')]"
+                      "value": "[replace(parameters('names').logAnalyticsWorkspace, parameters('tokens').purpose, 'avdi')]"
                     },
                     "logAnalyticsWorkspaceResourceId": {
                       "type": "string",
-                      "value": "[resourceId('Microsoft.OperationalInsights/workspaces', replace(replace(parameters('names').logAnalyticsWorkspace, parameters('tokens').purpose, 'avdi'), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''))]"
+                      "value": "[resourceId('Microsoft.OperationalInsights/workspaces', replace(parameters('names').logAnalyticsWorkspace, parameters('tokens').purpose, 'avdi'))]"
                     },
                     "dataCollectionRuleResourceId": {
                       "type": "string",
-                      "value": "[if(parameters('enableAvdInsights'), resourceId('Microsoft.Insights/dataCollectionRules', format('microsoft-avdi-{0}', replace(replace(parameters('names').dataCollectionRule, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), ''), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''))), '')]"
+                      "value": "[if(parameters('enableAvdInsights'), resourceId('Microsoft.Insights/dataCollectionRules', format('microsoft-avdi-{0}', replace(parameters('names').dataCollectionRule, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), ''))), '')]"
                     }
                   }
                 }
@@ -7001,7 +7002,7 @@
                     "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-disk-access-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.resourceId.value]"
                   },
                   "location": {
-                    "value": "[reference(subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('resourceGroupManagement')), '2023-07-01', 'full').location]"
+                    "value": "[parameters('location')]"
                   },
                   "policyDefinitionId": {
                     "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('deploy-policy-disks-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.policyDefinitionId.value]"
@@ -7670,6 +7671,9 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
+                  "activeDirectorySolution": {
+                    "value": "[parameters('activeDirectorySolution')]"
+                  },
                   "deploymentUserAssignedIdentityPrincipalId": {
                     "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-id-deployment-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.principalId.value]"
                   },
@@ -7735,10 +7739,13 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.41.2.15936",
-                      "templateHash": "11872233806922832534"
+                      "templateHash": "16837947911694173146"
                     }
                   },
                   "parameters": {
+                    "activeDirectorySolution": {
+                      "type": "string"
+                    },
                     "deploymentUserAssignedIdentityPrincipalId": {
                       "type": "string"
                     },
@@ -7966,6 +7973,7 @@
                       ]
                     },
                     {
+                      "condition": "[contains(parameters('activeDirectorySolution'), 'DomainServices')]",
                       "type": "Microsoft.Compute/virtualMachines/extensions",
                       "apiVersion": "2019-07-01",
                       "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'JsonADDomainExtension')]",
@@ -8040,9 +8048,6 @@
                   "delegatedSubnetResourceId": {
                     "value": "[filter(parameters('tier').subnets, lambda('subnet', contains(lambdaVariables('subnet').name, 'function-app-outbound')))[0].id]"
                   },
-                  "delimiter": {
-                    "value": "[parameters('delimiter')]"
-                  },
                   "deploymentNameSuffix": {
                     "value": "[parameters('deploymentNameSuffix')]"
                   },
@@ -8074,9 +8079,6 @@
                   "resourceGroupFslogix": {
                     "value": "[variables('resourceGroupFslogix')]"
                   },
-                  "stampIndex": {
-                    "value": "[parameters('stampIndex')]"
-                  },
                   "subnetResourceId": {
                     "value": "[parameters('tier').subnets[0].id]"
                   },
@@ -8094,14 +8096,11 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.41.2.15936",
-                      "templateHash": "16798600396572759484"
+                      "templateHash": "4389523935786919005"
                     }
                   },
                   "parameters": {
                     "delegatedSubnetResourceId": {
-                      "type": "string"
-                    },
-                    "delimiter": {
                       "type": "string"
                     },
                     "deploymentNameSuffix": {
@@ -8145,9 +8144,6 @@
                     "resourceGroupFslogix": {
                       "type": "string"
                     },
-                    "stampIndex": {
-                      "type": "int"
-                    },
                     "subnetResourceId": {
                       "type": "string"
                     },
@@ -8170,26 +8166,26 @@
                       {
                         "name": "blob",
                         "id": "[format('{0}{1}', parameters('privateDnsZoneResourceIdPrefix'), filter(parameters('privateDnsZones'), lambda('name', contains(lambdaVariables('name'), 'blob')))[0])]",
-                        "nic": "[replace(replace(parameters('names').storageAccountBlobNetworkInterface, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), '')]",
-                        "pe": "[replace(replace(parameters('names').storageAccountBlobPrivateEndpoint, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), '')]"
+                        "nic": "[replace(parameters('names').storageAccountBlobNetworkInterface, parameters('tokens').purpose, variables('purpose'))]",
+                        "pe": "[replace(parameters('names').storageAccountBlobPrivateEndpoint, parameters('tokens').purpose, variables('purpose'))]"
                       },
                       {
                         "name": "file",
                         "id": "[format('{0}{1}', parameters('privateDnsZoneResourceIdPrefix'), filter(parameters('privateDnsZones'), lambda('name', contains(lambdaVariables('name'), 'file')))[0])]",
-                        "nic": "[replace(replace(parameters('names').storageAccountFileNetworkInterface, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), '')]",
-                        "pe": "[replace(replace(parameters('names').storageAccountFilePrivateEndpoint, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), '')]"
+                        "nic": "[replace(parameters('names').storageAccountFileNetworkInterface, parameters('tokens').purpose, variables('purpose'))]",
+                        "pe": "[replace(parameters('names').storageAccountFilePrivateEndpoint, parameters('tokens').purpose, variables('purpose'))]"
                       },
                       {
                         "name": "queue",
                         "id": "[format('{0}{1}', parameters('privateDnsZoneResourceIdPrefix'), filter(parameters('privateDnsZones'), lambda('name', contains(lambdaVariables('name'), 'queue')))[0])]",
-                        "nic": "[replace(replace(parameters('names').storageAccountQueueNetworkInterface, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), '')]",
-                        "pe": "[replace(replace(parameters('names').storageAccountQueuePrivateEndpoint, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), '')]"
+                        "nic": "[replace(parameters('names').storageAccountQueueNetworkInterface, parameters('tokens').purpose, variables('purpose'))]",
+                        "pe": "[replace(parameters('names').storageAccountQueuePrivateEndpoint, parameters('tokens').purpose, variables('purpose'))]"
                       },
                       {
                         "name": "table",
                         "id": "[format('{0}{1}', parameters('privateDnsZoneResourceIdPrefix'), filter(parameters('privateDnsZones'), lambda('name', contains(lambdaVariables('name'), 'table')))[0])]",
-                        "nic": "[replace(replace(parameters('names').storageAccountTableNetworkInterface, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), '')]",
-                        "pe": "[replace(replace(parameters('names').storageAccountTablePrivateEndpoint, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), '')]"
+                        "nic": "[replace(parameters('names').storageAccountTableNetworkInterface, parameters('tokens').purpose, variables('purpose'))]",
+                        "pe": "[replace(parameters('names').storageAccountTablePrivateEndpoint, parameters('tokens').purpose, variables('purpose'))]"
                       }
                     ]
                   },
@@ -8197,14 +8193,14 @@
                     {
                       "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
                       "apiVersion": "2023-01-31",
-                      "name": "[replace(replace(parameters('names').userAssignedIdentity, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), '')]",
+                      "name": "[replace(parameters('names').userAssignedIdentity, parameters('tokens').purpose, variables('purpose'))]",
                       "location": "[parameters('location')]",
                       "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.ManagedIdentity/userAssignedIdentities'), createObject()), parameters('mlzTags'))]"
                     },
                     {
                       "type": "Microsoft.KeyVault/vaults",
                       "apiVersion": "2022-07-01",
-                      "name": "[uniqueString(replace(replace(parameters('names').keyVault, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''), resourceGroup().id)]",
+                      "name": "[uniqueString(replace(parameters('names').keyVault, parameters('tokens').purpose, variables('purpose')), resourceGroup().id)]",
                       "location": "[parameters('location')]",
                       "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.KeyVault/vaults'), createObject()), parameters('mlzTags'))]",
                       "properties": {
@@ -8232,31 +8228,31 @@
                     {
                       "type": "Microsoft.Authorization/roleAssignments",
                       "apiVersion": "2020-04-01-preview",
-                      "scope": "[resourceId('Microsoft.KeyVault/vaults', uniqueString(replace(replace(parameters('names').keyVault, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''), resourceGroup().id))]",
-                      "name": "[guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', replace(replace(parameters('names').userAssignedIdentity, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), '')), 'e147488a-f6f5-4113-8e2d-b22465e65bf6', resourceId('Microsoft.KeyVault/vaults', uniqueString(replace(replace(parameters('names').keyVault, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''), resourceGroup().id)))]",
+                      "scope": "[resourceId('Microsoft.KeyVault/vaults', uniqueString(replace(parameters('names').keyVault, parameters('tokens').purpose, variables('purpose')), resourceGroup().id))]",
+                      "name": "[guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', replace(parameters('names').userAssignedIdentity, parameters('tokens').purpose, variables('purpose'))), 'e147488a-f6f5-4113-8e2d-b22465e65bf6', resourceId('Microsoft.KeyVault/vaults', uniqueString(replace(parameters('names').keyVault, parameters('tokens').purpose, variables('purpose')), resourceGroup().id)))]",
                       "properties": {
-                        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', replace(replace(parameters('names').userAssignedIdentity, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), '')), '2023-01-31').principalId]",
+                        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', replace(parameters('names').userAssignedIdentity, parameters('tokens').purpose, variables('purpose'))), '2023-01-31').principalId]",
                         "principalType": "ServicePrincipal",
                         "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'e147488a-f6f5-4113-8e2d-b22465e65bf6')]"
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', replace(replace(parameters('names').userAssignedIdentity, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''))]",
-                        "[resourceId('Microsoft.KeyVault/vaults', uniqueString(replace(replace(parameters('names').keyVault, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''), resourceGroup().id))]"
+                        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', replace(parameters('names').userAssignedIdentity, parameters('tokens').purpose, variables('purpose')))]",
+                        "[resourceId('Microsoft.KeyVault/vaults', uniqueString(replace(parameters('names').keyVault, parameters('tokens').purpose, variables('purpose')), resourceGroup().id))]"
                       ]
                     },
                     {
                       "type": "Microsoft.Network/privateEndpoints",
                       "apiVersion": "2023-04-01",
-                      "name": "[replace(replace(parameters('names').keyVaultPrivateEndpoint, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), '')]",
+                      "name": "[replace(parameters('names').keyVaultPrivateEndpoint, parameters('tokens').purpose, variables('purpose'))]",
                       "location": "[parameters('location')]",
                       "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Network/privateEndpoints'), createObject()), parameters('mlzTags'))]",
                       "properties": {
-                        "customNetworkInterfaceName": "[replace(replace(parameters('names').keyVaultNetworkInterface, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), '')]",
+                        "customNetworkInterfaceName": "[replace(parameters('names').keyVaultNetworkInterface, parameters('tokens').purpose, variables('purpose'))]",
                         "privateLinkServiceConnections": [
                           {
-                            "name": "[replace(replace(parameters('names').keyVaultPrivateEndpoint, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), '')]",
+                            "name": "[replace(parameters('names').keyVaultPrivateEndpoint, parameters('tokens').purpose, variables('purpose'))]",
                             "properties": {
-                              "privateLinkServiceId": "[resourceId('Microsoft.KeyVault/vaults', uniqueString(replace(replace(parameters('names').keyVault, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''), resourceGroup().id))]",
+                              "privateLinkServiceId": "[resourceId('Microsoft.KeyVault/vaults', uniqueString(replace(parameters('names').keyVault, parameters('tokens').purpose, variables('purpose')), resourceGroup().id))]",
                               "groupIds": [
                                 "vault"
                               ]
@@ -8268,13 +8264,13 @@
                         }
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.KeyVault/vaults', uniqueString(replace(replace(parameters('names').keyVault, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''), resourceGroup().id))]"
+                        "[resourceId('Microsoft.KeyVault/vaults', uniqueString(replace(parameters('names').keyVault, parameters('tokens').purpose, variables('purpose')), resourceGroup().id))]"
                       ]
                     },
                     {
                       "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                       "apiVersion": "2021-08-01",
-                      "name": "[format('{0}/{1}', replace(replace(parameters('names').keyVaultPrivateEndpoint, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''), uniqueString(replace(replace(parameters('names').keyVault, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''), resourceGroup().id))]",
+                      "name": "[format('{0}/{1}', replace(parameters('names').keyVaultPrivateEndpoint, parameters('tokens').purpose, variables('purpose')), uniqueString(replace(parameters('names').keyVault, parameters('tokens').purpose, variables('purpose')), resourceGroup().id))]",
                       "properties": {
                         "privateDnsZoneConfigs": [
                           {
@@ -8286,14 +8282,14 @@
                         ]
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Network/privateEndpoints', replace(replace(parameters('names').keyVaultPrivateEndpoint, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''))]",
-                        "[resourceId('Microsoft.KeyVault/vaults', uniqueString(replace(replace(parameters('names').keyVault, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''), resourceGroup().id))]"
+                        "[resourceId('Microsoft.Network/privateEndpoints', replace(parameters('names').keyVaultPrivateEndpoint, parameters('tokens').purpose, variables('purpose')))]",
+                        "[resourceId('Microsoft.KeyVault/vaults', uniqueString(replace(parameters('names').keyVault, parameters('tokens').purpose, variables('purpose')), resourceGroup().id))]"
                       ]
                     },
                     {
                       "type": "Microsoft.KeyVault/vaults/keys",
                       "apiVersion": "2022-07-01",
-                      "name": "[format('{0}/{1}', uniqueString(replace(replace(parameters('names').keyVault, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''), resourceGroup().id), 'StorageEncryptionKey')]",
+                      "name": "[format('{0}/{1}', uniqueString(replace(parameters('names').keyVault, parameters('tokens').purpose, variables('purpose')), resourceGroup().id), 'StorageEncryptionKey')]",
                       "properties": {
                         "attributes": {
                           "enabled": true
@@ -8325,13 +8321,13 @@
                         }
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.KeyVault/vaults', uniqueString(replace(replace(parameters('names').keyVault, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''), resourceGroup().id))]"
+                        "[resourceId('Microsoft.KeyVault/vaults', uniqueString(replace(parameters('names').keyVault, parameters('tokens').purpose, variables('purpose')), resourceGroup().id))]"
                       ]
                     },
                     {
                       "type": "Microsoft.Storage/storageAccounts",
                       "apiVersion": "2022-09-01",
-                      "name": "[uniqueString(replace(replace(parameters('names').storageAccount, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''), resourceGroup().id)]",
+                      "name": "[uniqueString(replace(parameters('names').storageAccount, parameters('tokens').purpose, variables('purpose')), resourceGroup().id)]",
                       "location": "[parameters('location')]",
                       "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Storage/storageAccounts'), createObject()), parameters('mlzTags'))]",
                       "sku": {
@@ -8341,7 +8337,7 @@
                       "identity": {
                         "type": "UserAssigned",
                         "userAssignedIdentities": {
-                          "[format('{0}', resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', replace(replace(parameters('names').userAssignedIdentity, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), '')))]": {}
+                          "[format('{0}', resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', replace(parameters('names').userAssignedIdentity, parameters('tokens').purpose, variables('purpose'))))]": {}
                         }
                       },
                       "properties": {
@@ -8357,11 +8353,11 @@
                         "dnsEndpointType": "Standard",
                         "encryption": {
                           "identity": {
-                            "userAssignedIdentity": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', replace(replace(parameters('names').userAssignedIdentity, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''))]"
+                            "userAssignedIdentity": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', replace(parameters('names').userAssignedIdentity, parameters('tokens').purpose, variables('purpose')))]"
                           },
                           "requireInfrastructureEncryption": true,
                           "keyvaultproperties": {
-                            "keyvaulturi": "[reference(resourceId('Microsoft.KeyVault/vaults', uniqueString(replace(replace(parameters('names').keyVault, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''), resourceGroup().id)), '2022-07-01').vaultUri]",
+                            "keyvaulturi": "[reference(resourceId('Microsoft.KeyVault/vaults', uniqueString(replace(parameters('names').keyVault, parameters('tokens').purpose, variables('purpose')), resourceGroup().id)), '2022-07-01').vaultUri]",
                             "keyname": "StorageEncryptionKey"
                           },
                           "services": {
@@ -8396,20 +8392,20 @@
                         "supportsHttpsTrafficOnly": true
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.KeyVault/vaults/keys', uniqueString(replace(replace(parameters('names').keyVault, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''), resourceGroup().id), 'StorageEncryptionKey')]",
-                        "[resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups', replace(replace(parameters('names').keyVaultPrivateEndpoint, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''), uniqueString(replace(replace(parameters('names').keyVault, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''), resourceGroup().id))]",
-                        "[resourceId('Microsoft.Network/privateEndpoints', replace(replace(parameters('names').keyVaultPrivateEndpoint, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''))]",
-                        "[extensionResourceId(resourceId('Microsoft.KeyVault/vaults', uniqueString(replace(replace(parameters('names').keyVault, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''), resourceGroup().id)), 'Microsoft.Authorization/roleAssignments', guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', replace(replace(parameters('names').userAssignedIdentity, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), '')), 'e147488a-f6f5-4113-8e2d-b22465e65bf6', resourceId('Microsoft.KeyVault/vaults', uniqueString(replace(replace(parameters('names').keyVault, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''), resourceGroup().id))))]",
-                        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', replace(replace(parameters('names').userAssignedIdentity, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''))]",
-                        "[resourceId('Microsoft.KeyVault/vaults', uniqueString(replace(replace(parameters('names').keyVault, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''), resourceGroup().id))]"
+                        "[resourceId('Microsoft.KeyVault/vaults/keys', uniqueString(replace(parameters('names').keyVault, parameters('tokens').purpose, variables('purpose')), resourceGroup().id), 'StorageEncryptionKey')]",
+                        "[resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups', replace(parameters('names').keyVaultPrivateEndpoint, parameters('tokens').purpose, variables('purpose')), uniqueString(replace(parameters('names').keyVault, parameters('tokens').purpose, variables('purpose')), resourceGroup().id))]",
+                        "[resourceId('Microsoft.Network/privateEndpoints', replace(parameters('names').keyVaultPrivateEndpoint, parameters('tokens').purpose, variables('purpose')))]",
+                        "[extensionResourceId(resourceId('Microsoft.KeyVault/vaults', uniqueString(replace(parameters('names').keyVault, parameters('tokens').purpose, variables('purpose')), resourceGroup().id)), 'Microsoft.Authorization/roleAssignments', guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', replace(parameters('names').userAssignedIdentity, parameters('tokens').purpose, variables('purpose'))), 'e147488a-f6f5-4113-8e2d-b22465e65bf6', resourceId('Microsoft.KeyVault/vaults', uniqueString(replace(parameters('names').keyVault, parameters('tokens').purpose, variables('purpose')), resourceGroup().id))))]",
+                        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', replace(parameters('names').userAssignedIdentity, parameters('tokens').purpose, variables('purpose')))]",
+                        "[resourceId('Microsoft.KeyVault/vaults', uniqueString(replace(parameters('names').keyVault, parameters('tokens').purpose, variables('purpose')), resourceGroup().id))]"
                       ]
                     },
                     {
                       "type": "Microsoft.Storage/storageAccounts/blobServices",
                       "apiVersion": "2021-09-01",
-                      "name": "[format('{0}/{1}', uniqueString(replace(replace(parameters('names').storageAccount, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''), resourceGroup().id), 'default')]",
+                      "name": "[format('{0}/{1}', uniqueString(replace(parameters('names').storageAccount, parameters('tokens').purpose, variables('purpose')), resourceGroup().id), 'default')]",
                       "dependsOn": [
-                        "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(replace(replace(parameters('names').storageAccount, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''), resourceGroup().id))]"
+                        "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(replace(parameters('names').storageAccount, parameters('tokens').purpose, variables('purpose')), resourceGroup().id))]"
                       ]
                     },
                     {
@@ -8428,7 +8424,7 @@
                           {
                             "name": "[variables('storageSubResources')[copyIndex()].pe]",
                             "properties": {
-                              "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(replace(replace(parameters('names').storageAccount, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''), resourceGroup().id))]",
+                              "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(replace(parameters('names').storageAccount, parameters('tokens').purpose, variables('purpose')), resourceGroup().id))]",
                               "groupIds": [
                                 "[variables('storageSubResources')[copyIndex()].name]"
                               ]
@@ -8440,7 +8436,7 @@
                         }
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(replace(replace(parameters('names').storageAccount, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''), resourceGroup().id))]"
+                        "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(replace(parameters('names').storageAccount, parameters('tokens').purpose, variables('purpose')), resourceGroup().id))]"
                       ]
                     },
                     {
@@ -8450,7 +8446,7 @@
                       },
                       "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                       "apiVersion": "2021-08-01",
-                      "name": "[format('{0}/{1}', variables('storageSubResources')[copyIndex()].pe, uniqueString(replace(replace(parameters('names').storageAccount, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''), resourceGroup().id))]",
+                      "name": "[format('{0}/{1}', variables('storageSubResources')[copyIndex()].pe, uniqueString(replace(parameters('names').storageAccount, parameters('tokens').purpose, variables('purpose')), resourceGroup().id))]",
                       "properties": {
                         "privateDnsZoneConfigs": [
                           {
@@ -8463,15 +8459,15 @@
                       },
                       "dependsOn": [
                         "[resourceId('Microsoft.Network/privateEndpoints', variables('storageSubResources')[copyIndex()].pe)]",
-                        "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(replace(replace(parameters('names').storageAccount, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''), resourceGroup().id))]"
+                        "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(replace(parameters('names').storageAccount, parameters('tokens').purpose, variables('purpose')), resourceGroup().id))]"
                       ]
                     },
                     {
                       "condition": "[parameters('enableApplicationInsights')]",
                       "type": "Microsoft.Insights/diagnosticSettings",
                       "apiVersion": "2021-05-01-preview",
-                      "scope": "[resourceId('Microsoft.Storage/storageAccounts/blobServices', uniqueString(replace(replace(parameters('names').storageAccount, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''), resourceGroup().id), 'default')]",
-                      "name": "[replace(replace(parameters('names').storageAccountBlobDiagnosticSetting, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), '')]",
+                      "scope": "[resourceId('Microsoft.Storage/storageAccounts/blobServices', uniqueString(replace(parameters('names').storageAccount, parameters('tokens').purpose, variables('purpose')), resourceGroup().id), 'default')]",
+                      "name": "[replace(parameters('names').storageAccountBlobDiagnosticSetting, parameters('tokens').purpose, variables('purpose'))]",
                       "properties": {
                         "logs": [
                           {
@@ -8488,14 +8484,14 @@
                         "workspaceId": "[parameters('logAnalyticsWorkspaceResourceId')]"
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Storage/storageAccounts/blobServices', uniqueString(replace(replace(parameters('names').storageAccount, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''), resourceGroup().id), 'default')]"
+                        "[resourceId('Microsoft.Storage/storageAccounts/blobServices', uniqueString(replace(parameters('names').storageAccount, parameters('tokens').purpose, variables('purpose')), resourceGroup().id), 'default')]"
                       ]
                     },
                     {
                       "condition": "[parameters('enableApplicationInsights')]",
                       "type": "Microsoft.Insights/components",
                       "apiVersion": "2020-02-02",
-                      "name": "[replace(replace(parameters('names').applicationInsights, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), '')]",
+                      "name": "[replace(parameters('names').applicationInsights, parameters('tokens').purpose, variables('purpose'))]",
                       "location": "[parameters('location')]",
                       "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Insights/components'), createObject()), parameters('mlzTags'))]",
                       "properties": {
@@ -8509,7 +8505,7 @@
                     {
                       "type": "Microsoft.Web/serverfarms",
                       "apiVersion": "2023-01-01",
-                      "name": "[replace(replace(parameters('names').appServicePlan, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), '')]",
+                      "name": "[replace(parameters('names').appServicePlan, parameters('tokens').purpose, variables('purpose'))]",
                       "location": "[parameters('location')]",
                       "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Web/serverfarms'), createObject()), parameters('mlzTags'))]",
                       "sku": {
@@ -8524,7 +8520,7 @@
                     {
                       "type": "Microsoft.Web/sites",
                       "apiVersion": "2023-01-01",
-                      "name": "[uniqueString(replace(replace(parameters('names').functionApp, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''), resourceGroup().id)]",
+                      "name": "[uniqueString(replace(parameters('names').functionApp, parameters('tokens').purpose, variables('purpose')), resourceGroup().id)]",
                       "location": "[parameters('location')]",
                       "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Web/sites'), createObject()), parameters('mlzTags'))]",
                       "kind": "functionapp",
@@ -8535,10 +8531,10 @@
                         "clientAffinityEnabled": false,
                         "httpsOnly": true,
                         "publicNetworkAccess": "Disabled",
-                        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', replace(replace(parameters('names').appServicePlan, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''))]",
+                        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', replace(parameters('names').appServicePlan, parameters('tokens').purpose, variables('purpose')))]",
                         "siteConfig": {
                           "alwaysOn": true,
-                          "appSettings": "[union(createArray(createObject('name', 'AzureWebJobsStorage__blobServiceUri', 'value', format('https://{0}.blob.{1}', uniqueString(replace(replace(parameters('names').storageAccount, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''), resourceGroup().id), environment().suffixes.storage)), createObject('name', 'AzureWebJobsStorage__credential', 'value', 'managedidentity'), createObject('name', 'AzureWebJobsStorage__queueServiceUri', 'value', format('https://{0}.queue.{1}', uniqueString(replace(replace(parameters('names').storageAccount, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''), resourceGroup().id), environment().suffixes.storage)), createObject('name', 'AzureWebJobsStorage__tableServiceUri', 'value', format('https://{0}.table.{1}', uniqueString(replace(replace(parameters('names').storageAccount, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''), resourceGroup().id), environment().suffixes.storage)), createObject('name', 'FUNCTIONS_EXTENSION_VERSION', 'value', '~4'), createObject('name', 'FUNCTIONS_WORKER_RUNTIME', 'value', 'powershell'), createObject('name', 'WEBSITE_LOAD_USER_PROFILE', 'value', '1'), createObject('name', 'FileShareName', 'value', 'profile-containers'), createObject('name', 'ResourceGroupName', 'value', parameters('resourceGroupFslogix')), createObject('name', 'ResourceManagerUrl', 'value', if(endsWith(environment().resourceManager, '/'), environment().resourceManager, format('{0}/', environment().resourceManager))), createObject('name', 'StorageSuffix', 'value', environment().suffixes.storage), createObject('name', 'SubscriptionId', 'value', subscription().subscriptionId)), if(parameters('enableApplicationInsights'), createArray(createObject('name', 'APPLICATIONINSIGHTS_CONNECTION_STRING', 'value', reference(resourceId('Microsoft.Insights/components', replace(replace(parameters('names').applicationInsights, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), '')), '2020-02-02').ConnectionString)), createArray()))]",
+                          "appSettings": "[union(createArray(createObject('name', 'AzureWebJobsStorage__blobServiceUri', 'value', format('https://{0}.blob.{1}', uniqueString(replace(parameters('names').storageAccount, parameters('tokens').purpose, variables('purpose')), resourceGroup().id), environment().suffixes.storage)), createObject('name', 'AzureWebJobsStorage__credential', 'value', 'managedidentity'), createObject('name', 'AzureWebJobsStorage__queueServiceUri', 'value', format('https://{0}.queue.{1}', uniqueString(replace(parameters('names').storageAccount, parameters('tokens').purpose, variables('purpose')), resourceGroup().id), environment().suffixes.storage)), createObject('name', 'AzureWebJobsStorage__tableServiceUri', 'value', format('https://{0}.table.{1}', uniqueString(replace(parameters('names').storageAccount, parameters('tokens').purpose, variables('purpose')), resourceGroup().id), environment().suffixes.storage)), createObject('name', 'FUNCTIONS_EXTENSION_VERSION', 'value', '~4'), createObject('name', 'FUNCTIONS_WORKER_RUNTIME', 'value', 'powershell'), createObject('name', 'WEBSITE_LOAD_USER_PROFILE', 'value', '1'), createObject('name', 'FileShareName', 'value', 'profile-containers'), createObject('name', 'ResourceGroupName', 'value', parameters('resourceGroupFslogix')), createObject('name', 'ResourceManagerUrl', 'value', if(endsWith(environment().resourceManager, '/'), environment().resourceManager, format('{0}/', environment().resourceManager))), createObject('name', 'StorageSuffix', 'value', environment().suffixes.storage), createObject('name', 'SubscriptionId', 'value', subscription().subscriptionId)), if(parameters('enableApplicationInsights'), createArray(createObject('name', 'APPLICATIONINSIGHTS_CONNECTION_STRING', 'value', reference(resourceId('Microsoft.Insights/components', replace(parameters('names').applicationInsights, parameters('tokens').purpose, variables('purpose'))), '2020-02-02').ConnectionString)), createArray()))]",
                           "cors": {
                             "allowedOrigins": [
                               "[format('{0}', environment().portal)]",
@@ -8558,24 +8554,24 @@
                         "vnetRouteAllEnabled": true
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Insights/components', replace(replace(parameters('names').applicationInsights, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''))]",
-                        "[resourceId('Microsoft.Web/serverfarms', replace(replace(parameters('names').appServicePlan, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''))]",
-                        "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(replace(replace(parameters('names').storageAccount, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''), resourceGroup().id))]"
+                        "[resourceId('Microsoft.Insights/components', replace(parameters('names').applicationInsights, parameters('tokens').purpose, variables('purpose')))]",
+                        "[resourceId('Microsoft.Web/serverfarms', replace(parameters('names').appServicePlan, parameters('tokens').purpose, variables('purpose')))]",
+                        "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(replace(parameters('names').storageAccount, parameters('tokens').purpose, variables('purpose')), resourceGroup().id))]"
                       ]
                     },
                     {
                       "type": "Microsoft.Network/privateEndpoints",
                       "apiVersion": "2023-04-01",
-                      "name": "[replace(replace(parameters('names').functionAppPrivateEndpoint, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), '')]",
+                      "name": "[replace(parameters('names').functionAppPrivateEndpoint, parameters('tokens').purpose, variables('purpose'))]",
                       "location": "[parameters('location')]",
                       "tags": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Network/privateEndpoints'), createObject()), parameters('mlzTags'))]",
                       "properties": {
-                        "customNetworkInterfaceName": "[replace(replace(parameters('names').functionAppNetworkInterface, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), '')]",
+                        "customNetworkInterfaceName": "[replace(parameters('names').functionAppNetworkInterface, parameters('tokens').purpose, variables('purpose'))]",
                         "privateLinkServiceConnections": [
                           {
-                            "name": "[replace(replace(parameters('names').functionAppPrivateEndpoint, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), '')]",
+                            "name": "[replace(parameters('names').functionAppPrivateEndpoint, parameters('tokens').purpose, variables('purpose'))]",
                             "properties": {
-                              "privateLinkServiceId": "[resourceId('Microsoft.Web/sites', uniqueString(replace(replace(parameters('names').functionApp, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''), resourceGroup().id))]",
+                              "privateLinkServiceId": "[resourceId('Microsoft.Web/sites', uniqueString(replace(parameters('names').functionApp, parameters('tokens').purpose, variables('purpose')), resourceGroup().id))]",
                               "groupIds": [
                                 "sites"
                               ]
@@ -8587,13 +8583,13 @@
                         }
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Web/sites', uniqueString(replace(replace(parameters('names').functionApp, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''), resourceGroup().id))]"
+                        "[resourceId('Microsoft.Web/sites', uniqueString(replace(parameters('names').functionApp, parameters('tokens').purpose, variables('purpose')), resourceGroup().id))]"
                       ]
                     },
                     {
                       "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                       "apiVersion": "2021-08-01",
-                      "name": "[format('{0}/{1}', replace(replace(parameters('names').functionAppPrivateEndpoint, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''), 'default')]",
+                      "name": "[format('{0}/{1}', replace(parameters('names').functionAppPrivateEndpoint, parameters('tokens').purpose, variables('purpose')), 'default')]",
                       "properties": {
                         "privateDnsZoneConfigs": [
                           {
@@ -8605,13 +8601,13 @@
                         ]
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Network/privateEndpoints', replace(replace(parameters('names').functionAppPrivateEndpoint, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''))]"
+                        "[resourceId('Microsoft.Network/privateEndpoints', replace(parameters('names').functionAppPrivateEndpoint, parameters('tokens').purpose, variables('purpose')))]"
                       ]
                     },
                     {
                       "type": "Microsoft.Web/sites/functions",
                       "apiVersion": "2020-12-01",
-                      "name": "[format('{0}/{1}', uniqueString(replace(replace(parameters('names').functionApp, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''), resourceGroup().id), 'auto-increase-file-share-quota')]",
+                      "name": "[format('{0}/{1}', uniqueString(replace(parameters('names').functionApp, parameters('tokens').purpose, variables('purpose')), resourceGroup().id), 'auto-increase-file-share-quota')]",
                       "properties": {
                         "config": {
                           "disabled": false,
@@ -8631,7 +8627,7 @@
                         }
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Web/sites', uniqueString(replace(replace(parameters('names').functionApp, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''), resourceGroup().id))]"
+                        "[resourceId('Microsoft.Web/sites', uniqueString(replace(parameters('names').functionApp, parameters('tokens').purpose, variables('purpose')), resourceGroup().id))]"
                       ]
                     },
                     {
@@ -8648,7 +8644,7 @@
                         "mode": "Incremental",
                         "parameters": {
                           "applicationInsightsResourceId": {
-                            "value": "[resourceId('Microsoft.Insights/components', replace(replace(parameters('names').applicationInsights, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''))]"
+                            "value": "[resourceId('Microsoft.Insights/components', replace(parameters('names').applicationInsights, parameters('tokens').purpose, variables('purpose')))]"
                           },
                           "privateLinkScopeResourceId": {
                             "value": "[parameters('privateLinkScopeResourceId')]"
@@ -8713,7 +8709,7 @@
                         }
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Insights/components', replace(replace(parameters('names').applicationInsights, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''))]"
+                        "[resourceId('Microsoft.Insights/components', replace(parameters('names').applicationInsights, parameters('tokens').purpose, variables('purpose')))]"
                       ]
                     },
                     {
@@ -8727,7 +8723,7 @@
                         "mode": "Incremental",
                         "parameters": {
                           "principalId": {
-                            "value": "[reference(resourceId('Microsoft.Web/sites', uniqueString(replace(replace(parameters('names').functionApp, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''), resourceGroup().id)), '2023-01-01', 'full').identity.principalId]"
+                            "value": "[reference(resourceId('Microsoft.Web/sites', uniqueString(replace(parameters('names').functionApp, parameters('tokens').purpose, variables('purpose')), resourceGroup().id)), '2023-01-01', 'full').identity.principalId]"
                           },
                           "principalType": {
                             "value": "ServicePrincipal"
@@ -8736,7 +8732,7 @@
                             "value": "b7e6dc6d-f1e8-4753-8033-0f276bb0955b"
                           },
                           "storageAccountName": {
-                            "value": "[uniqueString(replace(replace(parameters('names').storageAccount, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''), resourceGroup().id)]"
+                            "value": "[uniqueString(replace(parameters('names').storageAccount, parameters('tokens').purpose, variables('purpose')), resourceGroup().id)]"
                           }
                         },
                         "template": {
@@ -8779,8 +8775,8 @@
                         }
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Web/sites', uniqueString(replace(replace(parameters('names').functionApp, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''), resourceGroup().id))]",
-                        "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(replace(replace(parameters('names').storageAccount, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''), resourceGroup().id))]"
+                        "[resourceId('Microsoft.Web/sites', uniqueString(replace(parameters('names').functionApp, parameters('tokens').purpose, variables('purpose')), resourceGroup().id))]",
+                        "[resourceId('Microsoft.Storage/storageAccounts', uniqueString(replace(parameters('names').storageAccount, parameters('tokens').purpose, variables('purpose')), resourceGroup().id))]"
                       ]
                     },
                     {
@@ -8796,10 +8792,10 @@
                         "mode": "Incremental",
                         "parameters": {
                           "functionAppName": {
-                            "value": "[uniqueString(replace(replace(parameters('names').functionApp, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''), resourceGroup().id)]"
+                            "value": "[uniqueString(replace(parameters('names').functionApp, parameters('tokens').purpose, variables('purpose')), resourceGroup().id)]"
                           },
                           "ipv4Address": {
-                            "value": "[filter(reference(resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups', replace(replace(parameters('names').functionAppPrivateEndpoint, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''), 'default'), '2021-08-01').privateDnsZoneConfigs[0].properties.recordSets, lambda('record', equals(lambdaVariables('record').recordSetName, uniqueString(replace(replace(parameters('names').functionApp, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''), resourceGroup().id))))[0].ipAddresses[0]]"
+                            "value": "[filter(reference(resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups', replace(parameters('names').functionAppPrivateEndpoint, parameters('tokens').purpose, variables('purpose')), 'default'), '2021-08-01').privateDnsZoneConfigs[0].properties.recordSets, lambda('record', equals(lambdaVariables('record').recordSetName, uniqueString(replace(parameters('names').functionApp, parameters('tokens').purpose, variables('purpose')), resourceGroup().id))))[0].ipAddresses[0]]"
                           },
                           "privateDnsZoneName": {
                             "value": "[split(variables('functionAppScmPrivateDnsZoneResourceId'), '/')[8]]"
@@ -8844,19 +8840,19 @@
                         }
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Web/sites', uniqueString(replace(replace(parameters('names').functionApp, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''), resourceGroup().id))]",
-                        "[resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups', replace(replace(parameters('names').functionAppPrivateEndpoint, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''), 'default')]"
+                        "[resourceId('Microsoft.Web/sites', uniqueString(replace(parameters('names').functionApp, parameters('tokens').purpose, variables('purpose')), resourceGroup().id))]",
+                        "[resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups', replace(parameters('names').functionAppPrivateEndpoint, parameters('tokens').purpose, variables('purpose')), 'default')]"
                       ]
                     }
                   ],
                   "outputs": {
                     "functionAppName": {
                       "type": "string",
-                      "value": "[uniqueString(replace(replace(parameters('names').functionApp, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''), resourceGroup().id)]"
+                      "value": "[uniqueString(replace(parameters('names').functionApp, parameters('tokens').purpose, variables('purpose')), resourceGroup().id)]"
                     },
                     "functionAppPrincipalId": {
                       "type": "string",
-                      "value": "[reference(resourceId('Microsoft.Web/sites', uniqueString(replace(replace(parameters('names').functionApp, parameters('tokens').purpose, variables('purpose')), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), ''), resourceGroup().id)), '2023-01-01', 'full').identity.principalId]"
+                      "value": "[reference(resourceId('Microsoft.Web/sites', uniqueString(replace(parameters('names').functionApp, parameters('tokens').purpose, variables('purpose')), resourceGroup().id)), '2023-01-01', 'full').identity.principalId]"
                     }
                   }
                 }
@@ -9413,6 +9409,67 @@
               ]
             },
             {
+              "condition": "[not(empty(parameters('existingFeedWorkspaceResourceId')))]",
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2025-04-01",
+              "name": "[format('assign-role-vdws-feed-{0}', parameters('deploymentNameSuffix'))]",
+              "resourceGroup": "[split(parameters('existingFeedWorkspaceResourceId'), '/')[4]]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "principalId": {
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-id-deployment-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.principalId.value]"
+                  },
+                  "principalType": {
+                    "value": "ServicePrincipal"
+                  },
+                  "roleDefinitionId": {
+                    "value": "21efdde3-836f-432b-bf3d-3e8e734d4b2b"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.41.2.15936",
+                      "templateHash": "9652731952833392695"
+                    }
+                  },
+                  "parameters": {
+                    "principalId": {
+                      "type": "string"
+                    },
+                    "principalType": {
+                      "type": "string"
+                    },
+                    "roleDefinitionId": {
+                      "type": "string"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Authorization/roleAssignments",
+                      "apiVersion": "2022-04-01",
+                      "name": "[guid(parameters('principalId'), parameters('roleDefinitionId'), resourceGroup().id)]",
+                      "properties": {
+                        "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', parameters('roleDefinitionId'))]",
+                        "principalId": "[parameters('principalId')]",
+                        "principalType": "[parameters('principalType')]"
+                      }
+                    }
+                  ]
+                }
+              },
+              "dependsOn": [
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-id-deployment-{0}', parameters('deploymentNameSuffix')))]"
+              ]
+            },
+            {
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2025-04-01",
               "name": "[format('deploy-vdws-feed-{0}', parameters('deploymentNameSuffix'))]",
@@ -9449,20 +9506,32 @@
                     "value": "[parameters('tags')]"
                   },
                   "workspaceFeedDiagnoticSettingName": {
-                    "value": "[replace(replace(parameters('namingConvention').workspaceDiagnosticSetting, parameters('tokens').purpose, 'feed'), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), '')]"
+                    "value": "[replace(parameters('namingConvention').workspaceDiagnosticSetting, parameters('tokens').purpose, 'feed')]"
                   },
                   "workspaceFeedName": {
-                    "value": "[replace(replace(parameters('namingConvention').workspace, parameters('tokens').purpose, 'feed'), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), '')]"
+                    "value": "[replace(parameters('namingConvention').workspace, parameters('tokens').purpose, 'feed')]"
                   },
                   "workspaceFeedNetworkInterfaceName": {
-                    "value": "[replace(replace(parameters('namingConvention').workspaceNetworkInterface, parameters('tokens').purpose, 'feed'), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), '')]"
+                    "value": "[replace(parameters('namingConvention').workspaceNetworkInterface, parameters('tokens').purpose, 'feed')]"
                   },
                   "workspaceFeedPrivateEndpointName": {
-                    "value": "[replace(replace(parameters('namingConvention').workspacePrivateEndpoint, parameters('tokens').purpose, 'feed'), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), '')]"
+                    "value": "[replace(parameters('namingConvention').workspacePrivateEndpoint, parameters('tokens').purpose, 'feed')]"
                   },
-                  "workspaceFriendlyName": "[if(empty(parameters('workspaceFriendlyName')), createObject('value', replace(replace(parameters('namingConvention').workspace, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), ''), format('{0}{1}', parameters('delimiter'), parameters('stampIndex')), '')), createObject('value', format('{0} ({1})', parameters('workspaceFriendlyName'), parameters('location'))))]",
+                  "workspaceFriendlyName": "[if(empty(parameters('workspaceFriendlyName')), createObject('value', replace(parameters('namingConvention').workspace, format('{0}{1}', parameters('delimiter'), parameters('tokens').purpose), '')), createObject('value', format('{0} ({1})', parameters('workspaceFriendlyName'), parameters('location'))))]",
                   "workspacePublicNetworkAccess": {
                     "value": "[parameters('workspacePublicNetworkAccess')]"
+                  },
+                  "deploymentNameSuffix": {
+                    "value": "[parameters('deploymentNameSuffix')]"
+                  },
+                  "deploymentUserAssignedIdentityClientId": {
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-id-deployment-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.clientId.value]"
+                  },
+                  "existingFeedWorkspaceResourceId": {
+                    "value": "[parameters('existingFeedWorkspaceResourceId')]"
+                  },
+                  "virtualMachineName": {
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-mgmt-vm-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.name.value]"
                   }
                 },
                 "template": {
@@ -9472,7 +9541,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.41.2.15936",
-                      "templateHash": "4212361367248877033"
+                      "templateHash": "6355915231616456653"
                     }
                   },
                   "parameters": {
@@ -9482,8 +9551,17 @@
                     "avdPrivateDnsZoneResourceId": {
                       "type": "string"
                     },
+                    "deploymentNameSuffix": {
+                      "type": "string"
+                    },
+                    "deploymentUserAssignedIdentityClientId": {
+                      "type": "string"
+                    },
                     "enableAvdInsights": {
                       "type": "bool"
+                    },
+                    "existingFeedWorkspaceResourceId": {
+                      "type": "string"
                     },
                     "hostPoolResourceId": {
                       "type": "string"
@@ -9502,6 +9580,9 @@
                     },
                     "tags": {
                       "type": "object"
+                    },
+                    "virtualMachineName": {
+                      "type": "string"
                     },
                     "workspaceFeedDiagnoticSettingName": {
                       "type": "string"
@@ -9522,8 +9603,12 @@
                       "type": "string"
                     }
                   },
+                  "variables": {
+                    "$fxv#0": "param(\r\n    [string]$ApplicationGroupResourceId,\r\n    [string]$ResourceManagerUri,\r\n    [string]$UserAssignedIdentityClientId,\r\n    [string]$WorkspaceResourceId\r\n)\r\n\r\n$ErrorActionPreference = 'Stop'\r\n$WarningPreference = 'SilentlyContinue'\r\n\r\n# Fix the resource manager URI since only AzureCloud contains a trailing slash\r\n$ResourceManagerUriFixed = if($ResourceManagerUri[-1] -eq '/'){$ResourceManagerUri.Substring(0,$ResourceManagerUri.Length - 1)} else {$ResourceManagerUri}\r\n\r\n# Get an access token for Azure resources\r\n$AzureManagementAccessToken = (Invoke-RestMethod `\r\n    -Headers @{Metadata=\"true\"} `\r\n    -Uri $('http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=' + $ResourceManagerUriFixed + '&client_id=' + $UserAssignedIdentityClientId)).access_token\r\n\r\n# Set header for Azure Management API\r\n$AzureManagementHeader = @{\r\n    'Content-Type'='application/json'\r\n    'Authorization'='Bearer ' + $AzureManagementAccessToken\r\n}\r\n\r\n# Use the access token to get the app group references on the workspace\r\n$ExistingApplicationGroupReferences = (Invoke-RestMethod `\r\n    -Headers $AzureManagementHeader `\r\n    -Method 'GET' `\r\n    -Uri $($ResourceManagerUriFixed + $WorkspaceResourceId + '?api-version=2023-09-05')).properties.applicationGroupReferences\r\n  \r\n[array]$ApplicationGroupReferences = $ExistingApplicationGroupReferences + $ApplicationGroupResourceId | ForEach-Object {$_.toLower()}  | Select-Object -Unique\r\n\r\n# Use the access token to update the app group references on the workspace\r\nInvoke-RestMethod `\r\n    -Body (@{properties = @{applicationGroupReferences = $ApplicationGroupReferences}} | ConvertTo-Json) `\r\n    -Headers $AzureManagementHeader `\r\n    -Method 'PATCH' `\r\n    -Uri $($ResourceManagerUriFixed + $WorkspaceResourceId + '?api-version=2023-09-05') | Out-Null"
+                  },
                   "resources": [
                     {
+                      "condition": "[empty(parameters('existingFeedWorkspaceResourceId'))]",
                       "type": "Microsoft.DesktopVirtualization/workspaces",
                       "apiVersion": "2023-09-05",
                       "name": "[parameters('workspaceFeedName')]",
@@ -9538,6 +9623,7 @@
                       }
                     },
                     {
+                      "condition": "[empty(parameters('existingFeedWorkspaceResourceId'))]",
                       "type": "Microsoft.Network/privateEndpoints",
                       "apiVersion": "2023-04-01",
                       "name": "[parameters('workspaceFeedPrivateEndpointName')]",
@@ -9565,6 +9651,7 @@
                       ]
                     },
                     {
+                      "condition": "[empty(parameters('existingFeedWorkspaceResourceId'))]",
                       "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
                       "apiVersion": "2023-05-01",
                       "name": "[format('{0}/{1}', parameters('workspaceFeedPrivateEndpointName'), 'default')]",
@@ -9583,7 +9670,7 @@
                       ]
                     },
                     {
-                      "condition": "[parameters('enableAvdInsights')]",
+                      "condition": "[and(parameters('enableAvdInsights'), empty(parameters('existingFeedWorkspaceResourceId')))]",
                       "type": "Microsoft.Insights/diagnosticSettings",
                       "apiVersion": "2021-05-01-preview",
                       "scope": "[resourceId('Microsoft.DesktopVirtualization/workspaces', parameters('workspaceFeedName'))]",
@@ -9600,15 +9687,123 @@
                       "dependsOn": [
                         "[resourceId('Microsoft.DesktopVirtualization/workspaces', parameters('workspaceFeedName'))]"
                       ]
+                    },
+                    {
+                      "condition": "[not(empty(parameters('existingFeedWorkspaceResourceId')))]",
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2025-04-01",
+                      "name": "[format('add-vdag-references-{0}', parameters('deploymentNameSuffix'))]",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "parameters": {
+                          "location": {
+                            "value": "[parameters('location')]"
+                          },
+                          "name": {
+                            "value": "Update-AvdWorkspace"
+                          },
+                          "parameters": {
+                            "value": [
+                              {
+                                "name": "ApplicationGroupResourceId",
+                                "value": "[parameters('applicationGroupResourceId')]"
+                              },
+                              {
+                                "name": "ResourceManagerUri",
+                                "value": "[environment().resourceManager]"
+                              },
+                              {
+                                "name": "UserAssignedIdentityClientId",
+                                "value": "[parameters('deploymentUserAssignedIdentityClientId')]"
+                              },
+                              {
+                                "name": "WorkspaceResourceId",
+                                "value": "[parameters('existingFeedWorkspaceResourceId')]"
+                              }
+                            ]
+                          },
+                          "script": {
+                            "value": "[variables('$fxv#0')]"
+                          },
+                          "tags": {
+                            "value": "[union(createObject('cm-resource-parent', parameters('hostPoolResourceId')), coalesce(tryGet(parameters('tags'), 'Microsoft.Compute/virtualMachines'), createObject()), parameters('mlzTags'))]"
+                          },
+                          "virtualMachineName": {
+                            "value": "[parameters('virtualMachineName')]"
+                          }
+                        },
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "0.41.2.15936",
+                              "templateHash": "11413959044932611514"
+                            }
+                          },
+                          "parameters": {
+                            "asyncExecution": {
+                              "type": "bool",
+                              "defaultValue": false
+                            },
+                            "location": {
+                              "type": "string"
+                            },
+                            "name": {
+                              "type": "string"
+                            },
+                            "parameters": {
+                              "type": "array",
+                              "defaultValue": []
+                            },
+                            "script": {
+                              "type": "string"
+                            },
+                            "tags": {
+                              "type": "object"
+                            },
+                            "treatFailureAsDeploymentFailure": {
+                              "type": "bool",
+                              "defaultValue": true
+                            },
+                            "virtualMachineName": {
+                              "type": "string"
+                            }
+                          },
+                          "resources": [
+                            {
+                              "type": "Microsoft.Compute/virtualMachines/runCommands",
+                              "apiVersion": "2023-09-01",
+                              "name": "[format('{0}/{1}', parameters('virtualMachineName'), parameters('name'))]",
+                              "location": "[parameters('location')]",
+                              "tags": "[parameters('tags')]",
+                              "properties": {
+                                "asyncExecution": "[parameters('asyncExecution')]",
+                                "parameters": "[parameters('parameters')]",
+                                "source": {
+                                  "script": "[parameters('script')]"
+                                },
+                                "treatFailureAsDeploymentFailure": "[parameters('treatFailureAsDeploymentFailure')]"
+                              }
+                            }
+                          ]
+                        }
+                      }
                     }
                   ]
                 }
               },
               "dependsOn": [
                 "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-vdag-{0}', parameters('deploymentNameSuffix')))]",
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-id-deployment-{0}', parameters('deploymentNameSuffix')))]",
                 "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-vdpool-{0}', parameters('deploymentNameSuffix')))]",
                 "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-monitoring-{0}', parameters('deploymentNameSuffix')))]",
-                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('resourceGroupManagement'))]"
+                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('resourceGroupManagement'))]",
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('resourceGroupManagement')), 'Microsoft.Resources/deployments', format('deploy-mgmt-vm-{0}', parameters('deploymentNameSuffix')))]"
               ]
             }
           ],
