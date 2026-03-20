@@ -27,11 +27,11 @@ param deployNetworkWatcherTrafficAnalytics bool = false
 param deployPolicy bool
 
 @secure()
-@description('The password for the account to domain join the AVD session hosts.')
-param domainJoinPassword string
+@description('The password for the domain account to set the NTFS permissions on the ANF file share.')
+param domainAdminPassword string
 
-@description('The user principal name for the account to domain join the AVD session hosts.')
-param domainJoinUserPrincipalName string
+@description('The user principal name for the domain account to set the NTFS permissons on the ANF file share.')
+param domainAdminUserPrincipalName string
 
 @description('The name of the domain that provides ADDS to the AVD session hosts.')
 param domainName string
@@ -128,6 +128,9 @@ param organizationalUnitPath string = ''
 @description('The policy to assign to the workload.')
 param policy string = 'NISTRev4'
 
+@description('The name of the security principal to assign NTFS permissions to access the file share.')
+param securityPrincipalName string
+
 @allowed([
   'Premium'
   'Standard'
@@ -140,6 +143,16 @@ param subnetAddressPrefix string = '10.0.160.0/24'
 
 @description('The tags to apply to the resources.')
 param tags object = {}
+
+@description('The admininstrator password for the virtual machine that will be deployed to set the NTFS permissons on the ANF file share.')
+@secure()
+param virtualMachineAdminPassword string
+
+@description('The admininstrator username for the virtual machine that will be deployed to set the NTFS permissons on the ANF file share.')
+param virtualMachineAdminUsername string
+
+@description('The size of the virtual machine that will be deployed to set the NTFS permissons on the ANF file share.')
+param virtualMachineSize string = 'Standard_D2ds_v4'
 
 @description('The address prefix for the workload Virtual Network.')
 param virtualNetworkAddressPrefix string = '10.0.160.0/23'
@@ -169,6 +182,9 @@ param workloadName string = 'netAppFile'
 @maxLength(3)
 @description('The short name for the workload.')
 param workloadShortName string = 'anf'
+
+var netbios = split(domainName, '.')[0]
+var privateDnsZoneResourceIdPrefix = '/subscriptions/${split(hubVirtualNetworkResourceId, '/')[2]}/resourceGroups/${split(hubVirtualNetworkResourceId, '/')[4]}/providers/Microsoft.Network/privateDnsZones/'
 
 // Spoke network
 module tier3 '../tier3/solution.bicep' = {
@@ -219,7 +235,7 @@ module rg '../../modules/resource-group.bicep' = {
   name: 'deploy-rg-${deploymentNameSuffix}'
   params: {
     location: location
-    name: replace(tier3.outputs.tier.namingConvention.resourceGroup, tier3.outputs.tokens.purpose, 'netAppFiles')
+    name: replace(tier3.outputs.tier.namingConvention.resourceGroup, tier3.outputs.tokens.purpose, 'fileShare')
     tags: union(tags[?'Microsoft.Resources/resourceGroups'] ?? {}, tier3.outputs.mlzTags)
   }
 }
@@ -232,20 +248,42 @@ module netAppFiles 'modules/azureNetAppFiles.bicep' = {
     delimiter: tier3.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
     dnsServers: join(tier3.outputs.tier.dnsServers, ',')
-    domainJoinPassword: domainJoinPassword
-    domainJoinUserPrincipalName: domainJoinUserPrincipalName
+    domainAdminPassword: domainAdminPassword
+    domainAdminUserPrincipalName: domainAdminUserPrincipalName
     domainName: domainName
+    environmentAbbreviation: environmentAbbreviation
     fileShareName: fileShareName
     location: location
     mlzTags: tier3.outputs.mlzTags
-    netAppAccountName: replace(tier3.outputs.tier.namingConvention.netAppAccount, '${tier3.outputs.delimiter}${tier3.outputs.tokens.purpose}', '')
-    netAppCapacityPoolName: replace(tier3.outputs.tier.namingConvention.netAppAccountCapacityPool, '${tier3.outputs.delimiter}${tier3.outputs.tokens.purpose}', '')
+    namingConvention: tier3.outputs.tier.namingConvention
+    netbios: netbios
     organizationalUnitPath: organizationalUnitPath
+    privateDnsZoneResourceIdPrefix: privateDnsZoneResourceIdPrefix
+    privateDnsZones: tier3.outputs.privateDnsZones
+    resourceAbbreviations: tier3.outputs.resourceAbbreviations
     resourceGroupName: rg.outputs.name
-    smbServerName: replace(tier3.outputs.tier.namingConvention.netAppAccountSmbServer, tier3.outputs.tokens.purpose, '')
+    securityPrincipalName: securityPrincipalName
     sku: sku
+    subnetResourceId: tier3.outputs.tier.subnets[0].id
     tags: tags
+    tier: tier3.outputs.tier
+    tokens: tier3.outputs.tokens
+    virtualMachineAdminPassword: virtualMachineAdminPassword
+    virtualMachineAdminUsername: virtualMachineAdminUsername
+    virtualMachineSize: virtualMachineSize
   }
 }
 
-output fileShare string = netAppFiles.outputs.fileShare
+// Deploys a run command to delete the management virtual machine
+module cleanUp '../azure-virtual-desktop/modules/clean-up/clean-up.bicep' = {
+  name: 'deploy-clean-up-${deploymentNameSuffix}'
+  params: {
+    deploymentNameSuffix: deploymentNameSuffix
+    location: location
+    resourceGroupManagement: rg.outputs.name
+    userAssignedIdentityClientId: netAppFiles.outputs.userAssignedIdentityClientId
+    virtualMachineResourceId: netAppFiles.outputs.virtualMachineResourceId
+  }
+}
+
+output fileShareUncPath string = '\\\\${netAppFiles.outputs.fileServer}\\${fileShareName}'

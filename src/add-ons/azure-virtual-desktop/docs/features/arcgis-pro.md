@@ -17,15 +17,14 @@
 - [**Start VM On Connect**](./start-vm-on-connect.md#start-vm-on-connect)
 - [**Trusted Launch**](./trusted-launch.md#trusted-launch)
 
-### GPU Drivers & Settings
+### ArcGIS Pro
 
-When an appropriate VM size (Nv, Nvv3, Nvv4, or NCasT4_v3 series) is selected, this solution will automatically deploy the appropriate virtual machine extension to install the graphics driver and configure the recommended registry settings.
-
-**Reference:** [Configure GPU Acceleration - Microsoft Docs](https://learn.microsoft.com/azure/virtual-desktop/configure-vm-gpu)
+The MLZ development team collaborated with ESRI to create a "profile" option in the AVD add-on deployment. This option enables ESRI's best practices in deploying ArcGIS Pro on Azure. The OS image is hardcoded to use ESRI's marketplace image containing Windows 11 Enterprise Multi-session with ArcGIS Pro. Microsoft's best practices in deploying GPU VMs on AVD are also included in the feature.
 
 **Deployed Resources:**
 
-- Virtual Machines Extensions
-  - AmdGpuDriverWindows
-  - NvidiaGpuDriverWindows
-- Run Command
+- Virtual Machine(s)
+  - GPU VM size validated by ESRI
+  - ESRI's marketplace image containing ArcGIS Pro
+  - Recommended graphics acceleration settings
+  - VM extension with GPU (GRID) driver

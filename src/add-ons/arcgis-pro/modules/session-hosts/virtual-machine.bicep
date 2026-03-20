@@ -5,13 +5,7 @@ param dataCollectionRuleResourceId string
 param deploymentNameSuffix string
 param diskEncryptionSetResourceId string
 param diskNamePrefix string
-param diskSku string
-param fileShare string
 param hostPoolResourceId string
-param imageOffer string
-param imagePublisher string
-param imagePurchasePlan object
-param imageSku string
 param location string
 param networkInterfaceNamePrefix string
 param networkSecurityGroupResourceId string
@@ -24,13 +18,36 @@ param virtualMachineAdminPassword string
 param virtualMachineAdminUsername string
 param virtualMachineSize string
 
-var imageReference =  {
-  publisher: imagePublisher
-  offer: imageOffer
-  sku: imageSku
-  version: 'latest'
-}
+var amdVmSizes = [
+  'Standard_NV4as_v4'
+  'Standard_NV8as_v4'
+  'Standard_NV16as_v4'
+  'Standard_NV32as_v4'
+  'Standard_NV4ads_V710_v5'
+  'Standard_NV8ads_V710_v5'
+  'Standard_NV12ads_V710_v5'
+  'Standard_NV24ads_V710_v5'
+  'Standard_NV28adms_V710_v5'
+]
 var intune = contains(activeDirectorySolution, 'IntuneEnrollment')
+var nvidiaVmSizes = [
+  'Standard_NV6'
+  'Standard_NV12'
+  'Standard_NV24'
+  'Standard_NV12s_v3'
+  'Standard_NV24s_v3'
+  'Standard_NV48s_v3'
+  'Standard_NC4as_T4_v3'
+  'Standard_NC8as_T4_v3'
+  'Standard_NC16as_T4_v3'
+  'Standard_NC64as_T4_v3'
+  'Standard_NV6ads_A10_v5'
+  'Standard_NV12ads_A10_v5'
+  'Standard_NV18ads_A10_v5'
+  'Standard_NV36ads_A10_v5'
+  'Standard_NV36adms_A10_v5'
+  'Standard_NV72ads_A10_v5'
+]
 
 resource hostPool 'Microsoft.DesktopVirtualization/hostPools@2023-09-05' existing = {
   name: split(hostPoolResourceId, '/')[8]
@@ -70,13 +87,22 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-03-01' = {
   identity: {
     type: 'SystemAssigned' // Required for Entra join
   }
-  plan: imagePurchasePlan
+  plan: {
+    name: 'pro-byol-36'
+    publisher: 'esri'
+    product: 'pro-byol'
+  }
   properties: {
     hardwareProfile: {
       vmSize: virtualMachineSize
     }
     storageProfile: {
-      imageReference: imageReference
+      imageReference: {
+        publisher: 'esri'
+        offer: 'pro-byol'
+        sku: 'pro-byol-36'
+        version: 'latest'
+      }
       osDisk: {
         name: '${diskNamePrefix}-0'
         osType: 'Windows'
@@ -87,7 +113,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-03-01' = {
           diskEncryptionSet: {
             id: diskEncryptionSetResourceId
           }
-          storageAccountType: diskSku
+          storageAccountType: 'Premium_LRS'
         }
       }
       dataDisks: []
@@ -126,7 +152,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-03-01' = {
         enabled: false
       }
     }
-    licenseType: ((imagePublisher == 'MicrosoftWindowsDesktop') ? 'Windows_Client' : 'Windows_Server')
+    licenseType: 'Windows_Client'
   }
 }
 
@@ -189,8 +215,8 @@ module setSessionHostConfiguration '../../../azure-virtual-desktop/modules/commo
     name: 'Set-SessionHostConfiguration'
     parameters: [
       {
-        name: 'FileShare'
-        value: fileShare
+        name: 'NvidiaGpu'
+        value: contains(nvidiaVmSizes, virtualMachineSize) ? 'true' : 'false'
       }
     ]
     script: loadTextContent('../../artifacts/Set-SessionHostConfiguration.ps1')
@@ -263,7 +289,10 @@ resource installAvdAgents 'Microsoft.Compute/virtualMachines/extensions@2021-03-
 //   ]
 // }
 
-resource extension_AADLoginForWindows 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = if (contains(activeDirectorySolution, 'EntraId')) {
+resource extension_AADLoginForWindows 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = if (contains(
+  activeDirectorySolution,
+  'EntraId'
+)) {
   parent: virtualMachine
   name: 'AADLoginForWindows'
   location: location
@@ -273,16 +302,21 @@ resource extension_AADLoginForWindows 'Microsoft.Compute/virtualMachines/extensi
     type: 'AADLoginForWindows'
     typeHandlerVersion: '2.0'
     autoUpgradeMinorVersion: true
-    settings: intune ? {
-      mdmId: '0000000a-0000-0000-c000-000000000000'
-    } : null
+    settings: intune
+      ? {
+          mdmId: '0000000a-0000-0000-c000-000000000000'
+        }
+      : null
   }
   dependsOn: [
     setSessionHostConfiguration
   ]
 }
 
-resource extension_AmdGpuDriverWindows 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = {
+resource extension_AmdGpuDriverWindows 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = if (contains(
+  amdVmSizes,
+  virtualMachineSize
+)) {
   parent: virtualMachine
   name: 'AmdGpuDriverWindows'
   location: location
@@ -293,6 +327,30 @@ resource extension_AmdGpuDriverWindows 'Microsoft.Compute/virtualMachines/extens
     typeHandlerVersion: '1.0'
     autoUpgradeMinorVersion: true
     settings: {}
+  }
+  dependsOn: [
+    extension_AADLoginForWindows
+    //extension_JsonADDomainExtension
+  ]
+}
+
+// The GRID driver is currently not supported with the NCasT4_v3 series and must be installed manaully
+resource extension_NvidiaGpuDriverWindows 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = if (contains(nvidiaVmSizes,virtualMachineSize) && !endsWith(virtualMachineSize, 'as_T4_v3')) {
+  parent: virtualMachine
+  name: 'NvidiaGpuDriverWindows'
+  location: location
+  tags: tagsVirtualMachines
+  properties: {
+    publisher: 'Microsoft.HpcCompute'
+    type: 'NvidiaGpuDriverWindows'
+    typeHandlerVersion: '1.9'
+    autoUpgradeMinorVersion: true
+    // NVv3 VM sizes require a specific driver version: https://learn.microsoft.com/azure/virtual-machines/extensions/hpccompute-gpu-windows#known-issues
+    settings: startsWith(virtualMachineSize, 'Standard_NV') && (endsWith(virtualMachineSize, 's_v3') || endsWith(virtualMachineSize,'s_A10_v5'))
+      ? {
+          driverVersion: '538.46'
+        }
+      : {}
   }
   dependsOn: [
     extension_AADLoginForWindows

@@ -5,11 +5,9 @@ param deploymentUserAssignedIdentityClientId string
 param enableAvdInsights bool
 param existingFeedWorkspaceResourceId string
 param hostPoolResourceId string
-param locationControlPlane string
-param locationVirtualMachines string
+param location string
 param logAnalyticsWorkspaceResourceId string
 param mlzTags object
-param resourceGroupManagement string
 param subnetResourceId string
 param tags object
 param virtualMachineName string
@@ -21,10 +19,9 @@ param workspaceFriendlyName string
 param workspacePublicNetworkAccess string
 
 module addApplicationGroups '../common/run-command.bicep' = if (!empty(existingFeedWorkspaceResourceId)) {
-  scope: resourceGroup(resourceGroupManagement)
   name: 'add-vdag-references-${deploymentNameSuffix}'
   params: {
-    location: locationVirtualMachines
+    location: location
     name: 'Update-AvdWorkspace'
     parameters: [
       {
@@ -52,8 +49,8 @@ module addApplicationGroups '../common/run-command.bicep' = if (!empty(existingF
 
 resource workspace 'Microsoft.DesktopVirtualization/workspaces@2023-09-05' = if (empty(existingFeedWorkspaceResourceId)) {
   name: workspaceFeedName
-  location: locationControlPlane
-  tags: mlzTags
+  location: location
+  tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.DesktopVirtualization/workspaces'] ?? {}, mlzTags)
   properties: {
     applicationGroupReferences: [
       applicationGroupResourceId
@@ -65,8 +62,8 @@ resource workspace 'Microsoft.DesktopVirtualization/workspaces@2023-09-05' = if 
 
 resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = if (empty(existingFeedWorkspaceResourceId)) {
   name: workspaceFeedPrivateEndpointName
-  location: locationControlPlane
-  tags: mlzTags
+  location: location
+  tags: union({'cm-resource-parent': hostPoolResourceId}, tags[?'Microsoft.Network/privateEndpoints'] ?? {}, mlzTags)
   properties: {
     customNetworkInterfaceName: workspaceFeedNetworkInterfaceName
     privateLinkServiceConnections: [
@@ -101,7 +98,7 @@ resource privateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneG
   }
 }
 
-resource diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (enableAvdInsights) {
+resource diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (enableAvdInsights && empty(existingFeedWorkspaceResourceId)) {
   name: workspaceFeedDiagnoticSettingName
   scope: workspace
   properties: {

@@ -312,6 +312,7 @@ resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = if (en
     Application_Type: 'web'
     publicNetworkAccessForIngestion: 'Disabled'
     publicNetworkAccessForQuery: 'Disabled'
+    WorkspaceResourceId: logAnalyticsWorkspaceResourceId
   }
   kind: 'web'
 }

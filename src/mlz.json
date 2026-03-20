@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.39.26.7824",
-      "templateHash": "13444364310522721537"
+      "templateHash": "186370419513569005"
     }
   },
   "parameters": {
@@ -748,6 +748,13 @@
       "defaultValue": "Standard_GRS",
       "metadata": {
         "description": "The Storage Account SKU to use for log storage. Default value = \"Standard_GRS\". See the following URL for valid settings: https://learn.microsoft.com/rest/api/storagerp/srp_sku_types."
+      }
+    },
+    "managementVirtualMachineSize": {
+      "type": "string",
+      "defaultValue": "Standard_D2ds_v4",
+      "metadata": {
+        "description": "The virtual machine size for the management virtual machine."
       }
     },
     "networkInterfaceDiagnosticsMetrics": {
@@ -9023,6 +9030,9 @@
           },
           "tokens": {
             "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionId'), 'Microsoft.Resources/deployments', format('deploy-networking-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.tokens.value]"
+          },
+          "virtualMachineSize": {
+            "value": "[parameters('managementVirtualMachineSize')]"
           }
         },
         "template": {
@@ -9032,7 +9042,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.39.26.7824",
-              "templateHash": "16315768828183228133"
+              "templateHash": "4047616631536786084"
             }
           },
           "parameters": {
@@ -9071,6 +9081,9 @@
             },
             "tokens": {
               "type": "object"
+            },
+            "virtualMachineSize": {
+              "type": "string"
             }
           },
           "variables": {
@@ -9122,6 +9135,9 @@
                   },
                   "type": {
                     "value": "storageAccount"
+                  },
+                  "virtualMachineSize": {
+                    "value": "[parameters('virtualMachineSize')]"
                   }
                 },
                 "template": {
@@ -9695,6 +9711,9 @@
                   "delimiter": {
                     "value": "[parameters('delimiter')]"
                   },
+                  "environmentAbbreviation": {
+                    "value": "[parameters('environmentAbbreviation')]"
+                  },
                   "filesPrivateDnsZoneResourceId": {
                     "value": "[parameters('privateDnsZoneResourceIds').file]"
                   },
@@ -9745,7 +9764,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.39.26.7824",
-                      "templateHash": "5927127030150719054"
+                      "templateHash": "10577964199298877336"
                     }
                   },
                   "parameters": {
@@ -9753,6 +9772,9 @@
                       "type": "string"
                     },
                     "delimiter": {
+                      "type": "string"
+                    },
+                    "environmentAbbreviation": {
                       "type": "string"
                     },
                     "filesPrivateDnsZoneResourceId": {
@@ -9825,7 +9847,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Storage/storageAccounts",
-                      "apiVersion": "2023-01-01",
+                      "apiVersion": "2025-06-01",
                       "name": "[uniqueString(replace(parameters('tier').namingConvention.storageAccount, parameters('tokens').purpose, parameters('purpose')), resourceGroup().id)]",
                       "location": "[parameters('location')]",
                       "tags": "[union(coalesce(tryGet(parameters('tags'), 'Microsoft.Storage/storageAccounts'), createObject()), parameters('mlzTags'))]",
@@ -9840,7 +9862,7 @@
                         "name": "[parameters('skuName')]"
                       },
                       "properties": {
-                        "accessTier": "Hot",
+                        "accessTier": "[if(equals(parameters('environmentAbbreviation'), 'prod'), 'Cold', 'Hot')]",
                         "allowBlobPublicAccess": false,
                         "allowCrossTenantReplication": false,
                         "allowedCopyScope": "PrivateLink",

@@ -1,10 +1,9 @@
 {
-  "$schema": "<relative path to createFormUI.schema.json>",
+  "$schema": "https://schema.management.azure.com/schemas/2021-09-09/uiFormDefinition.schema.json",
   "view": {
     "kind": "Form",
     "properties": {
       "title": "Mission Landing Zone",
-      "isWizard": true,
       "steps": [
         {
           "name": "basics",
@@ -1058,7 +1057,9 @@
                   "type": "Microsoft.Common.PasswordBox",
                   "toolTip": "Enter a password that is alphanumeric, contains at least 12 characters, 1 letter, 1 number and 1 special character.",
                   "constraints": {
-                    "required": true
+                    "required": true,
+                    "regex": "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{12,72}$",
+                    "validationMessage": "The password must be alphanumeric, contain at least 12 characters, and have at least 1 letter, 1 number and one special character."
                   },
                   "options": {
                     "hideConfirmation": false

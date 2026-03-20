@@ -458,23 +458,33 @@
               ]
             },
             {
-              "name": "workspacesApi",
-              "type": "Microsoft.Solutions.ArmApiControl",
-              "request": {
-                "method": "GET",
-                "path": "[concat(steps('basics').scope.subscription.id, '/providers/Microsoft.DesktopVirtualization/workspaces?api-version=2022-02-10-preview')]"
-              }
-            },
-            {
-              "name": "workspace",
+              "name": "workspaceSection",
               "type": "Microsoft.Common.Section",
-              "visible": "[empty(first(filter(steps('controlPlane').workspacesApi.value, (item) => and(contains(item.name, steps('basics').naming.identifier), contains(item.name, 'feed'), contains(item.name, steps('basics').naming.environment), equals(item.location, steps('basics').hub.azureFirewallApi.location)))))]",
+              "visible": true,
               "label": "Workspace",
               "elements": [
                 {
+                  "name": "existingWorkspace",
+                  "type": "Microsoft.Common.CheckBox",
+                  "visible": true,
+                  "label": "Use existing feed workspace?",
+                  "defaultValue": false,
+                  "toolTip": "Choose whether to share an existing feed workspace. This allows for enhanced grouping of AVD resources in the Windows App or MSRDC client."
+                },
+                {
+                  "name": "workspace",
+                  "type": "Microsoft.Solutions.ResourceSelector",
+                  "visible": "[steps('controlPlane').workspaceSection.existingWorkspace]",
+                  "label": "Existing feed workspace",
+                  "resourceType": "Microsoft.DesktopVirtualization/workspaces",
+                  "constraints": {
+                    "required": true
+                  }
+                },
+                {
                   "name": "publicNetworkAccess",
                   "type": "Microsoft.Common.DropDown",
-                  "visible": true,
+                  "visible": "[not(steps('controlPlane').workspaceSection.existingWorkspace)]",
                   "label": "Public network access (feed)",
                   "defaultValue": "Enabled",
                   "multiLine": true,
@@ -596,7 +606,7 @@
                   "defaultValue": "",
                   "placeholder": "Example: Information Technology",
                   "toolTip": "Input the friendly name for the AVD workspace that will be displayed in the end user's client. This value should apply to all the stamp indexes within the same identifier and would mostly likely represent your business unit or project.",
-                  "visible": "[and(steps('controlPlane').friendlyNames.custom, empty(first(filter(steps('controlPlane').workspacesApi.value, (item) => and(contains(item.name, steps('basics').naming.identifier), contains(item.name, 'feed'), contains(item.name, steps('basics').naming.environment), equals(item.location, steps('basics').hub.azureFirewallApi.location))))))]",
+                  "visible": "[and(steps('controlPlane').friendlyNames.custom, not(steps('controlPlane').workspaceSection.existingWorkspace))]",
                   "constraints": {
                     "required": false,
                     "regex": "^.{1,64}$",
@@ -840,11 +850,12 @@
                   "label": "Size",
                   "toolTip": "Select the size of the virtual machines. Single session hosts should have 2 or more vCPUs.",
                   "recommendedSizes": [
-                    "Standard_NV4as_v4",
-                    "Standard_NV8as_v4"
+                    "Standard_NV4ads_V710_v5"
                   ],
                   "constraints": {
                     "allowedSizes": [
+                      "Standard_NV4ads_V710_v5",
+                      "Standard_NV8ads_V710_v5",
                       "Standard_NV4as_v4",
                       "Standard_NV8as_v4"
                     ],
@@ -872,18 +883,16 @@
                   "label": "Size",
                   "toolTip": "Select the size of the virtual machines. Single session hosts should have 2 or more vCPUs.",
                   "recommendedSizes": [
-                    "Standard_NC4as_T4_v3",
-                    "Standard_NC8as_T4_v3",
-                    "Standard_NV6ads_A10_v5",
-                    "Standard_NV16as_v4"
+                    "Standard_NV12ads_V710_v5"
                   ],
                   "constraints": {
                     "allowedSizes": [
+                      "Standard_NV12ads_V710_v5",
+                      "Standard_NV6ads_A10_v5",
                       "Standard_NC4as_T4_v3",
                       "Standard_NC8as_T4_v3",
-                      "Standard_NV6ads_A10_v5",
-                      "Standard_NV12s_v3",
-                      "Standard_NV16as_v4"
+                      "Standard_NV16as_v4",
+                      "Standard_NV12s_v3"
                     ],
                     "numAvailabilityZonesRequired": "[if(equals(steps('hosts').virtualMachines.availability, 'AvailabilityZones'), 3, 1)]"
                   },
@@ -909,15 +918,15 @@
                   "label": "Size",
                   "toolTip": "Select the size of the virtual machines. Single session hosts should have 2 or more vCPUs.",
                   "recommendedSizes": [
-                    "Standard_NC16as_T4_v3",
-                    "Standard_NV12ads_A10_v5",
-                    "Standard_NV18ads_A10_v5"
+                    "Standard_NV24ads_V710_v5"
                   ],
                   "constraints": {
                     "allowedSizes": [
-                      "Standard_NC16as_T4_v3",
+                      "Standard_NV24ads_V710_v5",
+                      "Standard_NV28adms_V710_v5",
                       "Standard_NV12ads_A10_v5",
                       "Standard_NV18ads_A10_v5",
+                      "Standard_NC16as_T4_v3",
                       "Standard_NV24s_v3"
                     ],
                     "numAvailabilityZonesRequired": "[if(equals(steps('hosts').virtualMachines.availability, 'AvailabilityZones'), 3, 1)]"
@@ -971,6 +980,23 @@
                     "style": "Error",
                     "text": "[concat('ERROR! The selected subscription does not have enough quota for the requested vCPUs: <br><br><b>Family:</b> ', replace(replace(replace(first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, steps('hosts').virtualMachines.sizeArcGisProMulti)), (item) => item.family)), 'standard', 'Standard '), 'Family', ' Family vCPUs'), '  ', ' '), '<br><b>Current vCPU Quota:</b> ', string(coalesce(first(map(filter(steps('hosts').virtualMachines.usageApi.value, (item) => equals(item.name.value, first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, steps('hosts').virtualMachines.sizeArcGisProMulti)), (item) => item.family)))), (item) => item.limit)), 0)), '<br><b>Current vCPU Usage:</b> ', string(coalesce(first(map(filter(steps('hosts').virtualMachines.usageApi.value, (item) => equals(item.name.value, first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, steps('hosts').virtualMachines.sizeArcGisProMulti)), (item) => item.family)))), (item) => item.currentValue)), 0)), '<br><b>Requested vCPUs:</b> ', string(mul(parse(first(map(filter(first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, steps('hosts').virtualMachines.sizeArcGisProMulti)), (item) => item.capabilities)), (item) => equals(item.name, 'vCPUs')), (item) => item.value))), steps('hosts').virtualMachines.count)))]"
                   }
+                },
+                {
+                  "name": "ncast4v3Description",
+                  "type": "Microsoft.Common.InfoBox",
+                  "visible": "[endsWith(if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Pooled')), steps('hosts').virtualMachines.sizeArcGisProMulti, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 6)), steps('hosts').virtualMachines.sizeArcGisProSingleLight, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 4)), steps('hosts').virtualMachines.sizeArcGisProSingleMedium, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 3)), steps('hosts').virtualMachines.sizeArcGisProSingleHeavy, steps('hosts').virtualMachines.sizeGeneric)))), 'as_T4_v3')]",
+                  "options": {
+                    "style": "Warning",
+                    "text": "The NCasT4_v3 VM series does not support the installation of the GRID driver using the VM extension. Please ensure to manually install the driver after the deployment. Click this box to open a link to the driver documentation.",
+                    "uri": "https://learn.microsoft.com/azure/virtual-machines/windows/n-series-driver-setup#nvidia-gridvgpu-drivers"
+                  }
+                },
+                {
+                  "name": "enableWindowsAntimalware",
+                  "type": "Microsoft.Common.CheckBox",
+                  "label": "Enable Windows Antimalware?",
+                  "defaultValue": true,
+                  "toolTip": "Enables the Windows Antimalware extension on the AVD session hosts. When FSLogix is selected, the approprate exlusions are added to the configuration."
                 }
               ]
             },
@@ -1168,6 +1194,18 @@
                   "constraints": {
                     "required": true,
                     "allowedValues": "[if(equals(steps('hosts').identity.solution, 'MicrosoftEntraId'), parse('[{\"label\":\"Azure Files Premium (100K IOPS)\",\"value\":\"AzureFiles Premium\"},{\"label\":\"Azure Files Standard (20K IOPS)\",\"value\":\"AzureFiles Standard\"}]'), parse('[{\"label\":\"Azure Files Premium (100K IOPS)\",\"value\":\"AzureFiles Premium\"},{\"label\":\"Azure Files Standard (20K IOPS)\",\"value\":\"AzureFiles Standard\"},{\"label\":\"Azure NetApp Files Premium (450K IOPS)\",\"value\":\"AzureNetAppFiles Premium\"},{\"label\":\"Azure NetApp Files Standard (320K IOPS)\",\"value\":\"AzureNetAppFiles Standard\"}]'))]"
+                  }
+                },
+                {
+                  "name": "ouPath",
+                  "type": "Microsoft.Common.TextBox",
+                  "visible": true,
+                  "label": "OU Path",
+                  "toolTip": "Input the distinguished name of the desired organization unit for the AVD session hosts.",
+                  "defaultValue": "",
+                  "placeholder": "Example: OU=fslogix,OU=avd,DC=contoso,DC=com",
+                  "constraints": {
+                    "required": false
                   }
                 },
                 {
@@ -1369,82 +1407,17 @@
           "label": "Networking",
           "elements": [
             {
-              "name": "sharedVnet",
-              "label": "AVD Shared Virtual Network",
+              "name": "virtualNetwork",
+              "label": "Virtual Network",
               "type": "Microsoft.Common.Section",
               "visible": true,
               "elements": [
                 {
-                  "name": "info",
+                  "name": "virtualNetworkInfo",
                   "type": "Microsoft.Common.TextBlock",
                   "visible": true,
                   "options": {
-                    "text": "The AVD Shared virtual network is used to host common resources across AVD stamps in the same namespace, e.g. a project, business unit, or department. This virtual network is deployed in the same region as MLZ and is connected to the AVD Stamp virtual network using a VNET peering connection."
-                  }
-                },
-                {
-                  "name": "virtualNetworkAddressCidrRange",
-                  "label": "Virtual network CIDR range",
-                  "type": "Microsoft.Common.TextBox",
-                  "defaultValue": "10.0.139.0/24",
-                  "toolTip": "Specify an address CIDR range within the range [10,26].",
-                  "constraints": {
-                    "required": true,
-                    "validations": [
-                      {
-                        "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(1[0-9]|2[0-4]))$",
-                        "message": "Invalid CIDR range. The address prefix must be in the range [10,24]."
-                      }
-                    ]
-                  }
-                },
-                {
-                  "name": "subnetAddressCidrRange",
-                  "label": "Subnet CIDR range",
-                  "type": "Microsoft.Common.TextBox",
-                  "visible": true,
-                  "defaultValue": "10.0.139.0/24",
-                  "toolTip": "Specify a CIDR range for the default subnet within the AVD Hosts spoke virtual network range [24,28].",
-                  "constraints": {
-                    "required": true,
-                    "validations": [
-                      {
-                        "regex": "^(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(?:\/(2[4-8]))$",
-                        "message": "Invalid CIDR range. The address prefix must be in the range [24,28]."
-                      },
-                      {
-                        "isValid": "[if(greaterOrEquals(last(split(steps('network').sharedVnet.virtualNetworkAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('network').sharedVnet.virtualNetworkAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('network').sharedVnet.subnetAddressCidrRange, '/')), '.'), 1))), true)]",
-                        "message": "CIDR range not within virtual network CIDR range (first octet)."
-                      },
-                      {
-                        "isValid": "[if(greaterOrEquals(last(split(steps('network').sharedVnet.virtualNetworkAddressCidrRange, '/')), 16), equals(last(take(split(first(split(steps('network').sharedVnet.virtualNetworkAddressCidrRange, '/')), '.'), 2)), last(take(split(first(split(steps('network').sharedVnet.subnetAddressCidrRange, '/')), '.'), 2))), true)]",
-                        "message": "CIDR range not within virtual network CIDR range (second octet)."
-                      },
-                      {
-                        "isValid": "[if(greaterOrEquals(last(split(steps('network').sharedVnet.virtualNetworkAddressCidrRange, '/')), 24), equals(last(take(split(first(split(steps('network').sharedVnet.virtualNetworkAddressCidrRange, '/')), '.'), 3)), last(take(split(first(split(steps('network').sharedVnet.subnetAddressCidrRange, '/')), '.'), 3))), true)]",
-                        "message": "CIDR range not within virtual network CIDR range (third octet)."
-                      },
-                      {
-                        "isValid": "[lessOrEquals(last(split(steps('network').sharedVnet.virtualNetworkAddressCidrRange, '/')), last(split(steps('network').sharedVnet.subnetAddressCidrRange, '/')))]",
-                        "message": "CIDR range not within virtual network CIDR range (subnet mask)."
-                      }
-                    ]
-                  }
-                }
-              ]
-            },
-            {
-              "name": "stampVnet",
-              "label": "AVD Stamp Virtual Network",
-              "type": "Microsoft.Common.Section",
-              "visible": true,
-              "elements": [
-                {
-                  "name": "info",
-                  "type": "Microsoft.Common.TextBlock",
-                  "visible": true,
-                  "options": {
-                    "text": "The AVD Stamp virtual network is used to host the resources within the specified AVD stamp. This virtual network will be deployed based on the session hosts location and is connected to the AVD Shard virtual network using a VNET peering connection."
+                    "text": "The virtual network hosts the network interfaces for the Azure resources deployed in this workload accelerator and will be peered to the HUB virtual network as a spoke."
                   }
                 },
                 {
@@ -1462,6 +1435,22 @@
                       }
                     ]
                   }
+                }
+              ]
+            },
+            {
+              "name": "subnets",
+              "label": "Subnets",
+              "type": "Microsoft.Common.Section",
+              "visible": true,
+              "elements": [
+                {
+                  "name": "subnetsInfo",
+                  "type": "Microsoft.Common.TextBlock",
+                  "visible": true,
+                  "options": {
+                    "text": "The subnet inputs below will vary based on the options selected. The 'session hosts' subnet contains the network interfaces for the AVD sessions hosts and the storage resources to support FSLogix. The 'management' subnet contains the network interfaces for the monitoring, function app, and control plane resources. The 'function app' subnet contains the delegated subnet for the outbound traffic for the function app. The 'azure netapp files' subnet contains the delegated subnet required for Azure NetApp Files service."
+                  }
                 },
                 {
                   "name": "sessionHostsSubnetAddressCidrRange",
@@ -1478,19 +1467,19 @@
                         "message": "Invalid CIDR range. The address prefix must be in the range [24,28]."
                       },
                       {
-                        "isValid": "[if(greaterOrEquals(last(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('network').stampVnet.sessionHostsSubnetAddressCidrRange, '/')), '.'), 1))), true)]",
+                        "isValid": "[if(greaterOrEquals(last(split(steps('network').virtualNetwork.virtualNetworkAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('network').virtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('network').subnets.sessionHostsSubnetAddressCidrRange, '/')), '.'), 1))), true)]",
                         "message": "CIDR range not within virtual network CIDR range (first octet)."
                       },
                       {
-                        "isValid": "[if(greaterOrEquals(last(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), 16), equals(last(take(split(first(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), '.'), 2)), last(take(split(first(split(steps('network').stampVnet.sessionHostsSubnetAddressCidrRange, '/')), '.'), 2))), true)]",
+                        "isValid": "[if(greaterOrEquals(last(split(steps('network').virtualNetwork.virtualNetworkAddressCidrRange, '/')), 16), equals(last(take(split(first(split(steps('network').virtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 2)), last(take(split(first(split(steps('network').subnets.sessionHostsSubnetAddressCidrRange, '/')), '.'), 2))), true)]",
                         "message": "CIDR range not within virtual network CIDR range (second octet)."
                       },
                       {
-                        "isValid": "[if(greaterOrEquals(last(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), 24), equals(last(take(split(first(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), '.'), 3)), last(take(split(first(split(steps('network').stampVnet.sessionHostsSubnetAddressCidrRange, '/')), '.'), 3))), true)]",
+                        "isValid": "[if(greaterOrEquals(last(split(steps('network').virtualNetwork.virtualNetworkAddressCidrRange, '/')), 24), equals(last(take(split(first(split(steps('network').virtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 3)), last(take(split(first(split(steps('network').subnets.sessionHostsSubnetAddressCidrRange, '/')), '.'), 3))), true)]",
                         "message": "CIDR range not within virtual network CIDR range (third octet)."
                       },
                       {
-                        "isValid": "[lessOrEquals(last(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), last(split(steps('network').stampVnet.sessionHostsSubnetAddressCidrRange, '/')))]",
+                        "isValid": "[lessOrEquals(last(split(steps('network').virtualNetwork.virtualNetworkAddressCidrRange, '/')), last(split(steps('network').subnets.sessionHostsSubnetAddressCidrRange, '/')))]",
                         "message": "CIDR range not within virtual network CIDR range (subnet mask)."
                       }
                     ]
@@ -1510,19 +1499,19 @@
                         "message": "Invalid CIDR range. The address prefix must be in the range [24,28]."
                       },
                       {
-                        "isValid": "[if(greaterOrEquals(last(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('network').stampVnet.managementSubnetAddressCidrRange, '/')), '.'), 1))), true)]",
+                        "isValid": "[if(greaterOrEquals(last(split(steps('network').virtualNetwork.virtualNetworkAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('network').virtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('network').subnets.managementSubnetAddressCidrRange, '/')), '.'), 1))), true)]",
                         "message": "CIDR range not within virtual network CIDR range (first octet)."
                       },
                       {
-                        "isValid": "[if(greaterOrEquals(last(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), 16), equals(last(take(split(first(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), '.'), 2)), last(take(split(first(split(steps('network').stampVnet.managementSubnetAddressCidrRange, '/')), '.'), 2))), true)]",
+                        "isValid": "[if(greaterOrEquals(last(split(steps('network').virtualNetwork.virtualNetworkAddressCidrRange, '/')), 16), equals(last(take(split(first(split(steps('network').virtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 2)), last(take(split(first(split(steps('network').subnets.managementSubnetAddressCidrRange, '/')), '.'), 2))), true)]",
                         "message": "CIDR range not within virtual network CIDR range (second octet)."
                       },
                       {
-                        "isValid": "[if(greaterOrEquals(last(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), 24), equals(last(take(split(first(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), '.'), 3)), last(take(split(first(split(steps('network').stampVnet.managementSubnetAddressCidrRange, '/')), '.'), 3))), true)]",
+                        "isValid": "[if(greaterOrEquals(last(split(steps('network').virtualNetwork.virtualNetworkAddressCidrRange, '/')), 24), equals(last(take(split(first(split(steps('network').virtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 3)), last(take(split(first(split(steps('network').subnets.managementSubnetAddressCidrRange, '/')), '.'), 3))), true)]",
                         "message": "CIDR range not within virtual network CIDR range (third octet)."
                       },
                       {
-                        "isValid": "[lessOrEquals(last(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), last(split(steps('network').stampVnet.managementSubnetAddressCidrRange, '/')))]",
+                        "isValid": "[lessOrEquals(last(split(steps('network').virtualNetwork.virtualNetworkAddressCidrRange, '/')), last(split(steps('network').subnets.managementSubnetAddressCidrRange, '/')))]",
                         "message": "CIDR range not within virtual network CIDR range (subnet mask)."
                       }
                     ]
@@ -1543,19 +1532,19 @@
                         "message": "Invalid CIDR range. The address prefix must be in the range [24,28]."
                       },
                       {
-                        "isValid": "[if(greaterOrEquals(last(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('network').stampVnet.azureNetAppFilesSubnetAddressCidrRange, '/')), '.'), 1))), true)]",
+                        "isValid": "[if(greaterOrEquals(last(split(steps('network').virtualNetwork.virtualNetworkAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('network').virtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('network').subnets.azureNetAppFilesSubnetAddressCidrRange, '/')), '.'), 1))), true)]",
                         "message": "CIDR range not within virtual network CIDR range (first octet)."
                       },
                       {
-                        "isValid": "[if(greaterOrEquals(last(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), 16), equals(last(take(split(first(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), '.'), 2)), last(take(split(first(split(steps('network').stampVnet.azureNetAppFilesSubnetAddressCidrRange, '/')), '.'), 2))), true)]",
+                        "isValid": "[if(greaterOrEquals(last(split(steps('network').virtualNetwork.virtualNetworkAddressCidrRange, '/')), 16), equals(last(take(split(first(split(steps('network').virtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 2)), last(take(split(first(split(steps('network').subnets.azureNetAppFilesSubnetAddressCidrRange, '/')), '.'), 2))), true)]",
                         "message": "CIDR range not within virtual network CIDR range (second octet)."
                       },
                       {
-                        "isValid": "[if(greaterOrEquals(last(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), 24), equals(last(take(split(first(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), '.'), 3)), last(take(split(first(split(steps('network').stampVnet.azureNetAppFilesSubnetAddressCidrRange, '/')), '.'), 3))), true)]",
+                        "isValid": "[if(greaterOrEquals(last(split(steps('network').virtualNetwork.virtualNetworkAddressCidrRange, '/')), 24), equals(last(take(split(first(split(steps('network').virtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 3)), last(take(split(first(split(steps('network').subnets.azureNetAppFilesSubnetAddressCidrRange, '/')), '.'), 3))), true)]",
                         "message": "CIDR range not within virtual network CIDR range (third octet)."
                       },
                       {
-                        "isValid": "[lessOrEquals(last(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), last(split(steps('network').stampVnet.azureNetAppFilesSubnetAddressCidrRange, '/')))]",
+                        "isValid": "[lessOrEquals(last(split(steps('network').virtualNetwork.virtualNetworkAddressCidrRange, '/')), last(split(steps('network').subnets.azureNetAppFilesSubnetAddressCidrRange, '/')))]",
                         "message": "CIDR range not within virtual network CIDR range (subnet mask)."
                       }
                     ]
@@ -1567,7 +1556,7 @@
                   "type": "Microsoft.Common.TextBox",
                   "visible": "[equals(steps('profiles').storage.service, 'AzureFiles Premium')]",
                   "defaultValue": "[concat('10.0.1', string(add(41, mul(2, steps('basics').naming.stampIndex))), '.128/26')]",
-                  "toolTip": "Specify a CIDR range for the Function App subnet within the AVD spoke virtual network range [24,28] for the Scaling Tool and / or the Auto Increase Premium File Share Qutoa tool.",
+                  "toolTip": "Specify a CIDR range for the Function App subnet within the AVD spoke virtual network range [24,28] for the Auto Increase Premium File Share Quota tool.",
                   "constraints": {
                     "required": true,
                     "validations": [
@@ -1576,19 +1565,19 @@
                         "message": "Invalid CIDR range. The address prefix must be in the range [24,28]."
                       },
                       {
-                        "isValid": "[if(greaterOrEquals(last(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('network').stampVnet.functionAppSubnetAddressCidrRange, '/')), '.'), 1))), true)]",
+                        "isValid": "[if(greaterOrEquals(last(split(steps('network').virtualNetwork.virtualNetworkAddressCidrRange, '/')), 8), equals(last(take(split(first(split(steps('network').virtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 1)), last(take(split(first(split(steps('network').subnets.functionAppSubnetAddressCidrRange, '/')), '.'), 1))), true)]",
                         "message": "CIDR range not within virtual network CIDR range (first octet)."
                       },
                       {
-                        "isValid": "[if(greaterOrEquals(last(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), 16), equals(last(take(split(first(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), '.'), 2)), last(take(split(first(split(steps('network').stampVnet.functionAppSubnetAddressCidrRange, '/')), '.'), 2))), true)]",
+                        "isValid": "[if(greaterOrEquals(last(split(steps('network').virtualNetwork.virtualNetworkAddressCidrRange, '/')), 16), equals(last(take(split(first(split(steps('network').virtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 2)), last(take(split(first(split(steps('network').subnets.functionAppSubnetAddressCidrRange, '/')), '.'), 2))), true)]",
                         "message": "CIDR range not within virtual network CIDR range (second octet)."
                       },
                       {
-                        "isValid": "[if(greaterOrEquals(last(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), 24), equals(last(take(split(first(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), '.'), 3)), last(take(split(first(split(steps('network').stampVnet.functionAppSubnetAddressCidrRange, '/')), '.'), 3))), true)]",
+                        "isValid": "[if(greaterOrEquals(last(split(steps('network').virtualNetwork.virtualNetworkAddressCidrRange, '/')), 24), equals(last(take(split(first(split(steps('network').virtualNetwork.virtualNetworkAddressCidrRange, '/')), '.'), 3)), last(take(split(first(split(steps('network').subnets.functionAppSubnetAddressCidrRange, '/')), '.'), 3))), true)]",
                         "message": "CIDR range not within virtual network CIDR range (third octet)."
                       },
                       {
-                        "isValid": "[lessOrEquals(last(split(steps('network').stampVnet.virtualNetworkAddressCidrRange, '/')), last(split(steps('network').stampVnet.functionAppSubnetAddressCidrRange, '/')))]",
+                        "isValid": "[lessOrEquals(last(split(steps('network').virtualNetwork.virtualNetworkAddressCidrRange, '/')), last(split(steps('network').subnets.functionAppSubnetAddressCidrRange, '/')))]",
                         "message": "CIDR range not within virtual network CIDR range (subnet mask)."
                       }
                     ]
@@ -1851,16 +1840,17 @@
         "availability": "[steps('hosts').virtualMachines.availability]",
         "availabilityZones": "[first(map(first(map(filter(steps('hosts').virtualMachines.resourceSkusApi.value, (item) => contains(item.name, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Pooled')), steps('hosts').virtualMachines.sizeArcGisProMulti, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 6)), steps('hosts').virtualMachines.sizeArcGisProSingleLight, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 4)), steps('hosts').virtualMachines.sizeArcGisProSingleMedium, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 3)), steps('hosts').virtualMachines.sizeArcGisProSingleHeavy, steps('hosts').virtualMachines.sizeGeneric)))))), (item) => item.locationInfo)), (item) => item.zones))]",
         "avdObjectId": "[steps('controlPlane').startVmOnConnect.avdObjectId]",
-        "azureNetAppFilesSubnetAddressPrefix": "[steps('network').stampVnet.azureNetAppFilesSubnetAddressCidrRange]",
+        "azureNetAppFilesSubnetAddressPrefix": "[steps('network').subnets.azureNetAppFilesSubnetAddressCidrRange]",
         "customRdpProperty": "[steps('controlPlane').hostPool.customRdpProperties]",
         "deployActivityLogDiagnosticSetting": "[empty(steps('compliance').diagnosticSettingsApi.value)]",
         "deployDefender": "[and(steps('compliance').defenderForCloud.deployDefender, empty(steps('compliance').defenderForCloud.workspaceSettingsApi.value))]",
         "deployNetworkWatcherTrafficAnalytics": "[steps('network').flowLogsSection.deployTrafficAnalytics]",
         "deployPolicy": "[steps('compliance').policySection.deployPolicy]",
+        "deployWindowsAntimalware": "[steps('hosts').virtualMachines.enableWindowsAntimalware]",
         "desktopFriendlyName": "[steps('controlPlane').friendlyNames.sessionDesktop]",
         "diskSku": "[if(equals(steps('basics').scenario.profile, 'arcGisPro'), 'Premium_LRS', steps('hosts').virtualMachines.diskSku)]",
-        "domainJoinPassword": "[steps('hosts').domainJoinCredentials.domainPassword]",
-        "domainJoinUserPrincipalName": "[steps('hosts').domainJoinCredentials.domainUserPrincipalName]",
+        "domainAdminPassword": "[steps('hosts').domainJoinCredentials.domainPassword]",
+        "domainAdminUserPrincipalName": "[steps('hosts').domainJoinCredentials.domainUserPrincipalName]",
         "domainName": "[steps('hosts').identity.domainName]",
         "drainMode": "[steps('management').drainMode.enableDrainMode]",
         "emailSecurityContact": "[if(and(steps('compliance').defenderForCloud.deployDefender, empty(steps('compliance').defenderForCloud.workspaceSettingsApi.value)), steps('compliance').defenderForCloud.emailSecurityContact, '')]",
@@ -1869,11 +1859,12 @@
         "enableAvdInsights": "[steps('management').monitoring.enableAvdInsights]",
         "enableTelemetry": "[steps('basics').scenario.enablePartnerTelemetry]",
         "environmentAbbreviation": "[steps('basics').naming.environment]",
-        "existingFeedWorkspaceResourceId": "[if(empty(steps('controlPlane').workspacesApi.value), '', first(map(filter(steps('controlPlane').workspacesApi.value, (item) => and(contains(item.name, steps('basics').naming.identifier), contains(item.name, 'feed'), contains(item.name, steps('basics').naming.environment), equals(item.location, steps('basics').hub.azureFirewallApi.location))), (item) => item.id)))]",
+        "existingFeedWorkspaceResourceId": "[if(steps('controlPlane').workspaceSection.existingWorkspace, steps('controlPlane').workspaceSection.workspace.id, '')]",
         "fslogixShareSizeInGB": "[if(equals(steps('profiles').profileSolution, 'local'), 100, steps('profiles').storage.fileShareSize)]",
         "fslogixContainerType": "[steps('profiles').storage.fslogixContainerType]",
+        "fslogixOrganizationalUnitPath": "[steps('profiles').storage.ouPath]",
         "fslogixStorageService": "[if(equals(steps('profiles').profileSolution, 'local'), 'None', steps('profiles').storage.service)]",
-        "functionAppSubnetAddressPrefix": "[steps('network').stampVnet.functionAppSubnetAddressCidrRange]",
+        "functionAppSubnetAddressPrefix": "[steps('network').subnets.functionAppSubnetAddressCidrRange]",
         "hostPoolPublicNetworkAccess": "[steps('controlPlane').hostPool.publicNetworkAccess]",
         "hostPoolType": "[steps('controlPlane').hostPool.hostPoolType]",
         "hubAzureFirewallResourceId": "[steps('basics').hub.azureFirewall]",
@@ -1887,12 +1878,11 @@
         "locationVirtualMachines": "[steps('basics').scope.location.name]",
         "logAnalyticsWorkspaceRetention": 30,
         "logAnalyticsWorkspaceSku": "PerGB2018",
-        "managementSubnetAddressPrefix": "[steps('network').stampVnet.managementSubnetAddressCidrRange]",
+        "managementSubnetAddressPrefix": "[steps('network').subnets.managementSubnetAddressCidrRange]",
         "managementVirtualMachineSize": "[steps('management').virtualMachine.size]",
         "networkWatcherFlowLogsRetentionDays": "[steps('network').flowLogsSection.retentionDays]",
         "networkWatcherFlowLogsType": "[steps('network').flowLogsSection.flowLogsType]",
         "operationsLogAnalyticsWorkspaceResourceId": "[first(map(steps('basics').operationsLogAnalyticsWorkspaceApi.value, (item) => item.id))]",
-        "organizationalUnitPath": "[if(equals(steps('hosts').identity.solution, 'MicrosoftEntraId'), '', steps('hosts').identity.ouPath)]",
         "policy": "[steps('compliance').policySection.policy]",
         "privateLinkScopeResourceId": "[steps('basics').operations.privateLinkScope]",
         "profile": "[steps('basics').scenario.profile]",
@@ -1901,14 +1891,13 @@
         "scalingWeekendsOffPeakStartTime": "[steps('management').scalingPlan.weekendsOffPeakStartTime]",
         "scalingWeekendsPeakStartTime": "[steps('management').scalingPlan.weekendsPeakStartTime]",
         "securityPrincipals": "[steps('controlPlane').assignment.groupPickerBlade.transformed.selection]",
-        "sessionHostCount": "[steps('hosts').virtualMachines.count]",
-        "sessionHostIndex": 0,
-        "sessionHostsSubnetAddressPrefix": "[steps('network').stampVnet.sessionHostsSubnetAddressCidrRange]",
+        "sessionHostsCount": "[steps('hosts').virtualMachines.count]",
+        "sessionHostsIndex": 0,
+        "sessionHostsOrganizationalUnitPath": "[if(equals(steps('hosts').identity.solution, 'MicrosoftEntraId'), '', steps('hosts').identity.ouPath)]",
+        "sessionHostsSubnetAddressPrefix": "[steps('network').subnets.sessionHostsSubnetAddressCidrRange]",
         "sharedServicesSubnetResourceId": "[first(map(steps('basics').sharedServicesSubnetsApi.value, (item) => item.id))]",
-        "sharedSubnetAddressPrefix": "[steps('network').sharedVnet.subnetAddressCidrRange]",
-        "sharedVirtualNetworkAddressPrefix": "[steps('network').sharedVnet.virtualNetworkAddressCidrRange]",
         "stampIndex": "[steps('basics').naming.stampIndex]",
-        "stampVirtualNetworkAddressPrefix": "[steps('network').stampVnet.virtualNetworkAddressCidrRange]",
+        "stampVirtualNetworkAddressPrefix": "[steps('network').virtualNetwork.virtualNetworkAddressCidrRange]",
         "storageCount": "[if(equals(steps('profiles').profileSolution, 'local'), 0, length(steps('controlPlane').assignment.groupPickerBlade.transformed.selection))]",
         "storageIndex": 0,
         "tags": "[steps('tags').tags]",
@@ -1917,9 +1906,9 @@
         "virtualMachineAdminPassword": "[steps('hosts').localAdminCredentials.localAdminPassword]",
         "virtualMachineAdminUsername": "[steps('hosts').localAdminCredentials.localAdminUsername]",
         "virtualMachineSize": "[if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Pooled')), steps('hosts').virtualMachines.sizeArcGisProMulti, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 6)), steps('hosts').virtualMachines.sizeArcGisProSingleLight, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 4)), steps('hosts').virtualMachines.sizeArcGisProSingleMedium, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 3)), steps('hosts').virtualMachines.sizeArcGisProSingleHeavy, steps('hosts').virtualMachines.sizeGeneric))))]",
-        "virtualMachineVirtualCpuCount": "[first(map(filter(first(map(filter(steps('basics').scenario.virtualMachineSkusApi.value, (item) => equals(item.name, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Pooled')), steps('hosts').virtualMachines.sizeArcGisProMulti, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 6)), steps('hosts').virtualMachines.sizeArcGisProSingleLight, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 4)), steps('hosts').virtualMachines.sizeArcGisProSingleMedium, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 3)), steps('hosts').virtualMachines.sizeArcGisProSingleHeavy, steps('hosts').virtualMachines.sizeGeneric)))))), (item) => item.capabilities)), (item) => equals(item.name, 'vCPUs')), (item) => item.value))]",
-        "workspaceFriendlyName": "[if(empty(first(map(filter(steps('controlPlane').workspacesApi.value, (item) => and(contains(item.name, steps('basics').naming.identifier), contains(item.name, 'feed'), contains(item.name, steps('basics').naming.environment), equals(item.location, steps('basics').hub.azureFirewallApi.location))), (item) => item.id))), steps('controlPlane').friendlyNames.feedWorkspace, first(map(filter(steps('controlPlane').workspacesApi.value, (item) => and(contains(item.name, steps('basics').naming.identifier), contains(item.name, 'feed'), contains(item.name, steps('basics').naming.environment), equals(item.location, steps('basics').hub.azureFirewallApi.location))), (item) => item.properties.friendlyName)))]",
-        "workspacePublicNetworkAccess": "[if(empty(first(map(filter(steps('controlPlane').workspacesApi.value, (item) => and(contains(item.name, steps('basics').naming.identifier), contains(item.name, 'feed'), contains(item.name, steps('basics').naming.environment), equals(item.location, steps('basics').hub.azureFirewallApi.location))), (item) => item.id))), steps('controlPlane').workspace.publicNetworkAccess, first(map(filter(steps('controlPlane').workspacesApi.value, (item) => and(contains(item.name, steps('basics').naming.identifier), contains(item.name, 'feed'), contains(item.name, steps('basics').naming.environment), equals(item.location, steps('basics').hub.azureFirewallApi.location))), (item) => item.properties.publicNetworkAccess)))]"
+        "virtualMachineVirtualCpuCount": "[parse(first(map(filter(first(map(filter(steps('basics').scenario.virtualMachineSkusApi.value, (item) => equals(item.name, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Pooled')), steps('hosts').virtualMachines.sizeArcGisProMulti, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 6)), steps('hosts').virtualMachines.sizeArcGisProSingleLight, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 4)), steps('hosts').virtualMachines.sizeArcGisProSingleMedium, if(and(equals(steps('basics').scenario.profile, 'arcGisPro'), equals(steps('controlPlane').hostPool.hostPoolType, 'Personal'), equals(steps('controlPlane').hostPool.workloadType, 3)), steps('hosts').virtualMachines.sizeArcGisProSingleHeavy, steps('hosts').virtualMachines.sizeGeneric)))))), (item) => item.capabilities)), (item) => equals(item.name, 'vCPUs')), (item) => item.value)))]",
+        "workspaceFriendlyName": "[steps('controlPlane').friendlyNames.feedWorkspace]",
+        "workspacePublicNetworkAccess": "[steps('controlPlane').workspaceSection.publicNetworkAccess]"
       },
       "kind": "Subscription",
       "location": "[steps('basics').scope.location.name]",

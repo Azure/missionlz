@@ -1,18 +1,23 @@
 param delegatedSubnetResourceId string
 param delimiter string
+param deploymentNameSuffix string
 param dnsServers string
 @secure()
-param domainJoinPassword string
+param domainAdminPassword string
 @secure()
-param domainJoinUserPrincipalName string
+param domainAdminUserPrincipalName string
 param domainName string
 param hostPoolResourceId string = ''
-param fileShares array
+param fileShareNames array
 param location string
+param managementVirtualMachineName string
 param mlzTags object
 param netAppAccountNamePrefix string
 param netAppCapacityPoolNamePrefix string
+param netbios string
 param organizationalUnitPath string
+param resourceGroupManagement string
+param securityPrincipalNames array
 param smbServerName string
 param storageSku string
 param suffix string =  ''
@@ -32,9 +37,9 @@ resource netAppAccount 'Microsoft.NetApp/netAppAccounts@2025-01-01' = {
         domain: domainName
         dns: dnsServers
         organizationalUnit: empty(organizationalUnitPath) ? 'CN=Computers' : organizationalUnitPath
-        password: domainJoinPassword
+        password: domainAdminPassword
         smbServerName: smbServerName
-        username: split(domainJoinUserPrincipalName, '@')[0]
+        username: split(domainAdminUserPrincipalName, '@')[0]
       }
     ]
     encryption: {
@@ -57,16 +62,16 @@ resource capacityPool 'Microsoft.NetApp/netAppAccounts/capacityPools@2025-01-01'
   }
 }
 
-resource volumes 'Microsoft.NetApp/netAppAccounts/capacityPools/volumes@2025-01-01' = [for i in range(0, length(fileShares)): {
+resource volumes 'Microsoft.NetApp/netAppAccounts/capacityPools/volumes@2025-01-01' = [for i in range(0, length(fileShareNames)): {
   parent: capacityPool
-  name: fileShares[i]
+  name: fileShareNames[i]
   location: location
   tags: tagsNetAppAccount
   properties: {
     avsDataStore: 'Disabled'
     // backupId: 'string'
     coolAccess: false
-    creationToken: fileShares[i]
+    creationToken: fileShareNames[i]
     // dataProtection: {
     //   backup: {
     //     backupEnabled: bool
@@ -112,5 +117,39 @@ resource volumes 'Microsoft.NetApp/netAppAccounts/capacityPools/volumes@2025-01-
   }
 }]
 
-output fileShares array = [for (fileshare, i) in fileShares: volumes[i].properties.mountTargets[0].smbServerFqdn]
-output smbServerNamePrefix string = smbServerName
+module ntfsPermissions 'run-command.bicep' = {
+  name: 'deploy-fslogix-ntfs-permissions-${deploymentNameSuffix}'
+  scope: resourceGroup(resourceGroupManagement)
+  params: {
+    domainAdminPassword: domainAdminPassword
+    domainAdminUserPrincipalName: domainAdminUserPrincipalName
+    location: location
+    name: 'Set-AzureNetAppFilesNtfsPermissions.ps1'
+    parameters: [
+      {
+        name: 'FileServer'
+        value: volumes[0].properties.mountTargets[0].smbServerFqdn
+      }
+      {
+        name: 'Netbios'
+        value: netbios
+      }
+      {
+        name: 'SecurityPrincipalNames'
+        value: string(securityPrincipalNames)
+      }
+      {
+        name: 'ShareNames'
+        value: string(fileShareNames)
+      }
+    ]
+    script: loadTextContent('../../artifacts/Set-AzureNetAppFilesNtfsPermissions.ps1')
+    tags: tags
+    virtualMachineName: managementVirtualMachineName
+  }
+  dependsOn: [
+    volumes
+  ]
+}
+
+output netAppFileServer string = volumes[0].properties.mountTargets[0].smbServerFqdn

@@ -1,7 +1,9 @@
+targetScope = 'subscription'
+
 param deploymentNameSuffix string
 @secure()
-param domainJoinPassword string
-param domainJoinUserPrincipalName string
+param domainAdminPassword string
+param domainAdminUserPrincipalName string
 param location string
 param parameters array
 param resourceGroupName string
@@ -12,8 +14,8 @@ module ntfsPermissions 'run-command.bicep' = {
   name: 'deploy-fslogix-ntfs-permissions-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupName)
   params: {
-    domainJoinPassword: domainJoinPassword
-    domainJoinUserPrincipalName: domainJoinUserPrincipalName
+    domainAdminPassword: domainAdminPassword
+    domainAdminUserPrincipalName: domainAdminUserPrincipalName
     location: location
     name: 'Set-NtfsPermissions.ps1'
     parameters: parameters

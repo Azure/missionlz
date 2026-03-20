@@ -10,6 +10,7 @@ param delimiter string
 param deployFslogix bool
 param deploymentNameSuffix string
 param deploymentUserAssignedidentityClientId string
+param deployWindowsAntimalware bool
 param diskEncryptionSetResourceId string
 param diskNamePrefix string
 param diskSku string
@@ -30,7 +31,7 @@ param imageSku string
 param imageVersionResourceId string
 param location string
 param managementVirtualMachineName string
-param netAppFileShares array
+param netAppFileServer string
 param networkInterfaceNamePrefix string
 param networkSecurityGroupResourceId string
 param organizationalUnitPath string
@@ -60,6 +61,11 @@ var amdVmSizes = [
   'Standard_NV8as_v4'
   'Standard_NV16as_v4'
   'Standard_NV32as_v4'
+  'Standard_NV4ads_V710_v5'
+  'Standard_NV8ads_V710_v5'
+  'Standard_NV12ads_V710_v5'
+  'Standard_NV24ads_V710_v5'
+  'Standard_NV28adms_V710_v5'
 ]
 var fslogixExclusions = '"%TEMP%\\*\\*.VHDX";"%Windir%\\TEMP\\*\\*.VHDX"${fslogixExclusionsCloudCache}${fslogixExclusionsProfileContainers}${fslogixExclusionsOfficeContainers}'
 var fslogixExclusionsCloudCache = contains(fslogixContainerType, 'CloudCache') ? ';"%ProgramData%\\fslogix\\Cache\\*";"%ProgramData%\\fslogix\\Proxy\\*"' : ''
@@ -84,10 +90,11 @@ var nvidiaVmSizes = [
   'Standard_NV12s_v3'
   'Standard_NV24s_v3'
   'Standard_NV48s_v3'
-  'Standard_NC4as_T4_v3'
-  'Standard_NC8as_T4_v3'
-  'Standard_NC16as_T4_v3'
-  'Standard_NC64as_T4_v3'
+  // The GRID driver is currently not supported with the NCasT4_v3 series and must be installed manaully
+  // 'Standard_NC4as_T4_v3'
+  // 'Standard_NC8as_T4_v3'
+  // 'Standard_NC16as_T4_v3'
+  // 'Standard_NC64as_T4_v3'
   'Standard_NV6ads_A10_v5'
   'Standard_NV12ads_A10_v5'
   'Standard_NV18ads_A10_v5'
@@ -204,7 +211,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-03-01' = [for i 
   ]
 }]
 
-resource extension_IaasAntimalware 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [for i in range(0, sessionHostCount): {
+resource extension_IaasAntimalware 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [for i in range(0, sessionHostCount): if (deployWindowsAntimalware) {
   parent: virtualMachine[i]
   name: 'IaaSAntimalware'
   location: location
@@ -307,8 +314,8 @@ module setSessionHostConfiguration '../common/run-command.bicep' = [
           value: fslogixContainerType
         }
         {
-          name: 'NetAppFileShares'
-          value: string(netAppFileShares)
+          name: 'NetAppFileServer'
+          value: netAppFileServer
         }
         {
           name: 'NvidiaVmSize'

@@ -9,12 +9,7 @@ param diskAccessPolicyDefinitionId string
 param diskAccessPolicyDisplayName string
 param diskAccessResourceId string
 param diskEncryptionSetResourceId string
-param diskSku string
-param fileShare string
 param hostPoolResourceId string
-param imageOffer string
-param imagePublisher string
-param imageSku string
 param location string
 param mlzTags object 
 param resourceGroupName string
@@ -66,17 +61,7 @@ module virtualMachine 'virtual-machine.bicep' = {
     deploymentNameSuffix: deploymentNameSuffix
     diskEncryptionSetResourceId: diskEncryptionSetResourceId
     diskNamePrefix: replace(tier.namingConvention.virtualMachineDisk, '${delimiter}${tokens.purpose}', '')
-    diskSku: diskSku
-    fileShare: fileShare
     hostPoolResourceId: hostPoolResourceId
-    imageOffer: imageOffer
-    imagePublisher: imagePublisher
-    imagePurchasePlan: {
-      name: imageSku
-      publisher: imagePublisher
-      product: imageOffer
-    }
-    imageSku: imageSku
     location: location
     networkInterfaceNamePrefix: replace(tier.namingConvention.virtualMachineNetworkInterface, '${delimiter}${tokens.purpose}', '')
     networkSecurityGroupResourceId: tier.networkSecurityGroupResourceId

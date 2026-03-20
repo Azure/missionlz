@@ -12,9 +12,6 @@ param activeDirectorySolution string
 @description('The object ID for the Azure Virtual Desktop enterprise application in Microsoft Entra ID.  The object ID can found by selecting Microsoft Applications using the Application type filter in the Enterprise Applications blade of Microsoft Entra ID.')
 param avdObjectId string
 
-@description('The RDP properties to add or remove RDP functionality on the AVD host pool. The string must end with a semi-colon. Settings reference: https://learn.microsoft.com/windows-server/remote/remote-desktop-services/clients/rdp-files')
-param customRdpProperty string = 'audiocapturemode:i:1;camerastoredirect:s:*;use multimon:i:0;drivestoredirect:s:;encode redirected video capture:i:1;redirected video capture encoding quality:i:1;audiomode:i:0;devicestoredirect:s:;redirectclipboard:i:0;redirectcomports:i:0;redirectlocation:i:1;redirectprinters:i:0;redirectsmartcards:i:1;redirectwebauthn:i:1;usbdevicestoredirect:s:;keyboardhook:i:2;'
-
 @description('Choose whether to deploy a diagnostic setting for the Activity Log.')
 param deployActivityLogDiagnosticSetting bool
 
@@ -30,14 +27,6 @@ param deployPolicy bool
 @description('A suffix to use for naming deployments uniquely. It defaults to the Bicep resolution of the "utcNow()" function.')
 param deploymentNameSuffix string = utcNow()
 
-@allowed([
-  'Standard_LRS'
-  'StandardSSD_LRS'
-  'Premium_LRS'
-])
-@description('The storage SKU for the managed disks on the AVD session hosts. Production deployments should use Premium_LRS.')
-param diskSku string = 'Premium_LRS'
-
 @description('The name of the domain that provides ADDS to the AVD session hosts.')
 param domainName string = ''
 
@@ -52,12 +41,6 @@ param emailSecurityContact string = ''
 @description('The abbreviation for the target environment.')
 param environmentAbbreviation string = 'dev'
 
-@description('The resource ID for the existing feed workspace within a business unit or project.')
-param existingFeedWorkspaceResourceId string = ''
-
-@description('The file share on Azure NetApp Files to store unstructured geospatial data.')
-param fileShare string
-
 @allowed([
   'Disabled'
   'Enabled'
@@ -66,13 +49,6 @@ param fileShare string
 ])
 @description('The type of public network access for the host pool.')
 param hostPoolPublicNetworkAccess string = 'Enabled'
-
-@allowed([
-  'Pooled'
-  'Personal'
-])
-@description('The type of AVD host pool.')
-param hostPoolType string = 'Pooled'
 
 @description('The resource ID for the Azure Firewall in the HUB subscription')
 param hubAzureFirewallResourceId string
@@ -86,35 +62,6 @@ param hubVirtualNetworkResourceId string
 @maxLength(3)
 @description('The unique identifier between each business unit or project supporting AVD in your tenant. This is the unique naming component between each AVD stamp.')
 param identifier string = 'avd'
-
-@description('Offer for the virtual machine image')
-param imageOffer string = 'pro-byol'
-
-@description('Publisher for the virtual machine image')
-param imagePublisher string = 'esri'
-
-@description('SKU for the virtual machine image')
-param imageSku string = 'pro-byol-36'
-
-@description('An array of Key Vault Diagnostic Logs categories to collect. See "https://learn.microsoft.com/en-us/azure/key-vault/general/logging?tabs=Vault" for valid values.')
-param keyVaultDiagnosticsLogs array = [
-  {
-    category: 'AuditEvent'
-    enabled: true
-  }
-  {
-    category: 'AzurePolicyEvaluationDetails'
-    enabled: true
-  }
-]
-
-@description('The Key Vault Diagnostic Metrics to collect. See the following URL for valid settings: "https://learn.microsoft.com/azure/key-vault/general/logging?tabs=Vault".')
-param keyVaultDiagnosticMetrics array = [
-  {
-    category: 'AllMetrics'
-    enabled: true
-  }
-]
 
 @description('The deployment location for the AVD sessions hosts. This is necessary when the users are closer to a different location than the control plane location.')
 param location string = deployment().location
@@ -142,25 +89,8 @@ param logStorageSkuName string = 'Standard_GRS'
 @description('The address prefix(es) for the new subnet(s) that will be created in the spoke virtual network(s). Specify only one address prefix in the array if the session hosts location and the control plan location are the same. If different locations are specified, add a second address prefix for the hosts virtual network.')
 param managementSubnetAddressPrefix string = '10.0.141.0/26'
 
-@description('An array of metrics to enable on the diagnostic setting for network interfaces.')
-param networkInterfaceDiagnosticsMetrics array = [
-  {
-    category: 'AllMetrics'
-    enabled: true
-  }
-]
-
-@description('An array of Network Security Group diagnostic logs to apply to the workload Virtual Network. See https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-nsg-manage-log#log-categories for valid settings.')
-param networkSecurityGroupDiagnosticsLogs array = [
-  {
-    category: 'NetworkSecurityGroupEvent'
-    enabled: true
-  }
-  {
-    category: 'NetworkSecurityGroupRuleCounter'
-    enabled: true
-  }
-]
+@description('The virtual machine size for the management virtual machine.')
+param managementVirtualMachineSize string = 'Standard_D2ds_v4'
 
 @description('The rules to apply to the Network Security Group.')
 param networkSecurityGroupRules array = []
@@ -196,12 +126,6 @@ param stampVirtualNetworkAddressPrefix string = '10.0.140.0/23'
 @description('The Key / value pairs of metadata for the Azure resource groups and resources.')
 param tags object = {}
 
-@description('The number of users per core is used to determine the maximum number of users per session host.')
-param usersPerCore int = 1
-
-@description('The validation environment setting on the AVD host pool determines whether the hostpool should receive AVD preview features for testing.')
-param validationEnvironment bool = false
-
 @secure()
 @description('The local administrator password for the AVD session hosts')
 param virtualMachineAdminPassword string
@@ -211,18 +135,6 @@ param virtualMachineAdminUsername string
 
 @description('The virtual machine SKU for the AVD session hosts.')
 param virtualMachineSize string = 'Standard_D4ads_v5'
-
-@description('The number of virtual CPUs per virtual machine for the selected virtual machine size.')
-param virtualMachineVirtualCpuCount int
-
-@description('The diagnostic logs to apply to the workload Virtual Network.')
-param virtualNetworkDiagnosticsLogs array = []
-
-@description('The metrics to monitor for the workload Virtual Network.')
-param virtualNetworkDiagnosticsMetrics array = []
-
-@description('The friendly name for the AVD workspace that is displayed in the end-user client.')
-param workspaceFriendlyName string = ''
 
 @allowed([
   'Disabled'
@@ -275,13 +187,9 @@ module tier3 '../../tier3/solution.bicep' = {
     hubStorageAccountResourceId: hubStorageAccountResourceId
     hubVirtualNetworkResourceId: hubVirtualNetworkResourceId
     identifier: identifier
-    keyVaultDiagnosticLogs: keyVaultDiagnosticsLogs
-    keyVaultDiagnosticMetrics: keyVaultDiagnosticMetrics
     location: location
     logAnalyticsWorkspaceResourceId: operationsLogAnalyticsWorkspaceResourceId
     logStorageSkuName: logStorageSkuName
-    networkInterfaceDiagnosticsMetrics: networkInterfaceDiagnosticsMetrics
-    networkSecurityGroupDiagnosticsLogs: networkSecurityGroupDiagnosticsLogs
     networkSecurityGroupRules: networkSecurityGroupRules
     networkWatcherFlowLogsRetentionDays: networkWatcherFlowLogsRetentionDays
     networkWatcherFlowLogsType: networkWatcherFlowLogsType
@@ -290,8 +198,6 @@ module tier3 '../../tier3/solution.bicep' = {
     subnetName: 'avd-session-hosts'
     tags: tags
     virtualNetworkAddressPrefix: stampVirtualNetworkAddressPrefix
-    virtualNetworkDiagnosticsLogs: virtualNetworkDiagnosticsLogs
-    virtualNetworkDiagnosticsMetrics: virtualNetworkDiagnosticsMetrics
     windowsAdministratorsGroupMembership: virtualMachineAdminUsername
     workloadName: 'avd'
     workloadShortName: 'avd'
@@ -333,48 +239,27 @@ module management 'management/management.bicep' = {
   name: 'deploy-management-${deploymentNameSuffix}'
   params: {
     avdObjectId: avdObjectId
+    avdPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3.outputs.privateDnsZones, name => startsWith(name, 'privatelink.wvd'))[0]}'
+    delimiter: tier3.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
     environmentAbbreviation: environmentAbbreviation
+    hostPoolPublicNetworkAccess: hostPoolPublicNetworkAccess
     location: location
     logAnalyticsWorkspaceRetention: logAnalyticsWorkspaceRetention
     logAnalyticsWorkspaceSku: logAnalyticsWorkspaceSku
+    mlzTags: tier3.outputs.mlzTags
     privateDnsZoneResourceIdPrefix: privateDnsZoneResourceIdPrefix
+    privateDnsZones: tier3.outputs.privateDnsZones
     privateLinkScopeResourceId: privateLinkScopeResourceId
+    resourceAbbreviations: tier3.outputs.resourceAbbreviations
     resourceGroupName: rg.outputs.name
+    securityPrincipalObjectId: map(securityPrincipals, item => item.objectId)[0]
     subscriptionId: subscriptionId
     tags: tags
     tier: tier3.outputs.tier
-    delimiter: tier3.outputs.delimiter
     tokens: tier3.outputs.tokens
-    mlzTags: tier3.outputs.mlzTags
-    namingConvention: tier3.outputs.tier.namingConvention
-    privateDnsZones: tier3.outputs.privateDnsZones
-    resourceAbbreviations: tier3.outputs.resourceAbbreviations
-  }
-}
-
-module controlPlane 'control-plane/control-plane.bicep' = {
-  name: 'deploy-control-plane-${deploymentNameSuffix}'
-  params: {
-    avdPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3.outputs.privateDnsZones, name => startsWith(name, 'privatelink.wvd'))[0]}'
-    customRdpProperty: contains(activeDirectorySolution, 'MicrosoftEntraId') ? '${customRdpProperty}enablerdsaadauth:i:1;' : customRdpProperty
-    delimiter: tier3.outputs.delimiter
-    deploymentNameSuffix: deploymentNameSuffix
-    existingFeedWorkspaceResourceId: existingFeedWorkspaceResourceId
-    hostPoolPublicNetworkAccess: hostPoolPublicNetworkAccess
-    hostPoolType: hostPoolType
-    location: location
-    logAnalyticsWorkspaceResourceId: management.outputs.logAnalyticsWorkspaceResourceId
-    maxSessionLimit: usersPerCore * virtualMachineVirtualCpuCount
-    mlzTags: tier3.outputs.mlzTags
-    resourceGroupName: rg.outputs.name
-    securityPrincipalObjectId: map(securityPrincipals, item => item.objectId)[0]
-    tags: tags
-    tier: tier3.outputs.tier
-    tokens: tier3.outputs.tokens
-    validationEnvironment: validationEnvironment
-    vmTemplate: '{"domain":"${domainName}","galleryImageOffer":"${imageOffer}","galleryImagePublisher":"${imagePublisher}","galleryImageSKU":"${imageSku}","imageType":"Gallery","customImageId":null,"namePrefix":"${replace(tier3.outputs.tier.namingConvention.virtualMachine, '${tier3.outputs.delimiter}${tier3.outputs.tokens.purpose}', '')}","osDiskType":"${diskSku}","vmSize":{"id":"${virtualMachineSize}","cores":null,"ram":null,"rdmaEnabled": false,"supportsMemoryPreservingMaintenance": true},"galleryItemId":"${imagePublisher}.${imageOffer}${imageSku}","hibernate":false,"diskSizeGB":0,"securityType":"TrustedLaunch","secureBoot":true,"vTPM":true,"vmInfrastructureType":"Cloud","virtualProcessorCount":null,"memoryGB":null,"maximumMemoryGB":null,"minimumMemoryGB":null,"dynamicMemoryConfig":false}'
-    workspaceFriendlyName: workspaceFriendlyName
+    virtualMachineSize: managementVirtualMachineSize
+    vmTemplate: '{"domain":"${domainName}","galleryImageOffer":"pro-byol","galleryImagePublisher":"esri","galleryImageSKU":"pro-byol-36","imageType":"Gallery","customImageId":null,"namePrefix":"${replace(tier3.outputs.tier.namingConvention.virtualMachine, '${tier3.outputs.delimiter}${tier3.outputs.tokens.purpose}', '')}","osDiskType":"Premium_LRS","vmSize":{"id":"${virtualMachineSize}","cores":null,"ram":null,"rdmaEnabled": false,"supportsMemoryPreservingMaintenance": true},"galleryItemId":"esri.pro-byol.pro-byol-36","hibernate":false,"diskSizeGB":0,"securityType":"TrustedLaunch","secureBoot":true,"vTPM":true,"vmInfrastructureType":"Cloud","virtualProcessorCount":null,"memoryGB":null,"maximumMemoryGB":null,"minimumMemoryGB":null,"dynamicMemoryConfig":false}'
     workspaceGlobalPrivateDnsZoneResourceId: '${privateDnsZoneResourceIdPrefix}${filter(tier3.outputs.privateDnsZones, name => startsWith(name, 'privatelink-global.wvd'))[0]}'
     workspacePublicNetworkAccess: workspacePublicNetworkAccess
   }
@@ -393,12 +278,7 @@ module sessionHosts 'session-hosts/session-hosts.bicep' = {
     diskAccessPolicyDisplayName: management.outputs.diskAccessPolicyDisplayName
     diskAccessResourceId: management.outputs.diskAccessResourceId
     diskEncryptionSetResourceId: management.outputs.diskEncryptionSetResourceId
-    diskSku: diskSku
-    fileShare: fileShare
-    hostPoolResourceId: controlPlane.outputs.hostPoolResourceId
-    imageOffer: imageOffer
-    imagePublisher: imagePublisher
-    imageSku: imageSku
+    hostPoolResourceId: management.outputs.hostPoolResourceId
     location: location
     mlzTags: tier3.outputs.mlzTags
     resourceGroupName: resourceGroupName

@@ -1,6 +1,5 @@
 param applicationGroupResourceId string
 param avdPrivateDnsZoneResourceId string
-param existingFeedWorkspaceResourceId string
 param locationControlPlane string
 param logAnalyticsWorkspaceResourceId string
 param mlzTags object
@@ -12,7 +11,7 @@ param workspaceFeedPrivateEndpointName string
 param workspaceFriendlyName string
 param workspacePublicNetworkAccess string
 
-resource workspace 'Microsoft.DesktopVirtualization/workspaces@2023-09-05' = if (empty(existingFeedWorkspaceResourceId)) {
+resource workspace 'Microsoft.DesktopVirtualization/workspaces@2023-09-05' = {
   name: workspaceFeedName
   location: locationControlPlane
   tags: mlzTags
@@ -25,7 +24,7 @@ resource workspace 'Microsoft.DesktopVirtualization/workspaces@2023-09-05' = if 
   }
 }
 
-resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = if (empty(existingFeedWorkspaceResourceId)) {
+resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = {
   name: workspaceFeedPrivateEndpointName
   location: locationControlPlane
   tags: mlzTags
@@ -48,7 +47,7 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-04-01' = if (e
   }
 }
 
-resource privateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-05-01' = if (empty(existingFeedWorkspaceResourceId)) {
+resource privateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-05-01' = {
   parent: privateEndpoint
   name: 'default'
   properties: {

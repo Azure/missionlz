@@ -1,23 +1,8 @@
-﻿$ErrorActionPreference = 'Stop'
+﻿param([string]$NvidiaGpu)
+
+$ErrorActionPreference = 'Stop'
 $Settings = @(
 
-    # Disable Automatic Updates: https://learn.microsoft.com/azure/virtual-desktop/set-up-customize-master-image#disable-automatic-updates
-    [PSCustomObject]@{
-        Name = 'NoAutoUpdate'
-        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU'
-        PropertyType = 'DWord'
-        Value = 1
-    },
-
-    # Enable Time Zone Redirection: https://learn.microsoft.com/azure/virtual-desktop/set-up-customize-master-image#set-up-time-zone-redirection
-    [PSCustomObject]@{
-        Name = 'fEnableTimeZoneRedirection'
-        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services'
-        PropertyType = 'DWord'
-        Value = 1
-    },
-
-    # Configure GPU-accelerated app rendering: https://learn.microsoft.com/azure/virtual-desktop/configure-vm-gpu#configure-gpu-accelerated-app-rendering
     [PSCustomObject]@{
         Name = 'bEnumerateHWBeforeSW'
         Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services'
@@ -25,14 +10,68 @@ $Settings = @(
         Value = 1
     },
 
-    # Configure fullscreen video encoding: https://learn.microsoft.com/azure/virtual-desktop/configure-vm-gpu#configure-fullscreen-video-encoding
     [PSCustomObject]@{
-        Name = 'AVC444ModePreferred'
+        Name = 'DisplayRefreshRate'
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations'
+        PropertyType = 'DWord'
+        Value = '0x60'
+    },
+
+    [PSCustomObject]@{
+        Name = 'DWMFRAMEINTERVAL'
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations'
+        PropertyType = 'DWord'
+        Value = 15
+    },
+
+    [PSCustomObject]@{
+        Name = 'fEnableTimeZoneRedirection'
         Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services'
         PropertyType = 'DWord'
         Value = 1
+    },
+
+    [PSCustomObject]@{
+        Name = 'fEnableConnectionIntervalGraphicsData'
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services'
+        PropertyType = 'DWord'
+        Value = 1
+    },
+
+    [PSCustomObject]@{
+        Name = 'ImageQuality'
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services'
+        PropertyType = 'DWord'
+        Value = 2
     }
 )
+
+if ($NvidiaGpu -eq 'true')
+{
+    $Settings += @(
+
+        [PSCustomObject]@{
+            Name = 'AVC444ModePreferred'
+            Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services'
+            PropertyType = 'DWord'
+            Value = 1
+        },
+
+        [PSCustomObject]@{
+            Name = 'AVCHardwareEncodePreferred'
+            Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services'
+            PropertyType = 'DWord'
+            Value = 1
+        },
+
+        [PSCustomObject]@{
+            Name = 'HEVCHardwareEncodePreferred'
+            Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services'
+            PropertyType = 'DWord'
+            Value = 1
+        }
+    )
+}
 
 foreach($Setting in $Settings)
 {
