@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.41.2.15936",
-      "templateHash": "14377667038432935760"
+      "templateHash": "13578376857301973313"
     }
   },
   "parameters": {
@@ -5217,7 +5217,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.41.2.15936",
-              "templateHash": "7496913508694479441"
+              "templateHash": "7800032886996419966"
             }
           },
           "parameters": {
@@ -5274,7 +5274,7 @@
                   "location": {
                     "value": "[parameters('location')]"
                   },
-                  "logWorkspaceResourceId": {
+                  "logAnalyticsWorkspaceResourceId": {
                     "value": "[parameters('logAnalyticsWorkspaceResourceId')]"
                   },
                   "workspaceName": {
@@ -5288,35 +5288,15 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.41.2.15936",
-                      "templateHash": "6499606235871376431"
+                      "templateHash": "17763637216455121947"
                     }
                   },
                   "parameters": {
-                    "workspaceName": {
-                      "type": "string",
-                      "metadata": {
-                        "description": "Name of the Log Analytics workspace where Microsoft Sentinel is enabled."
-                      }
-                    },
-                    "location": {
-                      "type": "string",
-                      "metadata": {
-                        "description": "Azure region used for ancillary operations such as deployment scripts."
-                      }
-                    },
-                    "enableEntityBehavior": {
-                      "type": "bool",
-                      "defaultValue": true
-                    },
                     "deployEntityBehaviorSetting": {
                       "type": "bool",
                       "defaultValue": true
                     },
-                    "useEntityBehaviorScript": {
-                      "type": "bool",
-                      "defaultValue": true
-                    },
-                    "enableUeba": {
+                    "deploySentinelAutomationScript": {
                       "type": "bool",
                       "defaultValue": true
                     },
@@ -5324,17 +5304,13 @@
                       "type": "bool",
                       "defaultValue": true
                     },
-                    "useUebaScript": {
+                    "enableEntityBehavior": {
                       "type": "bool",
                       "defaultValue": true
                     },
-                    "uebaDataSources": {
-                      "type": "array",
-                      "defaultValue": [
-                        "SigninLogs",
-                        "AuditLogs",
-                        "AzureActivity"
-                      ]
+                    "enableUeba": {
+                      "type": "bool",
+                      "defaultValue": true
                     },
                     "enableAnomalies": {
                       "type": "bool",
@@ -5347,9 +5323,6 @@
                     "entraDiagnosticName": {
                       "type": "string",
                       "defaultValue": "diag-entra"
-                    },
-                    "logWorkspaceResourceId": {
-                      "type": "string"
                     },
                     "entraLogCategories": {
                       "type": "array",
@@ -5367,13 +5340,34 @@
                         "ServicePrincipalRiskEvents"
                       ]
                     },
+                    "location": {
+                      "type": "string"
+                    },
+                    "logAnalyticsWorkspaceResourceId": {
+                      "type": "string"
+                    },
                     "sentinelAutomationPrincipalId": {
                       "type": "string",
                       "defaultValue": ""
                     },
-                    "deploySentinelAutomationScript": {
+                    "uebaDataSources": {
+                      "type": "array",
+                      "defaultValue": [
+                        "SigninLogs",
+                        "AuditLogs",
+                        "AzureActivity"
+                      ]
+                    },
+                    "useEntityBehaviorScript": {
                       "type": "bool",
                       "defaultValue": true
+                    },
+                    "useUebaScript": {
+                      "type": "bool",
+                      "defaultValue": true
+                    },
+                    "workspaceName": {
+                      "type": "string"
                     }
                   },
                   "variables": {
@@ -5391,24 +5385,24 @@
                         }
                       }
                     ],
+                    "anomaliesSettingResourceId": "[extensionResourceId(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName')), 'Microsoft.SecurityInsights/settings', 'Anomalies')]",
+                    "anomaliesSettingPayload": "[string(createObject('kind', 'Anomalies', 'properties', createObject()))]",
+                    "entityBehaviorSettingPayload": "[string(createObject('kind', 'EntityAnalytics', 'properties', createObject('entityProviders', createArray('AzureActiveDirectory'))))]",
+                    "entityBehaviorSettingResourceId": "[extensionResourceId(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName')), 'Microsoft.SecurityInsights/settings', 'EntityAnalytics')]",
+                    "entraDiagnosticPayload": "[string(createObject('properties', createObject('workspaceId', parameters('logAnalyticsWorkspaceResourceId'), 'logs', variables('entraLogsConfig'))))]",
                     "sentinelAutomationContributorRoleDefinitionGuid": "f4c81013-99ee-4d62-a7ee-b3f1f648599a",
-                    "workspaceContributorRoleDefinitionGuid": "b24988ac-6180-42a0-ab88-20f7382dd24c",
-                    "shouldRunAutomationScript": "[parameters('deploySentinelAutomationScript')]",
-                    "shouldConfigureEntitySettingViaScript": "[and(and(parameters('enableEntityBehavior'), parameters('deployEntityBehaviorSetting')), parameters('useEntityBehaviorScript'))]",
-                    "shouldConfigureEntitySettingNative": "[and(and(parameters('enableEntityBehavior'), parameters('deployEntityBehaviorSetting')), not(parameters('useEntityBehaviorScript')))]",
-                    "shouldConfigureUebaSettingViaScript": "[and(and(parameters('enableUeba'), parameters('deployUebaSetting')), parameters('useUebaScript'))]",
-                    "shouldConfigureUebaSettingNative": "[and(and(parameters('enableUeba'), parameters('deployUebaSetting')), not(parameters('useUebaScript')))]",
                     "shouldConfigureAnomaliesSetting": "[parameters('enableAnomalies')]",
                     "shouldConfigureEntitySetting": "[and(parameters('enableEntityBehavior'), parameters('deployEntityBehaviorSetting'))]",
+                    "shouldConfigureEntitySettingNative": "[and(and(parameters('enableEntityBehavior'), parameters('deployEntityBehaviorSetting')), not(parameters('useEntityBehaviorScript')))]",
+                    "shouldConfigureEntitySettingViaScript": "[and(and(parameters('enableEntityBehavior'), parameters('deployEntityBehaviorSetting')), parameters('useEntityBehaviorScript'))]",
+                    "shouldConfigureEntraDiagnostics": "[and(parameters('enableEntraDiagnostics'), not(empty(parameters('logAnalyticsWorkspaceResourceId'))))]",
                     "shouldConfigureUebaSetting": "[and(parameters('enableUeba'), parameters('deployUebaSetting'))]",
-                    "shouldConfigureEntraDiagnostics": "[and(parameters('enableEntraDiagnostics'), not(empty(parameters('logWorkspaceResourceId'))))]",
-                    "entraDiagnosticPayload": "[string(createObject('properties', createObject('workspaceId', parameters('logWorkspaceResourceId'), 'logs', variables('entraLogsConfig'))))]",
-                    "entityBehaviorSettingResourceId": "[extensionResourceId(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName')), 'Microsoft.SecurityInsights/settings', 'EntityAnalytics')]",
-                    "entityBehaviorSettingPayload": "[string(createObject('kind', 'EntityAnalytics', 'properties', createObject('entityProviders', createArray('AzureActiveDirectory'))))]",
-                    "uebaSettingResourceId": "[extensionResourceId(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName')), 'Microsoft.SecurityInsights/settings', 'Ueba')]",
+                    "shouldConfigureUebaSettingNative": "[and(and(parameters('enableUeba'), parameters('deployUebaSetting')), not(parameters('useUebaScript')))]",
+                    "shouldConfigureUebaSettingViaScript": "[and(and(parameters('enableUeba'), parameters('deployUebaSetting')), parameters('useUebaScript'))]",
+                    "shouldRunAutomationScript": "[parameters('deploySentinelAutomationScript')]",
                     "uebaSettingPayload": "[string(createObject('kind', 'Ueba', 'properties', createObject('dataSources', parameters('uebaDataSources'))))]",
-                    "anomaliesSettingResourceId": "[extensionResourceId(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName')), 'Microsoft.SecurityInsights/settings', 'Anomalies')]",
-                    "anomaliesSettingPayload": "[string(createObject('kind', 'Anomalies', 'properties', createObject()))]"
+                    "uebaSettingResourceId": "[extensionResourceId(resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName')), 'Microsoft.SecurityInsights/settings', 'Ueba')]",
+                    "workspaceContributorRoleDefinitionGuid": "b24988ac-6180-42a0-ab88-20f7382dd24c"
                   },
                   "resources": [
                     {

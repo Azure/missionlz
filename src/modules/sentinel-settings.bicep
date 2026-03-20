@@ -1,25 +1,11 @@
-targetScope = 'resourceGroup'
-
-@description('Name of the Log Analytics workspace where Microsoft Sentinel is enabled.')
-param workspaceName string
-
-@description('Azure region used for ancillary operations such as deployment scripts.')
-param location string
-param enableEntityBehavior bool = true
 param deployEntityBehaviorSetting bool = true
-param useEntityBehaviorScript bool = true
-param enableUeba bool = true
+param deploySentinelAutomationScript bool = true
 param deployUebaSetting bool = true
-param useUebaScript bool = true
-param uebaDataSources array = [
-  'SigninLogs'
-  'AuditLogs'
-  'AzureActivity'
-]
+param enableEntityBehavior bool = true
+param enableUeba bool = true
 param enableAnomalies bool = true
 param enableEntraDiagnostics bool = true
 param entraDiagnosticName string = 'diag-entra'
-param logWorkspaceResourceId string
 param entraLogCategories array = [
   'AuditLogs'
   'SignInLogs'
@@ -33,39 +19,23 @@ param entraLogCategories array = [
   'UserRiskEvents'
   'ServicePrincipalRiskEvents'
 ]
+param location string
+param logAnalyticsWorkspaceResourceId string
 param sentinelAutomationPrincipalId string = ''
-param deploySentinelAutomationScript bool = true
+param uebaDataSources array = [
+  'SigninLogs'
+  'AuditLogs'
+  'AzureActivity'
+]
+param useEntityBehaviorScript bool = true
+param useUebaScript bool = true
+param workspaceName string
 
-var sentinelAutomationContributorRoleDefinitionGuid = 'f4c81013-99ee-4d62-a7ee-b3f1f648599a'
-var workspaceContributorRoleDefinitionGuid = 'b24988ac-6180-42a0-ab88-20f7382dd24c'
-var shouldRunAutomationScript = deploySentinelAutomationScript
-var shouldConfigureEntitySettingViaScript = enableEntityBehavior && deployEntityBehaviorSetting && useEntityBehaviorScript
-var shouldConfigureEntitySettingNative = enableEntityBehavior && deployEntityBehaviorSetting && !useEntityBehaviorScript
-var shouldConfigureUebaSettingViaScript = enableUeba && deployUebaSetting && useUebaScript
-var shouldConfigureUebaSettingNative = enableUeba && deployUebaSetting && !useUebaScript
-var shouldConfigureAnomaliesSetting = enableAnomalies
-// Keep backward compat variables for role assignments
-var shouldConfigureEntitySetting = enableEntityBehavior && deployEntityBehaviorSetting
-var shouldConfigureUebaSetting = enableUeba && deployUebaSetting
-var shouldConfigureEntraDiagnostics = enableEntraDiagnostics && !empty(logWorkspaceResourceId)
-
-// Entra diagnostic settings payload
-var entraLogsConfig = [for category in entraLogCategories: {
-  category: category
-  enabled: true
-  retentionPolicy: {
-    enabled: false
-    days: 0
-  }
-}]
-var entraDiagnosticPayload = string({
-  properties: {
-    workspaceId: logWorkspaceResourceId
-    logs: entraLogsConfig
-  }
+var anomaliesSettingResourceId = extensionResourceId(workspace.id, 'Microsoft.SecurityInsights/settings', 'Anomalies')
+var anomaliesSettingPayload = string({
+  kind: 'Anomalies'
+  properties: {}
 })
-
-var entityBehaviorSettingResourceId = extensionResourceId(workspace.id, 'Microsoft.SecurityInsights/settings', 'EntityAnalytics')
 var entityBehaviorSettingPayload = string({
   kind: 'EntityAnalytics'
   properties: {
@@ -74,20 +44,41 @@ var entityBehaviorSettingPayload = string({
     ]
   }
 })
-
-var uebaSettingResourceId = extensionResourceId(workspace.id, 'Microsoft.SecurityInsights/settings', 'Ueba')
+var entityBehaviorSettingResourceId = extensionResourceId(workspace.id, 'Microsoft.SecurityInsights/settings', 'EntityAnalytics')
+var entraDiagnosticPayload = string({
+  properties: {
+    workspaceId: logAnalyticsWorkspaceResourceId
+    logs: entraLogsConfig
+  }
+})
+var entraLogsConfig = [for category in entraLogCategories: {
+  category: category
+  enabled: true
+  retentionPolicy: {
+    enabled: false
+    days: 0
+  }
+}]
+var sentinelAutomationContributorRoleDefinitionGuid = 'f4c81013-99ee-4d62-a7ee-b3f1f648599a'
+var shouldConfigureAnomaliesSetting = enableAnomalies
+var shouldConfigureEntitySetting = enableEntityBehavior && deployEntityBehaviorSetting
+var shouldConfigureEntitySettingNative = enableEntityBehavior && deployEntityBehaviorSetting && !useEntityBehaviorScript
+var shouldConfigureEntitySettingViaScript = enableEntityBehavior && deployEntityBehaviorSetting && useEntityBehaviorScript
+var shouldConfigureEntraDiagnostics = enableEntraDiagnostics && !empty(logAnalyticsWorkspaceResourceId)
+var shouldConfigureUebaSetting = enableUeba && deployUebaSetting
+var shouldConfigureUebaSettingNative = enableUeba && deployUebaSetting && !useUebaScript
+var shouldConfigureUebaSettingViaScript = enableUeba && deployUebaSetting && useUebaScript
+var shouldRunAutomationScript = deploySentinelAutomationScript
 var uebaSettingPayload = string({
   kind: 'Ueba'
   properties: {
     dataSources: uebaDataSources
   }
 })
+var uebaSettingResourceId = extensionResourceId(workspace.id, 'Microsoft.SecurityInsights/settings', 'Ueba')
+var workspaceContributorRoleDefinitionGuid = 'b24988ac-6180-42a0-ab88-20f7382dd24c'
 
-var anomaliesSettingResourceId = extensionResourceId(workspace.id, 'Microsoft.SecurityInsights/settings', 'Anomalies')
-var anomaliesSettingPayload = string({
-  kind: 'Anomalies'
-  properties: {}
-})
+
 
 resource automationScriptIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
   name: 'sentinel-script-${uniqueString(resourceGroup().id)}'

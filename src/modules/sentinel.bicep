@@ -27,7 +27,7 @@ module sentinelSettings 'sentinel-settings.bicep' = {
   scope: resourceGroup
   params: {
     location: location
-    logWorkspaceResourceId: logAnalyticsWorkspaceResourceId
+    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     workspaceName: logAnalyticsWorkspaceName
   }
 }
