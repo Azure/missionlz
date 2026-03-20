@@ -8,6 +8,8 @@ param tags object
 param tier object
 param tokens object
 
+var azureActivityWorkbookName = 'Azure Activity'
+var azureServiceHealthWorkbookName = 'Azure Service Health Workbook'
 var deployAnalyticRules = true
 var enableAzureActivityDataConnector = true
 var enableEntraIdDataConnector = true
@@ -66,8 +68,8 @@ module sentinelContent 'sentinel-content.bicep' = {
     workspaceLocation: location
     workspaceResourceGroupName: tier.resourceGroupName
     workspaceSubscriptionId: tier.subscriptionId
-    azureActivityWorkbookName: 'Azure Activity'
-    azureServiceHealthWorkbookName: 'Azure Service Health Workbook'
+    azureActivityWorkbookName: azureActivityWorkbookName
+    azureServiceHealthWorkbookName: azureServiceHealthWorkbookName
     entraAuditWorkbookName: entraAuditWorkbookName
     entraSigninWorkbookName: entraSigninWorkbookName
   }
@@ -79,8 +81,8 @@ module sentinelWorkbooks 'sentinel-workbooks.bicep' = {
   params: {
     workspaceName: logAnalyticsWorkspaceName
     location: location
-    azureActivityWorkbookName: 'Azure Activity'
-    azureServiceHealthWorkbookName: 'Azure Service Health Workbook'
+    azureActivityWorkbookName: azureActivityWorkbookName
+    azureServiceHealthWorkbookName: azureServiceHealthWorkbookName
     entraAuditWorkbookName: entraAuditWorkbookName
     entraSigninWorkbookName: entraSigninWorkbookName
   }

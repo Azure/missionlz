@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.41.2.15936",
-      "templateHash": "13578376857301973313"
+      "templateHash": "17004772016640616960"
     }
   },
   "parameters": {
@@ -5217,7 +5217,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.41.2.15936",
-              "templateHash": "7800032886996419966"
+              "templateHash": "9402422804988176037"
             }
           },
           "parameters": {
@@ -5244,6 +5244,8 @@
             }
           },
           "variables": {
+            "azureActivityWorkbookName": "Azure Activity",
+            "azureServiceHealthWorkbookName": "Azure Service Health Workbook",
             "deployAnalyticRules": true,
             "enableAzureActivityDataConnector": true,
             "enableEntraIdDataConnector": true,
@@ -11494,10 +11496,10 @@
                     "value": "[parameters('tier').subscriptionId]"
                   },
                   "azureActivityWorkbookName": {
-                    "value": "Azure Activity"
+                    "value": "[variables('azureActivityWorkbookName')]"
                   },
                   "azureServiceHealthWorkbookName": {
-                    "value": "Azure Service Health Workbook"
+                    "value": "[variables('azureServiceHealthWorkbookName')]"
                   },
                   "entraAuditWorkbookName": {
                     "value": "[variables('entraAuditWorkbookName')]"
@@ -35179,10 +35181,10 @@
                     "value": "[parameters('location')]"
                   },
                   "azureActivityWorkbookName": {
-                    "value": "Azure Activity"
+                    "value": "[variables('azureActivityWorkbookName')]"
                   },
                   "azureServiceHealthWorkbookName": {
-                    "value": "Azure Service Health Workbook"
+                    "value": "[variables('azureServiceHealthWorkbookName')]"
                   },
                   "entraAuditWorkbookName": {
                     "value": "[variables('entraAuditWorkbookName')]"
