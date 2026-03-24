@@ -78,8 +78,6 @@ var uebaSettingPayload = string({
 var uebaSettingResourceId = extensionResourceId(workspace.id, 'Microsoft.SecurityInsights/settings', 'Ueba')
 var workspaceContributorRoleDefinitionGuid = 'b24988ac-6180-42a0-ab88-20f7382dd24c'
 
-
-
 resource automationScriptIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
   name: 'sentinel-script-${uniqueString(resourceGroup().id)}'
   location: location

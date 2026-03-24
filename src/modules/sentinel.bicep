@@ -64,10 +64,8 @@ module sentinelContent 'sentinel-content.bicep' = {
   scope: resourceGroup
   params: {
     deploymentNameSuffix: deploymentNameSuffix
-    workspaceName: logAnalyticsWorkspaceName
-    workspaceLocation: location
-    workspaceResourceGroupName: tier.resourceGroupName
-    workspaceSubscriptionId: tier.subscriptionId
+    location: location
+    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
     azureActivityWorkbookName: azureActivityWorkbookName
     azureServiceHealthWorkbookName: azureServiceHealthWorkbookName
     entraAuditWorkbookName: entraAuditWorkbookName
