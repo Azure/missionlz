@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.41.2.15936",
-      "templateHash": "5200754650614764461"
+      "templateHash": "9751480651857881488"
     }
   },
   "parameters": {
@@ -5657,7 +5657,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.41.2.15936",
-              "templateHash": "5226666440484294215"
+              "templateHash": "14100103232172738125"
             }
           },
           "parameters": {
@@ -6415,6 +6415,9 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
+                  "activeDirectorySolution": {
+                    "value": "ActiveDirectoryDomainServices"
+                  },
                   "deploymentUserAssignedIdentityPrincipalId": {
                     "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('deploy-id-deployment-{0}', parameters('deploymentNameSuffix'))), '2025-04-01').outputs.principalId.value]"
                   },
@@ -6477,10 +6480,13 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.41.2.15936",
-                      "templateHash": "11872233806922832534"
+                      "templateHash": "10784809999668551989"
                     }
                   },
                   "parameters": {
+                    "activeDirectorySolution": {
+                      "type": "string"
+                    },
                     "deploymentUserAssignedIdentityPrincipalId": {
                       "type": "string"
                     },
@@ -6653,34 +6659,6 @@
                     {
                       "type": "Microsoft.Compute/virtualMachines/extensions",
                       "apiVersion": "2021-03-01",
-                      "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'IaaSAntimalware')]",
-                      "location": "[parameters('location')]",
-                      "tags": "[variables('tagsVirtualMachines')]",
-                      "properties": {
-                        "publisher": "Microsoft.Azure.Security",
-                        "type": "IaaSAntimalware",
-                        "typeHandlerVersion": "1.3",
-                        "autoUpgradeMinorVersion": true,
-                        "enableAutomaticUpgrade": false,
-                        "settings": {
-                          "AntimalwareEnabled": true,
-                          "RealtimeProtectionEnabled": "true",
-                          "ScheduledScanSettings": {
-                            "isEnabled": "true",
-                            "day": "7",
-                            "time": "120",
-                            "scanType": "Quick"
-                          },
-                          "Exclusions": {}
-                        }
-                      },
-                      "dependsOn": [
-                        "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
-                      ]
-                    },
-                    {
-                      "type": "Microsoft.Compute/virtualMachines/extensions",
-                      "apiVersion": "2021-03-01",
                       "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'GuestAttestation')]",
                       "location": "[parameters('location')]",
                       "properties": {
@@ -6708,6 +6686,7 @@
                       ]
                     },
                     {
+                      "condition": "[contains(parameters('activeDirectorySolution'), 'DomainServices')]",
                       "type": "Microsoft.Compute/virtualMachines/extensions",
                       "apiVersion": "2019-07-01",
                       "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'JsonADDomainExtension')]",

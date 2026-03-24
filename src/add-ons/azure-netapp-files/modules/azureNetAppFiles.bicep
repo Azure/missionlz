@@ -63,6 +63,7 @@ module virtualMachine '../../azure-virtual-desktop/modules/management/virtual-ma
   name: 'deploy-mgmt-vm-${deploymentNameSuffix}'
   scope: resourceGroup(resourceGroupName)
   params: {
+    activeDirectorySolution: 'ActiveDirectoryDomainServices'
     deploymentUserAssignedIdentityPrincipalId: userAssignedIdentity.outputs.principalId
     deploymentUserAssignedIdentityResourceId: userAssignedIdentity.outputs.resourceId
     diskEncryptionSetResourceId: customerManagedKeys.outputs.diskEncryptionSetResourceId
