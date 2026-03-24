@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.41.2.15936",
-      "templateHash": "2926603352254137478"
+      "templateHash": "14332104459107459267"
     }
   },
   "parameters": {
@@ -6062,7 +6062,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.41.2.15936",
-              "templateHash": "439858000988884976"
+              "templateHash": "6899737492910937467"
             }
           },
           "parameters": {
@@ -7739,7 +7739,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.41.2.15936",
-                      "templateHash": "16837947911694173146"
+                      "templateHash": "10784809999668551989"
                     }
                   },
                   "parameters": {
@@ -7913,34 +7913,6 @@
                       },
                       "dependsOn": [
                         "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaceName'))]"
-                      ]
-                    },
-                    {
-                      "type": "Microsoft.Compute/virtualMachines/extensions",
-                      "apiVersion": "2021-03-01",
-                      "name": "[format('{0}/{1}', parameters('virtualMachineName'), 'IaaSAntimalware')]",
-                      "location": "[parameters('location')]",
-                      "tags": "[variables('tagsVirtualMachines')]",
-                      "properties": {
-                        "publisher": "Microsoft.Azure.Security",
-                        "type": "IaaSAntimalware",
-                        "typeHandlerVersion": "1.3",
-                        "autoUpgradeMinorVersion": true,
-                        "enableAutomaticUpgrade": false,
-                        "settings": {
-                          "AntimalwareEnabled": true,
-                          "RealtimeProtectionEnabled": "true",
-                          "ScheduledScanSettings": {
-                            "isEnabled": "true",
-                            "day": "7",
-                            "time": "120",
-                            "scanType": "Quick"
-                          },
-                          "Exclusions": {}
-                        }
-                      },
-                      "dependsOn": [
-                        "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'))]"
                       ]
                     },
                     {
