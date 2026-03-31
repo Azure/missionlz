@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.41.2.15936",
-      "templateHash": "2522452333879419716"
+      "templateHash": "3193452611592904254"
     }
   },
   "resources": [
@@ -152,7 +152,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.41.2.15936",
-              "templateHash": "10706463873665357595"
+              "templateHash": "13442046273169924976"
             }
           },
           "resources": [
@@ -234,9 +234,6 @@
                                 "type": "string"
                               }
                             },
-                            "variables": {
-                              "virtualMachineSize": "[[reference(resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName')), '2021-07-01').hardwareProfile.vmSize]"
-                            },
                             "resources": [
                               {
                                 "apiVersion": "2021-03-01",
@@ -245,7 +242,7 @@
                                 "properties": {
                                   "autoUpgradeMinorVersion": true,
                                   "publisher": "Microsoft.HpcCompute",
-                                  "settings": "[[if(and(startsWith(variables('virtualMachineSize'), 'Standard_NV'), or(endsWith(variables('virtualMachineSize'), 's_v3'), endsWith(variables('virtualMachineSize'),'s_A10_v5'))), json('{\"driverVersion\": \"538.46\"}'), json('{}'))]",
+                                  "settings": "[[if(and(startsWith(reference(resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName')), '2021-07-01').hardwareProfile.vmSize, 'Standard_NV'), or(endsWith(reference(resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName')), '2021-07-01').hardwareProfile.vmSize, 's_v3'), endsWith(reference(resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName')), '2021-07-01').hardwareProfile.vmSize,'s_A10_v5'))), json('{\"driverVersion\": \"538.46\"}'), json('{}'))]",
                                   "type": "NvidiaGpuDriverWindows",
                                   "typeHandlerVersion": "1.9"
                                 },

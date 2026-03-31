@@ -76,9 +76,6 @@ resource policyDefinition 'Microsoft.Authorization/policyDefinitions@2025-11-01'
                     type: 'string'
                   }
                 }
-                variables: {
-                  virtualMachineSize: '[reference(resourceId(\'Microsoft.Compute/virtualMachines\', parameters(\'virtualMachineName\')), \'2021-07-01\').hardwareProfile.vmSize]'
-                }
                 resources: [
                   {
                     apiVersion: '2021-03-01'
@@ -88,7 +85,7 @@ resource policyDefinition 'Microsoft.Authorization/policyDefinitions@2025-11-01'
                       autoUpgradeMinorVersion: true
                       publisher: 'Microsoft.HpcCompute'
                       // NVv3 VM sizes require a specific driver version: https://learn.microsoft.com/azure/virtual-machines/extensions/hpccompute-gpu-windows#known-issues
-                      settings: '[if(and(startsWith(variables(\'virtualMachineSize\'), \'Standard_NV\'), or(endsWith(variables(\'virtualMachineSize\'), \'s_v3\'), endsWith(variables(\'virtualMachineSize\'),\'s_A10_v5\'))), json(\'{"driverVersion": "538.46"}\'), json(\'{}\'))]'
+                      settings: '[if(and(startsWith(reference(resourceId(\'Microsoft.Compute/virtualMachines\', parameters(\'virtualMachineName\')), \'2021-07-01\').hardwareProfile.vmSize, \'Standard_NV\'), or(endsWith(reference(resourceId(\'Microsoft.Compute/virtualMachines\', parameters(\'virtualMachineName\')), \'2021-07-01\').hardwareProfile.vmSize, \'s_v3\'), endsWith(reference(resourceId(\'Microsoft.Compute/virtualMachines\', parameters(\'virtualMachineName\')), \'2021-07-01\').hardwareProfile.vmSize,\'s_A10_v5\'))), json(\'{"driverVersion": "538.46"}\'), json(\'{}\'))]'
                       type: 'NvidiaGpuDriverWindows'
                       typeHandlerVersion: '1.9'
                     }
