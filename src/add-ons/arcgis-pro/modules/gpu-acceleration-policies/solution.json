@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.41.2.15936",
-      "templateHash": "7281789295694575523"
+      "templateHash": "2522452333879419716"
     }
   },
   "resources": [
@@ -152,7 +152,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.41.2.15936",
-              "templateHash": "1024281199756172527"
+              "templateHash": "10706463873665357595"
             }
           },
           "resources": [
@@ -235,7 +235,7 @@
                               }
                             },
                             "variables": {
-                              "virtualMachineSize": "[[reference(resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName'), '2021-07-01')).hardwareProfile.vmSize]"
+                              "virtualMachineSize": "[[reference(resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachineName')), '2021-07-01').hardwareProfile.vmSize]"
                             },
                             "resources": [
                               {

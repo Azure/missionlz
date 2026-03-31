@@ -77,7 +77,7 @@ resource policyDefinition 'Microsoft.Authorization/policyDefinitions@2025-11-01'
                   }
                 }
                 variables: {
-                  virtualMachineSize: '[reference(resourceId(\'Microsoft.Compute/virtualMachines\', parameters(\'virtualMachineName\'), \'2021-07-01\')).hardwareProfile.vmSize]'
+                  virtualMachineSize: '[reference(resourceId(\'Microsoft.Compute/virtualMachines\', parameters(\'virtualMachineName\')), \'2021-07-01\').hardwareProfile.vmSize]'
                 }
                 resources: [
                   {
