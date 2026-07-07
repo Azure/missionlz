@@ -1,0 +1,34 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+---
+
+name: pester-coverage
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  pester-coverage:
+    name: pester-coverage
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6.0.1
+
+      - name: Install Pester (pinned for local/CI parity)
+        shell: pwsh
+        run: Install-Module Pester -RequiredVersion 6.0.0 -Scope CurrentUser -Force -SkipPublisherCheck
+
+      - name: Run tests and measure coverage
+        shell: pwsh
+        run: ./tests/Invoke-Tests.ps1
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-xml
+          path: coverage.xml
+          if-no-files-found: error
