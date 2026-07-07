@@ -1,5 +1,11 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
+#
+# NOTE (non-bypassable gate, FR-009 / SC-005): for the ratchet to actually block
+# merges, a repository admin MUST add the `pester-coverage` job as a required
+# status check in branch protection for `main`. This is a one-time repo-settings
+# action documented in docs/testing.md (US4). Without it the job still runs and
+# reports, but a failing gate would not block merge.
 ---
 
 name: pester-coverage
@@ -24,6 +30,10 @@ jobs:
       - name: Run tests and measure coverage
         shell: pwsh
         run: ./tests/Invoke-Tests.ps1
+
+      - name: Enforce no-regression coverage ratchet gate
+        shell: pwsh
+        run: ./tests/Compare-Coverage.ps1 -CoverageReport ./coverage.xml
 
       - name: Upload coverage report
         if: always()

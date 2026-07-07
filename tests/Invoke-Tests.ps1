@@ -31,11 +31,13 @@ param(
 $ErrorActionPreference = 'Stop'
 
 $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
-$TestsPath = Join-Path $PSScriptRoot 'artifacts'
+$TestsPath = $PSScriptRoot   # discover all *.Tests.ps1 under tests/ (artifact + gate tests)
 $CoverageScope = Join-Path $RepoRoot 'src' 'artifacts' '*.ps1'
 if (-not $CoverageOutputPath) {
     $CoverageOutputPath = Join-Path $RepoRoot 'coverage.xml'
 }
+
+. (Join-Path $PSScriptRoot 'Get-CoveragePercent.ps1')
 
 Import-Module Pester -MinimumVersion 5.0.0 -ErrorAction Stop
 
@@ -50,11 +52,10 @@ $config.Output.Verbosity = 'Detailed'
 
 $result = Invoke-Pester -Configuration $config
 
-$coveragePercent = if ($result.CodeCoverage) {
-    [math]::Round([double]$result.CodeCoverage.CoveragePercent, 2)
-} else {
-    0
-}
+# Single source of truth for "the coverage number": the report-level JaCoCo LINE
+# counter, identical to what the ratchet gate (Compare-Coverage.ps1) enforces.
+$coveragePercent = Get-CoveragePercent -CoverageReport $CoverageOutputPath
+if ($null -eq $coveragePercent) { $coveragePercent = 0 }
 
 Write-Host ""
 Write-Host "Coverage: $coveragePercent% (scope: src/artifacts/*.ps1)"
