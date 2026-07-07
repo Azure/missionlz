@@ -10,8 +10,8 @@ a present-day requirement.
 
 ## Decision 1 — PowerShell testing & coverage framework
 
-**Decision**: Use **Pester 5** with its built-in code-coverage feature (`CodeCoverage.Enabled = $true`,
-JaCoCo XML output) to test and measure `src/artifacts/*.ps1`.
+**Decision**: Use **Pester 6.0.0** (pinned) with its built-in code-coverage feature (`CodeCoverage.Enabled = $true`,
+JaCoCo XML output — JaCoCo remains the **default** format in v6) to test and measure `src/artifacts/*.ps1`.
 
 **Rationale**:
 
@@ -19,15 +19,17 @@ JaCoCo XML output) to test and measure `src/artifacts/*.ps1`.
   test harness in the constitution (Principle IV → Automated Tests).
 - Its coverage feature emits a **single, well-defined line-coverage percentage** and a machine-readable
   JaCoCo XML report (covered/total lines), satisfying FR-003 directly with no custom tooling.
-- Pre-installed / trivially installable on `ubuntu-latest` via `Install-Module Pester -Force`; runs
+- Trivially installable on `ubuntu-latest` and Windows via `Install-Module Pester -RequiredVersion 6.0.0 -Force -SkipPublisherCheck` (the `-SkipPublisherCheck` overrides the in-box Pester 3.4.0 on Windows PowerShell 5.1); runs
   identically on a contributor's `pwsh`, giving local/CI parity (FR-005).
 - `Mock` supports intercepting `Invoke-RestMethod` so tests never touch the live Azure IMDS endpoint.
+- **Version choice (6.0.0 over 5.7.1)**: Pester 6 runs on **Windows PowerShell 5.1 and PowerShell 7.4+**, so it covers the Windows-majority team with no pwsh install. The v6 config + test-authoring API is unchanged from v5, and the breaking changes (removed `Assert-MockCalled`/`-Focus`/`Pending`, per-file discovery, profiler-based coverage) do not affect this greenfield suite. Choosing current-major avoids starting the initiative a version behind; if 6.0.0 proves unstable, pinning back to 5.7.1 is a one-line change (same authoring API).
 
 **Alternatives considered**:
 
 - *Hand-rolled coverage (parse AST / count executed lines)*: rejected — reinvents what Pester provides,
   more code to maintain, violates Simplicity.
 - *No coverage, tests only*: rejected — the feature's entire purpose is a measured, ratcheted percentage.
+- *Pester 5.7.1 (mature line)*: rejected as the default — the perceived-safety advantage is not supported by the data for a greenfield suite (zero forced changes, same authoring API, Windows 5.1 support in both). Retained only as the documented fallback if 6.0.0 shows instability.
 
 ---
 

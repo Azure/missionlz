@@ -53,8 +53,8 @@ and `validate-build-bicep.yml`. **Neither `src/mlz.json` nor the `src/artifacts/
 
 **⚠️ CRITICAL**: US1 and US2 both depend on the coverage-report shape defined here. US3 and US4 are independent of this phase.
 
-- [ ] T003 Create `tests/Invoke-Tests.ps1` as the local/CI entry point: build a Pester 5 `New-PesterConfiguration` with `Run.Path = tests/artifacts`, `CodeCoverage.Enabled = $true`, `CodeCoverage.Path = src/artifacts/*.ps1`, and `CodeCoverage.OutputFormat = 'JaCoCo'` writing `coverage.xml` at the repo root; invoke `Invoke-Pester` and print the single line-coverage percentage. Ships with the config only (no tests yet) so it is runnable and defines the `coverage.xml` contract both US1 and US2 rely on.
-- [ ] T004 Document the pinned tool versions the runners install (Pester `5.x`, PSRule.Rules.Azure `1.x`) as a comment header block in `tests/Invoke-Tests.ps1`, matching the install commands in [quickstart.md](quickstart.md) for local/CI parity (FR-005).
+- [ ] T003 Create `tests/Invoke-Tests.ps1` as the local/CI entry point: build a Pester 6 `New-PesterConfiguration` (config + authoring API is unchanged from v5) with `Run.Path = tests/artifacts`, `CodeCoverage.Enabled = $true`, `CodeCoverage.Path = src/artifacts/*.ps1`, and `CodeCoverage.OutputFormat = 'JaCoCo'` (still the v6 default) writing `coverage.xml` at the repo root; invoke `Invoke-Pester` and print the single line-coverage percentage. Ships with the config only (no tests yet) so it is runnable and defines the `coverage.xml` contract both US1 and US2 rely on.
+- [ ] T004 Document the pinned tool versions the runners install (Pester `6.0.0`, PSRule.Rules.Azure `1.x`) as a comment header block in `tests/Invoke-Tests.ps1`, matching the install commands in [quickstart.md](quickstart.md) for local/CI parity (FR-005).
 
 **Checkpoint**: `pwsh ./tests/Invoke-Tests.ps1` runs and emits an (empty-scope) `coverage.xml`; the report contract is fixed. Story work can begin.
 
@@ -78,7 +78,7 @@ and `validate-build-bicep.yml`. **Neither `src/mlz.json` nor the `src/artifacts/
 - [ ] T009 [P] [US1] Make T006 pass green with **zero edits** to `src/artifacts/Remove-VirtualMachine.ps1`: invoke the script under mocked `Invoke-RestMethod` and `Start-Sleep` so its lines are covered; stubs live in the test only. **No production-script edits.**
 - [ ] T010 [P] [US1] Make T007 pass green with **zero edits** to `src/artifacts/New-ADDSForest.ps1`: invoke the script under mocked external cmdlets (stubbed in the test as needed) so its lines are covered. **No production-script edits.**
 - [ ] T011 [US1] Finalize `tests/Invoke-Tests.ps1` so it runs the three test files, produces `coverage.xml`, prints coverage `> 0%`, and appends the percentage to `$GITHUB_STEP_SUMMARY` when running in CI (FR-004) — depends on T003, T005–T010.
-- [ ] T012 [US1] Add `.github/workflows/pester-coverage.yml`: PR-to-`main` + push-to-`main` + `workflow_dispatch` trigger on `ubuntu-latest`, checkout, `Install-Module Pester -MinimumVersion 5.0`, run `pwsh ./tests/Invoke-Tests.ps1`, upload `coverage.xml`, and publish the percentage to the run summary. Coverage is measured on both PRs and pushes to `main` (research edge-case: non-PR events); do not remove or weaken existing workflows.
+- [ ] T012 [US1] Add `.github/workflows/pester-coverage.yml`: PR-to-`main` + push-to-`main` + `workflow_dispatch` trigger on `ubuntu-latest`, checkout, `Install-Module Pester -RequiredVersion 6.0.0 -Force -SkipPublisherCheck` (pinned to match local for parity), run `pwsh ./tests/Invoke-Tests.ps1`, upload `coverage.xml`, and publish the percentage to the run summary. Coverage is measured on both PRs and pushes to `main` (research edge-case: non-PR events); do not remove or weaken existing workflows.
 
 **Checkpoint**: US1 is independently functional — CI publishes a real, non-zero coverage percentage on every PR (SC-001). This is the shippable MVP.
 

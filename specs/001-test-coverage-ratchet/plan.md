@@ -15,9 +15,9 @@ below the recorded floor. The floor only ratchets upward via a deliberate, docum
 
 Technical approach (minimal moving parts, per constitution Principles I & II):
 
-- **PowerShell coverage (US1)**: [Pester 5](https://pester.dev) executes behavioral tests against the
+- **PowerShell coverage (US1)**: [Pester 6](https://pester.dev) (pinned to **6.0.0**) executes behavioral tests against the
   three scripts in `src/artifacts/`, using Pester's built-in code-coverage feature to emit a JaCoCo XML
-  report and a single line-coverage percentage.
+  report and a single line-coverage percentage. (JaCoCo remains the default coverage format in v6.)
 - **Ratchet gate (US2)**: A small PowerShell script (`tests/Compare-Coverage.ps1`) reads the measured
   percentage and the committed baseline (`tests/coverage-baseline.json`), fails the CI job when measured
   < baseline, and offers a documented `-UpdateBaseline` path to ratchet the floor up. The check is made
@@ -32,11 +32,11 @@ Technical approach (minimal moving parts, per constitution Principles I & II):
 
 **Language/Version**: PowerShell 7.4+ (`pwsh`, PowerShell Core) for tests, gate script, and PSRule; Bash + YAML for GitHub Actions glue; Bicep (source under `src/`) as the validated artifact.
 
-**Primary Dependencies**: Pester `5.x` (test + code coverage), PSRule.Rules.Azure `1.x` (Bicep/ARM rule validation), Azure CLI (`az bicep`, already used by CI). All available on `ubuntu-latest` GitHub-hosted runners.
+**Primary Dependencies**: Pester `6.0.0` (pinned; test + code coverage — runs on Windows PowerShell 5.1 and PowerShell 7.4+, covering the Windows-majority team as well as `pwsh`), PSRule.Rules.Azure `1.x` (Bicep/ARM rule validation), Azure CLI (`az bicep`, already used by CI). All available on `ubuntu-latest` GitHub-hosted runners.
 
 **Storage**: Version-controlled files only — `tests/coverage-baseline.json` (the enforced floor). No database or external state.
 
-**Testing**: Pester 5 with `CodeCoverage.Enabled = $true` emitting JaCoCo XML; percentage derived as covered ÷ total measurable lines over `src/artifacts/*.ps1`.
+**Testing**: Pester 6.0.0 with `CodeCoverage.Enabled = $true` emitting JaCoCo XML (still the default format in v6); percentage derived as covered ÷ total measurable lines over `src/artifacts/*.ps1`. The test-authoring and configuration API (`New-PesterConfiguration`, `Invoke-Pester`) is unchanged from v5. Local and CI pin the **same** Pester version so the measured percentage is reproducible (FR-005).
 
 **Target Platform**: GitHub Actions `ubuntu-latest` (CI) and contributor workstations (macOS/Linux/Windows with `pwsh`) for local parity.
 
@@ -123,7 +123,7 @@ owns measurement + the ratchet gate; `psrule-bicep.yml` owns Bicep rule validati
 
 See [research.md](research.md). All tool-selection unknowns are resolved there:
 
-- **PowerShell testing + coverage** → Pester 5 with built-in JaCoCo code coverage (vs. hand-rolled coverage).
+- **PowerShell testing + coverage** → Pester 6.0.0 with built-in JaCoCo code coverage (JaCoCo remains the default format in v6; vs. hand-rolled coverage, vs. staying on Pester 5.7.1).
 - **Bicep rule validation** → PSRule for Azure (vs. ARM-TTK, vs. native `az bicep test`), with rationale.
 - **Baseline storage/format** → single version-controlled `tests/coverage-baseline.json` (vs. git tag, vs. external service).
 - **Non-bypassable gate** → failing CI job + branch protection required check (vs. informational annotation).

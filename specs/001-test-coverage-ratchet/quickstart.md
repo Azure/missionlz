@@ -14,7 +14,7 @@ details for the tests, gate script, and workflows live in `tasks.md` and the sou
 ## 1. Install the tools (one-time)
 
 ```powershell
-pwsh -Command "Install-Module Pester -MinimumVersion 5.0 -Scope CurrentUser -Force"
+pwsh -Command "Install-Module Pester -RequiredVersion 6.0.0 -Scope CurrentUser -Force -SkipPublisherCheck"
 pwsh -Command "Install-Module PSRule.Rules.Azure -Scope CurrentUser -Force"
 ```
 
