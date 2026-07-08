@@ -139,9 +139,9 @@ and `validate-build-bicep.yml`. **Neither `src/mlz.json` nor the `src/artifacts/
 
 ### Implementation for User Story 4
 
-- [ ] T025 [US4] Create `docs/testing.md` documenting: local install (Pester/PSRule), `pwsh ./tests/Invoke-Tests.ps1`, reading the coverage percentage, the ratchet gate behavior + exit codes (summarizing [contracts/ratchet-cli.md](contracts/ratchet-cli.md)), the deliberate `-UpdateBaseline` ratchet procedure, and the PSRule command — mirroring [quickstart.md](quickstart.md) (FR-014).
-- [ ] T026 [US4] Document in `docs/testing.md` that `pester-coverage` must be configured as a required status check (branch protection) so the gate is non-bypassable, referencing the note added in T019 (FR-009, SC-005).
-- [ ] T027 [US4] Add a link to `docs/testing.md` from `CONTRIBUTING.md` (FR-015, SC-009).
+- [X] T025 [US4] Create `docs/testing.md` documenting: local install (Pester/PSRule), `pwsh ./tests/Invoke-Tests.ps1`, reading the coverage percentage, the ratchet gate behavior + exit codes (summarizing [contracts/ratchet-cli.md](contracts/ratchet-cli.md)), the deliberate `-UpdateBaseline` ratchet procedure, and the PSRule command — mirroring [quickstart.md](quickstart.md) (FR-014).
+- [X] T026 [US4] Document in `docs/testing.md` that `pester-coverage` must be configured as a required status check (branch protection) so the gate is non-bypassable, referencing the note added in T019 (FR-009, SC-005).
+- [X] T027 [US4] Add a link to `docs/testing.md` from `CONTRIBUTING.md` (FR-015, SC-009).
 
 **Checkpoint**: The full policy is measured, enforced, validated, and documented — feature complete.
 
@@ -151,9 +151,9 @@ and `validate-build-bicep.yml`. **Neither `src/mlz.json` nor the `src/artifacts/
 
 **Purpose**: Final validation across stories.
 
-- [ ] T028 Run the full [quickstart.md](quickstart.md) end-to-end (steps 2–5) and confirm every success signal: coverage `> 0` locally and in CI summary, baseline in git, a lowering change fails the gate, an at-or-above change passes, PSRule results appear (SC-001–SC-009).
-- [ ] T029 [P] Confirm no secrets and no live network calls: all Pester tests mock `Invoke-RestMethod`/IMDS and run offline; no hardcoded environment URLs introduced (constitution Security; Assumptions).
-- [ ] T030 Final constitution check: `src/mlz.json` and other generated artifacts are unmodified (`git status` clean for `src/mlz.*`), existing gates unchanged, and the baseline value is real and non-zero.
+- [X] T028 Run the full [quickstart.md](quickstart.md) end-to-end (steps 2–5) and confirm every success signal: coverage `> 0` locally and in CI summary, baseline in git, a lowering change fails the gate, an at-or-above change passes, PSRule results appear (SC-001–SC-009).
+- [X] T029 [P] Confirm no secrets and no live network calls: all Pester tests mock `Invoke-RestMethod`/IMDS and run offline; no hardcoded environment URLs introduced (constitution Security; Assumptions).
+- [X] T030 Final constitution check: `src/mlz.json` and other generated artifacts are unmodified (`git status` clean for `src/mlz.*`), existing gates unchanged, and the baseline value is real and non-zero.
 
 ---
 
