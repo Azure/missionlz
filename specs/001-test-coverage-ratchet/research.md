@@ -38,6 +38,16 @@ JaCoCo XML output — JaCoCo remains the **default** format in v6) to test and m
 **Decision**: Use **PSRule for Azure (`PSRule.Rules.Azure`)** as the rule-based validator, run over the
 `src/` Bicep templates / compiled ARM in a dedicated CI job.
 
+> **Status (2026-07-08): DEFERRED to a follow-up PR, reporting-first.** US3 (#1294) is split out of the
+> initial coverage PR so US1 + US2 + US4 ship as a complete slice. Two findings drive the deferral:
+> (1) **Expansion is required** — running PSRule for Azure against the compiled `src/mlz.json` directly
+> yields 517 results all with `Outcome = None` ("no matching rules"), because PSRule for Azure only
+> applies its rules after **template/Bicep expansion** (`AZURE_BICEP_FILE_EXPANSION` over `src/**/*.bicep`,
+> or ARM + `.parameters.json`). The follow-up must wire expansion correctly. (2) On a large existing IaC
+> repo PSRule will surface many findings, so it will be introduced **reporting-first** (run + publish
+> results, not a blocking required check) — mirroring the coverage-ratchet "start where you are, improve
+> over time" philosophy — rather than as a day-one blocking gate.
+
 **Rationale**:
 
 - PSRule for Azure ships a large, maintained rule set aligned to the Azure Well-Architected Framework

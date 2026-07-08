@@ -109,6 +109,12 @@ and `validate-build-bicep.yml`. **Neither `src/mlz.json` nor the `src/artifacts/
 
 ## Phase 5: User Story 3 - Rule-based validation testing for Bicep templates in CI (Priority: P3) — [#1294](https://github.com/Azure/missionlz/issues/1294)
 
+> **DEFERRED to a follow-up PR (reporting-first).** US3 is split out of this feature so US1 + US2 + US4
+> ship together. PSRule for Azure requires template/Bicep **expansion** to apply its rules (running it
+> against the compiled `src/mlz.json` alone returns `Outcome = None`), and it will be introduced
+> **reporting-first** (not a blocking required check) on the follow-up. Tasks T020–T024 remain unchecked
+> and move with the follow-up PR / issue #1294. See research.md Decision 2 for the finding.
+
 **Goal**: Add PSRule for Azure rule-based validation of the `src/` Bicep templates in a separate CI job that complements — never replaces — `az bicep build` and super-linter.
 
 **Independent Test**: Run PSRule against the current templates locally and in CI with no US1/US2 present; confirm it evaluates templates against a defined rule set and reports actionable pass/fail results, while the existing build and lint gates still run.
