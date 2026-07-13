@@ -15,7 +15,6 @@ details for the tests, gate script, and workflows live in `tasks.md` and the sou
 
 ```powershell
 pwsh -Command "Install-Module Pester -RequiredVersion 6.0.0 -Scope CurrentUser -Force -SkipPublisherCheck"
-pwsh -Command "Install-Module PSRule.Rules.Azure -Scope CurrentUser -Force"
 ```
 
 ## 2. Run the PowerShell tests + coverage (US1)
@@ -56,14 +55,8 @@ pwsh ./tests/Compare-Coverage.ps1 -CoverageReport ./coverage.xml -UpdateBaseline
 **Expected outcome**: `tests/coverage-baseline.json` is rewritten with the higher percentage and your
 note. Commit this file as a visible, reviewable change. The script refuses to lower the baseline.
 
-## 5. Run Bicep rule validation (US3)
-
-```powershell
-pwsh -Command "Invoke-PSRule -InputPath ./src/ -Module PSRule.Rules.Azure -Format File"
-```
-
-**Expected outcome**: PSRule for Azure evaluates the Bicep templates and reports per-rule pass/fail with
-actionable detail. This runs alongside — not instead of — `az bicep build` and super-linter (FR-013).
+> **Bicep rule validation (US3)** is deferred to a follow-up PR — see `docs/testing.md`. This quickstart
+> will gain a PSRule step once that work lands.
 
 ---
 
@@ -72,7 +65,6 @@ actionable detail. This runs alongside — not instead of — `az bicep build` a
 | Workflow | Trigger | Runs | Gate |
 |----------|---------|------|------|
 | `pester-coverage.yml` | PR to `main` | Steps 2 + 3 above | **Required** — regression fails the PR (FR-007–FR-009) |
-| `psrule-bicep.yml` | PR to `main` | Step 5 above | Reports rule results (FR-012) |
 | `super-linter.yml` | PR to `main` | (unchanged) | Existing gate |
 | `validate-build-bicep.yml` | PR to `main` | (unchanged) | Existing gate |
 
@@ -87,4 +79,3 @@ configured as a **required status check** in branch protection so it cannot be b
 - ✅ Coverage percentage `> 0` prints locally and in the CI summary (SC-001).
 - ✅ `tests/coverage-baseline.json` exists and its history is in git (SC-002).
 - ✅ A coverage-lowering change fails step 3 / the PR (SC-003); an at-or-above change passes (SC-004).
-- ✅ PSRule results appear in the PR run in addition to build + lint (SC-008).
