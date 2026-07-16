@@ -184,10 +184,11 @@
     "deployDefenderPlans": {
       "type": "array",
       "defaultValue": [
-        "VirtualMachines"
+        "VirtualMachines",
+        "StorageAccounts"
       ],
       "metadata": {
-        "description": "The Paid Workload Protection plans for Defender for Cloud. Default value = \"VirtualMachines\". See the following URL for valid settings: https://learn.microsoft.com/rest/api/defenderforcloud-composite/pricings/update?view=rest-defenderforcloud-composite-latest&tabs=HTTP."
+        "description": "The Paid Workload Protection plans for Defender for Cloud. Default value = \"VirtualMachines, StorageAccounts\". See the following URL for valid settings: https://learn.microsoft.com/rest/api/defenderforcloud-composite/pricings/update?view=rest-defenderforcloud-composite-latest&tabs=HTTP."
       }
     },
     "deployIdentity": {
@@ -4645,6 +4646,12 @@
           "deploymentNameSuffix": {
             "value": "[parameters('deploymentNameSuffix')]"
           },
+          "deployDefender": {
+            "value": "[parameters('deployDefender')]"
+          },
+          "deployDefenderPlans": {
+            "value": "[parameters('deployDefenderPlans')]"
+          },
           "deploySentinel": {
             "value": "[parameters('deploySentinel')]"
           },
@@ -4693,6 +4700,12 @@
             "deploymentNameSuffix": {
               "type": "string"
             },
+            "deployDefender": {
+              "type": "bool"
+            },
+            "deployDefenderPlans": {
+              "type": "array"
+            },
             "deploySentinel": {
               "type": "bool"
             },
@@ -4737,6 +4750,12 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
+                  "deployDefender": {
+                    "value": "[parameters('deployDefender')]"
+                  },
+                  "deployDefenderPlans": {
+                    "value": "[parameters('deployDefenderPlans')]"
+                  },
                   "deploySentinel": {
                     "value": "[parameters('deploySentinel')]"
                   },
@@ -4773,6 +4792,14 @@
                     }
                   },
                   "parameters": {
+                    "deployDefender": {
+                      "type": "bool",
+                      "defaultValue": false
+                    },
+                    "deployDefenderPlans": {
+                      "type": "array",
+                      "defaultValue": []
+                    },
                     "deploySentinel": {
                       "type": "bool",
                       "defaultValue": false
@@ -4819,35 +4846,35 @@
                         "promotionCode": ""
                       },
                       {
-                        "deploy": true,
+                        "deploy": "[and(parameters('deployDefender'), contains(parameters('deployDefenderPlans'), 'VirtualMachines'))]",
                         "name": "VMInsights",
                         "product": "OMSGallery/VMInsights",
                         "publisher": "Microsoft",
                         "promotionCode": ""
                       },
                       {
-                        "deploy": true,
+                        "deploy": "[and(parameters('deployDefender'), contains(parameters('deployDefenderPlans'), 'VirtualMachines'))]",
                         "name": "Security",
                         "product": "OMSGallery/Security",
                         "publisher": "Microsoft",
                         "promotionCode": ""
                       },
                       {
-                        "deploy": true,
+                        "deploy": "[and(parameters('deployDefender'), contains(parameters('deployDefenderPlans'), 'VirtualMachines'))]",
                         "name": "ServiceMap",
                         "publisher": "Microsoft",
                         "product": "OMSGallery/ServiceMap",
                         "promotionCode": ""
                       },
                       {
-                        "deploy": true,
+                        "deploy": "[and(parameters('deployDefender'), contains(parameters('deployDefenderPlans'), 'Containers'))]",
                         "name": "ContainerInsights",
                         "publisher": "Microsoft",
                         "product": "OMSGallery/ContainerInsights",
                         "promotionCode": ""
                       },
                       {
-                        "deploy": true,
+                        "deploy": "[and(parameters('deployDefender'), contains(parameters('deployDefenderPlans'), 'KeyVaults'))]",
                         "name": "KeyVaultAnalytics",
                         "publisher": "Microsoft",
                         "product": "OMSGallery/KeyVaultAnalytics",
