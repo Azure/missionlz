@@ -1,0 +1,169 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ais.com/schemas/ais-azure-estimates/estimate-input.schema.json",
+  "title": "AIS Azure Estimate Input",
+  "type": "object",
+  "required": ["schema_version", "estimate", "defaults", "line_items"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "estimate": {
+      "type": "object",
+      "required": ["name", "author_role"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "customer": { "type": "string" },
+        "scenario": { "type": "string" },
+        "author_role": { "type": "string", "const": "azure_solution_architect" },
+        "created": { "type": "string" }
+      }
+    },
+    "defaults": {
+      "type": "object",
+      "required": ["cloud", "region", "currency", "period_months", "monthly_hours"],
+      "additionalProperties": false,
+      "properties": {
+        "cloud": { "type": "string", "enum": ["AzureCloud", "AzureGovernment"] },
+        "region": { "type": "string", "minLength": 1 },
+        "currency": { "type": "string", "default": "USD" },
+        "period_months": { "type": "integer", "minimum": 1, "default": 12 },
+        "monthly_hours": { "type": "number", "minimum": 1, "default": 730 },
+        "provisioning_state": { "type": "string" },
+        "data_sizing_policy": { "type": "string" },
+        "retention_policy": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "duration_days": { "type": "integer", "minimum": 0 },
+            "basis": { "type": "string" },
+            "nist_800_53_aligned": { "type": "boolean" }
+          }
+        }
+      }
+    },
+    "dimensions": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/dimension" }
+    },
+    "assumptions": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/assumption" }
+    },
+    "workload_templates": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/workload_template" }
+    },
+    "line_items": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/line_item" }
+    },
+    "manual_overrides": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/manual_override" }
+    },
+    "exclusions": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  },
+  "$defs": {
+    "dimension": {
+      "type": "object",
+      "required": ["name", "values"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string" },
+        "values": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+        "default_multiplier": { "type": "number", "default": 1 }
+      }
+    },
+    "assumption": {
+      "type": "object",
+      "required": ["id", "text"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string" },
+        "text": { "type": "string" },
+        "applies_to": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "workload_template": {
+      "type": "object",
+      "required": ["id", "type", "parameters"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string" },
+        "type": { "type": "string", "enum": ["app_service_workload"] },
+        "applies_to": { "type": "object" },
+        "parameters": { "type": "object" }
+      }
+    },
+    "line_item": {
+      "type": "object",
+      "required": ["id", "name", "service_name", "quantity", "unit", "usage_basis", "pricing_source", "sizing_confidence", "pricing_confidence"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "service_name": { "type": "string" },
+        "service_family": { "type": "string" },
+        "sku_name": { "type": "string" },
+        "arm_sku_name": { "type": "string" },
+        "meter_name": { "type": "string" },
+        "region": { "type": "string" },
+        "quantity": { "type": "number", "minimum": 0 },
+        "unit": { "type": "string" },
+        "usage_basis": { "type": "string", "enum": ["hourly", "monthly", "storage", "transaction", "one_time"] },
+        "dimensions": { "type": "object" },
+        "dimension_overrides": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/dimension_override" }
+        },
+        "pricing_source": { "type": "string", "enum": ["azure_retail_prices_api", "manual_override", "unresolved"] },
+        "sizing_confidence": { "$ref": "#/$defs/confidence" },
+        "pricing_confidence": { "$ref": "#/$defs/confidence" },
+        "notes": { "type": "string" }
+      }
+    },
+    "dimension_override": {
+      "type": "object",
+      "required": ["match"],
+      "additionalProperties": false,
+      "properties": {
+        "match": { "type": "object" },
+        "quantity": { "type": "number", "minimum": 0 },
+        "unit_price": { "type": "number", "minimum": 0 },
+        "sku_name": { "type": "string" },
+        "arm_sku_name": { "type": "string" },
+        "meter_name": { "type": "string" },
+        "sizing_confidence": { "$ref": "#/$defs/confidence" },
+        "pricing_confidence": { "$ref": "#/$defs/confidence" },
+        "notes": { "type": "string" }
+      }
+    },
+    "manual_override": {
+      "type": "object",
+      "required": ["line_item_id", "unit_price", "currency", "unit_of_measure", "source_note", "rationale", "sizing_confidence", "pricing_confidence"],
+      "additionalProperties": false,
+      "properties": {
+        "line_item_id": { "type": "string" },
+        "unit_price": { "type": "number", "minimum": 0 },
+        "currency": { "type": "string" },
+        "unit_of_measure": { "type": "string" },
+        "source_note": { "type": "string", "minLength": 1 },
+        "rationale": { "type": "string", "minLength": 1 },
+        "sizing_confidence": { "$ref": "#/$defs/confidence" },
+        "pricing_confidence": { "$ref": "#/$defs/confidence" }
+      }
+    },
+    "confidence": {
+      "type": "string",
+      "enum": ["high", "medium", "low", "unresolved"]
+    }
+  }
+}

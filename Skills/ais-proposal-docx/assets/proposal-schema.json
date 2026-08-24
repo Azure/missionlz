@@ -1,0 +1,516 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ais.com/schemas/proposal-input.json",
+  "title": "AIS Proposal Input",
+  "description": "Input schema for generating AIS-branded proposal Word documents. Defines all fields needed to populate the template.",
+  "type": "object",
+  "required": ["cover_page", "header", "sections"],
+  "properties": {
+    "cover_page": {
+      "type": "object",
+      "description": "Cover page / title page fields.",
+      "required": [
+        "title",
+        "solicitation_number",
+        "date",
+        "volume_name",
+        "volume_factor",
+        "submitted_by",
+        "submitted_to"
+      ],
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "Document/solicitation title. Example: 'TTS NEXT BPAs Support Area 5'",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "solicitation_number": {
+          "type": "string",
+          "description": "Solicitation or RFQ number. Example: 'RFQ1809121'",
+          "minLength": 1,
+          "maxLength": 50
+        },
+        "date": {
+          "type": "string",
+          "description": "Submission date in display format. Example: 'May 18, 2026'",
+          "minLength": 1
+        },
+        "volume_name": {
+          "type": "string",
+          "description": "Volume title. Example: 'Technical Capability'",
+          "minLength": 1
+        },
+        "volume_factor": {
+          "type": "string",
+          "description": "Factor designation. Example: 'Technical Factor 1'",
+          "minLength": 1
+        },
+        "submitted_by": {
+          "$ref": "#/$defs/organization",
+          "description": "Submitting organization (AIS)."
+        },
+        "submitted_to": {
+          "$ref": "#/$defs/recipient",
+          "description": "Receiving government agency."
+        },
+        "disclaimer": {
+          "type": "string",
+          "description": "Proprietary information disclaimer. If omitted, uses the standard AIS disclaimer.",
+          "default": "This proposal includes data that shall not be disclosed outside the Government and shall not be duplicated, used, or disclosed-in whole or in part-for any purpose other than to evaluate this proposal. If, however, a contract is awarded to this offeror as a result of-or in connection with-the submission of this data, the Government shall have the right to duplicate, use, or disclose the data to the extent provided in the resulting contract. This restriction does not limit the Government's right to use information contained in this data if it is obtained from another source without restriction. The data subject to this restriction are contained on sheets with the following disclosure legend: \"Use or disclosure of information contained on this sheet is subject to the restriction on the title page of this proposal.\""
+        }
+      }
+    },
+    "header": {
+      "type": "object",
+      "description": "Header bar content for body pages.",
+      "required": ["text"],
+      "properties": {
+        "text": {
+          "type": "string",
+          "description": "Header text. Typically: '{agency_name} {solicitation_number} {title} {volume_name}'. Example: 'General Services Administration (GSA) RFQ1809121 TTS NEXT BPAs Support Area 5 Technical Capability'"
+        }
+      }
+    },
+    "footer": {
+      "type": "object",
+      "description": "Footer content. If omitted, uses the standard disclaimer.",
+      "properties": {
+        "disclaimer_text": {
+          "type": "string",
+          "description": "Footer disclaimer text.",
+          "default": "Use or disclosure of data contained on this sheet is subject to the restriction on the title page of this proposal."
+        }
+      }
+    },
+    "sections": {
+      "type": "array",
+      "description": "Body content sections. Each section becomes a Heading1 + body content.",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/section"
+      }
+    },
+    "comments": {
+      "type": "array",
+      "description": "Comments to attach to the document. Each comment anchors to a section by index.",
+      "items": {
+        "$ref": "#/$defs/comment"
+      }
+    }
+  },
+  "$defs": {
+    "organization": {
+      "type": "object",
+      "required": ["name", "address", "contact"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Organization name. Example: 'Applied Information Sciences'"
+        },
+        "address": {
+          "$ref": "#/$defs/address"
+        },
+        "uei": {
+          "type": "string",
+          "description": "Unique Entity Identifier. Example: 'MGCZNCNTQPE9'"
+        },
+        "contact": {
+          "$ref": "#/$defs/contact"
+        }
+      }
+    },
+    "recipient": {
+      "type": "object",
+      "required": ["agency_name", "org_name", "address"],
+      "properties": {
+        "agency_name": {
+          "type": "string",
+          "description": "Agency name. Example: 'General Services Administration (GSA)'"
+        },
+        "org_name": {
+          "type": "string",
+          "description": "Organization within agency. Example: 'Technology Transformation Service (TTS)'"
+        },
+        "address": {
+          "$ref": "#/$defs/address"
+        },
+        "contracting_officer": {
+          "$ref": "#/$defs/contact",
+          "description": "Contracting Officer (CO)."
+        },
+        "contract_specialist": {
+          "$ref": "#/$defs/contact",
+          "description": "Contract Specialist (CS)."
+        }
+      }
+    },
+    "address": {
+      "type": "object",
+      "required": ["line1", "city_state_zip"],
+      "properties": {
+        "line1": {
+          "type": "string",
+          "description": "Street address line 1."
+        },
+        "line2": {
+          "type": "string",
+          "description": "Street address line 2 (suite, floor, etc.)."
+        },
+        "city_state_zip": {
+          "type": "string",
+          "description": "City, State ZIP. Example: 'Reston, VA 20191'"
+        }
+      }
+    },
+    "contact": {
+      "type": "object",
+      "required": ["name", "email"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Full name with title. Example: 'Chelsea Cerwinski, Director of Contracts'"
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "Email address."
+        },
+        "phone": {
+          "type": "string",
+          "description": "Phone number. Example: '703-860-7832'"
+        }
+      }
+    },
+    "section": {
+      "type": "object",
+      "required": ["heading", "content"],
+      "properties": {
+        "heading": {
+          "type": "string",
+          "description": "Section heading text. Will use Heading1 style.",
+          "minLength": 1
+        },
+        "content": {
+          "type": "array",
+          "description": "Content blocks within this section.",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/content_block"
+          }
+        }
+      }
+    },
+    "content_block": {
+      "description": "A proposal content block. Legacy paragraph-style blocks remain supported, and richer semantic blocks generate AIS template constructs.",
+      "oneOf": [
+        { "$ref": "#/$defs/paragraph_block" },
+        { "$ref": "#/$defs/callout_block" },
+        { "$ref": "#/$defs/figure_block" },
+        { "$ref": "#/$defs/table_block" },
+        { "$ref": "#/$defs/qa_block" },
+        { "$ref": "#/$defs/requirement_block" },
+        { "$ref": "#/$defs/theme_block" }
+      ]
+    },
+    "paragraph_block": {
+      "type": "object",
+      "required": ["type", "text"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "body",
+            "body_0_after",
+            "heading2",
+            "heading3",
+            "heading_a",
+            "heading_b",
+            "bullet1",
+            "bullet1_0_after",
+            "bullet2",
+            "bullet2_0_after",
+            "bullet3",
+            "bullet3_0_after",
+            "callout_title",
+            "callout_text",
+            "callout_bullet"
+          ],
+          "description": "Paragraph block type, maps to a template paragraph style."
+        },
+        "text": {
+          "type": "string",
+          "description": "The text content for this block."
+        },
+        "bold_label": {
+          "type": "string",
+          "description": "Optional bold label prefix (e.g., 'Model Governance:'). Rendered as bold run before the text."
+        }
+      }
+    },
+    "callout_block": {
+      "type": "object",
+      "required": ["type", "title"],
+      "properties": {
+        "type": { "const": "callout" },
+        "title": {
+          "type": "string",
+          "description": "Callout title using the AIS callout title style."
+        },
+        "body": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Callout body paragraphs."
+        },
+        "text": {
+          "type": "string",
+          "description": "Single-paragraph callout body shorthand."
+        },
+        "bullets": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Optional callout bullets."
+        },
+        "width": {
+          "type": "string",
+          "enum": ["full", "sidebar", "narrow"],
+          "default": "full",
+          "description": "Callout width preset."
+        },
+        "alignment": {
+          "type": "string",
+          "enum": ["left", "center", "right"],
+          "default": "left"
+        }
+      }
+    },
+    "figure_block": {
+      "type": "object",
+      "required": ["type", "title"],
+      "properties": {
+        "type": { "const": "figure" },
+        "title": {
+          "type": "string",
+          "description": "Figure title using the AIS figure title style."
+        },
+        "path": {
+          "type": "string",
+          "description": "Local filesystem path or path relative to the input JSON file."
+        },
+        "asset": {
+          "type": "string",
+          "description": "Repo-relative asset reference."
+        },
+        "base64": {
+          "type": "string",
+          "description": "Base64 image payload or data URI."
+        },
+        "alt_text": {
+          "type": "string",
+          "description": "Alternative text embedded in the image metadata or used as placeholder guidance."
+        },
+        "caption": {
+          "type": "string",
+          "description": "Figure action caption."
+        },
+        "action_caption": {
+          "type": "string",
+          "description": "Alias for caption."
+        },
+        "width_inches": {
+          "type": "number",
+          "minimum": 0.1
+        },
+        "height_inches": {
+          "type": "number",
+          "minimum": 0.1
+        },
+        "replacement_guidance": {
+          "type": "string",
+          "description": "Instruction shown when generating an image placeholder instead of embedding an image."
+        }
+      }
+    },
+    "table_block": {
+      "type": "object",
+      "required": ["type", "columns", "rows"],
+      "properties": {
+        "type": { "const": "table" },
+        "title": {
+          "type": "string",
+          "description": "Table title/caption."
+        },
+        "style": {
+          "type": "string",
+          "enum": ["ais_1", "ais_2", "ais_3", "grid", "AIStbl1", "AIStbl2", "AIStbl3"],
+          "default": "ais_1"
+        },
+        "columns": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/table_column" }
+        },
+        "rows": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/table_row" }
+        },
+        "include_header": {
+          "type": "boolean",
+          "default": true
+        },
+        "alignment": {
+          "type": "string",
+          "enum": ["left", "center", "right"],
+          "default": "left"
+        }
+      }
+    },
+    "table_column": {
+      "type": "object",
+      "required": ["heading"],
+      "properties": {
+        "heading": { "type": "string" },
+        "weight": {
+          "type": "number",
+          "minimum": 0.1,
+          "description": "Relative column width when width_dxa is not supplied."
+        },
+        "width_dxa": {
+          "type": "integer",
+          "minimum": 120,
+          "description": "Explicit Word DXA column width."
+        },
+        "align": {
+          "type": "string",
+          "enum": ["left", "center"]
+        }
+      }
+    },
+    "table_row": {
+      "oneOf": [
+        {
+          "type": "array",
+          "items": { "$ref": "#/$defs/table_cell" }
+        },
+        {
+          "type": "object",
+          "required": ["cells"],
+          "properties": {
+            "role": {
+              "type": "string",
+              "enum": ["body", "header", "header_left", "subheader", "body_centered"],
+              "default": "body"
+            },
+            "cells": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/table_cell" }
+            }
+          }
+        }
+      ]
+    },
+    "table_cell": {
+      "oneOf": [
+        { "type": "string" },
+        {
+          "type": "object",
+          "properties": {
+            "text": { "type": "string" },
+            "style": {
+              "type": "string",
+              "enum": ["header", "header_left", "subheader", "body", "body_centered", "bullet1", "bullet2"]
+            },
+            "paragraphs": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "bullets": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        }
+      ]
+    },
+    "qa_block": {
+      "type": "object",
+      "required": ["type", "question"],
+      "properties": {
+        "type": { "const": "qa" },
+        "label": {
+          "type": "string",
+          "description": "Question label such as Q1 or Q#."
+        },
+        "number": {
+          "type": "string",
+          "description": "Alias for label."
+        },
+        "question": {
+          "type": "string",
+          "description": "Solicitation question or direct response prompt."
+        },
+        "response": {
+          "oneOf": [
+            { "type": "string" },
+            {
+              "type": "array",
+              "items": { "$ref": "#/$defs/content_block" }
+            }
+          ]
+        }
+      }
+    },
+    "requirement_block": {
+      "type": "object",
+      "required": ["type", "text"],
+      "properties": {
+        "type": { "const": "requirement" },
+        "requirement_type": {
+          "type": "string",
+          "enum": ["misc", "section_c", "section_l", "section_m"],
+          "default": "misc"
+        },
+        "source": {
+          "type": "string",
+          "enum": ["misc", "section_c", "section_l", "section_m"],
+          "description": "Alias for requirement_type."
+        },
+        "text": {
+          "type": "string",
+          "description": "Requirement, PWS/SOW excerpt, instruction, or evaluation criterion."
+        }
+      }
+    },
+    "theme_block": {
+      "type": "object",
+      "required": ["type", "text"],
+      "properties": {
+        "type": { "const": "theme" },
+        "text": {
+          "type": "string",
+          "description": "Proposal theme or narrative anchor using the AIS Theme style."
+        }
+      }
+    },
+    "comment": {
+      "type": "object",
+      "required": ["section_index", "text"],
+      "properties": {
+        "section_index": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Zero-based index of the section this comment anchors to."
+        },
+        "author": {
+          "type": "string",
+          "description": "Comment author name.",
+          "default": "AIS Proposal Generator"
+        },
+        "text": {
+          "type": "string",
+          "description": "Comment text content."
+        }
+      }
+    }
+  }
+}

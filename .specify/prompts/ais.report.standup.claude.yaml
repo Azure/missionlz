@@ -1,0 +1,12 @@
+model: haiku
+description: "Generate an internal daily standup report from repo state"
+allowed-tools: Read, Write, Edit, Bash, Glob, Grep
+handoffs:
+  - label: Client Status Report
+    agent: ais.report.status
+    prompt: Generate a client-facing status report
+    send: true
+  - label: Full Project Report
+    agent: ais.report.project
+    prompt: Generate a comprehensive project report
+    send: true

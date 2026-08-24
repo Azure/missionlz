@@ -1,0 +1,7 @@
+description: "Use when an early feature idea needs optional discovery, scope shaping, or a seed brief before specification."
+allowed-tools: Read, Write, Edit, Bash, Glob, Grep
+handoffs:
+  - label: Create Feature Spec
+    agent: ais.spec.specify
+    prompt: Create a feature specification from this Spec Seed Brief.
+    send: true

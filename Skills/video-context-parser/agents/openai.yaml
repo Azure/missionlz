@@ -1,0 +1,4 @@
+interface:
+  display_name: "Video Context Parser"
+  short_description: "Extract rich video and screen-share evidence while pruning non-evidence frames"
+  default_prompt: "Use the video-context-parser Agent Skill to extract project-context visual evidence from this video or screen-share recording and its paired transcript. Include scene transitions, visible platform/model/agent screens, and pruned non-evidence frames."

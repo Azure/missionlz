@@ -1,0 +1,7 @@
+description: "Synthesize raw client inputs into a structured What We Heard document for pre-sales"
+allowed-tools: Read, Write, Edit, Bash, Glob, Grep
+handoffs:
+  - label: Create Proposal
+    agent: ais.presales.propose
+    prompt: Create a proposal from the what-we-heard document
+    send: true

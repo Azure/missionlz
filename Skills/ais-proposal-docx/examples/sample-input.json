@@ -1,0 +1,160 @@
+{
+  "cover_page": {
+    "title": "TTS NEXT BPAs Support Area 5",
+    "solicitation_number": "RFQ1809121",
+    "date": "May 18, 2026",
+    "volume_name": "Technical Capability",
+    "volume_factor": "Technical Factor 1",
+    "submitted_by": {
+      "name": "Applied Information Sciences",
+      "address": {
+        "line1": "11440 Commerce Park Drive",
+        "line2": "Suite 600",
+        "city_state_zip": "Reston, VA 20191"
+      },
+      "uei": "MGCZNCNTQPE9",
+      "contact": {
+        "name": "Chelsea Cerwinski, Director of Contracts",
+        "email": "chelsea.cerwinski@ais.com",
+        "phone": "703-860-7832"
+      }
+    },
+    "submitted_to": {
+      "agency_name": "General Services Administration (GSA)",
+      "org_name": "Technology Transformation Service (TTS)",
+      "address": {
+        "line1": "1800 F St NW",
+        "city_state_zip": "Washington, DC 20405"
+      },
+      "contracting_officer": {
+        "name": "Jacqueline McGlone, Contracting Officer",
+        "email": "jacqueline.mcglone@gsa.gov"
+      },
+      "contract_specialist": {
+        "name": "Krystal Zoufaly, Contract Specialist",
+        "email": "krystal.zoufaly@gsa.gov"
+      }
+    }
+  },
+  "header": {
+    "text": "General Services Administration (GSA) RFQ1809121 TTS NEXT BPAs Support Area 5 Technical Capability"
+  },
+  "sections": [
+    {
+      "heading": "Federal AI Implementation Approach",
+      "content": [
+        {
+          "type": "body",
+          "text": "AIS delivers AI governance through a four-phase lifecycle framework — Intake → Build → Monitor → Audit — that establishes controls before any model enters production and sustains oversight through retirement."
+        },
+        {
+          "type": "body",
+          "text": "",
+          "bold_label": "Model Governance:"
+        },
+        {
+          "type": "body",
+          "text": "Intake begins every engagement with a governance assessment: classifying AI systems by risk level, identifying human oversight requirements, defining approval workflows, and documenting data provenance. This classification directly maps to OMB M-25-21's high-impact AI designation criteria and ensures Chief AI Officer visibility from day one."
+        },
+        {
+          "type": "body",
+          "text": "",
+          "bold_label": "Explainability:"
+        },
+        {
+          "type": "body",
+          "text": "AIS architects AI systems for traceable, defensible outputs. For RAG — the dominant pattern in federal AI deployments — AIS implements source-cited retrieval so every AI-generated response links directly to the documents that informed it."
+        },
+        {
+          "type": "body",
+          "text": "",
+          "bold_label": "Bias Detection:"
+        },
+        {
+          "type": "body",
+          "text": "AIS implements automated bias scoring with reason-code explanations, using architecturally separated evaluation models to eliminate self-grading risk. Evaluation pipelines assess outputs against demographic and protected characteristics."
+        },
+        {
+          "type": "body",
+          "text": "",
+          "bold_label": "Ongoing Performance Monitoring:"
+        },
+        {
+          "type": "body",
+          "text": "AIS deploys comprehensive AI monitoring using Azure Sentinel, Microsoft Defender, and custom observability dashboards tailored to AI-specific metrics including model drift detection, accuracy degradation tracking, and usage pattern analysis."
+        }
+      ]
+    },
+    {
+      "heading": "Evaluating When AI is the Appropriate Solution",
+      "content": [
+        {
+          "type": "body",
+          "text": "AIS applies a structured decision framework to determine when AI adds genuine value versus when traditional software engineering, rules engines, or human processes are more effective, reliable, and cost-efficient."
+        },
+        {
+          "type": "body",
+          "text": "The framework evaluates task complexity, data maturity, explainability requirements, and regulatory constraints before recommending an AI approach. Not every problem needs AI — and recommending against AI when appropriate builds more trust than defaulting to it."
+        }
+      ]
+    },
+    {
+      "heading": "Data Quality, Privacy, and Regulatory Alignment",
+      "content": [
+        {
+          "type": "body",
+          "text": "AIS ensures that AI systems are built on a foundation of high-quality data, strong privacy protections, and full compliance with federal AI guidance."
+        },
+        {
+          "type": "body",
+          "text": "",
+          "bold_label": "Data Quality:"
+        },
+        {
+          "type": "body",
+          "text": "AIS implements automated data profiling, validation pipelines, and lineage tracking to ensure training and inference data meets quality thresholds before any model consumes it."
+        },
+        {
+          "type": "body",
+          "text": "",
+          "bold_label": "Privacy:"
+        },
+        {
+          "type": "body",
+          "text": "AIS deploys privacy-preserving architectures including data minimization, tokenization, differential privacy where appropriate, and strict access controls aligned with FISMA and agency-specific privacy requirements."
+        },
+        {
+          "type": "body",
+          "text": "",
+          "bold_label": "Regulatory Alignment:"
+        },
+        {
+          "type": "body",
+          "text": "AIS maintains active compliance with OMB M-25-21 (governance and Chief AI Officer requirements), M-25-22 (AI acquisition and vendor lock-in avoidance), M-26-04 (unbiased AI and bias testing), and the NIST AI Risk Management Framework across all engagements."
+        }
+      ]
+    }
+  ],
+  "comments": [
+    {
+      "section_index": 0,
+      "author": "Funk, Joe",
+      "text": "Instruction: Describe your approach to implementing Artificial Intelligence / Machine Learning (AI/ML) capabilities within a Federal environment, including how you address model governance, explainability, bias detection, and ongoing performance monitoring."
+    },
+    {
+      "section_index": 0,
+      "author": "Funk, Joe",
+      "text": "Page Limit: 2 pages for entire volume"
+    },
+    {
+      "section_index": 1,
+      "author": "Funk, Joe",
+      "text": "Instruction: How do you evaluate when AI is the appropriate solution versus when traditional approaches are more effective?"
+    },
+    {
+      "section_index": 2,
+      "author": "Funk, Joe",
+      "text": "Instruction: Include how you handle data quality, privacy constraints, and alignment with federal AI guidance (e.g., OMB M-25-21, M-25-22, M-26-04, the NIST AI Risk Management Framework)."
+    }
+  ]
+}

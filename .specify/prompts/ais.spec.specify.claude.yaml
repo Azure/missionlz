@@ -1,0 +1,9 @@
+description: "Create or update a feature specification with QA/UAT readiness. Handles new specs, sub-specs, and re-specification with YYMM-NNN versioning."
+handoffs:
+  - label: Create Technical Design
+    agent: ais.spec.design
+    prompt: Create a design for the spec. I am building with...
+  - label: Clarify Spec Requirements
+    agent: ais.maintain.clarify
+    prompt: Clarify specification requirements
+    send: true

@@ -1,0 +1,12 @@
+model: haiku
+description: "Generate a comprehensive internal project report with pipeline status, team activity, and health indicators"
+allowed-tools: Read, Write, Edit, Bash, Glob, Grep
+handoffs:
+  - label: Internal Standup
+    agent: ais.report.standup
+    prompt: Generate an internal standup report
+    send: true
+  - label: Client Status Report
+    agent: ais.report.status
+    prompt: Generate a client-facing status report
+    send: true

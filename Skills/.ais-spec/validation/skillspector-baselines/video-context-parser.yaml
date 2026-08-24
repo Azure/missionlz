@@ -1,0 +1,53 @@
+# SkillSpector baseline — findings listed here are suppressed on future scans.
+# Edit 'reason' fields and add glob 'rules' as needed. See docs/SUPPRESSION.md.
+version: 1
+rules: []
+fingerprints:
+- hash: sha256:71376a974b585803
+  rule_id: AST4
+  file: scripts/run_parser.py
+  reason: Current AIS Specify static SkillSpector baseline accepted for CI onboarding
+- hash: sha256:a3bf72cd21b73fb6
+  rule_id: AST4
+  file: scripts/run_parser.py
+  reason: Current AIS Specify static SkillSpector baseline accepted for CI onboarding
+- hash: sha256:418251cca30f8b68
+  rule_id: AST4
+  file: scripts/run_parser.py
+  reason: Current AIS Specify static SkillSpector baseline accepted for CI onboarding
+- hash: sha256:f3b6469cfe4b5413
+  rule_id: TT2
+  file: scripts/apply_agent_visual_analysis.py
+  reason: Current AIS Specify static SkillSpector baseline accepted for CI onboarding
+- hash: sha256:f410606b471187d9
+  rule_id: TT2
+  file: scripts/apply_agent_visual_analysis.py
+  reason: Current AIS Specify static SkillSpector baseline accepted for CI onboarding
+- hash: sha256:e9e5167aace045a1
+  rule_id: TT2
+  file: scripts/run_parser.py
+  reason: Current AIS Specify static SkillSpector baseline accepted for CI onboarding
+- hash: sha256:a2cac329b97718cc
+  rule_id: TT2
+  file: scripts/run_parser.py
+  reason: Current AIS Specify static SkillSpector baseline accepted for CI onboarding
+- hash: sha256:990223b7354bbd11
+  rule_id: TT2
+  file: scripts/run_parser.py
+  reason: Current AIS Specify static SkillSpector baseline accepted for CI onboarding
+- hash: sha256:78fede7c9d60c260
+  rule_id: LP3
+  file: SKILL.md
+  reason: Current AIS Specify static SkillSpector baseline accepted for CI onboarding
+- hash: sha256:6eb5f24825f6628d
+  rule_id: OH1
+  file: scripts/run_parser.py
+  reason: Current AIS Specify static SkillSpector baseline accepted for CI onboarding
+- hash: sha256:e7d9fd9c306b107f
+  rule_id: OH1
+  file: scripts/run_parser.py
+  reason: Current AIS Specify static SkillSpector baseline accepted for CI onboarding
+- hash: sha256:f1d40d6f4ef48880
+  rule_id: OH1
+  file: scripts/run_parser.py
+  reason: Current AIS Specify static SkillSpector baseline accepted for CI onboarding

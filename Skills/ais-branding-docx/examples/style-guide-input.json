@@ -1,0 +1,455 @@
+{
+  "cover_page": {
+    "title": "AIS Document Style Guide",
+    "subtitle": "Content Block & Typography Reference",
+    "date": "5/4/2026",
+    "version": "v1.0",
+    "prepared_for": "AIS Internal",
+    "prepared_by": "Applied Information Sciences, Inc.",
+    "confidentiality": "Internal Use Only — AIS Document Template Reference"
+  },
+  "footer": {
+    "subtitle": "AIS Document Style Guide",
+    "version": "v1.0"
+  },
+  "sections": [
+    {
+      "heading": "Heading Hierarchy",
+      "content": [
+        {
+          "type": "first_paragraph",
+          "text": "This section demonstrates all five heading levels available in the AIS document template. Each heading level has distinct sizing, weight, and color to create a clear visual hierarchy. Section headings (Heading 1) are generated automatically from each section's heading property."
+        },
+        {
+          "type": "heading2",
+          "text": "Heading 2 — Subsection Level"
+        },
+        {
+          "type": "body",
+          "text": "Heading 2 is the primary subsection divider within a section. It appears in the Table of Contents at the second level."
+        },
+        {
+          "type": "heading3",
+          "text": "Heading 3 — Sub-subsection Level"
+        },
+        {
+          "type": "body",
+          "text": "Heading 3 provides a third level of hierarchy. Use for step sequences, procedure names, or detailed breakdowns within a subsection."
+        },
+        {
+          "type": "heading4",
+          "text": "Heading 4 — Detail Level"
+        },
+        {
+          "type": "body",
+          "text": "Heading 4 is styled in medium blue (#125A97) at 12pt bold. Use sparingly for fine-grained organization within a Heading 3 block."
+        },
+        {
+          "type": "heading5",
+          "text": "Heading 5 — Minor Detail Level"
+        },
+        {
+          "type": "body",
+          "text": "Heading 5 is the deepest heading level, styled in dark navy (#1C2C57) at 11pt bold. Use only when genuinely needed."
+        }
+      ]
+    },
+    {
+      "heading": "Body Text Styles",
+      "content": [
+        {
+          "type": "first_paragraph",
+          "text": "The first_paragraph type uses the FirstParagraph style, which provides a slightly different treatment for the opening paragraph of a section — typically without first-line indent and with appropriate spacing after the heading."
+        },
+        {
+          "type": "heading2",
+          "text": "Normal Body Text"
+        },
+        {
+          "type": "body",
+          "text": "This is a standard body paragraph using the Normal style. It is the default for general prose content. Body text uses the document's base font (typically Arial 11-12pt) in dark gray (#3C3C3C)."
+        },
+        {
+          "type": "body",
+          "text": "Multiple body paragraphs flow naturally with consistent paragraph spacing. Use this type for explanatory text, descriptions, and general narrative content."
+        },
+        {
+          "type": "heading2",
+          "text": "Compact Style"
+        },
+        {
+          "type": "compact",
+          "text": "The compact style provides tightly-spaced body text with minimal before/after spacing (36 twips each). Use it for dense informational content where vertical space is at a premium."
+        },
+        {
+          "type": "compact",
+          "text": "Multiple compact paragraphs stack closely together, creating a dense but readable block. This is ideal for configuration details, specifications, or reference material."
+        },
+        {
+          "type": "heading2",
+          "text": "Body Text with Bold Label"
+        },
+        {
+          "type": "body_text",
+          "text": "The BodyText style provides an alternative body treatment. When combined with the bold_label property, it creates a definition-list effect.",
+          "bold_label": "Description:"
+        },
+        {
+          "type": "body_text",
+          "text": "This pattern is useful for callout boxes, notes, warnings, or any content that benefits from a bold prefix.",
+          "bold_label": "Note:"
+        },
+        {
+          "type": "body_text",
+          "text": "Proceeding without proper authorization may result in access revocation.",
+          "bold_label": "Important:"
+        },
+        {
+          "type": "heading2",
+          "text": "Bold Blue Accent"
+        },
+        {
+          "type": "bold_blue",
+          "text": "The AISBoldBlue style renders text in bold with the AIS brand blue color. Use for key statements, section callouts, or emphasis that should stand out from normal body text."
+        }
+      ]
+    },
+    {
+      "heading": "Lists & Enumeration",
+      "content": [
+        {
+          "type": "first_paragraph",
+          "text": "The generator supports both bulleted and numbered lists at multiple indentation levels."
+        },
+        {
+          "type": "heading2",
+          "text": "Bullet Lists"
+        },
+        {
+          "type": "body",
+          "text": "Use the bullet or list_paragraph type for unordered lists. Each item receives a bullet marker from the template's numbering definitions."
+        },
+        {
+          "type": "bullet",
+          "text": "First bullet item — top level"
+        },
+        {
+          "type": "bullet",
+          "text": "Second bullet item with **bold emphasis** and *italic text*"
+        },
+        {
+          "type": "bullet",
+          "text": "Third bullet item with `inline code` formatting"
+        },
+        {
+          "type": "bullet",
+          "text": "Sub-item under the third bullet (level 1 indentation)",
+          "level": 1
+        },
+        {
+          "type": "bullet",
+          "text": "Another sub-item at level 1",
+          "level": 1
+        },
+        {
+          "type": "bullet",
+          "text": "Deep nested item (level 2 indentation)",
+          "level": 2
+        },
+        {
+          "type": "bullet",
+          "text": "Fourth bullet item — back to top level"
+        },
+        {
+          "type": "heading2",
+          "text": "Numbered Lists"
+        },
+        {
+          "type": "body",
+          "text": "Use the numbered_list type for ordered sequences such as procedures, steps, or ranked items."
+        },
+        {
+          "type": "numbered_list",
+          "text": "Navigate to the Azure Portal and select the target resource group."
+        },
+        {
+          "type": "numbered_list",
+          "text": "Click **Access Control (IAM)** in the left navigation pane."
+        },
+        {
+          "type": "numbered_list",
+          "text": "Select **Add role assignment** and choose the appropriate role."
+        },
+        {
+          "type": "numbered_list",
+          "text": "Search for the security group and select it."
+        },
+        {
+          "type": "numbered_list",
+          "text": "Click **Review + assign** to complete the assignment."
+        },
+        {
+          "type": "heading2",
+          "text": "Mixed Lists"
+        },
+        {
+          "type": "body",
+          "text": "Bullet and numbered lists can be interleaved with body text for complex procedural documentation."
+        },
+        {
+          "type": "numbered_list",
+          "text": "Prepare the environment:"
+        },
+        {
+          "type": "bullet",
+          "text": "Install Azure CLI v2.50 or later",
+          "level": 1
+        },
+        {
+          "type": "bullet",
+          "text": "Authenticate with `az login --use-device-code`",
+          "level": 1
+        },
+        {
+          "type": "numbered_list",
+          "text": "Deploy the infrastructure:"
+        },
+        {
+          "type": "bullet",
+          "text": "Clone the repository from Azure DevOps",
+          "level": 1
+        },
+        {
+          "type": "bullet",
+          "text": "Run `terraform init` followed by `terraform plan`",
+          "level": 1
+        },
+        {
+          "type": "numbered_list",
+          "text": "Validate and verify the deployment."
+        }
+      ]
+    },
+    {
+      "heading": "Inline Formatting",
+      "content": [
+        {
+          "type": "first_paragraph",
+          "text": "Content blocks support markdown-style inline formatting within any text field. The following demonstrates all supported inline patterns."
+        },
+        {
+          "type": "heading2",
+          "text": "Bold Text"
+        },
+        {
+          "type": "body",
+          "text": "Use double asterisks for **bold emphasis**. This renders as Word bold formatting. Example: The **Azure Resource Manager** deploys all resources through **declarative templates**."
+        },
+        {
+          "type": "heading2",
+          "text": "Italic Text"
+        },
+        {
+          "type": "body",
+          "text": "Use single asterisks for *italic emphasis*. Example: The migration was completed *ahead of schedule* with *zero downtime*."
+        },
+        {
+          "type": "heading2",
+          "text": "Inline Code"
+        },
+        {
+          "type": "body",
+          "text": "Use backticks for `inline code`. Example: Run `kubectl get pods -n production` to check pod status. The config file is at `/etc/azure/config.json`."
+        },
+        {
+          "type": "heading2",
+          "text": "Combined Formatting"
+        },
+        {
+          "type": "body",
+          "text": "All three can appear in a single paragraph: **Azure Policy** enforces *organizational standards* using the `azurerm_policy_assignment` resource. Run `az policy assignment list` to verify."
+        }
+      ]
+    },
+    {
+      "heading": "Source Code Blocks",
+      "content": [
+        {
+          "type": "first_paragraph",
+          "text": "The source_code type renders text in a monospace font with the SourceCode paragraph style. Use for configuration files, scripts, and multi-line code samples."
+        },
+        {
+          "type": "heading2",
+          "text": "Terraform Example"
+        },
+        {
+          "type": "source_code",
+          "text": "resource \"azurerm_resource_group\" \"main\" {\n  name     = \"rg-landing-zone-prod\"\n  location = \"eastus2\"\n\n  tags = {\n    environment = \"production\"\n    managed_by  = \"terraform\"\n  }\n}"
+        },
+        {
+          "type": "heading2",
+          "text": "Azure CLI Example"
+        },
+        {
+          "type": "source_code",
+          "text": "az network vnet create \\\n  --resource-group rg-network-hub \\\n  --name vnet-hub-eastus2 \\\n  --address-prefix 10.0.0.0/16 \\\n  --subnet-name snet-gateway \\\n  --subnet-prefix 10.0.1.0/24"
+        },
+        {
+          "type": "heading2",
+          "text": "JSON Configuration"
+        },
+        {
+          "type": "source_code",
+          "text": "{\n  \"name\": \"policy-require-tags\",\n  \"properties\": {\n    \"policyType\": \"Custom\",\n    \"mode\": \"Indexed\",\n    \"parameters\": {\n      \"tagName\": {\n        \"type\": \"String\",\n        \"metadata\": {\n          \"displayName\": \"Required Tag Name\"\n        }\n      }\n    }\n  }\n}"
+        }
+      ]
+    },
+    {
+      "heading": "Tables",
+      "content": [
+        {
+          "type": "first_paragraph",
+          "text": "Tables are generated from structured row data. The first row is treated as the header row by default, receiving the table style's header formatting (typically dark background with white text)."
+        },
+        {
+          "type": "heading2",
+          "text": "Simple Data Table"
+        },
+        {
+          "type": "table",
+          "rows": [
+            ["Environment", "Subscription", "Region", "Status"],
+            ["Production", "sub-prod-001", "East US 2", "Active"],
+            ["Staging", "sub-stg-001", "East US 2", "Active"],
+            ["Development", "sub-dev-001", "East US", "Active"],
+            ["Sandbox", "sub-sbx-001", "West US 2", "Provisioning"]
+          ]
+        },
+        {
+          "type": "heading2",
+          "text": "Role Assignment Table"
+        },
+        {
+          "type": "table",
+          "rows": [
+            ["Role", "Scope", "Description"],
+            ["Owner", "Management Group", "Full control including RBAC management"],
+            ["Contributor", "Subscription", "Create and manage resources, no RBAC"],
+            ["Reader", "Resource Group", "View-only access to all resources"],
+            ["Security Admin", "Subscription", "Manage security policies and alerts"],
+            ["Network Contributor", "Resource Group", "Manage virtual networks and subnets"]
+          ]
+        },
+        {
+          "type": "heading2",
+          "text": "Compliance Framework Matrix"
+        },
+        {
+          "type": "body",
+          "text": "Tables with **inline formatting** in cells are supported:"
+        },
+        {
+          "type": "table",
+          "rows": [
+            ["Framework", "Requirement", "Implementation"],
+            ["**FedRAMP High**", "AC-2 Account Management", "`Azure AD PIM` with quarterly reviews"],
+            ["**NIST 800-53**", "AU-6 Audit Review", "`Azure Sentinel` with automated alerts"],
+            ["**CMMC L3**", "SC-7 Boundary Protection", "`Azure Firewall Premium` with IDPS"]
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Complete Example — Runbook Section",
+      "content": [
+        {
+          "type": "first_paragraph",
+          "text": "This section demonstrates how all content block types work together in a realistic document section — a network troubleshooting runbook entry."
+        },
+        {
+          "type": "heading2",
+          "text": "Connectivity Troubleshooting"
+        },
+        {
+          "type": "body",
+          "text": "When a spoke virtual network loses connectivity to the hub, follow this procedure to diagnose and restore service."
+        },
+        {
+          "type": "body_text",
+          "text": "This runbook applies only to hub-and-spoke topologies using Azure Virtual WAN. For classic VNet peering, refer to the Network Peering Runbook.",
+          "bold_label": "Scope:"
+        },
+        {
+          "type": "heading3",
+          "text": "Diagnostic Steps"
+        },
+        {
+          "type": "numbered_list",
+          "text": "Verify the VNet peering status is *Connected* (not *Disconnected* or *Initiated*)."
+        },
+        {
+          "type": "numbered_list",
+          "text": "Check Azure Firewall rules for the affected spoke's address range."
+        },
+        {
+          "type": "numbered_list",
+          "text": "Review Network Security Group (NSG) flow logs for denied traffic."
+        },
+        {
+          "type": "numbered_list",
+          "text": "Test DNS resolution from a VM in the spoke network."
+        },
+        {
+          "type": "heading3",
+          "text": "Common Causes"
+        },
+        {
+          "type": "bullet",
+          "text": "**Expired peering** — peering was deleted during a Terraform apply"
+        },
+        {
+          "type": "bullet",
+          "text": "**NSG rule conflict** — a deny-all rule was added at a higher priority"
+        },
+        {
+          "type": "bullet",
+          "text": "**DNS misconfiguration** — custom DNS server is unreachable"
+        },
+        {
+          "type": "bullet",
+          "text": "**Route table override** — a UDR is sending traffic to a black hole"
+        },
+        {
+          "type": "heading3",
+          "text": "Verification Commands"
+        },
+        {
+          "type": "body",
+          "text": "Run the following from the Azure Cloud Shell or a management VM:"
+        },
+        {
+          "type": "source_code",
+          "text": "# Check peering status\naz network vnet peering list \\\n  --resource-group rg-network-hub \\\n  --vnet-name vnet-hub-eastus2 \\\n  --output table\n\n# Check effective routes on the spoke VM NIC\naz network nic show-effective-route-table \\\n  --resource-group rg-workload-prod \\\n  --name nic-vm-app01 \\\n  --output table"
+        },
+        {
+          "type": "heading3",
+          "text": "Escalation Matrix"
+        },
+        {
+          "type": "table",
+          "rows": [
+            ["Severity", "Response Time", "Escalation Path"],
+            ["P1 — Production Down", "15 minutes", "Cloud Platform Team → Director of Engineering"],
+            ["P2 — Degraded Service", "1 hour", "Cloud Platform Team → Team Lead"],
+            ["P3 — Non-critical", "4 hours", "Cloud Platform Team (standard queue)"],
+            ["P4 — Informational", "Next business day", "Self-service via runbook"]
+          ]
+        },
+        {
+          "type": "bold_blue",
+          "text": "After restoring connectivity, document the root cause and update this runbook if a new failure mode was identified."
+        }
+      ]
+    }
+  ]
+}

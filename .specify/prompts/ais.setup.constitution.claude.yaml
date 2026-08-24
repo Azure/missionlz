@@ -1,0 +1,11 @@
+description: Create or update the project constitution. Handles initial creation from interactive input, amendment from new source material, and direct updates.
+allowed-tools: Read, Write, Edit, Bash, Glob, Grep
+handoffs:
+  - label: Build Specification
+    agent: ais.spec.specify
+    prompt: I want to build a feature specification. The feature is...
+    send: false
+  - label: Update Project Plan
+    agent: ais.setup.plan
+    prompt: Refresh the project plan to reflect updated constitutional standards.
+    send: false

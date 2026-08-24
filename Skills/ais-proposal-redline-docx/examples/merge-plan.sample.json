@@ -1,0 +1,74 @@
+{
+  "source_docx": "pink.docx",
+  "output_docx": "redline.docx",
+  "settings": {
+    "author": "AIS Specify",
+    "initials": "AIS",
+    "enable_track_revisions": true,
+    "preserve_comments": true
+  },
+  "themes": [
+    {
+      "id": "integrated-operating-model",
+      "rationale": "The review call asked for one integrated operating-model story rather than separate platform and data narratives, so the solution section now presents intake, build, monitor, and audit as a single arc.",
+      "source": "review_call:2026-06-12",
+      "anchor_paragraph_index": 18
+    }
+  ],
+  "operations": [
+    {
+      "type": "insert_paragraph_after",
+      "paragraph_index": 18,
+      "style": "_Body",
+      "text": "AIS delivers the solution as one integrated AI/ML operating model: intake the mission need, build governed data and model assets, monitor performance and risk, and audit decisions against agency policy.",
+      "rationale": "Opens the section with the integrated operating model so the reader meets the arc before the component detail.",
+      "source": "review_call:2026-06-12",
+      "theme": "integrated-operating-model"
+    },
+    {
+      "type": "replace_paragraph_text",
+      "paragraph_index": 27,
+      "style": "_Body",
+      "text": "DataLance supports the AI/ML platform as the data-product and decision-framework layer, giving teams a repeatable way to qualify sources, trace lineage, and move from ingestion to governed intelligence.",
+      "rationale": "Reframes DataLance as a supporting layer of the platform rather than a parallel offering.",
+      "source": "review_call:2026-06-12",
+      "theme": "integrated-operating-model"
+    },
+    {
+      "type": "insert_table_after",
+      "paragraph_index": 31,
+      "style": "TableGrid",
+      "rows": [
+        ["Phase", "Purpose"],
+        ["Intake", "Confirm use case, risk, data readiness, and approval path."],
+        ["Build", "Develop governed data, model, and integration assets."],
+        ["Monitor", "Track quality, drift, usage, and operational risk."],
+        ["Audit", "Maintain evidence for compliance and decision traceability."]
+      ],
+      "rationale": "Replaces four paragraphs of phase prose with a table so the section holds the F-1 page limit without losing the phase detail.",
+      "source": "compliance:F-1"
+    },
+    {
+      "enabled": false,
+      "type": "replace_paragraph_text",
+      "paragraph_index": 44,
+      "style": "_Body",
+      "text": "Draft alternative wording held for the gold pass.",
+      "rationale": "Alternative phrasing held for the gold pass pending the pricing decision.",
+      "source": "internal_qa"
+    }
+  ],
+  "comment_replies": [
+    {
+      "comment_id": "4",
+      "anchor_paragraph_index": 18,
+      "status": "addressed",
+      "reply": "Added an opening integration paragraph that links the AI/ML platform, DataLance support layer, governance, and proof points into one solution story."
+    }
+  ],
+  "validation": {
+    "expect_reviewer_comments": 1,
+    "expect_resolution_comments": 1,
+    "fail_generic_replies": true
+  }
+}

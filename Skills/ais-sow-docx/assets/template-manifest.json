@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "commercial_placeholder": "TBD - Commercial Review",
+  "required_package_parts": [
+    "[Content_Types].xml",
+    "_rels/.rels",
+    "word/document.xml",
+    "word/styles.xml",
+    "word/numbering.xml",
+    "word/settings.xml",
+    "word/_rels/document.xml.rels"
+  ],
+  "editable_sdt_tags": [
+    "Template Version",
+    "Pipeline ID",
+    "SOW Date",
+    "Client Name",
+    "SOW Signatory",
+    "Client POC Title",
+    "Opportunity Name",
+    "MSA Date",
+    "SOW Start Date",
+    "SOW End Date"
+  ],
+  "fixed_literal_replacements": {
+    "XX/per week": "TBD - Commercial Review",
+    "50% of the average weekly cost for those resources": "TBD - Commercial Review"
+  },
+  "profiles": [
+    {
+      "id": "ais-client-ffp",
+      "display_name": "AIS Client Firm Fixed Price SOW",
+      "selectors": {
+        "agreement_family": "client",
+        "contract_form": "ffp",
+        "delivery_organization": "ais",
+        "delivery_pattern": "fixed-deliverables",
+        "document_type": "original-sow"
+      },
+      "active_version": "2024-11",
+      "versions": [
+        {
+          "version": "2024-11",
+          "asset": "assets/templates/ais-client-ffp/2024-11/template.docx",
+          "sha256": "ab74e386bda696049736ec10f9243d84e168f4d4630c38ae90d630f22c025439",
+          "template_identity": "AIS SOW FFP Template updated 11072024.docx",
+          "visible_version_label": "FFP-v24.11",
+          "fixed_boundary_heading": "Administrative"
+        }
+      ]
+    },
+    {
+      "id": "msc-ffp",
+      "display_name": "Microsoft Solution Center Firm Fixed Price SOW",
+      "selectors": {
+        "agreement_family": "client",
+        "contract_form": "ffp",
+        "delivery_organization": "microsoft-solution-center",
+        "delivery_pattern": "fixed-deliverables",
+        "document_type": "original-sow"
+      },
+      "active_version": "2025-12",
+      "versions": [
+        {
+          "version": "2025-12",
+          "asset": "assets/templates/msc-ffp/2025-12/template.docx",
+          "sha256": "0f5a67e2bbcf495e906341b765f9a7aea3429dc3bccb8e036c68490c4debb498",
+          "template_identity": "AIS MSC SOW FFP Template_12222025.docx",
+          "visible_version_label": "MSC-v25.12",
+          "fixed_boundary_heading": "Administrative"
+        }
+      ]
+    },
+    {
+      "id": "ais-client-tm",
+      "display_name": "AIS Client Time and Materials SOW",
+      "selectors": {
+        "agreement_family": "client",
+        "contract_form": "time-and-materials",
+        "delivery_organization": "ais",
+        "delivery_pattern": "managed-capacity",
+        "document_type": "original-sow"
+      },
+      "active_version": "2024-11",
+      "versions": [
+        {
+          "version": "2024-11",
+          "asset": "assets/templates/ais-client-tm/2024-11/template.docx",
+          "sha256": "b30962809f56a221be35f460287a6f2fedf30f00c1dd9bcafa54e355d3dd42b2",
+          "template_identity": "SOW T&M Template Updates 11072024.docx",
+          "visible_version_label": "T&M-v24.11",
+          "fixed_boundary_heading": "Administrative"
+        }
+      ]
+    },
+    {
+      "id": "staff-augmentation-retainer",
+      "display_name": "AIS Staff Augmentation Retainer SOW",
+      "selectors": {
+        "agreement_family": "client",
+        "contract_form": "retainer",
+        "delivery_organization": "ais",
+        "delivery_pattern": "staff-augmentation",
+        "document_type": "original-sow"
+      },
+      "active_version": "2025-03",
+      "versions": [
+        {
+          "version": "2025-03",
+          "asset": "assets/templates/staff-augmentation-retainer/2025-03/template.docx",
+          "sha256": "708c22a3b0c0da69d8f4e42bd2e65df3fe81cfcfe2f352f40b1218d48d574b94",
+          "template_identity": "SOW Staff Aug Template Retainer Fee 032025.docx",
+          "visible_version_label": "SA-v25.03",
+          "fixed_boundary_heading": "Administrative"
+        }
+      ]
+    },
+    {
+      "id": "ecif-generic",
+      "display_name": "ECIF Generic AIS Firm Fixed Price SOW",
+      "selectors": {
+        "agreement_family": "ecif",
+        "contract_form": "ffp",
+        "delivery_organization": "ais",
+        "delivery_pattern": "fixed-deliverables",
+        "document_type": "original-sow"
+      },
+      "active_version": "2024-11",
+      "versions": [
+        {
+          "version": "2024-11",
+          "asset": "assets/templates/ais-client-ffp/2024-11/template.docx",
+          "sha256": "ab74e386bda696049736ec10f9243d84e168f4d4630c38ae90d630f22c025439",
+          "template_identity": "AIS SOW FFP Template updated 11072024.docx (generic ECIF shell)",
+          "visible_version_label": "ECIF-v24.11",
+          "fixed_boundary_heading": "Administrative"
+        }
+      ]
+    }
+  ]
+}

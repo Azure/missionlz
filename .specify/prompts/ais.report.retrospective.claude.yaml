@@ -1,0 +1,11 @@
+description: "Generate an internal project retrospective report for spec-driven delivery adoption"
+allowed-tools: Read, Write, Edit, Bash, Glob, Grep
+handoffs:
+  - label: Full Project Report
+    agent: ais.report.project
+    prompt: Generate a comprehensive project report
+    send: true
+  - label: Internal Standup
+    agent: ais.report.standup
+    prompt: Generate an internal standup report
+    send: true

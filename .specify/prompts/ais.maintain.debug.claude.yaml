@@ -1,0 +1,7 @@
+description: "Use when implementation, tests, builds, integrations, or runtime behavior fail unexpectedly and need root-cause diagnosis."
+allowed-tools: Read, Write, Edit, Bash, Glob, Grep
+handoffs:
+  - label: Resume Implementation
+    agent: ais.spec.implement
+    prompt: Resume implementation using the debug findings and recovery task.
+    send: true

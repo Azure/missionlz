@@ -1,0 +1,135 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ais.com/schemas/ais-azure-estimates/estimate-output.schema.json",
+  "title": "AIS Azure Estimate Output",
+  "type": "object",
+  "required": ["schema_version", "run", "totals", "line_items", "warnings", "caveats", "artifacts"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "type": "string", "const": "1.0" },
+    "run": {
+      "type": "object",
+      "required": ["timestamp", "input_path", "tool_version"],
+      "additionalProperties": false,
+      "properties": {
+        "timestamp": { "type": "string" },
+        "input_path": { "type": "string" },
+        "tool_version": { "type": "string" },
+        "command": { "type": "string" }
+      }
+    },
+    "normalized_input": { "type": "object" },
+    "totals": {
+      "type": "object",
+      "required": ["currency", "monthly_total", "annual_total", "excluded_unresolved_count"],
+      "additionalProperties": false,
+      "properties": {
+        "currency": { "type": "string" },
+        "monthly_total": { "type": "number" },
+        "annual_total": { "type": "number" },
+        "excluded_unresolved_count": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "line_items": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/output_line_item" }
+    },
+    "warnings": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/warning" }
+    },
+    "caveats": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/caveat" }
+    },
+    "artifacts": {
+      "type": "object",
+      "required": ["estimate_section_md", "estimate_review_md", "line_items_csv", "estimate_workbook_xlsx"],
+      "additionalProperties": false,
+      "properties": {
+        "estimate_section_md": { "type": "string" },
+        "estimate_review_md": { "type": "string" },
+        "line_items_csv": { "type": "string" },
+        "estimate_workbook_xlsx": { "type": "string" }
+      }
+    }
+  },
+  "$defs": {
+    "output_line_item": {
+      "type": "object",
+      "required": ["id", "name", "service_name", "region", "quantity", "unit", "pricing_source", "sizing_confidence", "pricing_confidence", "included_in_total"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string" },
+        "source_line_item_id": { "type": "string" },
+        "source_dimensions": { "type": "object" },
+        "name": { "type": "string" },
+        "service_name": { "type": "string" },
+        "service_family": { "type": "string" },
+        "sku_name": { "type": "string" },
+        "region": { "type": "string" },
+        "quantity": { "type": "number" },
+        "unit": { "type": "string" },
+        "unit_price": { "type": ["number", "null"] },
+        "monthly_cost": { "type": ["number", "null"] },
+        "annual_cost": { "type": ["number", "null"] },
+        "pricing_source": { "type": "string", "enum": ["azure_retail_prices_api", "manual_override", "unresolved"] },
+        "sizing_confidence": { "$ref": "#/$defs/confidence" },
+        "pricing_confidence": { "$ref": "#/$defs/confidence" },
+        "included_in_total": { "type": "boolean" },
+        "selected_meter": { "$ref": "#/$defs/selected_meter" },
+        "notes": { "type": "string" }
+      }
+    },
+    "selected_meter": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "properties": {
+        "currencyCode": { "type": "string" },
+        "retailPrice": { "type": "number" },
+        "unitPrice": { "type": "number" },
+        "armRegionName": { "type": "string" },
+        "location": { "type": "string" },
+        "effectiveStartDate": { "type": "string" },
+        "meterId": { "type": "string" },
+        "meterName": { "type": "string" },
+        "productName": { "type": "string" },
+        "skuName": { "type": "string" },
+        "serviceName": { "type": "string" },
+        "serviceFamily": { "type": "string" },
+        "unitOfMeasure": { "type": "string" },
+        "type": { "type": "string" },
+        "armSkuName": { "type": "string" },
+        "query": { "type": "string" }
+      }
+    },
+    "warning": {
+      "type": "object",
+      "required": ["code", "message"],
+      "additionalProperties": false,
+      "properties": {
+        "code": { "type": "string" },
+        "line_item_id": { "type": "string" },
+        "message": { "type": "string" }
+      }
+    },
+    "caveat": {
+      "type": "object",
+      "required": ["code", "title", "message"],
+      "additionalProperties": false,
+      "properties": {
+        "code": { "type": "string" },
+        "title": { "type": "string" },
+        "message": { "type": "string" },
+        "details": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "confidence": {
+      "type": "string",
+      "enum": ["high", "medium", "low", "unresolved"]
+    }
+  }
+}

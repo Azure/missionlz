@@ -1,0 +1,660 @@
+{
+  "schema_version": "1.0",
+  "estimate": {
+    "name": "Virtualitics ALZ Azure Government Planning Estimate",
+    "customer": "Virtualitics",
+    "scenario": "Azure Government Virginia landing zone aligned application estimate",
+    "author_role": "azure_solution_architect",
+    "created": "2026-07-09"
+  },
+  "defaults": {
+    "cloud": "AzureGovernment",
+    "region": "usgovvirginia",
+    "currency": "USD",
+    "period_months": 12,
+    "monthly_hours": 730,
+    "provisioning_state": "Median expected provisioned state for the proposal estimate period",
+    "data_sizing_policy": "Use conservative high-end data volume assumptions until workload telemetry is available",
+    "retention_policy": {
+      "duration_days": 365,
+      "basis": "Planning assumption for audit and operational logs with NIST SP 800-53 context",
+      "nist_800_53_aligned": true
+    }
+  },
+  "dimensions": [
+    {
+      "name": "environment",
+      "values": ["dev", "test", "prod"],
+      "default_multiplier": 1
+    },
+    {
+      "name": "impact_level",
+      "values": ["IL4", "IL5", "IL6"],
+      "default_multiplier": 1
+    }
+  ],
+  "assumptions": [
+    {
+      "id": "a001",
+      "text": "Azure Government Virginia is the default region for MVP sample estimates."
+    },
+    {
+      "id": "a002",
+      "text": "Public retail meters may not resolve all Azure Government services and must be reviewed by an Azure solution architect."
+    },
+    {
+      "id": "a003",
+      "text": "Manual overrides represent Azure consumption planning values only and are not customer agreement pricing."
+    },
+    {
+      "id": "a004",
+      "text": "AKS is the proposal baseline, with ARO retained as a decision option pending Microsoft confirmation."
+    },
+    {
+      "id": "a005",
+      "text": "Virtualitics confirmed one Kubernetes cluster per impact level is sufficient; DEV/STG/PRD are represented primarily as namespaces on production-grade AKS capacity."
+    },
+    {
+      "id": "a006",
+      "text": "Database, storage, cache, monitoring, backup, ingress, registry, and administrative services use lighter dev and test sizing than prod where service-specific optimization is practical."
+    }
+  ],
+  "workload_templates": [],
+  "line_items": [
+    {
+      "id": "aks-system-node-pool",
+      "name": "AKS system node pool",
+      "service_name": "Virtual Machines",
+      "service_family": "Compute",
+      "sku_name": "D4s v5 Linux VM planning placeholder",
+      "arm_sku_name": "Standard_D4s_v5",
+      "meter_name": "D4s v5",
+      "quantity": 3,
+      "unit": "node-hour",
+      "usage_basis": "hourly",
+      "dimensions": {
+        "environment": ["shared"],
+        "impact_level": ["IL4", "IL5", "IL6"]
+      },
+      "pricing_source": "manual_override",
+      "sizing_confidence": "medium",
+      "pricing_confidence": "medium",
+      "notes": "One production-grade AKS system node pool per impact level, hosting dev/test/prod namespaces inside the IL boundary."
+    },
+    {
+      "id": "aks-user-node-pool",
+      "name": "AKS user workload node pool",
+      "service_name": "Virtual Machines",
+      "service_family": "Compute",
+      "sku_name": "D8s v5 Linux VM planning placeholder",
+      "arm_sku_name": "Standard_D8s_v5",
+      "meter_name": "D8s v5",
+      "quantity": 6,
+      "unit": "node-hour",
+      "usage_basis": "hourly",
+      "dimensions": {
+        "environment": ["shared"],
+        "impact_level": ["IL4", "IL5", "IL6"]
+      },
+      "pricing_source": "manual_override",
+      "sizing_confidence": "low",
+      "pricing_confidence": "medium",
+      "notes": "Production-grade AKS user node pool shared by dev/test/prod namespaces within each impact level."
+    },
+    {
+      "id": "storage-hot-data",
+      "name": "Hot storage for application data",
+      "service_name": "Storage",
+      "service_family": "Storage",
+      "sku_name": "Hot LRS",
+      "meter_name": "Hot LRS Data Stored",
+      "quantity": 2048,
+      "unit": "GB-month",
+      "usage_basis": "storage",
+      "dimension_overrides": [
+        {
+          "match": { "environment": "dev" },
+          "quantity": 512,
+          "sku_name": "Hot LRS dev planning tier",
+          "notes": "Dev storage is reduced because it supports build and integration validation data only."
+        },
+        {
+          "match": { "environment": "test" },
+          "quantity": 1024,
+          "sku_name": "Hot LRS test planning tier",
+          "notes": "Test storage is sized above dev for representative QA data volumes."
+        },
+        {
+          "match": { "environment": "prod" },
+          "quantity": 2048,
+          "sku_name": "Hot LRS production planning tier",
+          "notes": "Prod storage uses the conservative high-end application data assumption."
+        }
+      ],
+      "pricing_source": "manual_override",
+      "sizing_confidence": "low",
+      "pricing_confidence": "medium",
+      "notes": "Conservative high-end data estimate until customer sizing is confirmed."
+    },
+    {
+      "id": "postgresql-flexible-server",
+      "name": "PostgreSQL Flexible Server",
+      "service_name": "Azure Database for PostgreSQL Flexible Server",
+      "service_family": "Databases",
+      "sku_name": "General Purpose",
+      "meter_name": "vCore",
+      "quantity": 4,
+      "unit": "vCore-hour",
+      "usage_basis": "hourly",
+      "dimension_overrides": [
+        {
+          "match": { "environment": "dev" },
+          "quantity": 1,
+          "sku_name": "General Purpose dev planning tier",
+          "notes": "Dev PostgreSQL uses the lightest compute tier for functional validation."
+        },
+        {
+          "match": { "environment": "test" },
+          "quantity": 2,
+          "sku_name": "General Purpose test planning tier",
+          "notes": "Test PostgreSQL uses mid-size compute for QA and integration validation."
+        },
+        {
+          "match": { "environment": "prod" },
+          "quantity": 4,
+          "sku_name": "General Purpose production planning tier",
+          "notes": "Prod PostgreSQL uses the full planning tier pending customer workload telemetry."
+        }
+      ],
+      "pricing_source": "manual_override",
+      "sizing_confidence": "medium",
+      "pricing_confidence": "medium",
+      "notes": "Source-backed planning placeholder for RDS PostgreSQL migration to Azure Database for PostgreSQL Flexible Server."
+    },
+    {
+      "id": "mysql-flexible-server",
+      "name": "MySQL Flexible Server",
+      "service_name": "Azure Database for MySQL Flexible Server",
+      "service_family": "Databases",
+      "sku_name": "General Purpose",
+      "meter_name": "vCore",
+      "quantity": 4,
+      "unit": "vCore-hour",
+      "usage_basis": "hourly",
+      "dimension_overrides": [
+        {
+          "match": { "environment": "dev" },
+          "quantity": 1,
+          "sku_name": "General Purpose dev planning tier",
+          "notes": "Dev MySQL uses minimized compute for account-management dependency validation."
+        },
+        {
+          "match": { "environment": "test" },
+          "quantity": 2,
+          "sku_name": "General Purpose test planning tier",
+          "notes": "Test MySQL supports QA and integration account-management workloads."
+        },
+        {
+          "match": { "environment": "prod" },
+          "quantity": 4,
+          "sku_name": "General Purpose production planning tier",
+          "notes": "Prod MySQL uses the full planning tier pending final dependency mapping."
+        }
+      ],
+      "pricing_source": "manual_override",
+      "sizing_confidence": "medium",
+      "pricing_confidence": "medium",
+      "notes": "Source-backed planning placeholder for RDS MySQL migration to Azure Database for MySQL Flexible Server where available; Azure Secret may require a replacement pattern."
+    },
+    {
+      "id": "redis-cache",
+      "name": "Redis cache",
+      "service_name": "Azure Cache for Redis",
+      "service_family": "Databases",
+      "sku_name": "Premium planning placeholder",
+      "meter_name": "Cache Instance",
+      "quantity": 2,
+      "unit": "cache-hour",
+      "usage_basis": "hourly",
+      "dimension_overrides": [
+        {
+          "match": { "environment": "dev" },
+          "quantity": 0.5,
+          "sku_name": "Basic/Standard dev planning placeholder",
+          "unit_price": 0.2,
+          "notes": "Dev cache is scaled down for functional smoke testing."
+        },
+        {
+          "match": { "environment": "test" },
+          "quantity": 1,
+          "sku_name": "Standard test planning placeholder",
+          "unit_price": 0.3,
+          "notes": "Test cache is sized between dev and prod for QA load."
+        },
+        {
+          "match": { "environment": "prod" },
+          "quantity": 2,
+          "sku_name": "Premium production planning placeholder",
+          "unit_price": 0.4,
+          "notes": "Prod cache keeps the premium planning placeholder."
+        }
+      ],
+      "pricing_source": "manual_override",
+      "sizing_confidence": "low",
+      "pricing_confidence": "medium",
+      "notes": "Planning placeholder for Redis-compatible application dependency."
+    },
+    {
+      "id": "container-registry",
+      "name": "Container registry",
+      "service_name": "Container Registry",
+      "service_family": "Containers",
+      "sku_name": "Premium",
+      "meter_name": "Registry Unit",
+      "quantity": 1,
+      "unit": "registry-month",
+      "usage_basis": "monthly",
+      "dimension_overrides": [
+        {
+          "match": { "environment": "dev" },
+          "quantity": 0.25,
+          "sku_name": "Basic shared planning allocation",
+          "unit_price": 100.0,
+          "notes": "Dev registry allocation is reduced for non-production image retention."
+        },
+        {
+          "match": { "environment": "test" },
+          "quantity": 0.5,
+          "sku_name": "Standard shared planning allocation",
+          "unit_price": 250.0,
+          "notes": "Test registry allocation supports promotion validation and QA images."
+        },
+        {
+          "match": { "environment": "prod" },
+          "quantity": 1,
+          "sku_name": "Premium production planning allocation",
+          "unit_price": 500.0,
+          "notes": "Prod keeps premium registry capacity for production image flow."
+        }
+      ],
+      "pricing_source": "manual_override",
+      "sizing_confidence": "medium",
+      "pricing_confidence": "medium",
+      "notes": "Used for application container images."
+    },
+    {
+      "id": "key-vault-operations",
+      "name": "Key Vault operations",
+      "service_name": "Key Vault",
+      "service_family": "Security",
+      "sku_name": "Standard",
+      "meter_name": "Operations",
+      "quantity": 10000,
+      "unit": "operations",
+      "usage_basis": "transaction",
+      "dimension_overrides": [
+        {
+          "match": { "environment": "dev" },
+          "quantity": 5000,
+          "notes": "Dev Key Vault operations are reduced for lower traffic."
+        },
+        {
+          "match": { "environment": "test" },
+          "quantity": 7500,
+          "notes": "Test Key Vault operations are sized between dev and prod."
+        },
+        {
+          "match": { "environment": "prod" },
+          "quantity": 10000,
+          "notes": "Prod uses the full operations placeholder."
+        }
+      ],
+      "pricing_source": "manual_override",
+      "sizing_confidence": "medium",
+      "pricing_confidence": "medium",
+      "notes": "Secret and key operations estimate."
+    },
+    {
+      "id": "network-egress",
+      "name": "Network egress",
+      "service_name": "Bandwidth",
+      "service_family": "Networking",
+      "sku_name": "Zone 1 Data Transfer",
+      "meter_name": "Data Transfer Out",
+      "quantity": 500,
+      "unit": "GB",
+      "usage_basis": "monthly",
+      "dimension_overrides": [
+        {
+          "match": { "environment": "dev" },
+          "quantity": 100,
+          "notes": "Dev egress is reduced pending traffic profile confirmation."
+        },
+        {
+          "match": { "environment": "test" },
+          "quantity": 250,
+          "notes": "Test egress assumes representative integration traffic."
+        },
+        {
+          "match": { "environment": "prod" },
+          "quantity": 500,
+          "notes": "Prod uses the full placeholder pending customer traffic profile."
+        }
+      ],
+      "pricing_source": "manual_override",
+      "sizing_confidence": "low",
+      "pricing_confidence": "medium",
+      "notes": "Requires customer traffic profile confirmation."
+    },
+    {
+      "id": "application-gateway",
+      "name": "Application Gateway ingress",
+      "service_name": "Application Gateway",
+      "service_family": "Networking",
+      "sku_name": "WAF v2 planning placeholder",
+      "meter_name": "Gateway Hour",
+      "quantity": 2,
+      "unit": "gateway-hour",
+      "usage_basis": "hourly",
+      "dimension_overrides": [
+        {
+          "match": { "environment": "dev" },
+          "quantity": 0.5,
+          "sku_name": "WAF v2 dev planning allocation",
+          "notes": "Dev ingress uses reduced shared capacity for validation traffic."
+        },
+        {
+          "match": { "environment": "test" },
+          "quantity": 1,
+          "sku_name": "WAF v2 test planning allocation",
+          "notes": "Test ingress is sized for QA traffic and promotion validation."
+        },
+        {
+          "match": { "environment": "prod" },
+          "quantity": 2,
+          "sku_name": "WAF v2 production planning allocation",
+          "notes": "Prod keeps the full controlled ingress placeholder."
+        }
+      ],
+      "pricing_source": "manual_override",
+      "sizing_confidence": "medium",
+      "pricing_confidence": "medium",
+      "notes": "Planning placeholder for controlled ingress into AKS-hosted workloads."
+    },
+    {
+      "id": "log-analytics-ingestion",
+      "name": "Log Analytics ingestion",
+      "service_name": "Log Analytics",
+      "service_family": "Management and Governance",
+      "sku_name": "Pay-as-you-go",
+      "meter_name": "Data Ingestion",
+      "quantity": 250,
+      "unit": "GB",
+      "usage_basis": "monthly",
+      "dimension_overrides": [
+        {
+          "match": { "environment": "dev" },
+          "quantity": 75,
+          "notes": "Dev logging is lighter because it captures lower-volume validation activity."
+        },
+        {
+          "match": { "environment": "test" },
+          "quantity": 150,
+          "notes": "Test logging supports QA and integration evidence volumes."
+        },
+        {
+          "match": { "environment": "prod" },
+          "quantity": 250,
+          "notes": "Prod uses the full operational logging placeholder."
+        }
+      ],
+      "pricing_source": "manual_override",
+      "sizing_confidence": "low",
+      "pricing_confidence": "medium",
+      "notes": "Manual override pending final Gov meter selection."
+    },
+    {
+      "id": "defender-for-cloud",
+      "name": "Defender for Cloud plan",
+      "service_name": "Defender for Cloud",
+      "service_family": "Security",
+      "sku_name": "Server plan",
+      "meter_name": "Defender for Servers",
+      "quantity": 8,
+      "unit": "server-month",
+      "usage_basis": "monthly",
+      "dimension_overrides": [
+        {
+          "match": { "environment": "dev" },
+          "quantity": 4,
+          "notes": "Dev protected server count is reduced for lower non-production footprint."
+        },
+        {
+          "match": { "environment": "test" },
+          "quantity": 6,
+          "notes": "Test protected server count supports QA footprint."
+        },
+        {
+          "match": { "environment": "prod" },
+          "quantity": 8,
+          "notes": "Prod uses the full server protection placeholder."
+        }
+      ],
+      "pricing_source": "manual_override",
+      "sizing_confidence": "medium",
+      "pricing_confidence": "medium",
+      "notes": "Requires Microsoft confirmation for applicable Gov plan and meter."
+    },
+    {
+      "id": "backup-vault",
+      "name": "Backup protected instances and storage",
+      "service_name": "Azure Backup",
+      "service_family": "Storage",
+      "sku_name": "Protected Instance",
+      "meter_name": "Backup Protected Instance",
+      "quantity": 8,
+      "unit": "instance-month",
+      "usage_basis": "monthly",
+      "dimension_overrides": [
+        {
+          "match": { "environment": "dev" },
+          "quantity": 2,
+          "notes": "Dev backup coverage is reduced for non-production recovery needs."
+        },
+        {
+          "match": { "environment": "test" },
+          "quantity": 4,
+          "notes": "Test backup coverage supports QA and integration recovery needs."
+        },
+        {
+          "match": { "environment": "prod" },
+          "quantity": 8,
+          "notes": "Prod uses the full backup protected instance placeholder."
+        }
+      ],
+      "pricing_source": "manual_override",
+      "sizing_confidence": "medium",
+      "pricing_confidence": "medium",
+      "notes": "Manual override includes backup planning assumption."
+    },
+    {
+      "id": "bastion-admin-access",
+      "name": "Bastion administrator access",
+      "service_name": "Azure Bastion",
+      "service_family": "Networking",
+      "sku_name": "Standard",
+      "meter_name": "Bastion Hour",
+      "quantity": 1,
+      "unit": "instance-hour",
+      "usage_basis": "hourly",
+      "dimension_overrides": [
+        {
+          "match": { "environment": "dev" },
+          "quantity": 0.25,
+          "notes": "Dev administrative access is allocated as reduced shared capacity."
+        },
+        {
+          "match": { "environment": "test" },
+          "quantity": 0.5,
+          "notes": "Test administrative access is allocated between dev and prod."
+        },
+        {
+          "match": { "environment": "prod" },
+          "quantity": 1,
+          "notes": "Prod keeps full Bastion access capacity."
+        }
+      ],
+      "pricing_source": "manual_override",
+      "sizing_confidence": "medium",
+      "pricing_confidence": "medium",
+      "notes": "Administrator access path for planning estimate."
+    }
+  ],
+  "manual_overrides": [
+    {
+      "line_item_id": "aks-system-node-pool",
+      "unit_price": 0.35,
+      "currency": "USD",
+      "unit_of_measure": "node-hour",
+      "source_note": "Planning placeholder for AKS system-node VM consumption pending Azure Government meter confirmation.",
+      "rationale": "AKS is the proposal runtime baseline; system-node capacity is valid Azure consumption and must be sized by impact level.",
+      "sizing_confidence": "medium",
+      "pricing_confidence": "medium"
+    },
+    {
+      "line_item_id": "aks-user-node-pool",
+      "unit_price": 0.7,
+      "currency": "USD",
+      "unit_of_measure": "node-hour",
+      "source_note": "Planning placeholder for AKS user-node VM consumption pending customer workload sizing and Azure Government meter confirmation.",
+      "rationale": "Current proposal baseline uses AKS for application and platform workload hosting; final node count depends on discovery.",
+      "sizing_confidence": "low",
+      "pricing_confidence": "medium"
+    },
+    {
+      "line_item_id": "storage-hot-data",
+      "unit_price": 0.025,
+      "currency": "USD",
+      "unit_of_measure": "GB-month",
+      "source_note": "Planning placeholder for Azure Storage hot data consumption pending Gov meter confirmation.",
+      "rationale": "Object/data storage is a known AWS-to-Azure dependency and must be included as Azure consumption.",
+      "sizing_confidence": "low",
+      "pricing_confidence": "medium"
+    },
+    {
+      "line_item_id": "postgresql-flexible-server",
+      "unit_price": 0.5,
+      "currency": "USD",
+      "unit_of_measure": "vCore-hour",
+      "source_note": "Planning placeholder for managed PostgreSQL compute pending selected Azure Government database SKU.",
+      "rationale": "Source materials map RDS PostgreSQL to Azure Database for PostgreSQL Flexible Server and identify PostgreSQL migration as proposal scope.",
+      "sizing_confidence": "medium",
+      "pricing_confidence": "medium"
+    },
+    {
+      "line_item_id": "mysql-flexible-server",
+      "unit_price": 0.5,
+      "currency": "USD",
+      "unit_of_measure": "vCore-hour",
+      "source_note": "Planning placeholder for Azure Database for MySQL Flexible Server consumption pending selected Azure Government database SKU or approved Azure Secret replacement pattern.",
+      "rationale": "Source materials map RDS MySQL to Azure Database for MySQL Flexible Server where available and identify MySQL account-management data as proposal scope.",
+      "sizing_confidence": "medium",
+      "pricing_confidence": "medium"
+    },
+    {
+      "line_item_id": "redis-cache",
+      "unit_price": 0.4,
+      "currency": "USD",
+      "unit_of_measure": "cache-hour",
+      "source_note": "Planning placeholder for Redis-compatible cache capacity pending final service/SKU decision.",
+      "rationale": "Redis/cache dependency is part of the platform service mapping and should be represented in consumption planning.",
+      "sizing_confidence": "low",
+      "pricing_confidence": "medium"
+    },
+    {
+      "line_item_id": "container-registry",
+      "unit_price": 500.0,
+      "currency": "USD",
+      "unit_of_measure": "registry-month",
+      "source_note": "Planning placeholder for premium registry consumption pending Gov meter confirmation.",
+      "rationale": "Container image registry is needed for GitOps and deployment artifact flow.",
+      "sizing_confidence": "medium",
+      "pricing_confidence": "medium"
+    },
+    {
+      "line_item_id": "key-vault-operations",
+      "unit_price": 0.00003,
+      "currency": "USD",
+      "unit_of_measure": "operation",
+      "source_note": "Planning placeholder for Key Vault operations pending Gov meter confirmation.",
+      "rationale": "Secrets and key management are in the proposed Azure target architecture.",
+      "sizing_confidence": "medium",
+      "pricing_confidence": "medium"
+    },
+    {
+      "line_item_id": "network-egress",
+      "unit_price": 0.087,
+      "currency": "USD",
+      "unit_of_measure": "GB",
+      "source_note": "Planning placeholder for outbound data transfer pending customer traffic profile.",
+      "rationale": "Network egress is valid Azure consumption and should be estimated while the traffic profile is refined.",
+      "sizing_confidence": "low",
+      "pricing_confidence": "medium"
+    },
+    {
+      "line_item_id": "application-gateway",
+      "unit_price": 0.3,
+      "currency": "USD",
+      "unit_of_measure": "gateway-hour",
+      "source_note": "Planning placeholder for Application Gateway/WAF ingress pending final ingress design.",
+      "rationale": "Controlled ingress is part of the target Azure Government architecture for AKS workloads.",
+      "sizing_confidence": "medium",
+      "pricing_confidence": "medium"
+    },
+    {
+      "line_item_id": "log-analytics-ingestion",
+      "unit_price": 2.76,
+      "currency": "USD",
+      "unit_of_measure": "GB",
+      "source_note": "Planning placeholder based on public Azure Monitor ingestion assumptions pending Gov meter confirmation.",
+      "rationale": "Log ingestion is valid Azure consumption but requires reviewer confirmation for Gov meter selection.",
+      "sizing_confidence": "low",
+      "pricing_confidence": "medium"
+    },
+    {
+      "line_item_id": "defender-for-cloud",
+      "unit_price": 15.0,
+      "currency": "USD",
+      "unit_of_measure": "server-month",
+      "source_note": "Planning placeholder for Defender for Cloud server protection pending applicable Gov plan confirmation.",
+      "rationale": "Security posture tooling is part of the proposed Azure platform evidence chain and should be represented as Azure consumption.",
+      "sizing_confidence": "medium",
+      "pricing_confidence": "medium"
+    },
+    {
+      "line_item_id": "backup-vault",
+      "unit_price": 10.0,
+      "currency": "USD",
+      "unit_of_measure": "instance-month",
+      "source_note": "Planning placeholder for protected instance charge pending Gov meter confirmation.",
+      "rationale": "Backup is valid Azure consumption and is included with explicit source caveat.",
+      "sizing_confidence": "medium",
+      "pricing_confidence": "medium"
+    },
+    {
+      "line_item_id": "bastion-admin-access",
+      "unit_price": 0.19,
+      "currency": "USD",
+      "unit_of_measure": "instance-hour",
+      "source_note": "Planning placeholder for Bastion administrator access pending final access pattern.",
+      "rationale": "Secure administrative access is part of the target Azure operations pattern and is valid Azure consumption.",
+      "sizing_confidence": "medium",
+      "pricing_confidence": "medium"
+    }
+  ],
+  "exclusions": [
+    "AIS labor, O&M, support, implementation services, retainers, incident response, and proposal labor are excluded.",
+    "Customer agreement pricing, marketplace quotes, reserved instances, and savings plans are excluded from MVP totals.",
+    "Azure Government Secret availability and pricing require separate confirmation."
+  ]
+}

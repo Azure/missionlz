@@ -1,0 +1,17 @@
+# SkillSpector baseline — findings listed here are suppressed on future scans.
+# Edit 'reason' fields and add glob 'rules' as needed. See docs/SUPPRESSION.md.
+version: 1
+rules: []
+fingerprints:
+- hash: sha256:147351c3735f8131
+  rule_id: AST4
+  file: scripts/upgrade_framework.py
+  reason: Current AIS Specify static SkillSpector baseline accepted for CI onboarding
+- hash: sha256:e084c04ab39d60ca
+  rule_id: LP3
+  file: SKILL.md
+  reason: Current AIS Specify static SkillSpector baseline accepted for CI onboarding
+- hash: sha256:67ab834951e2f888
+  rule_id: OH1
+  file: scripts/upgrade_framework.py
+  reason: Current AIS Specify static SkillSpector baseline accepted for CI onboarding

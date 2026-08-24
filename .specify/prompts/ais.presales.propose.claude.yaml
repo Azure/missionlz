@@ -1,0 +1,11 @@
+description: "Generate a proposal with proposed specs, phasing, and ROM from the What We Heard synthesis"
+allowed-tools: Read, Write, Edit, Bash, Glob, Grep
+handoffs:
+  - label: Create SOW
+    agent: ais.presales.scope
+    prompt: Create the SOW from the proposal
+    send: true
+  - label: Update Synthesis
+    agent: ais.presales.synthesize
+    prompt: Re-synthesize with updated context
+    send: true

@@ -1,0 +1,73 @@
+{
+  "schema_version": "1.0",
+  "estimate": {
+    "name": "Generic App Service Planning Estimate",
+    "customer": "Example Customer",
+    "scenario": "Small web application hosted on Azure App Service",
+    "author_role": "azure_solution_architect",
+    "created": "2026-07-09"
+  },
+  "defaults": {
+    "cloud": "AzureCloud",
+    "region": "eastus",
+    "currency": "USD",
+    "period_months": 12,
+    "monthly_hours": 730,
+    "provisioning_state": "Median expected provisioned state for proposal planning",
+    "data_sizing_policy": "Use conservative high-end estimates when precise usage is unknown",
+    "retention_policy": {
+      "duration_days": 90,
+      "basis": "Example application logging retention assumption",
+      "nist_800_53_aligned": false
+    }
+  },
+  "dimensions": [
+    {
+      "name": "environment",
+      "values": ["dev", "prod"],
+      "default_multiplier": 1
+    }
+  ],
+  "assumptions": [
+    {
+      "id": "a001",
+      "text": "Estimate uses public Azure retail pricing where meters can be resolved."
+    }
+  ],
+  "line_items": [
+    {
+      "id": "app-service-plan",
+      "name": "App Service plan",
+      "service_name": "App Service",
+      "service_family": "Compute",
+      "sku_name": "Premium v3 P1v3",
+      "arm_sku_name": "P1v3",
+      "meter_name": "P1 v3",
+      "quantity": 2,
+      "unit": "instance-hour",
+      "usage_basis": "hourly",
+      "pricing_source": "azure_retail_prices_api",
+      "sizing_confidence": "medium",
+      "pricing_confidence": "medium",
+      "notes": "Two median provisioned instances across the estimate period."
+    },
+    {
+      "id": "storage-hot-data",
+      "name": "Hot data storage",
+      "service_name": "Storage",
+      "service_family": "Storage",
+      "sku_name": "Hot LRS",
+      "meter_name": "Hot LRS Data Stored",
+      "quantity": 512,
+      "unit": "GB-month",
+      "usage_basis": "storage",
+      "pricing_source": "azure_retail_prices_api",
+      "sizing_confidence": "medium",
+      "pricing_confidence": "medium",
+      "notes": "Conservative high-end storage assumption for first-pass planning."
+    }
+  ],
+  "exclusions": [
+    "Customer agreement pricing and non-Azure labor are excluded."
+  ]
+}

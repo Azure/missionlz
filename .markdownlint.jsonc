@@ -1,0 +1,32 @@
+{
+  // --- Rules disabled to match project style ---
+
+  // Headings: command files use multiple h1s, templates skip levels
+  "MD001": false,
+  "MD025": false,
+  "MD041": false,
+
+  // Spacing: project style puts lists/fences/headings without surrounding blanks
+  "MD022": false,
+  "MD031": false,
+  "MD032": false,
+  "MD028": false,
+
+  // Lists: mixed indent styles and ordered-list prefixes across specs
+  "MD007": false,
+  "MD029": false,
+
+  // Tables: generated command docs use mixed compact/aligned table styles
+  "MD060": false,
+
+  // Content style: code fences without language, emphasis-as-heading, trailing punctuation
+  "MD013": false,
+  "MD026": false,
+  "MD033": false,
+  "MD034": false,
+  "MD036": false,
+  "MD040": false,
+
+  // Allow duplicate headings in different sections (common in specs)
+  "MD024": { "siblings_only": true }
+}

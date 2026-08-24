@@ -1,0 +1,6 @@
+description: "Generate dependency-ordered task list, required verification work, optional implementation plan, and cross-artifact consistency validation."
+handoffs:
+  - label: Implement Project
+    agent: ais.spec.implement
+    prompt: Start the implementation in phases
+    send: true

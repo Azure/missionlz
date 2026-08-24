@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ais-internal.github.io/ais-spec/schemas/merge-plan.schema.json",
+  "title": "AIS Proposal Redline Merge Plan",
+  "description": "Structural subset of the contract for a reviewable proposal redline merge plan. The Python validator in docx_redline_lib.py is authoritative for semantic checks that JSON Schema cannot express here, including rationale wording and length, theme-reference integrity, duplicate rationale rollup, orphan themes, and document-relative anchor ranges.",
+  "x-skill-name": "ais-proposal-redline-docx",
+  "x-skill-version": "2.0",
+  "type": "object",
+  "required": ["operations"],
+  "properties": {
+    "source_docx": { "type": "string" },
+    "output_docx": { "type": "string" },
+    "settings": { "$ref": "#/$defs/settings" },
+    "themes": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/theme" }
+    },
+    "operations": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/operation" }
+    },
+    "comment_replies": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/commentReply" }
+    },
+    "validation": { "$ref": "#/$defs/validation" },
+    "operation_examples": { "type": "array" },
+    "theme_examples": { "type": "array" }
+  },
+  "$defs": {
+    "provenanceSource": {
+      "description": "Where a change came from. A closed grammar keeps 'count of changes by source' meaningful; free text would let an unexplained class hide behind inconsistent labels.",
+      "type": "string",
+      "pattern": "^(?:reviewer_comment:[A-Za-z0-9._-]+|review_call:[A-Za-z0-9._-]+|compliance:[A-Za-z0-9._-]+|internal_qa)$"
+    },
+    "rationale": {
+      "description": "Reviewer-facing explanation of what changed and why. The authoritative Python validator rejects whole-string stock phrases and rationales shorter than four words.",
+      "type": "string",
+      "minLength": 1
+    },
+    "settings": {
+      "type": "object",
+      "properties": {
+        "author": {
+          "description": "Pinned. A merge plan carries the author into the deliverable, so a plan built by a stale skill copy silently reintroduces the wrong identity. Use the applier's documented override when a different identity is genuinely required.",
+          "const": "AIS Specify"
+        },
+        "initials": { "type": "string" },
+        "date": { "type": "string" },
+        "enable_track_revisions": { "type": "boolean" },
+        "preserve_comments": { "type": "boolean" }
+      }
+    },
+    "theme": {
+      "description": "A document-wide decision explained once. Member operations reference it instead of repeating an identical note, so the reviewer accepts the pattern in one decision rather than N.",
+      "type": "object",
+      "required": ["id", "rationale", "source", "anchor_paragraph_index"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "rationale": { "$ref": "#/$defs/rationale" },
+        "source": { "$ref": "#/$defs/provenanceSource" },
+        "anchor_paragraph_index": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "operation": {
+      "type": "object",
+      "required": ["type", "paragraph_index"],
+      "properties": {
+        "type": {
+          "enum": [
+            "replace_paragraph_text",
+            "insert_paragraph_after",
+            "insert_table_after"
+          ]
+        },
+        "paragraph_index": { "type": "integer", "minimum": 0 },
+        "style": { "type": "string" },
+        "text": { "type": "string" },
+        "rows": { "type": "array" },
+        "enabled": { "type": "boolean" },
+        "rationale": { "$ref": "#/$defs/rationale" },
+        "source": { "$ref": "#/$defs/provenanceSource" },
+        "theme": { "type": "string" }
+      },
+      "allOf": [
+        {
+          "if": {
+            "not": {
+              "properties": { "enabled": { "const": false } },
+              "required": ["enabled"]
+            }
+          },
+          "then": { "required": ["rationale", "source"] }
+        }
+      ]
+    },
+    "commentReply": {
+      "type": "object",
+      "required": ["comment_id"],
+      "properties": {
+        "comment_id": { "type": "string" },
+        "anchor_paragraph_index": { "type": "integer" },
+        "anchor_text": { "type": "string" },
+        "reviewer_comment": { "type": "string" },
+        "status": {
+          "enum": [
+            "addressed",
+            "needs_response",
+            "needs_confirmation",
+            "no_change",
+            "skip",
+            "skipped",
+            "not_applicable"
+          ]
+        },
+        "reply": { "type": "string" }
+      }
+    },
+    "validation": {
+      "type": "object",
+      "properties": {
+        "expect_reviewer_comments": { "type": "integer", "minimum": 0 },
+        "expect_resolution_comments": { "type": "integer", "minimum": 0 },
+        "fail_generic_replies": { "type": "boolean" }
+      }
+    }
+  }
+}

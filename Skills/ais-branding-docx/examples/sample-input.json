@@ -1,0 +1,333 @@
+{
+  "cover_page": {
+    "title": "Cloud Migration Runbook",
+    "subtitle": "Azure Landing Zone Configuration Guide",
+    "date": "5/4/2026",
+    "version": "v1.0",
+    "prepared_for": "Contoso Federal",
+    "prepared_by": "Applied Information Sciences, Inc.",
+    "confidentiality": "This document includes data that may not be disclosed outside of the intended recipient and may not be duplicated, used, or disclosed, in whole or in part, for any other purpose."
+  },
+  "footer": {
+    "subtitle": "Azure Landing Zone Configuration Guide",
+    "version": "v1.0"
+  },
+  "sections": [
+    {
+      "heading": "Introduction",
+      "content": [
+        {
+          "type": "first_paragraph",
+          "text": "This document provides a comprehensive guide for configuring and managing the Azure Landing Zone environment deployed for the Contoso Federal cloud migration initiative. It covers identity configuration, network topology, governance policies, and operational procedures."
+        },
+        {
+          "type": "heading2",
+          "text": "Scope"
+        },
+        {
+          "type": "compact",
+          "text": "Azure subscription and management group hierarchy setup"
+        },
+        {
+          "type": "compact",
+          "text": "Network hub-and-spoke topology configuration"
+        },
+        {
+          "type": "compact",
+          "text": "Identity and access management via Microsoft Entra ID"
+        },
+        {
+          "type": "compact",
+          "text": "Azure Policy assignments and compliance monitoring"
+        },
+        {
+          "type": "compact",
+          "text": "Operational runbook procedures for Day 2 operations"
+        }
+      ]
+    },
+    {
+      "heading": "Prerequisites",
+      "content": [
+        {
+          "type": "first_paragraph",
+          "text": "Before proceeding with any configuration steps, ensure the following prerequisites are met."
+        },
+        {
+          "type": "heading2",
+          "text": "Required Permissions"
+        },
+        {
+          "type": "compact",
+          "text": "Global Administrator or Privileged Role Administrator in Microsoft Entra ID"
+        },
+        {
+          "type": "compact",
+          "text": "Owner role on the target Azure subscription or management group"
+        },
+        {
+          "type": "compact",
+          "text": "Access to the Azure DevOps project for infrastructure-as-code pipelines"
+        },
+        {
+          "type": "heading2",
+          "text": "Required Tools"
+        },
+        {
+          "type": "compact",
+          "text": "Azure CLI v2.50+ or Azure PowerShell Az module v10+"
+        },
+        {
+          "type": "compact",
+          "text": "Terraform v1.5+ with AzureRM provider v3.70+"
+        },
+        {
+          "type": "compact",
+          "text": "Git client for accessing the infrastructure repository"
+        }
+      ]
+    },
+    {
+      "heading": "Management Group & Subscription Setup",
+      "content": [
+        {
+          "type": "first_paragraph",
+          "text": "The landing zone uses a hierarchical management group structure aligned with the Microsoft Cloud Adoption Framework (CAF). This structure provides centralized governance while allowing workload teams flexibility within their subscriptions."
+        },
+        {
+          "type": "heading2",
+          "text": "Management Group Hierarchy"
+        },
+        {
+          "type": "body_text",
+          "text": "The following hierarchy is deployed via Terraform and should not be modified manually. All changes must go through the infrastructure-as-code pipeline.",
+          "bold_label": "Important:"
+        },
+        {
+          "type": "list_paragraph",
+          "text": "Root Management Group — Tenant-level policies (naming conventions, allowed regions)"
+        },
+        {
+          "type": "list_paragraph",
+          "text": "Platform — Shared services: connectivity, identity, management subscriptions"
+        },
+        {
+          "type": "list_paragraph",
+          "text": "Landing Zones — Workload subscriptions organized by environment (prod, non-prod)"
+        },
+        {
+          "type": "list_paragraph",
+          "text": "Sandbox — Isolated subscriptions for experimentation and proof-of-concept work"
+        },
+        {
+          "type": "heading2",
+          "text": "Creating a New Workload Subscription"
+        },
+        {
+          "type": "heading3",
+          "text": "Step 1: Submit a Subscription Request"
+        },
+        {
+          "type": "compact",
+          "text": "Navigate to the Azure DevOps project and create a new work item using the 'Subscription Request' template."
+        },
+        {
+          "type": "compact",
+          "text": "Provide the workload name, target environment (prod/non-prod), cost center, and owning team."
+        },
+        {
+          "type": "heading3",
+          "text": "Step 2: Run the Provisioning Pipeline"
+        },
+        {
+          "type": "compact",
+          "text": "Once approved, trigger the 'New Subscription' pipeline in Azure DevOps."
+        },
+        {
+          "type": "compact",
+          "text": "The pipeline will create the subscription, move it to the correct management group, apply baseline policies, and configure diagnostic settings."
+        },
+        {
+          "type": "heading3",
+          "text": "Step 3: Verify Deployment"
+        },
+        {
+          "type": "compact",
+          "text": "Confirm the subscription appears under the correct management group in the Azure portal."
+        },
+        {
+          "type": "compact",
+          "text": "Verify that baseline Azure Policies are assigned and compliant."
+        },
+        {
+          "type": "compact",
+          "text": "Ensure diagnostic settings are forwarding logs to the central Log Analytics workspace."
+        }
+      ]
+    },
+    {
+      "heading": "Network Configuration",
+      "content": [
+        {
+          "type": "first_paragraph",
+          "text": "The network topology follows a hub-and-spoke model with Azure Virtual WAN providing centralized connectivity. All spoke virtual networks peer through the hub for internet egress, on-premises connectivity, and cross-spoke communication."
+        },
+        {
+          "type": "heading2",
+          "text": "Hub Network"
+        },
+        {
+          "type": "compact",
+          "text": "Azure Virtual WAN hub deployed in East US 2 region"
+        },
+        {
+          "type": "compact",
+          "text": "Azure Firewall Premium tier for TLS inspection and IDPS"
+        },
+        {
+          "type": "compact",
+          "text": "ExpressRoute circuit connected to on-premises data center"
+        },
+        {
+          "type": "compact",
+          "text": "Azure DNS Private Resolver for hybrid name resolution"
+        },
+        {
+          "type": "heading2",
+          "text": "Adding a New Spoke Network"
+        },
+        {
+          "type": "heading3",
+          "text": "Step 1: Define the Network Configuration"
+        },
+        {
+          "type": "compact",
+          "text": "Add a new spoke definition to the Terraform configuration in the infrastructure repository."
+        },
+        {
+          "type": "source_code",
+          "text": "module \"spoke_workload_prod\" {\n  source       = \"./modules/spoke\"\n  name         = \"spk-workload-prod\"\n  address_space = [\"10.4.0.0/22\"]\n  hub_id       = module.hub.id\n}"
+        },
+        {
+          "type": "heading3",
+          "text": "Step 2: Apply and Verify"
+        },
+        {
+          "type": "compact",
+          "text": "Run the network pipeline to apply the changes. Verify peering status shows 'Connected' in the Azure portal."
+        }
+      ]
+    },
+    {
+      "heading": "Identity & Access Management",
+      "content": [
+        {
+          "type": "first_paragraph",
+          "text": "All access to Azure resources is managed through Microsoft Entra ID groups using a role-based access control (RBAC) model. No individual user assignments are permitted — all access must flow through group membership."
+        },
+        {
+          "type": "heading2",
+          "text": "Group Naming Convention"
+        },
+        {
+          "type": "body_text",
+          "text": "Security groups follow the pattern: AZ-{Subscription}-{Role}-{Scope}. For example, AZ-Prod-Contributor-RG-AppServices grants Contributor role to the App Services resource group in the production subscription."
+        },
+        {
+          "type": "heading2",
+          "text": "Requesting Access"
+        },
+        {
+          "type": "heading3",
+          "text": "Step 1: Submit Access Request"
+        },
+        {
+          "type": "compact",
+          "text": "Users submit access requests through the IT Service Management portal, specifying the target subscription, required role, and business justification."
+        },
+        {
+          "type": "heading3",
+          "text": "Step 2: Approval Workflow"
+        },
+        {
+          "type": "compact",
+          "text": "Requests are routed to the subscription owner and the cloud governance team for dual approval."
+        },
+        {
+          "type": "heading3",
+          "text": "Step 3: Group Assignment"
+        },
+        {
+          "type": "compact",
+          "text": "Upon approval, the user is added to the appropriate Entra ID security group. Access takes effect within 15 minutes."
+        }
+      ]
+    },
+    {
+      "heading": "Operational Procedures",
+      "content": [
+        {
+          "type": "first_paragraph",
+          "text": "This section covers routine Day 2 operational tasks for maintaining the landing zone environment."
+        },
+        {
+          "type": "heading2",
+          "text": "Cost Management"
+        },
+        {
+          "type": "compact",
+          "text": "Review Azure Cost Management reports weekly. Budget alerts are configured at 80% and 100% thresholds."
+        },
+        {
+          "type": "compact",
+          "text": "Tag compliance is enforced via Azure Policy — all resources must have CostCenter and Owner tags."
+        },
+        {
+          "type": "heading2",
+          "text": "Security Monitoring"
+        },
+        {
+          "type": "compact",
+          "text": "Microsoft Defender for Cloud is enabled across all subscriptions with the Enhanced Security tier."
+        },
+        {
+          "type": "compact",
+          "text": "Security alerts are forwarded to the SOC team via Azure Sentinel integration."
+        },
+        {
+          "type": "compact",
+          "text": "Conduct quarterly access reviews for all privileged roles using Entra ID Access Reviews."
+        },
+        {
+          "type": "heading2",
+          "text": "Backup & Disaster Recovery"
+        },
+        {
+          "type": "compact",
+          "text": "Azure Backup is configured for all production virtual machines with a 30-day retention policy."
+        },
+        {
+          "type": "compact",
+          "text": "Conduct annual DR failover tests to the secondary region (West US 2)."
+        }
+      ]
+    },
+    {
+      "heading": "References",
+      "content": [
+        {
+          "type": "list_paragraph",
+          "text": "Microsoft Cloud Adoption Framework — https://learn.microsoft.com/azure/cloud-adoption-framework/"
+        },
+        {
+          "type": "list_paragraph",
+          "text": "Azure Landing Zone Accelerator — https://learn.microsoft.com/azure/cloud-adoption-framework/ready/landing-zone/"
+        },
+        {
+          "type": "list_paragraph",
+          "text": "Azure Policy Built-in Definitions — https://learn.microsoft.com/azure/governance/policy/samples/built-in-policies"
+        }
+      ]
+    }
+  ]
+}

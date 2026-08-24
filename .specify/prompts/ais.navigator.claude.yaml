@@ -1,0 +1,16 @@
+model: sonnet
+description: "Advise the next AIS lifecycle step by inspecting repo artifacts, setup-created specs, and canonical workflow docs."
+allowed-tools: Read, Write, Bash, Glob, Grep
+handoffs:
+  - label: Brainstorm Candidate
+    agent: ais.spec.brainstorm
+    prompt: Shape the Navigator-recommended candidate into a Spec Seed Brief.
+    send: false
+  - label: Create Feature Spec
+    agent: ais.spec.specify
+    prompt: Create or re-specify the Navigator-recommended feature.
+    send: false
+  - label: Clarify Context
+    agent: ais.maintain.clarify
+    prompt: Resolve the ambiguity or context gap identified by Navigator.
+    send: false

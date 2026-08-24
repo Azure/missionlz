@@ -1,0 +1,12 @@
+model: haiku
+description: "Generate an outcome metrics report with evidence, formulas, confidence, and data gaps"
+allowed-tools: Read, Write, Edit, Bash, Glob, Grep
+handoffs:
+  - label: Full Project Report
+    agent: ais.report.project
+    prompt: Generate a comprehensive project report with the latest outcome metrics rollup
+    send: true
+  - label: Client Status Report
+    agent: ais.report.status
+    prompt: Generate a client-facing status report with the latest delivery outcomes rollup
+    send: true

@@ -1,0 +1,6 @@
+description: "Create the technical design -- research, data model, contracts, Verification Strategy, architecture decisions, and implementation planning guidance."
+handoffs:
+  - label: Create Tasks
+    agent: ais.spec.tasks
+    prompt: Break the design into tasks
+    send: true

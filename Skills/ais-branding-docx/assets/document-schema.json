@@ -1,0 +1,171 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AIS Branded Document Input",
+  "description": "Schema for generating AIS-branded Word documents from structured JSON input. Supports technical documentation, SOWs, runbooks, and other deliverables.",
+  "type": "object",
+  "required": ["cover_page", "sections"],
+  "properties": {
+    "cover_page": {
+      "type": "object",
+      "description": "Cover page information displayed on the title page.",
+      "required": ["title"],
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "Main document title displayed on the cover page."
+        },
+        "subtitle": {
+          "type": "string",
+          "description": "Subtitle or document type (e.g., 'Technical Runbook', 'System Administration Guide')."
+        },
+        "date": {
+          "type": "string",
+          "description": "Document date (e.g., '5/14/2025'). Defaults to today if omitted."
+        },
+        "version": {
+          "type": "string",
+          "description": "Version label (e.g., 'v1.0', 'Draft'). Appears in footer.",
+          "default": "v1.0"
+        },
+        "prepared_for": {
+          "type": "string",
+          "description": "Client or recipient name."
+        },
+        "prepared_by": {
+          "type": "string",
+          "description": "Author organization. Defaults to 'Applied Information Sciences, Inc.'.",
+          "default": "Applied Information Sciences, Inc."
+        },
+        "confidentiality": {
+          "type": "string",
+          "description": "Confidentiality notice for cover page and footer.",
+          "default": "This document includes data that may not be disclosed outside of the intended recipient and may not be duplicated, used, or disclosed, in whole or in part, for any other purpose."
+        }
+      }
+    },
+    "footer": {
+      "type": "object",
+      "description": "Footer customization.",
+      "properties": {
+        "subtitle": {
+          "type": "string",
+          "description": "Text to display in body page footer. Defaults to cover_page.subtitle."
+        },
+        "version": {
+          "type": "string",
+          "description": "Version label for footer. Defaults to cover_page.version."
+        }
+      }
+    },
+    "sections": {
+      "type": "array",
+      "description": "Document body content organized as sections.",
+      "items": {
+        "type": "object",
+        "required": ["heading", "content"],
+        "properties": {
+          "heading": {
+            "type": "string",
+            "description": "Section heading text (rendered as Heading1)."
+          },
+          "content": {
+            "type": "array",
+            "description": "Ordered array of content blocks within this section.",
+            "items": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "description": "A text content block.",
+                  "required": ["type", "text"],
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "description": "Content block type determining the Word style applied.",
+                      "enum": [
+                        "body",
+                        "first_paragraph",
+                        "heading2",
+                        "heading3",
+                        "heading4",
+                        "heading5",
+                        "compact",
+                        "list_paragraph",
+                        "bullet",
+                        "numbered_list",
+                        "body_text",
+                        "source_code",
+                        "bold_blue"
+                      ]
+                    },
+                    "text": {
+                      "type": "string",
+                      "description": "The text content. Supports markdown-style formatting: **bold**, *italic*, `code`."
+                    },
+                    "bold_label": {
+                      "type": "string",
+                      "description": "Optional bold prefix label (e.g., 'Note:', 'Important:'). Rendered in bold before the text."
+                    },
+                    "level": {
+                      "type": "integer",
+                      "description": "Nesting level for bullet/numbered_list items (0=top level, 1=sub-item). Defaults to 0.",
+                      "default": 0,
+                      "minimum": 0,
+                      "maximum": 3
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "description": "A table content block.",
+                  "required": ["type", "rows"],
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": ["table"]
+                    },
+                    "rows": {
+                      "type": "array",
+                      "description": "Array of rows. Each row is an array of cell values. First row is treated as header by default.",
+                      "items": {
+                        "type": "array",
+                        "items": { "type": "string" }
+                      }
+                    },
+                    "header": {
+                      "type": "boolean",
+                      "description": "Whether the first row is a header row. Defaults to true.",
+                      "default": true
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "comments": {
+      "type": "array",
+      "description": "Optional review comments to inject into the document.",
+      "items": {
+        "type": "object",
+        "required": ["section_index", "text"],
+        "properties": {
+          "section_index": {
+            "type": "integer",
+            "description": "Zero-based index of the section to attach the comment to."
+          },
+          "text": {
+            "type": "string",
+            "description": "Comment text."
+          },
+          "author": {
+            "type": "string",
+            "description": "Comment author name.",
+            "default": "AIS Template"
+          }
+        }
+      }
+    }
+  }
+}

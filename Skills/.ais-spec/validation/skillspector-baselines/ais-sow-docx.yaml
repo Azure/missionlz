@@ -1,0 +1,9 @@
+# SkillSpector baseline — findings listed here are suppressed on future scans.
+# Edit 'reason' fields and add glob 'rules' as needed. See docs/SUPPRESSION.md.
+version: 1
+rules: []
+fingerprints:
+- hash: sha256:aec8eba2ff78fd9d
+  rule_id: LP3
+  file: SKILL.md
+  reason: Current AIS Specify static SkillSpector baseline accepted for CI onboarding

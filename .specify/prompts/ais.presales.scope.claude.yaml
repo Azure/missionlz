@@ -1,0 +1,11 @@
+description: "Generate a Statement of Work with formal specs, milestones, and delivery bridge"
+allowed-tools: Read, Write, Edit, Bash, Glob, Grep
+handoffs:
+  - label: Start Delivery
+    agent: ais.setup.plan
+    prompt: Read the signed SOW and create the project plan
+    send: true
+  - label: Update Proposal
+    agent: ais.presales.propose
+    prompt: Update the proposal based on client feedback
+    send: true

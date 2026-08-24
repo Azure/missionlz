@@ -1,0 +1,15 @@
+description: "Clarify project or spec-level ambiguities. Ingests new context at project level, or resolves spec ambiguities at component level."
+allowed-tools: Read, Write, Edit, Bash, Glob, Grep
+handoffs:
+  - label: Ratify Constitution
+    agent: ais.setup.constitution
+    prompt: Ratify constitution amendments from the governance content identified during clarification.
+    send: false
+  - label: Create Feature Spec
+    agent: ais.spec.specify
+    prompt: Create a new feature specification for...
+    send: false
+  - label: Design Feature
+    agent: ais.spec.design
+    prompt: Create a technical design for the current spec.
+    send: false

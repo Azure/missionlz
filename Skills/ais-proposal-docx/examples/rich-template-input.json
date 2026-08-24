@@ -1,0 +1,158 @@
+{
+  "cover_page": {
+    "title": "TTS NEXT BPAs Support Area 5",
+    "solicitation_number": "RFQ1809121",
+    "date": "May 20, 2026",
+    "volume_name": "Technical Capability",
+    "volume_factor": "Technical Factor 1",
+    "submitted_by": {
+      "name": "Applied Information Sciences",
+      "address": {
+        "line1": "11440 Commerce Park Drive",
+        "line2": "Suite 600",
+        "city_state_zip": "Reston, VA 20191"
+      },
+      "uei": "MGCZNCNTQPE9",
+      "contact": {
+        "name": "Chelsea Cerwinski, Director of Contracts",
+        "email": "chelsea.cerwinski@ais.com",
+        "phone": "703-860-7832"
+      }
+    },
+    "submitted_to": {
+      "agency_name": "General Services Administration (GSA)",
+      "org_name": "Technology Transformation Service (TTS)",
+      "address": {
+        "line1": "1800 F St NW",
+        "city_state_zip": "Washington, DC 20405"
+      },
+      "contracting_officer": {
+        "name": "Jacqueline McGlone, Contracting Officer",
+        "email": "jacqueline.mcglone@gsa.gov"
+      },
+      "contract_specialist": {
+        "name": "Krystal Zoufaly, Contract Specialist",
+        "email": "krystal.zoufaly@gsa.gov"
+      }
+    }
+  },
+  "header": {
+    "text": "General Services Administration (GSA) RFQ1809121 TTS NEXT BPAs Support Area 5 Technical Capability"
+  },
+  "sections": [
+    {
+      "heading": "Federal AI Implementation Approach",
+      "content": [
+        {
+          "type": "theme",
+          "text": "AIS reduces delivery risk by treating AI implementation as an accountable product lifecycle, not a one-time model build."
+        },
+        {
+          "type": "body",
+          "text": "AIS delivers AI governance through an Intake, Build, Monitor, and Audit lifecycle that establishes controls before any model enters production and sustains oversight through retirement."
+        },
+        {
+          "type": "callout",
+          "title": "Why This Matters",
+          "body": [
+            "The same lifecycle artifacts support executive governance, delivery execution, and evaluator traceability."
+          ],
+          "bullets": [
+            "Risk classification is completed before solution design.",
+            "Evaluation evidence is captured as delivery proceeds.",
+            "Monitoring and audit controls are designed into the operating model."
+          ]
+        },
+        {
+          "type": "figure",
+          "title": "Figure 1. AI Delivery Control Model",
+          "width_inches": 6.5,
+          "height_inches": 3.25,
+          "alt_text": "Diagram showing Intake, Build, Monitor, and Audit stages with governance checkpoints.",
+          "replacement_guidance": "Insert lifecycle diagram showing stage gates, owner checkpoints, and evidence artifacts.",
+          "caption": "Use this figure to orient evaluators before the detailed governance narrative."
+        },
+        {
+          "type": "table",
+          "title": "Table 1. Lifecycle Controls Mapped to Proposal Evidence",
+          "style": "ais_2",
+          "columns": [
+            {
+              "heading": "Lifecycle Stage",
+              "weight": 1
+            },
+            {
+              "heading": "AIS Control",
+              "weight": 2
+            },
+            {
+              "heading": "Proposal Evidence",
+              "weight": 2
+            }
+          ],
+          "rows": [
+            [
+              "Intake",
+              "Classify risk, assign owner, document data provenance.",
+              "Governance intake checklist and approval record."
+            ],
+            [
+              "Build",
+              "Create source-cited responses, test prompts, and evaluate outputs.",
+              "Traceability matrix, test scripts, and evaluation summary."
+            ],
+            [
+              "Monitor",
+              "Track drift, quality, usage, and incident signals.",
+              "Operational dashboard and review cadence."
+            ],
+            {
+              "role": "subheader",
+              "cells": [
+                "Audit",
+                "Independent readiness review and retained evidence package.",
+                "Audit-ready control evidence and remediation log."
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Solicitation Response Traceability",
+      "content": [
+        {
+          "type": "requirement",
+          "requirement_type": "section_l",
+          "text": "Instruction: Describe the offeror's approach to implementing Artificial Intelligence / Machine Learning capabilities within a Federal environment."
+        },
+        {
+          "type": "qa",
+          "label": "Q1",
+          "question": "How does AIS evaluate when AI is the appropriate solution versus when traditional approaches are more effective?",
+          "response": [
+            {
+              "type": "body",
+              "text": "AIS uses a decision framework that evaluates task complexity, data maturity, explainability requirements, compliance constraints, and expected operational value before recommending an AI approach."
+            },
+            {
+              "type": "bullet1",
+              "text": "Use AI when probabilistic reasoning or semantic retrieval improves outcomes."
+            },
+            {
+              "type": "bullet1",
+              "text": "Use deterministic workflows when rules, auditability, or cost make traditional automation stronger."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "comments": [
+    {
+      "section_index": 0,
+      "author": "AIS Proposal Team",
+      "text": "Review whether the lifecycle figure should be replaced with a client-specific architecture diagram."
+    }
+  ]
+}

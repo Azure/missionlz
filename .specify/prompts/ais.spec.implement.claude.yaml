@@ -1,0 +1,6 @@
+description: "Use when a feature spec has tasks.md ready for implementation, QA/UAT evidence gates, or implementation needs to resume."
+handoffs:
+  - label: Debug Blocking Issue
+    agent: ais.maintain.debug
+    prompt: Diagnose the blocking implementation issue and recommend a root-cause fix.
+    send: true

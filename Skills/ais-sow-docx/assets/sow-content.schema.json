@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AIS SOW content package",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["classification", "document", "background", "objectives", "scope", "deliverables", "milestones", "responsibilities", "assumptions", "commercial"],
+  "properties": {
+    "classification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["agreement_family", "contract_form", "delivery_organization", "delivery_pattern", "document_type"],
+      "properties": {
+        "agreement_family": {"enum": ["client", "ecif"]},
+        "contract_form": {"enum": ["ffp", "time-and-materials", "retainer"]},
+        "delivery_organization": {"enum": ["ais", "microsoft-solution-center"]},
+        "delivery_pattern": {"enum": ["fixed-deliverables", "managed-capacity", "staff-augmentation"]},
+        "document_type": {"const": "original-sow"}
+      }
+    },
+    "template_version": {"type": ["string", "null"], "pattern": "^[0-9]{4}-[0-9]{2}$"},
+    "document": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["title", "client_name", "project_name", "effective_date", "expiration_date", "msa_date", "opportunity_id", "place_of_performance", "contacts"],
+      "properties": {
+        "title": {"type": "string", "minLength": 1},
+        "client_name": {"type": "string", "minLength": 1},
+        "project_name": {"type": "string", "minLength": 1},
+        "effective_date": {"type": "string", "format": "date"},
+        "expiration_date": {"type": "string", "format": "date"},
+        "msa_date": {"type": "string", "format": "date"},
+        "opportunity_id": {"type": "string", "minLength": 1},
+        "place_of_performance": {"type": "string", "minLength": 1},
+        "contacts": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["organization", "name", "role", "mailing_address", "email", "phone"],
+            "properties": {
+              "organization": {"type": "string", "minLength": 1},
+              "name": {"type": "string", "minLength": 1},
+              "role": {"type": "string", "minLength": 1},
+              "mailing_address": {"type": "string", "minLength": 1},
+              "email": {"type": "string", "minLength": 3},
+              "phone": {"type": "string", "minLength": 7}
+            }
+          }
+        }
+      }
+    },
+    "background": {"$ref": "#/$defs/nonEmptyStrings"},
+    "objectives": {"$ref": "#/$defs/nonEmptyStrings"},
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["in_scope", "out_of_scope"],
+      "properties": {
+        "in_scope": {"$ref": "#/$defs/tracedItems"},
+        "out_of_scope": {"$ref": "#/$defs/tracedItems"}
+      }
+    },
+    "deliverables": {"$ref": "#/$defs/deliverables"},
+    "milestones": {"$ref": "#/$defs/tracedItems"},
+    "responsibilities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ais", "client"],
+      "properties": {
+        "ais": {"$ref": "#/$defs/tracedItems"},
+        "client": {"$ref": "#/$defs/tracedItems"}
+      }
+    },
+    "assumptions": {"$ref": "#/$defs/tracedItems"},
+    "commercial": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["placeholder"],
+      "properties": {
+        "placeholder": {"const": "TBD - Commercial Review"},
+        "notes": {"$ref": "#/$defs/strings"}
+      }
+    }
+  },
+  "$defs": {
+    "strings": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "nonEmptyStrings": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+    "tracedItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_id", "title", "description"],
+      "properties": {
+        "source_id": {"type": "string", "pattern": "^[A-Z][A-Z0-9-]{1,31}$"},
+        "title": {"type": "string", "minLength": 1},
+        "description": {"type": "string", "minLength": 1}
+      }
+    },
+    "tracedItems": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/tracedItem"}},
+    "deliverable": {
+      "allOf": [
+        {"$ref": "#/$defs/tracedItem"},
+        {"type": "object", "required": ["acceptance_criteria"], "properties": {"acceptance_criteria": {"$ref": "#/$defs/nonEmptyStrings"}}}
+      ]
+    },
+    "deliverables": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/deliverable"}}
+  }
+}

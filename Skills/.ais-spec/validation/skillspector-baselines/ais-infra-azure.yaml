@@ -1,0 +1,37 @@
+# SkillSpector baseline — findings listed here are suppressed on future scans.
+# Edit 'reason' fields and add glob 'rules' as needed. See docs/SUPPRESSION.md.
+version: 1
+rules: []
+fingerprints:
+- hash: sha256:bd24ac6d1d1e93dc
+  rule_id: AST4
+  file: scripts/validate_infra.py
+  reason: Current AIS Specify static SkillSpector baseline accepted for CI onboarding
+- hash: sha256:3d823a32a133864a
+  rule_id: AST4
+  file: scripts/validate_infra.py
+  reason: Current AIS Specify static SkillSpector baseline accepted for CI onboarding
+- hash: sha256:d562508fa626704b
+  rule_id: AST4
+  file: scripts/validate_infra.py
+  reason: Current AIS Specify static SkillSpector baseline accepted for CI onboarding
+- hash: sha256:27aadcd12b6095c6
+  rule_id: LP3
+  file: SKILL.md
+  reason: Current AIS Specify static SkillSpector baseline accepted for CI onboarding
+- hash: sha256:fd4ab69d192759e0
+  rule_id: E2
+  file: standards/naming-tagging.md
+  reason: Current AIS Specify static SkillSpector baseline accepted for CI onboarding
+- hash: sha256:26753c1a4168491d
+  rule_id: EA2
+  file: standards/deployment.md
+  reason: Current AIS Specify static SkillSpector baseline accepted for CI onboarding
+- hash: sha256:1d4fd5af5ac0dff2
+  rule_id: OH1
+  file: scripts/validate_infra.py
+  reason: Current AIS Specify static SkillSpector baseline accepted for CI onboarding
+- hash: sha256:458af4f3049366b5
+  rule_id: OH1
+  file: scripts/validate_infra.py
+  reason: Current AIS Specify static SkillSpector baseline accepted for CI onboarding

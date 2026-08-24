@@ -1,0 +1,29 @@
+# SkillSpector baseline — findings listed here are suppressed on future scans.
+# Edit 'reason' fields and add glob 'rules' as needed. See docs/SUPPRESSION.md.
+version: 1
+rules: []
+fingerprints:
+- hash: sha256:c4b69f010e528968
+  rule_id: LP3
+  file: SKILL.md
+  reason: Current AIS Specify static SkillSpector baseline accepted for CI onboarding
+- hash: sha256:17f91f9079741e94
+  rule_id: TM1
+  file: SKILL.md
+  reason: Current AIS Specify static SkillSpector baseline accepted for CI onboarding
+- hash: sha256:017291a1e9c7da14
+  rule_id: TM1
+  file: SKILL.md
+  reason: Current AIS Specify static SkillSpector baseline accepted for CI onboarding
+- hash: sha256:bbe347c1699af65e
+  rule_id: TM1
+  file: references/COMMENT-REPLIES.md
+  reason: Current AIS Specify static SkillSpector baseline accepted for CI onboarding
+- hash: sha256:a0d9188fcc2cb339
+  rule_id: TM1
+  file: scripts/apply_merge_plan.py
+  reason: Current AIS Specify static SkillSpector baseline accepted for CI onboarding
+- hash: sha256:ac0939801ca7795f
+  rule_id: TM1
+  file: scripts/apply_merge_plan.py
+  reason: Current AIS Specify static SkillSpector baseline accepted for CI onboarding
