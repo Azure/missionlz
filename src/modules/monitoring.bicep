@@ -7,6 +7,8 @@ targetScope = 'subscription'
 
 param delimiter string
 param deploymentNameSuffix string
+param deployDefender bool
+param deployDefenderPlans array
 param deploySentinel bool
 param location string
 param logAnalyticsWorkspaceCappingDailyQuotaGb int
@@ -22,6 +24,8 @@ module logAnalyticsWorkspace 'log-analytics-workspace.bicep' = {
   name: 'deploy-law-${deploymentNameSuffix}'
   scope: resourceGroup(tier.subscriptionId, tier.resourceGroupName)
   params: {
+    deployDefender: deployDefender
+    deployDefenderPlans: deployDefenderPlans
     deploySentinel: deploySentinel
     location: location
     mlzTags: mlzTags
