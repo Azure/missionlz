@@ -810,7 +810,7 @@ module sessionHosts 'modules/session-hosts/session-hosts.bicep' = {
     availabilitySetsCount: availabilitySetsCount
     availabilitySetsIndex: beginAvSetRange
     availabilityZones: availabilityZones
-    avdConfigurationZipFileUri: 'https://${avdStorageAccountEndpoint}/galleryartifacts/Configuration_1.0.03419.1309.zip'
+    avdConfigurationZipFileUri: 'https://${avdStorageAccountEndpoint}/galleryartifacts/Configuration_1.0.03483.1387.zip'
     dataCollectionRuleResourceId: management.outputs.dataCollectionRuleResourceId
     delimiter: virtualNetwork.outputs.delimiter
     deployFslogix: deployFslogix
