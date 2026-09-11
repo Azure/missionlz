@@ -19,10 +19,10 @@ jobs:
     name: lint-codebase
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:          
           fetch-depth: 0 # Full git history is needed to get a proper list of changed files within `super-linter`
-      - uses: github/super-linter/slim@v7 # use the slim linter since we don't use rust, dotenv, armttk, pwsh, or c#
+      - uses: github/super-linter/slim@b807e99ddd37e444d189cfd2c2ca1274d8ae8ef1 # v7
         env:
           VALIDATE_ALL_CODEBASE: true
           VALIDATE_BASH: true
