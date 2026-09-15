@@ -3,6 +3,8 @@ Copyright (c) Microsoft Corporation.
 Licensed under the MIT License.
 */
 
+param deployDefender bool = false
+param deployDefenderPlans array = []
 param deploySentinel bool = false
 param location string
 param mlzTags object
@@ -29,35 +31,35 @@ var solutions = [
     promotionCode: ''
   }
   {
-    deploy: true
+    deploy: deployDefender && contains(deployDefenderPlans, 'VirtualMachines')
     name: 'VMInsights'
     product: 'OMSGallery/VMInsights'
     publisher: 'Microsoft'
     promotionCode: '' 
   }
   {
-    deploy: true
+    deploy: deployDefender && contains(deployDefenderPlans, 'VirtualMachines')
     name: 'Security'
     product: 'OMSGallery/Security'
     publisher: 'Microsoft'
     promotionCode: ''
   }
   {
-    deploy: true
+    deploy: deployDefender && contains(deployDefenderPlans, 'VirtualMachines')
     name: 'ServiceMap'
     publisher: 'Microsoft'
     product: 'OMSGallery/ServiceMap'
     promotionCode: ''
   }
   {
-    deploy: true
+    deploy: deployDefender && contains(deployDefenderPlans, 'Containers')
     name: 'ContainerInsights'
     publisher: 'Microsoft'
     product: 'OMSGallery/ContainerInsights'
     promotionCode: ''
   }
   {
-    deploy: true
+    deploy: deployDefender && contains(deployDefenderPlans, 'KeyVaults')
     name: 'KeyVaultAnalytics'
     publisher: 'Microsoft'
     product: 'OMSGallery/KeyVaultAnalytics'

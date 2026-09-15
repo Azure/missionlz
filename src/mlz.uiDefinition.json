@@ -745,7 +745,7 @@
                   "name": "defenderSubscriptionDetailsText",
                   "type": "Microsoft.Common.TextBlock",
                   "options": {
-                    "text": "For further enhanced protection, MLZ has the option of activiating the paid features of Defender for Cloud, such as: Defender Cloud Security Posture Management (DCSPM) and workload protection plans for additional threat protection for resources, such as: servers, storage, and more."
+                    "text": "For further enhanced protection, MLZ has the option of activiating the paid features of Defender for Cloud, such as: Defender Cloud Security Posture Management (DCSPM) and workload protection plans for additional threat protection for resources, such as: servers, storage, and more. Default selections align with SCCA and BCAP recommended protections for servers and storage. Selected plans are paid Microsoft Defender for Cloud features and may incur additional Azure charges. Modify the selections to match your mission and compliance requirements."
                   }
                 },
                 {
@@ -760,6 +760,7 @@
                 {
                   "name": "deployDefender",
                   "type": "Microsoft.Common.CheckBox",
+                  "defaultValue": true,
                   "label": "Enable additional features for Microsoft Defender for Cloud?",
                   "toolTip": "Check here to enable additional paid features of Microsoft Defender for Cloud.",
                   "constraints": {
@@ -781,7 +782,14 @@
                   "type": "Microsoft.Common.DropDown",
                   "label": "Defender for Cloud Additional Features",
                   "placeholder": "",
-                  "defaultValue": "VirtualMachines",
+                  "defaultValue": [
+                    {
+                      "value": "VirtualMachines"
+                    },
+                    {
+                      "value": "StorageAccounts"
+                    }
+                  ],
                   "toolTip": "Check feature availability of paid Defender for Cloud features",
                   "multiselect": true,
                   "selectAll": false,
@@ -1631,7 +1639,8 @@
         "deployActiveDirectoryDomainServices": "[steps('identity').addsSection.deployADDS]",
         "deployAzureGatewaySubnet": "[steps('remoteAccess').azureGatewaySubnetSection.deployAzureGatewaySubnet]",
         "deployBastion": "[steps('remoteAccess').azureBastionSection.deployBastion]",
-        "deployDefenderPlans": "[steps('compliance').defenderSection.deployDefenderPlans]",
+        "deployDefender": "[steps('compliance').defenderSection.deployDefender]",
+        "deployDefenderPlans": "[if(steps('compliance').defenderSection.deployDefender, if(empty(steps('compliance').defenderSection.deployDefenderPlans), parse('[]'), steps('compliance').defenderSection.deployDefenderPlans), parse('[]'))]",
         "deployIdentity": "[steps('basics').identitySection.deployIdentity]",
         "deployLinuxVirtualMachine": "[steps('remoteAccess').linuxVmSection.deployLinuxVirtualMachine]",
         "deployNetworkWatcherTrafficAnalytics": "[steps('networking').flowLogsSection.deployTrafficAnalytics]",
