@@ -5,3 +5,7 @@
 .DS_Store
 
 # (Minimal repository-global ignores only)
+
+# Test coverage / result outputs (generated; only tests/coverage-baseline.json is tracked)
+coverage.xml
+testResults.xml
