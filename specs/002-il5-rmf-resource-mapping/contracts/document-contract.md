@@ -165,8 +165,7 @@ request, not this customer-facing guide. Outside-MLZ sections name the owner, st
 expected result, and evidence. Related work may share a section when that makes the
 instructions easier to follow.
 
-The Log Analytics section links to #1304. The compute-isolation section presents both
-supported paths and links to #1305 for the Dedicated Host option.
+The Log Analytics section links to #1304. The Dedicated Host section links to #1305.
 Neither section may imply implementation or repeat its issue's engineering plan. The
 guide does not prescribe one universal product, retention period, PPSM rule set,
 authentication method, recovery objective, or AO decision.

@@ -23,7 +23,7 @@
   - [Active Directory Domain Services](#active-directory-domain-services)
 - [Planned vNext Features](#planned-vnext-features)
   - [Disable Public Log Analytics Ingestion and Query](#disable-public-log-analytics-ingestion-and-query)
-  - [Add IL5 VM Compute Isolation](#add-il5-vm-compute-isolation)
+  - [Add Azure Dedicated Host Placement](#add-azure-dedicated-host-placement)
 - [Work Outside MLZ](#work-outside-mlz)
   - [Operate Logs and Sentinel](#operate-logs-and-sentinel)
   - [Govern Customer-Managed Keys](#govern-customer-managed-keys)
@@ -441,30 +441,26 @@ and the mission has tested every required private ingestion and query path.
 **Expected result:** After the feature is released and enabled, authorized clients use
 private paths and public ingestion and query are blocked.
 
-### Add IL5 VM Compute Isolation
+### Add Azure Dedicated Host Placement
 
-**Change:** Apply the mission/AO-selected Azure Dedicated Host or isolated-VM-size path
-to every MLZ VM deployed in US Gov Arizona, Texas, or Virginia.
+**Change:** Add optional Azure Dedicated Host placement for every MLZ VM deployed in US
+Gov Arizona, Texas, or Virginia.
 
 **Feature request:**
 [#1305: Add Azure Dedicated Host placement for core MLZ VMs](https://github.com/Azure/missionlz/issues/1305)
 
 **Current state:** Core MLZ has no host group, Dedicated Host, host ID parameter, or VM
-`properties.host` assignment. Persistent management and domain-controller VM sizes are
-configurable. Temporary customer-managed-key helper VMs are declared separately with a
-module default that is not exposed at the root. MLZ therefore cannot consistently apply
-either supported isolation path to every VM.
+`properties.host` assignment. Persistent management and domain-controller VMs and
+temporary customer-managed-key helper VMs all require placement support.
 
-**Customer action:** Record the mission/AO selection of isolated VM sizes or Dedicated
-Host. For isolated VM sizes, confirm availability for every persistent and helper VM
-and plan the template surface needed to configure them all. For Dedicated Host, track
-issue #1305 and confirm host availability, VM-size compatibility, quota, capacity, and
-zone support. Do not deploy MLZ VMs for an IL5 workload until the approved physical
+**Customer action:** If the mission selects Dedicated Host, track #1305 and confirm host
+availability, VM-size compatibility, quota, capacity, and zone support. Microsoft also
+permits isolated VM sizes, but that alternative is not proposed as MLZ template work in
+this guide. Do not deploy MLZ VMs for an IL5 workload until the approved physical
 separation design covers every VM.
 
-**Expected result:** After the selected capability is released and enabled, all core MLZ
-VMs, including temporary helper VMs, use the approved isolated size or Dedicated Host
-placement.
+**Expected result:** After #1305 is released and enabled, all core MLZ VMs, including
+temporary helper VMs, use the approved Dedicated Host placement.
 
 ## Work Outside MLZ
 

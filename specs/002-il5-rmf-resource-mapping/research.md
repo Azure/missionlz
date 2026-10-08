@@ -31,7 +31,7 @@ The guide must cover these action groups from the mapping:
 | Category | Action groups |
 | --- | --- |
 | Parameter changes | PPSM/NSG rules; Firewall modes and rules; Log Analytics and flow-log retention; traffic analytics; Defender tier, plans, and contact; Azure Policy IL5 settings; Bastion; AD DS; Sentinel. |
-| Proposed template changes | Disable public Log Analytics ingestion and query; support the mission-selected isolated-VM-size or Dedicated Host path for every VM. |
+| Proposed template changes | Disable public Log Analytics ingestion and query; add Dedicated Host resources and VM placement. |
 | Outside MLZ | Log lifecycle and recovery; key governance; VM operations; administration and identity governance; backup and recovery; PPSM registration; vulnerability management; incident response; data classification; application controls; SSP, assessment, risk, and authorization work. |
 
 Related steps may share a section when that makes the guide easier to follow. The guide

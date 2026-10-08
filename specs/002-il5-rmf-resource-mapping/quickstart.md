@@ -59,8 +59,8 @@ grep -R -n "hostGroups\|hostGroup\|virtualMachineSize" src/mlz.bicep src/modules
 - Defender changes from Free to Standard with mission-selected plans.
 - Firewall IDPS and threat intelligence move from Alert to Deny after tuning.
 - Retention is mission-derived, not a universal IL5 value.
-- Log Analytics public access and complete Dedicated Host or isolated-VM-size coverage
-  are identified as template gaps.
+- Log Analytics public access and complete Dedicated Host placement are identified as
+  template gaps.
 - All four NSG arrays are tied to mission-approved PPSM data flows.
 - Each finding is classified as a parameter change, template change, external
   implementation, or deployment-time verification.
@@ -176,8 +176,7 @@ rg -n "^param |module |publicNetworkAccessFor|hostGroups|properties\.host|Allow-
 
 **Expected outcome**: Parameter paths are accurate. The Log Analytics and Dedicated
 Host engineering details are in their linked feature requests, not the tactical guide.
-The guide also accounts for the isolated-VM-size option. The AD DS section covers its
-required companion parameters and module path.
+The AD DS section covers its required companion parameters and module path.
 
 ## 12. Validate Section Completeness
 
