@@ -114,8 +114,9 @@ validation is deferred until the documentation review process matures.
 npx --yes markdownlint-cli2 docs/il5-rmf-resource-mapping.md
 ```
 
-Inspect the `README.md` diff to confirm that the only change is one correctly formatted
-navigation link, then open the link and verify it resolves. Default local
+Inspect the `README.md` diff to confirm that the only changes are the correctly
+formatted IL5 RMF mapping and tactical-guide navigation links, then open both links and
+verify they resolve. Default local
 `markdownlint-cli2` settings are not repository-equivalent for the pre-existing README,
 so do not reformat unrelated README content. The pull request must pass the validation
 workflows currently established on `main`. Do not describe pending coverage-ratchet
