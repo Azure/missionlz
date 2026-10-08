@@ -32,4 +32,6 @@
 ## Notes
 
 - Items marked incomplete require spec updates before `/speckit.clarify` or `/speckit.plan`.
-- Validation completed 2026-08-24: all checklist items pass; no unresolved clarifications remain.
+- Validation completed 2026-08-25 after adding User Story 2 / #1303: all checklist items pass; no
+  unresolved clarifications remain. US2 is documentation-only, reconciles the mapping one-for-one, and
+  defines measurable acceptance and quality outcomes without weakening US1 / #1302.

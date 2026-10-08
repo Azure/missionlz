@@ -1,9 +1,12 @@
-# Quickstart: Validate the IL5 RMF Resource Mapping
+# Quickstart: Validate the IL5 RMF Mapping and Tactical Guide
 
-**Feature**: `002-il5-rmf-resource-mapping` | **Date**: 2026-08-24
+<!-- markdownlint-disable MD013 -->
 
-This guide defines end-to-end validation for the documentation implementation. It does
-not implement the future `docs/il5-rmf-resource-mapping.md`.
+**Feature**: `002-il5-rmf-resource-mapping` | **Date**: 2026-08-25
+
+This guide retains validation for the completed US1 mapping and defines US2 validation
+for the planned `docs/il5-rmf-tactical-guide.md`. It does not implement or edit either
+document.
 
 ## Prerequisites
 
@@ -13,6 +16,8 @@ not implement the future `docs/il5-rmf-resource-mapping.md`.
 - Access current Microsoft Learn pages and the target Azure Government tenant when
   validating dynamic initiative or availability claims.
 - Install Node.js only if running `markdownlint-cli2` locally.
+- Use commit `113fb08211bffe603b20c44668df6a756ae80821` as the US2 tactical source
+  baseline unless the final guide records and justifies a later reviewed commit.
 
 ## 1. Verify the Scope Boundary
 
@@ -64,8 +69,7 @@ grep -R -n "hostGroups\|hostGroup" src/mlz.bicep src/modules --include='*.bicep'
 On the review date, check each mapped service in current IL5 PA audit scope and verify
 initiative ID `f9a961fa-3241-4b20-adc4-bbf8ad9d7197` in Azure Government. For US Gov
 Arizona, Texas, or Virginia, verify Dedicated Host availability, quota, and support.
-Confirm the document recommends wider MAG and does not direct new deployments to US DoD
-Central or East.
+Confirm the document directs new deployments to US Gov Arizona, Texas, or Virginia.
 
 **Expected outcome**: No SKU, initiative, service-scope, or regional claim is presented
 as timeless.
@@ -129,3 +133,108 @@ external links resolve or carry an explicit access caveat.
 - Sampled claims are traceable to authoritative evidence.
 - Authorization caveat is prominent and prohibited claims are absent.
 - Markdown validation passes with zero errors and warnings.
+
+## 9. Check Mapping Coverage
+
+List the parameter changes, proposed template changes, and outside-MLZ actions in the
+mapping. Check them against the matching sections in the tactical guide.
+
+**Expected outcome**: Every mapped action is covered and the guide adds no unsupported
+requirement. Related actions may share a section when the individual steps remain clear.
+
+## 10. Sample Source Traces and Current/Proposed Language
+
+Sample at least one parameter, proposed-template, and outside-MLZ section. Follow its
+mapping and repository citations. For parameter changes, confirm the declaration,
+consumer, and deployment input files named by the guide.
+
+Include targeted samples for:
+
+- `deployDefender` executable default `true` versus stale false-default text.
+- The `deployIdentity` and `deployActiveDirectoryDomainServices` multi-parameter path
+  and all required AD DS inputs.
+- Bastion host deployment versus separately enabled jumpbox VMs.
+- Both built-in Firewall rules named `Allow-KV-TCP`.
+
+**Expected outcome**: Current statements match the reviewed source. Proposed statements
+use future/proposal language. Discrepancies are reported as facts or validation checks,
+not silently fixed, and no proposed behavior is presented as implemented.
+
+## 11. Validate Files and Steps
+
+For every parameter section, verify the parameter name, current default, declaration
+file, consumer files, and deployment input file when one exists. For each planned
+vNext section, verify its feature-request link, current limitation, customer action,
+and expected result.
+
+```bash
+rg -n "^param |module |publicNetworkAccessFor|hostGroups|properties\.host|Allow-KV-TCP" src docs/deployment-guides
+```
+
+**Expected outcome**: Parameter paths are accurate. The Log Analytics and Dedicated Host
+engineering details are in their linked feature requests, not the tactical guide. The
+AD DS section covers its required companion parameters and module path.
+
+## 12. Validate Section Completeness
+
+Inspect each section against [the document contract](contracts/document-contract.md).
+
+**Expected outcome**:
+
+- Every section states the change, files or owner, current state, steps, and verification
+  or evidence.
+- Parameter sections identify the exact file that receives the deployment value when
+  one exists.
+- Planned vNext sections link to their feature requests and contain no internal
+  implementation steps.
+- Outside-MLZ sections identify the accountable owner and evidence to retain.
+
+## 13. Check Values, Baselines, and Region Language
+
+Search the tactical guide for numeric durations, PPSM rules, Defender plan selections,
+contact addresses, authentication choices, recovery objectives, host selections, quota,
+and authorization decisions. For each value, verify it is directly authoritative or is
+recorded as a decision point with an owner, inputs, and validation evidence.
+
+**Expected outcome**: No universal mission-specific or dynamically discovered value is
+invented. NIST SP 800-53 Revision 5 and the mapping's DoD IL5 baseline remain consistent.
+Wider-MAG guidance names US Gov Arizona, Texas, or Virginia and preserves the official
+service and feature scope.
+
+## 14. Validate Readability
+
+Run the same repeatable readability method used for the mapping document against the
+tactical guide's explanatory prose. Technical tables, code, paths, and identifiers may
+be excluded from the score.
+
+**Expected outcome**: Flesch-Kincaid grade level is 11 or lower. Exact technical names,
+values, paths, and evidence requirements remain intact.
+
+## 15. Validate Markdown, Links, and the Documentation-Only Boundary
+
+```bash
+npx --yes markdownlint-cli2 docs/il5-rmf-resource-mapping.md docs/il5-rmf-tactical-guide.md
+git diff --name-only 113fb08211bffe603b20c44668df6a756ae80821...HEAD -- src
+```
+
+Run the repository's link checker or equivalent repeatable link validation against both
+documents and their README navigation. Open the mapping-to-guide and guide-to-mapping
+links. Record authenticated or dynamic-link caveats without replacing authoritative
+sources.
+
+**Expected outcome**: Markdown and link checks report zero errors or warnings; all
+navigation and cross-document links resolve; and the `git diff` command prints nothing.
+No Bicep, generated ARM/JSON, parameter/example, UI-definition, or deployed-resource
+change is part of US2. Tests are allowed when useful and must validate only this
+documentation feature.
+
+## US2 Success Criteria
+
+- Every mapping action is covered and no unsupported requirement is introduced.
+- 100% sampled claims trace to the mapping, reviewed source, and appropriate external
+  authority.
+- Parameter sections name exact parameters and files; planned vNext sections link to
+  their feature requests; outside-MLZ sections name owners and evidence.
+- Zero invented mission-specific, AO-owned, or dynamically discovered values.
+- Grade 11 or lower explanatory prose, zero Markdown/link findings, and zero `src/`,
+  generated, parameter, or UI changes.

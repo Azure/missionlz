@@ -2,7 +2,7 @@
 
 <!-- markdownlint-disable MD013 -->
 
-[**Home**](../README.md) | [**Design**](./design.md) | [**SCCA**](./scca.md) | [**Resources**](./resources.md)
+[**Home**](../README.md) | [**Design**](./design.md) | [**SCCA**](./scca.md) | [**Resources**](./resources.md) | [**IL5 Tactical Guide**](./il5-rmf-tactical-guide.md)
 
 ## Document Status
 
@@ -85,10 +85,8 @@ IL5 considerations:
 1. **Use wider MAG.** [Microsoft recommends prioritizing US Gov regions for IL5
   workloads](https://learn.microsoft.com/azure/azure-government/documentation-government-overview-dod):
   choose US Gov Arizona, Texas, or Virginia for new deployments to benefit from the
-  latest cloud innovations, and consider migrating existing US DoD region deployments
-  to gain additional services. Use only services covered by the current IL5 PA. US DoD
-  Central and East remain exclusive-use DoD regions; this recommendation is based on
-  service and feature availability, not their lifecycle status.
+  latest cloud innovations and additional services. Use only services covered by the
+  current IL5 PA.
 2. **Provide physical separation for VMs in MAG regions.** Microsoft Azure Government
   (MAG) regions US Gov Arizona, Texas, and Virginia serve DoD customers and approved
   non-DoD government customers: State, Local, Tribal, and Federal Civilian (FedCiv).

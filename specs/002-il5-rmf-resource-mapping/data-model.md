@@ -1,10 +1,13 @@
 # Data Model: IL5 RMF Resource Mapping Documentation
 
-**Feature**: `002-il5-rmf-resource-mapping` | **Date**: 2026-08-24
+<!-- markdownlint-disable MD013 -->
+
+**Feature**: `002-il5-rmf-resource-mapping` | **Date**: 2026-08-25
 
 This documentation-only feature has no runtime database. Its entities define the
-reviewable records and relationships required in the final mapping. Presentation rules
-are in [contracts/document-contract.md](contracts/document-contract.md).
+reviewable records and relationships required in the completed mapping and planned
+tactical guide. Presentation rules are in
+[contracts/document-contract.md](contracts/document-contract.md).
 
 ## Entity: Review Baseline
 
@@ -120,7 +123,7 @@ Review Baseline 1 ---- * Authoritative Source
 Review Baseline 1 ---- * Core MLZ Capability
 Core MLZ Capability 1 ---- 1 Capability State
 Core MLZ Capability 1 ---- * RMF Relationship
-Core MLZ Capability 1 ---- 1 Required IL5 Action
+Core MLZ Capability 1 ---- * Required IL5 Action
 Required IL5 Action * ---- 1 Responsibility Boundary
 Core MLZ Capability * ---- * Authoritative Source
 ```
@@ -130,7 +133,8 @@ Core MLZ Capability * ---- * Authoritative Source
 1. Every reachable created core resource is represented exactly once; each Absent row
    has an empty resource list and explicit absence evidence.
 2. No add-on resource is represented.
-3. Every capability has exactly one state and required action.
+3. Every capability has exactly one state and one or more required actions when a change
+   or outside responsibility applies.
 4. Every material MLZ claim has repository evidence.
 5. Every material IL5/RMF claim has authoritative external evidence.
 6. No entity asserts that deployment confers compliance or authorization.
