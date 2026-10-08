@@ -63,6 +63,11 @@ The source baseline is the core deployment graph that starts at
 and unreferenced modules. Generated [`src/mlz.json`](../src/mlz.json) is an output to
 rebuild after a future template change, not the source of current behavior.
 
+The reviewed guide baseline is MLZ commit
+`113fb08211bffe603b20c44668df6a756ae80821`, dated 2026-08-25. Its executable MLZ
+defaults and paths match the earlier source baseline,
+`168474463215f99620531bfdeb47039bf7bd250a`.
+
 ## How to Use This Guide
 
 Complete the sections in this order:
@@ -699,6 +704,9 @@ data, identity plan, or authorization boundary.
 ## References
 
 - [MLZ IL5 RMF resource mapping](./il5-rmf-resource-mapping.md)
+- [DoD Cloud Computing Security Requirements Guide library](https://www.cyber.mil/dccs/dccs-documents/) - Cloud Service Provider SRG Version 1, Release 7, dated 30 June 2026.
+- [DoDI 8510.01, Risk Management Framework for DoD Systems](https://www.esd.whs.mil/Portals/54/Documents/DD/issuances/dodi/851001p.pdf) - published 12 March 2014 and incorporating Change 3, effective 19 July 2022.
+- [CNSSI 1253, Security Categorization and Control Selection for National Security Systems](https://www.dcsa.mil/Portals/91/Documents/CTP/NAO/CNSSI_No1253.pdf) - 27 March 2014.
 - [Department of Defense in Azure Government](https://learn.microsoft.com/azure/azure-government/documentation-government-overview-dod)
 - [Isolation guidelines for Impact Level 5 workloads](https://learn.microsoft.com/azure/azure-government/documentation-government-impact-level-5)
 - [Department of Defense Impact Level 5](https://learn.microsoft.com/azure/compliance/offerings/offering-dod-il5)
