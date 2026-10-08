@@ -100,12 +100,13 @@ All completed Phase 1–4 checkboxes remain historical work under User Story #13
   `docs/il5-rmf-resource-mapping.md`: `deployPolicy=true` with `policy='IL5'` and live
   initiative verification; Defender Standard with mission-selected plans; Firewall
   Premium with tuned IDPS and threat-intelligence `Deny`; mission-derived
-  workspace/flow-log retention; PPSM-derived rules for all four NSG arrays; Dedicated
-  Host for MLZ single VMs in wider MAG: US Gov Arizona, Texas, or Virginia.
+  workspace/flow-log retention; PPSM-derived rules for all four NSG arrays; and a
+  mission/AO choice between Azure Dedicated Host and isolated VM sizes covering every
+  persistent and temporary MLZ VM in wider MAG: US Gov Arizona, Texas, or Virginia.
 - [x] T010 [US1] Document exact core-template gaps and external responsibilities in
   `docs/il5-rmf-resource-mapping.md`: configurable disabling of Log Analytics public
-  ingestion/query with validated private paths; Dedicated Host host-group/host/placement
-  capability; backup and recovery; identity governance; and operational SSP,
+  ingestion/query with validated private paths; complete mission-selected Dedicated
+  Host or isolated-VM-size coverage; backup and recovery; identity governance; and operational SSP,
   authorization evidence, PPSM registration, vulnerability management, incident
   response, data classification, endpoint protection, and application controls without
   naming add-ons as substitutes.
@@ -157,7 +158,12 @@ All completed Phase 1–4 checkboxes remain historical work under User Story #13
 
 - [x] T023 [US2] Draft the parameter-change sections in `docs/il5-rmf-tactical-guide.md`, grouping related PPSM/NSG, Firewall, logging and Sentinel, Defender, Azure Policy, Bastion, and AD DS work where useful; for every parameter include its name, executable current default, required value or decision and owner, declaration and consumer files, deployment input file when present or its confirmed absence, ordered checklist steps, a non-secret example where useful, and deployment verification.
 
-- [x] T024 [US2] Add customer-facing planned-vNext sections for Log Analytics public ingestion/query and Dedicated Host placement in `docs/il5-rmf-tactical-guide.md`; state each current limitation, customer action, and expected result, link to feature requests #1304 and #1305, and keep engineering files, implementation steps, compatibility decisions, build instructions, and code tests in those issues.
+- [x] T024 [US2] Add customer-facing planned-vNext sections for Log Analytics public
+  ingestion/query and mission-selected Dedicated Host or isolated-VM-size coverage in
+  `docs/il5-rmf-tactical-guide.md`; state each current limitation, customer action, and
+  expected result, link to feature requests #1304 and #1305 where applicable, and keep
+  engineering files, implementation steps, compatibility decisions, build
+  instructions, and code tests in those issues.
 
 - [x] T025 [US2] Draft the outside-MLZ sections in `docs/il5-rmf-tactical-guide.md`, grouping related log lifecycle and recovery, key governance, VM operations, administration and identity governance, backup and recovery, PPSM registration, vulnerability management, incident response, data classification, application controls, and SSP/assessment/risk/authorization work; for each section identify the accountable owner, ordered checklist steps, expected result, MLZ handoff when applicable, and evidence to retain without prescribing mission-owned values, products, or authorizing decisions.
 - [x] T026 [US2] Integrate shared predeployment decisions and source-backed findings into `docs/il5-rmf-tactical-guide.md`: order target-region, IL5 PA/service/initiative/SKU/quota checks before dependent work; retain NIST SP 800-53 Revision 5 and the mapping's DoD IL5 baseline; name only US Gov Arizona, Texas, and Virginia for new deployments; and state the `deployDefender` default discrepancy, complete AD DS input path, Bastion-versus-jumpbox behavior, and duplicate `Allow-KV-TCP` names as current facts or checks without repairing source files.
@@ -236,7 +242,8 @@ Join before T005; unresolved evidence blocks document drafting.
 ```text
 After T022, reviewers may collect evidence in parallel without editing the guide:
   Reviewer A: parameter defaults, declaration, consumer, and deployment input surfaces for T023.
-  Reviewer B: Log Analytics and Dedicated Host implementation and validation surfaces for T024.
+  Reviewer B: Log Analytics and mission-selected VM-isolation implementation and
+  validation surfaces for T024.
   Reviewer C: owners, steps, results, handoffs, and evidence for T025.
 Integrate findings into docs/il5-rmf-tactical-guide.md in T023-T026 order.
 ```

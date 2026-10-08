@@ -144,7 +144,7 @@ See [research.md](research.md). It records:
 - Publication-time verification for dynamic initiative, service-scope, region, and SKU
   facts.
 - US2 file-level paths for existing parameter changes and proposed Log Analytics and
-  Dedicated Host template changes.
+  mission-selected Dedicated Host or isolated-VM-size template changes.
 - US2 owner, handoff, dependency, verification, and evidence needs for outside-MLZ work.
 - Source discrepancies that the guide must state or validate: executable
   `deployDefender=true` versus stale false-default text; the multi-parameter AD DS path;

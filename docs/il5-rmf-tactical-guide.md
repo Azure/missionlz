@@ -23,7 +23,7 @@
   - [Active Directory Domain Services](#active-directory-domain-services)
 - [Planned vNext Features](#planned-vnext-features)
   - [Disable Public Log Analytics Ingestion and Query](#disable-public-log-analytics-ingestion-and-query)
-  - [Add Azure Dedicated Host Placement](#add-azure-dedicated-host-placement)
+  - [Add IL5 VM Compute Isolation](#add-il5-vm-compute-isolation)
 - [Work Outside MLZ](#work-outside-mlz)
   - [Operate Logs and Sentinel](#operate-logs-and-sentinel)
   - [Govern Customer-Managed Keys](#govern-customer-managed-keys)
@@ -133,8 +133,8 @@ change. MLZ cannot select mission values or make authorization decisions.
 - [ ] Confirm required Defender and Sentinel features are available in the target
   Azure Government region.
 - [ ] If VMs will be deployed in a wider Microsoft Azure Government (MAG) region,
-  confirm Dedicated Host family, VM-size compatibility, quota, capacity, and zone
-  support.
+  confirm isolated VM-size or Dedicated Host availability, compatibility, quota,
+  capacity, and zone support.
 - [ ] Approve the mission network flows and Ports, Protocols, and Services Management
   (PPSM) record.
 - [ ] Approve the rules for logs, data, keys, identity, backup, and recovery.
@@ -380,7 +380,9 @@ consumers are [`src/modules/networking.bicep`](../src/modules/networking.bicep),
 the mission deployment input or Portal UI.
 
 **Current state:** `deployIdentity` and `deployActiveDirectoryDomainServices` default to
-`false`. Both must be true or no domain controllers are created. The companion
+`false`. Both must be true. Setting `deployActiveDirectoryDomainServices=true` while
+`deployIdentity=false` is invalid: the AD DS module is skipped, but diagnostics evaluate
+its Key Vault output and deployment fails. The companion
 parameters and executable defaults are:
 
 - `addsDomainName=''`
@@ -405,8 +407,8 @@ executable source as the baseline.
 - [ ] Set every required companion input. Supply passwords through an approved secret
   mechanism; do not store secrets in source control.
 - [ ] Review the Firewall DNS and conditional AD DS rule effects.
-- [ ] Confirm the proposed Dedicated Host design before deploying these VMs in wider
-  MAG for IL5.
+- [ ] Confirm the mission/AO-approved isolated-VM-size or Dedicated Host design before
+  deploying these VMs in wider MAG for IL5.
 - [ ] Deploy through the approved change process.
 
 **Verify and retain:** Confirm two domain-controller VMs, DNS configuration, replication,
@@ -439,26 +441,30 @@ and the mission has tested every required private ingestion and query path.
 **Expected result:** After the feature is released and enabled, authorized clients use
 private paths and public ingestion and query are blocked.
 
-### Add Azure Dedicated Host Placement
+### Add IL5 VM Compute Isolation
 
-**Change:** Add host groups, Dedicated Hosts, and VM host placement for MLZ VMs deployed
-in US Gov Arizona, Texas, or Virginia when required for IL5 isolation.
+**Change:** Apply the mission/AO-selected Azure Dedicated Host or isolated-VM-size path
+to every MLZ VM deployed in US Gov Arizona, Texas, or Virginia.
 
 **Feature request:**
 [#1305: Add Azure Dedicated Host placement for core MLZ VMs](https://github.com/Azure/missionlz/issues/1305)
 
 **Current state:** Core MLZ has no host group, Dedicated Host, host ID parameter, or VM
-`properties.host` assignment. Persistent management and domain-controller VMs use the
-common VM module. Temporary customer-managed-key helper VMs are declared separately and
-must also be included in the isolation design.
+`properties.host` assignment. Persistent management and domain-controller VM sizes are
+configurable. Temporary customer-managed-key helper VMs are declared separately with a
+module default that is not exposed at the root. MLZ therefore cannot consistently apply
+either supported isolation path to every VM.
 
-**Customer action:** Track #1305. Before adopting the capability, confirm current host
-availability, VM-size compatibility, quota, capacity, zone support, and IL5 scope in the
-selected region. Do not deploy MLZ VMs for an IL5 workload until the approved physical
-separation design is available.
+**Customer action:** Record the mission/AO selection of isolated VM sizes or Dedicated
+Host. For isolated VM sizes, confirm availability for every persistent and helper VM
+and plan the template surface needed to configure them all. For Dedicated Host, track
+issue #1305 and confirm host availability, VM-size compatibility, quota, capacity, and
+zone support. Do not deploy MLZ VMs for an IL5 workload until the approved physical
+separation design covers every VM.
 
-**Expected result:** After the feature is released and enabled, all core MLZ VMs,
-including temporary helper VMs, use the approved Dedicated Host placement.
+**Expected result:** After the selected capability is released and enabled, all core MLZ
+VMs, including temporary helper VMs, use the approved isolated size or Dedicated Host
+placement.
 
 ## Work Outside MLZ
 

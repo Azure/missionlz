@@ -50,7 +50,7 @@ grep -n "deployPolicy\|param policy\|defenderSkuTier\|deployDefenderPlans" src/m
 grep -n "firewallIntrusionDetectionMode\|firewallThreatIntelMode" src/mlz.bicep
 grep -n "RetentionInDays\|NetworkSecurityGroupRules" src/mlz.bicep
 grep -n "publicNetworkAccessFor" src/modules/log-analytics-workspace.bicep
-grep -R -n "hostGroups\|hostGroup" src/mlz.bicep src/modules --include='*.bicep'
+grep -R -n "hostGroups\|hostGroup\|virtualMachineSize" src/mlz.bicep src/modules --include='*.bicep'
 ```
 
 **Expected outcome**:
@@ -59,7 +59,8 @@ grep -R -n "hostGroups\|hostGroup" src/mlz.bicep src/modules --include='*.bicep'
 - Defender changes from Free to Standard with mission-selected plans.
 - Firewall IDPS and threat intelligence move from Alert to Deny after tuning.
 - Retention is mission-derived, not a universal IL5 value.
-- Log Analytics public access and Dedicated Host are identified as template gaps.
+- Log Analytics public access and complete Dedicated Host or isolated-VM-size coverage
+  are identified as template gaps.
 - All four NSG arrays are tied to mission-approved PPSM data flows.
 - Each finding is classified as a parameter change, template change, external
   implementation, or deployment-time verification.
@@ -68,8 +69,9 @@ grep -R -n "hostGroups\|hostGroup" src/mlz.bicep src/modules --include='*.bicep'
 
 On the review date, check each mapped service in current IL5 PA audit scope and verify
 initiative ID `f9a961fa-3241-4b20-adc4-bbf8ad9d7197` in Azure Government. For US Gov
-Arizona, Texas, or Virginia, verify Dedicated Host availability, quota, and support.
-Confirm the document directs new deployments to US Gov Arizona, Texas, or Virginia.
+Arizona, Texas, or Virginia, verify the mission/AO-selected isolated VM sizes or
+Dedicated Host family, quota, and support for every MLZ VM. Confirm the document directs
+new deployments to US Gov Arizona, Texas, or Virginia.
 
 **Expected outcome**: No SKU, initiative, service-scope, or regional claim is presented
 as timeless.
@@ -172,9 +174,10 @@ and expected result.
 rg -n "^param |module |publicNetworkAccessFor|hostGroups|properties\.host|Allow-KV-TCP" src docs/deployment-guides
 ```
 
-**Expected outcome**: Parameter paths are accurate. The Log Analytics and Dedicated Host
-engineering details are in their linked feature requests, not the tactical guide. The
-AD DS section covers its required companion parameters and module path.
+**Expected outcome**: Parameter paths are accurate. The Log Analytics and Dedicated
+Host engineering details are in their linked feature requests, not the tactical guide.
+The guide also accounts for the isolated-VM-size option. The AD DS section covers its
+required companion parameters and module path.
 
 ## 12. Validate Section Completeness
 

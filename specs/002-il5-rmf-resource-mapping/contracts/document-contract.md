@@ -27,12 +27,12 @@ The authorization limitation appears before or directly adjacent to the first ma
 table.
 
 The consolidated IL5 considerations give readers the deployment-level decisions before
-the resource details. They include the reason that single VMs in Microsoft Azure
-Government (MAG) regions US Gov Arizona, Texas, and Virginia require Azure Dedicated
-Host: those regions serve DoD customers and approved non-DoD State, Local, Tribal, and
-Federal Civilian (FedCiv) government customers. Wider MAG is the recommended target.
-The recommendation follows Microsoft guidance to use US Gov regions for the latest
-cloud innovations and additional services.
+the resource details. They explain that VMs in Microsoft Azure Government (MAG) regions
+US Gov Arizona, Texas, and Virginia require mission-selected isolation through Azure
+Dedicated Host or isolated virtual machine sizes. Those regions serve DoD customers and
+approved non-DoD State, Local, Tribal, and Federal Civilian (FedCiv) government
+customers. Wider MAG is the recommended target. The recommendation follows Microsoft
+guidance to use US Gov regions for the latest cloud innovations and additional services.
 
 ## Mapping Row Contract
 
@@ -71,11 +71,11 @@ caveat or the full IL5 action list after the matrix.
 - Mission-derived audit and flow-log retention.
 - Disabled Log Analytics public ingestion and query with validated private access.
 - PPSM-derived NSG rules for hub, operations, shared-services, and identity tiers.
-- Dedicated Host placement for MLZ single VMs in wider MAG: US Gov Arizona, Texas, and
-  Virginia.
-- Closed-list capabilities absent from core MLZ: Dedicated Host placement, backup and
-  recovery, identity governance, and operational procedures that infrastructure cannot
-  implement.
+- Mission/AO selection between Azure Dedicated Host and isolated VM sizes for every
+  persistent and temporary MLZ VM in wider MAG: US Gov Arizona, Texas, and Virginia.
+- Closed-list capabilities absent from core MLZ: complete IL5 VM isolation across every
+  VM, backup and recovery, identity governance, and operational procedures that
+  infrastructure cannot implement.
 
 ## Citation Contract
 
@@ -165,7 +165,8 @@ request, not this customer-facing guide. Outside-MLZ sections name the owner, st
 expected result, and evidence. Related work may share a section when that makes the
 instructions easier to follow.
 
-The Log Analytics section links to #1304. The Dedicated Host section links to #1305.
+The Log Analytics section links to #1304. The compute-isolation section presents both
+supported paths and links to #1305 for the Dedicated Host option.
 Neither section may imply implementation or repeat its issue's engineering plan. The
 guide does not prescribe one universal product, retention period, PPSM rule set,
 authentication method, recovery objective, or AO decision.
