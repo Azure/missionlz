@@ -100,9 +100,9 @@ All completed Phase 1–4 checkboxes remain historical work under User Story #13
   `docs/il5-rmf-resource-mapping.md`: `deployPolicy=true` with `policy='IL5'` and live
   initiative verification; Defender Standard with mission-selected plans; Firewall
   Premium with tuned IDPS and threat-intelligence `Deny`; mission-derived
-  workspace/flow-log retention; PPSM-derived rules for all four NSG arrays; and a
-  mission/AO choice between Azure Dedicated Host and isolated VM sizes covering every
-  persistent and temporary MLZ VM in wider MAG: US Gov Arizona, Texas, or Virginia.
+  workspace/flow-log retention; PPSM-derived rules for all four NSG arrays; and Azure
+  Dedicated Host placement covering every persistent and temporary MLZ standalone VM in
+  wider MAG: US Gov Arizona, Texas, or Virginia.
 - [x] T010 [US1] Document exact core-template gaps and external responsibilities in
   `docs/il5-rmf-resource-mapping.md`: configurable disabling of Log Analytics public
   ingestion/query with validated private paths; complete Dedicated Host placement;

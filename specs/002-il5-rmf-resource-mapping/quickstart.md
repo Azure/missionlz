@@ -69,9 +69,9 @@ grep -R -n "hostGroups\|hostGroup\|virtualMachineSize" src/mlz.bicep src/modules
 
 On the review date, check each mapped service in current IL5 PA audit scope and verify
 initiative ID `f9a961fa-3241-4b20-adc4-bbf8ad9d7197` in Azure Government. For US Gov
-Arizona, Texas, or Virginia, verify the mission/AO-selected isolated VM sizes or
-Dedicated Host family, quota, and support for every MLZ VM. Confirm the document directs
-new deployments to US Gov Arizona, Texas, or Virginia.
+Arizona, Texas, or Virginia, verify the Dedicated Host family, quota, and support for
+every MLZ standalone VM. Confirm the document directs new deployments to US Gov Arizona,
+Texas, or Virginia.
 
 **Expected outcome**: No SKU, initiative, service-scope, or regional claim is presented
 as timeless.

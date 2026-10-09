@@ -21,9 +21,9 @@
   - [Azure Policy IL5 Initiative](#azure-policy-il5-initiative)
   - [Azure Bastion](#azure-bastion)
   - [Active Directory Domain Services](#active-directory-domain-services)
-- [Planned vNext Features](#planned-vnext-features)
-  - [Disable Public Log Analytics Ingestion and Query](#disable-public-log-analytics-ingestion-and-query)
-  - [Add Azure Dedicated Host Placement](#add-azure-dedicated-host-placement)
+- [Current Template Limitations](#current-template-limitations)
+  - [Public Log Analytics Access Cannot Be Disabled](#public-log-analytics-access-cannot-be-disabled)
+  - [Dedicated Host Placement Is Not Available](#dedicated-host-placement-is-not-available)
 - [Work Outside MLZ](#work-outside-mlz)
   - [Operate Logs and Sentinel](#operate-logs-and-sentinel)
   - [Govern Customer-Managed Keys](#govern-customer-managed-keys)
@@ -42,13 +42,12 @@ This guide turns the changes in the [MLZ IL5 RMF mapping](./il5-rmf-resource-map
 into steps that an implementation team can follow. It covers:
 
 - Existing MLZ parameters to set for an IL5 deployment.
-- Planned vNext features for the core MLZ templates.
+- Current limitations in the core MLZ templates.
 - Security and authorization work performed outside MLZ.
 
-This document does not implement the planned vNext features. It does not make MLZ,
-a workload, or a mission system IL5 compliant or authorized. The mission owner and
-Authorizing Official (AO) decide the control set, accept risk, and grant or deny an
-authorization to operate (ATO).
+This document does not make MLZ, a workload, or a mission system IL5 compliant or
+authorized. The mission owner and Authorizing Official (AO) decide the control set,
+accept risk, and grant or deny an authorization to operate (ATO).
 
 ### Audience
 
@@ -74,7 +73,7 @@ Complete the sections in this order:
 
 1. Make the predeployment decisions.
 2. Prepare the MLZ parameter values.
-3. Review the two planned vNext features and account for the current gaps.
+3. Review the current template limitations and account for the gaps.
 4. Deploy and verify MLZ.
 5. Complete and maintain the work outside MLZ.
 
@@ -87,8 +86,8 @@ them.
 
 Sections labeled **Parameter Changes** describe settings that already exist in MLZ.
 Teams apply those values through an approved deployment input without changing MLZ
-source defaults. **Planned vNext Features** identify current gaps and link to their
-feature requests. Sections under **Work Outside MLZ** belong to the named mission,
+source defaults. **Current Template Limitations** identify capabilities that are not
+available in core MLZ. Sections under **Work Outside MLZ** belong to the named mission,
 platform, security, operations, assessment, or authorization owner.
 
 Azure resources and MLZ settings provide capabilities and evidence. They do not by
@@ -133,8 +132,8 @@ change. MLZ cannot select mission values or make authorization decisions.
 - [ ] Confirm required Defender and Sentinel features are available in the target
   Azure Government region.
 - [ ] If VMs will be deployed in a wider Microsoft Azure Government (MAG) region,
-  confirm isolated VM-size or Dedicated Host availability, compatibility, quota,
-  capacity, and zone support.
+  confirm Dedicated Host availability, compatibility, quota, capacity, and zone
+  support.
 - [ ] Approve the mission network flows and Ports, Protocols, and Services Management
   (PPSM) record.
 - [ ] Approve the rules for logs, data, keys, identity, backup, and recovery.
@@ -407,8 +406,8 @@ executable source as the baseline.
 - [ ] Set every required companion input. Supply passwords through an approved secret
   mechanism; do not store secrets in source control.
 - [ ] Review the Firewall DNS and conditional AD DS rule effects.
-- [ ] Confirm the mission/AO-approved isolated-VM-size or Dedicated Host design before
-  deploying these VMs in wider MAG for IL5.
+- [ ] Confirm the mission/AO-approved Dedicated Host design before deploying these VMs
+  in wider MAG for IL5.
 - [ ] Deploy through the approved change process.
 
 **Verify and retain:** Confirm two domain-controller VMs, DNS configuration, replication,
@@ -416,51 +415,37 @@ and authentication. Check encryption, monitoring, Firewall updates, backup, and 
 Retain the non-secret deployment input and secret-source reference. Keep the health
 checks, account review, and recovery result.
 
-## Planned vNext Features
+## Current Template Limitations
 
-The following capabilities are not available in core MLZ today. Their engineering work
-is tracked in the linked feature requests.
+The following capabilities are not available in core MLZ.
 
-### Disable Public Log Analytics Ingestion and Query
-
-**Change:** Add parameters that allow public ingestion and query to be disabled after all
-required private paths work.
-
-**Feature request:**
-[#1304: Add configurable private-only Log Analytics access](https://github.com/Azure/missionlz/issues/1304)
+### Public Log Analytics Access Cannot Be Disabled
 
 **Current state:** The workspace module hard-codes
 `publicNetworkAccessForIngestion: 'Enabled'` and
 `publicNetworkAccessForQuery: 'Enabled'`. MLZ already deploys Azure Monitor Private Link,
 a private endpoint, and related private DNS zones.
 
-**Customer action:** Keep public workspace access enabled unless the mission has an
-approved alternative. Track #1304 and plan to adopt the capability after it is released
-and the mission has tested every required private ingestion and query path.
+**Customer action:** Keep public workspace access enabled. If private-only access is
+required, use an approved implementation that supplies every required private ingestion
+and query path, then test those paths before disabling public access.
 
-**Expected result:** After the feature is released and enabled, authorized clients use
-private paths and public ingestion and query are blocked.
+**Current result:** An unmodified MLZ deployment leaves public ingestion and query
+enabled.
 
-### Add Azure Dedicated Host Placement
-
-**Change:** Add optional Azure Dedicated Host placement for every MLZ VM deployed in US
-Gov Arizona, Texas, or Virginia.
-
-**Feature request:**
-[#1305: Add Azure Dedicated Host placement for core MLZ VMs](https://github.com/Azure/missionlz/issues/1305)
+### Dedicated Host Placement Is Not Available
 
 **Current state:** Core MLZ has no host group, Dedicated Host, host ID parameter, or VM
 `properties.host` assignment. Persistent management and domain-controller VMs and
 temporary customer-managed-key helper VMs all require placement support.
 
-**Customer action:** If the mission selects Dedicated Host, track #1305 and confirm host
-availability, VM-size compatibility, quota, capacity, and zone support. Microsoft also
-permits isolated VM sizes, but that alternative is not proposed as MLZ template work in
-this guide. Do not deploy MLZ VMs for an IL5 workload until the approved physical
-separation design covers every VM.
+**Customer action:** Do not use an unmodified MLZ deployment for IL5 standalone VMs in
+US Gov Arizona, Texas, or Virginia. Use an approved implementation that places every
+persistent and temporary VM on Dedicated Hosts. Confirm host availability, VM-size
+compatibility, quota, capacity, and zone support before deployment.
 
-**Expected result:** After #1305 is released and enabled, all core MLZ VMs, including
-temporary helper VMs, use the approved Dedicated Host placement.
+**Current result:** An unmodified MLZ deployment does not place any VM on a Dedicated
+Host.
 
 ## Work Outside MLZ
 

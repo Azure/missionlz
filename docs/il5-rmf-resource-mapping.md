@@ -93,11 +93,9 @@ IL5 considerations:
 2. **Select physical separation for VMs in MAG regions.** Microsoft Azure Government
   (MAG) regions US Gov Arizona, Texas, and Virginia serve DoD customers and approved
   non-DoD government customers: State, Local, Tribal, and Federal Civilian (FedCiv).
-  For IL5 physical separation, use Azure Dedicated Host or isolated virtual machine
-  sizes for every persistent and temporary MLZ VM in these regions. The mission and
-  authorizing organization select the supported path. Core MLZ does not provide
-  complete configuration for either path across every VM, so a template change is
-  required.
+  Core MLZ deploys standalone VMs, which Microsoft requires to use Azure Dedicated Host
+  for IL5 physical separation in these regions. Core MLZ does not provide host placement
+  for persistent or temporary VMs, so a template change is required.
 3. **Keep the customer in control of encryption keys.** Confirm that every service that
   stores IL5 data uses the required customer-managed keys and that the mission controls
   key access, rotation, recovery, and separation of duties.

@@ -27,12 +27,12 @@ The authorization limitation appears before or directly adjacent to the first ma
 table.
 
 The consolidated IL5 considerations give readers the deployment-level decisions before
-the resource details. They explain that VMs in Microsoft Azure Government (MAG) regions
-US Gov Arizona, Texas, and Virginia require mission-selected isolation through Azure
-Dedicated Host or isolated virtual machine sizes. Those regions serve DoD customers and
-approved non-DoD State, Local, Tribal, and Federal Civilian (FedCiv) government
-customers. Wider MAG is the recommended target. The recommendation follows Microsoft
-guidance to use US Gov regions for the latest cloud innovations and additional services.
+the resource details. They explain that core MLZ standalone VMs in Microsoft Azure
+Government (MAG) regions US Gov Arizona, Texas, and Virginia require Azure Dedicated
+Host placement. Those regions serve DoD customers and approved non-DoD State, Local,
+Tribal, and Federal Civilian (FedCiv) government customers. Wider MAG is the recommended
+target. The recommendation follows Microsoft guidance to use US Gov regions for the
+latest cloud innovations and additional services.
 
 ## Mapping Row Contract
 
@@ -71,8 +71,8 @@ caveat or the full IL5 action list after the matrix.
 - Mission-derived audit and flow-log retention.
 - Disabled Log Analytics public ingestion and query with validated private access.
 - PPSM-derived NSG rules for hub, operations, shared-services, and identity tiers.
-- Mission/AO selection between Azure Dedicated Host and isolated VM sizes for every
-  persistent and temporary MLZ VM in wider MAG: US Gov Arizona, Texas, and Virginia.
+- Azure Dedicated Host placement for every persistent and temporary MLZ standalone VM
+  in wider MAG: US Gov Arizona, Texas, and Virginia.
 - Closed-list capabilities absent from core MLZ: complete IL5 VM isolation across every
   VM, backup and recovery, identity governance, and operational procedures that
   infrastructure cannot implement.

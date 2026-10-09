@@ -24,7 +24,7 @@ implemented behavior.
 | Earlier source baseline | Commit `168474463215f99620531bfdeb47039bf7bd250a` |
 | Source comparison | `git diff` between the two commits found no changes to `src/mlz.bicep`, any `src/modules/*.bicep`, `src/mlz.uiDefinition.json`, or `docs/deployment-guides/`. The Bicep facts reviewed for the mapping therefore remain the source facts for this guide baseline. The later commit adds the mapping and this research artifact. |
 | Core parameter files | No core `.bicepparam` or deployment-parameters JSON file is present. Files of those types under `src/add-ons/` are excluded. Core deployment surfaces are `src/mlz.bicep`, generated `src/mlz.json`, `src/mlz.uiDefinition.json`, command-line examples, and the deployment guides. |
-| Dynamic facts | Azure Government initiative availability, IL5 PA scope, service and feature availability, isolated VM-size or Dedicated Host capacity/quota, and region support remain deployment-time checks. |
+| Dynamic facts | Azure Government initiative availability, IL5 PA scope, service and feature availability, Dedicated Host capacity/quota, and region support remain deployment-time checks. |
 
 The guide must cover these action groups from the mapping:
 
@@ -349,9 +349,8 @@ The guide must carry these as explicit checks rather than filling them with assu
 4. Current Azure Government support and behavior for each Defender plan/subplan,
   Sentinel feature, Log Analytics private client path, and selected service/SKU must be
   checked at deployment time.
-5. The mission/AO-selected isolated-VM-size or Dedicated Host topology, compatibility,
-  capacity, quota, zone, recovery, and helper-VM treatment need a design validated in
-  the target wider-MAG region.
+5. The Dedicated Host topology, compatibility, capacity, quota, zone, recovery, and
+  helper-VM treatment need a design validated in the target wider-MAG region.
 6. Source/documentation inconsistencies remain: `deployDefender` executes with default
   `true` despite false-default text; Portal does not emit that Boolean; the AD DS page
   gives a stale VM-size default and incomplete required inputs; the CLI guide implies
@@ -562,13 +561,12 @@ Optional existing parameters with mission-owned values.
 
 Core VMs accept a free-form `virtualMachineSize` and optional availability set. No host
 group, Dedicated Host, or host placement resource or property exists, and defaults are
-ordinary shared-host SKUs. Microsoft supports Azure Dedicated Host or isolated virtual
-machine sizes for IL5 VM isolation in US Gov Arizona, Texas, or Virginia. The
-mission/AO must select a path covering every persistent and temporary VM. Persistent VM
-sizes are configurable, but the temporary CMK helper VM size is not exposed at the
-root, so neither path can be applied consistently without a template change. Use US Gov
+ordinary shared-host SKUs. Microsoft's current IL5 guidance requires Azure Dedicated
+Host for standalone VMs in US Gov Arizona, Texas, or Virginia; its isolated-VM-type
+alternative applies to virtual machine scale sets, which core MLZ does not deploy.
+Dedicated Host placement must cover every persistent and temporary MLZ VM. Use US Gov
 Arizona, Texas, or Virginia for new MLZ deployments. Validate current service scope,
-isolated-size or host-family availability, quota, and region at deployment time.
+host-family availability, quota, and region at deployment time.
 
 ### VM and Storage Encryption
 
@@ -602,16 +600,14 @@ mission configuration and inherited or organizational responsibilities.
 ## Decision 5: Region and Availability Claims Must Be Time-Bounded
 
 **Decision**: Recommend wider MAG regions US Gov Arizona, Texas, and Virginia for new
-MLZ deployments. Cite Microsoft's compute-isolation requirement and require a
-mission/AO choice between Azure Dedicated Host and isolated VM sizes that covers every
-persistent and temporary MLZ VM. Do not publish a static VM-size or host-SKU list as
-timeless fact. Record the validation date and link to current isolated VM sizes,
-Dedicated Host families, products-by-region, and IL5 PA audit scope.
+MLZ deployments. Cite Microsoft's compute-isolation requirement and require Azure
+Dedicated Host placement for every persistent and temporary MLZ standalone VM. Do not
+publish a static VM-size or host-SKU list as timeless fact. Record the validation date
+and link to current Dedicated Host families, products-by-region, and IL5 PA audit scope.
 
-**Rationale**: Isolated-size and host-family availability, quota, and service
-authorization vary by region and date. Microsoft's current guidance explicitly allows
-Azure Dedicated Host or isolated virtual machines for IL5 virtual machines and virtual
-machine scale sets.
+**Rationale**: Host-family availability, quota, and service authorization vary by
+region and date. Microsoft's current guidance requires Dedicated Host for standalone
+VMs in these regions and discusses isolated VM types for virtual machine scale sets.
 
 **Alternatives considered**:
 
@@ -662,9 +658,9 @@ verification steps for dynamic or access-limited sources:
   authenticated `AzureCloud` context, so this target-tenant check remains open.
 5. Verify each core Azure service is in the current IL5 PA audit scope for the intended
    region.
-6. For wider MAG, verify the selected isolated VM sizes or Dedicated Host families,
-  quota, and availability on the validation date. Confirm the document names only US
-  Gov Arizona, Texas, or Virginia for new deployments.
+6. For wider MAG, verify Dedicated Host families, quota, and availability on the
+  validation date. Confirm the document names only US Gov Arizona, Texas, or Virginia
+  for new deployments.
 
 These checks are required evidence for the documentation implementation; none permits
 the document to claim authorization.
