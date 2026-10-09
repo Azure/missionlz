@@ -1,0 +1,199 @@
+# Mission Landing Zone Resources and IL5 Risk Management Framework Relationships
+
+<!-- markdownlint-disable MD013 -->
+
+[**Home**](../README.md) | [**Design**](./design.md) | [**SCCA**](./scca.md) | [**Resources**](./resources.md) | [**IL5 Tactical Guide**](./il5-rmf-tactical-guide.md)
+
+## Document Status
+
+This document shows what the core Mission Landing Zone (MLZ) deploys, how those
+resources support an Impact Level 5 (IL5) system, and what must change for an IL5
+deployment. It is for mission owners, engineers, and security reviewers.
+
+MLZ is a general-purpose, SCCA-compliant, opinionated landing zone model. It supports
+several security environments, so its default settings are not all IL5 settings. This
+document identifies the IL5 changes.
+
+### Reviewed Baseline
+
+| Baseline item | Reviewed value |
+| --- | --- |
+| MLZ revision | `168474463215f99620531bfdeb47039bf7bd250a` |
+| MLZ source review date | 2026-08-24 |
+| DoD guidance re-verification | 2026-10-08 |
+| Included MLZ resources | Resources deployed by `src/mlz.bicep` and its modules under `src/modules/` |
+| Cloud | Azure Government |
+| RMF process | NIST SP 800-37 Revision 2 |
+| Control catalog | NIST SP 800-53 Revision 5 |
+| DoD Cloud Computing SRG | Cloud Service Provider SRG, Version 1, Release 7, 30 June 2026 |
+| DoDI 8510.01 | Published 12 March 2014; incorporating Change 3, effective 19 July 2022 |
+| CNSSI 1253 | 27 March 2014 |
+| Azure guidance | Microsoft IL5 guidance and February 2026 service-scope list, reviewed 2026-08-24 |
+
+The current SRG metadata was verified from the official Cyber Exchange package and its
+DISA release material on 2026-10-08. The Azure Government policy initiative must still
+be checked in the target tenant. The review environment was connected to commercial
+Azure, not Azure Government.
+
+## Scope and Method
+
+The inventory starts at [`src/mlz.bicep`](../src/mlz.bicep) and follows the modules it
+uses under [`src/modules/`](../src/modules/). Resources are grouped by purpose. The
+inventory does not include:
+
+- Everything under `src/add-ons/`.
+- Unreachable modules, examples, tests, and generated `src/mlz.json` content.
+- Resources that MLZ uses but does not create.
+- Mission applications or the full set of documents needed for authorization.
+
+The RMF column lists NIST SP 800-53 Revision 5 controls that each capability supports.
+Codes such as AC-4 and SC-7 identify security controls; the letters identify the control
+family. This is not a complete control mapping.
+
+### Terms
+
+| Term | Meaning |
+| --- | --- |
+| **Default** | MLZ deploys it without explicit opt-in. |
+| **Optional** | MLZ deploys it only when you turn it on. |
+| **Absent** | Core MLZ does not deploy it. |
+| **Parameter change** | Change an existing MLZ setting. |
+| **Template change** | Change the MLZ Bicep code. |
+| **Outside MLZ** | The mission or another organization must provide it. |
+| **Deployment check** | Check a value that can change by tenant, region, or deployment. |
+| **Authorizing organization** | The officials who review risk and decide whether the system may operate. |
+
+Technical abbreviations used below:
+
+- **CMK**: customer-managed encryption key.
+- **IDPS**: intrusion detection and prevention system.
+- **NSG**: network security group.
+- **PA**: DoD Provisional Authorization for an Azure service offering.
+- **PPSM**: the mission's approved ports, protocols, and services list.
+- **SIEM**: security information and event management system.
+
+> [!IMPORTANT]
+> MLZ is only one part of an IL5 system. Deploying it does not make the system IL5
+> compliant or grant an Authorization to Operate. The mission owner must select the
+> controls, test the complete system, fix or accept risks, and obtain approval. Azure's
+> PA covers only the Azure services listed in that PA. Azure Policy and Defender provide
+> useful findings, but those findings are not an authorization decision. Work may belong
+> to Microsoft, the MLZ team, the mission, another organization, or be shared.
+
+## What to Keep in Mind for IL5
+
+The detailed table explains each resource. At the deployment level, these are the main
+IL5 considerations:
+
+1. **Use wider MAG.** [Microsoft recommends prioritizing US Gov regions for IL5
+  workloads](https://learn.microsoft.com/azure/azure-government/documentation-government-overview-dod):
+  choose US Gov Arizona, Texas, or Virginia for new deployments to benefit from the
+  latest cloud innovations and additional services. Use only services covered by the
+  current IL5 PA.
+2. **Select physical separation for VMs in MAG regions.** Microsoft Azure Government
+  (MAG) regions US Gov Arizona, Texas, and Virginia serve DoD customers and approved
+  non-DoD government customers: State, Local, Tribal, and Federal Civilian (FedCiv).
+  Core MLZ deploys standalone VMs, which Microsoft requires to use Azure Dedicated Host
+  for IL5 physical separation in these regions. Core MLZ does not provide host placement
+  for persistent or temporary VMs, so a template change is required.
+3. **Keep the customer in control of encryption keys.** Confirm that every service that
+  stores IL5 data uses the required customer-managed keys and that the mission controls
+  key access, rotation, recovery, and separation of duties.
+4. **Replace general network defaults with the mission rules.** Add the approved PPSM
+  rules to each network tier. After testing, set Firewall IDPS and threat intelligence
+  to `Deny`. Test both allowed and blocked traffic.
+5. **Protect and retain the logs.** Set log retention from mission requirements. Add MLZ
+  settings to turn off public Log Analytics ingestion and query, then test all private
+  access paths. Confirm required logs arrive and alerts work.
+6. **Turn on the IL5 security settings.** Enable the Azure Government IL5 Policy
+  initiative. Use Defender Standard, select plans for the deployed workloads, and set
+  the security contact. Check the policy initiative and Defender plans in the target
+  Azure Government tenant.
+7. **Plan for work outside MLZ.** Backup and recovery, tenant identity governance,
+  vulnerability management, incident response, system documentation, testing, and the
+  authorization decision are mission or organizational responsibilities.
+
+## Core Capability Mapping
+
+The inventory contains 78 Bicep resource declarations across 34 Azure resource types.
+Each deployed resource is counted once. Resources marked **Absent** were not found in
+`src/mlz.bicep` or the modules it uses.
+
+| Capability | State | Resources and current behavior | Security purpose | RMF | IL5 change | Owner and check | Sources |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Core resource groups | Default | [`resource-groups.bicep`](../src/modules/resource-groups.bicep) creates network groups for the hub, operations, and shared-services tiers. Network Watcher is an existing resource and is not created by MLZ. | Organizes resources and supports inventory. | CM-8; CA-7 | No MLZ change. | Mission: compare the deployed groups, tags, and owners with the system design. | [NIST 800-53]; [DoDI 8510.01] |
+| Optional resource groups | Optional | [`resource-groups.bicep`](../src/modules/resource-groups.bicep) adds the identity network group when `deployIdentity=true`. [`active-directory-domain-services.bicep`](../src/modules/active-directory-domain-services.bicep) creates the domain-controller group only when both `deployIdentity=true` and `deployActiveDirectoryDomainServices=true`. [`remote-access.bicep`](../src/modules/remote-access.bicep) creates the jump-box group only when `deployLinuxVirtualMachine=true` or `deployWindowsVirtualMachine=true`. | Organizes optional workloads. | CM-8; CA-7 | No MLZ change. | Mission: check each optional group and its tags when its exact deployment condition is enabled. | [NIST 800-53]; [DoDI 8510.01] |
+| Network separation and DNS | Default | MLZ creates [NSGs](../src/modules/network-security-group.bicep), [route tables](../src/modules/route-table.bicep), [virtual networks](../src/modules/virtual-network.bicep), [peerings](../src/modules/virtual-network-peering.bicep), [private DNS zones](../src/modules/private-dns-zone.bicep), and [DNS links](../src/modules/virtual-network-link.bicep). NSG rules are empty by default. | Separates network tiers and sends spoke traffic through the hub. | AC-4; SC-7; SC-32 | **Parameter change:** add approved PPSM rules to every deployed tier. | Mission: test routes, DNS, allowed traffic, and blocked traffic. | [NIST 800-53]; [CC SRG] |
+| Azure Firewall | Default | [Firewall Premium](../src/modules/firewall.bicep), [firewall rules](../src/modules/firewall-rules.bicep), and public IPs deploy by default. IDPS and threat intelligence start in `Alert` mode. | Filters traffic and reports possible attacks. | SC-7; SI-4 | **Parameter change:** after tuning, set IDPS and threat intelligence to `Deny`. Replace the sample rules with approved PPSM rules. | Shared: test allowed and blocked traffic and review firewall alerts. | [NIST 800-53]; [CC SRG]; [Firewall guidance] |
+| Monitoring and private access | Default | [Log Analytics](../src/modules/log-analytics-workspace.bicep), [Azure Monitor Private Link](../src/modules/private-link-scope.bicep), and a [private endpoint](../src/modules/private-endpoint.bicep) deploy by default. Retention is 30 days. Public ingestion and query are enabled. | Collects security and operations logs. | AU-2; AU-6; AU-12; CA-7; SI-4 | **Parameter change:** set the required retention period. **Template change:** add settings to turn off public ingestion and query. | MLZ team and mission: test private DNS, log ingestion, queries, and retention. | [NIST 800-53]; [CC SRG]; [Microsoft IL5] |
+| Microsoft Sentinel | Optional | [`log-analytics-workspace.bicep`](../src/modules/log-analytics-workspace.bicep) creates the SecurityInsights solution and onboarding state only when `deploySentinel=true`; the parameter defaults to `false`. | Adds SIEM onboarding to the central workspace. | AU-6; AU-12; CA-7; IR-4; SI-4 | **Parameter change:** set `deploySentinel=true` only when Sentinel is the mission SIEM. **Outside MLZ:** configure connectors, analytics rules, automation, incident procedures, and ongoing operations. | Mission: confirm onboarding, data connectors, detections, automation, and incident handling. | [NIST 800-53]; [CC SRG]; [Microsoft Sentinel] |
+| Diagnostic settings and flow logs | Default | [Diagnostic settings](../src/modules/diagnostic-settings.bicep) send platform logs to central storage and Log Analytics. [Network flow logs](../src/modules/network-watcher-flow-logs.bicep) retain data for 30 days by default. Traffic analytics is off. | Records platform and network activity. | AU-2; AU-6; AU-11; AU-12; SI-4 | **Parameter change:** set flow-log retention and turn on traffic analytics if the monitoring plan requires it. | Mission: confirm required log types arrive and alerts work. | [NIST 800-53]; [CC SRG] |
+| Protected log storage | Default | [Storage accounts](../src/modules/storage-account.bicep) block public and shared-key access, require TLS 1.2, use encryption, and create private endpoints. | Protects stored logs. | AU-9; AU-11; SC-13; SC-28 | No standard parameter change. Define how long logs are kept, when they are deleted, how they are copied and recovered, and whether they may be changed. | Shared: test private access, key use, retention, recovery, and permissions. | [NIST 800-53]; [CC SRG]; [Microsoft IL5] |
+| Customer-managed encryption keys | Default | [`customer-managed-keys.bicep`](../src/modules/customer-managed-keys.bicep) creates a Premium Key Vault, managed identity, role assignments, private endpoint, and a temporary helper VM. Its script creates the key and, for VM workloads, the disk encryption set. The helper VM is then removed. | Gives the customer control of encryption keys. | AC-6; IA-4; SC-12; SC-13; SC-28 | No standard parameter change. Define who controls the keys, how often they rotate, how they are recovered, whether hardware protection is required, and which duties must be assigned to different people. | Shared: check the key, roles, rotation and recovery; confirm the helper VM was removed. | [NIST 800-53]; [CC SRG]; [Microsoft IL5] |
+| Microsoft Defender for Cloud | Default | [`defender-for-cloud.bicep`](../src/modules/defender-for-cloud.bicep) deploys Defender with the Free tier and the Virtual Machines plan. The security benchmark assignment is set to `DoNotEnforce`. | Finds security weaknesses and threats. | CA-7; RA-5; SI-3; SI-4 | **Parameter change:** use the Standard tier, choose plans for the deployed workloads, and set a security contact. | Shared: confirm coverage, alert delivery, recommendations, and Azure Government availability. | [NIST 800-53]; [CC SRG]; [Microsoft IL5] |
+| Azure Policy | Optional | [`policy-assignment.bicep`](../src/modules/policy-assignment.bicep) deploys policy assignments and supporting roles. Policy is off by default and automatic fixes are disabled. | Checks resource settings against selected rules. | CA-2; CA-7; CM-6; CM-7 | **Parameter change:** in Azure Government set `deployPolicy=true` and `policy='IL5'`. | Shared: confirm the built-in IL5 policy initiative, which is a managed set of policy rules, exists in the target Azure Government tenant. Then review its settings, exceptions, results, and repair process. | [NIST 800-53]; [Azure Policy]; [Microsoft IL5] |
+| Azure Bastion | Optional | [`bastion-host.bicep`](../src/modules/bastion-host.bicep) creates the host and public IP when `deployBastion=true`. | Provides a managed path for remote administration. | AC-17; SC-7 | **Parameter change:** enable it if the administration design uses Bastion. **Outside MLZ:** apply MFA, Conditional Access, privileged-access controls, and session review. | Mission: test approved access and confirm other paths are blocked. | [NIST 800-53]; [CC SRG] |
+| Management and domain-controller VMs | Optional | [`virtual-machine.bicep`](../src/modules/virtual-machine.bicep) creates VMs, network interfaces, and monitoring and security extensions. Management VMs require `deployLinuxVirtualMachine=true` or `deployWindowsVirtualMachine=true`. Domain controllers require both `deployIdentity=true` and `deployActiveDirectoryDomainServices=true`. | Provides administrative or directory servers with monitoring and encrypted disks. | CM-6; SC-3; SC-28; SI-2; SI-6 | **Template change:** add the Dedicated Host placement from the next row for every persistent and temporary VM. **Outside MLZ:** patch, harden, monitor, and protect the VMs. | Shared: confirm the region, approved host family, quota, and PA coverage. Then check VM isolation, encryption, extensions, patching, endpoint protection, and accounts. | [NIST 800-53]; [CC SRG]; [IL5 isolation] |
+| Active Directory Domain Services | Optional | [`active-directory-domain-services.bicep`](../src/modules/active-directory-domain-services.bicep) deploys two domain controllers only when both identity and AD DS are enabled. Setting `deployActiveDirectoryDomainServices=true` while `deployIdentity=false` is invalid and causes deployment failure when diagnostics evaluate the skipped module output. | Provides directory, DNS, authentication, and account services. | AC-2; AC-3; IA-2; IA-4; IA-5 | **Parameter change:** enable only when needed and set both flags together. **Outside MLZ:** configure multi-factor authentication (MFA) or Common Access Card (CAC) authentication, account management, privileged access, backup, hardening, and recovery. | Mission: test directory health, DNS, authentication, accounts, backup, and recovery. | [NIST 800-53]; [CC SRG] |
+| Azure Dedicated Host placement | Absent | Core MLZ does not deploy host groups or Dedicated Hosts and does not assign VMs to hosts. | Provides physical separation for VMs where required. | SC-3; SC-4; SC-39 | **Template change:** add optional Dedicated Host placement for every persistent and temporary VM in US Gov Arizona, Texas, or Virginia. | MLZ team and mission: confirm current host-family and VM-size compatibility, quota, capacity, region support, and effective isolation. | [NIST 800-53]; [CC SRG]; [IL5 isolation] |
+| Backup and recovery | Absent | Core MLZ has no backup vault, backup policy, protected item, or restore workflow. | Protects data and supports recovery after loss or damage. | CP-9; CP-10 | **Outside MLZ:** provide backup storage, encryption, retention, access controls, monitoring, and restore procedures. | Mission: test restores and keep the results. | [NIST 800-53]; [CC SRG] |
+| Identity governance | Absent | Core MLZ does not configure tenant MFA, Conditional Access, privileged identity management, access reviews, or emergency accounts. | Controls user and administrator access over time. | AC-2; AC-6; IA-2; IA-5; IA-12 | **Outside MLZ:** configure these tenant controls and operating procedures. | Mission and identity team: review users, service identities, roles, privileged access, and emergency access. | [NIST 800-53]; [CC SRG] |
+| RMF and security operations | Absent | Core MLZ does not produce the system security plan, authorization package, assessor records, or PPSM registration. It also does not perform vulnerability management, incident response, data classification, application controls, or risk decisions. | Provides the management and operating work needed for authorization. | Mission-selected controls across CA, CM, IR, PL, RA, and SI | **Outside MLZ:** complete these activities through the mission's RMF and operations processes. | Mission and authorizing organization: keep plans, procedures, test results, findings, and risk decisions. | [NIST 800-53]; [DoDI 8510.01]; [CNSSI 1253] |
+
+## Deployment Records
+
+Keep these records for each IL5 deployment:
+
+- The exact MLZ revision and parameter file used.
+- The Azure Government region and the current list of Azure services covered by the
+  IL5 PA.
+- Azure Policy and Defender settings, exceptions, findings, and alert tests.
+- Firewall, route, NSG, private endpoint, and DNS settings compared with the approved
+  network design and PPSM list.
+- Proof that required logs arrive, alerts work, and records are kept for the required
+  time.
+- Encryption keys, permissions, rotation, recovery, and encrypted-resource settings.
+- VM host placement, security settings, patches, endpoint protection, and administrator
+  access.
+- The mission's control descriptions, procedures, test results, open findings, and risk
+  decisions.
+
+## Maintenance and Re-Review Triggers
+
+Review this document again when:
+
+- MLZ adds resources or changes defaults.
+- NIST, DoD, or CNSS guidance changes.
+- Microsoft changes the IL5 PA, isolation guidance, policy initiative, Azure service,
+  or Dedicated Host family.
+- The mission changes its region, design, data, identity system, or system boundary.
+
+## References
+
+### Requirements and Control Sources
+
+- [DoD Cloud Computing Security Requirements Guide library](https://www.cyber.mil/dccs/dccs-documents/), Cloud Service Provider SRG Version 1, Release 7, dated 30 June 2026 and verified 2026-10-08.
+- [DoDI 8510.01, Risk Management Framework for DoD Systems](https://www.esd.whs.mil/Portals/54/Documents/DD/issuances/dodi/851001p.pdf), published 12 March 2014 and incorporating Change 3, effective 19 July 2022.
+- [NIST SP 800-37 Revision 2](https://doi.org/10.6028/NIST.SP.800-37r2), December 2018.
+- [NIST SP 800-53 Revision 5 control catalog](https://csrc.nist.gov/Projects/risk-management/sp800-53-controls/release-search#/800-53), revision selected 2026-08-24.
+- [CNSSI 1253, Security Categorization and Control Selection for National Security Systems](https://www.dcsa.mil/Portals/91/Documents/CTP/NAO/CNSSI_No1253.pdf), 27 March 2014.
+
+### Azure Government and Service Guidance
+
+- [Department of Defense Impact Level 5](https://learn.microsoft.com/azure/compliance/offerings/offering-dod-il5), reviewed 2026-08-24.
+- [Isolation guidelines for Impact Level 5 workloads](https://learn.microsoft.com/azure/azure-government/documentation-government-impact-level-5), reviewed 2026-08-24.
+- [Department of Defense in Azure Government](https://learn.microsoft.com/azure/azure-government/documentation-government-overview-dod), reviewed 2026-08-25.
+- [Azure Government services by audit scope](https://learn.microsoft.com/azure/azure-government/compliance/azure-services-in-fedramp-auditscope), reviewed 2026-08-24.
+- [Shared responsibility in the cloud](https://learn.microsoft.com/azure/security/fundamentals/shared-responsibility), reviewed 2026-08-24.
+- [Azure Policy built-ins](https://learn.microsoft.com/azure/governance/policy/samples/), reviewed 2026-08-24.
+- [Azure Firewall Premium features](https://learn.microsoft.com/azure/firewall/premium-features) and [threat intelligence settings](https://learn.microsoft.com/azure/firewall-manager/threat-intelligence-settings), reviewed 2026-08-24.
+
+[NIST 800-53]: https://csrc.nist.gov/Projects/risk-management/sp800-53-controls/release-search#/800-53
+[CC SRG]: https://www.cyber.mil/dccs/dccs-documents/
+[DoDI 8510.01]: https://www.esd.whs.mil/Portals/54/Documents/DD/issuances/dodi/851001p.pdf
+[CNSSI 1253]: https://www.dcsa.mil/Portals/91/Documents/CTP/NAO/CNSSI_No1253.pdf
+[Microsoft IL5]: https://learn.microsoft.com/azure/compliance/offerings/offering-dod-il5
+[IL5 isolation]: https://learn.microsoft.com/azure/azure-government/documentation-government-impact-level-5
+[Azure Policy]: https://learn.microsoft.com/azure/governance/policy/samples/
+[Firewall guidance]: https://learn.microsoft.com/azure/firewall/premium-features
+[Microsoft Sentinel]: https://learn.microsoft.com/azure/sentinel/overview
