@@ -10,7 +10,8 @@ ratchet gate behaves, and how to raise the baseline.
 
 ## Prerequisites
 
-- **PowerShell 7.4+** (`pwsh`) or **Windows PowerShell 5.1**.
+- **PowerShell 7.4+** (`pwsh`), including on Windows. Windows PowerShell 5.1
+  cannot run this repository's test harness.
 - **Pester 6.0.0** (pinned so local and CI produce the same number):
 
 ```powershell

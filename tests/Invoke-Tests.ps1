@@ -68,6 +68,6 @@ if ($env:GITHUB_STEP_SUMMARY) {
         Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
 }
 
-if ($result.FailedCount -gt 0) {
+if ($result.Result -ne 'Passed') {
     exit 1
 }

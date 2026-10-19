@@ -32,7 +32,7 @@ Technical approach (minimal moving parts, per constitution Principles I & II):
 
 **Language/Version**: PowerShell 7.4+ (`pwsh`, PowerShell Core) for tests, gate script, and PSRule; Bash + YAML for GitHub Actions glue; Bicep (source under `src/`) as the validated artifact.
 
-**Primary Dependencies**: Pester `6.0.0` (pinned; test + code coverage — runs on Windows PowerShell 5.1 and PowerShell 7.4+, covering the Windows-majority team as well as `pwsh`), PSRule.Rules.Azure `1.x` (Bicep/ARM rule validation), Azure CLI (`az bicep`, already used by CI). All available on `ubuntu-latest` GitHub-hosted runners.
+**Primary Dependencies**: Pester `6.0.0` (pinned; test + code coverage — the repository harness requires PowerShell 7.4+ (`pwsh`) on all platforms, including Windows), PSRule.Rules.Azure `1.x` (Bicep/ARM rule validation), Azure CLI (`az bicep`, already used by CI). All available on `ubuntu-latest` GitHub-hosted runners.
 
 **Storage**: Version-controlled files only — `tests/coverage-baseline.json` (the enforced floor). No database or external state.
 
