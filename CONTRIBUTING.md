@@ -129,6 +129,10 @@ How to remediate a broken build:
 
 > NOTE: Broken nightly builds are the top priority for the team. One person will own the remediation, but the rest of the team should rally to assist until the build is fixed.
 
+### Running Tests and Coverage
+
+Mission Landing Zone measures automated test coverage for its PowerShell artifacts and enforces a no-regression coverage ratchet in CI. Before opening a pull request, run the tests locally and make sure coverage does not drop. See [docs/testing.md](docs/testing.md) for how to run the tests, how coverage is measured, how the ratchet gate behaves, and how to raise the baseline.
+
 ### Product Owner Process
 
 #### Product Backlog
