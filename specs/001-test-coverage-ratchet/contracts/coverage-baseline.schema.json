@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Azure/missionlz/specs/001-test-coverage-ratchet/contracts/coverage-baseline.schema.json",
+  "title": "Coverage Baseline",
+  "description": "The recorded, enforced coverage floor for Mission Landing Zone. Stored at tests/coverage-baseline.json. The ratchet gate compares measured CI coverage against coveragePercent and fails when measured is below it.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["coveragePercent", "scope", "updated"],
+  "properties": {
+    "coveragePercent": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "multipleOf": 0.01,
+      "description": "The enforced coverage floor as a percentage (0-100, 2 decimal places). Measured coverage MUST be >= this value to pass the ratchet gate. This value only ever increases except through an explicit, reviewed downward edit."
+    },
+    "scope": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Human-readable description of what was measured, e.g. 'src/artifacts/*.ps1'. Must match the measurement scope.",
+      "examples": ["src/artifacts/*.ps1"]
+    },
+    "updated": {
+      "type": "string",
+      "format": "date",
+      "description": "ISO-8601 date the baseline was last ratcheted.",
+      "examples": ["2026-07-06"]
+    },
+    "note": {
+      "type": "string",
+      "description": "Optional short reason for the last change to the baseline.",
+      "examples": ["initial baseline", "ratchet after adding New-KeyVaultKey tests"]
+    }
+  },
+  "examples": [
+    {
+      "coveragePercent": 42.10,
+      "scope": "src/artifacts/*.ps1",
+      "updated": "2026-07-06",
+      "note": "initial baseline"
+    }
+  ]
+}
