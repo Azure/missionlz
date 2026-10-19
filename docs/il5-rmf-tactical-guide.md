@@ -421,6 +421,8 @@ The following capabilities are not available in core MLZ.
 
 ### Public Log Analytics Access Cannot Be Disabled
 
+**Feature request:** [#1304 — Add configurable private-only Log Analytics access](https://github.com/Azure/missionlz/issues/1304).
+
 **Current state:** The workspace module hard-codes
 `publicNetworkAccessForIngestion: 'Enabled'` and
 `publicNetworkAccessForQuery: 'Enabled'`. MLZ already deploys Azure Monitor Private Link,
@@ -434,6 +436,8 @@ and query path, then test those paths before disabling public access.
 enabled.
 
 ### Dedicated Host Placement Is Not Available
+
+**Feature request:** [#1305 — Add Azure Dedicated Host placement for core MLZ VMs](https://github.com/Azure/missionlz/issues/1305).
 
 **Current state:** Core MLZ has no host group, Dedicated Host, host ID parameter, or VM
 `properties.host` assignment. Persistent management and domain-controller VMs and
