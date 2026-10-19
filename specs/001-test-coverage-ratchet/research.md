@@ -22,7 +22,7 @@ JaCoCo XML output — JaCoCo remains the **default** format in v6) to test and m
 - Trivially installable on `ubuntu-latest` and Windows via `Install-Module Pester -RequiredVersion 6.0.0 -Force -SkipPublisherCheck` (the `-SkipPublisherCheck` overrides the in-box Pester 3.4.0 on Windows PowerShell 5.1); runs
   identically on a contributor's `pwsh`, giving local/CI parity (FR-005).
 - `Mock` supports intercepting `Invoke-RestMethod` so tests never touch the live Azure IMDS endpoint.
-- **Version choice (6.0.0 over 5.7.1)**: Pester 6 runs on **Windows PowerShell 5.1 and PowerShell 7.4+**, so it covers the Windows-majority team with no pwsh install. The v6 config + test-authoring API is unchanged from v5, and the breaking changes (removed `Assert-MockCalled`/`-Focus`/`Pending`, per-file discovery, profiler-based coverage) do not affect this greenfield suite. Choosing current-major avoids starting the initiative a version behind; if 6.0.0 proves unstable, pinning back to 5.7.1 is a one-line change (same authoring API).
+- **Version choice (6.0.0 over 5.7.1)**: Pester 6 supports Windows PowerShell 5.1 and PowerShell 7.4+, but this repository's runner and contract tests require **PowerShell 7.4+ (`pwsh`)**, including on Windows. The v6 config + test-authoring API is unchanged from v5, and the breaking changes (removed `Assert-MockCalled`/`-Focus`/`Pending`, per-file discovery, profiler-based coverage) do not affect this greenfield suite. Choosing current-major avoids starting the initiative a version behind; if 6.0.0 proves unstable, pinning back to 5.7.1 is a one-line change (same authoring API).
 
 **Alternatives considered**:
 
