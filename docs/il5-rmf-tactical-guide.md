@@ -40,6 +40,11 @@ of Defense (DoD) Impact Level 5 (IL5). Use the
 [resource mapping](./il5-rmf-resource-mapping.md) to identify the changes required for
 your deployment.
 
+> **Important**
+>
+> This guide does not make a system IL5 compliant or grant approval to operate.
+> It documents required changes; it does not implement the proposed template changes.
+
 ### Scope and Exclusions
 
 Core [`src/mlz.bicep`](../src/mlz.bicep) and its modules under
@@ -354,6 +359,10 @@ findings, and repair records.
   select **Deploy Bastion?** and set **Azure Bastion Subnet CIDR Range**.
 - [ ] Set `deployLinuxVirtualMachine` or `deployWindowsVirtualMachine` only when the
   platform owner needs standalone management VMs in addition to Bastion.
+- [ ] When enabling a management VM through a parameter file or command, supply
+  `linuxVmAdminPasswordOrKey` for Linux or `windowsVmAdminPassword` for Windows from a
+  secret store. Match the Linux credential to `linuxVmAuthenticationType`
+  (`password` or `sshPublicKey`). Do not store credentials in source control.
 
 **Verify and retain:** Check the Bastion host, subnet, NSG, public IP, logs, and selected
 connection path. Test that direct admin access is blocked where it is not allowed.
@@ -393,9 +402,13 @@ account review, and recovery result.
 
 **Steps:**
 
-- [ ] Add private log ingestion and query paths through a template change.
-- [ ] Test private DNS, log arrival, and queries before disabling public access.
-- [ ] Disable public log ingestion and query access.
+- [ ] Preserve MLZ's existing Azure Monitor Private Link Scope, workspace association,
+  private endpoint, and private DNS.
+- [ ] Test private DNS, guest-log arrival, and queries before disabling public access.
+  Complete the [VM guest-log setup](#operate-and-protect-virtual-machines) for agent traffic.
+- [ ] Through a template change, set the workspace's
+  `publicNetworkAccessForIngestion` and `publicNetworkAccessForQuery` from `Enabled`
+  to `Disabled`.
 
 **Verify and retain:** Check private DNS, log arrival, and queries. Confirm public requests
 are blocked. Retain workspace settings and test results.
@@ -478,10 +491,14 @@ was removed, and approved exceptions.
 - [ ] Set up patching, endpoint detection and response, antimalware, application
   control, time, DNS, local accounts, and secure admin access.
 - [ ] Get the required Windows events and Linux syslog sources from the security
-  operations team. Create guest-log data collection rules for those sources and link
-  them to the VMs.
-- [ ] Set up collection endpoints and link them to the VMs. Check that the VMs can
-  resolve the endpoint names and reach them over private connections.
+  operations team. Create guest-log data collection rules for those sources, select
+  the intended Log Analytics workspace, and link them to the VMs.
+- [ ] Set up collection endpoints in the VMs' regions for private agent configuration.
+  Add each endpoint to MLZ's Azure Monitor Private Link Scope and link each VM to
+  its region's endpoint. Follow
+  [Microsoft's private-monitoring setup](https://learn.microsoft.com/azure/azure-monitor/fundamentals/private-link-vm-kubernetes#enable-agent-configuration).
+- [ ] Keep the workspace linked to that scope for private log ingestion. Check that the
+  VMs can resolve the endpoint names and reach them over private connections.
 - [ ] Check that extensions and agents are running.
 - [ ] Check that sample Windows events or Linux syslog arrive in the intended Log
   Analytics workspace.
@@ -490,8 +507,8 @@ was removed, and approved exceptions.
   Remove access for accounts that are no longer authorized.
 
 **Verify and retain:** Keep scans, patch history, and proof that endpoint protection
-works. Keep data collection rules, endpoint settings, VM links, and guest-log query
-results. Save account reviews, approved exceptions, and alert tests.
+works. Keep data collection rules, endpoint settings, scope membership, VM links, and
+guest-log query results. Save account reviews, approved exceptions, and alert tests.
 
 ### Operate Identity and Administrative Access
 
