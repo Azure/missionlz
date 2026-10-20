@@ -24,7 +24,7 @@ implemented behavior.
 | Earlier source baseline | Commit `168474463215f99620531bfdeb47039bf7bd250a` |
 | Source comparison | `git diff` between the two commits found no changes to `src/mlz.bicep`, any `src/modules/*.bicep`, `src/mlz.uiDefinition.json`, or `docs/deployment-guides/`. The Bicep facts reviewed for the mapping therefore remain the source facts for this guide baseline. The later commit adds the mapping and this research artifact. |
 | Core parameter files | No core `.bicepparam` or deployment-parameters JSON file is present. Files of those types under `src/add-ons/` are excluded. Core deployment surfaces are `src/mlz.bicep`, generated `src/mlz.json`, `src/mlz.uiDefinition.json`, command-line examples, and the deployment guides. |
-| Dynamic facts | Azure Government initiative availability, IL5 PA scope, service and feature availability, Dedicated Host capacity/quota, and region support remain deployment-time checks. |
+| Dynamic facts | Authenticated Azure Government policy and Defender pricing lookups were performed on 2026-10-20 as recorded below. Mission-specific assignments, IL5 PA scope, paid-feature behavior, Dedicated Host capacity/quota, and region support remain deployment-time checks. |
 
 The guide must cover these action groups from the mapping:
 
@@ -83,9 +83,11 @@ Key Vault HTTPS, Azure Resource Manager HTTPS, conditional AD DS TCP/UDP ports, 
 conditional KMS traffic; it also contains a conditional Windows Update application
 rule. The source currently contains two built-in rules with the same name
 `Allow-KV-TCP`. Supplying any non-empty `customFirewallRuleCollectionGroups` array
-replaces this entire built-in group; it does not merge mission rules into it. A tactical
-guide must therefore require the mission ruleset to preserve every still-required
-platform flow as well as approved PPSM flows.
+replaces the built-in array selected for the current deployment; it does not merge
+mission rule objects into it. Rule collection groups are created or updated by name,
+and their nested deployment uses Incremental mode. Existing groups with other names
+remain unchanged on redeployment, including `MLZ-DefaultCollectionGroup` when the custom
+array uses different names.
 
 The command-line deployment guide lists all three parameters, but the Portal UI emits
 none of them. Generated `src/mlz.json` contains the modes, custom array, default-group
@@ -150,6 +152,11 @@ assignment, VM and VMSS monitoring-agent assignments, supporting role assignment
 workspace reader role. Commercial `AzureCloud` silently changes an IL5 request to
 `NISTRev4`. `security.bicep` hard-codes `deployRemediation: false`, so the remediation
 resource is not created.
+
+An authenticated Azure Government review on 2026-10-20 resolved the IL5 and Microsoft
+cloud security benchmark initiatives. The effective repository IL5 assignment inputs
+match the live definition's parameter names, types, and allowed values. The referenced
+VM and VMSS monitoring-agent initiatives resolve but are marked deprecated.
 
 For the Azure Government profile, set `deployPolicy=true` and `policy='IL5'`. Before
 deployment, resolve the initiative by ID in the target tenant and review its current
@@ -342,8 +349,10 @@ The guide must carry these as explicit checks rather than filling them with assu
 
 1. Current CC SRG and DoDI 8510.01 revision/change metadata and any precise cited
   sections remain reviewer-open as described in the source register.
-2. IL5 initiative ID availability and suitability in the target Azure Government tenant
-  remain unverified; the review context was commercial Azure.
+2. Mission-specific IL5 assignment scope, permissions, suitability, and behavior remain
+  deployment checks. Authenticated Azure Government lookups on 2026-10-20 verified the
+  initiative's availability and the effective repository inputs' structural
+  compatibility; this was not an assignment or deployment test.
 3. Retention periods, PPSM rules, Defender plans, contact addresses, authentication
   mechanisms, recovery objectives, and evidence cadence are mission-derived.
 4. Current Azure Government support and behavior for each Defender plan/subplan,
@@ -508,9 +517,10 @@ classify each capability as Default, Optional, or Absent from actual core behavi
 `deployPolicy` defaults to `false`, and `policy` defaults to `NISTRev4`. MLZ contains
 IL5 initiative ID `f9a961fa-3241-4b20-adc4-bbf8ad9d7197` and falls back to NIST Rev. 4
 in Azure Commercial. For Azure Government IL5, set `deployPolicy=true` and
-`policy='IL5'`, then verify that the initiative ID is currently available and appropriate
-in the target tenant. This is an Optional repository setting; policy results remain
-partial evidence only.
+`policy='IL5'`. The initiative resolved in an authenticated Azure Government review on
+2026-10-20, and the effective repository inputs matched its parameter definitions.
+Recheck the current definition and mission suitability before deployment. This is an
+Optional repository setting; policy results remain partial evidence only.
 
 ### Defender for Cloud
 

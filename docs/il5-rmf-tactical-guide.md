@@ -7,12 +7,10 @@
 ## Table of Contents
 
 - [Purpose and Boundary](#purpose-and-boundary)
-  - [Audience](#audience)
   - [Scope and Exclusions](#scope-and-exclusions)
 - [How to Use This Guide](#how-to-use-this-guide)
-- [Current and Proposed Behavior](#current-and-proposed-behavior)
-  - [Key Terms](#key-terms)
-- [Predeployment Decisions](#predeployment-decisions)
+- [Key Terms](#key-terms)
+- [Predeployment Inputs](#predeployment-inputs)
 - [Parameter Changes](#parameter-changes)
   - [Network Security Group and PPSM Rules](#network-security-group-and-ppsm-rules)
   - [Azure Firewall Modes and Rules](#azure-firewall-modes-and-rules)
@@ -33,670 +31,603 @@
   - [Maintain PPSM and Validate Network Flows](#maintain-ppsm-and-validate-network-flows)
   - [Perform Vulnerability Management and Incident Response](#perform-vulnerability-management-and-incident-response)
   - [Complete Data, Application, and RMF Work](#complete-data-application-and-rmf-work)
-- [Maintenance](#maintenance)
 - [References](#references)
 
 ## Purpose and Boundary
 
-This guide turns the changes in the [MLZ IL5 RMF mapping](./il5-rmf-resource-mapping.md)
-into steps that an implementation team can follow. It covers:
-
-- Existing MLZ parameters to set for an IL5 deployment.
-- Current limitations in the core MLZ templates.
-- Security and authorization work performed outside MLZ.
-
-This document does not make MLZ, a workload, or a mission system IL5 compliant or
-authorized. The mission owner and Authorizing Official (AO) decide the control set,
-accept risk, and grant or deny an authorization to operate (ATO).
-
-### Audience
-
-This guide is for mission owners, cloud platform engineers, security engineers,
-operations teams, control owners, assessors, and authorization staff.
+Use this guide to configure and test core Mission Landing Zone (MLZ) for Department
+of Defense (DoD) Impact Level 5 (IL5). Use the
+[resource mapping](./il5-rmf-resource-mapping.md) to identify the changes required for
+your deployment.
 
 ### Scope and Exclusions
 
-The source baseline is the core deployment graph that starts at
-[`src/mlz.bicep`](../src/mlz.bicep) and uses reachable modules under
-[`src/modules/`](../src/modules/). This guide excludes add-ons, mission applications,
-and unreferenced modules. Generated [`src/mlz.json`](../src/mlz.json) is an output to
-rebuild after a future template change, not the source of current behavior.
-
-The reviewed guide baseline is MLZ commit
-`113fb08211bffe603b20c44668df6a756ae80821`, dated 2026-08-25. Its executable MLZ
-defaults and paths match the earlier source baseline,
-`168474463215f99620531bfdeb47039bf7bd250a`.
+Core [`src/mlz.bicep`](../src/mlz.bicep) and its modules under
+[`src/modules/`](../src/modules/). Add-ons, customer applications, and unused modules are
+excluded.
 
 ## How to Use This Guide
 
 Complete the sections in this order:
 
-1. Make the predeployment decisions.
+1. Collect the predeployment inputs.
 2. Prepare the MLZ parameter values.
-3. Review the current template limitations and account for the gaps.
-4. Deploy and verify MLZ.
+3. Complete the template changes required for this deployment.
+4. Deploy and test MLZ.
 5. Complete and maintain the work outside MLZ.
 
-Each change lists the files or owner, current state, steps, and verification. Values such
-as retention periods, network rules, Defender plans, host stock keeping units (SKUs),
-and recovery objectives must come from mission requirements. This guide does not invent
-them.
+## Key Terms
 
-## Current and Proposed Behavior
-
-Sections labeled **Parameter Changes** describe settings that already exist in MLZ.
-Teams apply those values through an approved deployment input without changing MLZ
-source defaults. **Current Template Limitations** identify capabilities that are not
-available in core MLZ. Sections under **Work Outside MLZ** belong to the named mission,
-platform, security, operations, assessment, or authorization owner.
-
-Azure resources and MLZ settings provide capabilities and evidence. They do not by
-themselves satisfy a control. Each party keeps its assigned duties. Those parties are
-Microsoft, the MLZ team, mission teams, and outside groups. Duties may be inherited,
-shared, system-specific, part of MLZ, or external.
-
-### Key Terms
-
+- **AD DS:** Active Directory Domain Services.
 - **AO:** The Authorizing Official decides if the system may operate.
-- **ATO:** An authorization to operate is the AO's formal decision.
-- **Control:** A safeguard used to reduce risk.
-- **Evidence:** A record that helps show whether a control works.
-- **IL5:** DoD Impact Level 5 for controlled unclassified information.
-- **Inherited control:** A control supplied by another system or organization.
+- **CAC:** Common Access Card.
+- **DNS:** Domain name system.
+- **IDPS:** Intrusion detection and prevention system.
 - **MAG:** Microsoft Azure Government.
+- **MFA:** Multi-factor authentication.
+- **NSG:** A network security group allows or blocks network traffic.
 - **PA:** A Provisional Authorization covers a stated cloud service and scope.
-- **PPSM:** Ports, Protocols, and Services Management records approved network flows.
+- **PPSM:** Ports, Protocols, and Services Management; the process for approving network
+  traffic.
 - **RMF:** The Risk Management Framework guides security and risk decisions.
 - **SIEM:** A security information and event management service collects and reviews
   security events.
+- **SKU:** A stock keeping unit identifies a product or service size.
 - **SSP:** A system security plan explains how the system addresses its controls.
 - **STIG:** A Security Technical Implementation Guide defines a system baseline.
-- **What-if:** An Azure check that previews a deployment before it runs.
+- **VM:** Virtual machine.
 
-## Predeployment Decisions
+## Predeployment Inputs
 
-**Owner:** Mission system owner, cloud platform team, security team, and AO staff.
-
-**Current state:** Azure service coverage, policy availability, quota, and capacity can
-change. MLZ cannot select mission values or make authorization decisions.
+**Owner:** Customer system owner with cloud, security, and AO staff.
 
 **Steps:**
 
 - [ ] Select US Gov Arizona, Texas, or Virginia for new deployments.
-  [Microsoft recommends prioritizing US Gov regions for IL5
-  workloads](https://learn.microsoft.com/azure/azure-government/documentation-government-overview-dod)
-  because they provide the latest cloud innovations and additional services.
-- [ ] Confirm every planned Azure service is in the current IL5 Provisional
-  Authorization (PA) scope for the selected region.
-- [ ] Confirm the target tenant contains the required Azure Policy initiative.
+- [ ] Confirm the IL5 PA lists each planned Azure service for the chosen region.
+- [ ] Confirm the required Azure Policy initiative exists in the tenant.
 - [ ] Confirm required Defender and Sentinel features are available in the target
   Azure Government region.
-- [ ] If VMs will be deployed in a wider Microsoft Azure Government (MAG) region,
-  confirm Dedicated Host availability, compatibility, quota, capacity, and zone
-  support.
-- [ ] Approve the mission network flows and Ports, Protocols, and Services Management
-  (PPSM) record.
-- [ ] Approve the rules for logs, data, keys, identity, backup, and recovery.
-- [ ] Approve the plans for vulnerability management and incident response.
+- [ ] For VMs in these MAG regions, check that Dedicated Hosts support the VM sizes and
+  zones. Check the subscription quota and available host capacity.
+- [ ] Get the permitted traffic list from the network owner and PPSM record. Include
+  source, destination, protocol, ports, direction, and the networks that need each
+  connection. Use this list for the [NSG rules](#network-security-group-and-ppsm-rules)
+  and [Firewall rules](#azure-firewall-modes-and-rules).
+- [ ] Get workspace and flow-log retention periods, in days, from the records owner.
+  Use these values in [Logging, Retention, Traffic Analytics, and Sentinel](#logging-retention-traffic-analytics-and-sentinel).
 
-**Verify and retain:** Record the review date, source links, selected region, PA service
-list, policy lookup, SKU and quota results, approved architecture, and approved mission
-requirements.
+**Verify and retain:** Keep the date, source links, region, PA service list, policy
+lookup, SKU and quota results, traffic list, and retention periods.
 
 ## Parameter Changes
 
-Core MLZ does not include a deployment-specific `.bicepparam` or parameter JSON file.
-For command-line or template-spec deployments, update the mission's deployment parameter
-file or command invocation. For Portal deployments, use the fields exposed by
-[`src/mlz.uiDefinition.json`](../src/mlz.uiDefinition.json). Do not change defaults in
-[`src/mlz.bicep`](../src/mlz.bicep) merely to configure one deployment.
+Set values in the deployment parameter file or command, not the defaults in
+[`src/mlz.bicep`](../src/mlz.bicep). When using
+[MLZ's deployment form](../src/mlz.uiDefinition.json), use the controls named below.
+
+JSON examples show entries inside the parameter file's `parameters` object.
+Replace `<...>` with customer values.
+
+Keep the MLZ version, input values without secrets, and each section's test results.
+After deployment, compare resource groups, tags, and owners with the deployment inputs.
 
 ### Network Security Group and PPSM Rules
 
-**Change:** Supply the approved rules for each deployed network tier.
-
-**Files:** Parameters are declared in [`src/mlz.bicep`](../src/mlz.bicep), forwarded by
-[`src/modules/networking.bicep`](../src/modules/networking.bicep),
-[`src/modules/hub-network.bicep`](../src/modules/hub-network.bicep), and
-[`src/modules/spoke-network.bicep`](../src/modules/spoke-network.bicep), and applied by
-[`src/modules/network-security-group.bicep`](../src/modules/network-security-group.bicep).
-Set the values in the mission deployment parameter file or command invocation. The
-Portal UI does not expose these arrays.
-
-**Current state:** These arrays default to empty:
-
-- `hubNetworkSecurityGroupRules`
-- `operationsNetworkSecurityGroupRules`
-- `sharedServicesNetworkSecurityGroupRules`
-- `identityNetworkSecurityGroupRules`
-
-The identity rules apply only when `deployIdentity=true`.
-
 **Steps:**
 
-- [ ] Translate the approved PPSM and data-flow records into Azure NSG rule objects.
-- [ ] Set all three always-deployed rule arrays in the mission deployment input.
-- [ ] Set `identityNetworkSecurityGroupRules` when the identity tier is enabled.
-- [ ] Check priorities, source and destination prefixes, ports, protocols, direction,
-  and access for conflicts.
-- [ ] Deploy through the mission's approved change process.
+- [ ] For each connection in the [traffic list](#predeployment-inputs), write an NSG rule
+  with the source, destination, ports, protocol, direction, access, and priority.
+- [ ] Set `hubNetworkSecurityGroupRules`, `operationsNetworkSecurityGroupRules`, and
+  `sharedServicesNetworkSecurityGroupRules` to those rules. Use a parameter file
+  or command; MLZ's deployment form has no inputs for these arrays.
+  Replace these sample HTTPS rules with each tier's PPSM rules:
 
-**Verify and retain:** Export effective NSG rules for each subnet and network interface.
-Test representative allowed and blocked paths. Retain the parameter input, effective-rule
-exports, route results, and test results with the approved PPSM record.
+  ```json
+  {
+    "hubNetworkSecurityGroupRules": {
+      "value": [{
+        "name": "Allow-PPSM-HTTPS",
+        "properties": {
+          "priority": 100,
+          "direction": "Inbound",
+          "access": "Allow",
+          "protocol": "Tcp",
+          "sourceAddressPrefix": "<hub-source-prefix>",
+          "sourcePortRange": "*",
+          "destinationAddressPrefix": "<hub-destination-prefix>",
+          "destinationPortRange": "443"
+        }
+      }]
+    },
+    "operationsNetworkSecurityGroupRules": {
+      "value": [{
+        "name": "Allow-PPSM-HTTPS",
+        "properties": {
+          "priority": 100,
+          "direction": "Inbound",
+          "access": "Allow",
+          "protocol": "Tcp",
+          "sourceAddressPrefix": "<operations-source-prefix>",
+          "sourcePortRange": "*",
+          "destinationAddressPrefix": "<operations-destination-prefix>",
+          "destinationPortRange": "443"
+        }
+      }]
+    },
+    "sharedServicesNetworkSecurityGroupRules": {
+      "value": [{
+        "name": "Allow-PPSM-HTTPS",
+        "properties": {
+          "priority": 100,
+          "direction": "Inbound",
+          "access": "Allow",
+          "protocol": "Tcp",
+          "sourceAddressPrefix": "<shared-services-source-prefix>",
+          "sourcePortRange": "*",
+          "destinationAddressPrefix": "<shared-services-destination-prefix>",
+          "destinationPortRange": "443"
+        }
+      }]
+    }
+  }
+  ```
+
+- [ ] Set `identityNetworkSecurityGroupRules` when `deployIdentity=true`.
+
+  ```json
+  {
+    "identityNetworkSecurityGroupRules": {
+      "value": [{
+        "name": "Allow-PPSM-HTTPS",
+        "properties": {
+          "priority": 100,
+          "direction": "Inbound",
+          "access": "Allow",
+          "protocol": "Tcp",
+          "sourceAddressPrefix": "<identity-source-prefix>",
+          "sourcePortRange": "*",
+          "destinationAddressPrefix": "<identity-destination-prefix>",
+          "destinationPortRange": "443"
+        }
+      }]
+    }
+  }
+  ```
+
+- [ ] Check rule priorities, source and destination addresses, ports, protocols,
+  direction, and allow/deny actions for conflicts.
+
+**Verify and retain:** Export the NSG rules in effect for each subnet and network
+interface. Test allowed and blocked traffic. Keep the input values, rule exports,
+route checks, and test results with the PPSM record.
 
 ### Azure Firewall Modes and Rules
 
-**Change:** After tuning, use prevention modes and replace sample rules with the complete
-approved ruleset.
-
-**Files:** Parameters are declared in [`src/mlz.bicep`](../src/mlz.bicep) and consumed
-through [`src/modules/networking.bicep`](../src/modules/networking.bicep),
-[`src/modules/hub-network.bicep`](../src/modules/hub-network.bicep),
-[`src/modules/firewall.bicep`](../src/modules/firewall.bicep), and
-[`src/modules/firewall-rules.bicep`](../src/modules/firewall-rules.bicep). Set values in
-the mission deployment parameter file or command invocation. The Portal UI does not
-expose these settings.
-
-**Current state:** `firewallSkuTier` defaults to `Premium`.
-`firewallIntrusionDetectionMode` and `firewallThreatIntelMode` default to `Alert`.
-`customFirewallRuleCollectionGroups` defaults to an empty array, which causes MLZ to use
-its built-in rule group. A non-empty custom array replaces the entire built-in group; it
-does not merge with it. The built-in group currently contains two rules named
-`Allow-KV-TCP`.
-
 **Steps:**
 
-- [ ] Confirm the deployed Firewall Policy uses the Premium tier.
-- [ ] Run IDPS and threat-intelligence monitoring in `Alert` while tuning signatures,
-  allowlists, and false positives.
-- [ ] Build a complete `customFirewallRuleCollectionGroups` value from the approved
-  PPSM rules and every required Azure and MLZ platform flow.
-- [ ] Review the duplicate built-in `Allow-KV-TCP` names when translating required
-  built-in flows into the replacement ruleset.
-- [ ] Set `firewallIntrusionDetectionMode='Deny'` after tuning is approved.
-- [ ] Set `firewallThreatIntelMode='Deny'` after tuning is approved.
-- [ ] Set `customFirewallRuleCollectionGroups` to the approved complete collection.
-- [ ] Deploy through the approved change process.
+- [ ] Keep `firewallSkuTier='Premium'`. In MLZ's deployment form, select **Premium**
+  under **Firewall SKU**.
+- [ ] Run IDPS and threat intelligence in `Alert` mode. Test the connections in the
+  [traffic list](#predeployment-inputs) and check for false detections before enabling
+  `Deny` mode.
+- [ ] Build a complete `customFirewallRuleCollectionGroups` value from the traffic
+  list and the connections that Azure and MLZ services need.
+  Complete this sample with the required customer, Azure, and MLZ service rules before use:
 
-**Verify and retain:** Export the effective Firewall Policy and rule collection groups.
-Test approved and denied traffic. Confirm IDPS and threat-intelligence events reach the
-monitoring system. Retain the deployed parameter values, policy export, tuning record,
-and traffic-test results.
+  ```json
+  {
+    "customFirewallRuleCollectionGroups": {
+      "value": [{
+        "name": "MLZ-DefaultCollectionGroup",
+        "properties": {
+          "priority": 100,
+          "ruleCollections": [{
+            "name": "PPSM-Network-Rules",
+            "priority": 100,
+            "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+            "action": { "type": "Allow" },
+            "rules": [{
+              "name": "Allow-PPSM-HTTPS",
+              "ruleType": "NetworkRule",
+              "ipProtocols": ["TCP"],
+              "sourceAddresses": ["<source-prefix>"],
+              "destinationAddresses": ["<destination-prefix>"],
+              "destinationPorts": ["443"]
+            }]
+          }]
+        }
+      }]
+    }
+  }
+  ```
+
+- [ ] Set `firewallIntrusionDetectionMode='Deny'` after required connections pass the
+  traffic tests.
+- [ ] Set `firewallThreatIntelMode='Deny'` after required connections pass the traffic
+  tests.
+- [ ] Set `customFirewallRuleCollectionGroups` to the complete collection built above.
+- [ ] Supply the detection modes and custom rule groups through a parameter file or
+  command; MLZ's deployment form has no inputs for them.
+
+  ```json
+  {
+    "firewallIntrusionDetectionMode": { "value": "Deny" },
+    "firewallThreatIntelMode": { "value": "Deny" }
+  }
+  ```
+
+**Verify and retain:** Export the Firewall Policy and rule collection groups in effect.
+Confirm Allow rules match the traffic list. Test allowed and blocked traffic.
+Confirm IDPS and threat-intelligence events reach the log system.
+Keep the input values, policy export, settings review, and traffic-test results.
 
 ### Logging, Retention, Traffic Analytics, and Sentinel
 
-**Change:** Set the approved log retention. Enable traffic analytics when required.
-Enable Sentinel when it is the selected security information and event management
-(SIEM) service.
-
-**Files:** Parameters are declared in [`src/mlz.bicep`](../src/mlz.bicep). Monitoring
-values flow through [`src/modules/monitoring.bicep`](../src/modules/monitoring.bicep) and
-[`src/modules/log-analytics-workspace.bicep`](../src/modules/log-analytics-workspace.bicep).
-Flow-log values flow through
-[`src/modules/diagnostic-settings.bicep`](../src/modules/diagnostic-settings.bicep),
-[`src/modules/network-security-group-diagnostic-setting.bicep`](../src/modules/network-security-group-diagnostic-setting.bicep),
-[`src/modules/virtual-network-diagnostic-setting.bicep`](../src/modules/virtual-network-diagnostic-setting.bicep),
-and
-[`src/modules/network-watcher-flow-logs.bicep`](../src/modules/network-watcher-flow-logs.bicep).
-Set values in the mission deployment input. The Portal exposes flow-log retention,
-traffic analytics, and Sentinel, but not Log Analytics workspace retention.
-
-**Current state:**
-
-- `logAnalyticsWorkspaceRetentionInDays` defaults to `30`. When
-  `deploySentinel=true`, MLZ uses at least 90 days.
-- `networkWatcherFlowLogsRetentionDays` defaults to `30`.
-- `deployNetworkWatcherTrafficAnalytics` defaults to `false`.
-- `deploySentinel` defaults to `false`. Enabling it onboards the workspace but does not
-  configure connectors, analytics rules, automation, or operating procedures.
-
 **Steps:**
 
-- [ ] Obtain the approved workspace and flow-log retention periods from the records,
-  incident-response, and investigation requirements.
-- [ ] Set `logAnalyticsWorkspaceRetentionInDays` in the mission deployment input.
-- [ ] Set `networkWatcherFlowLogsRetentionDays` in the mission deployment input.
-- [ ] Set `deployNetworkWatcherTrafficAnalytics=true` only when the monitoring design
-  requires it.
-- [ ] Set `deploySentinel=true` only when Sentinel is the selected mission SIEM.
-- [ ] Deploy through the approved change process.
-- [ ] When Sentinel is enabled, complete the outside-MLZ Sentinel steps later in this
-  guide.
+- [ ] Set `logAnalyticsWorkspaceRetentionInDays` to the workspace retention period
+  supplied by the records owner in [Predeployment Inputs](#predeployment-inputs).
+  Use at least 90 days when Sentinel is enabled. Supply this value through a parameter
+  file or command; MLZ's deployment form has no workspace-retention input.
+  Example for a 180-day requirement:
 
-**Verify and retain:** Confirm effective workspace and table retention, flow-log
-retention, traffic-analytics linkage when enabled, and oldest and newest searchable
-records. Confirm Sentinel onboarding when selected. Retain parameter values, deployed
-settings, ingestion checks, and query results.
+  ```json
+  {
+    "logAnalyticsWorkspaceRetentionInDays": { "value": 180 }
+  }
+  ```
+
+- [ ] Set `networkWatcherFlowLogsRetentionDays` to the flow-log retention period from
+  the same records owner.
+  In MLZ's deployment form, use **Retention Days**.
+- [ ] If the security operations team needs flow-log traffic analytics, set
+  `deployNetworkWatcherTrafficAnalytics=true`. In MLZ's deployment form, select
+  **Enable Traffic Analytics**.
+- [ ] Set `deploySentinel=true` only when Sentinel is the selected customer SIEM.
+  In MLZ's deployment form, select **Enable Microsoft Sentinel?**
+- [ ] When Sentinel is enabled, complete [Operate Logs and Sentinel](#operate-logs-and-sentinel).
+
+**Verify and retain:** Check how long workspace tables and flow logs keep data. Check
+that traffic analytics is connected when enabled. Query the oldest and newest records.
+Confirm the workspace is connected to Sentinel when selected. Keep the input values,
+deployed settings, log arrival checks, and query results.
 
 ### Microsoft Defender for Cloud
 
-**Change:** Use Standard, select plans for deployed workloads, and set the monitored
-security contact.
-
-**Files:** Parameters are declared in [`src/mlz.bicep`](../src/mlz.bicep), forwarded by
-[`src/modules/security.bicep`](../src/modules/security.bicep), and applied by
-[`src/modules/defender-for-cloud.bicep`](../src/modules/defender-for-cloud.bicep). Set
-values in the mission deployment parameter file or command invocation. The Portal emits
-the tier, plan array, and contact when its paid-feature option is selected.
-
-**Current state:** The executable default for `deployDefender` is `true`, although its
-description and the command-line guide say `false`. `defenderSkuTier` defaults to
-`Free`, `deployDefenderPlans` defaults to `['VirtualMachines']`, and
-`emailSecurityContact` defaults to empty. The module assigns Microsoft Cloud Security
-Benchmark with `enforcementMode: 'DoNotEnforce'`.
-
 **Steps:**
 
-- [ ] Confirm `deployDefender=true` in the effective deployment input.
+- [ ] Confirm `deployDefender=true` in the parameter file or command.
+  Example for the `VirtualMachines` plan:
+
+  ```json
+  {
+    "deployDefender": { "value": true },
+    "defenderSkuTier": { "value": "Standard" },
+    "deployDefenderPlans": { "value": ["VirtualMachines"] },
+    "emailSecurityContact": { "value": "<monitored-security-email>" }
+  }
+  ```
+
 - [ ] Identify the Defender plans needed for the resources in each target subscription.
 - [ ] Confirm those plans and their behavior are available in Azure Government.
-- [ ] Set `defenderSkuTier='Standard'`.
-- [ ] Set `deployDefenderPlans` to the approved plan list.
-- [ ] Set `emailSecurityContact` to the approved monitored address.
-- [ ] Review cost and alert-routing effects before deployment.
-- [ ] Deploy through the approved change process.
+- [ ] Change `defenderSkuTier` from `Free` to `Standard`.
+- [ ] Set `deployDefenderPlans` to the plan IDs selected for those workload types.
+- [ ] Set `emailSecurityContact` to the security operations team's monitored address.
+- [ ] In MLZ's deployment form, select **Enable additional features for Microsoft
+  Defender for Cloud?**, then choose the plans and set the security contact.
+- [ ] Review costs and where alerts will be sent before deployment.
 
 **Verify and retain:** Check the pricing tier and plans in each target subscription.
-Check coverage, recommendations, and security contact routing. Test one alert. Retain
-the input values, plan list, alert result, and exceptions.
+Check which resources are protected and review the findings. Test that an alert reaches
+the security contact. Keep the input values, plan list, alert result, and exceptions.
 
 ### Azure Policy IL5 Initiative
 
-**Change:** Enable policy deployment and select the Azure Government IL5 initiative.
-
-**Files:** `deployPolicy` and `policy` are declared in
-[`src/mlz.bicep`](../src/mlz.bicep), forwarded by
-[`src/modules/security.bicep`](../src/modules/security.bicep), and applied by
-[`src/modules/policy-assignment.bicep`](../src/modules/policy-assignment.bicep). The IL5
-parameter values are in
-[`src/policies/IL5-policyAssignmentParameters.json`](../src/policies/IL5-policyAssignmentParameters.json).
-Set deployment values in the mission input or Portal UI.
-
-**Current state:** `deployPolicy` defaults to `false`; `policy` defaults to `NISTRev4`.
-Selecting `IL5` uses initiative ID `f9a961fa-3241-4b20-adc4-bbf8ad9d7197`. MLZ does not
-deploy automatic remediation because `deployRemediation` is hard-coded to `false`.
-Commercial Azure changes an IL5 selection to NIST Rev. 4, so this profile must be used in
-Azure Government.
-
 **Steps:**
 
-- [ ] Resolve the IL5 initiative ID in the target Azure Government tenant.
-- [ ] Review the initiative definitions and parameters against the mission baseline.
-- [ ] Set `deployPolicy=true`.
-- [ ] Set `policy='IL5'`.
-- [ ] Review the repository IL5 parameter JSON and approve any mission-specific changes
-  through a separate implementation change.
-- [ ] Deploy through the approved change process.
+- [ ] Use Azure Government for this deployment. Look up IL5 initiative ID
+  `f9a961fa-3241-4b20-adc4-bbf8ad9d7197` in the tenant.
+- [ ] Check its policy rules and settings against customer requirements.
+- [ ] Change `deployPolicy` from `false` to `true` and `policy` from `NISTRev4` to `IL5`.
+- [ ] In MLZ's deployment form, select **Create policy assignments?** and choose
+  **DoD IL5** under **Policy Assignment**.
+- [ ] Open noncompliant resources from the Azure Policy findings. Correct the settings
+  identified by each finding, then check the compliance results again.
 
-**Verify and retain:** Confirm policy assignments and their managed identities. Check
-roles and scope across the tier resource groups. Check monitoring-agent assignments,
-exceptions, and policy results. Retain the initiative lookup, deployment input,
-assignment export, findings, and repair records. Policy results are evidence inputs, not
-an authorization decision.
+**Verify and retain:** Check the policy assignments, managed identities, and roles in
+each tier resource group. Compare assignment parameters with the
+[IL5 parameter JSON](../src/policies/IL5-policyAssignmentParameters.json).
+Check which resources the assignments cover. Check agent policy assignments,
+exceptions, and results. Keep the initiative lookup, input values, assignment export,
+findings, and repair records.
 
 ### Azure Bastion
 
-**Change:** Enable Bastion when it is the approved administrative access path.
-
-**Files:** `deployBastion` and `bastionHostSubnetAddressPrefix` are declared in
-[`src/mlz.bicep`](../src/mlz.bicep). They flow through
-[`src/modules/networking.bicep`](../src/modules/networking.bicep),
-[`src/modules/hub-network.bicep`](../src/modules/hub-network.bicep),
-[`src/modules/remote-access.bicep`](../src/modules/remote-access.bicep), and
-[`src/modules/bastion-host.bicep`](../src/modules/bastion-host.bicep). Set them in the
-mission deployment input or Portal UI.
-
-**Current state:** `deployBastion` defaults to `false` and the subnet prefix defaults to
-`10.0.128.192/26`. Bastion creates its host, subnet and network security group, public
-IP, and diagnostics. It does not enable Linux or Windows jumpboxes; those use separate
-parameters.
-
 **Steps:**
 
-- [ ] Confirm the administration design selects Bastion and approves its public IP.
-- [ ] Confirm the subnet prefix fits the approved hub address plan.
-- [ ] Set `deployBastion=true` and set `bastionHostSubnetAddressPrefix` when the default
-  does not match the approved plan.
-- [ ] Decide separately whether Linux or Windows jumpboxes are required.
-- [ ] Deploy through the approved change process.
+- [ ] Confirm administrators will connect through Bastion and can reach its public
+  endpoint from their administration network.
+- [ ] Get an unused subnet prefix in the hub network from the network owner.
+- [ ] Change `deployBastion` from `false` to `true` and set
+  `bastionHostSubnetAddressPrefix` to that prefix. In MLZ's deployment form,
+  select **Deploy Bastion?** and set **Azure Bastion Subnet CIDR Range**.
+- [ ] Set `deployLinuxVirtualMachine` or `deployWindowsVirtualMachine` only when the
+  platform owner needs standalone management VMs in addition to Bastion.
 
-**Verify and retain:** Confirm the Bastion host, subnet, NSG, public IP, diagnostics, and
-approved connection path. Test that unapproved direct management paths are blocked.
-Retain deployed settings, connection results, and access-control evidence.
+**Verify and retain:** Check the Bastion host, subnet, NSG, public IP, logs, and selected
+connection path. Test that direct admin access is blocked where it is not allowed.
+Keep the deployed settings, connection results, and access test results.
 
 ### Active Directory Domain Services
 
-**Change:** Enable the identity tier and Active Directory Domain Services (AD DS) only
-when required by the mission identity design.
-
-**Files:** Parameters are declared in [`src/mlz.bicep`](../src/mlz.bicep). The primary
-consumers are [`src/modules/networking.bicep`](../src/modules/networking.bicep),
-[`src/modules/active-directory-domain-services.bicep`](../src/modules/active-directory-domain-services.bicep),
-[`src/modules/domain-controller.bicep`](../src/modules/domain-controller.bicep),
-[`src/modules/virtual-machine.bicep`](../src/modules/virtual-machine.bicep), and
-[`src/modules/firewall-rules.bicep`](../src/modules/firewall-rules.bicep). Set values in
-the mission deployment input or Portal UI.
-
-**Current state:** `deployIdentity` and `deployActiveDirectoryDomainServices` default to
-`false`. Both must be true. Setting `deployActiveDirectoryDomainServices=true` while
-`deployIdentity=false` is invalid: the AD DS module is skipped, but diagnostics evaluate
-its Key Vault output and deployment fails. The companion
-parameters and executable defaults are:
-
-- `addsDomainName=''`
-- `addsAdministratorUsername=''`
-- `addsAdministratorPassword=''` as a secure parameter
-- `addsSafeModeAdminPassword=''` as a secure parameter
-- `addsVmImageSku='2019-datacenter-gensecond'`
-- `addsVmSize='Standard_D2s_v3'`
-- `identitySubscriptionId=subscription().subscriptionId`
-- `identityVirtualNetworkAddressPrefix='10.0.130.0/24'`
-- `identitySubnetAddressPrefix='10.0.130.0/24'`
-- `identityNetworkSecurityGroupRules=[]`
-
-The AD DS guide contains stale or incomplete default and input information; use
-executable source as the baseline.
-
 **Steps:**
 
-- [ ] Confirm AD DS is required and define the approved domain, DNS, account, image,
-  sizing, network, backup, and recovery design.
-- [ ] Set `deployIdentity=true` and `deployActiveDirectoryDomainServices=true`.
-- [ ] Set every required companion input. Supply passwords through an approved secret
-  mechanism; do not store secrets in source control.
-- [ ] Review the Firewall DNS and conditional AD DS rule effects.
-- [ ] Confirm the mission/AO-approved Dedicated Host design before deploying these VMs
-  in wider MAG for IL5.
-- [ ] Deploy through the approved change process.
+- [ ] When the workload needs AD DS, set `deployIdentity=true` and
+  `deployActiveDirectoryDomainServices=true`.
+- [ ] In MLZ's deployment form, select **Deploy identity resources?** and
+  **Deploy active directory domain services?**
+- [ ] Set `addsDomainName` and `addsAdministratorUsername` to the domain name and
+  administrator account supplied by the directory owner.
+- [ ] Supply `addsAdministratorPassword` and `addsSafeModeAdminPassword` from a
+  secret store; do not store them in source control.
+- [ ] Set `addsVmImageSku` and `addsVmSize` to an image and size supported by the
+  domain-controller software and the selected Dedicated Host.
+- [ ] Set `identitySubscriptionId`, `identityVirtualNetworkAddressPrefix`, and
+  `identitySubnetAddressPrefix` to the target subscription and network prefixes
+  supplied by the network owner.
+- [ ] Supply `identityNetworkSecurityGroupRules` through a parameter file or command,
+  following [Network Security Group and PPSM Rules](#network-security-group-and-ppsm-rules).
+- [ ] Check the Firewall DNS settings and the rules added when AD DS is enabled.
+- [ ] Before deploying the domain controllers, complete
+  [Dedicated Host placement](#dedicated-host-placement-is-not-available) for both VMs.
 
-**Verify and retain:** Confirm two domain-controller VMs, DNS configuration, replication,
-and authentication. Check encryption, monitoring, Firewall updates, backup, and restore.
-Retain the non-secret deployment input and secret-source reference. Keep the health
-checks, account review, and recovery result.
+**Verify and retain:** Confirm both domain controllers work. Test DNS, directory
+replication, and login. Check encryption, logs, Firewall rules, backup, and restore.
+Keep the input values without secrets, the secret store reference, health checks,
+account review, and recovery result.
 
 ## Current Template Limitations
 
-The following capabilities are not available in core MLZ.
-
 ### Public Log Analytics Access Cannot Be Disabled
 
-**Feature request:** [#1304 — Add configurable private-only Log Analytics access](https://github.com/Azure/missionlz/issues/1304).
+**Steps:**
 
-**Current state:** The workspace module hard-codes
-`publicNetworkAccessForIngestion: 'Enabled'` and
-`publicNetworkAccessForQuery: 'Enabled'`. MLZ already deploys Azure Monitor Private Link,
-a private endpoint, and related private DNS zones.
+- [ ] Add private log ingestion and query paths through a template change.
+- [ ] Test private DNS, log arrival, and queries before disabling public access.
+- [ ] Disable public log ingestion and query access.
 
-**Customer action:** Keep public workspace access enabled. If private-only access is
-required, use an approved implementation that supplies every required private ingestion
-and query path, then test those paths before disabling public access.
-
-**Current result:** An unmodified MLZ deployment leaves public ingestion and query
-enabled.
+**Verify and retain:** Check private DNS, log arrival, and queries. Confirm public requests
+are blocked. Retain workspace settings and test results.
 
 ### Dedicated Host Placement Is Not Available
 
-**Feature request:** [#1305 — Add Azure Dedicated Host placement for core MLZ VMs](https://github.com/Azure/missionlz/issues/1305).
+**Steps:**
 
-**Current state:** Core MLZ has no host group, Dedicated Host, host ID parameter, or VM
-`properties.host` assignment. Persistent management and domain-controller VMs and
-temporary customer-managed-key helper VMs all require placement support.
+- [ ] Before deploying IL5 standalone VMs in US Gov Arizona, Texas, or Virginia,
+  update the template to place every persistent and temporary VM on Dedicated Hosts.
+- [ ] Check that the hosts support the VM sizes and zones. Check quota and available
+  host capacity before deployment.
 
-**Customer action:** Do not use an unmodified MLZ deployment for IL5 standalone VMs in
-US Gov Arizona, Texas, or Virginia. Use an approved implementation that places every
-persistent and temporary VM on Dedicated Hosts. Confirm host availability, VM-size
-compatibility, quota, capacity, and zone support before deployment.
-
-**Current result:** An unmodified MLZ deployment does not place any VM on a Dedicated
-Host.
+**Verify and retain:** Confirm host placement for every persistent and temporary VM.
+Keep the host assignments and proof that each host supports its VM sizes.
 
 ## Work Outside MLZ
 
+MLZ deploys the infrastructure. The steps below are examples of customer configuration,
+operations, and authorization work after deployment.
+
 ### Operate Logs and Sentinel
 
-**Change:** Establish the protected-log lifecycle and, when selected, configure and
-operate Sentinel beyond the workspace onboarding that MLZ provides.
-
-**Owner:** Mission records owner, security operations center (SOC), SIEM owner, and
+**Owner:** Customer records owner, security operations center (SOC), SIEM owner, and
 platform team.
-
-**Current state:** MLZ routes platform and flow logs and can onboard its workspace to
-Sentinel. It does not define the mission records schedule, full storage lifecycle,
-Sentinel connectors, analytics, automation, incident workflow, or operating coverage.
 
 **Steps:**
 
-- [ ] Approve workspace, table, flow-log, and storage retention from mission and records
-  requirements.
-- [ ] Configure lifecycle, immutability or change protection, deletion approval, legal
-  holds, archive or protected copies, access, and recovery where required.
-- [ ] If Sentinel is used, configure connectors, analytics rules, automation, roles,
-  watchlists, alert routing, incident workflow, and operating coverage.
-- [ ] Test log ingestion, query, alert-to-incident flow, deletion protection, and recovery.
+- [ ] Set workspace, table, flow-log, and storage retention to the periods supplied by
+  the records owner. Use the [logging parameters](#logging-retention-traffic-analytics-and-sentinel)
+  and each service's retention controls.
+- [ ] Assign Azure roles for log readers and operators on the workspace and storage
+  accounts. Check that readers cannot change settings or delete stored logs.
+- [ ] For protected log copies in Blob Storage, configure the
+  [retention policies and legal holds](https://learn.microsoft.com/azure/storage/blobs/immutable-storage-overview)
+  required by the records owner.
+- [ ] If Sentinel is used, get the required log sources and detection conditions from
+  the security operations team. Configure data connectors for those sources and
+  analytics rules for those conditions. Enable incident creation on the rules.
+- [ ] For Sentinel incidents, give handlers the
+  [Microsoft Sentinel Responder role](https://learn.microsoft.com/azure/sentinel/roles).
+  Send a test alert and confirm they can open and update its incident.
+- [ ] Test log arrival, queries, alerts that open incidents, protection from deletion,
+  and recovery.
 
-**Expected result:** Required logs remain available and protected for the approved
-period, can be recovered, and reach an operated detection and response process.
-
-**Verify and retain:** Keep the approved schedule, deployed settings, connector and rule
-inventory, access review, alert test, oldest/newest record checks, and recovery result.
+**Verify and retain:** Keep the log retention rules, deployed settings, connector and
+rule lists, access review, alert tests, queries for the oldest and newest records,
+and recovery result.
 
 ### Govern Customer-Managed Keys
 
-**Change:** Establish the roles and lifecycle controls needed to operate MLZ-created
-customer-managed keys.
-
-**Owner:** Mission key-management owner with platform and security teams.
-
-**Current state:** MLZ creates customer-managed-key resources, identities, roles, private
-endpoints, and disk encryption sets. Resource deployment alone does not define mission
-key governance.
+**Owner:** Customer key-management owner with platform and security teams.
 
 **Steps:**
 
-- [ ] Define the encryption boundary, hardware and certification requirements,
-  separation of duties, and recovery requirements.
-- [ ] Assign key owners and custodians and limit their roles.
-- [ ] Define how keys are made and enabled.
-- [ ] Define how keys rotate, expire, and are revoked or deleted.
-- [ ] Define how keys are backed up and recovered.
-- [ ] Confirm each data-bearing service uses the intended key before mission data is
+- [ ] Record the Key Vault, key ID, and key version used by each encrypted resource.
+- [ ] Assign separate Azure roles for key management and workload key use. Check that
+  the workload identity cannot manage or delete keys.
+- [ ] Set the key's
+  [rotation policy and expiry](https://learn.microsoft.com/azure/key-vault/keys/how-to-configure-key-rotation)
+  to the intervals supplied by the key owner.
+- [ ] Check soft-delete and purge-protection settings. Back up keys and test recovery
+  using the key owner's recovery requirements.
+- [ ] Confirm each service that stores customer data uses the right key before data is
   written.
 - [ ] Confirm the temporary helper VM is removed after key setup.
-- [ ] Test key rotation and revocation.
-- [ ] Test key recovery.
+- [ ] Test key rotation, revocation, and recovery on test keys and test resources.
 
-**Expected result:** Every in-scope resource uses its approved key, and authorized staff
-can rotate, revoke, and recover keys without bypassing separation of duties.
-
-**Verify and retain:** Keep key and version IDs and their resource links. Keep role
-reviews and key test results. Keep soft-delete and purge-protection settings. Keep proof
-that the helper VM was removed and record approved exceptions.
+**Verify and retain:** Keep key and version IDs, resource links, role reviews, and key
+test results. Keep soft-delete and purge-protection settings, proof that the helper VM
+was removed, and approved exceptions.
 
 ### Operate and Protect Virtual Machines
 
-**Change:** Apply and continuously operate the approved VM security baseline.
-
-**Owner:** Workload or operating-system owner with security operations.
-
-**Current state:** MLZ deploys monitoring and security extensions and supports encrypted
-VM disks. It does not apply a mission operating-system baseline, run the patch program,
-or operate endpoint protection.
+**Owner:** Workload or operating-system owner with the security team.
 
 **Steps:**
 
-- [ ] Apply the approved operating-system baseline or Security Technical Implementation
-  Guide (STIG).
-- [ ] Configure patching, endpoint detection and response, antimalware, application
-  control, time, DNS, local accounts, and secure administration.
-- [ ] Monitor extensions and agents for health.
-- [ ] Scan for vulnerabilities, assign findings, remediate or accept risk, and rescan.
-- [ ] Review privileged and local accounts on the required cadence.
+- [ ] Apply the operating-system owner's security baseline or STIG for the VM image.
+- [ ] Set up patching, endpoint detection and response, antimalware, application
+  control, time, DNS, local accounts, and secure admin access.
+- [ ] Get the required Windows events and Linux syslog sources from the security
+  operations team. Create guest-log data collection rules for those sources and link
+  them to the VMs.
+- [ ] Set up collection endpoints and link them to the VMs. Check that the VMs can
+  resolve the endpoint names and reach them over private connections.
+- [ ] Check that extensions and agents are running.
+- [ ] Check that sample Windows events or Linux syslog arrive in the intended Log
+  Analytics workspace.
+- [ ] Scan the VMs after patching and confirm the repaired findings no longer appear.
+- [ ] Compare local and admin accounts with the identity owner's account list.
+  Remove access for accounts that are no longer authorized.
 
-**Expected result:** Deployed VMs remain hardened, patched, monitored, and protected,
-with findings corrected or formally accepted.
-
-**Verify and retain:** Keep baseline scans, patch history, endpoint onboarding and health,
-vulnerability and rescan results, account reviews, approved exceptions, and alert tests.
+**Verify and retain:** Keep scans, patch history, and proof that endpoint protection
+works. Keep data collection rules, endpoint settings, VM links, and guest-log query
+results. Save account reviews, approved exceptions, and alert tests.
 
 ### Operate Identity and Administrative Access
 
-**Change:** Apply the mission login rules to MLZ identities. Apply account and privileged
-access rules to each admin path.
-
-**Owner:** Tenant identity owner and mission account-management owner.
-
-**Current state:** MLZ can deploy Bastion and AD DS. It does not configure tenant
-multi-factor authentication (MFA) or Common Access Card (CAC) authentication. It also
-does not set Conditional Access, privileged identity management, access reviews,
-emergency accounts, or session review.
+**Owner:** Tenant identity owner and customer account owner.
 
 **Steps:**
 
-- [ ] Approve the authenticator, federation or public key infrastructure design, account
-  model, role model, emergency-access design, and review cadence.
-- [ ] Configure MFA or CAC as required and apply Conditional Access.
-- [ ] Configure privileged access, time-bound activation, and role review.
-- [ ] Define how accounts are added, changed, and removed.
-- [ ] Define service identity and emergency account steps.
-- [ ] Connect AD DS to the approved identity services and operating procedures when AD
-  DS is deployed.
-- [ ] Configure and review administrative sessions through the approved access path.
+- [ ] Get the required sign-in methods, user groups, admin roles, activation limits,
+  and account-review schedule from the identity owner.
+- [ ] Configure MFA or CAC sign-in for those users. Set the users, applications, and
+  sign-in requirements in
+  [Conditional Access policies](https://learn.microsoft.com/entra/identity/conditional-access/overview).
+- [ ] Assign Azure roles to the listed admin groups at the required scopes.
+- [ ] If using
+  [Microsoft Entra Privileged Identity Management](https://learn.microsoft.com/entra/id-governance/privileged-identity-management/pim-resource-roles-configure-role-settings),
+  set **Activation maximum duration** for each listed role and resource scope to the
+  limit supplied by the identity owner.
+- [ ] At each scheduled account review, compare accounts and Azure role assignments
+  with the identity owner's account list. Create, update, or disable them to match.
+- [ ] Review service identities and emergency accounts. Remove unused role assignments
+  and test emergency sign-in.
+- [ ] When AD DS is deployed, repeat its
+  [directory and login tests](#active-directory-domain-services) after identity changes.
+- [ ] Test admin access through the selected Bastion or other administration path.
+  Check that direct access is blocked where it is not allowed.
 - [ ] Test normal, privileged, denied, and emergency access.
 
-**Expected result:** Only approved identities can use mission resources and privileged
-paths, and emergency access remains controlled and testable.
-
-**Verify and retain:** Keep login and access-policy results. Keep privileged activation
-and review records. Keep account lists, emergency-access tests, and session records.
+**Verify and retain:** Keep login tests, access rules, admin role use and reviews,
+account lists, emergency-access tests, and session records.
 
 ### Provide Backup and Recovery
 
-**Change:** Deploy and operate backup and recovery capabilities for all required mission
-resources and configuration.
-
 **Owner:** System and data owners with the continuity and recovery team.
-
-**Current state:** Core MLZ has no backup vault, backup policy, protected item, or restore
-workflow.
 
 **Steps:**
 
-- [ ] Complete the business impact analysis and approve recovery objectives.
+- [ ] Get the maximum recovery time and data-loss period, in minutes or hours, from
+  the system and data owners. Use them as pass/fail limits for the restore test below.
 - [ ] Identify every VM, data store, configuration, key, and other item that needs
   protection.
-- [ ] Select and configure the backup and recovery services outside core MLZ.
-- [ ] Set backup retention and encryption from the approved rules.
-- [ ] Separate backup access, monitor jobs, and use the approved region.
+- [ ] Configure a supported backup method for each item. If Azure Backup is selected
+  for VMs, [enable VM backup](https://learn.microsoft.com/azure/backup/quick-backup-vm-portal).
+- [ ] Set backup frequency and retention from the data owner's requirements. Check
+  that the backup store uses the required encryption key.
+- [ ] Assign backup roles separately from workload administration roles. Check that
+  the backup store's region matches the data owner's location requirements.
 - [ ] Monitor backup jobs and correct failures.
-- [ ] Test a restore.
-- [ ] Test the continuity plan.
+- [ ] Write timestamped test data while backups run, up to a simulated outage in the
+  test environment. Restore the protected item and confirm it can be read or started.
+- [ ] Record the outage time, the time the restored item is usable, and the timestamp
+  of the newest restored test data. Compare outage duration with the recovery time
+  limit, and the gap between the newest restored data and the outage with the
+  data-loss limit.
 
-**Expected result:** Protected items can be restored within the mission's approved
-recovery objectives.
-
-**Verify and retain:** Keep the protected-item inventory, policies, encryption and access
-settings, successful jobs, restore and failover results, measured recovery results, and
-corrective actions.
+**Verify and retain:** Keep the list of protected items, backup rules, encryption and
+access settings, job results, restore tests, and measured recovery times.
+Record failures and how they were fixed.
 
 ### Maintain PPSM and Validate Network Flows
 
-**Change:** Keep the deployed network controls aligned with approved PPSM records and
-verified data flows.
-
-**Owner:** Mission network owner, PPSM authority, and security engineering.
-
-**Current state:** MLZ provides configurable NSGs, routes, private endpoints, and
-Firewall rules. It does not approve mission flows or maintain PPSM registration.
+**Owner:** Customer network owner, PPSM authority, and security team.
 
 **Steps:**
 
-- [ ] Maintain the approved PPSM registration and architecture and data-flow diagrams.
-- [ ] Give the approved flows to the team preparing NSG and Firewall parameters.
-- [ ] Preserve required Azure and MLZ platform flows in the complete ruleset.
-- [ ] Validate routes, DNS, private endpoints, and effective NSG and Firewall rules.
-- [ ] Test representative allowed and denied connections after each material change.
+- [ ] Compare deployed custom NSG and Firewall rules with the
+  [traffic list](#predeployment-inputs) and PPSM record. Correct differences using the
+  [NSG](#network-security-group-and-ppsm-rules) and [Firewall](#azure-firewall-modes-and-rules)
+  steps.
+- [ ] Keep the rules needed by Azure and MLZ services.
+- [ ] Check routes, DNS, private endpoints, and the NSG and Firewall rules in effect.
+- [ ] Test allowed and blocked connections after changes that affect traffic.
 
-**Expected result:** Effective network controls allow approved flows, block tested
-unapproved flows, and remain traceable to the current PPSM record.
-
-**Verify and retain:** Keep the approved PPSM artifact, deployed parameter values,
-effective-rule exports, route and DNS checks, traffic tests, logs, and exceptions.
+**Verify and retain:** Keep the PPSM record, traffic diagrams, input values, rule exports,
+route and DNS checks, traffic tests, logs, and exceptions.
 
 ### Perform Vulnerability Management and Incident Response
 
-**Change:** Run repeatable vulnerability scans and incident response. Use the MLZ
-inventory, findings, and logs as inputs.
-
-**Owner:** The mission vulnerability and incident-response owners, SOC, system owner,
-and required reporting authorities.
-
-**Current state:** MLZ provides resource inventory, Defender findings, logs, and optional
-Sentinel onboarding. It does not operate vulnerability or incident-response programs.
+**Owner:** Security operations team and resource owners.
 
 **Steps:**
 
-- [ ] Approve each scan source and its access.
-- [ ] Define severity, repair, reporting, evidence, and exception rules.
-- [ ] Scan the cloud resources and operating systems.
-- [ ] Scan identities and applications.
-- [ ] Combine Defender and other findings, remove duplicates, assign owners, remediate
-  or formally accept risk, rescan, and trend results.
-- [ ] Connect MLZ telemetry to detection and case workflows.
-- [ ] Define how the team will review, contain, remove, and recover from threats.
-- [ ] Define reporting, evidence handling, and lessons-learned steps.
-- [ ] Exercise these steps with a realistic event.
+- [ ] Configure the customer's scanner to cover the deployed resources, operating
+  systems, identities, and workload endpoints. Give its identity the access required
+  by that scanner.
+- [ ] Run scans and combine the results with Defender findings. For each finding,
+  record the resource ID, severity, resource owner, and repair due date.
+- [ ] Fix each finding and scan again to confirm the repair. For findings left open,
+  attach the customer's risk decision to the finding record.
+- [ ] Connect MLZ logs and alerts to the incident system used by the security
+  operations team. Send a test alert and confirm that a case opens.
+- [ ] If Sentinel is used, configure
+  [automation rules](https://learn.microsoft.com/azure/sentinel/automate-incident-handling-with-automation-rules)
+  to assign incidents to the responder identified by the security operations team.
+- [ ] In a test environment, exercise containment and recovery on a test resource.
+  Record the access changes, repair, restore result, and follow-up scan in the case.
+- [ ] Attach alert records, the incident timeline, actions taken, and recovery checks
+  to the case. Include unresolved findings in the
+  [assessment records](#complete-data-application-and-rmf-work).
 
-**Expected result:** Findings and incidents have accountable owners, timely actions,
-verified closure or risk decisions, and preserved evidence.
-
-**Verify and retain:** Keep coverage reports, findings, owners, due dates, and rescans.
-Keep risk decisions and trend reports. For incidents, keep the timeline, evidence,
-messages, recovery checks, and after-action fixes.
+**Verify and retain:** Keep scan reports, findings, owners, due dates, and follow-up scans.
+Keep risk decisions and changes over time. For incidents, keep the timeline, evidence,
+messages, recovery checks, and fixes.
 
 ### Complete Data, Application, and RMF Work
-
-**Change:** Complete the mission-owned data, application, assessment, risk, and
-authorization work that infrastructure deployment cannot perform.
 
 **Owner:** System owner, data owner, application owners, control owners, assessor,
 security management, and AO.
 
-**Current state:** MLZ does not classify mission data, implement workload application
-controls, produce a system security plan (SSP), assess controls, accept risk, or issue an
-ATO.
-
 **Steps:**
 
-- [ ] Define the authorization boundary and data flows.
-- [ ] Categorize and classify mission data and approve its handling rules.
-- [ ] Select and tailor NIST SP 800-53 Revision 5 controls for the system.
-- [ ] Implement and test application, data, and operational controls outside MLZ.
-- [ ] State who owns each inherited, shared, system, and external control.
-- [ ] Write the SSP and collect Microsoft, MLZ, mission, and external evidence.
-- [ ] Assess control effectiveness and record findings.
-- [ ] Track plans of action and milestones, risk responses, and accepted risk.
-- [ ] Submit the authorization package to the designated AO.
-- [ ] Keep monitoring the system after the AO makes a decision.
+- [ ] Record the deployed resource IDs and data flows in the SSP's authorization
+  boundary.
+- [ ] Record the data's security category, classification, and handling requirements
+  in the SSP. Check the deployed encryption, access, and storage settings against them.
+- [ ] For the customer's selected NIST SP 800-53 Revision 5 controls, record each
+  control owner, implementation, and test result. Include controls supplied by other
+  systems or shared with other teams.
+- [ ] Add the configuration exports and test results from this guide to the SSP and
+  assessment report. Include application and external-control evidence from their
+  owners.
+- [ ] Record unresolved findings, resource owners, and repair dates in the plans of
+  action and milestones. Attach customer risk decisions.
+- [ ] Submit the SSP, assessment report, findings, and risk records to the AO through
+  the customer's authorization process.
+- [ ] Record the AO's decision and conditions. Apply any required configuration
+  changes and add the required tests and review dates to the operating schedule.
 
-**Expected result:** The AO receives a complete package that has been assessed. It shows
-the known risk and includes an active monitoring plan.
-
-**Verify and retain:** Keep the SSP, boundary, data-flow diagrams, and data decisions.
-Keep the evidence index, assessment plan, report, and findings. Keep plans of action and
+**Verify and retain:** Keep the SSP, system boundary, traffic diagrams, and data decisions.
+Keep the evidence list, assessment plan, report, and findings. Keep plans of action and
 milestones, risk decisions, the AO decision and terms, and monitoring records.
-
-## Maintenance
-
-Review this guide when MLZ parameters or resources change. Review it when Microsoft,
-NIST, or DoD guidance changes. Review it when the mission changes its design, region,
-data, identity plan, or authorization boundary.
 
 ## References
 
 - [MLZ IL5 RMF resource mapping](./il5-rmf-resource-mapping.md)
 - [DoD Cloud Computing Security Requirements Guide library](https://www.cyber.mil/dccs/dccs-documents/) - Cloud Service Provider SRG Version 1, Release 7, dated 30 June 2026.
-- [DoDI 8510.01, Risk Management Framework for DoD Systems](https://www.esd.whs.mil/Portals/54/Documents/DD/issuances/dodi/851001p.pdf) - published 12 March 2014 and incorporating Change 3, effective 19 July 2022.
+- [DoDI 8510.01, Risk Management Framework for DoD Systems](https://www.esd.whs.mil/Portals/54/Documents/DD/issuances/dodi/851001p.pdf) - effective 19 July 2022; reissues and cancels the 12 March 2014 instruction, as amended.
 - [CNSSI 1253, Security Categorization and Control Selection for National Security Systems](https://www.dcsa.mil/Portals/91/Documents/CTP/NAO/CNSSI_No1253.pdf) - 27 March 2014.
 - [Department of Defense in Azure Government](https://learn.microsoft.com/azure/azure-government/documentation-government-overview-dod)
 - [Isolation guidelines for Impact Level 5 workloads](https://learn.microsoft.com/azure/azure-government/documentation-government-impact-level-5)

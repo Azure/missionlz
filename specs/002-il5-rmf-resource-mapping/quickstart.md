@@ -56,12 +56,12 @@ grep -R -n "hostGroups\|hostGroup\|virtualMachineSize" src/mlz.bicep src/modules
 **Expected outcome**:
 
 - Policy requires `deployPolicy=true` and `policy='IL5'`, plus live ID verification.
-- Defender changes from Free to Standard with mission-selected plans.
+- Defender changes from Free to Standard with customer-selected plans.
 - Firewall IDPS and threat intelligence move from Alert to Deny after tuning.
-- Retention is mission-derived, not a universal IL5 value.
+- Retention is customer-derived, not a universal IL5 value.
 - Log Analytics public access and complete Dedicated Host placement are identified as
   template gaps.
-- All four NSG arrays are tied to mission-approved PPSM data flows.
+- All four NSG arrays are tied to customer-approved PPSM data flows.
 - Each finding is classified as a parameter change, template change, external
   implementation, or deployment-time verification.
 
@@ -148,8 +148,8 @@ requirement. Related actions may share a section when the individual steps remai
 ## 10. Sample Source Traces and Current/Proposed Language
 
 Sample at least one parameter, proposed-template, and outside-MLZ section. Follow its
-mapping and repository citations. For parameter changes, confirm the declaration,
-consumer, and deployment input files named by the guide.
+mapping and repository citations. For parameter changes, confirm the names, values,
+dependencies, and input locations used in the steps.
 
 Include targeted samples for:
 
@@ -157,7 +157,6 @@ Include targeted samples for:
 - The `deployIdentity` and `deployActiveDirectoryDomainServices` multi-parameter path
   and all required AD DS inputs.
 - Bastion host deployment versus separately enabled jumpbox VMs.
-- Both built-in Firewall rules named `Allow-KV-TCP`.
 
 **Expected outcome**: Current statements match the reviewed source. Proposed statements
 use future/proposal language. Discrepancies are reported as facts or validation checks,
@@ -165,18 +164,17 @@ not silently fixed, and no proposed behavior is presented as implemented.
 
 ## 11. Validate Files and Steps
 
-For every parameter section, verify the parameter name, current default, declaration
-file, consumer files, and deployment input file when one exists. For each planned
-vNext section, verify its feature-request link, current limitation, customer action,
-and expected result.
+For every parameter section, verify the parameter names, required values or decisions,
+dependencies, and input locations. For each template limitation, verify its
+customer actions and expected result.
 
 ```bash
-rg -n "^param |module |publicNetworkAccessFor|hostGroups|properties\.host|Allow-KV-TCP" src docs/deployment-guides
+rg -n "^param |module |publicNetworkAccessFor|hostGroups|properties\.host" src docs/deployment-guides
 ```
 
 **Expected outcome**: Parameter paths are accurate. The Log Analytics and Dedicated
-Host engineering details are in their linked feature requests, not the tactical guide.
-The AD DS section covers its required companion parameters and module path.
+Host sections do not present missing template settings as available.
+The AD DS section covers its required companion parameters and identity-tier dependency.
 
 ## 12. Validate Section Completeness
 
@@ -184,12 +182,17 @@ Inspect each section against [the document contract](contracts/document-contract
 
 **Expected outcome**:
 
-- Every section states the change, files or owner, current state, steps, and verification
-  or evidence.
+- Every section provides executable steps and verification or evidence. Input
+  locations and owners are identified where needed.
+- Defaults and limitations needed for an action appear in the steps. No standalone
+  current-state blocks, repeated change summaries, or module call-chain narration remain.
+- Each required customer input names an owner and a concrete consumer: a parameter,
+  service setting, test threshold, or evidence artifact. No undefined approval gate
+  is presented as an Azure deployment action.
 - Parameter sections identify the exact file that receives the deployment value when
   one exists.
-- Planned vNext sections link to their feature requests and contain no internal
-  implementation steps.
+- Template-limitation sections contain no internal engineering plans or repository
+  issue links.
 - Outside-MLZ sections identify the accountable owner and evidence to retain.
 
 ## 13. Check Values, Baselines, and Region Language
@@ -199,19 +202,27 @@ contact addresses, authentication choices, recovery objectives, host selections,
 and authorization decisions. For each value, verify it is directly authoritative or is
 recorded as a decision point with an owner, inputs, and validation evidence.
 
-**Expected outcome**: No universal mission-specific or dynamically discovered value is
+**Expected outcome**: No universal customer-specific or dynamically discovered value is
 invented. NIST SP 800-53 Revision 5 and the mapping's DoD IL5 baseline remain consistent.
 Wider-MAG guidance names US Gov Arizona, Texas, or Virginia and preserves the official
 service and feature scope.
 
 ## 14. Validate Readability
 
-Run the same repeatable readability method used for the mapping document against the
-tactical guide's explanatory prose. Technical tables, code, paths, and identifiers may
-be excluded from the score.
+Use `textstat` 0.7.13 with `en_US` for both documents. Report Flesch-Kincaid,
+Gunning Fog, Coleman-Liau, Automated Readability Index, and SMOG grade estimates.
+
+- Grade body paragraphs and list items in each document.
+- Also grade the mapping with its descriptive table cells included: resources and
+  current behavior, security purpose, required change, and term definitions.
+- Exclude headings, navigation, the references section, `Files` paragraphs, technical
+  metadata, control-code/source/owner columns, inline code, code blocks, and link URLs.
+- Keep ordinary technical names and the original sentence punctuation. Strip checklist
+  markers and repeated field labels.
 
 **Expected outcome**: Flesch-Kincaid grade level is 11 or lower. Exact technical names,
-values, paths, and evidence requirements remain intact.
+values, paths, and evidence requirements remain intact. Report the other estimates,
+including any that exceed the target.
 
 ## 15. Validate Markdown, Links, and the Documentation-Only Boundary
 
@@ -236,8 +247,8 @@ documentation feature.
 - Every mapping action is covered and no unsupported requirement is introduced.
 - 100% sampled claims trace to the mapping, reviewed source, and appropriate external
   authority.
-- Parameter sections name exact parameters and files; planned vNext sections link to
-  their feature requests; outside-MLZ sections name owners and evidence.
-- Zero invented mission-specific, AO-owned, or dynamically discovered values.
+- Parameter sections name exact parameters and files; template-limitation sections
+  state required actions; outside-MLZ sections name owners and evidence.
+- Zero invented customer-specific, AO-owned, or dynamically discovered values.
 - Grade 11 or lower explanatory prose, zero Markdown/link findings, and zero `src/`,
   generated, parameter, or UI changes.
