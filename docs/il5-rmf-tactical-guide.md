@@ -123,10 +123,15 @@ After deployment, compare resource groups, tags, and owners with the deployment 
 
 - [ ] For each connection in the [traffic list](#predeployment-inputs), write an NSG rule
   with the source, destination, ports, protocol, direction, access, and priority.
+- [ ] Include inbound and outbound Allow rules for the customer, Azure, and MLZ
+  connections each tier needs. Use priorities from `100` through `4095`.
+- [ ] Add inbound and outbound Deny rules at priority `4096` to each tier's array.
+  Lower numbers run first, so these Deny rules follow the required Allows and override
+  [Azure's default Allow rules](https://learn.microsoft.com/azure/virtual-network/network-security-groups-overview#default-security-rules).
 - [ ] Set `hubNetworkSecurityGroupRules`, `operationsNetworkSecurityGroupRules`, and
   `sharedServicesNetworkSecurityGroupRules` to those rules. Use a parameter file
   or command; MLZ's deployment form has no inputs for these arrays.
-  Replace these sample HTTPS rules with each tier's PPSM rules:
+  Replace the sample HTTPS Allow rules with each tier's required Allows; keep the Deny rules:
 
   ```json
   {
@@ -143,6 +148,30 @@ After deployment, compare resource groups, tags, and owners with the deployment 
           "destinationAddressPrefix": "<hub-destination-prefix>",
           "destinationPortRange": "443"
         }
+      }, {
+        "name": "Deny-Unapproved-Inbound",
+        "properties": {
+          "priority": 4096,
+          "direction": "Inbound",
+          "access": "Deny",
+          "protocol": "*",
+          "sourceAddressPrefix": "*",
+          "sourcePortRange": "*",
+          "destinationAddressPrefix": "*",
+          "destinationPortRange": "*"
+        }
+      }, {
+        "name": "Deny-Unapproved-Outbound",
+        "properties": {
+          "priority": 4096,
+          "direction": "Outbound",
+          "access": "Deny",
+          "protocol": "*",
+          "sourceAddressPrefix": "*",
+          "sourcePortRange": "*",
+          "destinationAddressPrefix": "*",
+          "destinationPortRange": "*"
+        }
       }]
     },
     "operationsNetworkSecurityGroupRules": {
@@ -158,6 +187,30 @@ After deployment, compare resource groups, tags, and owners with the deployment 
           "destinationAddressPrefix": "<operations-destination-prefix>",
           "destinationPortRange": "443"
         }
+      }, {
+        "name": "Deny-Unapproved-Inbound",
+        "properties": {
+          "priority": 4096,
+          "direction": "Inbound",
+          "access": "Deny",
+          "protocol": "*",
+          "sourceAddressPrefix": "*",
+          "sourcePortRange": "*",
+          "destinationAddressPrefix": "*",
+          "destinationPortRange": "*"
+        }
+      }, {
+        "name": "Deny-Unapproved-Outbound",
+        "properties": {
+          "priority": 4096,
+          "direction": "Outbound",
+          "access": "Deny",
+          "protocol": "*",
+          "sourceAddressPrefix": "*",
+          "sourcePortRange": "*",
+          "destinationAddressPrefix": "*",
+          "destinationPortRange": "*"
+        }
       }]
     },
     "sharedServicesNetworkSecurityGroupRules": {
@@ -172,6 +225,30 @@ After deployment, compare resource groups, tags, and owners with the deployment 
           "sourcePortRange": "*",
           "destinationAddressPrefix": "<shared-services-destination-prefix>",
           "destinationPortRange": "443"
+        }
+      }, {
+        "name": "Deny-Unapproved-Inbound",
+        "properties": {
+          "priority": 4096,
+          "direction": "Inbound",
+          "access": "Deny",
+          "protocol": "*",
+          "sourceAddressPrefix": "*",
+          "sourcePortRange": "*",
+          "destinationAddressPrefix": "*",
+          "destinationPortRange": "*"
+        }
+      }, {
+        "name": "Deny-Unapproved-Outbound",
+        "properties": {
+          "priority": 4096,
+          "direction": "Outbound",
+          "access": "Deny",
+          "protocol": "*",
+          "sourceAddressPrefix": "*",
+          "sourcePortRange": "*",
+          "destinationAddressPrefix": "*",
+          "destinationPortRange": "*"
         }
       }]
     }
@@ -195,6 +272,30 @@ After deployment, compare resource groups, tags, and owners with the deployment 
           "destinationAddressPrefix": "<identity-destination-prefix>",
           "destinationPortRange": "443"
         }
+      }, {
+        "name": "Deny-Unapproved-Inbound",
+        "properties": {
+          "priority": 4096,
+          "direction": "Inbound",
+          "access": "Deny",
+          "protocol": "*",
+          "sourceAddressPrefix": "*",
+          "sourcePortRange": "*",
+          "destinationAddressPrefix": "*",
+          "destinationPortRange": "*"
+        }
+      }, {
+        "name": "Deny-Unapproved-Outbound",
+        "properties": {
+          "priority": 4096,
+          "direction": "Outbound",
+          "access": "Deny",
+          "protocol": "*",
+          "sourceAddressPrefix": "*",
+          "sourcePortRange": "*",
+          "destinationAddressPrefix": "*",
+          "destinationPortRange": "*"
+        }
       }]
     }
   }
@@ -204,8 +305,9 @@ After deployment, compare resource groups, tags, and owners with the deployment 
   direction, and allow/deny actions for conflicts.
 
 **Verify and retain:** Export the NSG rules in effect for each subnet and network
-interface. Test allowed and blocked traffic. Keep the input values, rule exports,
-route checks, and test results with the PPSM record.
+interface. Test new allowed and blocked connections, including blocked connections
+between VMs in the same virtual network. Keep the input values, rule exports, route
+checks, and test results with the PPSM record.
 
 ### Azure Firewall Modes and Rules
 
@@ -476,10 +578,14 @@ and recovery result.
   written.
 - [ ] Confirm the temporary helper VM is removed after key setup.
 - [ ] Test key rotation, revocation, and recovery on test keys and test resources.
+- [ ] After each change or rotation of a log storage account's customer-managed key,
+  [disable and re-enable its VNet flow logs](https://learn.microsoft.com/azure/network-watcher/vnet-flow-logs-overview#storage-account).
+  Include this recovery in scheduled and manual rotation procedures. Generate test
+  traffic and confirm records with new timestamps reach the storage account.
 
 **Verify and retain:** Keep key and version IDs, resource links, role reviews, and key
-test results. Keep soft-delete and purge-protection settings, proof that the helper VM
-was removed, and approved exceptions.
+test results, flow-log restart results, and fresh flow records. Keep soft-delete and
+purge-protection settings, proof that the helper VM was removed, and approved exceptions.
 
 ### Operate and Protect Virtual Machines
 
