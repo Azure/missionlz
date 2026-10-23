@@ -1,27 +1,3 @@
-<!--
-  Sync Impact Report
-  ==================
-  Version change: 1.0.0 → 1.1.0
-  Bump rationale: MINOR — added explicit, non-negotiable Test-Driven
-    Development (TDD) with Red-Green-Refactor to Principle IV
-    (Validation-Driven Infrastructure).
-  Modified principles:
-    - IV. Validation-Driven Infrastructure (NON-NEGOTIABLE): added explicit
-      Test-Driven Development (Red-Green-Refactor) rules requiring failing
-      tests first (Red), minimal implementation to pass (Green), and cleanup
-      while keeping tests passing (Refactor).
-  Added sections:
-    - Test-Driven Development (NON-NEGOTIABLE) bullet under Principle IV
-  Removed sections: none
-  Templates requiring updates:
-    - .specify/templates/plan-template.md        ✅ no changes needed
-    - .specify/templates/spec-template.md        ✅ no changes needed
-    - .specify/templates/tasks-template.md       ✅ no changes needed
-    - .specify/templates/checklist-template.md   ✅ no changes needed
-    - .specify/templates/constitution-template.md ✅ source template (unchanged)
-  Follow-up TODOs: none
--->
-
 # Mission Landing Zone Constitution
 
 ## Core Principles
@@ -233,7 +209,10 @@ declares.
 ## Development Workflow
 
 - **Branching**: Each feature or fix MUST be developed on a dedicated branch. Direct
-  commits to `main` are prohibited.
+  commits to `main` are prohibited. Branch names MUST follow
+  `<issue-number>-<issue-short-name>`, using the canonical GitHub issue number and a
+  short, hyphen-separated issue name (e.g., `1309-single-subscription-validation`).
+  A Spec Kit sequence number MUST NOT replace the GitHub issue number.
 - **Commits**: Commits MUST be atomic and describe the "what" and "why". One logical
   change per commit.
 - **Code Review**: All changes MUST be reviewed against this constitution's principles
@@ -263,4 +242,4 @@ declares.
   documented in the plan's Complexity Tracking table with a rejected simpler
   alternative.
 
-**Version**: 1.1.0 | **Ratified**: 2026-07-06 | **Last Amended**: 2026-10-23
+**Version**: 1.2.0 | **Ratified**: 2026-07-06 | **Last Amended**: 2026-10-23
