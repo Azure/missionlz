@@ -1,0 +1,37 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+BeforeAll {
+    . (Join-Path $PSScriptRoot 'Initialize-DeploymentValidationTest.ps1')
+    function az { throw 'An Azure CLI call escaped the test mock.' }
+}
+
+Describe 'Deployment validation configuration' {
+    BeforeEach {
+        Reset-DeploymentValidationTestState -ReportOutputPath (Join-Path $TestDrive 'report.json')
+        Mock az { Invoke-DeploymentValidationAzDouble @args }
+    }
+
+    AfterAll {
+        Remove-DeploymentValidationTestState
+        Remove-Item function:az -ErrorAction SilentlyContinue
+    }
+
+    It 'rejects the wrong Azure cloud without provisioning' {
+        $global:MLZValidationTestState.AccountCloud = 'AzureCloud'
+        { Invoke-DeploymentValidationUnderTest } | Should -Throw '*cloud*'
+        @($global:MLZValidationTestState.Calls | Where-Object { $_[0] -eq 'deployment' }).Count | Should -Be 0
+    }
+
+    It 'rejects invalid <Parameter> before making Azure calls' -TestCases @(
+        @{ Parameter = 'Identifier'; Value = 'too-long' }
+        @{ Parameter = 'SubscriptionId'; Value = 'not-a-guid' }
+        @{ Parameter = 'Location'; Value = 'usgovvirginia' }
+        @{ Parameter = 'DeployDefender'; Value = $false }
+    ) {
+        param($Parameter, $Value)
+        $global:MLZValidationTestState.Arguments[$Parameter] = $Value
+        { Invoke-DeploymentValidationUnderTest } | Should -Throw
+        $global:MLZValidationTestState.Calls.Count | Should -Be 0
+    }
+}
