@@ -3,19 +3,12 @@
 
 BeforeAll {
     . (Join-Path $PSScriptRoot 'Initialize-DeploymentValidationTest.ps1')
-    function az { throw 'An Azure CLI call escaped the test mock.' }
+    . $script:DeploymentValidationTestGuard
 }
 
 Describe 'Deployment validation baseline' {
-    BeforeEach {
-        Reset-DeploymentValidationTestState -ReportOutputPath (Join-Path $TestDrive 'report.json')
-        Mock az { Invoke-DeploymentValidationAzDouble @args }
-    }
-
-    AfterAll {
-        Remove-DeploymentValidationTestState
-        Remove-Item function:az -ErrorAction SilentlyContinue
-    }
+    BeforeEach { . $script:DeploymentValidationTestSetup }
+    AfterAll { . $script:DeploymentValidationTestCleanup }
 
     It 'refuses an identifier already used by a baseline resource group before deployment' {
         $global:MLZValidationTestState.Groups += @{ name = 'rg-wk123-existing'; tags = @{} }

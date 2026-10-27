@@ -88,6 +88,80 @@ function Invoke-ValidationCleanupAction {
     catch { $report.CleanupSummary.Errors += $FailureMessage }
 }
 
+function Invoke-ValidationGroupCleanup {
+    param([string]$TargetSubscription, $Baseline)
+
+    Invoke-ValidationCleanupAction -FailureMessage 'Resource-group inventory or cleanup failed.' -Action {
+        $groups = @(Invoke-ValidationAzureCli -Operation 'cleanup resource-group inventory' -Arguments @(
+            'group', 'list', '--subscription', $TargetSubscription
+        ))
+        foreach ($group in $groups) {
+            if ($group.name -in $Baseline.ResourceGroupNames) {
+                $report.CleanupSummary.PreservedPreExistingItems += $group.name
+            }
+            elseif (Test-ValidationGroupOwnership $group) {
+                Invoke-ValidationCleanupAction -FailureMessage 'A run-owned resource-group deletion failed.' -Action {
+                    Invoke-ValidationAzureCli -Operation 'resource-group deletion' -DiscardOutput -Arguments @(
+                        'group', 'delete', '--name', $group.name, '--yes', '--subscription', $TargetSubscription
+                    )
+                    $report.CleanupSummary.DeletedResourceGroups += $group.name
+                }
+            }
+        }
+    }
+}
+
+function Update-ValidationOwnedSecurityResource {
+    param([string]$TargetSubscription, $Type, $Resource, $Original)
+
+    if ($Original) {
+        $before = $Original.properties | ConvertTo-Json -Depth 100 -Compress
+        $after = $Resource.properties | ConvertTo-Json -Depth 100 -Compress
+        if ($before -ne $after -and
+            -not ($Type.Kind -eq 'Pricings' -and $Original.properties.pricingTier -eq 'Free')) {
+            Restore-ValidationSecurityResource $TargetSubscription $Type.Type $Type.Version $Original
+        }
+        $report.CleanupSummary.PreservedPreExistingItems += $Original.name
+    }
+    elseif ($Type.Kind -eq 'Policies') {
+        Invoke-ValidationAzureCli -Operation 'policy deletion' -DiscardOutput -Arguments @(
+            'policy', 'assignment', 'delete', '--name', $Resource.name,
+            '--scope', "/subscriptions/$TargetSubscription", '--subscription', $TargetSubscription
+        )
+        $report.CleanupSummary.DeletedPolicyAssignments += $Resource.name
+    }
+    elseif ($Type.Kind -eq 'Contacts') {
+        Invoke-ValidationAzureCli -Operation 'security-contact deletion' -DiscardOutput -Arguments @(
+            'security', 'contact', 'delete', '--name', $Resource.name, '--yes', '--subscription', $TargetSubscription
+        )
+        $report.CleanupSummary.DeletedSecurityContacts += $Resource.name
+    }
+    if ($Type.Kind -eq 'Pricings' -and $Resource.properties.pricingTier -ne 'Free' -and
+        (-not $Original -or $Original.properties.pricingTier -eq 'Free')) {
+        Invoke-ValidationAzureCli -Operation 'Defender Free reset' -DiscardOutput -Arguments @(
+            'security', 'pricing', 'create', '--name', $Resource.name,
+            '--tier', 'Free', '--subscription', $TargetSubscription
+        )
+        $report.CleanupSummary.ResetDefenderPlans += $Resource.name
+    }
+}
+
+function Invoke-ValidationSecurityCleanup {
+    param([string]$TargetSubscription, $Baseline)
+
+    foreach ($type in $securityTypes) {
+        Invoke-ValidationCleanupAction -FailureMessage "$($type.Kind) inventory or cleanup failed." -Action {
+            $current = @(Get-ValidationSecurityResources $TargetSubscription $type.Type $type.Version)
+            foreach ($resource in @($current | Where-Object name -EQ $type.Name)) {
+                $original = $Baseline[$type.Kind] | Where-Object name -EQ $resource.name
+                Invoke-ValidationCleanupAction -FailureMessage "$($type.Kind) cleanup failed." -Action {
+                    Update-ValidationOwnedSecurityResource $TargetSubscription $type $resource $original
+                }
+            }
+        }
+    }
+}
+
 function Restore-ValidationSecurityResource {
     param([string]$TargetSubscription, [string]$ResourceType, [string]$ApiVersion, $Resource)
 
@@ -253,65 +327,8 @@ catch {
 finally {
     if ($deploymentStarted) {
         foreach ($target in $baselines.Keys) {
-            $baseline = $baselines[$target]
-            Invoke-ValidationCleanupAction -FailureMessage 'Resource-group inventory or cleanup failed.' -Action {
-                $groups = @(Invoke-ValidationAzureCli -Operation 'cleanup resource-group inventory' -Arguments @(
-                    'group', 'list', '--subscription', $target
-                ))
-                foreach ($group in $groups) {
-                    if ($group.name -in $baseline.ResourceGroupNames) {
-                        $report.CleanupSummary.PreservedPreExistingItems += $group.name
-                    }
-                    elseif (Test-ValidationGroupOwnership $group) {
-                        Invoke-ValidationCleanupAction -FailureMessage 'A run-owned resource-group deletion failed.' -Action {
-                            Invoke-ValidationAzureCli -Operation 'resource-group deletion' -DiscardOutput -Arguments @(
-                                'group', 'delete', '--name', $group.name, '--yes', '--subscription', $target
-                            )
-                            $report.CleanupSummary.DeletedResourceGroups += $group.name
-                        }
-                    }
-                }
-            }
-            foreach ($type in $securityTypes) {
-                Invoke-ValidationCleanupAction -FailureMessage "$($type.Kind) inventory or cleanup failed." -Action {
-                    $current = @(Get-ValidationSecurityResources $target $type.Type $type.Version)
-                    foreach ($resource in @($current | Where-Object name -EQ $type.Name)) {
-                        $original = $baseline[$type.Kind] | Where-Object name -EQ $resource.name
-                        Invoke-ValidationCleanupAction -FailureMessage "$($type.Kind) cleanup failed." -Action {
-                            if ($original) {
-                                $before = $original.properties | ConvertTo-Json -Depth 100 -Compress
-                                $after = $resource.properties | ConvertTo-Json -Depth 100 -Compress
-                                if ($before -ne $after -and
-                                    -not ($type.Kind -eq 'Pricings' -and $original.properties.pricingTier -eq 'Free')) {
-                                    Restore-ValidationSecurityResource $target $type.Type $type.Version $original
-                                }
-                                $report.CleanupSummary.PreservedPreExistingItems += $original.name
-                            }
-                            elseif ($type.Kind -eq 'Policies') {
-                                Invoke-ValidationAzureCli -Operation 'policy deletion' -DiscardOutput -Arguments @(
-                                    'policy', 'assignment', 'delete', '--name', $resource.name,
-                                    '--scope', "/subscriptions/$target", '--subscription', $target
-                                )
-                                $report.CleanupSummary.DeletedPolicyAssignments += $resource.name
-                            }
-                            elseif ($type.Kind -eq 'Contacts') {
-                                Invoke-ValidationAzureCli -Operation 'security-contact deletion' -DiscardOutput -Arguments @(
-                                    'security', 'contact', 'delete', '--name', $resource.name, '--yes', '--subscription', $target
-                                )
-                                $report.CleanupSummary.DeletedSecurityContacts += $resource.name
-                            }
-                            if ($type.Kind -eq 'Pricings' -and $resource.properties.pricingTier -ne 'Free' -and
-                                (-not $original -or $original.properties.pricingTier -eq 'Free')) {
-                                Invoke-ValidationAzureCli -Operation 'Defender Free reset' -DiscardOutput -Arguments @(
-                                    'security', 'pricing', 'create', '--name', $resource.name,
-                                    '--tier', 'Free', '--subscription', $target
-                                )
-                                $report.CleanupSummary.ResetDefenderPlans += $resource.name
-                            }
-                        }
-                    }
-                }
-            }
+            Invoke-ValidationGroupCleanup $target $baselines[$target]
+            Invoke-ValidationSecurityCleanup $target $baselines[$target]
         }
         $report.CleanupStatus = if ($report.CleanupSummary.Errors.Count) { 'Failed' } else { 'Succeeded' }
         if ($report.CleanupStatus -eq 'Failed') { $failures.Add('cleanup') }

@@ -3,19 +3,12 @@
 
 BeforeAll {
     . (Join-Path $PSScriptRoot 'Initialize-DeploymentValidationTest.ps1')
-    function az { throw 'An Azure CLI call escaped the test mock.' }
+    . $script:DeploymentValidationTestGuard
 }
 
 Describe 'Deployment validation test hook' {
-    BeforeEach {
-        Reset-DeploymentValidationTestState -ReportOutputPath (Join-Path $TestDrive 'report.json')
-        Mock az { Invoke-DeploymentValidationAzDouble @args }
-    }
-
-    AfterAll {
-        Remove-DeploymentValidationTestState
-        Remove-Item function:az -ErrorAction SilentlyContinue
-    }
+    BeforeEach { . $script:DeploymentValidationTestSetup }
+    AfterAll { . $script:DeploymentValidationTestCleanup }
 
     It 'runs the requested test hook with the deployment configuration before cleanup' {
         $hook = Join-Path $TestDrive 'Hook.ps1'

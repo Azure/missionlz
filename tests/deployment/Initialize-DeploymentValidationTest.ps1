@@ -156,3 +156,18 @@ function Invoke-DeploymentValidationAzDouble {
 function Remove-DeploymentValidationTestState {
     Remove-Variable MLZValidationTestState -Scope Global -ErrorAction SilentlyContinue
 }
+
+# Dot-source these from Pester hooks so Mock and the escaped-call guard stay in the test scope.
+$script:DeploymentValidationTestGuard = {
+    function az { throw 'An Azure CLI call escaped the test mock.' }
+}
+
+$script:DeploymentValidationTestSetup = {
+    Reset-DeploymentValidationTestState -ReportOutputPath (Join-Path $TestDrive 'report.json')
+    Mock az { Invoke-DeploymentValidationAzDouble @args }
+}
+
+$script:DeploymentValidationTestCleanup = {
+    Remove-DeploymentValidationTestState
+    Remove-Item function:az -ErrorAction SilentlyContinue
+}
