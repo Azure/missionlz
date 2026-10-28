@@ -102,7 +102,7 @@ param deployDefender bool = true
 // Allowed Values for paid workload protection Plans.  
 // Users must select a plan from portal ui def or manually specify any of the plans that are available in the desired cloud.  
 // The portal does not parse the allowed values field for arrays  correctly at this time.
-// As a default, the array is set to ['VirtualMachines'].
+// As a default, the array is set to ['VirtualMachines', 'StorageAccounts'].
 /*   'Api'
   'AppServices'
   'Arm'
@@ -119,8 +119,11 @@ param deployDefender bool = true
   'StorageAccounts'
   'VirtualMachine*/
 
-@description('The Paid Workload Protection plans for Defender for Cloud. Default value = "VirtualMachines". See the following URL for valid settings: https://learn.microsoft.com/rest/api/defenderforcloud-composite/pricings/update?view=rest-defenderforcloud-composite-latest&tabs=HTTP.')
-param deployDefenderPlans array = ['VirtualMachines']
+@description('The Paid Workload Protection plans for Defender for Cloud. Default value = "VirtualMachines, StorageAccounts". See the following URL for valid settings: https://learn.microsoft.com/rest/api/defenderforcloud-composite/pricings/update?view=rest-defenderforcloud-composite-latest&tabs=HTTP.')
+param deployDefenderPlans array = [
+  'VirtualMachines'
+  'StorageAccounts'
+]
 
 @description('Choose to deploy the identity resources. The identity resoures are not required if you plan to use cloud identities.')
 param deployIdentity bool = false
@@ -992,6 +995,8 @@ module monitoring 'modules/monitoring.bicep' = {
   params: {
     delimiter: networking.outputs.delimiter
     deploymentNameSuffix: deploymentNameSuffix
+    deployDefender: deployDefender
+    deployDefenderPlans: deployDefenderPlans
     deploySentinel: deploySentinel
     location: location
     logAnalyticsWorkspaceCappingDailyQuotaGb: logAnalyticsWorkspaceCappingDailyQuotaGb
