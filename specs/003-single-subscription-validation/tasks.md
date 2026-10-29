@@ -66,7 +66,7 @@ description: "Actionable, dependency-ordered tasks for Validate Weekly MLZ Deplo
 
 ### Implementation & Live Verification for User Story 2
 
-- [ ] T007 [P] [US2] Resolve and verify AllInOne configuration (subscription ID, `AzureUSGovernment` cloud, `usgovarizona` region, permissions, and quota) and configure secure authentication for `.github/workflows/deployment-validation.yml`, using the prerequisites documented in `docs/testing.md`.
+- [x] T007 [P] [US2] Resolve and verify AllInOne configuration and configure secure authentication for `.github/workflows/deployment-validation.yml`, using the prerequisites documented in `docs/testing.md`.
 - [ ] T008 [US2] Run a successful real deployment followed by cleanup through `tests/deployment/Invoke-DeploymentValidation.ps1`; verify resource and subscription-security outcomes in the dedicated AllInOne test subscription.
 - [ ] T009 [US2] Exercise a failed deployment with partial resources through `tests/deployment/Invoke-DeploymentValidation.ps1`; verify cleanup still runs, protected resources remain intact, and the final result remains failed.
 - [ ] T010 [US2] Record AllInOne execution evidence, configuration, source revision, deployment/cleanup outcomes, and remaining validation gaps in the [#1309](https://github.com/Azure/missionlz/issues/1309) issue body; update the verified operating instructions in `docs/testing.md`.
@@ -101,13 +101,13 @@ T001 (Red: Contract & Failing Pester Tests)
                                               │                                              │
                                               └──► T006 [P] (docs/testing.md) ───────────────┼──► T008 (Live Success + Cleanup) ──┐
                                                                                              │                                    ├──► T010 (Record Evidence & Finalize Docs)
-T007 [P] (Verify AllInOne Config, Auth & Quota) ─────────────────────────────────────────────┴──► T009 (Live Failure + Cleanup) ──┘
+T007 [P] (Verify AllInOne Config & Auth) ────────────────────────────────────────────────┴──► T009 (Live Failure + Cleanup) ──┘
 ```
 
 ### Parallel Opportunities
 
 - **Within User Story 1**: Once `T002` and `T003` define the CLI behavior in `tests/deployment/Invoke-DeploymentValidation.ps1`, `T006` (`docs/testing.md`) can be drafted in parallel with `T004` (`.github/workflows/deployment-validation.yml`) and `T005` (`tests/deployment/*.Tests.ps1` verification) because they touch separate files.
-- **Across User Stories 1 and 2**: `T007` (AllInOne subscription, authentication, and quota verification) can proceed in parallel with `T001`–`T006` lifecycle development.
+- **Across User Stories 1 and 2**: `T007` (AllInOne subscription and authentication verification) can proceed in parallel with `T001`–`T006` lifecycle development.
 
 ---
 
@@ -133,6 +133,6 @@ Task T007: "Resolve and verify AllInOne configuration and configure secure authe
 
 ### Incremental Delivery (User Story 2: `T007`–`T010`)
 
-1. Complete `T007`: Verify AllInOne subscription ID, `AzureUSGovernment` cloud, `usgovarizona` region, OIDC authentication, permissions, and quota.
+1. Complete `T007`: Resolve and verify AllInOne configuration and configure secure authentication. Quota sufficiency remains a prerequisite before provisioning, not part of this completed task.
 2. With explicit approval for live deployment, execute `T008` (live successful deployment + cleanup) and `T009` (live partial/failed deployment + cleanup).
 3. Complete `T010`: Record verified live execution evidence in [#1309](https://github.com/Azure/missionlz/issues/1309) and finalize `docs/testing.md`.

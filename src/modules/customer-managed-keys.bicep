@@ -22,7 +22,7 @@ param type string
 @secure()
 param virtualMachineAdminPassword string = newGuid()
 param virtualMachineAdminUsername string = 'xadmin'
-param virtualMachineSize string = 'Standard_D2ds_v4'
+param virtualMachineSize string = 'Standard_D2ds_v5'
 
 var keyVaultPrivateEndpointName = replace(tier.namingConvention.keyVaultPrivateEndpoint, tokens.purpose, workload)
 var resourceGroupName = resourceGroup().name

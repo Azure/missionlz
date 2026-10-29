@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.39.26.7824",
-      "templateHash": "186370419513569005"
+      "templateHash": "10749595052822282580"
     }
   },
   "parameters": {
@@ -752,7 +752,7 @@
     },
     "managementVirtualMachineSize": {
       "type": "string",
-      "defaultValue": "Standard_D2ds_v4",
+      "defaultValue": "Standard_D2ds_v5",
       "metadata": {
         "description": "The virtual machine size for the management virtual machine."
       }
@@ -2190,14 +2190,6 @@
                             "name": {
                               "type": "string",
                               "value": "[parameters('name')]"
-                            },
-                            "location": {
-                              "type": "string",
-                              "value": "[reference(subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('name')), '2019-05-01', 'full').location]"
-                            },
-                            "tags": {
-                              "type": "object",
-                              "value": "[reference(subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('name')), '2019-05-01', 'full').tags]"
                             }
                           }
                         }
@@ -5266,7 +5258,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.39.26.7824",
-              "templateHash": "17570941684621528587"
+              "templateHash": "5179272747134664213"
             }
           },
           "parameters": {
@@ -5410,7 +5402,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.39.26.7824",
-                      "templateHash": "13812491710198916644"
+                      "templateHash": "1909980697215632274"
                     }
                   },
                   "parameters": {
@@ -5465,7 +5457,7 @@
                     },
                     "virtualMachineSize": {
                       "type": "string",
-                      "defaultValue": "Standard_D2ds_v4"
+                      "defaultValue": "Standard_D2ds_v5"
                     }
                   },
                   "variables": {
@@ -7122,7 +7114,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.39.26.7824",
-              "templateHash": "7146833461796809064"
+              "templateHash": "5224721301411080149"
             }
           },
           "parameters": {
@@ -7303,7 +7295,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.39.26.7824",
-                      "templateHash": "13812491710198916644"
+                      "templateHash": "1909980697215632274"
                     }
                   },
                   "parameters": {
@@ -7358,7 +7350,7 @@
                     },
                     "virtualMachineSize": {
                       "type": "string",
-                      "defaultValue": "Standard_D2ds_v4"
+                      "defaultValue": "Standard_D2ds_v5"
                     }
                   },
                   "variables": {
@@ -9042,7 +9034,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.39.26.7824",
-              "templateHash": "4047616631536786084"
+              "templateHash": "4222293292545667491"
             }
           },
           "parameters": {
@@ -9147,7 +9139,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.39.26.7824",
-                      "templateHash": "13812491710198916644"
+                      "templateHash": "1909980697215632274"
                     }
                   },
                   "parameters": {
@@ -9202,7 +9194,7 @@
                     },
                     "virtualMachineSize": {
                       "type": "string",
-                      "defaultValue": "Standard_D2ds_v4"
+                      "defaultValue": "Standard_D2ds_v5"
                     }
                   },
                   "variables": {

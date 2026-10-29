@@ -118,9 +118,15 @@ Before enabling scheduled execution or approving a manual run:
    locally, but not before provisioning.
 2. Have an authorized administrator configure a Microsoft Entra application or
    managed identity with a GitHub OIDC federated credential. For the GitHub
-   environment below, use issuer `https://token.actions.githubusercontent.com`,
-   subject `repo:Azure/missionlz:environment:AllInOne`, and audience
-   `api://AzureADTokenExchangeUSGov`. The audience must match the workflow.
+   environment below, use issuer `https://token.actions.githubusercontent.com`
+   with no trailing slash, audience `api://AzureADTokenExchangeUSGov`, and the
+   subject produced by this repository's OIDC customization. That customization
+   sets `use_default` to false and includes `repository_owner_id`,
+   `repository_id`, and `context`, so the subject is
+   `repository_owner_id:<owner id>:repository_id:<repository id>:environment:AllInOne`.
+   Do not use the default `repo:Azure/missionlz:environment:AllInOne` subject.
+   Read the current IDs from the repository API when creating the credential.
+   The audience must match the workflow.
 3. Create the GitHub environment `AllInOne`, restrict it to `main`, and configure
    environment secrets `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, and
    `AZURE_SUBSCRIPTION_ID`. Do not configure a client secret. Configure reviewers
