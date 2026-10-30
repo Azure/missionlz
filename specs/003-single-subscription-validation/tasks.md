@@ -52,7 +52,7 @@ description: "Actionable, dependency-ordered tasks for Validate Weekly MLZ Deplo
 - [x] T003 [US1] Implement the minimum pre-deployment ownership baseline capture and `try`/`finally` run-owned resource-group (`rg-<Identifier>-*` / `tags.identifier == <Identifier>` absent from baseline) and subscription-security cleanup (`Microsoft.Authorization/policyAssignments`, `Microsoft.Security/securityContacts`) in `tests/deployment/Invoke-DeploymentValidation.ps1`, including preservation of pre-existing resources and Defender `Free` resets (`az security pricing create -n <plan> --tier Free`), and execute `Invoke-Pester -Path ./tests/deployment` to verify all lifecycle tests pass (**Green**).
 - [x] T004 [US1] Wire secure OIDC authentication (`id-token: write`, `contents: read`), weekly scheduling (`schedule`), independent manual execution (`workflow_dispatch`), cleanup, and sanitized failure reporting into `.github/workflows/deployment-validation.yml`.
 - [x] T005 [US1] Refactor `tests/deployment/Invoke-DeploymentValidation.ps1` and `tests/deployment/*.Tests.ps1` to clean up duplication, structure, and readability while keeping all tests green (**Refactor**), and validate successful deployment, partial deployment failure, cleanup failure, original-failure preservation, and protection of pre-existing resources through `tests/deployment/*.Tests.ps1` and existing gates (`tests/Invoke-Tests.ps1`, `tests/coverage-baseline.json`, Bicep build, and Super-Linter) without weakening tests or coverage requirements.
-- [x] T006 [P] [US1] Document reproducible commands, required configuration and permissions, weekly schedule, cleanup boundaries, failure investigation, and the shared [#1310](https://github.com/Azure/missionlz/issues/1310) integration point in `docs/testing.md`.
+- [x] T006 [P] [US1] State in `docs/testing.md` that weekly AllInOne deployment, cleanup, and lifecycle tests exist. Do not publish operator instructions; the run uses a dedicated subscription and tenant.
 
 **Checkpoint**: User Story 1 lifecycle, workflow, Pester suite, and documentation are complete and verified against all local and CI gates.
 
@@ -66,10 +66,10 @@ description: "Actionable, dependency-ordered tasks for Validate Weekly MLZ Deplo
 
 ### Implementation & Live Verification for User Story 2
 
-- [x] T007 [P] [US2] Resolve and verify AllInOne configuration and configure secure authentication for `.github/workflows/deployment-validation.yml`, using the prerequisites documented in `docs/testing.md`.
+- [x] T007 [P] [US2] Resolve and verify AllInOne configuration and configure secure authentication for `.github/workflows/deployment-validation.yml`.
 - [ ] T008 [US2] Run a successful real deployment followed by cleanup through `tests/deployment/Invoke-DeploymentValidation.ps1`; verify resource and subscription-security outcomes in the dedicated AllInOne test subscription.
 - [ ] T009 [US2] Exercise a failed deployment with partial resources through `tests/deployment/Invoke-DeploymentValidation.ps1`; verify cleanup still runs, protected resources remain intact, and the final result remains failed.
-- [ ] T010 [US2] Record AllInOne execution evidence, configuration, source revision, deployment/cleanup outcomes, and remaining validation gaps in the [#1309](https://github.com/Azure/missionlz/issues/1309) issue body; update the verified operating instructions in `docs/testing.md`.
+- [x] T010 [US2] Record AllInOne execution evidence, configuration, source revision, deployment/cleanup outcomes, and remaining validation gaps in the [#1309](https://github.com/Azure/missionlz/issues/1309) issue body.
 
 **Checkpoint**: Both User Story 1 (reusable lifecycle + offline tests) and User Story 2 (live AllInOne validation evidence) are complete.
 
@@ -87,7 +87,7 @@ description: "Actionable, dependency-ordered tasks for Validate Weekly MLZ Deplo
 
 - `T002` and `T003` follow `T001`.
 - `T004` requires implemented deployment (`T002`) and cleanup (`T003`) behavior.
-- `T005` verifies the implemented lifecycle (`T001`–`T004`); `T006` documents its behavior in `docs/testing.md`.
+- `T005` verifies the implemented lifecycle (`T001`–`T004`); `T006` records that the weekly run exists in `docs/testing.md`.
 - `T007` can start during lifecycle development.
 - `T008` and `T009` require the lifecycle (`T001`–`T005`), workflow (`T004`), and approved target configuration (`T007`) plus explicit authorization before any live Azure deployment.
 - `T010` follows the live evidence tasks (`T008`, `T009`). Feature completion requires that live evidence, not just mocked tests or documentation.
@@ -116,8 +116,8 @@ T007 [P] (Verify AllInOne Config & Auth) ─────────────
 ```bash
 # After T002 and T003 complete in tests/deployment/Invoke-DeploymentValidation.ps1:
 Task T004: "Wire secure OIDC authentication, weekly scheduling, independent manual execution, cleanup, and sanitized failure reporting into .github/workflows/deployment-validation.yml"
-Task T006: "Document reproducible commands, required configuration and permissions, weekly schedule, cleanup boundaries, failure investigation, and the shared #1310 integration point in docs/testing.md"
-Task T007: "Resolve and verify AllInOne configuration and configure secure authentication for .github/workflows/deployment-validation.yml, using the prerequisites documented in docs/testing.md"
+Task T006: "State in docs/testing.md that weekly AllInOne deployment, cleanup, and lifecycle tests exist. Do not publish operator instructions."
+Task T007: "Resolve and verify AllInOne configuration and configure secure authentication for .github/workflows/deployment-validation.yml"
 ```
 
 ---
@@ -128,11 +128,11 @@ Task T007: "Resolve and verify AllInOne configuration and configure secure authe
 
 1. Complete `T001` (**Red**): Author the `Invoke-DeploymentValidation.ps1` parameter/report contract and Pester tests in `tests/deployment/*.Tests.ps1`, then execute Pester to verify the tests fail for the expected reason before writing implementation code.
 2. Complete `T002` and `T003` (**Green**): Implement the minimum required core Bicep deployment, [#1310](https://github.com/Azure/missionlz/issues/1310) test hook handling, pre-deployment baseline capture, and `try`/`finally` cleanup in `tests/deployment/Invoke-DeploymentValidation.ps1`, executing Pester to verify all tests pass.
-3. Complete `T004`, `T005` (**Refactor**), and `T006`: Create `.github/workflows/deployment-validation.yml`, refactor `Invoke-DeploymentValidation.ps1` and the concern-specific files under `tests/deployment` for clean structure and zero duplication while keeping all Pester/coverage/linter gates green, and document operations in `docs/testing.md`.
+3. Complete `T004`, `T005` (**Refactor**), and `T006`: Create `.github/workflows/deployment-validation.yml`, refactor `Invoke-DeploymentValidation.ps1` and the concern-specific files under `tests/deployment` for clean structure and zero duplication while keeping all Pester/coverage/linter gates green, and state in `docs/testing.md` that the weekly run exists.
 4. **STOP and VALIDATE**: Confirm all offline tests and local CI parity gates pass before requesting approval for live execution.
 
 ### Incremental Delivery (User Story 2: `T007`–`T010`)
 
 1. Complete `T007`: Resolve and verify AllInOne configuration and configure secure authentication. Quota sufficiency remains a prerequisite before provisioning, not part of this completed task.
 2. With explicit approval for live deployment, execute `T008` (live successful deployment + cleanup) and `T009` (live partial/failed deployment + cleanup).
-3. Complete `T010`: Record verified live execution evidence in [#1309](https://github.com/Azure/missionlz/issues/1309) and finalize `docs/testing.md`.
+3. Complete `T010`: Record verified live execution evidence in [#1309](https://github.com/Azure/missionlz/issues/1309).

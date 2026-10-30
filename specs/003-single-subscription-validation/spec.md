@@ -69,7 +69,7 @@ As a maintainer, I need live evidence for the single-subscription topology so I 
 - **FR-009**: The lifecycle MUST provide a post-provisioning, pre-cleanup test integration hook for [#1310](https://github.com/Azure/missionlz/issues/1310) and MUST NOT report missing or unexecuted functional tests as passed.
 - **FR-010**: The deployment, configuration, cleanup, reporting, and test lifecycle MUST be structured for reuse by the backlog multi-subscription validation feature ([#1316](https://github.com/Azure/missionlz/issues/1316)) without implementing multi-subscription workflows on this branch.
 - **FR-011**: Published run summaries, logs, documentation, and committed files MUST NOT expose credentials, secrets, or customer network addressing.
-- **FR-012**: Operations documentation MUST cover reproducible local and CI commands, required configuration and permissions, weekly scheduling, cleanup boundaries, failure investigation, and the shared [#1310](https://github.com/Azure/missionlz/issues/1310) test integration point.
+- **FR-012**: Public testing documentation MUST state that the weekly AllInOne deployment, cleanup, and lifecycle tests exist. It MUST NOT publish operator instructions, because the run uses a dedicated subscription and tenant.
 
 ### Key Entities
 

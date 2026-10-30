@@ -49,7 +49,7 @@ Implement a repeatable weekly and manually triggerable deployment validation lif
 | **Platform Constraints** | PASS | PASS | Uses `src/mlz.bicep` via the supported Azure CLI deployment path in `AzureUSGovernment` with parameterized cloud and region (`usgovarizona`) and zero hardcoded environment URLs. |
 | **Security** | PASS | PASS | Keeps `deployDefender = true`, uses OIDC least-privilege workflow permissions (`id-token: write`, `contents: read`), and never stores or outputs secrets, credentials, or customer IP ranges. |
 | **DevOps** | PASS | PASS | Keeps `src/mlz.bicep` / `src/mlz.json` untouched (or synced if ever modified), passes `super-linter` and `validate-build-bicep` with zero warnings, and tracks requirements, User Stories (`US1`, `US2`), and tasks (`T001`–`T010`) in canonical issue `#1309`. |
-| **Development Workflow** | PASS | PASS | Developed on dedicated branch `1309-single-subscription-validation`, documented in `docs/testing.md`, and runnable identically via local `pwsh` and GitHub Actions. |
+| **Development Workflow** | PASS | PASS | Developed on dedicated branch `1309-single-subscription-validation`. Public `docs/testing.md` states that the weekly AllInOne run exists and does not publish operator instructions. |
 
 ## Project Structure
 
@@ -95,7 +95,7 @@ tests/
     └── deployment-validation.yml              # Weekly scheduled + manual dispatch validation workflow
 
 docs/
-├── testing.md                                 # AllInOne deployment validation & cleanup operations
+├── testing.md                                 # States that weekly AllInOne validation exists
 └── deployment-guides/
     └── command-line-tools.md                  # Existing supported CLI deployment & removal reference
 ```
