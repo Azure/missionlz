@@ -33,8 +33,16 @@ BeforeAll {
         $a = @('-NoProfile', '-File', $ComparePath, '-CoverageReport', $Report, '-BaselinePath', $Baseline)
         if ($UpdateBaseline) { $a += '-UpdateBaseline' }
         if ($Note) { $a += @('-Note', $Note) }
-        & pwsh @a *> $null
-        return $LASTEXITCODE
+        # The child inherits the job summary. Fixture verdicts must not land there.
+        $summaryPath = $env:GITHUB_STEP_SUMMARY
+        try {
+            $env:GITHUB_STEP_SUMMARY = $null
+            & pwsh @a *> $null
+            return $LASTEXITCODE
+        }
+        finally {
+            $env:GITHUB_STEP_SUMMARY = $summaryPath
+        }
     }
 }
 
@@ -113,6 +121,41 @@ Describe 'Compare-Coverage ratchet gate' {
             $report = Join-Path $TestDrive 'drop.xml'; New-JaCoCoReport -Covered 70 -Missed 30 -Path $report
             $baseline = Join-Path $TestDrive 'b-drop.json'; New-Baseline -Percent 80 -Path $baseline
             Invoke-Gate -Report $report -Baseline $baseline | Should -Be 1
+        }
+    }
+
+    Context 'job summary' {
+        It 'does not append fixture verdicts to an inherited step summary' {
+            $report = Join-Path $TestDrive 'summary.xml'; New-JaCoCoReport -Covered 80 -Missed 20 -Path $report
+            $baseline = Join-Path $TestDrive 'b-summary.json'; New-Baseline -Percent 50 -Path $baseline
+            $summary = Join-Path $TestDrive 'job-summary.md'
+            Set-Content -Path $summary -Value 'real-run'
+            $before = Get-Content -Path $summary -Raw
+            $saved = $env:GITHUB_STEP_SUMMARY
+            try {
+                $env:GITHUB_STEP_SUMMARY = $summary
+                Invoke-Gate -Report $report -Baseline $baseline | Should -Be 0
+            }
+            finally {
+                $env:GITHUB_STEP_SUMMARY = $saved
+            }
+            Get-Content -Path $summary -Raw | Should -Be $before
+        }
+
+        It 'still appends the gate line when the step summary is set for that invocation' {
+            $report = Join-Path $TestDrive 'direct.xml'; New-JaCoCoReport -Covered 80 -Missed 20 -Path $report
+            $baseline = Join-Path $TestDrive 'b-direct.json'; New-Baseline -Percent 50 -Path $baseline
+            $summary = Join-Path $TestDrive 'direct-summary.md'
+            $saved = $env:GITHUB_STEP_SUMMARY
+            try {
+                $env:GITHUB_STEP_SUMMARY = $summary
+                & pwsh -NoProfile -File $script:ComparePath -CoverageReport $report -BaselinePath $baseline *> $null
+                $LASTEXITCODE | Should -Be 0
+            }
+            finally {
+                $env:GITHUB_STEP_SUMMARY = $saved
+            }
+            Get-Content -Path $summary -Raw | Should -Match 'PASS: coverage .+ >= baseline .+'
         }
     }
 }
