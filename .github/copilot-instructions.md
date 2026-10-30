@@ -1,5 +1,8 @@
+# Copilot Instructions
+
 <!-- SPECKIT START -->
-For additional context about technologies to be used, project structure,
-shell commands, and other important information, read the current plan:
-specs/001-test-coverage-ratchet/plan.md
+For the active Feature's requirements, User Stories, tasks, and progress, read
+the current issue body: [#1309](https://github.com/Azure/missionlz/issues/1309).
+
+Optional agent navigation: specs/003-single-subscription-validation/plan.md
 <!-- SPECKIT END -->

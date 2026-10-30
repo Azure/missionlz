@@ -93,3 +93,10 @@ block the merge button.
 Rule-based validation of the Bicep templates with PSRule for Azure is planned as a
 follow-up (issue #1294), introduced reporting-first. It is not part of this guide
 yet.
+
+## AllInOne deployment validation
+
+Weekly AllInOne deployment, cleanup, and lifecycle tests exist in the
+[deployment-validation workflow](../.github/workflows/deployment-validation.yml)
+for [#1309](https://github.com/Azure/missionlz/issues/1309). That run uses a
+dedicated subscription and tenant and is not a contributor workflow.

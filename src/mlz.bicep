@@ -463,7 +463,7 @@ param logAnalyticsWorkspaceSkuName string = 'PerGB2018'
 param logStorageSkuName string = 'Standard_GRS'
 
 @description('The virtual machine size for the management virtual machine.')
-param managementVirtualMachineSize string = 'Standard_D2ds_v4'
+param managementVirtualMachineSize string = 'Standard_D2ds_v5'
 
 @description('An array of metrics to enable on the diagnostic setting for network interfaces.')
 param networkInterfaceDiagnosticsMetrics array = [

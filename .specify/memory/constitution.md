@@ -1,37 +1,3 @@
-<!--
-  Sync Impact Report
-  ==================
-  Version change: (template) → 1.0.0
-  Bump rationale: MAJOR — initial ratification of the Mission Landing Zone
-    constitution, adapted from the EP Cube Graph constitution (v1.20.0) to
-    the MissionLZ reality (Bicep IaC hub-and-spoke landing zone for Azure
-    sovereign clouds; no web/iOS clients, no Terraform, no Docker ingestion,
-    no unit-test framework).
-  Adaptations from source:
-    - Principle IV retitled "Validation-Driven Infrastructure": keeps the goal
-      of 100% automated test coverage but replaces the source's day-one
-      100% mandate with a ratcheting "no regression on coverage %" policy,
-      layered on top of Bicep build + lint + what-if + single-subscription
-      deploy-test gates. Coverage is grown over time, never reduced.
-    - "Performance Standards" → "Deployment Standards" (idempotency, what-if,
-      deploy time).
-    - "Platform Constraints" rewritten around Bicep, ARM/JSON generated
-      artifacts, sovereign-cloud parameterization, and MLZ deployment methods
-      (Portal, Template Spec, Command Line).
-    - "Security" refocused on SCCA / SACA / zero trust (which MLZ implements),
-      Key Vault secrets, no hardcoded secrets or env URLs.
-    - "DevOps" refocused on Bicep IaC, generated-artifact sync (mlz.json /
-      mlz.uiDefinition), super-linter + validate-build-bicep gates, zero
-      warnings, and GitHub Issue Discipline.
-  Templates requiring updates:
-    - .specify/templates/plan-template.md        ✅ no changes needed
-    - .specify/templates/spec-template.md        ✅ no changes needed
-    - .specify/templates/tasks-template.md       ✅ no changes needed
-    - .specify/templates/checklist-template.md   ✅ no changes needed
-    - .specify/templates/constitution-template.md ✅ source template (unchanged)
-  Follow-up TODOs: none
--->
-
 # Mission Landing Zone Constitution
 
 ## Core Principles
@@ -91,6 +57,15 @@ that break unrelated resources.
   able to see the intended resource delta.
 - **Single-Subscription Test**: Per MLZ's design goals, changes SHOULD be validated by
   deploying into a single test subscription before being promoted for production use.
+- **Test-Driven Development (NON-NEGOTIABLE)**: All new functionality and bug fixes
+  MUST follow the strict **Red-Green-Refactor** TDD cycle:
+  - **Red**: Write automated tests defining the expected behavior FIRST and execute
+    them to verify they fail for the expected reason before writing implementation
+    code.
+  - **Green**: Write the minimum implementation code required to make the failing tests
+    pass and execute the test suite to verify they pass.
+  - **Refactor**: Clean up duplication, structure, and readability while keeping all
+    tests green.
 - **Automated Tests**: New functionality (Bicep modules, PowerShell artifacts, and
   scripts) MUST be accompanied by automated tests wherever a test harness exists for
   that technology (e.g., Pester for PowerShell, and PSRule for Azure / ARM-TTK /
@@ -117,13 +92,14 @@ that break unrelated resources.
   search", no "let me just check", no follow-up rabbit holes. Brief and wait for
   guidance.
 
-**Rationale**: MissionLZ's correctness is established by clean compilation, strict
-linting, what-if review, real deployment into Azure, and a growing automated test
-suite. Full coverage cannot be achieved on day one for an existing IaC codebase, so a
-ratcheting "no regression on coverage %" policy grows the safety net steadily toward
-100% while keeping the non-negotiable build, lint, and what-if gates that prevent
-silently broken templates from reaching downstream consumers who deploy into secure
-government environments.
+**Rationale**: MissionLZ's correctness is established by strict Red-Green-Refactor
+test-driven development, clean compilation, strict linting, what-if review, real
+deployment into Azure, and a growing automated test suite. Full coverage cannot be
+achieved on day one for an existing IaC codebase, so a ratcheting "no regression on
+coverage %" policy grows the safety net steadily toward 100% while keeping the
+non-negotiable TDD, build, lint, and what-if gates that prevent silently broken
+templates from reaching downstream consumers who deploy into secure government
+environments.
 
 ## Deployment Standards
 
@@ -233,7 +209,10 @@ declares.
 ## Development Workflow
 
 - **Branching**: Each feature or fix MUST be developed on a dedicated branch. Direct
-  commits to `main` are prohibited.
+  commits to `main` are prohibited. Branch names MUST follow
+  `<issue-number>-<issue-short-name>`, using the canonical GitHub issue number and a
+  short, hyphen-separated issue name (e.g., `1309-single-subscription-validation`).
+  A Spec Kit sequence number MUST NOT replace the GitHub issue number.
 - **Commits**: Commits MUST be atomic and describe the "what" and "why". One logical
   change per commit.
 - **Code Review**: All changes MUST be reviewed against this constitution's principles
@@ -263,4 +242,4 @@ declares.
   documented in the plan's Complexity Tracking table with a rejected simpler
   alternative.
 
-**Version**: 1.0.0 | **Ratified**: 2026-07-06 | **Last Amended**: 2026-07-06
+**Version**: 1.2.0 | **Ratified**: 2026-07-06 | **Last Amended**: 2026-10-23
