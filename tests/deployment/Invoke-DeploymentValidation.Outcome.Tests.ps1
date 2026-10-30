@@ -39,6 +39,35 @@ Describe 'Deployment validation outcomes' {
         $report.OverallStatus | Should -Be 'Failed'
     }
 
+    It 'does not append fixture validation blocks to an inherited step summary' {
+        $summary = Join-Path $TestDrive 'job-summary.md'
+        Set-Content -Path $summary -Value 'real-run'
+        $before = Get-Content -Path $summary -Raw
+        $saved = $env:GITHUB_STEP_SUMMARY
+        try {
+            $env:GITHUB_STEP_SUMMARY = $summary
+            Invoke-DeploymentValidationUnderTest | Out-Null
+        }
+        finally {
+            $env:GITHUB_STEP_SUMMARY = $saved
+        }
+        Get-Content -Path $summary -Raw | Should -Be $before
+    }
+
+    It 'still appends the validation block when the step summary is set for that invocation' {
+        $summary = Join-Path $TestDrive 'direct-summary.md'
+        $saved = $env:GITHUB_STEP_SUMMARY
+        try {
+            $env:GITHUB_STEP_SUMMARY = $summary
+            $arguments = $global:MLZValidationTestState.Arguments
+            & $global:MLZValidationTestState.LifecyclePath @arguments | Out-Null
+        }
+        finally {
+            $env:GITHUB_STEP_SUMMARY = $saved
+        }
+        Get-Content -Path $summary -Raw | Should -Match 'MLZ AllInOne validation'
+    }
+
     It 'retains both the original deployment error and subsequent cleanup errors' {
         $global:MLZValidationTestState.DeploymentFails = $true
         $global:MLZValidationTestState.CleanupFails = 'group'

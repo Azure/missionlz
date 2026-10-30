@@ -45,7 +45,15 @@ function Reset-DeploymentValidationTestState {
 
 function Invoke-DeploymentValidationUnderTest {
     $arguments = $global:MLZValidationTestState.Arguments
-    & $global:MLZValidationTestState.LifecyclePath @arguments
+    # In-process calls inherit the job summary. Fixture reports must not land there.
+    $summaryPath = $env:GITHUB_STEP_SUMMARY
+    try {
+        $env:GITHUB_STEP_SUMMARY = $null
+        & $global:MLZValidationTestState.LifecyclePath @arguments
+    }
+    finally {
+        $env:GITHUB_STEP_SUMMARY = $summaryPath
+    }
 }
 
 function Invoke-DeploymentValidationAzDouble {
